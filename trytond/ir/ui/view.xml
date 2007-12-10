@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="view_view_form">
+            <field name="name">ir.ui.view.form</field>
+            <field name="model">ir.ui.view</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="View">
+                    <field name="name" select="1"/>
+                    <field name="type" select="1"/>
+                    <field name="model" select="1"/>
+                    <field name="field_parent"/>
+                    <field name="priority"/>
+                    <field name="inherit_id"/>
+                    <field name="arch" colspan="4"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_view_tree">
+            <field name="name">ir.ui.view.tree</field>
+            <field name="model">ir.ui.view</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="type"/>
+                    <field name="model"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_view_form">
+            <field name="name">Views</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.ui.view</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_view_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_view_tree"/>
+            <field name="act_window_id" ref="act_view_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_view_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_view_form"/>
+            <field name="act_window_id" ref="act_view_form"/>
+        </record>
+        <menuitem name="Administration/Custom/IR/UI/"
+            action="act_view_form" id="menu_view"/>
+    </data>
+</terp>

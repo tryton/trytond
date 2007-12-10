@@ -2,7 +2,7 @@
 <terp>
     <data>
 
-        <record model="ir.ui.view" id="view_menu">
+        <record model="ir.ui.view" id="menu_view">
             <field name="name">ir.ui.menu.tree</field>
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
