@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+
+        <record model="ir.ui.view" id="view_menu">
+            <field name="name">ir.ui.menu.tree</field>
+            <field name="model">ir.ui.menu</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Menu" toolbar="1">
+                    <field name="name" icon="icon"/>
+                </tree>
+            </field>
+            <field name="field_parent">child_id</field>
+        </record>
+
+    </data>
+</terp>

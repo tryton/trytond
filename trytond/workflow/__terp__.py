@@ -1,0 +1,4 @@
+{
+    'name': 'Workflow',
+    'active': True,
+}

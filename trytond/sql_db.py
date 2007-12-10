@@ -115,10 +115,10 @@ def init_db(cursor):
     opj = os.path.join
     addons_path = os.path.join(os.path.dirname(__file__), 'addons')
 
-    for i in (os.listdir(addons_path) + ['ir', 'res']):
+    for i in (os.listdir(addons_path) + ['ir', 'workflow', 'res']):
         terp_file = opj(addons_path, i, '__terp__.py')
         mod_path = opj(addons_path, i)
-        if i in ('ir', 'res'):
+        if i in ('ir', 'workflow', 'res'):
             root_path = os.path.dirname(__file__)
             terp_file = opj(root_path, i, '__terp__.py')
             mod_path = opj(root_path, i)

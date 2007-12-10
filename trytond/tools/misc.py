@@ -63,7 +63,10 @@ def file_open(name, mode="r", subdir='addons'):
     """Open a file from the root dir, using a subdir folder."""
     root_path = os.path.dirname(os.path.dirname(__file__))
     if subdir:
-        if subdir == 'addons' and name in ('ir', 'res'):
+        if subdir == 'addons'\
+                and (name.startswith('ir' + os.sep) \
+                    or name.startswith('workflow' + os.sep) \
+                    or name.startswith('res' + os.sep)):
             name = os.path.join(root_path, name)
         else:
             name = os.path.join(root_path, subdir, name)

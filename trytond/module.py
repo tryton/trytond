@@ -107,7 +107,7 @@ def create_graph(module_list, force=None):
             module = module[:-4]
         terp_file = OPJ(ADDONS_PATH, module, '__terp__.py')
         mod_path = OPJ(ADDONS_PATH, module)
-        if module in ('ir', 'res'):
+        if module in ('ir', 'workflow', 'res'):
             root_path = os.path.dirname(__file__)
             terp_file = OPJ(root_path, module, '__terp__.py')
             mod_path = OPJ(root_path, module)
@@ -231,7 +231,9 @@ def load_module_graph(cursor, graph, **kwargs):
 def register_classes():
     module_list = os.listdir(ADDONS_PATH)
     module_list.append('ir')
+    module_list.append('workflow')
     import ir
+    import workflow
     import res
     for package in create_graph(module_list):
         module = package.name
@@ -239,7 +241,7 @@ def register_classes():
                 'addon:%s:registering classes' % module)
         sys.stdout.flush()
 
-        if module in ('ir', 'res'):
+        if module in ('ir', 'workflow', 'res'):
             continue
 
         if not os.path.isfile(OPJ(ADDONS_PATH, module+'.zip')):

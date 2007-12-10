@@ -135,6 +135,9 @@ class Service(object):
     def trg_create(self, user, res_type, res_id, cursor):
         pass
 
+    def clear_cache(self, cursor):
+        pass
+
 class LocalService(Service):
 
     def __init__(self, name):
