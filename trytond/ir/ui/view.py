@@ -27,8 +27,7 @@ class View(OSV):
     }
     _order = "priority"
 
-    @staticmethod
-    def _check_xml(obj, cursor, user, ids):
+    def _check_xml(self, cursor, user, ids):
         "Check XML"
         cursor.execute('SELECT arch FROM ir_ui_view ' \
                 'WHERE id IN (' + ','.join([str(x) for x in ids]) + ')')

@@ -37,8 +37,8 @@ import sql_db
 import config
 from config import CONFIG
 import web_service
-import workflow
-import report
+import wkf_service
+import report_service
 from module import register_classes
 import osv, security, tools, version
 
@@ -121,7 +121,7 @@ class TrytonServer(object):
         web_service.Wizard()
         web_service.Report()
 
-        workflow.WorkflowService()
+        wkf_service.WorkflowService()
 
         # TODO add report service
 

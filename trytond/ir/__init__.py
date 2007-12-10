@@ -8,3 +8,4 @@ from values import *
 from translation import *
 from exports import *
 from rule import *
+from property import *
