@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="sequence_view_form">
+            <field name="name">ir.sequence.form</field>
+            <field name="model">ir.sequence</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Sequences">
+                    <separator string="Configuration" colspan="4"/>
+                    <field name="name" colspan="4" select="1"/>
+                    <field name="code" select="1"/>
+                    <field name="active" select="1"/>
+                    <field name="prefix"/>
+                    <field name="suffix"/>
+                    <field name="padding" />
+                    <field name="number_increment"/>
+                    <field name="number_next"/>
+                    <separator string="Legend (for prefix, suffix)" colspan="4"/>
+                    <label string="Year: %%(year)s" colspan="4"/>
+                    <label string="Month: %%(month)s" colspan="4"/>
+                    <label string="Day: %%(day)s" colspan="4"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="sequence_view_tree">
+            <field name="name">ir.sequence.tree</field>
+            <field name="model">ir.sequence</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Sequences">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_sequence_form">
+            <field name="name">Sequences</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.sequence</field>
+            <field name="view_type">form</field>
+            <field name="context">{'active_test': False}</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_sequence_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="sequence_view_tree"/>
+            <field name="act_window_id" ref="act_sequence_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_sequence_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="sequence_view_form"/>
+            <field name="act_window_id" ref="act_sequence_form"/>
+        </record>
+        <menuitem name="Administration/Custom/IR/Sequences/"
+            action="act_sequence_form" id="menu_sequence_form"/>
+        <record model="ir.ui.view" id="sequence_type_view_form">
+            <field name="name">ir.sequence.type.form</field>
+            <field name="model">ir.sequence.type</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Sequence Type">
+                    <field name="name" select="1"/>
+                    <field name="code" readonly="1"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="sequence_type_view_tree">
+            <field name="name">ir.sequence.type.tree</field>
+            <field name="model">ir.sequence.type</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Sequence Type">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window"
+            id="act_sequence_type_form">
+            <field name="name">Sequence Types</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.sequence.type</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_sequence_type_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="sequence_type_view_tree"/>
+            <field name="act_window_id" ref="act_sequence_type_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_sequence_type_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="sequence_type_view_form"/>
+            <field name="act_window_id" ref="act_sequence_type_form"/>
+        </record>
+        <menuitem name="Administration/Custom/Sequences/"
+            action="act_sequence_type_form" id="menu_ir_sequence_type"/>
+    </data>
+</terp>
