@@ -4,7 +4,7 @@ Miscelleanous tools used by tryton
 """
 import os, time, sys
 import inspect
-from config import CONFIG
+from trytond.config import CONFIG
 import socket
 import zipfile
 
