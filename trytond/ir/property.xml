@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="property_view_form">
+            <field name="name">ir.property.form</field>
+            <field name="model">ir.property</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Property">
+                    <separator string="Property" colspan="4"/>
+                    <field name="name" select="1"/>
+                    <field name="company_id" select="1"/>
+                    <field name="fields_id" colspan="4" select="1"/>
+                    <field name="value" colspan="4"/>
+                    <field name="res_id" colspan="4"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="property_view_tree">
+            <field name="name">ir.property.tree</field>
+            <field name="model">ir.property</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Properties">
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <field name="fields_id"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_property_form_default">
+            <field name="name">Default properties</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.property</field>
+            <field name="view_type">form</field>
+            <field name="domain">[('res_id','=',False)]</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_property_form_view1_default">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="property_view_tree"/>
+            <field name="act_window_id" ref="act_property_form_default"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_property_form_view2_default">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="property_view_form"/>
+            <field name="act_window_id" ref="act_property_form_default"/>
+        </record>
+        <menuitem name="Administration/IR/"
+            action="act_property_form_default" id="menu_property_form"/>
+        <record model="ir.actions.act_window" id="act_property_form">
+            <field name="name">Properties</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.property</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_property_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="property_view_tree"/>
+            <field name="act_window_id" ref="act_property_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_property_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="property_view_form"/>
+            <field name="act_window_id" ref="act_property_form"/>
+        </record>
+        <menuitem name="Administration/IR/"
+            action="act_property_form" id="menu_property_form"/>
+    </data>
+</terp>

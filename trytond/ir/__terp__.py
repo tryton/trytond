@@ -12,5 +12,6 @@
         'values.xml',
         'translation.xml',
         'rule.xml',
+        'property.xml',
         ],
 }
