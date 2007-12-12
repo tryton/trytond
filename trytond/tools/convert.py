@@ -471,13 +471,11 @@ class XMLImport(object):
                     groups_obj = self.pool.get('res.groups')
                     for group in g_names:
                         if group.startswith('-'):
-                            obj_id = groups_obj.search(cursor, self.user,
-                                    [('name', '=', group[1:])])[0]
-                            groups_value.append((3, obj_id))
+                            group_id = self.id_get(cursor, group[1:])
+                            groups_value.append((3, group_id))
                         else:
-                            obj_id = groups_obj.search(cursor, self.user,
-                                [('name', '=', group)])[0]
-                            groups_value.append((4, obj_id))
+                            group_id = self.id_get(cursor, group)
+                            groups_value.append((4, group_id))
                     values['groups_id'] = groups_value
                 xml_id = rec.getAttribute('id').encode('utf8')
                 self._test_xml_id(xml_id)
