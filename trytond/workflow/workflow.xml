@@ -1,0 +1,258 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="workflow_view_form">
+            <field name="name">workflow.form</field>
+            <field name="model">workflow</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Workflow">
+                    <field name="name" select="1"/>
+                    <field name="osv" select="1"/>
+                    <field name="on_create"/>
+                    <separator string="Activities" colspan="4"/>
+                    <field name="activities" colspan="4" nolabel="1"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="workflow_view_tree">
+            <field name="name">workflow.tree</field>
+            <field name="model">workflow</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Workflow">
+                    <field name="name"/>
+                    <field name="osv"/>
+                    <field name="on_create"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_workflow_form">
+            <field name="name">Workflows</field>
+            <field name="res_model">workflow</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_workflow_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="workflow_view_tree"/>
+            <field name="act_window_id" ref="act_workflow_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_workflow_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="workflow_view_form"/>
+            <field name="act_window_id" ref="act_workflow_form"/>
+        </record>
+        <menuitem name="Administration/Workflow/"
+            action="act_workflow_form" id="menu_workflow_form"/>
+        <record model="ir.ui.view" id="activity_view_form">
+            <field name="name">workflow.activity.form</field>
+            <field name="model">workflow.activity</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Activity">
+                    <field name="name" colspan="4" select="1"/>
+                    <field name="wkf_id" select="1"/>
+                    <field name="kind" select="1"/>
+                    <field name="action" colspan="4" select="1"/>
+                    <field name="subflow_id"/>
+                    <field name="signal_send"/>
+                    <newline/>
+                    <field name="flow_start"/>
+                    <field name="flow_stop"/>
+                    <field name="split_mode"/>
+                    <field name="join_mode"/>
+                    <separator string="Outgoing transitions" colspan="4"/>
+                    <field name="out_transitions" colspan="4" nolabel="1">
+                        <tree string="Transitions">
+                            <field name="act_to"/>
+                            <field name="signal"/>
+                            <field name="role_id"/>
+                            <field name="condition"/>
+                            <field name="trigger_model"/>
+                            <field name="trigger_expr_id"/>
+                        </tree>
+                    </field>
+                    <separator string="Incoming transitions" colspan="4"/>
+                    <field name="in_transitions" colspan="4" nolabel="1">
+                        <tree string="Transitions">
+                            <field name="act_from"/>
+                            <field name="signal"/>
+                            <field name="role_id"/>
+                            <field name="condition"/>
+                            <field name="trigger_model"/>
+                            <field name="trigger_expr_id"/>
+                        </tree>
+                    </field>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="activity_view_tree">
+            <field name="name">workflow.activity.tree</field>
+            <field name="model">workflow.activity</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Activity">
+                    <field name="name"/>
+                    <field name="wkf_id"/>
+                    <field name="kind"/>
+                    <field name="action"/>
+                    <field name="flow_start"/>
+                    <field name="flow_stop"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_activity_form">
+            <field name="name">Activities</field>
+            <field name="res_model">workflow.activity</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_activity_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="activity_view_tree"/>
+            <field name="act_window_id" ref="act_activity_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_activity_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="activity_view_form"/>
+            <field name="act_window_id" ref="act_activity_form"/>
+        </record>
+        <menuitem name="Administration/Workflow/"
+            action="act_activity_form" id="menu_activity_form"/>
+        <record model="ir.ui.view" id="transition_view_form">
+            <field name="name">workflow.transition.form</field>
+            <field name="model">workflow.transition</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Transition">
+                    <field name="act_from" select="1"/>
+                    <field name="act_to" select="1"/>
+                    <field name="condition" colspan="4"/>
+                    <field name="signal"/>
+                    <field name="role_id"/>
+                    <field name="trigger_model"/>
+                    <field name="trigger_expr_id"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="transition_view_tree">
+            <field name="name">workflow.transition.tree</field>
+            <field name="model">workflow.transition</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Transitions">
+                    <field name="act_from"/>
+                    <field name="act_to"/>
+                    <field name="signal"/>
+                    <field name="role_id"/>
+                    <field name="condition"/>
+                    <field name="trigger_model"/>
+                    <field name="trigger_expr_id"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_transition_form">
+            <field name="name">Transitions</field>
+            <field name="res_model">workflow.transition</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_transition_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="transition_view_tree"/>
+            <field name="act_window_id" ref="act_transition_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_transition_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="transition_view_form"/>
+            <field name="act_window_id" ref="act_transition_form"/>
+        </record>
+        <menuitem name="Administration/Workflow/"
+            action="act_transition_form" id="menu_transition_form"/>
+        <record model="ir.ui.view" id="instance_view_form">
+            <field name="name">workflow.instance.form</field>
+            <field name="model">workflow.instance</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Instance">
+                    <field name="wkf_id" select="1"/>
+                    <field name="uid" select="2"/>
+                    <field name="res_id"  select="1"/>
+                    <field name="res_type"  select="1"/>
+                    <field name="state" select="2"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="instance_view_tree">
+            <field name="name">workflow.instance.tree</field>
+            <field name="model">workflow.instance</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Instances">
+                    <field name="wkf_id"/>
+                    <field name="uid"/>
+                    <field name="res_id"/>
+                    <field name="res_type"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_instance_form">
+            <field name="name">Instances</field>
+            <field name="res_model">workflow.instance</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_instance_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="instance_view_tree"/>
+            <field name="act_window_id" ref="act_instance_form"/>
+        </record>
+        <menuitem name="Administration/Workflow/"
+            action="act_instance_form" id="menu_instance_form"/>
+        <record model="ir.ui.view" id="workitem_view_form">
+            <field name="name">workflow.workitem.form</field>
+            <field name="model">workflow.workitem</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Workitem">
+                    <field name="act_id" select="1"/>
+                    <field name="subflow_id" select="1"/>
+                    <field name="inst_id"  select="1"/>
+                    <field name="state" select="2"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="workitem_view_tree">
+            <field name="name">workflow.workitem.tree</field>
+            <field name="model">workflow.workitem</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Workitems">
+                    <field name="act_id"/>
+                    <field name="subflow_id"/>
+                    <field name="inst_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_workitem_form">
+            <field name="name">Workitems</field>
+            <field name="res_model">workflow.workitem</field>
+            <field name="view_type">form</field>
+        </record>
+        <menuitem name="Administration/Workflow/"
+            action="act_workitem_form" id="menu_workitem_form"/>
+    </data>
+</terp>

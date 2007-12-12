@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="cron_view_tree">
+            <field name="name">ir.cron.tree</field>
+            <field name="model">ir.cron</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Scheduled Actions">
+                    <field name="nextcall"/>
+                    <field name="name"/>
+                    <field name="interval_number"/>
+                    <field name="interval_type"/>
+                    <field name="numbercall"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="cron_view_form">
+            <field name="name">ir.cron.form</field>
+            <field name="model">ir.cron</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Scheduled Action">
+                    <field name="name" select="1"/>
+                    <field name="active" select="1"/>
+                    <field name="user_id" select="1"/>
+                    <field name="priority" select="1"/>
+                    <newline/>
+                    <field name="interval_number"/>
+                    <field name="interval_type"/>
+                    <newline/>
+                    <field name="nextcall"/>
+                    <field name="numbercall"/>
+                    <field name="doall"/>
+                    <separator string="Action to trigger" colspan="4"/>
+                    <newline/>
+                    <field name="model"  readonly="1"/>
+                    <field name="function" readonly="1"/>
+                    <field name="args" colspan="4" readonly="1"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_cron_form">
+            <field name="name">Scheduled Actions</field>
+            <field name="res_model">ir.cron</field>
+            <field name="view_type">form</field>
+            <field name="context">{'active_test': False}</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_cron_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="cron_view_tree"/>
+            <field name="act_window_id" ref="act_cron_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_cron_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="cron_view_form"/>
+            <field name="act_window_id" ref="act_cron_form"/>
+        </record>
+        <menuitem name="Administration/IR/"
+            action="act_cron_form" id="menu_cron_form"/>
+    </data>
+</terp>
