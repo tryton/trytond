@@ -60,16 +60,30 @@ class TrytonServer(object):
         self.dispatcher = netsvc.Dispatcher()
         self.dispatcher.monitor(signal.SIGINT)
 
-        self.db_name = CONFIG["db_name"]
+
+        web_service.DB()
+        web_service.Common()
+        web_service.Object()
+        web_service.Wizard()
+        web_service.Report()
+
+        wkf_service.WorkflowService()
+
+        # TODO add report service
+
+    def run(self):
+
+        db_name = CONFIG["db_name"]
 
         cursor = None
         try:
-            if self.db_name:
-                cursor = pooler.get_db_only(self.db_name).cursor()
+            if db_name:
+                cursor = pooler.get_db_only(db_name).cursor()
         except psycopg.OperationalError:
             self.logger.notify_channel("init", netsvc.LOG_INFO,
-                    "could not connect to database '%s'!" % self.db_name,)
-        if cursor:
+                    "could not connect to database '%s'!" % db_name,)
+
+        if cursor and CONFIG['init'] and CONFIG['init']['all']:
             cursor.execute("SELECT relname " \
                     "FROM pg_class " \
                     "WHERE relkind = 'r' AND relname in (" \
@@ -107,29 +121,15 @@ class TrytonServer(object):
             if len(cursor.fetchall()) == 0:
                 self.logger.notify_channel("init", netsvc.LOG_INFO, "init db")
                 sql_db.init_db(cursor)
-                # in that case, force --init=all
-                CONFIG["init"]["all"] = 1
-                CONFIG['update']['all'] = 1
                 if not CONFIG['without_demo']:
                     CONFIG["demo"]['all'] = 1
             cursor.commit()
             cursor.close()
 
-        web_service.DB()
-        web_service.Common()
-        web_service.Object()
-        web_service.Wizard()
-        web_service.Report()
-
-        wkf_service.WorkflowService()
-
-        # TODO add report service
-
-    def run(self):
-
         register_classes()
-        if self.db_name:
-            pooler.get_db_and_pool(self.db_name,
+
+        if db_name:
+            pooler.get_db_and_pool(db_name,
                     update_module=bool(CONFIG['init'] or CONFIG['update']))
 
         if CONFIG["stop_after_init"]:
