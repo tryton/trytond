@@ -48,8 +48,6 @@ browse_null = BrowseNull
 class BrowseRecordList(list):
 
     def __init__(self, lst, context=None):
-        if not context:
-            context = {}
         super(BrowseRecordList, self).__init__(lst)
         self.context = context
 
@@ -64,8 +62,6 @@ class BrowseRecord(object):
         table : the object (inherited from orm)
         context : a dictionnary with an optionnal context
         '''
-        if context is None:
-            context = {}
         assert object_id, 'Wrong ID for the browse record, got ' + \
                 str(object_id) + ', expected an integer.'
         self._list_class = list_class or BrowseRecordList
@@ -698,8 +694,6 @@ class ORM(object):
         self._inherits_reload_src()
 
     def browse(self, cursor, user, select, context=None, list_class=None):
-        if context is None:
-            context = {}
         list_class = list_class or BrowseRecordList
         cache = {}
         # need to accepts ints and longs because ids coming from a method
@@ -749,8 +743,6 @@ class ORM(object):
         return [data] + lines
 
     def export_data(self, cursor, user, ids, fields_names, context=None):
-        if context is None:
-            context = {}
         fields_names = [x.split('/') for x in fields_names]
         datas = []
         for row in self.browse(cursor, user, ids, context):
@@ -954,8 +946,6 @@ class ORM(object):
 
     def read(self, cursor, user, ids, fields_names=None, context=None,
             load='_classic_read'):
-        if context is None:
-            context = {}
         self.pool.get('ir.model.access').check(cursor, user, self._name, 'read')
         if not fields_names:
             fields_names = self._columns.keys() + self._inherit_fields.keys()
@@ -1081,8 +1071,6 @@ class ORM(object):
                     ('\n'.join(field_err_str), ','.join(field_error)))
 
     def default_get(self, cursor, user, fields_names, context=None):
-        if context is None:
-            context = {}
         value = {}
         # get the default values for the inherited fields
         for i in self._inherits.keys():
@@ -1336,8 +1324,6 @@ class ORM(object):
         user = user id
         vals = dictionary of the form {'field_name': field_value, ...}
         """
-        if context is None:
-            context = {}
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'create')
 
@@ -1431,8 +1417,6 @@ class ORM(object):
         return id_new
 
     def _update_function_stored(self, cursor, user, ids, context=None):
-        if context is None:
-            context = {}
         ffields = [x for x in self._columns if isinstance(self._columns[x],
             fields.function) and self._columns[x].store]
         if ffields:
@@ -1634,8 +1618,6 @@ class ORM(object):
         return fields_attrs
 
     def __view_look_dom_arch(self, cursor, user, node, context=None):
-        if context is None:
-            context = {}
         fields_def = self.__view_look_dom(cursor, user, node, context=context)
         arch = node.toxml(encoding="utf-8").replace('\t', '')
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
@@ -1645,8 +1627,6 @@ class ORM(object):
 
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
             context=None, toolbar=False):
-        if context is None:
-            context = {}
 
         def _inherit_apply(src, inherit):
 
@@ -2091,8 +2071,6 @@ class ORM(object):
         return (qu1, qu2, tables)
 
     def search_count(self, cursor, user, args, context=None):
-        if context is None:
-            context = {}
         res = self.search(cursor, user, args, context=context, count=True)
         if isinstance(res, list):
             return len(res)
@@ -2100,8 +2078,6 @@ class ORM(object):
 
     def search(self, cursor, user, args, offset=0, limit=None, order=None,
             context=None, count=False):
-        if context is None:
-            context = {}
         # compute the where, order by, limit and offset clauses
         (qu1, qu2, tables) = self._where_calc(cursor, user, args,
                 context=context)
@@ -2136,8 +2112,6 @@ class ORM(object):
         return [x[0] for x in res]
 
     def name_get(self, cursor, user, ids, context=None):
-        if context is None:
-            context = {}
         if not ids:
             return []
         if isinstance(ids, (int, long)):
@@ -2149,8 +2123,6 @@ class ORM(object):
             context=None, limit=80):
         if args is None:
             args = []
-        if context is None:
-            context = {}
         args = args[:]
         if name:
             args += [(self._rec_name, operator, name)]
@@ -2159,8 +2131,6 @@ class ORM(object):
         return res
 
     def copy(self, cursor, user, object_id, default=None, context=None):
-        if context is None:
-            context = {}
         if default is None:
             default = {}
         if 'state' not in default:
@@ -2209,8 +2179,6 @@ class ORM(object):
 
     def read_string(self, cursor, user, object_id, langs, fields_names=None,
             context=None):
-        if context is None:
-            context = {}
         res = {}
         res2 = {}
         self.pool.get('ir.model.access').check(cursor, user, 'ir.translation',
@@ -2240,8 +2208,6 @@ class ORM(object):
         return res
 
     def write_string(self, cursor, user, object_id, langs, vals, context=None):
-        if context is None:
-            context = {}
         self.pool.get('ir.model.access').check(cursor, user, 'ir.translation',
                 'write')
         for lang in langs:
