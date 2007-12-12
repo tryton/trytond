@@ -53,7 +53,8 @@ class Node(Singleton):
         super(Node, self).__init__()
         self.name = name
         self.graph = graph
-        self.datas = None
+        if not hasattr(self, 'datas'):
+            self.datas = None
         if not hasattr(self, 'childs'):
             self.childs = []
         if not hasattr(self, 'depth'):
@@ -232,6 +233,7 @@ def register_classes():
     module_list = os.listdir(ADDONS_PATH)
     module_list.append('ir')
     module_list.append('workflow')
+    module_list.append('res')
     import ir
     import workflow
     import res
