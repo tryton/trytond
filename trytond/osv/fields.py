@@ -68,9 +68,6 @@ class _column(object):
             if args[i]:
                 setattr(self, i, args[i])
 
-    def restart(self):
-        pass
-
     def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
         raise Exception, 'undefined get method !'
 
@@ -546,63 +543,14 @@ class Property(function):
 
     def _fnct_write(self, obj, cursor, user, obj_id, prop, id_val, val,
             context=None):
-        if context is None:
-            context = {}
-        (obj_dest,) = val
-        definition_id = self._field_get(cursor, user, obj._name, prop)
-
-        property = obj.pool.get('ir.property')
-        nid = property.search(cursor, user, [('fields_id', '=', definition_id),
-            ('res_id', '=', obj._name + ',' + str(obj_id))])
-        # TODO remove query from while statement
-        while len(nid):
-            cursor.execute('DELETE FROM ir_property WHERE id = %d',
-                    (nid.pop(),))
-
-        nid = property.search(cursor, user, [('fields_id', '=', definition_id),
-            ('res_id', '=', False)])
-        default_val = False
-        if nid:
-            default_val = property.browse(cursor, user, nid[0], context).value
-
-        company_id = obj.pool.get('res.users').company_get(cursor, user, user)
-        res = False
-        newval = (id_val and obj_dest + ',' + str(id_val)) or False
-        if (newval != default_val) and newval:
-            propdef = obj.pool.get('ir.model.fields').browse(cursor, user,
-                    definition_id, context=context)
-            res = property.create(cursor, user, {
-                'name': propdef.name,
-                'value': newval,
-                'res_id': obj._name + ',' + str(obj_id),
-                'company_id': company_id,
-                'fields_id': definition_id,
-            }, context=context)
-        return res
+        property_obj = obj.pool.get('ir.property')
+        return property_obj.set(cursor, user, prop, obj._name, obj_id,
+                (id_val and val + ',' + str(id_val)) or False, context=context)
 
     def _fnct_read(self, obj, cursor, user, ids, prop, val, context=None):
-        if context is None:
-            context = {}
-        property = obj.pool.get('ir.property')
-        definition_id = self._field_get(cursor, user, obj._name, prop)
-
-        nid = property.search(cursor, user, [('fields_id', '=', definition_id),
-            ('res_id', '=', False)])
-        default_val = False
-        if nid:
-            value = property.browse(cursor, user, nid[0], context).value
-            default_val = (value and int(value.split(',')[1])) or False
-
-        vids = [obj._name + ',' + str(obj_id) for obj_id in  ids]
-        nids = property.search(cursor, user, [('fields_id', '=', definition_id),
-            ('res_id', 'in', vids)])
-
-        res = {}
-        for obj_id in ids:
-            res[obj_id] = default_val
-        for prop in property.browse(cursor, user, nids):
-            res[int(prop.res_id.split(',')[1])] = (prop.value and \
-                    int(prop.value.split(',')[1])) or False
+        property_obj = obj.pool.get('ir.property')
+        res = property_obj.get(cursor, user, prop, obj._name, ids,
+                context=context)
 
         obj = obj.pool.get(self._obj)
         names = obj.name_get(cursor, user, res.values(), context=context)
@@ -613,21 +561,8 @@ class Property(function):
                 res[i] = False
         return res
 
-    def _field_get(self, cursor, user, model_name, prop):
-        if not self.field_id.get(cursor.dbname):
-            cursor.execute('SELECT id ' \
-                    'FROM ir_model_fields ' \
-                    'WHERE name = %s AND model = %s', (prop, model_name))
-            res = cursor.fetchone()
-            self.field_id[cursor.dbname] = res and res[0]
-        return self.field_id[cursor.dbname]
-
     def __init__(self, obj_prop, **args):
-        self.field_id = {}
         function.__init__(self, self._fnct_read, False, self._fnct_write,
                 (obj_prop, ), **args)
-
-    def restart(self):
-        self.field_id = {}
 
 property = Property

@@ -52,18 +52,82 @@ class Property(OSV):
         res = super(Property, self).unlink(cursor, user, ids, context)
         return res
 
-    def get(self, cursor, user, name, model, res_id=False, context=None):
-        cursor.execute('SELECT id FROM ir_model_fields ' \
-                'WHERE name = %s AND model = %s', (name, model))
-        res = cursor.fetchone()
-        if res:
-            nid = self.search(cursor, user, [
-                ('fields_id', '=', res[0]),
-                ('res_id', '=', res_id),
-                ])
-            if nid:
-                val = self.browse(cursor, user, nid[0], context).value
-                return (val and int(val.split(',')[1])) or False
-        return False
+    def get(self, cursor, user, name, model, res_ids=None, context=None):
+        """
+        Return property value for each res_ids
+        name: property name
+        model: object name
+        """
+        model_fields_obj = self.pool.get('ir.model.fields')
+        res = {}
+
+        fields_id = model_fields_obj.search(cursor, user, [
+            ('name', '=', name),
+            ('model', '=', model),
+            ], limit=1, context=context)[0]
+
+        default_id = self.search(cursor, user, [
+            ('fields_id', '=', fields_id),
+            ('res_id', '=', False),
+            ], limit=1, context=context)
+        default_val = False
+        if default_id:
+            value = self.browse(cursor, user, default_id[0],
+                    context=context).value
+            default_val = (value and int(value.split(',')[1])) or False
+
+        if not res_ids:
+            return default_val
+
+        for obj_id in res_ids:
+            res[obj_id] = default_val
+
+        property_ids = self.search(cursor, user, [
+            ('fields_id', '=', fields_id),
+            ('res_id', 'in', [name + ',' + str(obj_id) \
+                    for obj_id in  res_ids]),
+            ])
+        for prop in self.browse(cursor, user, property_ids):
+            res[int(prop.res_id.split(',')[1])] = (prop.value and \
+                    int(prop.value.split(',')[1])) or False
+
+        return res
+
+    def set(self, cursor, user, name, model, res_id, val, context=None):
+        """
+        Set property value for res_id
+        """
+        model_fields_obj = self.pool.get('ir.model.fields')
+        fields_id = model_fields_obj.search(cursor, user, [
+            ('name', '=', name),
+            ('model', '=', model),
+            ], limit=1, context=context)[0]
+
+        property_ids = self.search(cursor, user, [
+            ('fields_id', '=', fields_id),
+            ('res_id', '=', name + ',' + str(res_id)),
+            ], context=context)
+        self.unlink(cursor, property_ids, context=context)
+
+        default_id = self.search(cursor, user, [
+            ('fields_id', '=', fields_id),
+            ('res_id', '=', False),
+            ], limit=1, context=context)
+        default_id = False
+        if default_id:
+            default_val = self.browse(cursor, user, default_id[0],
+                    context=context).value
+
+#        company_id = obj.pool.get('res.users').company_get(cursor, user, user)
+        res = False
+        if (val != default_val):
+            res = self.create(cursor, user, {
+                'name': name,
+                'value': val,
+                'res_id': model + ',' + str(res_id),
+#                'company_id': company_id,
+                'fields_id': fields_id,
+            }, context=context)
+        return res
 
 Property()
