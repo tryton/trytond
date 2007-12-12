@@ -50,5 +50,50 @@
         </record>
         <menuitem name="Administration/Custom/IR/UI/"
             action="act_view_form" id="menu_view"/>
+        <record model="ir.ui.view" id="view_sc_view_form">
+            <field name="name">ir.ui.view_sc.form</field>
+            <field name="model">ir.ui.view_sc</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Shortcut">
+                    <field name="name" colspan="4" select="1"/>
+                    <field name="user_id" select="1"/>
+                    <field name="sequence"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_sc_view_tree">
+            <field name="name">ir.ui.view_sc.tree</field>
+            <field name="model">ir.ui.view_sc</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Shortcut">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="sequence"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_view_sc_form">
+            <field name="name">View Shortcuts</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.ui.view_sc</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_view_sc_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_sc_view_tree"/>
+            <field name="act_window_id" ref="act_view_sc_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_view_sc_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_sc_view_form"/>
+            <field name="act_window_id" ref="act_view_sc_form"/>
+        </record>
+        <menuitem name="Administration/Custom/IR/UI/"
+            action="act_view_sc_form" id="menu_view_sc"/>
     </data>
 </terp>

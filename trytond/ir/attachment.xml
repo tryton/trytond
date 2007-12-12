@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="attachment_view_form">
+            <field name="name">ir.attachment.form</field>
+            <field name="model">ir.attachment</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Attachments">
+                    <field name="name" colspan="4" select="1"/>
+                    <field name="datas" colspan="4"/>
+                    <field name="datas_fname"/>
+                    <newline/>
+                    <field name="res_model" select="1"/>
+                    <field name="res_id"/>
+                    <separator string="Description" colspan="4"/>
+                    <field name="description" colspan="4" nolabel="1"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="attachment_view_tree">
+            <field name="name">ir.attachment.tree</field>
+            <field name="model">ir.attachment</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Attachments">
+                    <field name="name"/>
+                    <field name="res_model"/>
+                    <field name="res_id"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_attachment_form">
+            <field name="name">Attachments</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.attachment</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_attachment_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="attachment_view_tree"/>
+            <field name="act_window_id" ref="act_attachment_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_attachment_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="attachment_view_form"/>
+            <field name="act_window_id" ref="act_attachment_form"/>
+        </record>
+        <menuitem name="Administration/Custom/IR/Attachments"
+            action="act_attachment_form" id="menu_attachment_form"/>
+    </data>
+</terp>

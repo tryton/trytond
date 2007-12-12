@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="translation_view_form">
+            <field name="name">ir.translation.form</field>
+            <field name="model">ir.translation</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Translations">
+                    <field name="name" select="2"/>
+                    <field name="res_id" select="2"/>
+                    <field name="type" select="2"/>
+                    <field name="lang" select="1"/>
+                    <field name="src" select="1"/>
+                    <field name="value" select="1"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="translation_view_tree">
+            <field name="name">ir.translation.tree</field>
+            <field name="model">ir.translation</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Translations" editable="bottom">
+                    <field name="src"/>
+                    <field name="value"/>
+                    <field name="name"/>
+                    <field name="lang"/>
+                    <field name="type"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_translation_form">
+            <field name="name">Translations</field>
+            <field name="res_model">ir.translation</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_translation_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="translation_view_tree"/>
+            <field name="act_window_id" ref="act_translation_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_translation_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="translation_view_form"/>
+            <field name="act_window_id" ref="act_translation_form"/>
+        </record>
+        <menuitem name="Administration/IR/Translations"
+            action="act_translation_form" id="menu_translation_form"/>
+    </data>
+</terp>
