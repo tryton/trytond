@@ -661,8 +661,6 @@ class ORM(object):
             assert (k in self._columns) or (k in self._inherit_fields), \
             'Default function defined in %s but field %s does not exist!' % \
                 (self._name, k,)
-        for field in self._columns:
-            self._columns[field].restart()
         # FIXME: does not work at all
 #        if self._log_access:
 #            self._columns.update({
@@ -709,13 +707,9 @@ class ORM(object):
         if isinstance(select, (int, long)):
             return BrowseRecord(cursor, user, select, self, cache,
                     context=context, list_class=list_class)
-        elif isinstance(select, list):
-            return list_class([BrowseRecord(cursor, user, x, self, cache,
-                context=context, list_class=list_class) for x in select],
-                context)
-        else:
-            # XXX raise exception?
-            return BrowseNull()
+        return list_class([BrowseRecord(cursor, user, x, self, cache,
+            context=context, list_class=list_class) for x in select],
+            context)
 
     def __export_row(self, cursor, user, row, fields_names, context=None):
         lines = []
@@ -1100,6 +1094,14 @@ class ORM(object):
             if field in self._defaults:
                 value[field] = self._defaults[field](self, cursor, user,
                         context)
+                fld_def = ((field in self._columns) and self._columns[field]) \
+                        or ((field in self._inherit_fields) \
+                            and self._inherit_fields[field][2]) \
+                        or False
+                if isinstance(fld_def, fields.Property):
+                    property_obj = self.pool.get('ir.property')
+                    value[field] = property_obj.get(cursor, user, field,
+                            self._name)
 
         # get the default values set by the user and override the default
         # values defined in the object
