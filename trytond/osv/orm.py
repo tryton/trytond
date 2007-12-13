@@ -19,31 +19,6 @@ class ExceptORM(Exception):
 except_orm = ExceptORM
 
 
-class BrowseNull(object):
-    "Readonly python database object browser"
-
-    def __init__(self):
-        self._id = False
-
-    @staticmethod
-    def __getitem__(name):
-        return False
-
-    @staticmethod
-    def __int__():
-        return False
-
-    @staticmethod
-    def __str__():
-        return ''
-
-    @staticmethod
-    def __nonzero__():
-        return False
-
-browse_null = BrowseNull
-
-
 # TODO: execute an object method on BrowseRecordList
 class BrowseRecordList(list):
 
@@ -62,8 +37,6 @@ class BrowseRecord(object):
         table : the object (inherited from orm)
         context : a dictionnary with an optionnal context
         '''
-        assert object_id, 'Wrong ID for the browse record, got ' + \
-                str(object_id) + ', expected an integer.'
         self._list_class = list_class or BrowseRecordList
         self._cursor = cursor
         self._user = user
@@ -74,14 +47,14 @@ class BrowseRecord(object):
 
         cache.setdefault(table._name, {})
         self._data = cache[table._name]
-        if not id in self._data:
+        if not object_id in self._data:
             self._data[object_id] = {'id': object_id}
         self._cache = cache
 
     def __getitem__(self, name):
         if name == 'id':
             return self._id
-        if not self._data[self._id].has_key(name):
+        if not self._data[self._id].has_key(name) and self._id:
             # build the list of fields we will fetch
 
             # fetch the definition of the field which was asked for
@@ -126,18 +99,15 @@ class BrowseRecord(object):
             for data in datas:
                 for i, j in ffields:
                     if j._type in ('many2one', 'one2one'):
-                        if data[i]:
-                            obj = self._table.pool.get(j._obj)
-                            if not j._classic_write:
-                                ids2 = data[i][0]
-                            else:
-                                ids2 = data[i]
-                            data[i] = BrowseRecord(self._cursor, self._user,
-                                    ids2, obj, self._cache,
-                                    context=self._context,
-                                    list_class=self._list_class)
+                        obj = self._table.pool.get(j._obj)
+                        if not j._classic_write and data[i]:
+                            ids2 = data[i][0]
                         else:
-                            data[i] = BrowseNull()
+                            ids2 = data[i]
+                        data[i] = BrowseRecord(self._cursor, self._user,
+                                ids2, obj, self._cache,
+                                context=self._context,
+                                list_class=self._list_class)
                     elif j._type in ('one2many', 'many2many') and len(data[i]):
                         data[i] = self._list_class([BrowseRecord(self._cursor,
                             self._user, x, self._table.pool.get(j._obj),
@@ -178,6 +148,9 @@ class BrowseRecord(object):
 
     def __hash__(self):
         return hash((self._table_name, self._id))
+
+    def __nonzero__(self):
+        return bool(self._id)
 
     __repr__ = __str__
 

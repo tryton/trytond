@@ -9,7 +9,7 @@
                 <form string="Property">
                     <separator string="Property" colspan="4"/>
                     <field name="name" select="1"/>
-                    <field name="company_id" select="1"/>
+                    <!--field name="company_id" select="1"/-->
                     <field name="fields_id" colspan="4" select="1"/>
                     <field name="value" colspan="4"/>
                     <field name="res_id" colspan="4"/>
@@ -23,7 +23,7 @@
             <field name="arch" type="xml">
                 <tree string="Properties">
                     <field name="name"/>
-                    <field name="company_id"/>
+                    <!--field name="company_id"/-->
                     <field name="fields_id"/>
                 </tree>
             </field>

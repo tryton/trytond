@@ -505,8 +505,7 @@ class XMLImport(object):
                 action, True, True, xml_id=rec_id)
         return ('ir.ui.menu', pid)
 
-    @staticmethod
-    def _assert_equals(i, j, prec=4):
+    def _assert_equals(self, i, j, prec=4):
         return not round(i - j, prec)
 
     def _tag_assert(self, cursor, rec, data_node=None):

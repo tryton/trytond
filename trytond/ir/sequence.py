@@ -19,8 +19,7 @@ class Sequence(OSV):
     _name = 'ir.sequence'
     _description = __doc__
 
-    @staticmethod
-    def _code_get(obj, cursor, user, context=None):
+    def _code_get(self, cursor, user, context=None):
         cursor.execute('select code, name from ir_sequence_type')
         return cursor.fetchall()
 
@@ -42,8 +41,7 @@ class Sequence(OSV):
         'padding' : lambda *a : 0,
     }
 
-    @staticmethod
-    def _process(string):
+    def _process(self, string):
         return (string or '') % {
                 'year':time.strftime('%Y'),
                 'month': time.strftime('%m'),

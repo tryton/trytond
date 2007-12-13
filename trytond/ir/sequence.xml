@@ -101,7 +101,7 @@
             <field name="view_id" ref="sequence_type_view_form"/>
             <field name="act_window_id" ref="act_sequence_type_form"/>
         </record>
-        <menuitem name="Administration/Sequences/"
+        <menuitem name="Administration/IR/Sequences/"
             action="act_sequence_type_form" id="menu_ir_sequence_type"/>
     </data>
 </terp>

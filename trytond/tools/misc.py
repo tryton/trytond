@@ -393,8 +393,8 @@ def get_languages():
 def scan_languages():
     import glob
     file_list = [os.path.splitext(os.path.basename(f))[0] \
-            for f in glob.glob(os.path.join(CONFIG['root_path'],
-                'i18n', '*.csv'))]
+            for f in glob.glob(os.path.join(os.path.dirname(
+                os.path.dirname(__file__)), 'i18n', '*.csv'))]
     lang_dict = get_languages()
     return [(lang, lang_dict.get(lang, lang)) for lang in file_list]
 
