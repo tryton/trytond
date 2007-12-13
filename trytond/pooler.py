@@ -8,8 +8,7 @@ def get_db_and_pool(db_name, force_demo=False, update_module=False):
     if db_name in _DB:
         database = _DB[db_name]
     else:
-        logger = Logger()
-        logger.notify_channel('pooler', LOG_INFO,
+        Logger().notify_channel('pooler', LOG_INFO,
                 'Connecting to %s' % (db_name))
         database = db_connect(db_name)
         _DB[db_name] = database
@@ -17,6 +16,8 @@ def get_db_and_pool(db_name, force_demo=False, update_module=False):
     if db_name in _POOL:
         pool = _POOL[db_name]
     else:
+        Logger().notify_channel('pooler', LOG_INFO,
+                'Instanciate pooler for %s' % (db_name))
         from osv.osv import OSVService
         pool = OSVService()
         _POOL[db_name] = pool
@@ -44,6 +45,8 @@ def get_db_only(db_name):
     if db_name in _DB:
         database = _DB[db_name]
     else:
+        Logger().notify_channel('pooler', LOG_INFO,
+                'Connecting to %s' % (db_name))
         database = db_connect(db_name)
         _DB[db_name] = database
     return database
