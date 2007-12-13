@@ -48,7 +48,7 @@
             <field name="view_id" ref="view_view_form"/>
             <field name="act_window_id" ref="act_view_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/UI/"
+        <menuitem name="Administration/IR/UI/"
             action="act_view_form" id="menu_view"/>
         <record model="ir.ui.view" id="view_sc_view_form">
             <field name="name">ir.ui.view_sc.form</field>
@@ -93,7 +93,7 @@
             <field name="view_id" ref="view_sc_view_form"/>
             <field name="act_window_id" ref="act_view_sc_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/UI/"
+        <menuitem name="Administration/IR/UI/"
             action="act_view_sc_form" id="menu_view_sc"/>
     </data>
 </terp>

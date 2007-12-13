@@ -53,7 +53,7 @@
             <field name="view_id" ref="model_view_form"/>
             <field name="act_window_id" ref="act_model_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/"
+        <menuitem name="Administration/IR/"
             action="act_model_form" id="menu_model_form"/>
         <record model="ir.ui.view" id="model_fields_view_form">
             <field name="name">ir.model.fields.form</field>
@@ -99,7 +99,7 @@
             <field name="view_id" ref="model_fields_view_form"/>
             <field name="act_window_id" ref="act_model_fields_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/"
+        <menuitem name="Administration/IR/"
             action="act_model_fields_form" id="model_model_fields_form"/>
         <record model="ir.ui.view" id="model_access_view_tree">
             <field name="name">ir.model.access.tree</field>
