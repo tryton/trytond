@@ -49,6 +49,7 @@ class DB(Service):
                     sql_db.init_db(cursor)
                     cursor.commit()
                     cursor.close()
+                    cursor = None
                     pooler.get_pool(db_name, demo, service.actions[db_id],
                             update_module=True)
                     if lang and lang != 'en_US':
@@ -72,7 +73,8 @@ class DB(Service):
                     traceback_str = e_str.getvalue()
                     e_str.close()
                     service.actions[db_id]['traceback'] = traceback_str
-                    cursor.close()
+                    if cursor:
+                        cursor.close()
 
         logger = Logger()
         logger.notify_channel("web-services", LOG_INFO,
