@@ -11,6 +11,7 @@
         'cron.xml',
         'values.xml',
         'translation.xml',
+        'exports.xml',
         'rule.xml',
         'property.xml',
         ],

@@ -261,6 +261,7 @@
                         </tree>
                     </field>
                     <field name="domain" colspan="4"/>
+                    <field name="context" colspan="4"/>
                     <field name="limit"/>
                     <field name="auto_refresh"/>
                     <newline/>
