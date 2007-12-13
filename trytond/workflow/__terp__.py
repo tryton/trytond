@@ -1,7 +1,7 @@
 {
     'name': 'Workflow',
     'active': True,
-    'update_xml': [
+    'xml': [
         'workflow.xml',
         ],
 }

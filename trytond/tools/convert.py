@@ -180,6 +180,9 @@ class AssertionReport(object):
 class XMLImport(object):
 
     def isnoupdate(self, data_node = None):
+        if (data_node \
+                and data_node.getAttribute('demo')):
+            return not self.demo
         return self.noupdate or (data_node \
                 and data_node.getAttribute('noupdate'))
 
@@ -696,7 +699,7 @@ class XMLImport(object):
         return True
 
     def __init__(self, cursor, module, idref, mode, report=AssertionReport(),
-            noupdate = False):
+            noupdate=False, demo=False):
         self.mode = mode
         self.module = module
         self.cursor = cursor
@@ -705,6 +708,7 @@ class XMLImport(object):
         self.user = 1
         self.assert_report = report
         self.noupdate = noupdate
+        self.demo = demo
         self._tags = {
             'menuitem': self._tag_menuitem,
             'record': self._tag_record,
@@ -751,13 +755,13 @@ def convert_csv_import(cursor, module, fname, csvcontent, idref=None,
             module, noupdate)
 
 def convert_xml_import(cursor, module, xmlstr, idref=None, mode='init',
-        noupdate=False, report=None):
+        noupdate=False, report=None, demo=False):
     if idref is None:
         idref = {}
     if report is None:
         report = AssertionReport()
     obj = XMLImport(cursor, module, idref, mode, report=report,
-            noupdate=noupdate)
+            noupdate=noupdate, demo=demo)
     obj.parse(xmlstr)
     del obj
     return True
