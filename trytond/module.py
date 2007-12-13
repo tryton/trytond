@@ -76,7 +76,7 @@ class Node(Singleton):
 
     def __setattr__(self, name, value):
         super(Node, self).__setattr__(name, value)
-        if name in ('init', 'update', 'demo'):
+        if name in ('init', 'update'):
             CONFIG[name][self.name] = 1
             for child in self.childs:
                 setattr(child, name, value)
@@ -137,7 +137,7 @@ def create_graph(module_list, force=None):
             graph.add_node(package, deps)
             node = Node(package, graph)
             node.datas = datas
-            for kind in ('init', 'demo', 'update'):
+            for kind in ('init', 'update'):
                 if (package in CONFIG[kind]) \
                         or ('all' in CONFIG[kind]) \
                         or (kind in force):
@@ -177,45 +177,33 @@ def load_module_graph(cursor, graph, **kwargs):
                 or hasattr(package, 'update') \
                 or (package_state in ('to install', 'to upgrade')):
             init_module_objects(cursor, module, modules)
-            for kind in ('init', 'update'):
-                for filename in package.datas.get('%s_xml' % kind, []):
-                    mode = 'update'
-                    if hasattr(package, 'init') or package_state=='to install':
-                        mode = 'init'
-                    Logger().notify_channel('init', LOG_INFO,
-                            'addon:%s:loading %s' % (module, filename))
-                    ext = os.path.splitext(filename)[1]
-                    if ext == '.csv':
-                        tools.convert_csv_import(cursor, module,
-                                os.path.basename(filename),
-                                tools.file_open(OPJ(module, filename)).read(),
-                                idref, mode=mode)
-                    elif ext == '.sql':
+            demo = hasattr(package, 'demo') \
+                    or (package_demo and package_state != 'installed')
+            for filename in package.datas.get('xml', []):
+                mode = 'update'
+                if hasattr(package, 'init') or package_state=='to install':
+                    mode = 'init'
+                Logger().notify_channel('init', LOG_INFO,
+                        'addon:%s:loading %s' % (module, filename))
+                ext = os.path.splitext(filename)[1]
+                if ext == '.csv':
+                    tools.convert_csv_import(cursor, module,
+                            os.path.basename(filename),
+                            tools.file_open(OPJ(module, filename)).read(),
+                            idref, mode=mode)
+                elif ext == '.sql':
+                    if mode == 'init':
                         queries = tools.file_open(OPJ(module,
                             filename)).read().split(';')
                         for query in queries:
                             new_query = ' '.join(query.split())
                             if new_query:
                                 cursor.execute(new_query)
-                    else:
-                        tools.convert_xml_import(cursor, module,
-                                tools.file_open(OPJ(module, filename)).read(),
-                                idref, mode=mode, **kwargs)
-            if hasattr(package, 'demo') \
-                    or (package_demo and package_state != 'installed'):
-                for xml in package.datas.get('demo_xml', []):
-                    ext = os.path.splitext(xml)[1]
-                    Logger().notify_channel('init', LOG_INFO,
-                            'addon:%s:loading %s' % (module, xml))
-                    if ext == '.csv':
-                        tools.convert_csv_import(cursor, module,
-                                os.path.basename(xml),
-                                tools.file_open(OPJ(module, xml)).read(), idref,
-                                noupdate=True)
-                    else:
-                        tools.convert_xml_import(cursor, module,
-                                tools.file_open(OPJ(module, xml)).read(), idref,
-                                noupdate=True, **kwargs)
+                else:
+                    tools.convert_xml_import(cursor, module,
+                            tools.file_open(OPJ(module, filename)).read(),
+                            idref, mode=mode, demo=demo, **kwargs)
+            if demo:
                 cursor.execute('UPDATE ir_module_module SET demo = %s ' \
                         'WHERE name = %s', (True, package.name))
             package_todo.append(package.name)
@@ -278,7 +266,7 @@ def load_modules(database, force_demo=False, update_module=False):
     if report.get_report():
         Logger().notify_channel('init', LOG_INFO, 'assert:%s' % report)
 
-    for kind in ('init', 'demo', 'update'):
+    for kind in ('init', 'update'):
         CONFIG[kind] = {}
 
     if update_module:

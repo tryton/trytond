@@ -1,7 +1,7 @@
 {
     'name': 'IR',
     'active': True,
-    'update_xml': [
+    'xml': [
         'sequence.xml',
         'ui/menu.xml',
         'ui/view.xml',
