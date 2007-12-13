@@ -67,7 +67,7 @@ class Values(OSV):
             cursor.commit()
 
     def set(self, cursor, user, key, key2, name, models, value, replace=True,
-            isobject=False, meta=False, preserve_user=False, company=False):
+            isobject=False, meta=False, preserve_user=False): #, company=False):
         if type(value)==type(u''):
             value = value.encode('utf8')
         if not isobject:
@@ -110,10 +110,10 @@ class Values(OSV):
                 'meta': meta,
                 'user_id': preserve_user and user,
             }
-            if company:
-                cid = self.pool.get('res.users').browse(cursor, user, user,
-                        context={}).company_id.id
-                vals['company_id'] = cid
+#            if company:
+#                cid = self.pool.get('res.users').browse(cursor, user, user,
+#                        context={}).company_id.id
+#                vals['company_id'] = cid
             if res_id:
                 vals['res_id'] = res_id
             ids_res.append(self.create(cursor, user, vals))
@@ -177,13 +177,13 @@ class Values(OSV):
 
         if not result:
             return []
-        cid = self.pool.get('res.users').browse(cursor, user, user,
-                context={}).company_id.id
+#        cid = self.pool.get('res.users').browse(cursor, user, user,
+#                context={}).company_id.id
         cursor.execute('SELECT id, name, value, object, meta, key ' \
                 'FROM ir_values ' \
                 'WHERE id IN (' + ','.join([str(x) for x in result])+') ' \
-                    'AND (company_id IS NULL OR company_id = %d) '\
-                'ORDER BY user_id', (cid,))
+                    #'AND (company_id IS NULL OR company_id = %d) '\
+                'ORDER BY user_id')#, (cid,))
         result = cursor.fetchall()
 
         def _result_get(i, keys):
