@@ -30,7 +30,7 @@ class OSVService(Service):
         self.module_obj_list = {}
         self.created = []
         self._sql_error = {}
-        Service.__init__(self, 'obj_proxy')
+        Service.__init__(self, 'object_proxy')
         Service.join_group(self, 'web-services')
         Service.export_method(self, self.object_name_list)
         Service.export_method(self, self.exec_workflow)

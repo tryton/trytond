@@ -960,6 +960,7 @@ class ORM(object):
                     i[key] = False
         if isinstance(ids, (int, long)):
             return result[0]
+        print result
         return result
 
     def _read_flat(self, cursor, user, ids, fields_names, context=None,
@@ -1003,13 +1004,14 @@ class ORM(object):
                         ' ORDER BY ' + self._order)
 
             res = cursor.dictfetchall()
+            print "res:", res
         else:
             res = [{'id':x} for x in ids]
 
         for field in fields_pre:
             if self._columns[field].translate:
                 ids = [x['id'] for x in res]
-                res_trans = self.pool.get('ir.translation').get_ids(cursor,
+                res_trans = self.pool.get('ir.translation')._get_ids(cursor,
                         self._name + ',' + field, 'model',
                         context.get('lang', 'en_US'), ids)
                 for i in res:

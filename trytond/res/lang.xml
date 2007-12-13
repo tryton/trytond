@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="res.lang" id="lang_en">
+            <field name="code">en_US</field>
+            <field name="name">English</field>
+        </record>
+    </data>
+</terp>

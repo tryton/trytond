@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="res.groups" id="group_admin">
+            <field name="name">admin</field>
+        </record>
+        <record model="res.users" id="user_admin">
+            <field name="login">admin</field>
+            <field name="password">admin</field>
+            <field name="name">Administrator</field>
+            <field name="signature">Administrator</field>
+            <field name="action_id" ref="ir.act_menu_tree"/>
+            <field name="menu_id" ref="ir.act_menu_tree"/>
+            <field name="groups_id" eval="[(6, 0, [group_admin])]"/>
+        </record>
+    </data>
+</terp>

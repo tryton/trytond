@@ -79,7 +79,7 @@ class ModelAccess(OSV):
                     'ON (a.model_id=m.id) '
                 'JOIN res_groups_users_rel gu '
                     'ON (gu.gid = a.group_id) '
-            'WHERE m.model = %s AND gu.user = %s', (model_name, user,))
+            'WHERE m.model = %s AND gu.uid = %s', (model_name, user,))
         row = cursor.fetchall()
         if row[0][0] == None:
             cursor.execute('SELECT ' \

@@ -245,13 +245,17 @@ class Many2One(_column):
         for i in ids:
             res.setdefault(i, '')
         obj = obj.pool.get(self._obj)
-        names = obj.name_get(cursor, user, res.values(), context=context)
+        obj_names = {}
+        for obj_id, name in obj.name_get(cursor, user, res.values(),
+                context=context):
+            obj_names[obj_id] = name
 
         for i in res.keys():
-            if res[i] and res[i] in names:
-                res[i] = (res[i], names[res[i]])
+            if res[i] and res[i] in obj_names:
+                res[i] = (res[i], obj_names[res[i]])
             else:
                 res[i] = False
+        print "many2one:", res
         return res
 
     def set(self, cursor, obj_src, obj_id, field, values, user=None,

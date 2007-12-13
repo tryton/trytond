@@ -12,6 +12,20 @@
             </field>
             <field name="field_parent">child_id</field>
         </record>
+        <record model="ir.actions.act_window" id="act_menu_tree">
+            <field name="name">Menu</field>
+            <field name="res_model">ir.ui.menu</field>
+            <field name="view_type">tree</field>
+            <field name="usage">menu</field>
+            <field name="domain" eval="'[(\'parent_id\',\'=\',False)]'"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_menu_tree_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="menu_view_tree_tree"/>
+            <field name="act_window_id" ref="act_menu_tree"/>
+        </record>
         <record model="ir.ui.view" id="menu_view_tree">
             <field name="name">ir.ui.menu.tree</field>
             <field name="model">ir.ui.menu</field>
