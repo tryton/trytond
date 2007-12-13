@@ -5,5 +5,6 @@
     'update_xml': [
         'user.xml',
         'lang.xml',
+        'request.xml',
         ]
 }

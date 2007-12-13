@@ -53,7 +53,7 @@
             <field name="view_id" ref="values_view_form"/>
             <field name="act_window_id" ref="act_values_form"/>
         </record>
-        <menuitem name="Administration/IR/Values"
+        <menuitem name="Administration/IR/"
             action="act_values_form" id="menu_values_form"/>
     </data>
 </terp>

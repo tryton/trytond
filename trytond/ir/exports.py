@@ -10,7 +10,7 @@ class Exports(OSV):
             'name': fields.char('Export name', size=128),
             'resource': fields.char('Resource', size=128),
             'export_fields': fields.one2many('ir.exports.line', 'export_id',
-                                             'Export Id'),
+                'Export Id'),
     }
 
 Exports()
