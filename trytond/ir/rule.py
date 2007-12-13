@@ -127,7 +127,7 @@ class Rule(OSV):
                                 "FROM group_rule_group_rel g_rel " \
                                 "JOIN res_groups_users_rel u_rel " \
                                     "ON (g_rel.group_id = u_rel.gid) " \
-                                "WHERE u_rel.user = %d) "
+                                "WHERE u_rel.uid = %d) "
                     "OR g.global)", (model_name, user, user))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
