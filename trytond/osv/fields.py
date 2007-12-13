@@ -246,7 +246,8 @@ class Many2One(_column):
             res.setdefault(i, '')
         obj = obj.pool.get(self._obj)
         obj_names = {}
-        for obj_id, name in obj.name_get(cursor, user, res.values(),
+        for obj_id, name in obj.name_get(cursor, user,
+                [ x for x in res.values() if x],
                 context=context):
             obj_names[obj_id] = name
 
@@ -255,7 +256,6 @@ class Many2One(_column):
                 res[i] = (res[i], obj_names[res[i]])
             else:
                 res[i] = False
-        print "many2one:", res
         return res
 
     def set(self, cursor, obj_src, obj_id, field, values, user=None,
