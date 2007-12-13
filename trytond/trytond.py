@@ -72,6 +72,7 @@ class TrytonServer(object):
         # TODO add report service
 
     def run(self):
+        "Run the server and never return"
 
         db_name = CONFIG["db_name"]
 
@@ -195,9 +196,9 @@ class TrytonServer(object):
         if CONFIG['xmlrpc']:
             httpd.start()
         #DISPATCHER.run()
+        while True:
+            time.sleep(1)
 
 if __name__ == "__main__":
     SERVER = TrytonServer()
     SERVER.run()
-    while True:
-        time.sleep(1)
