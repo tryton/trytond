@@ -50,7 +50,7 @@
             <field name="view_id" ref="attachment_view_form"/>
             <field name="act_window_id" ref="act_attachment_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Attachments"
+        <menuitem name="Administration/IR/Attachments"
             action="act_attachment_form" id="menu_attachment_form"/>
     </data>
 </terp>

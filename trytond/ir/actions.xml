@@ -44,7 +44,7 @@
             <field name="view_id" ref="actions_actions_view_form"/>
             <field name="act_window_id" ref="act_actions_actions_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Actions/"
+        <menuitem name="Administration/IR/Actions/"
             action="act_actions_actions_form" id="menu_actions_actions"/>
         <record model="ir.ui.view" id="actions_execute_view_form">
             <field name="name">ir.actions.execute.form</field>
@@ -91,7 +91,7 @@
             <field name="view_id" ref="actions_execute_view_form"/>
             <field name="act_window_id" ref="act_actions_execute_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Actions/"
+        <menuitem name="Administration/IR/Actions/"
             action="act_actions_execute_form" id="menu_actions_execute"/>
         <record model="ir.ui.view" id="actions_group_view_form">
             <field name="name">ir.actions.group.form</field>
@@ -135,7 +135,7 @@
             <field name="view_id" ref="actions_group_view_form"/>
             <field name="act_window_id" ref="act_actions_group_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Actions/"
+        <menuitem name="Administration/IR/Actions/"
             action="act_actions_group_form" id="menu_actions_group"/>
         <record model="ir.ui.view" id="actions_report_custom_view_form">
             <field name="name">ir.actions.report.custom.form</field>
@@ -182,7 +182,7 @@
             <field name="view_id" ref="actions_report_custom_view_form"/>
             <field name="act_window_id" ref="act_actions_report_custom_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Actions/"
+        <menuitem name="Administration/IR/Actions/"
             action="act_actions_report_custom_form" id="menu_actions_report_custom"/>
         <record model="ir.ui.view" id="actions_report_xml_view_form">
             <field name="name">ir.actions.report.xml</field>
@@ -234,7 +234,7 @@
             <field name="view_id" ref="actions_report_xml_view_form"/>
             <field name="act_window_id" ref="act_actions_report_xml_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Actions/"
+        <menuitem name="Administration/IR/Actions/"
             action="act_actions_report_xml_form" id="menu_actions_report_xml"/>
         <record model="ir.ui.view" id="actions_act_window_view_form">
             <field name="name">ir.actions.act_window.form</field>
@@ -301,7 +301,7 @@
             <field name="view_id" ref="actions_act_window_view_form"/>
             <field name="act_window_id" ref="act_actions_act_window_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Actions/"
+        <menuitem name="Administration/IR/Actions/"
             action="act_actions_act_window_form" id="menu_actions_act_window"/>
         <record model="ir.ui.view" id="actions_wizard_view_form">
             <field name="name">ir.actions.wizard.form</field>
@@ -349,7 +349,7 @@
             <field name="view_id" ref="actions_wizard_view_form"/>
             <field name="act_window_id" ref="act_actions_wizard_form"/>
         </record>
-        <menuitem name="Administration/Custom/IR/Actions/"
+        <menuitem name="Administration/IR/Actions/"
             action="act_actions_wizard_form" id="menu_actions_wizard"/>
     </data>
 </terp>
