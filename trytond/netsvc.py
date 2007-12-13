@@ -120,15 +120,12 @@ class Service(object):
     def create(self, cursor, user, ids, datas, context):
         return
 
-    @staticmethod
     def trg_validate(user, res_type, res_id, signal, cursor):
         pass
 
-    @staticmethod
     def trg_delete(user, res_type, res_id, cursor):
         pass
 
-    @staticmethod
     def trg_write(user, res_type, res_id, cursor):
         pass
 

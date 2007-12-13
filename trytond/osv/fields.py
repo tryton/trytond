@@ -111,8 +111,7 @@ class Char(_column):
         _column.__init__(self, string=string, size=size, **args)
         self._symbol_set = (self._symbol_c, self._symbol_set_char)
 
-    @staticmethod
-    def _symbol_set_char(symb):
+    def _symbol_set_char(self, symb):
         """
         takes a string (encoded in utf8)
         and returns a string (encoded in utf8)

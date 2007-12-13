@@ -21,8 +21,7 @@ class WorkflowService(Service):
         "Clear workflow cache"
         self.wkf_on_create_cache[cursor.dbname] = {}
 
-    @staticmethod
-    def trg_write(user, res_type, res_id, cursor):
+    def trg_write(self, user, res_type, res_id, cursor):
         "Trigger write"
         ident = (user, res_type, res_id)
         cursor.execute('SELECT id FROM wkf_instance ' \
@@ -31,8 +30,7 @@ class WorkflowService(Service):
         for (instance_id,) in cursor.fetchall():
             instance.update(cursor, instance_id, ident)
 
-    @staticmethod
-    def trg_trigger(user, res_type, res_id, cursor):
+    def trg_trigger(self, user, res_type, res_id, cursor):
         "Trigger trigger"
         cursor.execute('SELECT instance_id FROM wkf_triggers ' \
                 'WHERE res_id = %d AND model = %s', (res_id, res_type))
@@ -43,8 +41,7 @@ class WorkflowService(Service):
             ident = cursor.fetchone()
             instance.update(cursor, instance_id, ident)
 
-    @staticmethod
-    def trg_delete(user, res_type, res_id, cursor):
+    def trg_delete(self, user, res_type, res_id, cursor):
         "Trigger delete"
         ident = (user, res_type, res_id)
         instance.delete(cursor, ident)
@@ -63,8 +60,7 @@ class WorkflowService(Service):
         for (wkf_id,) in wkf_ids:
             instance.create(cursor, ident, wkf_id)
 
-    @staticmethod
-    def trg_validate(user, res_type, res_id, signal, cursor):
+    def trg_validate(self, user, res_type, res_id, signal, cursor):
         "Trigger validate"
         ident = (user, res_type, res_id)
         # ids of all active workflow instances
@@ -75,8 +71,7 @@ class WorkflowService(Service):
         for (instance_id,) in cursor.fetchall():
             instance.validate(cursor, instance_id, ident, signal)
 
-    @staticmethod
-    def trg_redirect(user, res_type, res_id, new_rid, cursor):
+    def trg_redirect(self, user, res_type, res_id, new_rid, cursor):
         """
         Trigger redirect
         make all workitems which are waiting for a (subflow) workflow instance
