@@ -16,13 +16,11 @@ class Wizard(Service):
 
     def _execute(self, database, user, wiz_id, datas, action, context):
         self.wiz_datas[wiz_id].update(datas)
-        wiz = LocalService('wizard.'+self.wiz_name[wiz_id])
+        wiz = LocalService('wizard.' + self.wiz_name[wiz_id])
         return wiz.execute(database, user, self.wiz_datas[wiz_id], action,
                 context)
 
     def create(self, database, user, passwd, wiz_name, datas=None):
-        if not datas:
-            datas = {}
         security.check(database, user, passwd)
         # FIXME: this is not thread-safe
         self.max_id += 1
@@ -31,6 +29,7 @@ class Wizard(Service):
         self.wiz_uid[self.max_id] = user
         return self.max_id
 
+    #TODO: remove wiz_id not usefull
     def execute(self, database, user, passwd, wiz_id, datas, *args):
         security.check(database, user, passwd)
         if wiz_id in self.wiz_uid:

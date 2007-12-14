@@ -108,10 +108,10 @@ class Service(object):
             object_id):
         return
 
-    def execute(self, database, user, passwd, object_name, method, *args):
+    def execute(self, database, user, passwd, *args, **kargs):
         return
 
-    def execute_cr(self, cursor, user, object_name, method, *args, **kargs):
+    def execute_cr(self, cursor, user, *args, **kargs):
         return
 
     def obj_list(self, database, user, passwd):
