@@ -46,165 +46,23 @@
         </record>
         <menuitem name="Administration/IR/Actions/"
             action="act_actions_actions_form" id="menu_actions_actions"/>
-        <record model="ir.ui.view" id="actions_execute_view_form">
-            <field name="name">ir.actions.execute.form</field>
-            <field name="model">ir.actions.execute</field>
+        <record model="ir.ui.view" id="actions_report_view_form">
+            <field name="name">ir.actions.report.form</field>
+            <field name="model">ir.actions.report</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Execute">
-                    <field name="name" select="1"/>
-                    <field name="type" select="1"/>
-                    <field name="func_name"/>
-                    <field name="func_arg"/>
-                    <field name="usage"/>
-                </form>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="actions_execute_view_tree">
-            <field name="name">ir.actions.execute.tree</field>
-            <field name="model">ir.actions.execute</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <tree string="Execute">
-                    <field name="name"/>
-                    <field name="type"/>
-                </tree>
-            </field>
-        </record>
-        <record model="ir.actions.act_window" id="act_actions_execute_form">
-            <field name="name">Execute</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.execute</field>
-            <field name="view_type">form</field>
-        </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_execute_form_view1">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_execute_view_tree"/>
-            <field name="act_window_id" ref="act_actions_execute_form"/>
-        </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_execute_form_view2">
-            <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_execute_view_form"/>
-            <field name="act_window_id" ref="act_actions_execute_form"/>
-        </record>
-        <menuitem name="Administration/IR/Actions/"
-            action="act_actions_execute_form" id="menu_actions_execute"/>
-        <record model="ir.ui.view" id="actions_group_view_form">
-            <field name="name">ir.actions.group.form</field>
-            <field name="model">ir.actions.group</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Group">
-                    <field name="name" select="1"/>
-                    <field name="type" select="1"/>
-                </form>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="actions_group_view_tree">
-            <field name="name">ir.actions.group.tree</field>
-            <field name="model">ir.actions.group</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <tree string="Group">
-                    <field name="name"/>
-                    <field name="type"/>
-                </tree>
-            </field>
-        </record>
-        <record model="ir.actions.act_window" id="act_actions_group_form">
-            <field name="name">Groups</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.group</field>
-            <field name="view_type">form</field>
-        </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_group_form_view1">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_group_view_tree"/>
-            <field name="act_window_id" ref="act_actions_group_form"/>
-        </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_group_form_view2">
-            <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_group_view_form"/>
-            <field name="act_window_id" ref="act_actions_group_form"/>
-        </record>
-        <menuitem name="Administration/IR/Actions/"
-            action="act_actions_group_form" id="menu_actions_group"/>
-        <record model="ir.ui.view" id="actions_report_custom_view_form">
-            <field name="name">ir.actions.report.custom.form</field>
-            <field name="model">ir.actions.report.custom</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Report custom">
-                    <field name="name" select="1"/>
-                    <field name="type" select="1"/>
-                    <field name="report_id"/>
-                    <field name="usage"/>
-                </form>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="actions_report_custom_view_tree">
-            <field name="name">ir.actions.report.custom.tree</field>
-            <field name="model">ir.actions.report.custom</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <tree string="Report custom">
-                    <field name="name"/>
-                    <field name="type"/>
-                </tree>
-            </field>
-        </record>
-        <record model="ir.actions.act_window"
-            id="act_actions_report_custom_form">
-            <field name="name">Reports Customs</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.report.custom</field>
-            <field name="view_type">form</field>
-        </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_report_custom_form_view1">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_report_custom_view_tree"/>
-            <field name="act_window_id" ref="act_actions_report_custom_form"/>
-        </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_report_custom_form_view2">
-            <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_report_custom_view_form"/>
-            <field name="act_window_id" ref="act_actions_report_custom_form"/>
-        </record>
-        <menuitem name="Administration/IR/Actions/"
-            action="act_actions_report_custom_form" id="menu_actions_report_custom"/>
-        <record model="ir.ui.view" id="actions_report_xml_view_form">
-            <field name="name">ir.actions.report.xml</field>
-            <field name="model">ir.actions.report.xml</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Report xml">
+                <form string="Report">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
                     <field name="report_name" select="1"/>
-                    <field name="report_xsl"/>
-                    <field name="report_xml"/>
-                    <field name="report_rml"/>
+                    <field name="report_odt"/>
                     <field name="auto"/>
-                    <field name="usage"/>
-                    <field name="header"/>
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="actions_report_xml_view_tree">
-            <field name="name">ir.actions.report.xml.tree</field>
-            <field name="model">ir.actions.report.xml</field>
+        <record model="ir.ui.view" id="actions_report_view_tree">
+            <field name="name">ir.actions.report.tree</field>
+            <field name="model">ir.actions.report</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Report xml">
@@ -214,28 +72,28 @@
                 </tree>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_actions_report_xml_form">
-            <field name="name">Reports XML</field>
+        <record model="ir.actions.act_window" id="act_actions_report_form">
+            <field name="name">Reports</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.report.xml</field>
+            <field name="res_model">ir.actions.report</field>
             <field name="view_type">form</field>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_actions_report_xml_form_view1">
+            id="act_actions_report_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_report_xml_view_tree"/>
-            <field name="act_window_id" ref="act_actions_report_xml_form"/>
+            <field name="view_id" ref="actions_report_view_tree"/>
+            <field name="act_window_id" ref="act_actions_report_form"/>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_actions_report_xml_form_view2">
+            id="act_actions_report_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_report_xml_view_form"/>
-            <field name="act_window_id" ref="act_actions_report_xml_form"/>
+            <field name="view_id" ref="actions_report_view_form"/>
+            <field name="act_window_id" ref="act_actions_report_form"/>
         </record>
         <menuitem name="Administration/IR/Actions/"
-            action="act_actions_report_xml_form" id="menu_actions_report_xml"/>
+            action="act_actions_report_form" id="menu_actions_report_form"/>
         <record model="ir.ui.view" id="actions_act_window_view_form">
             <field name="name">ir.actions.act_window.form</field>
             <field name="model">ir.actions.act_window</field>
