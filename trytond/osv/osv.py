@@ -1,6 +1,6 @@
 "Objects Services"
 
-from orm import orm, except_orm
+from orm import ORM, ExceptORM
 from trytond.netsvc import Service, LocalService, Logger, LOG_ERROR
 from trytond import pooler
 import copy
@@ -66,7 +66,7 @@ class OSVService(Service):
             else:
                 res = getattr(obj, method)(cursor, user, *args, **kargs)
             return res
-        except except_orm, inst:
+        except ExceptORM, inst:
             self.abort_response(inst.name, 'warning', inst.value)
         except ExceptOSV, inst:
             self.abort_response(inst.name, inst.exc_type, inst.value)
@@ -151,7 +151,7 @@ class OSVService(Service):
 osv_pool = OSVService
 
 
-class OSV(orm):
+class OSV(ORM):
 
     def __new__(cls):
         for module in cls.__module__.split('.'):
@@ -170,11 +170,8 @@ class OSV(orm):
         try to apply inheritancy at the instanciation level and
         put objs in the pool var
         """
-        parent_name = hasattr(cls, '_inherit') and cls._inherit
-        if parent_name:
-            parent_class = pool.get(parent_name).__class__
-            assert parent_class, "parent class %s does not exist !" % \
-                    parent_name
+        if pool.get(cls._name):
+            parent_class = pool.get(cls._name).__class__
             nattr = {}
             for i in (
                     '_columns',
@@ -183,14 +180,13 @@ class OSV(orm):
                     '_constraints',
                     '_sql_constraints',
                     ):
-                new = copy.copy(getattr(pool.get(parent_name), i))
+                new = copy.copy(getattr(pool.get(cls._name), i))
                 if hasattr(new, 'update'):
                     new.update(cls.__dict__.get(i, {}))
                 else:
                     new.extend(cls.__dict__.get(i, []))
                 nattr[i] = new
-            name = hasattr(cls,'_name') and cls._name or cls._inherit
-            cls = type(name, (cls, parent_class), nattr)
+            cls = type(cls._name, (cls, parent_class), nattr)
 
         obj = object.__new__(cls)
         obj.__init__(pool)
@@ -201,7 +197,7 @@ class OSV(orm):
     def __init__(self, pool):
         pool.add(self._name, self)
         self.pool = pool
-        orm.__init__(self)
+        super(OSV, self).__init__()
 
 osv = OSV
 

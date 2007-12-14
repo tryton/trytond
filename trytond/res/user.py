@@ -134,10 +134,7 @@ class Users(OSV):
 Users()
 
 
-class Groups2(OSV):
-    "Groups"
-    _inherit = 'res.groups'
-    _description = __doc__
+class Groups2(Groups):
     _columns = {
         'users': fields.many2many('res.users', 'res_groups_users_rel', 'gid',
             'user', 'Users'),
