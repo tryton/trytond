@@ -20,65 +20,8 @@ class Actions(OSV):
 Actions()
 
 
-class ActionsExecute(OSV):
-    "Actions execute"
-    _name = 'ir.actions.execute'
-    _table = 'ir_act_execute'
-    _sequence = 'ir_actions_id_seq'
-    _description = __doc__
-    _columns = {
-        'name': fields.char('name', size=64, required=True, translate=True),
-        'type': fields.char('type', size=32, required=True),
-        'func_name': fields.char('Function Name', size=64, required=True),
-        'func_arg': fields.char('Function Argument', size=64),
-        'usage': fields.char('Action Usage', size=32)
-    }
-
-ActionsExecute()
-
-
-class ActionsGroup(OSV):
-    "Actions group"
-    _name = 'ir.actions.group'
-    _table = 'ir_act_group'
-    _sequence = 'ir_actions_id_seq'
-    _description = __doc__
-    _columns = {
-        'name': fields.char('Group Name', size=64, required=True),
-        'type': fields.char('Action Type', size=32, required=True),
-        'exec_type': fields.char('Execution sequence', size=64, required=True),
-        'usage': fields.char('Action Usage', size=32)
-    }
-
-ActionsGroup()
-
-
-class ActionsReportCustom(OSV):
-    "Actions report custom"
-    _name = 'ir.actions.report.custom'
-    _table = 'ir_act_report_custom'
-    _sequence = 'ir_actions_id_seq'
-    _description = __doc__
-    _columns = {
-        'name': fields.char('Report Name', size=64, required=True,
-            translate=True),
-        'type': fields.char('Report Type', size=32, required=True),
-        'model':fields.char('Model', size=64, required=True),
-        'report_id': fields.integer('Report Ref.', required=True),
-        'usage': fields.char('Action Usage', size=32),
-        'multi': fields.boolean('On multiple doc.',
-            help="If set to true, the action will not be displayed " \
-                    "on the right toolbar of a form views.")
-    }
-    _defaults = {
-        'multi': lambda *a: False,
-    }
-
-ActionsReportCustom()
-
-
-class ActionsReportXML(OSV):
-    "Actions report xml"
+class ActionsReport(OSV):
+    "Actions report"
 
     def _report_content(self, cursor, user, ids, name, arg, context=None):
         res = {}
@@ -96,17 +39,8 @@ class ActionsReportXML(OSV):
             context=None):
         self.write(cursor, user, obj_id, {name+'_data': value}, context=context)
 
-    def _report_sxw(self, cursor, user, ids, name, arg, context=None):
-        res = {}
-        for report in self.browse(cursor, user, ids, context=context):
-            if report.report_rml:
-                res[report.id] = report.report_rml.replace('.rml', '.sxw')
-            else:
-                res[report.id] = False
-        return res
-
-    _name = 'ir.actions.report.xml'
-    _table = 'ir_act_report_xml'
+    _name = 'ir.actions.report'
+    _table = 'ir_act_report'
     _sequence = 'ir_actions_id_seq'
     _description = __doc__
     _columns = {
@@ -114,38 +48,24 @@ class ActionsReportXML(OSV):
         'type': fields.char('Report Type', size=32, required=True),
         'model': fields.char('Model', size=64, required=True),
         'report_name': fields.char('Internal Name', size=64, required=True),
-        'report_xsl': fields.char('XSL path', size=256),
-        'report_xml': fields.char('XML path', size=256),
-        'report_rml': fields.char('RML path', size=256,
-            help="The .rml path of the file or NULL \n" \
-                    "if the content is in report_rml_content"),
-        'report_sxw': fields.function(_report_sxw, method=True, type='char',
-            string='SXW path'),
-        'report_sxw_content_data': fields.binary('SXW content'),
-        'report_rml_content_data': fields.binary('RML content'),
-        'report_sxw_content': fields.function(_report_content,
+        'report_odt': fields.Char('ODT path', size=128),
+        'report_odt_content_data': fields.binary('ODT content'),
+        'report_odt_content': fields.function(_report_content,
             fnct_inv=_report_content_inv, method=True,
-            type='binary', string='SXW content',),
-        'report_rml_content': fields.function(_report_content,
-            fnct_inv=_report_content_inv, method=True,
-            type='binary', string='RML content'),
-        'auto': fields.boolean('Automatic XSL:RML', required=True),
-        'usage': fields.char('Action Usage', size=32),
-        'header': fields.boolean('Add RML header',
-            help="Add or not the coporate RML header"),
+            type='binary', string='ODT content',),
+        'auto': fields.boolean('Automatic', required=True),
         'multi': fields.boolean('On multiple doc.',
             help="If set to true, the action will not be displayed " \
                     "on the right toolbar of a form views.")
     }
     _defaults = {
-        'type': lambda *a: 'ir.actions.report.xml',
+        'type': lambda *a: 'ir.actions.report',
         'multi': lambda *a: False,
         'auto': lambda *a: True,
-        'header': lambda *a: True,
-        'report_sxw_content': lambda *a: False,
+        'report_odt_content': lambda *a: False,
     }
 
-ActionsReportXML()
+ActionsReport()
 
 
 class ActionsActWindow(OSV):
