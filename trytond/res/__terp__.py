@@ -3,7 +3,7 @@
     'active': True,
     'depends': ['ir'],
     'xml': [
-        'user.xml',
+        'users.xml',
         'lang.xml',
         'request.xml',
         ]

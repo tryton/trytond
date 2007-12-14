@@ -1,4 +1,4 @@
-"User"
+"Users"
 from trytond.osv import fields, OSV, ExceptOSV
 #from trytond.tools import Cache
 
