@@ -242,7 +242,6 @@ class ORM(object):
     _date_name = 'date'
     _order = 'id'
     _inherits = {}
-    _inherit = None
     _sequence = None
     _description = __doc__
     _protected = [
