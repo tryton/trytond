@@ -137,7 +137,7 @@ Users()
 class Groups2(Groups):
     _columns = {
         'users': fields.many2many('res.users', 'res_groups_users_rel', 'gid',
-            'user', 'Users'),
+            'uid', 'Users'),
     }
 
 Groups2()
