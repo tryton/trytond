@@ -118,7 +118,7 @@ CREATE TABLE ir_ui_menu (
 select setval('ir_ui_menu_id_seq', 2);
 
 ---------------------------------
--- Res users
+-- Res user
 ---------------------------------
 
 -- level:
@@ -126,7 +126,7 @@ select setval('ir_ui_menu_id_seq', 2);
 --   1  RESTRICT TO GROUP
 --   2  PUBLIC
 
-CREATE TABLE res_users (
+CREATE TABLE res_user (
     id serial NOT NULL,
     name varchar(64) not null,
     active boolean default True,
@@ -136,32 +136,32 @@ CREATE TABLE res_users (
     action_id int,
     primary key(id)
 );
-alter table res_users add constraint res_users_login_uniq unique (login);
+alter table res_user add constraint res_user_login_uniq unique (login);
 
-insert into res_users (id,login,password,name,action_id,active) values (1,'root',NULL,'Root',NULL,False);
-select setval('res_users_id_seq', 2);
+insert into res_user (id,login,password,name,action_id,active) values (1,'root',NULL,'Root',NULL,False);
+select setval('res_user_id_seq', 2);
 
-CREATE TABLE res_groups (
+CREATE TABLE res_group (
     id serial NOT NULL,
     name varchar(32) NOT NULL,
     primary key(id)
 );
 
-create table res_roles (
+create table res_role (
     id serial NOT NULL,
-    parent_id int references res_roles on delete set null,
+    parent_id int references res_role on delete set null,
     name varchar(32) NOT NULL,
     primary key(id)
 );
 
-CREATE TABLE res_roles_users_rel (
-	uid integer NOT NULL references res_users on delete cascade,
-	rid integer NOT NULL references res_roles on delete cascade
+CREATE TABLE res_role_user_rel (
+	uid integer NOT NULL references res_user on delete cascade,
+	rid integer NOT NULL references res_role on delete cascade
 );
 
-CREATE TABLE res_groups_users_rel (
-	uid integer NOT NULL references res_users on delete cascade,
-	gid integer NOT NULL references res_groups on delete cascade
+CREATE TABLE res_group_user_rel (
+	uid integer NOT NULL references res_user on delete cascade,
+	gid integer NOT NULL references res_group on delete cascade
 );
 
 ---------------------------------
@@ -204,7 +204,7 @@ create table wkf_transition
     trigger_expr_id varchar(128) default NULL,
 
     signal varchar(64) default null,
-    role_id int references res_roles on delete set null,
+    role_id int references res_role on delete set null,
 
     primary key(id)
 );
@@ -241,7 +241,7 @@ create table wkf_logs
     id serial,
     res_type varchar(128) not null,
     res_id int not null,
-    uid int references res_users on delete set null,
+    uid int references res_user on delete set null,
     act_id int references wkf_activity on delete set null,
     time time not null,
     info varchar(128) default NULL,
@@ -254,10 +254,10 @@ create table wkf_logs
 
 CREATE TABLE ir_module_category (
     id serial NOT NULL,
-    create_uid integer references res_users on delete set null,
+    create_uid integer references res_user on delete set null,
     create_date timestamp without time zone,
     write_date timestamp without time zone,
-    write_uid integer references res_users on delete set null,
+    write_uid integer references res_user on delete set null,
     parent_id integer REFERENCES ir_module_category ON DELETE SET NULL,
     name character varying(128) NOT NULL,
     primary key(id)
@@ -266,10 +266,10 @@ CREATE TABLE ir_module_category (
 
 CREATE TABLE ir_module_module (
     id serial NOT NULL,
-    create_uid integer references res_users on delete set null,
+    create_uid integer references res_user on delete set null,
     create_date timestamp without time zone,
     write_date timestamp without time zone,
-    write_uid integer references res_users on delete set null,
+    write_uid integer references res_user on delete set null,
     website character varying(256),
     name character varying(128) NOT NULL,
     author character varying(128),
@@ -286,10 +286,10 @@ ALTER TABLE ir_module_module add constraint name_uniq unique (name);
 
 CREATE TABLE ir_module_module_dependency (
     id serial NOT NULL,
-    create_uid integer references res_users on delete set null,
+    create_uid integer references res_user on delete set null,
     create_date timestamp without time zone,
     write_date timestamp without time zone,
-    write_uid integer references res_users on delete set null,
+    write_uid integer references res_user on delete set null,
     name character varying(128),
     version_pattern character varying(128) default NULL,
     module_id integer REFERENCES ir_module_module ON DELETE cascade,
