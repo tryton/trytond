@@ -31,11 +31,11 @@ class Request(OSV):
                 'waiting': [('readonly', True)],
                 'closed': [('readonly', True)],
                 }, required=True),
-        'act_from': fields.Many2One('res.users', 'From', required=True,
+        'act_from': fields.Many2One('res.user', 'From', required=True,
             readonly=True, states={
                 'closed': [('readonly', True)],
                 }),
-        'act_to': fields.Many2One('res.users', 'To', required=True,
+        'act_to': fields.Many2One('res.user', 'To', required=True,
             states={
                 'waiting': [('readonly', True)],
                 'closed': [('readonly', True)],
@@ -155,9 +155,9 @@ class RequestHistory(OSV):
             }, required=True),
         'req_id': fields.Many2One('res.request', 'Request', required=True,
             ondelete='cascade', select=True),
-        'act_from': fields.Many2One('res.users', 'From', required=True,
+        'act_from': fields.Many2One('res.user', 'From', required=True,
             readonly=True),
-        'act_to': fields.Many2One('res.users', 'To', required=True, states={
+        'act_to': fields.Many2One('res.user', 'To', required=True, states={
             'waiting': [('readonly', True)],
             }),
         'body': fields.Text('Body', states={

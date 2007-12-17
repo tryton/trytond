@@ -29,7 +29,7 @@ class Cron(OSV, Agent):
     _description = __doc__
     _columns = {
         'name': fields.char('Name', size=60, required=True),
-        'user_id': fields.many2one('res.users', 'User', required=True),
+        'user_id': fields.many2one('res.user', 'User', required=True),
         'active': fields.boolean('Active'),
         'interval_number': fields.integer('Interval Number'),
         'interval_type': fields.selection( [

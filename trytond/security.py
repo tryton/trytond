@@ -5,7 +5,7 @@ _USER_CACHE = {}
 
 def login(dbname, loginname, password):
     cursor = pooler.get_db(dbname).cursor()
-    cursor.execute('SELECT id FROM res_users '
+    cursor.execute('SELECT id FROM res_user '
         'WHERE login = %s and password = %s and active',
         (loginname.encode('utf-8'), password.encode('utf-8')))
     res = cursor.fetchone()
@@ -26,7 +26,7 @@ def check(dbname, user, passwd):
     if _USER_CACHE.has_key(user) and (_USER_CACHE[user]==passwd):
         return True
     cursor = pooler.get_db(dbname).cursor()
-    cursor.execute('SELECT count(*) FROM res_users ' \
+    cursor.execute('SELECT count(*) FROM res_user ' \
             'WHERE id = %d AND password = %s', (int(user), passwd))
     res = cursor.fetchone()[0]
     cursor.close()

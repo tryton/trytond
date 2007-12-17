@@ -59,7 +59,7 @@ class DB(Service):
                     service.actions[db_id]['clean'] = True
                     cursor = sql_db.db_connect(db_name).cursor()
                     cursor.execute('select login, password, name ' \
-                            'from res_users ' \
+                            'from res_user ' \
                             'where login <> \'root\' order by login')
                     service.actions[db_id]['users'] = cursor.dictfetchall()
                     cursor.close()
