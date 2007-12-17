@@ -246,10 +246,7 @@ class XmlRpc(object):
             self.name = name
 
 
-class GenericXMLRPCRequestHandler(object):
-
-    def __init__(self):
-        self.path = ''
+class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
         import traceback
