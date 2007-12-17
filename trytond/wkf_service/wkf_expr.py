@@ -65,9 +65,9 @@ def check(cursor, ident, transition, signal):
     if transition['role_id']:
         user = ident[0]
         serv = netsvc.LocalService('object_proxy')
-        user_roles = serv.execute_cr(cursor, user, 'res.users', 'read', [user],
+        user_roles = serv.execute_cr(cursor, user, 'res.user', 'read', [user],
                 ['roles_id'])[0]['roles_id']
-        res = res and serv.execute_cr(cursor, user, 'res.roles', 'check',
+        res = res and serv.execute_cr(cursor, user, 'res.role', 'check',
                 user_roles, transition['role_id'])
     res = res and eval_expr(cursor, ident, transition['condition'])
     return res

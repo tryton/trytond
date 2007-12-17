@@ -316,10 +316,10 @@ class ORM(object):
             cursor.commit()
             if self._log_access:
                 logs = {
-                    'create_uid': 'INTEGER REFERENCES res_users ' \
+                    'create_uid': 'INTEGER REFERENCES res_user ' \
                             'ON DELETE SET NULL',
                     'create_date': 'TIMESTAMP',
-                    'write_uid': 'INTEGER REFERENCES res_users ' \
+                    'write_uid': 'INTEGER REFERENCES res_user ' \
                             'ON DELETE SET NULL',
                     'write_date': 'TIMESTAMP'
                 }
@@ -632,11 +632,11 @@ class ORM(object):
         # FIXME: does not work at all
 #        if self._log_access:
 #            self._columns.update({
-#                'create_uid': fields.many2one('res.users', 'Creation user',
+#                'create_uid': fields.many2one('res.user', 'Creation user',
 #                       required=True, readonly=True),
 #                'create_date': fields.datetime('Creation date', required=True,
 #                       readonly=True),
-#                'write_uid': fields.many2one('res.users',
+#                'write_uid': fields.many2one('res.user',
 #                       'Last modification by', readonly=True),
 #                'write_date': fields.datetime('Last modification date',
 #                       readonly=True),

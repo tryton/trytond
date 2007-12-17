@@ -37,7 +37,7 @@ class ModelFields(OSV):
         'ttype': fields.char('Field Type', size=64),
         'relate': fields.boolean('Click and Relate'),
 
-        'groups': fields.many2many('res.groups', 'ir_model_fields_group_rel',
+        'groups': fields.many2many('res.group', 'ir_model_fields_group_rel',
             'field_id', 'group_id', 'Groups'),
         'group_name': fields.char('Group Name', size=128),
         'view_load': fields.boolean('View Auto-Load'),
@@ -60,7 +60,7 @@ class ModelAccess(OSV):
     _columns = {
         'name': fields.char('Name', size=64, required=True),
         'model_id': fields.many2one('ir.model', 'Model', required=True),
-        'group_id': fields.many2one('res.groups', 'Group'),
+        'group_id': fields.many2one('res.group', 'Group'),
         'perm_read': fields.boolean('Read Access'),
         'perm_write': fields.boolean('Write Access'),
         'perm_create': fields.boolean('Create Access'),
@@ -77,7 +77,7 @@ class ModelAccess(OSV):
             'FROM ir_model_access a '
                 'JOIN ir_model m '
                     'ON (a.model_id=m.id) '
-                'JOIN res_groups_users_rel gu '
+                'JOIN res_group_user_rel gu '
                     'ON (gu.gid = a.group_id) '
             'WHERE m.model = %s AND gu.uid = %s', (model_name, user,))
         row = cursor.fetchall()

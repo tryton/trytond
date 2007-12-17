@@ -90,7 +90,7 @@ class WorkflowTransition(OSV):
         'trigger_model': fields.char('Trigger Type', size=128),
         'trigger_expr_id': fields.char('Trigger Expr ID', size=128),
         'signal': fields.char('Signal (button Name)', size=64),
-        'role_id': fields.many2one('res.roles', 'Role Required'),
+        'role_id': fields.many2one('res.role', 'Role Required'),
         'condition': fields.char('Condition', required=True, size=128),
         'act_from': fields.many2one('workflow.activity', 'Source Activity',
             required=True, select=1),
