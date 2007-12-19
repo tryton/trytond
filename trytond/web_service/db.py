@@ -48,7 +48,7 @@ class DB(Service):
                     tools.trans_load(db_name, filename, lang)
                 cursor = sql_db.db_connect(db_name).cursor()
                 cursor.execute('SELECT login, password, name ' \
-                        'FROM res_users ' \
+                        'FROM res_user ' \
                         'WHERE login <> \'root\' ORDER BY login')
                 res = cursor.dictfetchall()
             except Exception, e:

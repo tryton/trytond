@@ -17,9 +17,9 @@ class RuleGroup(OSV):
                     "or it needs to be put on a group or user"),
         'rules': fields.one2many('ir.rule', 'rule_group', 'Tests',
             help="The rule is satisfied if at least one test is True"),
-        'groups': fields.many2many('res.groups', 'group_rule_group_rel',
+        'groups': fields.many2many('res.group', 'group_rule_group_rel',
             'rule_group_id', 'group_id', 'Groups'),
-        'users': fields.many2many('res.users', 'user_rule_group_rel',
+        'users': fields.many2many('res.user', 'user_rule_group_rel',
             'rule_group_id', 'user_id', 'Users'),
     }
     _order = 'model_id, global DESC'
@@ -89,7 +89,7 @@ class Rule(OSV):
             return res
 
         res = [("False", "False"), ("True", "True"), ("user.id", "User")]
-        res += get('res.users', level=1,
+        res += get('res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
         return res
 
@@ -125,7 +125,7 @@ class Rule(OSV):
                                 "WHERE user_id = %d " \
                             "UNION SELECT rule_group_id " \
                                 "FROM group_rule_group_rel g_rel " \
-                                "JOIN res_groups_users_rel u_rel " \
+                                "JOIN res_group_user_rel u_rel " \
                                     "ON (g_rel.group_id = u_rel.gid) " \
                                 "WHERE u_rel.uid = %d) "
                     "OR g.global)", (model_name, user, user))
@@ -140,12 +140,12 @@ class Rule(OSV):
             if rule.operator in ('in', 'child_of'):
                 dom = eval("[('%s', '%s', [%s])]" % \
                         (rule.field_id.name, rule.operator, rule.operand),
-                        {'user': self.pool.get('res.users').browse(cursor, 1,
+                        {'user': self.pool.get('res.user').browse(cursor, 1,
                             user), 'time': time})
             else:
                 dom = eval("[('%s', '%s', %s)]" % \
                         (rule.field_id.name, rule.operator, rule.operand),
-                        {'user': self.pool.get('res.users').browse(cursor, 1,
+                        {'user': self.pool.get('res.user').browse(cursor, 1,
                             user), 'time': time})
 
             if rule.rule_group['global']:
@@ -195,7 +195,7 @@ class Rule(OSV):
                 AND (g.id IN (SELECT rule_group_id FROM user_rule_group_rel
                     WHERE user_id = %d
                     UNION SELECT rule_group_id FROM group_rule_group_rel g_rel
-                        JOIN res_groups_users_rel u_rel
+                        JOIN res_group_user_rel u_rel
                             ON g_rel.group_id = u_rel.gid
                         WHERE u_rel.user = %d))""", (model_name, user, user))
         if not cursor.fetchall():

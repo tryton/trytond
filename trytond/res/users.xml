@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <terp>
     <data>
-        <record model="res.groups" id="group_admin">
+        <record model="res.group" id="group_admin">
             <field name="name">admin</field>
         </record>
-        <record model="res.users" id="user_admin">
+        <record model="res.user" id="user_admin">
             <field name="login">admin</field>
             <field name="password">admin</field>
             <field name="name">Administrator</field>
@@ -13,9 +13,9 @@
             <field name="menu_id" ref="ir.act_menu_tree"/>
             <field name="groups_id" eval="[(6, 0, [group_admin])]"/>
         </record>
-        <record model="ir.ui.view" id="users_view_form">
-            <field name="name">res.users.form</field>
-            <field name="model">res.users</field>
+        <record model="ir.ui.view" id="user_view_form">
+            <field name="name">res.user.form</field>
+            <field name="model">res.user</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="User">
@@ -42,9 +42,9 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="users_view_tree">
-            <field name="name">res.users.tree</field>
-            <field name="model">res.users</field>
+        <record model="ir.ui.view" id="user_view_tree">
+            <field name="name">res.user.tree</field>
+            <field name="model">res.user</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Users">
@@ -53,31 +53,31 @@
                 </tree>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_users_form">
+        <record model="ir.actions.act_window" id="act_user_form">
             <field name="name">Users</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">res.users</field>
+            <field name="res_model">res.user</field>
             <field name="view_type">form</field>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_users_form_view1">
+            id="act_user_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="users_view_tree"/>
-            <field name="act_window_id" ref="act_users_form"/>
+            <field name="view_id" ref="user_view_tree"/>
+            <field name="act_window_id" ref="act_user_form"/>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_users_form_view2">
+            id="act_user_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="users_view_form"/>
-            <field name="act_window_id" ref="act_users_form"/>
+            <field name="view_id" ref="user_view_form"/>
+            <field name="act_window_id" ref="act_user_form"/>
         </record>
         <menuitem name="Administration/Res/"
-            action="act_users_form" id="menu_users_form"/>
-        <record model="ir.ui.view" id="groups_view_form">
-            <field name="name">res.groups.form</field>
-            <field name="model">res.groups</field>
+            action="act_user_form" id="menu_user_form"/>
+        <record model="ir.ui.view" id="group_view_form">
+            <field name="name">res.group.form</field>
+            <field name="model">res.group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Group">
@@ -95,9 +95,9 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="groups_view_tree">
-            <field name="name">res.groups.tree</field>
-            <field name="model">res.groups</field>
+        <record model="ir.ui.view" id="group_view_tree">
+            <field name="name">res.group.tree</field>
+            <field name="model">res.group</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Groups">
@@ -105,31 +105,31 @@
                 </tree>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_groups_form">
+        <record model="ir.actions.act_window" id="act_group_form">
             <field name="name">Groups</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">res.groups</field>
+            <field name="res_model">res.group</field>
             <field name="view_type">form</field>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_groups_form_view1">
+            id="act_group_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="groups_view_tree"/>
-            <field name="act_window_id" ref="act_groups_form"/>
+            <field name="view_id" ref="group_view_tree"/>
+            <field name="act_window_id" ref="act_group_form"/>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_groups_form_view2">
+            id="act_group_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="groups_view_form"/>
-            <field name="act_window_id" ref="act_groups_form"/>
+            <field name="view_id" ref="group_view_form"/>
+            <field name="act_window_id" ref="act_group_form"/>
         </record>
         <menuitem name="Administration/Res/"
-            action="act_groups_form" id="menu_groups_form"/>
-        <record model="ir.ui.view" id="roles_view_form">
-            <field name="name">res.roles.form</field>
-            <field name="model">res.roles</field>
+            action="act_group_form" id="menu_group_form"/>
+        <record model="ir.ui.view" id="role_view_form">
+            <field name="name">res.role.form</field>
+            <field name="model">res.role</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Role">
@@ -138,9 +138,9 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="roles_view_tree">
-            <field name="name">res.roles.tree</field>
-            <field name="model">res.roles</field>
+        <record model="ir.ui.view" id="role_view_tree">
+            <field name="name">res.role.tree</field>
+            <field name="model">res.role</field>
             <field name="type">tree</field>
             <field name="field_parent">parent_id</field>
             <field name="arch" type="xml">
@@ -149,42 +149,42 @@
                 </tree>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_roles_form">
+        <record model="ir.actions.act_window" id="act_role_form">
             <field name="name">Roles</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">res.roles</field>
+            <field name="res_model">res.role</field>
             <field name="view_type">form</field>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_roles_form_view1">
+            id="act_role_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="roles_view_tree"/>
-            <field name="act_window_id" ref="act_roles_form"/>
+            <field name="view_id" ref="role_view_tree"/>
+            <field name="act_window_id" ref="act_role_form"/>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_roles_form_view2">
+            id="act_role_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="roles_view_form"/>
-            <field name="act_window_id" ref="act_roles_form"/>
+            <field name="view_id" ref="role_view_form"/>
+            <field name="act_window_id" ref="act_role_form"/>
         </record>
-        <record model="ir.actions.act_window" id="act_roles_tree">
+        <record model="ir.actions.act_window" id="act_role_tree">
             <field name="name">Roles</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">res.roles</field>
+            <field name="res_model">res.role</field>
             <field name="view_type">tree</field>
         </record>
         <record model="ir.actions.act_window.view"
-            id="act_roles_form_view3">
+            id="act_role_form_view3">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="roles_view_tree"/>
-            <field name="act_window_id" ref="act_roles_tree"/>
+            <field name="view_id" ref="role_view_tree"/>
+            <field name="act_window_id" ref="act_role_tree"/>
         </record>
         <menuitem name="Administration/Res/"
-            action="act_roles_form" id="menu_roles_form"/>
+            action="act_role_form" id="menu_role_form"/>
         <menuitem name="Administration/Res/"
-            action="act_roles_tree" id="menu_roles_tree"/>
+            action="act_role_tree" id="menu_role_tree"/>
     </data>
 </terp>

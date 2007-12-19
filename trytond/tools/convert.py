@@ -471,7 +471,7 @@ class XMLImport(object):
                 if rec.hasAttribute('groups'):
                     g_names = rec.getAttribute('groups').split(',')
                     groups_value = []
-                    groups_obj = self.pool.get('res.groups')
+                    groups_obj = self.pool.get('res.group')
                     for group in g_names:
                         if group.startswith('-'):
                             group_id = self.id_get(cursor, group[1:])

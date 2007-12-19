@@ -118,7 +118,7 @@ class Property(OSV):
             default_val = self.browse(cursor, user, default_id[0],
                     context=context).value
 
-#        company_id = obj.pool.get('res.users').company_get(cursor, user, user)
+#        company_id = obj.pool.get('res.user').company_get(cursor, user, user)
         res = False
         if (val != default_val):
             res = self.create(cursor, user, {
