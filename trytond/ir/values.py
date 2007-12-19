@@ -45,7 +45,7 @@ class Values(OSV):
             fnct_inv=_value_pickle, method=True, type='text',
             string='Meta Datas'),
         'res_id': fields.integer('Resource ID'),
-        'user_id': fields.many2one('res.users', 'User', ondelete='cascade'),
+        'user_id': fields.many2one('res.user', 'User', ondelete='cascade'),
 
 
         #TODO add in company module
@@ -111,7 +111,7 @@ class Values(OSV):
                 'user_id': preserve_user and user,
             }
 #            if company:
-#                cid = self.pool.get('res.users').browse(cursor, user, user,
+#                cid = self.pool.get('res.user').browse(cursor, user, user,
 #                        context={}).company_id.id
 #                vals['company_id'] = cid
             if res_id:
@@ -177,7 +177,7 @@ class Values(OSV):
 
         if not result:
             return []
-#        cid = self.pool.get('res.users').browse(cursor, user, user,
+#        cid = self.pool.get('res.user').browse(cursor, user, user,
 #                context={}).company_id.id
         cursor.execute('SELECT id, name, value, object, meta, key ' \
                 'FROM ir_values ' \

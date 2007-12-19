@@ -278,17 +278,17 @@ def trans_load_data(db_name, data, lang, strict=False, lang_name=None):
         selection = [(x['code'], x['name']) for x in langs]
 
         values_obj.set(cursor, user, 'meta', 'lang', 'lang',
-                [('res.users', False,)],
+                [('res.user', False,)],
                 False, True, False, meta={
                     'type': 'selection',
                     'string': 'Language',
                     'selection': selection,
                     })
 
-        user_ids = pool.get('res.users').search(cursor, user, [])
+        user_ids = pool.get('res.user').search(cursor, user, [])
         for user_id in user_ids:
             values_obj.set(cursor, user, 'meta', 'lang', 'lang',
-                    [('res.users', user_id,)], lang, True, False)
+                    [('res.user', user_id,)], lang, True, False)
 
         reader = csv.reader(data)
         # read the first line of the file (it contains columns titles)

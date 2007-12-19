@@ -53,7 +53,7 @@ class ViewShortcut(OSV):
         'name': fields.char('Shortcut Name', size=64, required=True),
         'res_id': fields.integer('Resource Ref.', required=True),
         'sequence': fields.integer('Sequence'),
-        'user_id': fields.many2one('res.users', 'User Ref.', required=True,
+        'user_id': fields.many2one('res.user', 'User Ref.', required=True,
             ondelete='cascade'),
         'resource': fields.char('Resource Name', size=64, required=True)
     }

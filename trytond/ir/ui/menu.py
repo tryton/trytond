@@ -143,7 +143,7 @@ class UIMenu(OSV):
 
     def search(self, cursor, user, args, offset=0, limit=2000, order=None,
             context=None, count=False):
-        res_user_obj = self.pool.get('res.users')
+        res_user_obj = self.pool.get('res.user')
         if context is None:
             context = {}
         ids = super(UIMenu, self).search(cursor, user, args, offset, limit,
@@ -235,7 +235,7 @@ class UIMenu(OSV):
         'sequence': fields.integer('Sequence'),
         'child_id' : fields.one2many('ir.ui.menu', 'parent_id','Child ids'),
         'parent_id': fields.many2one('ir.ui.menu', 'Parent Menu', select=True),
-        'groups_id': Many2ManyUniq('res.groups', 'ir_ui_menu_group_rel',
+        'groups_id': Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
             'menu_id', 'gid', 'Groups'),
         'complete_name': fields.function(_get_full_name, method=True,
             string='Complete Name', type='char', size=128),
