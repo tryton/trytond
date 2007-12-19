@@ -1,17 +1,17 @@
 import socket
 import cPickle
 
+DNS_CACHE = {}
 
-class MyException(Exception):
+class PySocketException(Exception):
 
-    def __init__(self, faultcode, faultstring):
+    def __init__(self, code, string):
         Exception.__init__(self)
-        self.faultcode = faultcode
-        self.faultstring = faultstring
-        self.args = (faultcode, faultstring)
+        self.faultCode = code
+        self.faultString = string
+        self.args = (code, string)
 
-
-class MySocket:
+class PySocket:
 
     def __init__(self, sock=None):
         if sock is None:
@@ -23,15 +23,18 @@ class MySocket:
 
     def connect(self, host, port=False):
         if not port:
-            protocol, buf = host.split('//')
+            buf = host.split('//')[1]
             host, port = buf.split(':')
+        if host in DNS_CACHE:
+            host = DNS_CACHE[host]
         self.sock.connect((host, int(port)))
+        DNS_CACHE[host], port = self.sock.getpeername()
 
     def disconnect(self):
         self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
 
-    def mysend(self, msg, exception=False, traceback=None):
+    def send(self, msg, exception=False, traceback=None):
         msg = cPickle.dumps([msg, traceback])
         size = len(msg)
         self.sock.send('%8d' % size)
@@ -43,7 +46,7 @@ class MySocket:
                 raise RuntimeError, "socket connection broken"
             totalsent = totalsent + sent
 
-    def myreceive(self):
+    def receive(self):
         buf = ''
         while len(buf) < 8:
             chunk = self.sock.recv(8 - len(buf))
@@ -65,7 +68,7 @@ class MySocket:
         res = cPickle.loads(msg)
         if isinstance(res[0], Exception):
             if exception:
-                raise MyException(str(res[0]), str(res[1]))
+                raise PySocketException(str(res[0]), str(res[1]))
             raise res[0]
         else:
             return res[0]

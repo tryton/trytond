@@ -5,7 +5,7 @@ import SocketServer
 import socket
 import logging
 import os
-import tiny_socket
+from pysocket import PySocket
 
 _SERVICE = {}
 _GROUP = {}
@@ -370,14 +370,14 @@ class TinySocketClientThread(threading.Thread):
         import traceback
         self.running = True
         try:
-            tsock = tiny_socket.MySocket(self.sock)
+            pysocket = PySocket(self.sock)
         except:
             self.sock.close()
             self.threads.remove(self)
             return False
         while self.running:
             try:
-                msg = tsock.myreceive()
+                msg = pysocket.receive()
             except:
                 self.sock.close()
                 self.threads.remove(self)
@@ -390,7 +390,7 @@ class TinySocketClientThread(threading.Thread):
                 res2 = service.service.response
                 if res2 != None:
                     res = res2
-                tsock.mysend(res)
+                pysocket.send(res)
             except Exception, exp:
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(sys.exc_type,
@@ -399,9 +399,7 @@ class TinySocketClientThread(threading.Thread):
                     import pdb
                     tback = sys.exc_info()[2]
                     pdb.post_mortem(tback)
-                tsock.mysend(exp, exception=True, traceback=tb_s)
-            except:
-                pass
+                pysocket.send(exp, exception=True, traceback=tb_s)
             self.sock.close()
             self.threads.remove(self)
             return True
