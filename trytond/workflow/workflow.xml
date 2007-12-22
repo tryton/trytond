@@ -252,6 +252,20 @@
             <field name="res_model">workflow.workitem</field>
             <field name="view_type">form</field>
         </record>
+        <record model="ir.actions.act_window.view"
+            id="act_workitem_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="workitem_view_tree"/>
+            <field name="act_window_id" ref="act_workitem_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_workitem_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="workitem_view_form"/>
+            <field name="act_window_id" ref="act_workitem_form"/>
+        </record>
         <menuitem name="Administration/Workflow/"
             action="act_workitem_form" id="menu_workitem_form"/>
     </data>
