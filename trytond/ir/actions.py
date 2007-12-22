@@ -95,15 +95,12 @@ class ActionsActWindow(OSV):
     _columns = {
         'name': fields.char('Action Name', size=64, translate=True),
         'type': fields.char('Action Type', size=32, required=True),
-        'view_id': fields.many2one('ir.ui.view', 'View Ref.',
-            ondelete='cascade'),
         'domain': fields.char('Domain Value', size=250),
         'context': fields.char('Context Value', size=250),
         'res_model': fields.char('Model', size=64),
         'src_model': fields.char('Source model', size=64),
         'view_type': fields.selection([('tree','Tree'), ('form','Form')],
             string='Type of view'),
-        'view_mode': fields.char('Mode of view', size=250),
         'usage': fields.char('Action Usage', size=32),
         'view_ids': fields.one2many('ir.actions.act_window.view',
             'act_window_id', 'Views'),
@@ -117,7 +114,6 @@ class ActionsActWindow(OSV):
     _defaults = {
         'type': lambda *a: 'ir.actions.act_window',
         'view_type': lambda *a: 'form',
-        'view_mode': lambda *a: 'tree,form',
         'context': lambda *a: '{}',
         'limit': lambda *a: 80,
         'auto_refresh': lambda *a: 0,

@@ -438,11 +438,11 @@ class XMLImport(object):
                     values['icon'] = icons.get(a_type,'STOCK_NEW')
                     if a_type == 'act_window':
                         a_id = self.id_get(cursor, a_action)
-                        cursor.execute('SELECT view_type, view_mode, ' \
+                        cursor.execute('SELECT view_type, ' \
                                 'name, view_id ' \
                                 'FROM ir_act_window ' \
                                 'WHERE id = %d', (int(a_id),))
-                        action_type, action_mode, action_name, view_id = \
+                        action_type, action_name, view_id = \
                                 cursor.fetchone()
                         if view_id:
                             cursor.execute('SELECT type FROM ir_ui_view ' \
