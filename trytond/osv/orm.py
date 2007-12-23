@@ -1594,7 +1594,8 @@ class ORM(object):
         arch = node.toxml(encoding="utf-8").replace('\t', '')
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
         for field in fields_def:
-            fields2[field].update(fields_def[field])
+            if field in fields2:
+                fields2[field].update(fields_def[field])
         return arch, fields2
 
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
