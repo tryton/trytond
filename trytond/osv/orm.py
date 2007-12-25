@@ -1213,14 +1213,14 @@ class ORM(object):
                         raise ExceptORM('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
-                                (vals[field], field))
+                                (val, field))
                 else:
                     if val not in dict(self._columns[field].selection(
                         self, cursor, user, context=context)):
                         raise ExceptORM('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
-                                (vals[field], field))
+                                (val, field))
 
         if self._log_access:
             upd0.append('write_uid=%d')
@@ -1360,14 +1360,14 @@ class ORM(object):
                         raise ExceptORM('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
-                                (vals[field], field))
+                                (val, field))
                 else:
                     if val not in dict(self._columns[field].selection(
                         self, cursor, user, context=context)):
                         raise ExceptORM('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
-                                (vals[field], field))
+                                (val, field))
         if self._log_access:
             upd0 += ', create_uid, create_date'
             upd1 += ', %d, now()'
