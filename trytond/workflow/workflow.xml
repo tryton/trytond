@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <terp>
     <data>
+        <menuitem name="Administration/Workflow" id="menu_workflow"/>
         <record model="ir.ui.view" id="workflow_view_form">
             <field name="name">workflow.form</field>
             <field name="model">workflow</field>

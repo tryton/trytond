@@ -2,7 +2,9 @@
     'name': 'IR',
     'active': True,
     'xml': [
+        'ir.xml',
         'sequence.xml',
+        'ui/ui.xml',
         'ui/menu.xml',
         'ui/view.xml',
         'actions.xml',
