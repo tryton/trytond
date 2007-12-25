@@ -407,6 +407,8 @@ class XMLImport(object):
 
     def _tag_menuitem(self, cursor, rec, data_node=None):
         rec_id = rec.getAttribute("id").encode('ascii')
+        assert rec_id, "No id on menutiem %s" % \
+                rec.getAttribute("name").encode('utf8')
         self._test_xml_id(rec_id)
         m_l = [escape(x) for x in ESCAPE_RE.split(
             rec.getAttribute("name").encode('utf8'))]
@@ -491,19 +493,11 @@ class XMLImport(object):
                 pid = self.pool.get('ir.model.data')._update(cursor, self.user,
                         'ir.ui.menu', self.module, values, xml_id,
                         mode=self.mode, res_id=(res and res[0] or False))
-            elif res:
-                # the menuitem already exists
-                pid = res[0]
-                xml_id = (idx==len(m_l) - 1) \
-                        and rec.getAttribute('id').encode('utf8')
-                self.pool.get('ir.model.data')._update_dummy(cursor,
-                        self.user, 'ir.ui.menu', self.module, xml_id)
             else:
-                # the menuitem does't exist but we are in branch (not a leaf)
-                pid = self.pool.get('ir.ui.menu').create(cursor, self.user,
-                    {'parent_id': pid, 'name': menu_elem})
-        if rec_id and pid:
-            self.idref[rec_id] = int(pid)
+                assert res, "The parent menuitem %s does not exist!" % \
+                        (menu_elem,)
+                pid = res[0]
+        self.idref[rec_id] = int(pid)
         return ('ir.ui.menu', pid)
 
     def _assert_equals(self, i, j, prec=4):

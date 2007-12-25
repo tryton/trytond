@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <terp>
     <data>
+        <menuitem name="Administration/IR/Actions" id="menu_actions"/>
         <record model="ir.ui.view" id="actions_actions_view_form">
             <field name="name">ir.actions.actions.form</field>
             <field name="model">ir.actions.actions</field>

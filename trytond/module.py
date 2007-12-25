@@ -285,18 +285,6 @@ def load_modules(database, force_demo=False, update_module=False):
                 uid = 1
                 pool.get(rmod).unlink(cursor, uid, [rid])
             cursor.commit()
-        # TODO: remove menu without actions of childs
-        cursor.execute('DELETE FROM ir_ui_menu ' \
-                'WHERE (id NOT IN (' \
-                        'SELECT parent_id FROM ir_ui_menu ' \
-                            'WHERE parent_id IS NOT NULL)) ' \
-                    'AND (id NOT IN (' \
-                        'SELECT res_id FROM ir_values ' \
-                            'WHERE model = \'ir.ui.menu\')) ' \
-                    'AND (id NOT IN (' \
-                        'SELECT res_id FROM ir_model_data ' \
-                            'WHERE model = \'ir.ui.menu\'))')
-
         cursor.execute("UPDATE ir_module_module SET state = %s " \
                 "WHERE state IN ('to remove')", ('uninstalled',))
         cursor.commit()
