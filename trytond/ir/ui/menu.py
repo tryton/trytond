@@ -191,17 +191,18 @@ class UIMenu(OSV):
 
     def _action(self, cursor, user, ids, name, arg, context=None):
         res = {}
-        values_obj = self.pool.get('ir.values')
-        value_ids = values_obj.search(cursor, user, [
-            ('model', '=', self._name), ('key', '=', 'action'),
-            ('key2', '=', 'tree_but_open'), ('res_id', 'in', ids)],
-            context=context)
-        values_action = {}
-        for value in values_obj.browse(cursor, user, value_ids,
-                context=context):
-            values_action[value.res_id] = value.value
         for menu_id in ids:
-            res[menu_id] = values_action.get(menu_id, False)
+            res[menu_id] = False
+        action_keyword_obj = self.pool.get('ir.action.keyword')
+        action_keyword_ids = action_keyword_obj.search(cursor, user, [
+            ('keyword', '=', 'tree_open'),
+            ('model', 'in', [self._name + ',' + str(x) for x in ids]),
+            ], context=context)
+        for action_keyword in action_keyword_obj.browse(cursor, user,
+                action_keyword_ids, context=context):
+            model_id = int(action_keyword.model.split(',')[1])
+            res[model_id] = action_keyword.action.type + \
+                    ',' + str(action_keyword.action.id)
         return res
 
     def _action_inv(self, cursor, user, menu_id, name, value, arg,
@@ -211,24 +212,20 @@ class UIMenu(OSV):
         ctx = context.copy()
         if 'read_delta' in ctx:
             del ctx['read_delta']
-        values_obj = self.pool.get('ir.values')
-        values_ids = values_obj.search(cursor, user, [
-            ('model', '=', self._name), ('key', '=', 'action'),
-            ('key2', '=', 'tree_but_open'), ('res_id', '=', menu_id)],
-            context=context)
-        if values_ids:
-            values_obj.write(cursor, user, values_ids[0], {'value': value},
+        action_keyword_obj = self.pool.get('ir.action.keyword')
+        action_keyword_ids = action_keyword_obj.search(cursor, user, [
+            ('keyword', '=', 'tree_open'),
+            ('model', '=', self._name + ',' + str(menu_id)),
+            ], context=context)
+        if action_keyword_ids:
+            action_keyword_obj.unlink(cursor, user, action_keyword_ids,
                     context=ctx)
-        else:
-            values_obj.create(cursor, user, {
-                'name': 'Menuitem',
-                'model': self._name,
-                'value': value,
-                'object': True,
-                'key': 'action',
-                'key2': 'tree_but_open',
-                'res_id': menu_id,
-                }, context=ctx)
+        action_id = value.split(',')[1]
+        action_keyword_obj.create(cursor, user, {
+            'keyword': 'tree_open',
+            'model': self._name + ',' + str(menu_id),
+            'action': action_id,
+            }, context=ctx)
 
     _columns = {
         'name': fields.char('Menu', size=64, required=True, translate=True),

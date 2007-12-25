@@ -480,6 +480,12 @@ class XMLImport(object):
                             group_id = self.id_get(cursor, group)
                             groups_value.append((4, group_id))
                     values['groups_id'] = groups_value
+                if rec.hasAttribute('action'):
+                    a_action = rec.getAttribute('action').encode('utf8')
+                    a_type = rec.getAttribute('type').encode('utf8') \
+                            or 'act_window'
+                    a_id = self.id_get(cursor, a_action)
+                    values['action'] = "ir.actions.%s,%d" % (a_type, a_id)
                 xml_id = rec.getAttribute('id').encode('utf8')
                 self._test_xml_id(xml_id)
                 pid = self.pool.get('ir.model.data')._update(cursor, self.user,
@@ -498,14 +504,6 @@ class XMLImport(object):
                     {'parent_id': pid, 'name': menu_elem})
         if rec_id and pid:
             self.idref[rec_id] = int(pid)
-        if rec.hasAttribute('action') and pid:
-            a_action = rec.getAttribute('action').encode('utf8')
-            a_type = rec.getAttribute('type').encode('utf8') or 'act_window'
-            a_id = self.id_get(cursor, a_action)
-            action = "ir.actions.%s,%d" % (a_type, a_id)
-            self.pool.get('ir.model.data').ir_set(cursor, self.user, 'action',
-                'tree_but_open', 'Menuitem', [('ir.ui.menu', int(pid))],
-                action, True, True, xml_id=rec_id)
         return ('ir.ui.menu', pid)
 
     def _assert_equals(self, i, j, prec=4):

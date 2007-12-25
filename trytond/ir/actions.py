@@ -11,7 +11,9 @@ class Actions(OSV):
     _columns = {
         'name': fields.char('Action Name', required=True, size=64),
         'type': fields.char('Action Type', required=True, size=32),
-        'usage': fields.char('Action Usage', size=32)
+        'usage': fields.char('Action Usage', size=32),
+        'keywords': fields.one2many('ir.action.keyword', 'action',
+            'Keywords'),
     }
     _defaults = {
         'usage': lambda *a: False,
@@ -19,6 +21,53 @@ class Actions(OSV):
 
 Actions()
 
+
+class ActionKeyword(OSV):
+    "Action keyword"
+    _name = 'ir.action.keyword'
+    _description = __doc__
+
+    def _models_get(self, cursor, user, context=None):
+        model_obj = self.pool.get('ir.model')
+        model_ids = model_obj.search(cursor, user, [])
+        res = []
+        for model in model_obj.browse(cursor, user, model_ids, context=context):
+            res.append([model.model, model.name])
+        return res
+
+    _columns = {
+        'keyword': fields.Selection([
+            ('tree_open', 'Open tree'),
+            ('tree_action', 'Action tree'),
+            ('form_action', 'Action form'),
+            ('form_relate', 'Form relate'),
+            ], string='Keyword', required=True),
+        'model': fields.Reference('Model', selection=_models_get, size=128,
+            required=True),
+        'action': fields.many2one('ir.actions.actions', 'Action',
+            ondelete='CASCADE'),
+    }
+
+    def get_keyword(self, cursor, user, keyword, value, context=None):
+        res = []
+        model, model_id = value
+
+        action_keyword_ids = self.search(cursor, user, [
+            ('keyword', '=', keyword),
+            ('model', '=', model + ',' + str(model_id)),
+            ], context=context)
+        action_keyword_ids.extend(self.search(cursor, user, [
+            ('keyword', '=', keyword),
+            ('model', '=', model + ',0'),
+            ], context=context))
+        for action_keyword in self.browse(cursor, user, action_keyword_ids,
+                context=context):
+            res.append(self.pool.get(action_keyword.action.type)\
+                    .read(cursor, user, action_keyword.action.id,
+                        context=context))
+        return res
+
+ActionKeyword()
 
 class ActionsReport(OSV):
     "Actions report"
