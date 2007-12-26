@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="repository_view_form">
+            <field name="name">ir.module.repository.form</field>
+            <field name="model">ir.module.repository</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Repository">
+                    <field name="name" select="1"/>
+                    <field name="sequence"/>
+                    <field name="url" select="1" widget="url"/>
+                    <field name="active" select="1"/>
+                    <field name="filter" colspan="4"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="repository_view_tree">
+            <field name="name">ir.module.repository.tree</field>
+            <field name="model">ir.module.repository</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Repositories">
+                    <field name="sequence"/>
+                    <field name="active"/>
+                    <field name="name"/>
+                    <field name="url"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_repository_form">
+            <field name="name">Repositories</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.module.repository</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_repository_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="repository_view_tree"/>
+            <field name="act_window_id" ref="act_repository_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_repository_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="repository_view_form"/>
+            <field name="act_window_id" ref="act_repository_form"/>
+        </record>
+        <menuitem name="Administration/IR/Modules/"
+            action="act_repository_form" id="menu_repository_form"/>
+    </data>
+</terp>

@@ -9,3 +9,4 @@ from translation import *
 from exports import *
 from rule import *
 from property import *
+import module

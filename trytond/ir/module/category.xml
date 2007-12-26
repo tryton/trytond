@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <record model="ir.ui.view" id="category_view_form">
+            <field name="name">ir.module.category.form</field>
+            <field name="model">ir.module.category</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Module Category">
+                    <field name="name" colspan="4"/>
+                    <field name="parent_id" colspan="4"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="category_view_tree">
+            <field name="name">ir.module.category.tree</field>
+            <field name="model">ir.module.category</field>
+            <field name="type">tree</field>
+            <field name="field_parent">child_ids</field>
+            <field name="arch" type="xml">
+                <tree string="Module Categories">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_category_tree">
+            <field name="name">Categories</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.module.category</field>
+            <field name="view_type">tree</field>
+            <field name="domain">[('parent_id', '=', False)]</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_category_tree_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="category_view_tree"/>
+            <field name="act_window_id" ref="act_category_tree"/>
+        </record>
+        <menuitem name="Administration/IR/Modules/"
+            action="act_category_tree" id="menu_category_tree"/>
+    </data>
+</terp>

@@ -42,8 +42,7 @@ class ActionKeyword(OSV):
             ('form_action', 'Action form'),
             ('form_relate', 'Form relate'),
             ], string='Keyword', required=True),
-        'model': fields.Reference('Model', selection=_models_get, size=128,
-            required=True),
+        'model': fields.Reference('Model', selection=_models_get, size=128),
         'action': fields.many2one('ir.actions.actions', 'Action',
             ondelete='CASCADE'),
     }
