@@ -746,7 +746,7 @@ def convert_csv_import(cursor, module, fname, csvcontent, idref=None,
     pool.get(model).import_data(cursor, user, fields, datas, mode,
             module, noupdate)
 
-def convert_xml_import(cursor, module, xmlstr, idref=None, mode='init',
+def convert_xml_import_dom(cursor, module, xmlstream, idref=None, mode='init',
         noupdate=False, report=None, demo=False):
     if idref is None:
         idref = {}
@@ -754,6 +754,142 @@ def convert_xml_import(cursor, module, xmlstr, idref=None, mode='init',
         report = AssertionReport()
     obj = XMLImport(cursor, module, idref, mode, report=report,
             noupdate=noupdate, demo=demo)
-    obj.parse(xmlstr)
+    obj.parse(xmlstream.read())
     del obj
     return True
+
+
+
+
+#$$
+# Notes:
+# - classe monolythique vs instancier des sous-classe par type de record
+# (que l'on re-reference a la volee des qu'on lit le debut du record).
+# - utilser des pointeur de fct plutot que que inTitle=1
+# - verifier ce qu'il faut passer a _update
+# - ajouter un handler d'exception
+
+# tuto : http://pyxml.sourceforge.net/topics/howto/node14.html
+
+from xml import sax
+
+
+class DummyTagHandler:
+    """Dubhandler implementing empty methods. Will be used when whe
+    want to ignore the xml content"""
+
+    def __init__(self):
+        pass
+
+    def startElement(self, name, attributes):
+        pass
+
+    def characters(self, data):
+        pass
+
+    def endElement(self, name):
+        pass
+
+
+class RecordTagHandler:
+    """Taghandler for the tag <record> """
+    def __init__(self):
+        pass
+
+    def startElement(self, name, attributes):
+        return
+
+    def characters(self, data):
+        pass
+
+    def endElement(self, name):
+        """Must return the object to use for the next call """
+        if name != "record":
+            return self
+        else:
+            return None
+
+class MenuitemTagHandler:
+    """Taghandler for the tag <record> """
+    def __init__(self):
+        pass
+
+    def startElement(self, name, attributes):
+        return
+
+    def characters(self, data):
+        pass
+
+    def endElement(self, name):
+        """Must return the object to use for the next call """
+        if name != "menuitem":
+            return self
+        else:
+            return None
+
+class XmlHandler(sax.handler.ContentHandler):
+
+    def __init__(self):
+        "Register known taghandlers, and manged tags."
+
+        # Tag handlders are used to delegate the processing
+        self.taghandlerlist = {
+            'record': RecordTagHandler(),
+            'menuitem': MenuitemTagHandler(),
+            }
+        self.taghandler = None
+
+        # Managed tags are handled by the current class
+        self.managedtags= ["data", "terp"]
+
+
+
+    def startElement(self, name, attributes):
+        """Rebind the current handler if necessary and call
+        startElement on it"""
+
+        if not self.taghandler:
+            if  name in self.taghandlerlist:
+                self.taghandler = self.taghandlerlist[name]
+            elif name in self.managedtags:
+                return
+            else:
+                # TODO logger, logger, logger, ... 
+                print "Tag", name , "not supported"
+                return
+        
+        self.taghandler.startElement(name, attributes)
+
+        
+    def characters(self, data):
+        if self.taghandler:
+            self.taghandler.characters(data)
+ 
+    def endElement(self, name):
+        if self.taghandler:
+            self.taghandler = self.taghandler.endElement(name)
+
+
+def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
+        noupdate=False, report=None, demo=False):
+    if idref is None:
+        idref = {}
+    if report is None:
+        report = AssertionReport()
+
+
+    parser = sax.make_parser(  )
+    # Tell the parser we are not interested in XML namespaces 
+    parser.setFeature(sax.handler.feature_namespaces, 0)
+    handler = XmlHandler(  )
+    parser.setContentHandler(handler)
+    source = sax.InputSource()
+    source.setByteStream(xmlstream)
+    parser.parse(source)
+
+
+    return True
+
+
+# use  convert_xml_import_sax or convert_xml_import_dom 
+convert_xml_import = convert_xml_import_sax 
