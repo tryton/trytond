@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <menuitem name="Administration" id="menu_administration"/>
+        <menuitem name="Administration/IR" id="menu_ir"/>
+    </data>
+</terp>
