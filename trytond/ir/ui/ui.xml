@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <menuitem name="Administration/IR/UI" id="menu_ui"/>
+    </data>
+</terp>
