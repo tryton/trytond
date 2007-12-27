@@ -42,6 +42,46 @@ class View(OSV):
         (_check_xml, 'Invalid XML for View Architecture!', ['arch'])
     ]
 
+    def unlink(self, cursor, user, ids, context=None):
+        views = self.browse(cursor, user, ids, context=context)
+        for view in views:
+            # Restart the cache
+            try:
+                self.pool.get(view.model).fields_view_get()
+            except:
+                pass
+        res = super(View, self).unlink(cursor, user, ids, context=context)
+        return res
+
+    def create(self, cursor, user, vals, context=None):
+        res = super(View, self).create(cursor, user, vals, context=context)
+        if 'model' in vals:
+            model = vals['model']
+            # Restart the cache
+            try:
+                self.pool.get(model).fields_view_get()
+            except:
+                pass
+        return res
+
+    def write(self, cursor, user, ids, vals, context=None):
+        views = self.browse(cursor, user, ids)
+        for view in views:
+            # Restart the cache
+            try:
+                self.pool.get(view.model).fields_view_get()
+            except:
+                pass
+        res = super(View, self).write(cursor, user, ids, vals, context=context)
+        views = self.browse(cursor, user, ids)
+        for view in views:
+            # Restart the cache
+            try:
+                self.pool.get(view.model).fields_view_get()
+            except:
+                pass
+        return res
+
 View()
 
 

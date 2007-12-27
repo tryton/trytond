@@ -4,6 +4,8 @@ from xml.dom import minidom
 from xml import xpath
 from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING, LocalService
 import fields
+from trytond.tools import Cache
+import md5
 
 ID_MAX = 1000
 
@@ -1645,7 +1647,7 @@ class ORM(object):
         return arch, fields2
 
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
-            context=None, toolbar=False):
+            context=None, toolbar=False, hexmd5=None):
 
         def _inherit_apply(src, inherit):
 
@@ -1815,7 +1817,12 @@ class ORM(object):
                 'action': resaction,
                 'relate': resrelate,
             }
+        result['md5'] = md5.new(str(result)).hexdigest()
+        if hexmd5 == result['md5']:
+            return True
         return result
+
+    fields_view_get = Cache()(fields_view_get)
 
     _view_look_dom_arch = __view_look_dom_arch
 
