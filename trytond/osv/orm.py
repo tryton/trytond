@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from xml import dom
+from xml.dom import minidom
+from xml import xpath
 from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING, LocalService
 import fields
 
@@ -1648,23 +1650,10 @@ class ORM(object):
         def _inherit_apply(src, inherit):
 
             def _find(node, node2):
-                if node.nodeType == node.ELEMENT_NODE \
-                        and node.localName == node2.localName:
-                    res = True
-                    for attr in node2.attributes.keys():
-                        if attr == 'position':
-                            continue
-                        if node.hasAttribute(attr):
-                            if node.getAttribute(attr) == \
-                                    node2.getAttribute(attr):
-                                continue
-                        res = False
-                    if res:
-                        return node
-                for child in node.childNodes:
-                    res = _find(child, node2)
-                    if res:
-                        return res
+                if node2.nodeType == node2.ELEMENT_NODE \
+                        and node2.localName == 'xpath':
+                    res = xpath.Evaluate(node2.getAttribute('expr'), node)
+                    return res and res[0] or None
                 return None
 
             doc_src = dom.minidom.parseString(src)
