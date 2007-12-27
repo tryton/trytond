@@ -435,8 +435,7 @@ class ORM(object):
                                 (self._table, k))
                     res = cursor.dictfetchall()
                     if not res:
-                        if not isinstance(field, fields.function) \
-                                or field.store:
+                        if not isinstance(field, fields.function):
                             # add the missing field
                             cursor.execute("ALTER TABLE \"%s\" " \
                                     "ADD COLUMN \"%s\" %s" % \
@@ -494,8 +493,7 @@ class ORM(object):
                         f_pg_type = f_pg_def['typname']
                         f_pg_size = f_pg_def['size']
                         f_pg_notnull = f_pg_def['attnotnull']
-                        if isinstance(field, fields.function) \
-                                and not field.store:
+                        if isinstance(field, fields.function):
                             logger.notify_channel('init', LOG_WARNING,
                                     'column %s (%s) in table %s was converted '\
                                             'to a function !\n' \
@@ -1283,14 +1281,14 @@ class ORM(object):
                                 'You try to bypass an access rule ' \
                                         '(Document type: %s).' % \
                                         self._description)
-                if domain:
+                if domain1:
                     cursor.execute('UPDATE "' + self._table + '" ' \
-                            'SET "' + '","'.join(upd0) + '" ' \
+                            'SET ' + ','.join(upd0) + ' ' \
                             'WHERE id IN (' + ids_str + ') ' + domain1,
                             upd1 + domain2)
                 else:
                     cursor.execute('UPDATE "' + self._table + '" ' \
-                            'SET "' + '","'.join(upd0) + '" ' \
+                            'SET ' + ','.join(upd0) + ' ' \
                             'WHERE id IN (' + ids_str + ') ', upd1)
 
             if totranslate:
@@ -1335,7 +1333,6 @@ class ORM(object):
         wf_service = LocalService("workflow")
         for obj_id in ids:
             wf_service.trg_write(user, self._name, obj_id, cursor)
-        self._update_function_stored(cursor, user, ids, context=context)
         return True
 
     def create(self, cursor, user, vals, context=None):
@@ -1433,31 +1430,7 @@ class ORM(object):
 
         wf_service = LocalService("workflow")
         wf_service.trg_create(user, self._name, id_new, cursor)
-        self._update_function_stored(cursor, user, [id_new], context=context)
         return id_new
-
-    def _update_function_stored(self, cursor, user, ids, context=None):
-        ffields = [x for x in self._columns if isinstance(self._columns[x],
-            fields.function) and self._columns[x].store]
-        if ffields:
-            result = self.read(cursor, user, ids, fields_names=ffields,
-                    context=context)
-            for res in result:
-                upd0 = []
-                upd1 = []
-                for field in res:
-                    if field not in ffields:
-                        continue
-                    value = res[field]
-                    if self._columns[field]._type in ('many2one', 'one2one'):
-                        value = res[field][0]
-                    upd0.append('"' + field + '"=' + \
-                            self._columns[field]._symbol_set[0])
-                    upd1.append(self._columns[field]._symbol_set[1](value))
-                upd1.append(res['id'])
-                cursor.execute('update "' + self._table + '" set ' + \
-                        ','.join(upd0) + ' where id = %d', upd1)
-        return True
 
     def fields_get(self, cursor, user, fields_names=None, context=None):
         """
