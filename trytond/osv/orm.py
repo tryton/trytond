@@ -428,7 +428,7 @@ class ORM(object):
                                 "AND a.attname = %s " \
                                 "AND c.oid = a.attrelid " \
                                 "AND a.atttypid = t.oid",
-                                (self._table, k.lower()))
+                                (self._table, k))
                     res = cursor.dictfetchall()
                     if not res:
                         if not isinstance(field, fields.function) \
