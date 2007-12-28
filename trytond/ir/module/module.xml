@@ -95,5 +95,13 @@
         </record>
         <menuitem name="Administration/IR/Modules/"
             action="act_module_form" id="menu_module_form"/>
+        <record model="ir.actions.wizard" id="act_module_update_list">
+            <field name="name">Update Module List</field>
+            <field name="wiz_name">ir.module.module.update_list</field>
+        </record>
+        <menuitem name="Administration/IR/Modules/Update Module List"
+            action="act_module_update_list"
+            type="wizard"
+            id="menu_module_update_list"/>
     </data>
 </terp>

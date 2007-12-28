@@ -3,8 +3,10 @@ from netsvc import Logger, LOG_INFO
 
 _DB = {}
 _POOL = {}
+_POOL_WIZARD = {}
 
-def get_db_and_pool(db_name, force_demo=False, update_module=False):
+def get_db_and_pool(db_name, force_demo=False, update_module=False,
+        wizard=False):
     if db_name in _DB:
         database = _DB[db_name]
     else:
@@ -15,12 +17,18 @@ def get_db_and_pool(db_name, force_demo=False, update_module=False):
 
     if db_name in _POOL:
         pool = _POOL[db_name]
+        pool_wizard = _POOL_WIZARD[db_name]
     else:
         Logger().notify_channel('pooler', LOG_INFO,
                 'Instanciate pooler for %s' % (db_name))
         from osv.osv import OSVService
         pool = OSVService()
         _POOL[db_name] = pool
+
+        from wizard import WizardService
+        pool_wizard = WizardService()
+        _POOL_WIZARD[db_name] = pool_wizard
+
         from module import load_modules
         load_modules(database, force_demo, update_module)
 
@@ -28,6 +36,8 @@ def get_db_and_pool(db_name, force_demo=False, update_module=False):
             import report
             #report.interface.register_all(database)
             pool.get('ir.cron').pool_jobs(database.dbname)
+    if wizard:
+        return database, pool_wizard
     return database, pool
 
 def restart_pool(db_name, force_demo=False, update_module=False):
@@ -56,4 +66,8 @@ def get_db(db_name):
 
 def get_pool(db_name, force_demo=False, update_module=False):
     pool = get_db_and_pool(db_name, force_demo, update_module)[1]
+    return pool
+
+def get_pool_wizard(db_name, force_demo=False, update_module=False):
+    pool = get_db_and_pool(db_name, force_demo, update_module, wizard=True)[1]
     return pool

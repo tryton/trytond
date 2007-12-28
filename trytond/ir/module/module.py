@@ -7,6 +7,7 @@ from trytond.osv import fields, OSV
 import trytond.tools as tools
 from trytond.module import ADDONS_PATH
 from trytond.osv.orm import ExceptORM
+from trytond.wizard import Wizard
 
 VER_REGEXP = re.compile(
     "^(\\d+)((\\.\\d+)*)([a-z]?)((_(pre|p|beta|alpha|rc)\\d*)*)(-r(\\d+))?$")
@@ -536,3 +537,89 @@ class ModuleDependency(OSV):
     }
 
 ModuleDependency()
+
+
+class ModuleUpdateList(Wizard):
+    "Update module list"
+    _name = 'ir.module.module.update_list'
+
+    arch = '''<?xml version="1.0"?>
+    <form string="Scan for new modules">
+        <label string="This function will check for new modules in the 'addons' path and on module repositories:" colspan="4" align="0.0"/>
+        <field name="repositories" colspan="4" nolabel="1"/>
+    </form>'''
+    fields = {
+        'repositories': {'type': 'text', 'string': 'Repositories', 'readonly': True},
+    }
+
+    arch_module = '''<?xml version="1.0"?>
+    <form string="New modules">
+        <field name="update" colspan="4"/>
+        <field name="add" colspan="4"/>
+    </form>'''
+
+    fields_module = {
+        'update': {'type': 'integer', 'string': 'Number of modules updated', 'readonly': True},
+        'add': {'type': 'integer', 'string': 'Number of modules added', 'readonly': True},
+    }
+
+    def _update_module(self, cr, uid, data, context):
+        module_obj = self.pool.get('ir.module.module')
+        update, add = module_obj.update_list(cr, uid)
+        return {'update': update, 'add': add}
+
+    def _action_module_open(self, cr, uid, data, context):
+        return {
+                'domain': str([]),
+                'name': 'Module List',
+                'view_type': 'form',
+                'view_mode': 'tree,form',
+                'res_model': 'ir.module.module',
+                'view_id': False,
+                'type': 'ir.actions.act_window',
+                }
+
+    def _get_repositories(self, cr, uid, data, context):
+        repository_obj = self.pool.get('ir.module.repository')
+        ids = repository_obj.search(cr, uid, [])
+        res = repository_obj.read(cr, uid, ids, ['name', 'url'], context)
+        return {
+                'repositories': '\n'.join([x['name']+': '+x['url'] \
+                        for x in res]),
+                }
+
+    states = {
+            'init': {
+                'actions': [_get_repositories],
+                'result': {
+                    'type': 'form',
+                    'arch': arch,
+                    'fields': fields,
+                    'state': [
+                        ('end', 'Cancel', 'gtk-cancel'),
+                        ('update', 'Check new modules', 'gtk-ok', True),
+                        ]
+                }
+            },
+            'update': {
+                'actions': [_update_module],
+                'result': {
+                    'type': 'form',
+                    'arch': arch_module,
+                    'fields': fields_module,
+                    'state': [
+                        ('open_window', 'Ok', 'gtk-ok', True),
+                    ]
+                }
+            },
+            'open_window': {
+                'actions': [],
+                'result': {
+                    'type': 'action',
+                    'action': _action_module_open,
+                    'state':'end',
+                }
+            },
+        }
+
+ModuleUpdateList()
