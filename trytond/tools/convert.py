@@ -11,6 +11,10 @@ from trytond.version import VERSION
 import logging
 
 
+
+CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
+CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
+                       
 def _ref(self, cursor):
     return lambda x: self.id_get(cursor, x)
 
@@ -78,10 +82,13 @@ def _eval_xml(self, node, pool, cursor, user, idref, context=None):
                             idref[i] = self.id_get(cursor, i)
                     return string % idref
 
-                txt = '<?xml version="1.0"?>\n' + \
-                        _process("".join([x.toxml().encode("utf8") \
+                txt =  _process("".join([x.toxml().encode("utf8") \
                         for x in node.childNodes]), idref)
-                return txt
+
+                txt = CDATA_START.sub('', txt)
+                txt = CDATA_END.sub('', txt)
+
+                return '<?xml version="1.0"?>\n' + txt 
             if f_type in ('char', 'int', 'float'):
                 value = ""
                 for child_node in node.childNodes:
@@ -651,6 +658,7 @@ class XMLImport(object):
             else:
                 f_val = _eval_xml(self, field, self.pool, cursor, self.user,
                         self.idref)
+
                 if model._columns.has_key(f_name):
                     if isinstance(model._columns[f_name], Integer):
                         f_val = int(f_val)
@@ -818,35 +826,41 @@ class RecordTagHandler:
     def __init__(self, master_handler):
         # Remind reference of parent handler
         self.mh = master_handler
-        
+
         
     def startElement(self, name, attributes):
 
         # Manage the top level tag
         if name == "record":
-            self.model = self.mh.pool.get(attributes["model"])
+            self.model = self.mh.pool.get(attributes["model"].encode('utf8'))
             assert self.model, "The model %s does not exist !" % (rec_model,)
 
-            self.xml_id = attributes["id"]
+            self.xml_id = attributes["id"].encode('utf8')
 
             # create/update a dict containing fields values
             self.values = {}
+            
             self.current_field = None
+            self.cdata = False
             
             return self.xml_id
 
         # Manage included tags:
         elif name == "field":
 
-            field_name = attributes['name']
+            field_name = attributes['name'].encode('utf8')
             # Create a new entry in the values
             self.values[field_name] = ""
-            
             # Remind the current name (see characters)
             self.current_field = field_name
+            # Put a flag to escape cdata tags
+            if field_name == "arch":
+                self.cdata = "start"
 
-            search_attr = attributes.get('search',False)
-            ref_attr = attributes.get('ref', False)
+            # Catch the known attributes
+            search_attr = attributes.get('search','').encode('utf8')
+            ref_attr = attributes.get('ref', '').encode('utf8')
+            eval_attr = attributes.get('eval', '').encode('utf8')
 
             if search_attr:
                 answer = f_obj.browse(
@@ -857,14 +871,20 @@ class RecordTagHandler:
                 
                 if field_name in model._columns:
                     if model._columns[field_name]._type == 'many2many':
-                        f_val = [(6, 0, [x['id'] for x in answer])]
+                        self.values[field_name] = [(6, 0, [x['id'] for x in answer])]
 
                     elif model._columns[field_name]._type == 'many2one':
-                        f_val = answer[0]['id']
+                        self.values[field_name] = answer[0]['id']
 
             elif ref_attr:
                 # TODO avec cache sur les ids..:
-                self.id_get(cursor, f_ref)
+                #self.id_get(cursor, f_ref)
+                self.values[field_name] = self.mh.get_id(ref_attr)
+
+            elif eval_attr:
+                print "NOT IMPLEMENTED : eval"                
+                pass
+
 
         else:
             raise Exception("Tags '%s' not supported inside tag record."% (name,))
@@ -873,8 +893,14 @@ class RecordTagHandler:
 
         """If whe are in a field tag, consume all the content"""
         
-        if self.current_field:
-            self.values[self.current_field] += data
+        if not self.current_field:
+            return
+        # Escape start cdata tag if necessary
+        if self.cdata == "start":
+            data = CDATA_START.sub('', data)
+            self.start_cdata = "inside"
+            
+        self.values[self.current_field] += data.encode('utf8')
 
 
     def endElement(self, name):
@@ -885,13 +911,25 @@ class RecordTagHandler:
         delegation"""
         
         if name == "field":
+            if not self.current_field:
+                raise Exception("Application error"
+                                "current_field expected to be set.")
+            # Escape end cdata tag :
+            if self.cdata == 'inside':
+                self.values[self.current_field] =\
+                    CDATA_END.sub('', self.values[self.current_field])
+                self.cdata = 'done'
+                
             self.current_field = None
             return self
+        
         elif name == "record":
             # db access: TODO : use the object reference instead of
             # the name of the model because _update do a new get to
             # obtain the reference
-            self.mh.pool.get('ir.model.data')._update(
+
+
+            res = self.mh.pool.get('ir.model.data')._update(
                 self.mh.cursor, self.mh.user,
                 self.model._name, self.mh.module, self.values, self.xml_id,
                 noupdate=self.mh.noupdate, mode=self.mh.mode)
@@ -899,6 +937,7 @@ class RecordTagHandler:
             return None
         else:
             raise Exception("Unexpected closing tag '%s'"% (name,))
+
 
 class TrytondXmlHandler(sax.handler.ContentHandler):
 
@@ -912,6 +951,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.user = 1
         self.module = module
         
+
         # Tag handlders are used to delegate the processing
         self.taghandlerlist = {
             'record': RecordTagHandler(self),
@@ -924,9 +964,23 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.idlist = []
 
 
+    def get_id(self, xml_id):
+
+        module = self.module
+        if '.' in xml_id:
+            module, xml_id = xml_id.split('.')
+
+        model_data_id = self.pool.get('ir.model.data')._get_id(
+            self.cursor, self.user, module, xml_id)
+
+        return int(self.pool.get('ir.model.data').read(self.cursor, self.user,
+            [model_data_id], ['res_id'])[0]['res_id'])
+
+
     def startElement(self, name, attributes):
         """Rebind the current handler if necessary and call
         startElement on it"""
+
         if not self.taghandler:
 
             if  name in self.taghandlerlist:
@@ -960,9 +1014,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             self.taghandler = self.taghandler.endElement(name)
 
 
-    def get_state(self):
-        return "Not implemented"
-
 def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
         noupdate=False, report=None, demo=False):
     if idref is None:
@@ -985,16 +1036,11 @@ def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
     parser.setContentHandler(handler)
     source = sax.InputSource()
     source.setByteStream(xmlstream)
-    try:
-        parser.parse(source)
-    except Exception, e:
-        print "-- parsing states: --"
-        print handler.get_state()
-        print "-- --" 
-        raise e
+
+    parser.parse(source)
 
     return True
 
 
 # use  convert_xml_import_sax or convert_xml_import_dom 
-convert_xml_import = convert_xml_import_sax 
+convert_xml_import = convert_xml_import_dom

@@ -10,6 +10,7 @@
             <field name="model">res.lang</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <tree string="Languages" editable="bottom">
                     <field name="name"/>
                     <field name="code"/>
@@ -17,6 +18,7 @@
                     <field name="translatable"/>
                     <field name="active"/>
                 </tree>
+		]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_lang_form">
