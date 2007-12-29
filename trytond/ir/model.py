@@ -239,7 +239,6 @@ class ModelData(OSV):
         else:
             if mode == 'init' or (mode == 'update' and xml_id):
                 res_id = model_obj.create(cursor, user, values)
-                print "CREATED", res_id
                 if xml_id:
                     self.create(cursor, user, {
                         'name': xml_id,
