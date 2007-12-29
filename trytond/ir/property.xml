@@ -6,6 +6,8 @@
             <field name="model">ir.property</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+	      <![CDATA[
+
                 <form string="Property">
                     <separator string="Property" colspan="4"/>
                     <field name="name" select="1"/>
@@ -14,6 +16,7 @@
                     <field name="value" colspan="4"/>
                     <field name="res_id" colspan="4"/>
                 </form>
+		]]>
             </field>
         </record>
         <record model="ir.ui.view" id="property_view_tree">
@@ -21,11 +24,13 @@
             <field name="model">ir.property</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <tree string="Properties">
                     <field name="name"/>
                     <!--field name="company_id"/-->
                     <field name="fields_id"/>
                 </tree>
+		]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_property_form_default">
