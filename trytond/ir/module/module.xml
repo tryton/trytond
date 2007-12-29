@@ -99,6 +99,29 @@
             <field name="name">Update Module List</field>
             <field name="wiz_name">ir.module.module.update_list</field>
         </record>
+        <record model="ir.ui.view" id="module_update_list_init">
+            <field name="name">ir.module.module.update_list.init.form</field>
+            <field name="model">ir.module.module.update_list.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Update Module List">
+                    <label string="This function will check for new modules in the 'addons' path and on module repositories:"
+                        colspan="4" align="0.0"/>
+                    <field name="repositories" colspan="4" nolabel="1"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="module_update_list_update">
+            <field name="name">ir.module.module.update_list.update.form</field>
+            <field name="model">ir.module.module.update_list.update</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="New modules">
+                    <field name="update" colspan="4"/>
+                    <field name="add" colspan="4"/>
+                </form>
+            </field>
+        </record>
         <menuitem name="Administration/IR/Modules/Update Module List"
             action="act_module_update_list"
             type="wizard"
