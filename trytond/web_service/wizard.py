@@ -16,9 +16,9 @@ class Wizard(Service):
 
     def _execute(self, database, user, wiz_id, datas, action, context):
         self.wiz_datas[wiz_id].update(datas)
-        wiz = LocalService('wizard.' + self.wiz_name[wiz_id])
-        return wiz.execute(database, user, self.wiz_datas[wiz_id], action,
-                context)
+        wiz = LocalService('wizard_proxy')
+        return wiz.execute(database, user, self.wiz_name[wiz_id],
+                self.wiz_datas[wiz_id], action, context)
 
     def create(self, database, user, passwd, wiz_name, datas=None):
         security.check(database, user, passwd)

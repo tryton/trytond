@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
-
 from xml import dom
+from xml.dom import minidom
+from xml import xpath
 from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING, LocalService
 import fields
+from trytond.tools import Cache
+import md5
+
+ID_MAX = 1000
 
 def intersect(i, j):
     return [x for x in j if x in i]
@@ -427,11 +432,10 @@ class ORM(object):
                                 "AND a.attname = %s " \
                                 "AND c.oid = a.attrelid " \
                                 "AND a.atttypid = t.oid",
-                                (self._table, k.lower()))
+                                (self._table, k))
                     res = cursor.dictfetchall()
                     if not res:
-                        if not isinstance(field, fields.function) \
-                                or field.store:
+                        if not isinstance(field, fields.function):
                             # add the missing field
                             cursor.execute("ALTER TABLE \"%s\" " \
                                     "ADD COLUMN \"%s\" %s" % \
@@ -489,8 +493,7 @@ class ORM(object):
                         f_pg_type = f_pg_def['typname']
                         f_pg_size = f_pg_def['size']
                         f_pg_notnull = f_pg_def['attnotnull']
-                        if isinstance(field, fields.function) \
-                                and not field.store:
+                        if isinstance(field, fields.function):
                             logger.notify_channel('init', LOG_WARNING,
                                     'column %s (%s) in table %s was converted '\
                                             'to a function !\n' \
@@ -954,29 +957,36 @@ class ORM(object):
                 and getattr(self._columns[x], '_classic_write')] + \
                 self._inherits.values()
 
+        res = []
         if len(fields_pre) :
-            fields_pre2 = map(lambda x: (x in ('create_date', 'write_date')) \
+            fields_pre2 = [(x in ('create_date', 'write_date')) \
                     and ('date_trunc(\'second\', ' + x + ') as ' + x) \
-                    or '"' + x + '"', fields_pre)
-            if domain1:
-                cursor.execute(('SELECT ' + ','.join(fields_pre2 + ['id']) + \
-                        ' FROM \"' + self._table +'\" ' \
-                        'WHERE id in (' + ','.join([str(x) for x in ids]) + ')'\
-                        ' AND ' + domain1 + ' order by ' + self._order),
-                        domain2)
-                if not cursor.rowcount == len({}.fromkeys(ids)):
-                    raise ExceptORM('AccessError',
-                            'You try to bypass an access rule ' \
-                                    '(Document type: %s).' % self._description)
-            else:
-                cursor.execute('SELECT ' + ','.join(fields_pre2 + ['id']) + \
-                        ' FROM \"' + self._table + '\" ' \
-                        'WHERE id in (' + ','.join([str(x) for x in ids]) + ')'\
-                        ' ORDER BY ' + self._order)
-
-            res = cursor.dictfetchall()
+                    or '"' + x + '"' for x in fields_pre]
+            for i in range((len(ids) / ID_MAX) + ((len(ids) % ID_MAX) and 1 or 0)):
+                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+                if domain1:
+                    cursor.execute(('SELECT ' + \
+                            ','.join(fields_pre2 + ['id']) + \
+                            ' FROM \"' + self._table +'\" ' \
+                            'WHERE id IN ' \
+                                '(' + ','.join([str(x) for x in sub_ids]) + ')'\
+                            ' AND ' + domain1 + ' ORDER BY ' + self._order),
+                            domain2)
+                    if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        raise ExceptORM('AccessError',
+                                'You try to bypass an access rule ' \
+                                        '(Document type: %s).' % \
+                                        self._description)
+                else:
+                    cursor.execute('SELECT ' + \
+                            ','.join(fields_pre2 + ['id']) + \
+                            ' FROM \"' + self._table + '\" ' \
+                            'WHERE id IN ' \
+                                '(' + ','.join([str(x) for x in sub_ids]) + ')'\
+                            ' ORDER BY ' + self._order)
+                res.extend(cursor.dictfetchall())
         else:
-            res = [{'id':x} for x in ids]
+            res = [{'id': x} for x in ids]
 
         for field in fields_pre:
             if self._columns[field].translate:
@@ -1111,14 +1121,18 @@ class ORM(object):
             ids = [ids]
         delta = context.get('read_delta', False)
         if delta and self._log_access:
-            cursor.execute(
-                    "SELECT (now()  - min(write_date)) <= '%s'::interval " \
-                    "FROM \"%s\" WHERE id in (%s)" % \
-                    (delta, self._table, ",".join([str(x) for x in ids])))
-            res = cursor.fetchone()
-            if res and res[0]:
-                raise ExceptORM('ConcurrencyException',
-                        'This record was modified in the meanwhile')
+            for i in range((len(ids) / ID_MAX) + \
+                    ((len(ids) % ID_MAX) and 1 or 0)):
+                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+                cursor.execute(
+                        "SELECT (now()  - min(write_date)) <= '%s'::interval " \
+                        "FROM \"%s\" WHERE id in (%s)" % \
+                        (delta, self._table,
+                            ",".join([str(x) for x in sub_ids])))
+                res = cursor.fetchone()
+                if res and res[0]:
+                    raise ExceptORM('ConcurrencyException',
+                            'This record was modified in the meanwhile')
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'unlink')
@@ -1126,7 +1140,6 @@ class ORM(object):
         wf_service = LocalService("workflow")
         for obj_id in ids:
             wf_service.trg_delete(user, self._name, obj_id, cursor)
-        str_d = ','.join(('%d',) * len(ids))
 
         #cursor.execute('select * from ' + self._table + \
         #       ' where id in ('+str_d+')', ids)
@@ -1139,19 +1152,31 @@ class ORM(object):
                 self._name)
         if domain1:
             domain1 = ' AND ' + domain1
-            cursor.execute('SELECT id FROM "'+self._table+'" ' \
-                    'WHERE id IN (' + str_d + ') ' + domain1, ids + domain2)
-            if not cursor.rowcount == len({}.fromkeys(ids)):
-                raise ExceptORM('AccessError',
-                        'You try to bypass an access rule ' \
-                               '(Document type: %s).' % self._description)
+            for i in range((len(ids) / ID_MAX) + \
+                    ((len(ids) % ID_MAX) and 1 or 0)):
+                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+                str_d = string.join(('%d',) * len(sub_ids), ',')
+                if domain1:
+                    cursor.execute('SELECT id FROM "'+self._table+'" ' \
+                            'WHERE id IN (' + str_d + ') ' + domain1,
+                            sub_ids + domain2)
+                    if not cursor.rowcount == len({}.fromkeys(ids)):
+                        raise ExceptORM('AccessError',
+                                'You try to bypass an access rule ' \
+                                    '(Document type: %s).' % self._description)
 
-        cursor.execute('DELETE FROM inherit ' \
-                'WHERE (obj_type = %s AND obj_id IN ('+str_d+')) ' \
-                    'OR (inst_type = %s AND inst_id IN ('+str_d+'))',
-                    ((self._name,) + tuple(ids) + (self._name,) + tuple(ids)))
-        cursor.execute('DELETE FROM "'+self._table+'" ' \
-                'WHERE id IN (' + str_d + ') ' + domain1, ids + domain2)
+                cursor.execute('DELETE FROM inherit ' \
+                        'WHERE (obj_type = %s AND obj_id IN ('+str_d+')) ' \
+                            'OR (inst_type = %s AND inst_id IN ('+str_d+'))',
+                            ((self._name,) + tuple(sub_ids) + \
+                                    (self._name,) + tuple(sub_ids)))
+                if domain:
+                    cursor.execute('DELETE FROM "'+self._table+'" ' \
+                            'WHERE id IN (' + str_d + ') ' + domain1,
+                            sub_ids + domain2)
+                else:
+                    cursor.execute('DELETE FROM "'+self._table+'" ' \
+                            'WHERE id IN (' + str_d + ')', sub_ids)
         return True
 
     # TODO: Validate
@@ -1164,23 +1189,27 @@ class ORM(object):
             ids = [ids]
         delta = context.get('read_delta', False)
         if delta and self._log_access:
-            cursor.execute("select (now() - min(write_date)) <= '%s'::interval"\
-                    " FROM %s WHERE id IN (%s)" % \
-                    (delta, self._table, ",".join([str(x) for x in ids])))
-            res = cursor.fetchone()
-            if res and res[0]:
-                for field in vals:
-                    if field in self._columns \
-                            and self._columns[field]._classic_write:
-                        raise ExceptORM('ConcurrencyException',
-                                'This record was modified in the meanwhile')
+            for i in range((len(ids) / ID_MAX) + \
+                    ((len(ids) % ID_MAX) and 1 or 0)):
+                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+                cursor.execute("SELECT " \
+                            "(now() - min(write_date)) <= '%s'::interval"\
+                        " FROM %s WHERE id IN (%s)" % \
+                        (delta, self._table,
+                            ",".join([str(x) for x in sub_ids])))
+                res = cursor.fetchone()
+                if res and res[0]:
+                    for field in vals:
+                        if field in self._columns \
+                                and self._columns[field]._classic_write:
+                            raise ExceptORM('ConcurrencyException',
+                                    'This record was modified in the meanwhile')
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'write')
 
         #for v in self._inherits.values():
         #    assert v not in vals, (v, vals)
-        ids_str = ','.join([str(x) for x in ids])
         upd0 = []
         upd1 = []
         upd_todo = []
@@ -1232,23 +1261,35 @@ class ORM(object):
                     user, self._name)
             if domain1:
                 domain1 = ' and ' + domain1
-                cursor.execute('SELECT id FROM "' + self._table + '" ' \
-                        'WHERE id IN (' + ids_str + ') ' + domain1, domain2)
-                if not cursor.rowcount == len({}.fromkeys(ids)):
-                    raise ExceptORM('AccessError',
-                            'You try to bypass an access rule ' \
-                                    '(Document type: %s).' % self._description)
-            else:
-                cursor.execute('SELECT id FROM "' + self._table + '" ' \
-                        'WHERE id IN (' + ids_str + ')')
-                if not cursor.rowcount == len({}.fromkeys(ids)):
-                    raise ExceptORM('AccessError',
-                            'You try to write on an record ' \
-                                'that doesn\'t exist (Document type: %s).' % \
-                                    self._description)
-            cursor.execute('UPDATE "' + self._table + '" ' \
-                    'SET ' + ','.join(upd0) + ' ' \
-                    'WHERE id IN (' + ids_str + ') ' + domain1, upd1 + domain2)
+            for i in range((len(ids) / ID_MAX) + \
+                    ((len(ids) % ID_MAX) and 1 or 0)):
+                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+                ids_str = ','.join([str(x) for x in sub_ids])
+                if domain1:
+                    cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                            'WHERE id IN (' + ids_str + ') ' + domain1, domain2)
+                    if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        raise ExceptORM('AccessError',
+                                'You try to bypass an access rule ' \
+                                        '(Document type: %s).' % \
+                                        self._description)
+                else:
+                    cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                            'WHERE id IN (' + ids_str + ')')
+                    if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        raise ExceptORM('AccessError',
+                                'You try to bypass an access rule ' \
+                                        '(Document type: %s).' % \
+                                        self._description)
+                if domain1:
+                    cursor.execute('UPDATE "' + self._table + '" ' \
+                            'SET ' + ','.join(upd0) + ' ' \
+                            'WHERE id IN (' + ids_str + ') ' + domain1,
+                            upd1 + domain2)
+                else:
+                    cursor.execute('UPDATE "' + self._table + '" ' \
+                            'SET ' + ','.join(upd0) + ' ' \
+                            'WHERE id IN (' + ids_str + ') ', upd1)
 
             if totranslate:
                 for field in direct:
@@ -1267,10 +1308,15 @@ class ORM(object):
 
         for table in self._inherits:
             col = self._inherits[table]
-            cursor.execute('SELECT DISTINCT "' + col + '" ' \
-                    'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
-                    upd1)
-            nids = [x[0] for x in cursor.fetchall()]
+            nids = []
+            for i in range((len(ids) / ID_MAX) + \
+                    ((len(ids) % ID_MAX) and 1 or 0)):
+                sub_ids = ids[ID_MAX * i:ID_MAX * (i +1)]
+                ids_str = ','.join([str(x) for x in sub_ids])
+                cursor.execute('SELECT DISTINCT "' + col + '" ' \
+                        'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
+                        upd1)
+                nids.extend([x[0] for x in cursor.fetchall()])
 
             vals2 = {}
             for val in updend:
@@ -1287,7 +1333,6 @@ class ORM(object):
         wf_service = LocalService("workflow")
         for obj_id in ids:
             wf_service.trg_write(user, self._name, obj_id, cursor)
-        self._update_function_stored(cursor, user, ids, context=context)
         return True
 
     def create(self, cursor, user, vals, context=None):
@@ -1385,31 +1430,7 @@ class ORM(object):
 
         wf_service = LocalService("workflow")
         wf_service.trg_create(user, self._name, id_new, cursor)
-        self._update_function_stored(cursor, user, [id_new], context=context)
         return id_new
-
-    def _update_function_stored(self, cursor, user, ids, context=None):
-        ffields = [x for x in self._columns if isinstance(self._columns[x],
-            fields.function) and self._columns[x].store]
-        if ffields:
-            result = self.read(cursor, user, ids, fields_names=ffields,
-                    context=context)
-            for res in result:
-                upd0 = []
-                upd1 = []
-                for field in res:
-                    if field not in ffields:
-                        continue
-                    value = res[field]
-                    if self._columns[field]._type in ('many2one', 'one2one'):
-                        value = res[field][0]
-                    upd0.append('"' + field + '"=' + \
-                            self._columns[field]._symbol_set[0])
-                    upd1.append(self._columns[field]._symbol_set[1](value))
-                upd1.append(res['id'])
-                cursor.execute('update "' + self._table + '" set ' + \
-                        ','.join(upd0) + ' where id = %d', upd1)
-        return True
 
     def fields_get(self, cursor, user, fields_names=None, context=None):
         """
@@ -1599,28 +1620,15 @@ class ORM(object):
         return arch, fields2
 
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
-            context=None, toolbar=False):
+            context=None, toolbar=False, hexmd5=None):
 
         def _inherit_apply(src, inherit):
 
             def _find(node, node2):
-                if node.nodeType == node.ELEMENT_NODE \
-                        and node.localName == node2.localName:
-                    res = True
-                    for attr in node2.attributes.keys():
-                        if attr == 'position':
-                            continue
-                        if node.hasAttribute(attr):
-                            if node.getAttribute(attr) == \
-                                    node2.getAttribute(attr):
-                                continue
-                        res = False
-                    if res:
-                        return node
-                for child in node.childNodes:
-                    res = _find(child, node2)
-                    if res:
-                        return res
+                if node2.nodeType == node2.ELEMENT_NODE \
+                        and node2.localName == 'xpath':
+                    res = xpath.Evaluate(node2.getAttribute('expr'), node)
+                    return res and res[0] or None
                 return None
 
             doc_src = dom.minidom.parseString(src)
@@ -1782,7 +1790,12 @@ class ORM(object):
                 'action': resaction,
                 'relate': resrelate,
             }
+        result['md5'] = md5.new(str(result)).hexdigest()
+        if hexmd5 == result['md5']:
+            return True
         return result
+
+    fields_view_get = Cache()(fields_view_get)
 
     _view_look_dom_arch = __view_look_dom_arch
 
@@ -1817,6 +1830,16 @@ class ORM(object):
             fargs = args[i][0].split('.', 1)
             field = table._columns.get(fargs[0], False)
             if not field:
+                if args[i][0] == 'id' and args[i][1] == 'child_of':
+                    ids2 = args[i][2]
+                    def _rec_get(ids, table, parent):
+                        if not ids:
+                            return []
+                        ids2 = table.search(cursor, user,
+                                [(parent, 'in', ids)], context=context)
+                        return ids2 + _rec_get(ids2, table, parent)
+                    args[i] = (args[i][0], 'in', ids2 + \
+                            _rec_get(ids2, table, table._parent_name), table)
                 i += 1
                 continue
             if len(fargs) > 1:
@@ -1853,11 +1876,15 @@ class ORM(object):
                 if not ids2:
                     args[i] = ('id', '=', '0')
                 else:
-                    cursor.execute('SELECT "' + field._fields_id + \
-                            '" FROM "' + field_obj._table + '" ' \
-                            'WHERE id IN (' + \
-                                ','.join([str(x) for x in ids2]) + ')')
-                    ids3 = [x[0] for x in cursor.fetchall()]
+                    ids3 = []
+                    for i in range((len(ids2) / ID_MAX) + \
+                            (len(ids2) % ID_MAX)):
+                        sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
+                        cursor.execute('SELECT "' + field._fields_id + \
+                                '" FROM "' + field_obj._table + '" ' \
+                                'WHERE id IN (' + \
+                                    ','.join([str(x) for x in sub_ids2]) + ')')
+                        ids3.extend([x[0] for x in cursor.fetchall()])
 
                     args[i] = ('id', 'in', ids3)
                 i += 1
@@ -2027,6 +2054,7 @@ class ORM(object):
                             todel.append(xitem)
                     for xitem in todel[::-1]:
                         del arg[2][xitem]
+                    #TODO fix max_stack_depth
                     if arg[0] == 'id':
                         qu1.append('(%s.id in (%s))' % \
                                 (table._table,
@@ -2201,10 +2229,17 @@ class ORM(object):
             parent = self._parent_name
         ids_parent = ids[:]
         while len(ids_parent):
-            cursor.execute('SELECT distinct "' + parent + '" ' +
-                'FROM "' + self._table + '" ' +
-                'WHERE id IN (' + ','.join([str(x) for x in ids_parent]) + ')')
-            ids_parent = [x[0] for x in cursor.fetchall()]
+            ids_parent2 = []
+            for i in range((len(ids) / ID_MAX) + \
+                    ((len(ids) % ID_MAX) and 1 or 0)):
+                sub_ids_parent = ids_parent[ID_MAX * i:ID_MAX * (i + 1)]
+                cursor.execute('SELECT distinct "' + parent + '" ' +
+                    'FROM "' + self._table + '" ' +
+                    'WHERE id IN ' \
+                        '(' + ','.join([str(x) for x in sub_ids_parent]) + ')')
+                ids_parent2.extend(filter(None,
+                    [x[0] for x in cursor.fetchall()]))
+            ids_parent = ids_parent2
             for i in ids_parent:
                 if i in ids:
                     return False
