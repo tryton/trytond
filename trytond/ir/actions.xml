@@ -7,6 +7,7 @@
             <field name="model">ir.actions.actions</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <form string="Action">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -21,6 +22,7 @@
                         </form>
                     </field>
                 </form>
+		]]>
             </field>
         </record>
         <record model="ir.ui.view" id="actions_actions_view_tree">
@@ -28,10 +30,12 @@
             <field name="model">ir.actions.actions</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <tree string="Action">
                     <field name="name"/>
                     <field name="type"/>
                 </tree>
+		]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_actions_actions_form">
@@ -61,6 +65,7 @@
             <field name="model">ir.actions.report</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <form string="Report">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -68,6 +73,7 @@
                     <field name="report_odt"/>
                     <field name="auto"/>
                 </form>
+		]]>
             </field>
         </record>
         <record model="ir.ui.view" id="actions_report_view_tree">
@@ -75,11 +81,13 @@
             <field name="model">ir.actions.report</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <tree string="Report xml">
                     <field name="name"/>
                     <field name="type"/>
                     <field name="report_name"/>
                 </tree>
+		]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_actions_report_form">
@@ -109,6 +117,7 @@
             <field name="model">ir.actions.act_window</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <form string="Open a Window">
                     <field name="name" select="1"/>
                     <field name="type" readonly="1"/>
@@ -136,6 +145,7 @@
                     <field name="view_mode"/>
                     <field name="view_id"/>
                 </form>
+		]]>
             </field>
         </record>
         <record model="ir.ui.view" id="actions_act_window_view_tree">
@@ -143,6 +153,7 @@
             <field name="model">ir.actions.act_window</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <tree string="Open Window">
                     <field name="name"/>
                     <field name="res_model"/>
@@ -150,6 +161,7 @@
                     <field name="view_id"/>
                     <field name="domain"/>
                 </tree>
+		]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_actions_act_window_form">
@@ -177,12 +189,14 @@
             <field name="model">ir.actions.wizard</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <form string="Wizard">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
                     <field name="wiz_name" select="1"/>
                     <field name="multi"/>
                 </form>
+		]]>
             </field>
         </record>
         <record model="ir.ui.view" id="actions_wizard_view_tree">
@@ -190,12 +204,14 @@
             <field name="model">ir.actions.wizard</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+	      <![CDATA[
                 <tree string="Wizard">
                     <field name="name"/>
                     <field name="type"/>
                     <field name="wiz_name"/>
                     <field name="multi"/>
                 </tree>
+		]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_actions_wizard_form">
