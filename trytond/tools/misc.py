@@ -339,6 +339,7 @@ class Cache(object):
 
     def __call__(self, function):
         arg_names = inspect.getargspec(function)[0][2:]
+
         def cached_result(self2, cursor=None, *args, **kwargs):
             if cursor is None:
                 self.cache = {}
@@ -350,7 +351,8 @@ class Cache(object):
             kwargs.sort()
 
             # Work out key as a tuple of ('argname', value) pairs
-            key = (('dbname', cursor.dbname), str(kwargs))
+            key = (('dbname', cursor.dbname), ('object', str(self2)),
+                str(kwargs))
 
             # Check cache and return cached value if possible
             if key in self.cache:
