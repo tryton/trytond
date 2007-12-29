@@ -7,7 +7,7 @@
             <field name="model">workflow</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Workflow">
                     <field name="name" select="1"/>
                     <field name="osv" select="1"/>
@@ -15,7 +15,7 @@
                     <separator string="Activities" colspan="4"/>
                     <field name="activities" colspan="4" nolabel="1"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="workflow_view_tree">
@@ -23,13 +23,13 @@
             <field name="model">workflow</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Workflow">
                     <field name="name"/>
                     <field name="osv"/>
                     <field name="on_create"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_workflow_form">
@@ -58,7 +58,7 @@
             <field name="model">workflow.activity</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Activity">
                     <field name="name" colspan="4" select="1"/>
                     <field name="wkf_id" select="1"/>
@@ -94,7 +94,7 @@
                         </tree>
                     </field>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="activity_view_tree">
@@ -102,7 +102,7 @@
             <field name="model">workflow.activity</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Activity">
                     <field name="name"/>
                     <field name="wkf_id"/>
@@ -111,7 +111,7 @@
                     <field name="flow_start"/>
                     <field name="flow_stop"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_activity_form">
@@ -140,7 +140,7 @@
             <field name="model">workflow.transition</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Transition">
                     <field name="act_from" select="1"/>
                     <field name="act_to" select="1"/>
@@ -150,7 +150,7 @@
                     <field name="trigger_model"/>
                     <field name="trigger_expr_id"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="transition_view_tree">
@@ -158,7 +158,7 @@
             <field name="model">workflow.transition</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Transitions">
                     <field name="act_from"/>
                     <field name="act_to"/>
@@ -168,7 +168,7 @@
                     <field name="trigger_model"/>
                     <field name="trigger_expr_id"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_transition_form">
@@ -197,7 +197,7 @@
             <field name="model">workflow.instance</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Instance">
                     <field name="wkf_id" select="1"/>
                     <field name="uid" select="2"/>
@@ -205,7 +205,7 @@
                     <field name="res_type"  select="1"/>
                     <field name="state" select="2"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="instance_view_tree">
@@ -213,7 +213,7 @@
             <field name="model">workflow.instance</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Instances">
                     <field name="wkf_id"/>
                     <field name="uid"/>
@@ -221,7 +221,7 @@
                     <field name="res_type"/>
                     <field name="state"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_instance_form">
@@ -243,14 +243,14 @@
             <field name="model">workflow.workitem</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Workitem">
                     <field name="act_id" select="1"/>
                     <field name="subflow_id" select="1"/>
                     <field name="inst_id"  select="1"/>
                     <field name="state" select="2"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="workitem_view_tree">
@@ -258,14 +258,14 @@
             <field name="model">workflow.workitem</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Workitems">
                     <field name="act_id"/>
                     <field name="subflow_id"/>
                     <field name="inst_id"/>
                     <field name="state"/>
                 </tree>
-	      ]]>
+              ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_workitem_form">

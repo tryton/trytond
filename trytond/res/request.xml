@@ -6,7 +6,7 @@
             <field name="model">res.request</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Requests">
                     <field name="create_date"/>
                     <field name="act_from"/>
@@ -16,7 +16,7 @@
                     <field name="trigger_date"/>
                     <field name="state"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="request_view_form">
@@ -24,7 +24,7 @@
             <field name="model">res.request</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Requests">
                     <notebook>
                         <page string="Request">
@@ -60,7 +60,7 @@
                         </page>
                     </notebook>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_request_form">
@@ -90,13 +90,13 @@
             <field name="model">res.request.link</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Request Link">
                     <field name="name" select="1"/>
                     <field name="object" select="1"/>
                     <field name="priority"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="request_link_view_tree">
@@ -104,12 +104,12 @@
             <field name="model">res.request.link</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Request Link">
                     <field name="name"/>
                     <field name="object"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="request_history_view_tree">
@@ -117,14 +117,14 @@
             <field name="model">res.request.history</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Request History">
                     <field name="act_from"/>
                     <field name="act_to"/>
                     <field name="date_sent"/>
                     <field name="name"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="request_history_view_form">
@@ -132,7 +132,7 @@
             <field name="model">res.request.history</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Request History">
                     <field name="act_from"/>
                     <field name="act_to"/>
@@ -140,7 +140,7 @@
                     <newline/>
                     <field name="body" colspan="4"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
     </data>
