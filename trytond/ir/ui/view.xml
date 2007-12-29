@@ -2,33 +2,30 @@
 <terp>
     <data>
         <record model="ir.ui.view" id="view_view_form">
-            <field name="name">ir.ui.view.form</field>
             <field name="model">ir.ui.view</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="View">
-                    <field name="name" select="1"/>
-                    <field name="type" select="1"/>
                     <field name="model" select="1"/>
-                    <field name="field_parent"/>
-                    <field name="priority"/>
-                    <field name="inherit_id"/>
+                    <field name="type" select="1"/>
+                    <field name="inherit_id" select="1"/>
+                    <field name="field_parent" select="2"/>
+                    <field name="priority" select="2"/>
                     <field name="arch" colspan="4"/>
                 </form>
                 ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="view_view_tree">
-            <field name="name">ir.ui.view.tree</field>
             <field name="model">ir.ui.view</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree>
-                    <field name="name"/>
-                    <field name="type"/>
                     <field name="model"/>
+                    <field name="type"/>
+                    <field name="inherit_id"/>
                 </tree>
                 ]]>
             </field>
@@ -55,7 +52,6 @@
         <menuitem name="Administration/IR/UI/"
             action="act_view_form" id="menu_view"/>
         <record model="ir.ui.view" id="view_sc_view_form">
-            <field name="name">ir.ui.view_sc.form</field>
             <field name="model">ir.ui.view_sc</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -69,7 +65,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="view_sc_view_tree">
-            <field name="name">ir.ui.view_sc.tree</field>
             <field name="model">ir.ui.view_sc</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">

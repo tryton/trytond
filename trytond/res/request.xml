@@ -2,7 +2,6 @@
 <terp>
     <data>
         <record model="ir.ui.view" id="request_view_tree">
-            <field name="name">res.request.tree</field>
             <field name="model">res.request</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -20,7 +19,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="request_view_form">
-            <field name="name">res.request.form</field>
             <field name="model">res.request</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -86,7 +84,6 @@
         <menuitem name="Administration/Res/"
             action="act_request_form" id="menu_request_form"/>
         <record model="ir.ui.view" id="request_link_view_form">
-            <field name="name">res.request.link.form</field>
             <field name="model">res.request.link</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -100,7 +97,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="request_link_view_tree">
-            <field name="name">res.request.link.tree</field>
             <field name="model">res.request.link</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -113,7 +109,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="request_history_view_tree">
-            <field name="name">res.request.history.tree</field>
             <field name="model">res.request.history</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -128,7 +123,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="request_history_view_form">
-            <field name="name">res.request.history.form</field>
             <field name="model">res.request.history</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
