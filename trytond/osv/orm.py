@@ -1754,41 +1754,17 @@ class ORM(object):
         result['arch'] = xarch
         result['fields'] = xfields
         if toolbar:
-
-            def clean(i):
-                i = i[2]
-                for key in (
-                        'report_sxw_content',
-                        'report_rml_content',
-                        'report_sxw', 'report_rml',
-                        'report_sxw_content_data',
-                        'report_rml_content_data',
-                        ):
-                    if key in i:
-                        del i[key]
-                return i
-
-            ir_values_obj = self.pool.get('ir.values')
-            resprint = ir_values_obj.get(cursor, user, 'action',
-                    'client_print_multi', [(self._name, False)], False,
-                    context)
-            resaction = ir_values_obj.get(cursor, user, 'action',
-                    'client_action_multi', [(self._name, False)], False,
-                    context)
-            resrelate = ir_values_obj.get(cursor, user, 'action',
-                    'client_action_relate', [(self._name, False)], False,
-                    context)
-            resprint = [clean(x) for x in resprint]
-            resaction = [clean(x) for x in resaction]
-            resaction = [x for x in resaction if not x.get('multi', False)]
-            resprint = [x for x in resprint if not x.get('multi', False)]
-            resrelate = [x[2]  for x in resrelate]
-            for i in resprint + resaction + resrelate:
-                i['string'] = i['name']
+            action_obj = self.pool.get('ir.action.keyword')
+            prints = action_obj.get_keyword(cursor, user, 'form_print',
+                    (self._name, 0), context=context)
+            actions = action_obj.get_keyword(cursor, user, 'form_action',
+                    (self._name, 0), context=context)
+            relates = action_obj.get_keyword(cursor, user, 'form_relate',
+                    (self._name, 0), context=context)
             result['toolbar'] = {
-                'print': resprint,
-                'action': resaction,
-                'relate': resrelate,
+                'print': prints,
+                'action': actions,
+                'relate': relates,
             }
         result['md5'] = md5.new(str(result)).hexdigest()
         if hexmd5 == result['md5']:

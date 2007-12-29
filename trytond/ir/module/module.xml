@@ -134,6 +134,11 @@
             <field name="name">Install / Upgrade Modules</field>
             <field name="wiz_name">ir.module.module.install_upgrade</field>
         </record>
+        <record model="ir.action.keyword" id="act_module_install_upgrade_keyword1">
+            <field name="action" ref="act_module_install_upgrade"/>
+            <field name="keyword">form_action</field>
+            <field name="model">ir.module.module,0</field>
+        </record>
         <record model="ir.ui.view" id="module_install_upgrade_init_view_form">
             <field name="model">ir.module.module.install_upgrade.init</field>
             <field name="type">form</field>

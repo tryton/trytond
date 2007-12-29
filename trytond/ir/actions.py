@@ -39,6 +39,7 @@ class ActionKeyword(OSV):
         'keyword': fields.Selection([
             ('tree_open', 'Open tree'),
             ('tree_action', 'Action tree'),
+            ('form_print', 'Print form'),
             ('form_action', 'Action form'),
             ('form_relate', 'Form relate'),
             ], string='Keyword', required=True),
@@ -51,10 +52,12 @@ class ActionKeyword(OSV):
         res = []
         model, model_id = value
 
-        action_keyword_ids = self.search(cursor, user, [
-            ('keyword', '=', keyword),
-            ('model', '=', model + ',' + str(model_id)),
-            ], context=context)
+        action_keyword_ids = []
+        if model_id:
+            action_keyword_ids = self.search(cursor, user, [
+                ('keyword', '=', keyword),
+                ('model', '=', model + ',' + str(model_id)),
+                ], context=context)
         action_keyword_ids.extend(self.search(cursor, user, [
             ('keyword', '=', keyword),
             ('model', '=', model + ',0'),
@@ -64,6 +67,9 @@ class ActionKeyword(OSV):
             res.append(self.pool.get(action_keyword.action.type)\
                     .read(cursor, user, action_keyword.action.id,
                         context=context))
+            if action_keyword.action.type == 'ir.actions.report':
+                del res[-1]['report_odt_content_data']
+                del res[-1]['report_odt_content']
         return res
 
 ActionKeyword()
