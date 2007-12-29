@@ -8,6 +8,7 @@ import trytond.tools as tools
 from trytond.module import ADDONS_PATH
 from trytond.osv.orm import ExceptORM
 from trytond.wizard import Wizard, WizardOSV
+from trytond.pooler import get_db, restart_pool
 
 VER_REGEXP = re.compile(
     "^(\\d+)((\\.\\d+)*)([a-z]?)((_(pre|p|beta|alpha|rc)\\d*)*)(-r(\\d+))?$")
@@ -620,3 +621,80 @@ class ModuleUpdateList(Wizard):
         }
 
 ModuleUpdateList()
+
+
+class ModuleInstallUpgradeInit(WizardOSV):
+    _name = 'ir.module.module.install_upgrade.init'
+    _columns = {
+        'module_info': fields.Text('Modules to update', readonly=True),
+        'module_download': fields.Text('Modules to download', readonly=True),
+    }
+
+ModuleInstallUpgradeInit()
+
+
+class ModuleInstallUpgradeStart(WizardOSV):
+    _name = 'ir.module.module.install_upgrade.start'
+    _columns = {
+    }
+
+ModuleInstallUpgradeStart()
+
+
+class ModuleInstallUpgrade(Wizard):
+    "Install / Upgrade modules"
+    _name = 'ir.module.module.install_upgrade'
+
+    def _get_install(self, cursor, user, data, context):
+        module_obj = self.pool.get('ir.module.module')
+        module_ids = module_obj.search(cursor, user, [
+            ('state', 'in', ['to upgrade', 'to remove', 'to install']),
+            ], context=context)
+        modules = module_obj.browse(cursor, user, module_ids, context=context)
+        url = module_obj.download(cursor, user, module_ids, download=False,
+                context=context)
+        return {
+            'module_info': '\n'.join([x.name + ': ' + x.state \
+                    for x in modules]),
+            'module_download': '\n'.join(url),
+        }
+
+    def _upgrade_module(self, cursor, user, data, context):
+        module_obj = self.pool.get('ir.module.module')
+        dbname = cursor.dbname
+        db = get_db(dbname)
+        cursor = db.cursor()
+        module_ids = module_obj.search(cursor, user, [
+            ('state', 'in', ['to upgrade', 'to remove', 'to install']),
+            ], context=context)
+        module_obj.download(cursor, user, module_ids, context=context)
+        cursor.commit()
+        cursor.close()
+        restart_pool(dbname, update_module=True)
+        return {}
+
+    states = {
+        'init': {
+            'actions': [_get_install],
+            'result': {
+                'type': 'form',
+                'object': 'ir.module.module.install_upgrade.init',
+                'state': [
+                    ('end', 'Cancel', 'gtk-cancel'),
+                    ('start', 'Start Upgrade', 'gtk-ok', True),
+                ],
+            },
+        },
+        'start': {
+            'actions': [_upgrade_module],
+            'result': {
+                'type': 'form',
+                'object': 'ir.module.module.install_upgrade.start',
+                'state': [
+                    ('end', 'Close', 'gtk-close', True),
+                ],
+            },
+        },
+    }
+
+ModuleInstallUpgrade()
