@@ -350,7 +350,7 @@ class Cache(object):
             kwargs.sort()
 
             # Work out key as a tuple of ('argname', value) pairs
-            key = (('dbname', cursor.dbname),) + tuple(kwargs)
+            key = (('dbname', cursor.dbname), str(kwargs))
 
             # Check cache and return cached value if possible
             if key in self.cache:
