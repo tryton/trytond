@@ -3,7 +3,7 @@ from trytond.netsvc import Service, service_exist, Logger, LOG_ERROR
 from trytond import pooler
 import copy
 from xml import dom
-from trytond.osv import ExceptORM, ExceptOSV
+from trytond.osv import ExceptORM, ExceptOSV, OSV
 import sys
 
 MODULE_LIST = []
@@ -140,28 +140,16 @@ class Wizard(object):
         self.pool = pool_obj
         super(Wizard, self).__init__()
 
-    def translate_view(self, cursor, node, state, lang):
-        translation_obj = pooler.get_pool(cursor.dbname).get('ir.translation')
-        if node.nodeType == node.ELEMENT_NODE:
-            if node.hasAttribute('string') \
-                    and node.getAttribute('string'):
-                res_trans = translation_obj._get_source(cursor,
-                        self._name + ',' + state, 'wizard_view', lang)
-                if res_trans:
-                    node.setAttribute('string', res_trans.decode('utf8'))
-        for child_node in node.childNodes:
-            self.translate_view(cursor, child_node, state, lang)
-
     def execute(self, cursor, user, data, state='init', context=None):
         if context is None:
             context = {}
         res = {}
-        values_obj = self.pool.get('ir.values')
         translation_obj = self.pool.get('ir.translation')
 
         state_def = self.states[state]
-        result_def = copy.copy(state_def.get('result', {}))
+        result_def = state_def.get('result', {})
 
+        actions_res = {}
         # iterate through the list of actions defined for this state
         for action in state_def.get('actions', []):
             # execute them
@@ -169,52 +157,29 @@ class Wizard(object):
             assert isinstance(action_res, dict), \
                     'The return value of wizard actions ' \
                     'should be a dictionary'
-            result_def.update(action_res)
+            actions_res.update(action_res)
 
         res = copy.copy(result_def)
-        res['datas'] = result_def.get('datas', {})
+        res['datas'] = actions_res
 
         lang = context.get('lang', 'en_US')
         if result_def['type'] == 'action':
             res['action'] = result_def['action'](self, cursor, user, data,
                     context)
         elif result_def['type'] == 'form':
-            fields = copy.copy(result_def['fields'])
-            arch = copy.copy(result_def['arch'])
+            obj = self.pool.get(result_def['object'])
+
+            view = obj.fields_view_get(cursor, user, view_type='form',
+                    context=context, toolbar=False)
+            fields = view['fields']
+            arch = view['arch']
+
             button_list = copy.copy(result_def['state'])
 
-            defaults = values_obj.get(cursor, user, 'default',
-                    False, [(self._name, False)])
-            default_values = dict([(x[1], x[2]) for x in defaults])
-            for val in fields.keys():
-                if 'default' in fields[val]:
-                    # execute default method for this field
-                    if callable(fields[val]['default']):
-                        fields[val]['value'] = fields[val]['default']\
-                                (self, cursor, user, data, state, context)
-                    else:
-                        fields[val]['value'] = fields[val]['default']
-                    del fields[val]['default']
-                if val in default_values:
-                    fields[val]['value'] = default_values[val]
-                if 'selection' in fields[val]:
-                    if callable(fields[val]['selection']):
-                        fields[val] = copy.copy(fields[val])
-                        fields[val]['selection'] = fields[val]['selection']\
-                                (self, cursor, user, data, state, context)
-
-            # translate fields
-            for field in fields:
-                res_trans = translation_obj._get_source(cursor, user,
-                        self._name + ',' + state + ',' + field,
-                        'wizard_field', lang)
-                if res_trans:
-                    fields[field]['string'] = res_trans
-
-            # translate arch
-            doc = dom.minidom.parseString(arch)
-            self.translate_view(cursor, doc, state, lang)
-            arch = doc.toxml()
+            default_values = obj.default_get(cursor, user, fields.keys(),
+                    context=None)
+            for field in default_values.keys():
+                fields[field]['value'] = default_values[field]
 
             # translate buttons
             for i, button  in enumerate(button_list):
@@ -235,3 +200,60 @@ class Wizard(object):
                     data, context)
             return self.execute(cursor, user, data, next_state, context)
         return res
+
+class WizardOSV(OSV):
+    """
+    Object to use for wizard state
+    """
+    _protected = [
+            'default_get',
+            'fields_get',
+            'fields_view_get',
+            ]
+    _auto = False
+
+    def auto_init(self, cursor):
+        pass
+
+    def init(self, cursor):
+        pass
+
+    def browse(self, cursor, user, select, context=None, list_class=None):
+        pass
+
+    def export_data(self, cursor, user, ids, fields_name, context=None):
+        pass
+
+    def import_data(self, cursor, fields_names, datas, mode='init',
+            current_module=None, noupdate=False, context=None):
+        pass
+
+    def read(self, cursor, ids, fields_names=None, context=None,
+            load='_classic_read'):
+        pass
+
+    def unlink(self, cursor, user, ids, context=None):
+        pass
+
+    def write(self, cursor, user, ids, vals, context=None):
+        pass
+
+    def create(self, cursor, user, vals, context=None):
+        pass
+
+    def search_count(self, cursor, user, args, context=None):
+        pass
+
+    def search(self, cursor, user, args, offset=0, limit=None, order=None,
+            context=None, count=False):
+        pass
+
+    def name_get(self, cursor, user, ids, context=None):
+        pass
+
+    def name_search(self, cursor, user, name='', args=None, operator='ilike',
+            context=None, limit=80):
+        pass
+
+    def copy(self, cursor, user, object_id, default=None, context=None):
+        pass
