@@ -1152,31 +1152,31 @@ class ORM(object):
                 self._name)
         if domain1:
             domain1 = ' AND ' + domain1
-            for i in range((len(ids) / ID_MAX) + \
-                    ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
-                str_d = string.join(('%d',) * len(sub_ids), ',')
-                if domain1:
-                    cursor.execute('SELECT id FROM "'+self._table+'" ' \
-                            'WHERE id IN (' + str_d + ') ' + domain1,
-                            sub_ids + domain2)
-                    if not cursor.rowcount == len({}.fromkeys(ids)):
-                        raise ExceptORM('AccessError',
-                                'You try to bypass an access rule ' \
-                                    '(Document type: %s).' % self._description)
+        for i in range((len(ids) / ID_MAX) + \
+                ((len(ids) % ID_MAX) and 1 or 0)):
+            sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+            str_d = ','.join(('%d',) * len(sub_ids))
+            if domain1:
+                cursor.execute('SELECT id FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ') ' + domain1,
+                        sub_ids + domain2)
+                if not cursor.rowcount == len({}.fromkeys(ids)):
+                    raise ExceptORM('AccessError',
+                            'You try to bypass an access rule ' \
+                                '(Document type: %s).' % self._description)
 
-                cursor.execute('DELETE FROM inherit ' \
-                        'WHERE (obj_type = %s AND obj_id IN ('+str_d+')) ' \
-                            'OR (inst_type = %s AND inst_id IN ('+str_d+'))',
-                            ((self._name,) + tuple(sub_ids) + \
-                                    (self._name,) + tuple(sub_ids)))
-                if domain:
-                    cursor.execute('DELETE FROM "'+self._table+'" ' \
-                            'WHERE id IN (' + str_d + ') ' + domain1,
-                            sub_ids + domain2)
-                else:
-                    cursor.execute('DELETE FROM "'+self._table+'" ' \
-                            'WHERE id IN (' + str_d + ')', sub_ids)
+            cursor.execute('DELETE FROM inherit ' \
+                    'WHERE (obj_type = %s AND obj_id IN ('+str_d+')) ' \
+                        'OR (inst_type = %s AND inst_id IN ('+str_d+'))',
+                        ((self._name,) + tuple(sub_ids) + \
+                                (self._name,) + tuple(sub_ids)))
+            if domain1:
+                cursor.execute('DELETE FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ') ' + domain1,
+                        sub_ids + domain2)
+            else:
+                cursor.execute('DELETE FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ')', sub_ids)
         return True
 
     # TODO: Validate
