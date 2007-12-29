@@ -7,8 +7,8 @@ class View(OSV):
     "View"
     _name = 'ir.ui.view'
     _description = __doc__
+    _rec_name = 'model'
     _columns = {
-        'name': fields.char('View Name',size=64,  required=True),
         'model': fields.char('Model', size=64, required=True),
         'priority': fields.integer('Priority', required=True),
         'type': fields.selection((

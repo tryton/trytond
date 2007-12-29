@@ -3,7 +3,6 @@
     <data>
         <menuitem name="Administration/IR/Modules" id="menu_modules"/>
         <record model="ir.ui.view" id="module_view_form">
-            <field name="name">ir.module.module.form</field>
             <field name="model">ir.module.module</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -55,7 +54,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="module_view_tree">
-            <field name="name">ir.module.module.tree</field>
             <field name="model">ir.module.module</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -104,7 +102,6 @@
             <field name="wiz_name">ir.module.module.update_list</field>
         </record>
         <record model="ir.ui.view" id="module_update_list_init_view_form">
-            <field name="name">ir.module.module.update_list.init.form</field>
             <field name="model">ir.module.module.update_list.init</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -118,7 +115,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="module_update_list_update_view_form">
-            <field name="name">ir.module.module.update_list.update.form</field>
             <field name="model">ir.module.module.update_list.update</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -139,7 +135,6 @@
             <field name="wiz_name">ir.module.module.install_upgrade</field>
         </record>
         <record model="ir.ui.view" id="module_install_upgrade_init_view_form">
-            <field name="name">ir.module.module.install_upgrade.init.form</field>
             <field name="model">ir.module.module.install_upgrade.init</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -163,7 +158,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="module_install_upgrade_start_view_form">
-            <field name="name">ir.module.module.install_upgrade.start.form</field>
             <field name="model">ir.module.module.install_upgrade.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">

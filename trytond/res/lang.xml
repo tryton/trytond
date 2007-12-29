@@ -6,7 +6,6 @@
             <field name="name">English</field>
         </record>
         <record model="ir.ui.view" id="lang_view_tree">
-            <field name="name">res.lang.tree</field>
             <field name="model">res.lang</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">

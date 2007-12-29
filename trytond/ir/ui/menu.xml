@@ -2,7 +2,6 @@
 <terp>
     <data>
         <record model="ir.ui.view" id="menu_view_tree_tree">
-            <field name="name">ir.ui.menu.tree.tree</field>
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -29,7 +28,6 @@
             <field name="act_window_id" ref="act_menu_tree"/>
         </record>
         <record model="ir.ui.view" id="menu_view_tree">
-            <field name="name">ir.ui.menu.tree</field>
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
             <field name="priority" eval="8"/>
@@ -42,7 +40,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="menu_view_form">
-            <field name="name">ir.ui.menu.form</field>
             <field name="model">ir.ui.menu</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
