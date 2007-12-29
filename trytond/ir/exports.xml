@@ -6,11 +6,13 @@
             <field name="model">ir.exports</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="Exports">
                     <field name="name" select="1"/>
                     <field name="resource" select="1"/>
                     <field name="export_fields" colspan="4" nolabel="1"/>
                 </form>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="exports_view_tree">
@@ -18,10 +20,12 @@
             <field name="model">ir.exports</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <tree string="Exports">
                     <field name="name"/>
                     <field name="resource"/>
                 </tree>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_exports_form">

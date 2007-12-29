@@ -7,6 +7,7 @@
             <field name="model">ir.sequence</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="Sequences">
                     <separator string="Configuration" colspan="4"/>
                     <field name="name" colspan="4" select="1"/>
@@ -22,18 +23,22 @@
                     <label string="Month: %%(month)s" colspan="4"/>
                     <label string="Day: %%(day)s" colspan="4"/>
                 </form>
-            </field>
+                ]]>
+        </field>
+
         </record>
         <record model="ir.ui.view" id="sequence_view_tree">
             <field name="name">ir.sequence.tree</field>
             <field name="model">ir.sequence</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <tree string="Sequences">
                     <field name="name"/>
                     <field name="code"/>
                     <field name="active"/>
                 </tree>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_sequence_form">
@@ -64,10 +69,12 @@
             <field name="model">ir.sequence.type</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="Sequence Type">
                     <field name="name" select="1"/>
                     <field name="code" readonly="1"/>
                 </form>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="sequence_type_view_tree">
@@ -75,10 +82,12 @@
             <field name="model">ir.sequence.type</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <tree string="Sequence Type">
                     <field name="name"/>
                     <field name="code"/>
                 </tree>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window"

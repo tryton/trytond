@@ -203,7 +203,7 @@ def load_module_graph(cursor, graph, **kwargs):
                                 cursor.execute(new_query)
                 else:
                     tools.convert_xml_import(cursor, module,
-                            tools.file_open(OPJ(module, filename)).read(),
+                            tools.file_open(OPJ(module, filename)),
                             idref, mode=mode, demo=demo, **kwargs)
             if demo:
                 cursor.execute('UPDATE ir_module_module SET demo = %s ' \
