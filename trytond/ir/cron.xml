@@ -6,7 +6,7 @@
             <field name="model">ir.cron</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Scheduled Actions">
                     <field name="nextcall"/>
                     <field name="name"/>
@@ -14,7 +14,7 @@
                     <field name="interval_type"/>
                     <field name="numbercall"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="cron_view_form">
@@ -22,7 +22,7 @@
             <field name="model">ir.cron</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Scheduled Action">
                     <field name="name" select="1"/>
                     <field name="active" select="1"/>
@@ -41,7 +41,7 @@
                     <field name="function" readonly="1"/>
                     <field name="args" colspan="4" readonly="1"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_cron_form">

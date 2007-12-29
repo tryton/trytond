@@ -10,8 +10,6 @@ from trytond.config import CONFIG
 from trytond.version import VERSION
 import logging
 
-
-
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
                        
@@ -882,9 +880,24 @@ class RecordTagHandler:
                 self.values[field_name] = self.mh.get_id(ref_attr)
 
             elif eval_attr:
-                print "NOT IMPLEMENTED : eval"                
-                pass
 
+                import time
+                context = {}
+                context['time'] = time
+                context['version'] = VERSION.rsplit('.', 1)[0]
+                context['ref'] = self.mh.get_id
+                context['obj'] = lambda *a: 1
+                try:
+                    import pytz
+                except:
+                    Logger().notify_channel("init", LOG_INFO,
+                            'could not find pytz library')
+                    class Pytz(object):
+                        all_timezones = []
+
+                    pytz = Pytz()
+                    context['pytz'] = pytz
+                self.values[field_name] = eval(eval_attr, context)
 
         else:
             raise Exception("Tags '%s' not supported inside tag record."% (name,))
@@ -995,9 +1008,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 pass
 
             else:
-                # TODO logger, logger, logger, ... 
-                print "Tag", name , "not supported"
-                raise 
+                Logger().notify_channel("init", LOG_INFO,
+                            "Tag", name , "not supported")
                 return
         else:
             self.taghandler.startElement(name, attributes)
@@ -1043,4 +1055,4 @@ def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
 
 
 # use  convert_xml_import_sax or convert_xml_import_dom 
-convert_xml_import = convert_xml_import_dom
+convert_xml_import = convert_xml_import_sax

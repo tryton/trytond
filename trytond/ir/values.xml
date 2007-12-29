@@ -6,7 +6,7 @@
             <field name="model">ir.values</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Values">
                     <field name="name" select="1"/>
                     <field name="model" select="1"/>
@@ -18,7 +18,7 @@
                     <field name="value_unpickle"/>
                     <field name="meta_unpickle"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="values_view_tree">
@@ -26,7 +26,7 @@
             <field name="model">ir.values</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Values">
                     <field name="name"/>
                     <field name="model"/>
@@ -34,7 +34,7 @@
                     <field name="key2"/>
                     <field name="user_id"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_values_form">

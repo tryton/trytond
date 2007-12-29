@@ -6,7 +6,7 @@
             <field name="model">ir.module.repository</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <form string="Repository">
                     <field name="name" select="1"/>
                     <field name="sequence"/>
@@ -14,7 +14,7 @@
                     <field name="active" select="1"/>
                     <field name="filter" colspan="4"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="repository_view_tree">
@@ -22,14 +22,14 @@
             <field name="model">ir.module.repository</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+              <![CDATA[
                 <tree string="Repositories">
                     <field name="sequence"/>
                     <field name="active"/>
                     <field name="name"/>
                     <field name="url"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_repository_form">
