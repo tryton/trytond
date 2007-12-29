@@ -6,10 +6,12 @@
             <field name="model">ir.module.category</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="Module Category">
                     <field name="name" colspan="4"/>
                     <field name="parent_id" colspan="4"/>
                 </form>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="category_view_tree">
@@ -18,9 +20,11 @@
             <field name="type">tree</field>
             <field name="field_parent">child_ids</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <tree string="Module Categories">
                     <field name="name"/>
                 </tree>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_category_tree">

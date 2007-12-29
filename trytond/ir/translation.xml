@@ -6,6 +6,7 @@
             <field name="model">ir.translation</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="Translations">
                     <field name="name" select="2"/>
                     <field name="res_id" select="2"/>
@@ -14,6 +15,7 @@
                     <field name="src" select="1"/>
                     <field name="value" select="1"/>
                 </form>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="translation_view_tree">
@@ -21,6 +23,7 @@
             <field name="model">ir.translation</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <tree string="Translations" editable="bottom">
                     <field name="src"/>
                     <field name="value"/>
@@ -28,6 +31,7 @@
                     <field name="lang"/>
                     <field name="type"/>
                 </tree>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_translation_form">

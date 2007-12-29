@@ -11,6 +11,10 @@ from trytond.version import VERSION
 import logging
 
 
+
+CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
+CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
+
 def _ref(self, cursor):
     return lambda x: self.id_get(cursor, x)
 
@@ -78,10 +82,13 @@ def _eval_xml(self, node, pool, cursor, user, idref, context=None):
                             idref[i] = self.id_get(cursor, i)
                     return string % idref
 
-                txt = '<?xml version="1.0"?>\n' + \
-                        _process("".join([x.toxml().encode("utf8") \
+                txt =  _process("".join([x.toxml().encode("utf8") \
                         for x in node.childNodes]), idref)
-                return txt
+
+                txt = CDATA_START.sub('', txt)
+                txt = CDATA_END.sub('', txt)
+
+                return '<?xml version="1.0"?>\n' + txt 
             if f_type in ('char', 'int', 'float'):
                 value = ""
                 for child_node in node.childNodes:
@@ -651,6 +658,7 @@ class XMLImport(object):
             else:
                 f_val = _eval_xml(self, field, self.pool, cursor, self.user,
                         self.idref)
+
                 if model._columns.has_key(f_name):
                     if isinstance(model._columns[f_name], Integer):
                         f_val = int(f_val)
@@ -746,7 +754,7 @@ def convert_csv_import(cursor, module, fname, csvcontent, idref=None,
     pool.get(model).import_data(cursor, user, fields, datas, mode,
             module, noupdate)
 
-def convert_xml_import(cursor, module, xmlstr, idref=None, mode='init',
+def convert_xml_import_dom(cursor, module, xmlstream, idref=None, mode='init',
         noupdate=False, report=None, demo=False):
     if idref is None:
         idref = {}
@@ -754,6 +762,284 @@ def convert_xml_import(cursor, module, xmlstr, idref=None, mode='init',
         report = AssertionReport()
     obj = XMLImport(cursor, module, idref, mode, report=report,
             noupdate=noupdate, demo=demo)
-    obj.parse(xmlstr)
+    obj.parse(xmlstream.read())
     del obj
     return True
+
+
+
+
+#$$
+# Notes:
+# - classe monolythique vs instancier des sous-classe par type de record
+# (que l'on re-reference a la volee des qu'on lit le debut du record).
+# - utilser des pointeur de fct plutot que que inTitle=1
+# - analyser le code _update, source d'amelioration
+# - ajouter un handler d'exception
+# - faire un cache en debut de traitement : {xml_id: (db_id, model)}
+
+# tuto : http://pyxml.sourceforge.net/topics/howto/node14.html
+
+from xml import sax
+
+
+class DummyTagHandler:
+    """Dubhandler implementing empty methods. Will be used when whe
+    want to ignore the xml content"""
+
+    def __init__(self):
+        pass
+
+    def startElement(self, name, attributes):
+        pass
+
+    def characters(self, data):
+        pass
+
+    def endElement(self, name):
+        pass
+
+
+class MenuitemTagHandler:
+    """Taghandler for the tag <record> """
+    def __init__(self, master_handler):
+        pass
+
+    def startElement(self, name, attributes):
+        return
+
+    def characters(self, data):
+        pass
+
+    def endElement(self, name):
+        """Must return the object to use for the next call """
+        if name != "menuitem":
+            return self
+        else:
+            return None
+
+
+class RecordTagHandler:
+
+    """Taghandler for the tag <record> and all the tags inside it"""
+
+    def __init__(self, master_handler):
+        # Remind reference of parent handler
+        self.mh = master_handler
+
+    def startElement(self, name, attributes):
+
+        # Manage the top level tag
+        if name == "record":
+            self.model = self.mh.pool.get(attributes["model"].encode('utf8'))
+            assert self.model, "The model %s does not exist !" % (rec_model,)
+
+            self.xml_id = attributes["id"].encode('utf8')
+
+            # create/update a dict containing fields values
+            self.values = {}
+
+            self.current_field = None
+            self.cdata = False
+
+            return self.xml_id
+
+        # Manage included tags:
+        elif name == "field":
+
+            field_name = attributes['name'].encode('utf8')
+            # Create a new entry in the values
+            self.values[field_name] = ""
+            # Remind the current name (see characters)
+            self.current_field = field_name
+            # Put a flag to escape cdata tags
+            if field_name == "arch":
+                self.cdata = "start"
+
+            # Catch the known attributes
+            search_attr = attributes.get('search','').encode('utf8')
+            ref_attr = attributes.get('ref', '').encode('utf8')
+            eval_attr = attributes.get('eval', '').encode('utf8')
+
+            if search_attr:
+                answer = f_obj.browse(
+                    cursor, self.mh.user,
+                    model.search(self.mh.cursor,self.mh.user, search_attr))
+
+                if not answer:
+                    return
+
+                if field_name in model._columns:
+                    if model._columns[field_name]._type == 'many2many':
+                        self.values[field_name] = [(6, 0, [x['id'] for x in answer])]
+
+                    elif model._columns[field_name]._type == 'many2one':
+                        self.values[field_name] = answer[0]['id']
+
+            elif ref_attr:
+                # TODO avec cache sur les ids..:
+                #self.id_get(cursor, f_ref)
+                self.values[field_name] = self.mh.get_id(ref_attr)
+
+            elif eval_attr:
+                print "NOT IMPLEMENTED : eval"
+                pass
+
+
+        else:
+            raise Exception("Tags '%s' not supported inside tag record."% (name,))
+
+    def characters(self, data):
+
+        """If whe are in a field tag, consume all the content"""
+
+        if not self.current_field:
+            return
+        # Escape start cdata tag if necessary
+        if self.cdata == "start":
+            data = CDATA_START.sub('', data)
+            self.start_cdata = "inside"
+
+        self.values[self.current_field] += data.encode('utf8')
+
+
+    def endElement(self, name):
+
+        """Must return the object to use for the next call, if name is
+        not 'record' we return self to keep our hand on the
+        process. If name is 'record' we return None to end the
+        delegation"""
+
+        if name == "field":
+            if not self.current_field:
+                raise Exception("Application error"
+                                "current_field expected to be set.")
+            # Escape end cdata tag :
+            if self.cdata == 'inside':
+                self.values[self.current_field] =\
+                    CDATA_END.sub('', self.values[self.current_field])
+                self.cdata = 'done'
+
+            self.current_field = None
+            return self
+
+        elif name == "record":
+            # db access: TODO : use the object reference instead of
+            # the name of the model because _update do a new get to
+            # obtain the reference
+
+
+            res = self.mh.pool.get('ir.model.data')._update(
+                self.mh.cursor, self.mh.user,
+                self.model._name, self.mh.module, self.values, self.xml_id,
+                noupdate=self.mh.noupdate, mode=self.mh.mode)
+
+            return None
+        else:
+            raise Exception("Unexpected closing tag '%s'"% (name,))
+
+
+class TrytondXmlHandler(sax.handler.ContentHandler):
+
+    def __init__(self, cursor, pool, mode, module, noupdate):
+        "Register known taghandlers, and manged tags."
+
+        self.pool = pool
+        self.mode = mode
+        self.noupdate = noupdate
+        self.cursor = cursor
+        self.user = 1
+        self.module = module
+
+        # Tag handlders are used to delegate the processing
+        self.taghandlerlist = {
+            'record': RecordTagHandler(self),
+            'menuitem': MenuitemTagHandler(self),
+            }
+        self.taghandler = None
+
+        # Managed tags are handled by the current class
+        self.managedtags= ["data", "terp"]
+        self.idlist = []
+
+
+    def get_id(self, xml_id):
+
+        module = self.module
+        if '.' in xml_id:
+            module, xml_id = xml_id.split('.')
+
+        model_data_id = self.pool.get('ir.model.data')._get_id(
+            self.cursor, self.user, module, xml_id)
+
+        return int(self.pool.get('ir.model.data').read(self.cursor, self.user,
+            [model_data_id], ['res_id'])[0]['res_id'])
+
+
+    def startElement(self, name, attributes):
+        """Rebind the current handler if necessary and call
+        startElement on it"""
+
+        if not self.taghandler:
+
+            if  name in self.taghandlerlist:
+                self.taghandler = self.taghandlerlist[name]
+                xml_id = self.taghandler.startElement(name, attributes)
+                if xml_id : self.idlist.append(xml_id)
+
+            elif name == "data":
+                self.noupdate = attributes.get("noupdate", False)
+
+            elif name == "terp":
+                pass
+
+            else:
+                # TODO logger, logger, logger, ... 
+                print "Tag", name , "not supported"
+                raise 
+                return
+        else:
+            self.taghandler.startElement(name, attributes)
+
+    def characters(self, data):
+        if self.taghandler:
+            self.taghandler.characters(data)
+
+    def endElement(self, name):
+
+        # Closing tag found, if we are in a delegation the handler
+        # tell us what to do:
+        if self.taghandler:
+            self.taghandler = self.taghandler.endElement(name)
+
+
+def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
+        noupdate=False, report=None, demo=False):
+    if idref is None:
+        idref = {}
+    if report is None:
+        report = AssertionReport()
+
+
+    parser = sax.make_parser()
+    # Tell the parser we are not interested in XML namespaces 
+    parser.setFeature(sax.handler.feature_namespaces, 0)
+
+    handler = TrytondXmlHandler(
+        cursor=cursor,
+        pool=pooler.get_pool(cursor.dbname),
+        mode=mode,
+        module=module,
+        noupdate=noupdate,)
+
+    parser.setContentHandler(handler)
+    source = sax.InputSource()
+    source.setByteStream(xmlstream)
+
+    parser.parse(source)
+
+    return True
+
+
+# use  convert_xml_import_sax or convert_xml_import_dom 
+convert_xml_import = convert_xml_import_dom

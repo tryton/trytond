@@ -7,6 +7,7 @@
             <field name="model">ir.module.module</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="Module">
                     <notebook>
                         <page string="Module">
@@ -50,6 +51,7 @@
                         </page>
                     </notebook>
                 </form>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="module_view_tree">
@@ -57,6 +59,7 @@
             <field name="model">ir.module.module</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <tree string="Modules"
                     colors="blue:state=='to upgrade' or state=='to install';grey:state=='uninstalled' or state=='uninstallable'">
                     <field name="name"/>
@@ -66,6 +69,7 @@
                     <field name="latest_version"/>
                     <field name="state"/>
                 </tree>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_module_form">
@@ -104,11 +108,13 @@
             <field name="model">ir.module.module.update_list.init</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="Update Module List">
                     <label string="This function will check for new modules in the 'addons' path and on module repositories:"
                         colspan="4" align="0.0"/>
                     <field name="repositories" colspan="4" nolabel="1"/>
                 </form>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="module_update_list_update">
@@ -116,10 +122,12 @@
             <field name="model">ir.module.module.update_list.update</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
+                <![CDATA[
                 <form string="New modules">
                     <field name="update" colspan="4"/>
                     <field name="add" colspan="4"/>
                 </form>
+                ]]>
             </field>
         </record>
         <menuitem name="Administration/IR/Modules/Update Module List"
