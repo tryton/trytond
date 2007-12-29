@@ -94,7 +94,7 @@ class BrowseRecord(object):
             else:
                 ffields = [(name, col)]
             ids = [x for x in self._data.keys() \
-                    if not self._data[x].has_key(name)]
+                    if not self._data[x].has_key(name) and x]
             # read the data
             datas = self._table.read(self._cursor, self._user, ids,
                     [x[0] for x in ffields], context=self._context,
