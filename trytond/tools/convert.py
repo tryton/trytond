@@ -12,7 +12,7 @@ import logging
 
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
-                       
+
 def _ref(self, cursor):
     return lambda x: self.id_get(cursor, x)
 
@@ -86,7 +86,7 @@ def _eval_xml(self, node, pool, cursor, user, idref, context=None):
                 txt = CDATA_START.sub('', txt)
                 txt = CDATA_END.sub('', txt)
 
-                return '<?xml version="1.0"?>\n' + txt 
+                return '<?xml version="1.0"?>\n' + txt
             if f_type in ('char', 'int', 'float'):
                 value = ""
                 for child_node in node.childNodes:
@@ -219,7 +219,7 @@ class XMLImport(object):
         if len(obj_id) > 64:
             Logger().notify_channel('init', LOG_ERROR,
                     'id: %s is to long (max: 64)' % xml_id)
-            
+
     def _tag_delete(self, cursor, rec, data_node=None):
         d_model = rec.getAttribute("model")
         d_search = rec.getAttribute("search")
@@ -814,7 +814,7 @@ class MenuitemTagHandler:
             if attributes.get(attr):
                 values[attr] = attributes.get(attr).encode('utf8')
 
-       
+
         if values.get('parent_id') :
             values['parent_id'] = self.mh.get_id(values['parent_id'])
 
@@ -844,14 +844,14 @@ class MenuitemTagHandler:
 
 
 class RecordTagHandler:
-    
+
     """Taghandler for the tag <record> and all the tags inside it"""
 
     def __init__(self, master_handler):
         # Remind reference of parent handler
         self.mh = master_handler
 
-        
+
     def startElement(self, name, attributes):
 
         # Manage the top level tag
@@ -863,10 +863,10 @@ class RecordTagHandler:
 
             # create/update a dict containing fields values
             self.values = {}
-            
+
             self.current_field = None
             self.cdata = False
-            
+
             return self.xml_id
 
         # Manage included tags:
@@ -891,8 +891,8 @@ class RecordTagHandler:
                     cursor, self.mh.user,
                     model.search(self.mh.cursor,self.mh.user, search_attr))
 
-                if not answer: return 
-                
+                if not answer: return
+
                 if field_name in model._columns:
                     if model._columns[field_name]._type == 'many2many':
                         self.values[field_name] = [(6, 0, [x['id'] for x in answer])]
@@ -930,14 +930,14 @@ class RecordTagHandler:
     def characters(self, data):
 
         """If whe are in a field tag, consume all the content"""
-        
+
         if not self.current_field:
             return
         # Escape start cdata tag if necessary
         if self.cdata == "start":
             data = CDATA_START.sub('', data)
             self.start_cdata = "inside"
-            
+
         self.values[self.current_field] += data.encode('utf8')
 
 
@@ -947,7 +947,7 @@ class RecordTagHandler:
         not 'record' we return self to keep our hand on the
         process. If name is 'record' we return None to end the
         delegation"""
-        
+
         if name == "field":
             if not self.current_field:
                 raise Exception("Application error"
@@ -957,10 +957,10 @@ class RecordTagHandler:
                 self.values[self.current_field] =\
                     CDATA_END.sub('', self.values[self.current_field])
                 self.cdata = 'done'
-                
+
             self.current_field = None
             return self
-        
+
         elif name == "record":
             # db access: TODO : use the object reference instead of
             # the name of the model because _update do a new get to
@@ -988,7 +988,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.cursor = cursor
         self.user = 1
         self.module = module
-        
+
 
         # Tag handlders are used to delegate the processing
         self.taghandlerlist = {
@@ -1038,11 +1038,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 return
         else:
             self.taghandler.startElement(name, attributes)
-            
+
     def characters(self, data):
         if self.taghandler:
             self.taghandler.characters(data)
- 
+
     def endElement(self, name):
 
         # Closing tag found, if we are in a delegation the handler
@@ -1060,7 +1060,7 @@ def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
 
 
     parser = sax.make_parser()
-    # Tell the parser we are not interested in XML namespaces 
+    # Tell the parser we are not interested in XML namespaces
     parser.setFeature(sax.handler.feature_namespaces, 0)
 
     handler = TrytondXmlHandler(
@@ -1079,5 +1079,5 @@ def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
     return True
 
 
-# use  convert_xml_import_sax or convert_xml_import_dom 
+# use  convert_xml_import_sax or convert_xml_import_dom
 convert_xml_import = convert_xml_import_sax
