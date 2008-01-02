@@ -219,6 +219,7 @@ class XMLImport(object):
         if len(obj_id) > 64:
             Logger().notify_channel('init', LOG_ERROR,
                     'id: %s is to long (max: 64)' % xml_id)
+            
     def _tag_delete(self, cursor, rec, data_node=None):
         d_model = rec.getAttribute("model")
         d_search = rec.getAttribute("search")
@@ -801,10 +802,30 @@ class DummyTagHandler:
 class MenuitemTagHandler:
     """Taghandler for the tag <record> """
     def __init__(self, master_handler):
-        pass
+        self.mh = master_handler
 
     def startElement(self, name, attributes):
-        return
+
+        values = {}
+
+        self.xml_id = attributes['id']
+
+        for attr in ('name', 'icon', 'sequence', 'parent_id', 'action'):
+            if attributes.get(attr):
+                values[attr] = attributes.get(attr).encode('utf8')
+
+       
+        if values.get('parent_id') :
+            values['parent_id'] = self.mh.get_id(values['parent_id'])
+
+        if values.get('action') :
+            type_attr = attributes.get('type', 'act_window').encode('utf8')
+            values['action'] = "ir.actions.%s,%d" %\
+                (type_attr, self.mh.get_id(values['action']))
+
+        print values
+        self.values = values
+
 
     def characters(self, data):
         pass
@@ -814,6 +835,11 @@ class MenuitemTagHandler:
         if name != "menuitem":
             return self
         else:
+
+            res = self.mh.pool.get('ir.model.data')._update(
+                self.mh.cursor, self.mh.user,
+                'ir.ui.menu', self.mh.module, self.values, self.xml_id,
+                noupdate=self.mh.noupdate, mode=self.mh.mode)
             return None
 
 
@@ -875,8 +901,7 @@ class RecordTagHandler:
                         self.values[field_name] = answer[0]['id']
 
             elif ref_attr:
-                # TODO avec cache sur les ids..:
-                #self.id_get(cursor, f_ref)
+                # TODO handle correctly the cache on ids
                 self.values[field_name] = self.mh.get_id(ref_attr)
 
             elif eval_attr:
