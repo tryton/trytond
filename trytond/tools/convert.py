@@ -770,13 +770,11 @@ def convert_xml_import_dom(cursor, module, xmlstream, idref=None, mode='init',
 
 #$$
 # Notes:
-# - classe monolythique vs instancier des sous-classe par type de record
-# (que l'on re-reference a la volee des qu'on lit le debut du record).
-# - utilser des pointeur de fct plutot que que inTitle=1
+
 # - analyser le code _update, source d'amelioration
 # - ajouter un handler d'exception
 # - faire un cache en debut de traitement : {xml_id: (db_id, model)}
-
+# - prevoir du cache sur les action pour booster la creation des menuitems
 # tuto : http://pyxml.sourceforge.net/topics/howto/node14.html
 
 from xml import sax
@@ -820,10 +818,17 @@ class MenuitemTagHandler:
 
         if values.get('action') :
             type_attr = attributes.get('type', 'act_window').encode('utf8')
+            action_id = self.mh.get_id(values['action'])
             values['action'] = "ir.actions.%s,%d" %\
-                (type_attr, self.mh.get_id(values['action']))
+                (type_attr, action_id)
 
-        print values
+
+        if not values.get('name'):
+            res = self.mh.pool.get('ir.actions.act_window').read(
+                self.mh.cursor, self.mh.user, action_id, ['name'])
+            values['name'] = res['name']
+
+
         self.values = values
 
 

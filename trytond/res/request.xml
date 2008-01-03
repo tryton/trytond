@@ -83,7 +83,7 @@
             <field name="view_id" ref="request_view_form"/>
             <field name="act_window_id" ref="act_request_form"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res" 
             action="act_request_form" id="menu_request_form"/>
         <record model="ir.ui.view" id="request_link_view_form">
             <field name="name">res.request.link.form</field>

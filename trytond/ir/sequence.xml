@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <terp>
     <data>
-        <menuitem name="Administration/IR/Sequences" id="menu_sequence"/>
+        <menuitem name="Sequences" parent_id="ir.menu_ir" id="menu_sequence"/>
         <record model="ir.ui.view" id="sequence_view_form">
             <field name="name">ir.sequence.form</field>
             <field name="model">ir.sequence</field>
