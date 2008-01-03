@@ -3,7 +3,6 @@
     <data>
         <menuitem name="Sequences" parent_id="ir.menu_ir" id="menu_sequence"/>
         <record model="ir.ui.view" id="sequence_view_form">
-            <field name="name">ir.sequence.form</field>
             <field name="model">ir.sequence</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -28,7 +27,6 @@
 
         </record>
         <record model="ir.ui.view" id="sequence_view_tree">
-            <field name="name">ir.sequence.tree</field>
             <field name="model">ir.sequence</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -65,7 +63,6 @@
         <menuitem name="Administration/IR/Sequences/"
             action="act_sequence_form" id="menu_sequence_form"/>
         <record model="ir.ui.view" id="sequence_type_view_form">
-            <field name="name">ir.sequence.type.form</field>
             <field name="model">ir.sequence.type</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -78,7 +75,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="sequence_type_view_tree">
-            <field name="name">ir.sequence.type.tree</field>
             <field name="model">ir.sequence.type</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">

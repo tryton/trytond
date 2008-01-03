@@ -94,7 +94,7 @@ class BrowseRecord(object):
             else:
                 ffields = [(name, col)]
             ids = [x for x in self._data.keys() \
-                    if not self._data[x].has_key(name)]
+                    if not self._data[x].has_key(name) and x]
             # read the data
             datas = self._table.read(self._cursor, self._user, ids,
                     [x[0] for x in ffields], context=self._context,
@@ -1152,31 +1152,31 @@ class ORM(object):
                 self._name)
         if domain1:
             domain1 = ' AND ' + domain1
-            for i in range((len(ids) / ID_MAX) + \
-                    ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
-                str_d = string.join(('%d',) * len(sub_ids), ',')
-                if domain1:
-                    cursor.execute('SELECT id FROM "'+self._table+'" ' \
-                            'WHERE id IN (' + str_d + ') ' + domain1,
-                            sub_ids + domain2)
-                    if not cursor.rowcount == len({}.fromkeys(ids)):
-                        raise ExceptORM('AccessError',
-                                'You try to bypass an access rule ' \
-                                    '(Document type: %s).' % self._description)
+        for i in range((len(ids) / ID_MAX) + \
+                ((len(ids) % ID_MAX) and 1 or 0)):
+            sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+            str_d = ','.join(('%d',) * len(sub_ids))
+            if domain1:
+                cursor.execute('SELECT id FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ') ' + domain1,
+                        sub_ids + domain2)
+                if not cursor.rowcount == len({}.fromkeys(ids)):
+                    raise ExceptORM('AccessError',
+                            'You try to bypass an access rule ' \
+                                '(Document type: %s).' % self._description)
 
-                cursor.execute('DELETE FROM inherit ' \
-                        'WHERE (obj_type = %s AND obj_id IN ('+str_d+')) ' \
-                            'OR (inst_type = %s AND inst_id IN ('+str_d+'))',
-                            ((self._name,) + tuple(sub_ids) + \
-                                    (self._name,) + tuple(sub_ids)))
-                if domain:
-                    cursor.execute('DELETE FROM "'+self._table+'" ' \
-                            'WHERE id IN (' + str_d + ') ' + domain1,
-                            sub_ids + domain2)
-                else:
-                    cursor.execute('DELETE FROM "'+self._table+'" ' \
-                            'WHERE id IN (' + str_d + ')', sub_ids)
+            cursor.execute('DELETE FROM inherit ' \
+                    'WHERE (obj_type = %s AND obj_id IN ('+str_d+')) ' \
+                        'OR (inst_type = %s AND inst_id IN ('+str_d+'))',
+                        ((self._name,) + tuple(sub_ids) + \
+                                (self._name,) + tuple(sub_ids)))
+            if domain1:
+                cursor.execute('DELETE FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ') ' + domain1,
+                        sub_ids + domain2)
+            else:
+                cursor.execute('DELETE FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ')', sub_ids)
         return True
 
     # TODO: Validate
@@ -1754,41 +1754,17 @@ class ORM(object):
         result['arch'] = xarch
         result['fields'] = xfields
         if toolbar:
-
-            def clean(i):
-                i = i[2]
-                for key in (
-                        'report_sxw_content',
-                        'report_rml_content',
-                        'report_sxw', 'report_rml',
-                        'report_sxw_content_data',
-                        'report_rml_content_data',
-                        ):
-                    if key in i:
-                        del i[key]
-                return i
-
-            ir_values_obj = self.pool.get('ir.values')
-            resprint = ir_values_obj.get(cursor, user, 'action',
-                    'client_print_multi', [(self._name, False)], False,
-                    context)
-            resaction = ir_values_obj.get(cursor, user, 'action',
-                    'client_action_multi', [(self._name, False)], False,
-                    context)
-            resrelate = ir_values_obj.get(cursor, user, 'action',
-                    'client_action_relate', [(self._name, False)], False,
-                    context)
-            resprint = [clean(x) for x in resprint]
-            resaction = [clean(x) for x in resaction]
-            resaction = [x for x in resaction if not x.get('multi', False)]
-            resprint = [x for x in resprint if not x.get('multi', False)]
-            resrelate = [x[2]  for x in resrelate]
-            for i in resprint + resaction + resrelate:
-                i['string'] = i['name']
+            action_obj = self.pool.get('ir.action.keyword')
+            prints = action_obj.get_keyword(cursor, user, 'form_print',
+                    (self._name, 0), context=context)
+            actions = action_obj.get_keyword(cursor, user, 'form_action',
+                    (self._name, 0), context=context)
+            relates = action_obj.get_keyword(cursor, user, 'form_relate',
+                    (self._name, 0), context=context)
             result['toolbar'] = {
-                'print': resprint,
-                'action': resaction,
-                'relate': resrelate,
+                'print': prints,
+                'action': actions,
+                'relate': relates,
             }
         result['md5'] = md5.new(str(result)).hexdigest()
         if hexmd5 == result['md5']:

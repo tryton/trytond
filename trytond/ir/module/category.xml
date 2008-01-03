@@ -2,7 +2,6 @@
 <terp>
     <data>
         <record model="ir.ui.view" id="category_view_form">
-            <field name="name">ir.module.category.form</field>
             <field name="model">ir.module.category</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -15,7 +14,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="category_view_tree">
-            <field name="name">ir.module.category.tree</field>
             <field name="model">ir.module.category</field>
             <field name="type">tree</field>
             <field name="field_parent">child_ids</field>

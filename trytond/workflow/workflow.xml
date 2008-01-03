@@ -3,7 +3,6 @@
     <data>
         <menuitem name="Workflow" id="menu_workflow" parent_id="ir.menu_administration"/>
         <record model="ir.ui.view" id="workflow_view_form">
-            <field name="name">workflow.form</field>
             <field name="model">workflow</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -19,7 +18,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="workflow_view_tree">
-            <field name="name">workflow.tree</field>
             <field name="model">workflow</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -54,7 +52,6 @@
         <menuitem parent_id="menu_workflow"
             action="act_workflow_form" id="menu_workflow_form"/>
         <record model="ir.ui.view" id="activity_view_form">
-            <field name="name">workflow.activity.form</field>
             <field name="model">workflow.activity</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -98,7 +95,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="activity_view_tree">
-            <field name="name">workflow.activity.tree</field>
             <field name="model">workflow.activity</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -136,7 +132,6 @@
         <menuitem parent_id="menu_workflow"
             action="act_activity_form" id="menu_activity_form"/>
         <record model="ir.ui.view" id="transition_view_form">
-            <field name="name">workflow.transition.form</field>
             <field name="model">workflow.transition</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -154,7 +149,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="transition_view_tree">
-            <field name="name">workflow.transition.tree</field>
             <field name="model">workflow.transition</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -193,7 +187,6 @@
         <menuitem parent_id="menu_workflow"
             action="act_transition_form" id="menu_transition_form"/>
         <record model="ir.ui.view" id="instance_view_form">
-            <field name="name">workflow.instance.form</field>
             <field name="model">workflow.instance</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -209,7 +202,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="instance_view_tree">
-            <field name="name">workflow.instance.tree</field>
             <field name="model">workflow.instance</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -239,7 +231,6 @@
         <menuitem parent_id="menu_workflow"
             action="act_instance_form" id="menu_instance_form"/>
         <record model="ir.ui.view" id="workitem_view_form">
-            <field name="name">workflow.workitem.form</field>
             <field name="model">workflow.workitem</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -254,7 +245,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="workitem_view_tree">
-            <field name="name">workflow.workitem.tree</field>
             <field name="model">workflow.workitem</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">

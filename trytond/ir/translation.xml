@@ -2,7 +2,6 @@
 <terp>
     <data>
         <record model="ir.ui.view" id="translation_view_form">
-            <field name="name">ir.translation.form</field>
             <field name="model">ir.translation</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -19,7 +18,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="translation_view_tree">
-            <field name="name">ir.translation.tree</field>
             <field name="model">ir.translation</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">

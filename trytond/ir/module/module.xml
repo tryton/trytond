@@ -3,7 +3,6 @@
     <data>
         <menuitem name="Administration/IR/Modules" id="menu_modules"/>
         <record model="ir.ui.view" id="module_view_form">
-            <field name="name">ir.module.module.form</field>
             <field name="model">ir.module.module</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -55,7 +54,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="module_view_tree">
-            <field name="name">ir.module.module.tree</field>
             <field name="model">ir.module.module</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -103,9 +101,91 @@
             <field name="name">Update Module List</field>
             <field name="wiz_name">ir.module.module.update_list</field>
         </record>
+        <record model="ir.ui.view" id="module_update_list_init_view_form">
+            <field name="model">ir.module.module.update_list.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Update Module List">
+                    <label string="This function will check for new modules in the 'addons' path and on module repositories:"
+                        colspan="4" align="0.0"/>
+                    <field name="repositories" colspan="4" nolabel="1"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="module_update_list_update_view_form">
+            <field name="model">ir.module.module.update_list.update</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="New modules">
+                    <field name="update" colspan="4"/>
+                    <field name="add" colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
         <menuitem name="Administration/IR/Modules/Update Module List"
             action="act_module_update_list"
             type="wizard"
             id="menu_module_update_list"/>
+        <record model="ir.actions.wizard" id="act_module_install_upgrade">
+            <field name="name">Install / Upgrade Modules</field>
+            <field name="wiz_name">ir.module.module.install_upgrade</field>
+        </record>
+        <record model="ir.action.keyword" id="act_module_install_upgrade_keyword1">
+            <field name="action" ref="act_module_install_upgrade"/>
+            <field name="keyword">form_action</field>
+            <field name="model">ir.module.module,0</field>
+        </record>
+        <record model="ir.ui.view" id="module_install_upgrade_init_view_form">
+            <field name="model">ir.module.module.install_upgrade.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="System Upgrade">
+                    <image name="gtk-dialog-info" colspan="2"/>
+                    <group colspan="2" col="4">
+                        <label align="0.0"
+                            string="Your system will be upgraded."
+                            colspan="4"/>
+                        <label align="0.0"
+                            string="Note that this operation my take a few minutes."
+                            colspan="4"/>
+                        <separator string="Modules to update"/>
+                        <field name="module_info" nolabel="1" colspan="4"/>
+                        <separator string="Modules to download"/>
+                        <field name="module_download" nolabel="1" colspan="4"/>
+                    </group>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="module_install_upgrade_start_view_form">
+            <field name="model">ir.module.module.install_upgrade.start</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="System upgrade done">
+                    <separator string="System upgrade done"/>
+                    <label align="0.0"
+                        string="The modules have been upgraded / installed !"
+                        colspan="4"/>
+                    <label align="0.0"
+                        string="You may have to reinstall some language pack."
+                        colspan="4"/>
+                    <label align="0.0"
+                        string="We suggest you to reload the menu tab (Ctrl+t Ctrl+r)."
+                        colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <menuitem name="Administration/IR/Modules/Install \ Upgrade Modules"
+            action="act_module_install_upgrade"
+            type="wizard"
+            id="menu_module_install_upgrade"/>
     </data>
 </terp>
