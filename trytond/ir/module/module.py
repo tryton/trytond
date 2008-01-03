@@ -7,7 +7,7 @@ from trytond.osv import fields, OSV
 import trytond.tools as tools
 from trytond.module import ADDONS_PATH
 from trytond.osv.orm import ExceptORM
-from trytond.wizard import Wizard
+from trytond.wizard import Wizard, WizardOSV
 
 VER_REGEXP = re.compile(
     "^(\\d+)((\\.\\d+)*)([a-z]?)((_(pre|p|beta|alpha|rc)\\d*)*)(-r(\\d+))?$")
@@ -539,29 +539,28 @@ class ModuleDependency(OSV):
 ModuleDependency()
 
 
+class ModuleUpdateListInit(WizardOSV):
+    _name = 'ir.module.module.update_list.init'
+    _columns = {
+        'repositories': fields.Text('Repositories', readonly=True),
+    }
+
+ModuleUpdateListInit()
+
+
+class ModuleUpdateListUpdate(WizardOSV):
+    _name = 'ir.module.module.update_list.update'
+    _columns = {
+        'update': fields.Integer('Number of modules updated', readonly=True),
+        'add': fields.Integer('Number of modules added', readonly=True),
+    }
+
+ModuleUpdateListUpdate()
+
+
 class ModuleUpdateList(Wizard):
     "Update module list"
     _name = 'ir.module.module.update_list'
-
-    arch = '''<?xml version="1.0"?>
-    <form string="Scan for new modules">
-        <label string="This function will check for new modules in the 'addons' path and on module repositories:" colspan="4" align="0.0"/>
-        <field name="repositories" colspan="4" nolabel="1"/>
-    </form>'''
-    fields = {
-        'repositories': {'type': 'text', 'string': 'Repositories', 'readonly': True},
-    }
-
-    arch_module = '''<?xml version="1.0"?>
-    <form string="New modules">
-        <field name="update" colspan="4"/>
-        <field name="add" colspan="4"/>
-    </form>'''
-
-    fields_module = {
-        'update': {'type': 'integer', 'string': 'Number of modules updated', 'readonly': True},
-        'add': {'type': 'integer', 'string': 'Number of modules added', 'readonly': True},
-    }
 
     def _update_module(self, cr, uid, data, context):
         module_obj = self.pool.get('ir.module.module')
@@ -593,8 +592,7 @@ class ModuleUpdateList(Wizard):
                 'actions': [_get_repositories],
                 'result': {
                     'type': 'form',
-                    'arch': arch,
-                    'fields': fields,
+                    'object': 'ir.module.module.update_list.init',
                     'state': [
                         ('end', 'Cancel', 'gtk-cancel'),
                         ('update', 'Check new modules', 'gtk-ok', True),
@@ -605,8 +603,7 @@ class ModuleUpdateList(Wizard):
                 'actions': [_update_module],
                 'result': {
                     'type': 'form',
-                    'arch': arch_module,
-                    'fields': fields_module,
+                    'object': 'ir.module.module.update_list.update',
                     'state': [
                         ('open_window', 'Ok', 'gtk-ok', True),
                     ]

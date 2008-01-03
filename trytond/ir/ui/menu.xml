@@ -6,11 +6,11 @@
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+                <![CDATA[
                 <tree string="Menu" toolbar="1">
                     <field name="name" icon="icon"/>
                 </tree>
-		]]>
+                ]]>
             </field>
             <field name="field_parent">child_id</field>
         </record>
@@ -34,11 +34,11 @@
             <field name="type">tree</field>
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
-	      <![CDATA[
+                <![CDATA[
                 <tree string="Menu">
                     <field name="complete_name" icon="icon"/>
                 </tree>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="menu_view_form">
@@ -46,7 +46,7 @@
             <field name="model">ir.ui.menu</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-	      <![CDATA[
+                <![CDATA[
                 <form string="Menu">
                     <field name="complete_name"/>
                     <field name="name" select="1"/>
@@ -56,7 +56,7 @@
                     <field name="groups_id" colspan="4"/>
                     <field name="icon"/>
                 </form>
-		]]>
+                ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_menu_form">
