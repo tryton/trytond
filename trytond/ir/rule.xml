@@ -2,7 +2,6 @@
 <terp>
     <data>
         <record model="ir.ui.view" id="rule_group_view_form">
-            <field name="name">ir.rule.group.form</field>
             <field name="model">ir.rule.group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -23,7 +22,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="rule_group_view_tree">
-            <field name="name">ir.rule.group.tree</field>
             <field name="model">ir.rule.group</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -58,7 +56,6 @@
         <menuitem parent_id="ir.menu_ir"
             action="act_rule_group_form" id="menu_rule_group_form"/>
         <record model="ir.ui.view" id="rule_view_form">
-            <field name="name">ir.rule.form</field>
             <field name="model">ir.rule</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -74,7 +71,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="rule_view_tree">
-            <field name="name">ir.rule.tree</field>
             <field name="model">ir.rule</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">

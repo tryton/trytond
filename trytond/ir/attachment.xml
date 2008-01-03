@@ -2,7 +2,6 @@
 <terp>
     <data>
         <record model="ir.ui.view" id="attachment_view_form">
-            <field name="name">ir.attachment.form</field>
             <field name="model">ir.attachment</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -21,7 +20,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="attachment_view_tree">
-            <field name="name">ir.attachment.tree</field>
             <field name="model">ir.attachment</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">

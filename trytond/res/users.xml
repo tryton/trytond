@@ -14,7 +14,6 @@
             <field name="groups_id" eval="[(6, 0, [ref('group_admin')])]"/>
         </record>
         <record model="ir.ui.view" id="user_view_form">
-            <field name="name">res.user.form</field>
             <field name="model">res.user</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -45,7 +44,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="user_view_tree">
-            <field name="name">res.user.tree</field>
             <field name="model">res.user</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -80,7 +78,6 @@
         <menuitem parent_id="res.menu_res"
             action="act_user_form" id="menu_user_form"/>
         <record model="ir.ui.view" id="group_view_form">
-            <field name="name">res.group.form</field>
             <field name="model">res.group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -102,7 +99,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="group_view_tree">
-            <field name="name">res.group.tree</field>
             <field name="model">res.group</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
@@ -136,7 +132,6 @@
         <menuitem parent_id="res.menu_res"
             action="act_group_form" id="menu_group_form"/>
         <record model="ir.ui.view" id="role_view_form">
-            <field name="name">res.role.form</field>
             <field name="model">res.role</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
@@ -149,7 +144,6 @@
             </field>
         </record>
         <record model="ir.ui.view" id="role_view_tree">
-            <field name="name">res.role.tree</field>
             <field name="model">res.role</field>
             <field name="type">tree</field>
             <field name="field_parent">parent_id</field>
