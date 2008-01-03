@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <terp>
     <data>
-        <menuitem name="Administration/IR/Actions" id="menu_actions"/>
+        <menuitem name="Actions" id="menu_actions" parent_id="ir.menu_ir"/>
         <record model="ir.ui.view" id="actions_actions_view_form">
             <field name="name">ir.actions.actions.form</field>
             <field name="model">ir.actions.actions</field>
@@ -58,7 +58,7 @@
             <field name="view_id" ref="actions_actions_view_form"/>
             <field name="act_window_id" ref="act_actions_actions_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_actions_form" id="menu_actions_actions"/>
         <record model="ir.ui.view" id="actions_report_view_form">
             <field name="name">ir.actions.report.form</field>
@@ -110,7 +110,7 @@
             <field name="view_id" ref="actions_report_view_form"/>
             <field name="act_window_id" ref="act_actions_report_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_report_form" id="menu_actions_report_form"/>
         <record model="ir.ui.view" id="actions_act_window_view_form">
             <field name="name">ir.actions.act_window.form</field>
@@ -182,7 +182,7 @@
             <field name="view_id" ref="actions_act_window_view_form"/>
             <field name="act_window_id" ref="act_actions_act_window_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_act_window_form" id="menu_actions_act_window"/>
         <record model="ir.ui.view" id="actions_wizard_view_form">
             <field name="name">ir.actions.wizard.form</field>
@@ -234,7 +234,7 @@
             <field name="view_id" ref="actions_wizard_view_form"/>
             <field name="act_window_id" ref="act_actions_wizard_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_wizard_form" id="menu_actions_wizard"/>
     </data>
 </terp>

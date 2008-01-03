@@ -53,7 +53,7 @@
             <field name="view_id" ref="translation_view_form"/>
             <field name="act_window_id" ref="act_translation_form"/>
         </record>
-        <menuitem name="Administration/IR/Translations"
+        <menuitem name="Translations" parent_id="ir.menu_ir"
             action="act_translation_form" id="menu_translation_form"/>
     </data>
 </terp>

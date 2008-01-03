@@ -77,7 +77,7 @@
             <field name="view_id" ref="user_view_form"/>
             <field name="act_window_id" ref="act_user_form"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_user_form" id="menu_user_form"/>
         <record model="ir.ui.view" id="group_view_form">
             <field name="name">res.group.form</field>
@@ -133,7 +133,7 @@
             <field name="view_id" ref="group_view_form"/>
             <field name="act_window_id" ref="act_group_form"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_group_form" id="menu_group_form"/>
         <record model="ir.ui.view" id="role_view_form">
             <field name="name">res.role.form</field>
@@ -194,9 +194,9 @@
             <field name="view_id" ref="role_view_tree"/>
             <field name="act_window_id" ref="act_role_tree"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_role_form" id="menu_role_form"/>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_role_tree" id="menu_role_tree"/>
     </data>
 </terp>
