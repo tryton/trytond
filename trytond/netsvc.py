@@ -104,36 +104,6 @@ class Service(object):
     def current_failure(self, service):
         pass
 
-    def exec_workflow(self, database, user, passwd, object_name, method,
-            object_id):
-        return
-
-    def execute(self, database, user, passwd, *args, **kargs):
-        return
-
-    def execute_cr(self, cursor, user, *args, **kargs):
-        return
-
-    def obj_list(self, database, user, passwd):
-        return
-
-    def create(self, cursor, user, ids, datas, context):
-        return
-
-    def trg_validate(user, res_type, res_id, signal, cursor):
-        pass
-
-    def trg_delete(user, res_type, res_id, cursor):
-        pass
-
-    def trg_write(user, res_type, res_id, cursor):
-        pass
-
-    def trg_create(self, user, res_type, res_id, cursor):
-        pass
-
-    def clear_cache(self, cursor):
-        pass
 
 class LocalService(Service):
 
