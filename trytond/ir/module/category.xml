@@ -39,7 +39,7 @@
             <field name="view_id" ref="category_view_tree"/>
             <field name="act_window_id" ref="act_category_tree"/>
         </record>
-        <menuitem name="Administration/IR/Modules/"
+        <menuitem parent_id="menu_modules"
             action="act_category_tree" id="menu_category_tree"/>
     </data>
 </terp>
