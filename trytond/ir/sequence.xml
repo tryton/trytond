@@ -60,7 +60,7 @@
             <field name="view_id" ref="sequence_view_form"/>
             <field name="act_window_id" ref="act_sequence_form"/>
         </record>
-        <menuitem name="Administration/IR/Sequences/"
+        <menuitem parent_id="menu_sequence"
             action="act_sequence_form" id="menu_sequence_form"/>
         <record model="ir.ui.view" id="sequence_type_view_form">
             <field name="model">ir.sequence.type</field>
@@ -107,7 +107,7 @@
             <field name="view_id" ref="sequence_type_view_form"/>
             <field name="act_window_id" ref="act_sequence_type_form"/>
         </record>
-        <menuitem name="Administration/IR/Sequences/"
+        <menuitem parent_id="menu_sequence"
             action="act_sequence_type_form" id="menu_ir_sequence_type"/>
     </data>
 </terp>

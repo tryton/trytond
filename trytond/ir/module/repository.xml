@@ -50,7 +50,7 @@
             <field name="view_id" ref="repository_view_form"/>
             <field name="act_window_id" ref="act_repository_form"/>
         </record>
-        <menuitem name="Administration/IR/Modules/"
+        <menuitem parent_id="menu_modules"
             action="act_repository_form" id="menu_repository_form"/>
     </data>
 </terp>
