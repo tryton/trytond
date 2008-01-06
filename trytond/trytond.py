@@ -38,7 +38,6 @@ import config
 from config import CONFIG
 import web_service
 import wkf_service
-import report_service
 from module import register_classes
 import osv, security, tools, version
 
@@ -68,8 +67,6 @@ class TrytonServer(object):
         web_service.Report()
 
         wkf_service.WorkflowService()
-
-        # TODO add report service
 
     def run(self):
         "Run the server and never return"
