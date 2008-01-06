@@ -66,8 +66,9 @@
                 <form string="Report">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
-                    <field name="report_name" select="1"/>
-                    <field name="report_odt"/>
+                    <field name="model" select="1"/>
+                    <field name="report_name" select="2"/>
+                    <field name="report"/>
                     <field name="auto"/>
                 </form>
                 ]]>
@@ -81,6 +82,7 @@
                 <tree string="Report xml">
                     <field name="name"/>
                     <field name="type"/>
+                    <field name="model"/>
                     <field name="report_name"/>
                 </tree>
                 ]]>
