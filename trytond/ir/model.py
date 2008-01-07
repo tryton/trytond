@@ -158,24 +158,37 @@ class ModelData(OSV):
     def __init__(self, pool):
         OSV.__init__(self, pool)
 
-        # fs2db contain the data of the table ir.model.data.  This
-        # fs2db provide a mapping from the data in the fs to the data
-        # in the db. This mean that this dict can become very big if a
-        # lot of files are imported. (improvement store a hash instead of all the values).
         self.fs2db = None
-        # imported_records keep tracks of all the records that have
-        # been imported.
-        self.imported_records = {}
+        self.fs2values = None
 
 
     def populate_fs2db(self, cursor, user):
-        """Fetch all the table in one shot (if necessary)."""
+        """Fetch all the db_id, model tuple in the table in one shot
+        (if necessary). This table is kept as a cache for the future
+        conversions between fs_id abd db_id"""
+
         if not self.fs2db: self.fs2db = {}
         if cursor.dbname not in self.fs2db:
             module_data_ids = self.search(cursor, user,[])
             self.fs2db[cursor.dbname] = dict([
                 ((x.fs_id, x.module),
-                 (x.db_id, x.model, x.values)) for x in \
+                 (x.db_id, x.model)) for x in \
+                self.browse(cursor, user, module_data_ids)])
+
+    def populate_fs2values(self, cursor, user):
+        """Fetch all the table in one shot (if necessary). When a
+        record is imported ny import_record, the corresponding item in
+        fs2values is removed. When post_import is called, the items
+        remaining in fs2values are the one that were in the model_data
+        table but not in the fs, so they are removed."""
+        # Improvement: store the fiedls names and a hash of the values
+        # instead of all the values.
+        if not self.fs2values: self.fs2values = {}
+        if cursor.dbname not in self.fs2values:
+            module_data_ids = self.search(cursor, user,[])
+            self.fs2values[cursor.dbname] = dict([
+                ((x.fs_id, x.module),
+                 x.values) for x in \
                 self.browse(cursor, user, module_data_ids)])
 
     def get_id(self, cursor, user, module, fs_id):
@@ -203,17 +216,14 @@ class ModelData(OSV):
             module, fs_id = fs_id.split('.')
 
         self.populate_fs2db(cursor, user)
+        self.populate_fs2values(cursor, user)
 
-        # keep track of the lits of parsed records.
-        if cursor.dbname in self.imported_records:
-            self.imported_records[cursor.dbname].append((fs_id, module))
-        else:
-            self.imported_records[cursor.dbname]= [(fs_id, module)]
 
         if (fs_id, module) in self.fs2db[cursor.dbname]:
             # this record is already in the db:
-            db_id, db_model, old_values = \
+            db_id, db_model = \
                    self.fs2db[cursor.dbname][(fs_id, module)]
+            old_values = self.fs2values[cursor.dbname][(fs_id, module)]
             old_values = eval(old_values)
 
             # Check if this record has been modified in the db:
@@ -241,8 +251,7 @@ class ModelData(OSV):
                     break
 
             if not modified:
-                # Update the db with the values
-                # TODO : check if this id exist for this model.
+                # Update the model_data with the modified values
 
                 self.pool.get(model).write(cursor, user, db_id, values)
                 self.create(cursor, user, {
@@ -254,15 +263,15 @@ class ModelData(OSV):
                     'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                     })
 
-                # Update fs2db:
-                self.fs2db[cursor.dbname][(fs_id, module)]= (db_id, model, str(values))
             else:
                 # We may not overwrite modified data:
                 logger = Logger()
                 logger.notify_channel('init', LOG_INFO,
                     'Record %s ignored, the corresponding data (%s@%s) '
                     'in the db has been modified' % (fs_id,db_id, model))
-
+            # Remove this record from the value list. This means that
+            # the corresponding record have been found.
+            del self.fs2values[cursor.dbname][(fs_id, module)]
         else:
             # this record is new
             db_id = self.pool.get(model).create(cursor, user, values)
@@ -281,18 +290,16 @@ class ModelData(OSV):
         # Test because of a wrong extra call see todo at the end of
         # load_module_graph in module.py
         # Globaly this function is a bit dirty.
-        if not (self.fs2db and self.fs2db.get(cursor.dbname)):
+        if not (self.fs2values and self.fs2values.get(cursor.dbname)):
             return True
 
         wf_service = LocalService("workflow")
 
         data_unlink = []
 
-        for ((fs_id, module),(db_id, model, values)) in  \
-                self.fs2db[cursor.dbname].items():
-
-            if module in modules and \
-                ((fs_id, module) not in self.imported_records[cursor.dbname]):
+        for (fs_id, module) in self.fs2values[cursor.dbname]:
+            if module in modules:
+                (db_id, model, values) = self.fs2db[cursor.dbname][(fs_id, module)]
 
                 if model == 'workflow.activity':
                     cursor.execute('SELECT res_type, db_id ' \
@@ -332,8 +339,7 @@ class ModelData(OSV):
             WHERE (fs_id, module) in (%s)
             """% ','.join(["('%s','%s')"%x for x in data_unlink]))
 
-        del self.fs2db[cursor.dbname]
-        del self.imported_records[cursor.dbname]
+        del self.fs2values[cursor.dbname]
 
         return True
 
