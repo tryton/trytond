@@ -158,8 +158,8 @@ def init_module_objects(cursor, module_name, obj_list):
     for obj in obj_list:
         obj.auto_init(cursor)
 
-def load_module_graph(cursor, graph, **kwargs):
-    # **kwargs is passed directly to convert_xml_import
+def load_module_graph(cursor, graph):
+
     package_todo = []
     statusi = 0
     for package in graph:
@@ -203,8 +203,7 @@ def load_module_graph(cursor, graph, **kwargs):
                                 cursor.execute(new_query)
                 else:
                     tools.convert_xml_import(cursor, module,
-                            tools.file_open(OPJ(module, filename)),
-                            idref, mode=mode, demo=demo, **kwargs)
+                            tools.file_open(OPJ(module, filename)))
             if demo:
                 cursor.execute('UPDATE ir_module_module SET demo = %s ' \
                         'WHERE name = %s', (True, package.name))
@@ -216,7 +215,8 @@ def load_module_graph(cursor, graph, **kwargs):
         statusi += 1
 
     pool = pooler.get_pool(cursor.dbname)
-    pool.get('ir.model.data')._process_end(cursor, 1, package_todo)
+    # TODO : post_import is called even if there not init nor update
+    pool.get('ir.model.data').post_import(cursor, 1, package_todo)
     cursor.commit()
 
 def register_classes():
@@ -263,10 +263,9 @@ def load_modules(database, force_demo=False, update_module=False):
                 "WHERE state IN ('installed', 'to upgrade', 'to remove')")
     module_list = [name for (name,) in cursor.fetchall()]
     graph = create_graph(module_list, force)
-    report = tools.AssertionReport()
-    load_module_graph(cursor, graph, report=report)
-    if report.get_report():
-        Logger().notify_channel('init', LOG_INFO, 'assert:%s' % report)
+
+    load_module_graph(cursor, graph)
+
 
     for kind in ('init', 'update'):
         CONFIG[kind] = {}
