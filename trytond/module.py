@@ -170,6 +170,8 @@ def load_module_graph(cursor, graph):
         modules = pool.instanciate(module)
         pool_wizard = pooler.get_pool_wizard(cursor.dbname)
         wizards = pool_wizard.instanciate(module, pool)
+        pool_report = pooler.get_pool_report(cursor.dbname)
+        reports = pool_report.instanciate(module, pool)
         cursor.execute('SELECT state, demo FROM ir_module_module WHERE name = %s',
                 (module,))
         (package_state, package_demo) = (cursor.rowcount and cursor.fetchone()) \

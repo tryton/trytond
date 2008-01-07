@@ -68,8 +68,8 @@ class ActionKeyword(OSV):
                     .read(cursor, user, action_keyword.action.id,
                         context=context))
             if action_keyword.action.type == 'ir.actions.report':
-                del res[-1]['report_odt_content_data']
-                del res[-1]['report_odt_content']
+                del res[-1]['report_content_data']
+                del res[-1]['report_content']
         return res
 
 ActionKeyword()
@@ -102,21 +102,17 @@ class ActionsReport(OSV):
         'type': fields.char('Report Type', size=32, required=True),
         'model': fields.char('Model', size=64, required=True),
         'report_name': fields.char('Internal Name', size=64, required=True),
-        'report_odt': fields.Char('ODT path', size=128),
-        'report_odt_content_data': fields.binary('ODT content'),
-        'report_odt_content': fields.function(_report_content,
+        'report': fields.Char('Path', size=128),
+        'report_content_data': fields.binary('Content'),
+        'report_content': fields.function(_report_content,
             fnct_inv=_report_content_inv, method=True,
-            type='binary', string='ODT content',),
+            type='binary', string='Content',),
         'auto': fields.boolean('Automatic', required=True),
-        'multi': fields.boolean('On multiple doc.',
-            help="If set to true, the action will not be displayed " \
-                    "on the right toolbar of a form views.")
     }
     _defaults = {
         'type': lambda *a: 'ir.actions.report',
-        'multi': lambda *a: False,
         'auto': lambda *a: True,
-        'report_odt_content': lambda *a: False,
+        'report_content': lambda *a: False,
     }
 
 ActionsReport()
@@ -215,13 +211,9 @@ class ActionsWizard(OSV):
             translate=True),
         'type': fields.char('Action type', size=32, required=True),
         'wiz_name': fields.char('Wizard name', size=64, required=True),
-        'multi': fields.boolean('Action on multiple doc.',
-            help="If set to true, the wizard will not be displayed \n" \
-                    "on the right toolbar of a form views.")
     }
     _defaults = {
         'type': lambda *a: 'ir.actions.wizard',
-        'multi': lambda *a: False,
     }
 
 ActionsWizard()

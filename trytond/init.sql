@@ -77,7 +77,7 @@ INHERITS (ir_actions);
 CREATE TABLE ir_act_report (
     model varchar(64) NOT NULL,
     report_name varchar(64) NOT NULL,
-    report_odt varchar(64),
+    report varchar(64),
     auto boolean default true,
     primary key(id)
 )
