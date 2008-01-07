@@ -52,7 +52,7 @@
             <field name="act_window_id" ref="act_property_form_default"/>
         </record>
         <menuitem parent_id="ir.menu_ir"
-            action="act_property_form_default" id="menu_property_form"/>
+            action="act_property_form_default" id="menu_property_form_default"/>
         <record model="ir.actions.act_window" id="act_property_form">
             <field name="name">Properties</field>
             <field name="type">ir.actions.act_window</field>
