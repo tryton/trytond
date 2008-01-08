@@ -5,7 +5,7 @@
             <field name="model">ir.rule.group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Record rules">
                     <field name="model_id"/>
                     <field name="global"/>
@@ -25,13 +25,13 @@
             <field name="model">ir.rule.group</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Record rules">
                     <field name="model_id"/>
                     <field name="name"/>
                     <field name="global"/>
                 </tree>
-                ]]>
+              ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_rule_group_form">
@@ -53,13 +53,13 @@
             <field name="view_id" ref="rule_group_view_form"/>
             <field name="act_window_id" ref="act_rule_group_form"/>
         </record>
-        <menuitem name="Administration/IR/"
+        <menuitem parent_id="ir.menu_ir"
             action="act_rule_group_form" id="menu_rule_group_form"/>
         <record model="ir.ui.view" id="rule_view_form">
             <field name="model">ir.rule</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Test">
                     <group colspan="4" col="6">
                         <field name="field_id"/>
@@ -74,7 +74,7 @@
             <field name="model">ir.rule</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Test">
                     <field name="field_id"/>
                     <field name="operator"/>

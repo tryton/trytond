@@ -1,6 +1,6 @@
 "model"
 from trytond.osv import fields, OSV
-from trytond.netsvc import Logger, LocalService, LOG_ERROR, LOG_INFO
+from trytond.netsvc import Logger, LocalService, LOG_ERROR, LOG_INFO, LOG_WARNING
 from trytond.osv.orm import except_orm
 from trytond.tools import Cache
 import time
@@ -141,211 +141,189 @@ class ModelData(OSV):
     _name = 'ir.model.data'
     _description = __doc__
     _columns = {
-        'name': fields.char('XML Identifier', required=True, size=64),
+        'fs_id': fields.char('Identifier on File System', required=True,
+            size=64, help="The id of the record as known on the file system."),
         'model': fields.char('Model', required=True, size=64),
         'module': fields.char('Module', required=True, size=64),
-        'res_id': fields.integer('Resource ID'),
-        'noupdate': fields.boolean('Non Updatable'),
+        'db_id': fields.integer('Resource ID',
+            help="The id of the record in the database."),
         'date_update': fields.datetime('Update Date'),
-        'date_init': fields.datetime('Init Date')
+        'date_init': fields.datetime('Init Date'),
+        'values': fields.text('Values'),
     }
     _defaults = {
         'date_init': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
-        'date_update': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
-        'noupdate': lambda *a: False
     }
 
     def __init__(self, pool):
         OSV.__init__(self, pool)
-        self.loads = {}
-        self.doinit = True
-        self.unlink_mark = {}
 
-    def _get_id(self, cursor, user, module, xml_id):
-        ids = self.search(cursor, user, [
-            ('module', '=', module),
-            ('name', '=', xml_id),
-            ])
-        assert len(ids)==1, '%d reference(s) to %s. ' \
-                'You should have only one !' % (len(ids),xml_id)
-        return ids[0]
+        self.fs2db = None
+        self.fs2values = None
 
-    _get_id = Cache()(_get_id)
 
-    def _update_dummy(self, cursor, user, model, module, xml_id=False):
-        if not xml_id:
-            return False
-        try:
-            obj_id = self.read(cursor, user, self._get_id(cursor, user, module,
-                xml_id), ['res_id'])['res_id']
-            self.loads[(module, xml_id)] = (model, obj_id)
-        except:
-            obj_id = False
-        return obj_id
+    def populate_fs2db(self, cursor, user):
+        """Fetch all the db_id, model tuple in the table in one shot
+        (if necessary). This table is kept as a cache for the future
+        conversions between fs_id abd db_id"""
 
-    def _update(self, cursor, user, model, module, values, xml_id='',
-            noupdate=False, mode='init', res_id=False):
-        model_obj = self.pool.get(model)
-        if xml_id and ('.' in xml_id):
-            assert len(xml_id.split('.')) == 2, '"%s" contains too many dots. '\
-                    'XML ids should not contain dots ! ' \
+        if not self.fs2db: self.fs2db = {}
+        if cursor.dbname not in self.fs2db:
+            module_data_ids = self.search(cursor, user,[])
+            self.fs2db[cursor.dbname] = dict([
+                ((x.fs_id, x.module),
+                 (x.db_id, x.model)) for x in \
+                self.browse(cursor, user, module_data_ids)])
+
+    def populate_fs2values(self, cursor, user):
+        """Fetch all the table in one shot (if necessary). When a
+        record is imported ny import_record, the corresponding item in
+        fs2values is removed. When post_import is called, the items
+        remaining in fs2values are the one that were in the model_data
+        table but not in the fs, so they are removed."""
+        # Improvement: store the fiedls names and a hash of the values
+        # instead of all the values.
+        if not self.fs2values: self.fs2values = {}
+        if cursor.dbname not in self.fs2values:
+            module_data_ids = self.search(cursor, user,[])
+            self.fs2values[cursor.dbname] = dict([
+                ((x.fs_id, x.module),
+                 x.values) for x in \
+                self.browse(cursor, user, module_data_ids)])
+
+    def get_id(self, cursor, user, module, fs_id):
+
+        # Pre-Fetch all the data at once
+        self.populate_fs2db(cursor, user)
+
+        # return only the db_id
+        if (fs_id, module) in self.fs2db[cursor.dbname]:
+            return self.fs2db[cursor.dbname][(fs_id, module)][0]
+        else:
+            raise Exception("Reference to %s not found"% ".".join([module,fs_id]))
+
+    def import_record(self, cursor, user, model, module, values, fs_id):
+
+        if not fs_id:
+            raise Exception('import_record : Argument fs_id is mandatory')
+
+        if '.' in fs_id:
+            assert len(fs_id.split('.')) == 2, '"%s" contains too many dots. '\
+                    'file system ids should contain ot most one dot ! ' \
                     'These are used to refer to other modules data, ' \
-                    'as in module.reference_id' % (xml_id)
-            module, xml_id = xml_id.split('.')
-        if (not xml_id) and (not self.doinit):
-            return False
-        action_id = False
-        if xml_id:
-            cursor.execute('SELECT id, res_id FROM ir_model_data ' \
-                    'WHERE module = %s AND name = %s', (module,xml_id))
-            results = cursor.fetchall()
-            for action_id2, res_id2 in results:
-                cursor.execute('SELECT id ' \
-                        'FROM ' + self.pool.get(model)._table + ' ' \
-                        'WHERE id = %d', (res_id2,))
-                result3 = cursor.fetchone()
-                if not result3:
-                    cursor.execute('DELETE FROM ir_model_data ' \
-                            'WHERE id = %d', (action_id2,))
+                    'as in module.reference_id' % (fs_id)
+
+            module, fs_id = fs_id.split('.')
+
+        self.populate_fs2db(cursor, user)
+        self.populate_fs2values(cursor, user)
+
+
+        if (fs_id, module) in self.fs2db[cursor.dbname]:
+            # this record is already in the db:
+            db_id, db_model = \
+                   self.fs2db[cursor.dbname][(fs_id, module)]
+            old_values = self.fs2values[cursor.dbname][(fs_id, module)]
+            old_values = eval(old_values)
+
+            # Check if this record has been modified in the db:
+            if model != db_model:
+                raise Exception("This record try to overwrite"
+                "data with the wrong model.")
+            object_ref = self.pool.get(model)
+            db_values = object_ref.read(cursor, user, db_id, old_values.keys())
+
+            modified = False
+            for key in old_values:
+
+                if object_ref._columns[key]._type == 'many2one':
+                    db_field = db_values[key][0]
+                elif object_ref._columns[key]._type in ['one2one', 'one2many', "many2many"]:
+                    logger = Logger()
+                    logger.notify_channel('init', LOG_WARNING,
+                        'Field %s on %s : integrity not tested.'%(key, model))
+                    continue
                 else:
-                    res_id, action_id = res_id2, action_id2
+                    db_field = db_values[key]
 
-        if action_id and res_id:
-            model_obj.write(cursor, user, [res_id], values)
-            self.write(cursor, user, [action_id], {
-                'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
-                })
-        elif res_id:
-            model_obj.write(cursor, user, [res_id], values)
-            if xml_id:
+                if old_values[key] != db_field:
+                    modified = True
+                    break
+
+            if not modified:
+                # Update the model_data with the modified values
+
+                self.pool.get(model).write(cursor, user, db_id, values)
                 self.create(cursor, user, {
-                    'name': xml_id,
+                    'fs_id': fs_id,
                     'model': model,
-                    'module':module,
-                    'res_id':res_id,
-                    'noupdate': noupdate,
+                    'module': module,
+                    'db_id': db_id,
+                    'values': str(values),
+                    'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                     })
-                if model_obj._inherits:
-                    for table in model_obj._inherits:
-                        inherit_id = model_obj.browse(cursor, user,
-                                res_id)[model_obj._inherits[table]]
-                        self.create(cursor, user, {
-                            'name': xml_id + '_' + table.replace('.', '_'),
-                            'model': table,
-                            'module': module,
-                            'res_id': inherit_id,
-                            'noupdate': noupdate,
-                            })
+
+            else:
+                # We may not overwrite modified data:
+                logger = Logger()
+                logger.notify_channel('init', LOG_INFO,
+                    'Record %s ignored, the corresponding data (%s@%s) '
+                    'in the db has been modified' % (fs_id,db_id, model))
+            # Remove this record from the value list. This means that
+            # the corresponding record have been found.
+            del self.fs2values[cursor.dbname][(fs_id, module)]
         else:
-            if mode == 'init' or (mode == 'update' and xml_id):
-                res_id = model_obj.create(cursor, user, values)
-                if xml_id:
-                    self.create(cursor, user, {
-                        'name': xml_id,
-                        'model': model,
-                        'module': module,
-                        'res_id': res_id,
-                        'noupdate': noupdate
-                        })
-                    if model_obj._inherits:
-                        for table in model_obj._inherits:
-                            inherit_id = model_obj.browse(cursor, user,
-                                    res_id)[model_obj._inherits[table]]
-                            self.create(cursor, user, {
-                                'name': xml_id + '_' + table.replace('.', '_'),
-                                'model': table,
-                                'module': module,
-                                'res_id': inherit_id,
-                                'noupdate': noupdate,
-                                })
-        if xml_id:
-            if res_id:
-                self.loads[(module, xml_id)] = (model, res_id)
-        return res_id
+            # this record is new
+            db_id = self.pool.get(model).create(cursor, user, values)
+            self.create(cursor, user, {
+                'fs_id': fs_id,
+                'model': model,
+                'module': module,
+                'db_id': db_id,
+                'values': str(values),
+                })
+            # update fs2db:
+            self.fs2db[cursor.dbname][(fs_id, module)]= (db_id, model, str(values))
 
-    def _unlink(self, cursor, user, model, ids, direct=False):
-        #self.pool.get(model).unlink(cursor, user, ids)
-        for obj_id in ids:
-            self.unlink_mark[(model, obj_id)]=False
-            cursor.execute('DELETE FROM ir_model_data ' \
-                    'WHERE res_id = %d AND model = %s', (obj_id, model))
-        return True
+    def post_import(self, cursor, user, modules):
 
-    def ir_set(self, cursor, user, key, key2, name, models, value,
-            replace=True, isobject=False, meta=None, xml_id=False):
-        obj = self.pool.get('ir.values')
-        if type(models[0])==type([]) or type(models[0])==type(()):
-            model, res_id = models[0]
-        else:
-            res_id = None
-            model = models[0]
-
-        if res_id:
-            where = ' AND res_id = %d' % (res_id,)
-        else:
-            where = ' AND (res_id IS NULL)'
-
-        if key2:
-            where += ' AND key2 = \'%s\'' % (key2,)
-        else:
-            where += ' AND (key2 IS NULL)'
-
-        cursor.execute('SELECT * FROM ir_values ' \
-                'WHERE model = %s AND key = %s AND name = %s' + where,
-                (model, key, name))
-        res = cursor.fetchone()
-        if not res:
-            res = obj.set(cursor, user, key, key2, name, models, value,
-                    replace, isobject, meta)
-        elif xml_id:
-            cursor.execute('UPDATE ir_values SET value = %s ' \
-                    'WHERE model = %s AND key = %s AND name = %s' + where,
-                    (value, model, key, name))
-        return True
-
-    def _process_end(self, cursor, user, modules):
-        if not modules:
+        # Test because of a wrong extra call see todo at the end of
+        # load_module_graph in module.py
+        # Globaly this function is a bit dirty.
+        if not (self.fs2values and self.fs2values.get(cursor.dbname)):
             return True
-        module_str = ["'%s'" % m for m in modules]
-        cursor.execute('SELECT id, name, model, res_id, module ' \
-                'FROM ir_model_data ' \
-                'WHERE module IN (' + ','.join(module_str) + ') ' \
-                    'AND NOT noupdate')
-        wkf_todo = []
-        for (obj_id, name, model, res_id, module) in cursor.fetchall():
-            if (module, name) not in self.loads:
-                self.unlink_mark[(model, res_id)] = obj_id
+
+        wf_service = LocalService("workflow")
+
+        data_unlink = []
+
+        for (fs_id, module) in self.fs2values[cursor.dbname]:
+            if module in modules:
+                (db_id, model, values) = self.fs2db[cursor.dbname][(fs_id, module)]
+
                 if model == 'workflow.activity':
-                    cursor.execute('SELECT res_type, res_id ' \
+                    cursor.execute('SELECT res_type, db_id ' \
                             'FROM wkf_instance ' \
                             'WHERE id IN (' \
                                 'SELECT inst_id FROM wkf_workitem ' \
-                                'WHERE act_id = %d)', (res_id,))
+                                'WHERE act_id = %d)', (db_id,))
                     wkf_todo.extend(cursor.fetchall())
                     cursor.execute("UPDATE wkf_transition " \
                             "SET condition = 'True', role_id = NULL, " \
                                 "signal = NULL, act_to = act_from, " \
                                 "act_from = %d " \
-                            "WHERE act_to = %d", (res_id, res_id))
+                            "WHERE act_to = %d", (db_id, db_id))
                     cursor.execute("DELETE FROM wkf_transition " \
-                            "WHERE act_to = %d", (res_id,))
+                            "WHERE act_to = %d", (db_id,))
 
-        for model, obj_id in wkf_todo:
-            wf_service = LocalService("workflow")
-            wf_service.trg_write(user, model, obj_id, cursor)
+                    wf_service.trg_write(user, model, db_id, cursor)
 
-        for (model, obj_id) in self.unlink_mark.keys():
-            if self.pool.get(model):
                 logger = Logger()
                 logger.notify_channel('init', LOG_INFO,
-                        'Deleting %s@%s' % (obj_id, model))
+                        'Deleting %s@%s' % (db_id, model))
                 try:
-                    self.pool.get(model).unlink(cursor, user, [obj_id])
-                    if self.unlink_mark[(model, obj_id)]:
-                        self.unlink(cursor, user,
-                                [self.unlink_mark[(model, obj_id)]])
-                        cursor.execute('DELETE FROM ir_values WHERE value=%s',
-                                (model + ',' + str(obj_id),))
+                    self.pool.get(model).unlink(cursor, user, db_id)
+                    data_unlink.append((fs_id, module))
                 except:
                     logger.notify_channel('init', LOG_ERROR,
                             'Could not delete id: %d of model %s\t' \
@@ -353,7 +331,18 @@ class ModelData(OSV):
                                     'that points to this resource\t' \
                                     'You should manually fix this ' \
                                     'and restart --update=module' % \
-                                    (obj_id, model))
+                                    (db_id, model))
+
+        if data_unlink:
+            cursor.execute("""
+            DELETE FROM ir_model_data
+            WHERE (fs_id, module) in (%s)
+            """% ','.join(["('%s','%s')"%x for x in data_unlink]))
+
+        del self.fs2values[cursor.dbname]
+
         return True
+
+
 
 ModelData()

@@ -5,7 +5,7 @@
             <field name="model">ir.module.category</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Module Category">
                     <field name="name" colspan="4"/>
                     <field name="parent_id" colspan="4"/>
@@ -18,7 +18,7 @@
             <field name="type">tree</field>
             <field name="field_parent">child_ids</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Module Categories">
                     <field name="name"/>
                 </tree>
@@ -39,7 +39,7 @@
             <field name="view_id" ref="category_view_tree"/>
             <field name="act_window_id" ref="act_category_tree"/>
         </record>
-        <menuitem name="Administration/IR/Modules/"
+        <menuitem parent_id="menu_modules"
             action="act_category_tree" id="menu_category_tree"/>
     </data>
 </terp>

@@ -5,7 +5,7 @@
             <field name="model">ir.values</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Values">
                     <field name="name" select="1"/>
                     <field name="model" select="1"/>
@@ -24,7 +24,7 @@
             <field name="model">ir.values</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Values">
                     <field name="name"/>
                     <field name="model"/>
@@ -55,7 +55,7 @@
             <field name="view_id" ref="values_view_form"/>
             <field name="act_window_id" ref="act_values_form"/>
         </record>
-        <menuitem name="Administration/IR/"
+        <menuitem parent_id="ir.menu_ir"
             action="act_values_form" id="menu_values_form"/>
     </data>
 </terp>

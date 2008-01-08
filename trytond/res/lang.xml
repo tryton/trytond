@@ -9,7 +9,7 @@
             <field name="model">res.lang</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Languages" editable="bottom">
                     <field name="name"/>
                     <field name="code"/>
@@ -33,7 +33,7 @@
             <field name="view_id" ref="lang_view_tree"/>
             <field name="act_window_id" ref="act_lang_form"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res" 
             action="act_lang_form" id="menu_lang_form"/>
     </data>
 </terp>

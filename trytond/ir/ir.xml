@@ -2,6 +2,6 @@
 <terp>
     <data>
         <menuitem name="Administration" id="menu_administration"/>
-        <menuitem name="Administration/IR" id="menu_ir"/>
+        <menuitem name="IR" id="menu_ir" parent_id="menu_administration"/>
     </data>
 </terp>

@@ -5,7 +5,7 @@
             <field name="model">ir.model</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Model Description">
                     <field name="name" select="1"/>
                     <field name="model" select="1"/>
@@ -28,7 +28,7 @@
             <field name="model">ir.model</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Model Description">
                     <field name="name"/>
                     <field name="model"/>
@@ -55,13 +55,13 @@
             <field name="view_id" ref="model_view_form"/>
             <field name="act_window_id" ref="act_model_form"/>
         </record>
-        <menuitem name="Administration/IR/"
+        <menuitem parent_id="ir.menu_ir"
             action="act_model_form" id="menu_model_form"/>
         <record model="ir.ui.view" id="model_fields_view_form">
             <field name="model">ir.model.fields</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Fields">
                     <field name="name" select="1"/>
                     <field name="model_id" readonly="1"/>
@@ -76,7 +76,7 @@
             <field name="model">ir.model.fields</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Fields">
                     <field name="name"/>
                     <field name="field_description"/>
@@ -103,13 +103,13 @@
             <field name="view_id" ref="model_fields_view_form"/>
             <field name="act_window_id" ref="act_model_fields_form"/>
         </record>
-        <menuitem name="Administration/IR/"
+        <menuitem parent_id="ir.menu_ir"
             action="act_model_fields_form" id="model_model_fields_form"/>
         <record model="ir.ui.view" id="model_access_view_tree">
             <field name="model">ir.model.access</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Access controls">
                     <field name="name"/>
                     <field name="model_id"/>
@@ -122,7 +122,7 @@
             <field name="model">ir.model.access</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Access controls">
                     <field name="name" select="1" colspan="4"/>
                     <field name="model_id" select="1"/>
@@ -155,7 +155,8 @@
             <field name="view_id" ref="model_access_view_form"/>
             <field name="act_window_id" ref="act_model_access_form"/>
         </record>
-        <menuitem name="Administration/IR/"
+        <menuitem parent_id="ir.menu_ir"
             action="act_model_access_form" id="menu_model_access_form"/>
+
     </data>
 </terp>
