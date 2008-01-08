@@ -5,7 +5,7 @@
             <field name="model">ir.exports</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Exports">
                     <field name="name" select="1"/>
                     <field name="resource" select="1"/>
@@ -18,7 +18,7 @@
             <field name="model">ir.exports</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Exports">
                     <field name="name"/>
                     <field name="resource"/>
@@ -46,7 +46,7 @@
             <field name="view_id" ref="exports_view_form"/>
             <field name="act_window_id" ref="act_exports_form"/>
         </record>
-        <menuitem name="Administration/IR/"
+        <menuitem parent_id="ir.menu_ir"
             action="act_exports_form" id="menu_exports_form"/>
     </data>
 </terp>

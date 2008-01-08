@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <terp>
     <data>
-        <menuitem name="Administration/IR/Actions" id="menu_actions"/>
+        <menuitem name="Actions" id="menu_actions" parent_id="ir.menu_ir"/>
         <record model="ir.ui.view" id="actions_actions_view_form">
             <field name="model">ir.actions.actions</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Action">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -28,7 +28,7 @@
             <field name="model">ir.actions.actions</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Action">
                     <field name="name"/>
                     <field name="type"/>
@@ -56,13 +56,13 @@
             <field name="view_id" ref="actions_actions_view_form"/>
             <field name="act_window_id" ref="act_actions_actions_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_actions_form" id="menu_actions_actions"/>
         <record model="ir.ui.view" id="actions_report_view_form">
             <field name="model">ir.actions.report</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Report">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -78,7 +78,7 @@
             <field name="model">ir.actions.report</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Report xml">
                     <field name="name"/>
                     <field name="type"/>
@@ -108,13 +108,13 @@
             <field name="view_id" ref="actions_report_view_form"/>
             <field name="act_window_id" ref="act_actions_report_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_report_form" id="menu_actions_report_form"/>
         <record model="ir.ui.view" id="actions_act_window_view_form">
             <field name="model">ir.actions.act_window</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Open a Window">
                     <field name="name" select="1"/>
                     <field name="type" readonly="1"/>
@@ -149,7 +149,7 @@
             <field name="model">ir.actions.act_window</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Open Window">
                     <field name="name"/>
                     <field name="res_model"/>
@@ -178,13 +178,13 @@
             <field name="view_id" ref="actions_act_window_view_form"/>
             <field name="act_window_id" ref="act_actions_act_window_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_act_window_form" id="menu_actions_act_window"/>
         <record model="ir.ui.view" id="actions_wizard_view_form">
             <field name="model">ir.actions.wizard</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Wizard">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -198,7 +198,7 @@
             <field name="model">ir.actions.wizard</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Wizard">
                     <field name="name"/>
                     <field name="type"/>
@@ -228,7 +228,7 @@
             <field name="view_id" ref="actions_wizard_view_form"/>
             <field name="act_window_id" ref="act_actions_wizard_form"/>
         </record>
-        <menuitem name="Administration/IR/Actions/"
+        <menuitem parent_id="menu_actions"
             action="act_actions_wizard_form" id="menu_actions_wizard"/>
     </data>
 </terp>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <terp>
     <data>
-        <menuitem name="Administration/Res" id="menu_res"/>
+        <menuitem name="Res" id="menu_res" parent_id="ir.menu_administration"/>
     </data>
 </terp>

@@ -65,6 +65,9 @@ class View(OSV):
         return res
 
     def write(self, cursor, user, ids, vals, context=None):
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         views = self.browse(cursor, user, ids)
         for view in views:
             # Restart the cache

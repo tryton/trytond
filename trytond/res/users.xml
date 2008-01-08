@@ -11,13 +11,13 @@
             <field name="signature">Administrator</field>
             <field name="action_id" ref="ir.act_menu_tree"/>
             <field name="menu_id" ref="ir.act_menu_tree"/>
-            <field name="groups_id" eval="[(6, 0, [group_admin])]"/>
+            <field name="groups_id" eval="[(6, 0, [ref('group_admin')])]"/>
         </record>
         <record model="ir.ui.view" id="user_view_form">
             <field name="model">res.user</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="User">
                     <notebook>
                         <page string="User">
@@ -40,19 +40,19 @@
                         </page>
                     </notebook>
                 </form>
-                ]]>
+              ]]>
             </field>
         </record>
         <record model="ir.ui.view" id="user_view_tree">
             <field name="model">res.user</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Users">
                     <field name="name"/>
                     <field name="login"/>
                 </tree>
-                ]]>
+              ]]>
             </field>
         </record>
         <record model="ir.actions.act_window" id="act_user_form">
@@ -75,13 +75,13 @@
             <field name="view_id" ref="user_view_form"/>
             <field name="act_window_id" ref="act_user_form"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_user_form" id="menu_user_form"/>
         <record model="ir.ui.view" id="group_view_form">
             <field name="model">res.group</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Group">
                     <notebook>
                         <page string="Group">
@@ -102,7 +102,7 @@
             <field name="model">res.group</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Groups">
                     <field name="name"/>
                 </tree>
@@ -129,13 +129,13 @@
             <field name="view_id" ref="group_view_form"/>
             <field name="act_window_id" ref="act_group_form"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_group_form" id="menu_group_form"/>
         <record model="ir.ui.view" id="role_view_form">
             <field name="model">res.role</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Role">
                     <field name="name" select="1"/>
                     <field name="parent_id"/>
@@ -148,7 +148,7 @@
             <field name="type">tree</field>
             <field name="field_parent">parent_id</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Roles">
                     <field name="name"/>
                 </tree>
@@ -188,9 +188,9 @@
             <field name="view_id" ref="role_view_tree"/>
             <field name="act_window_id" ref="act_role_tree"/>
         </record>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_role_form" id="menu_role_form"/>
-        <menuitem name="Administration/Res/"
+        <menuitem parent_id="res.menu_res"
             action="act_role_tree" id="menu_role_tree"/>
     </data>
 </terp>

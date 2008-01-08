@@ -5,7 +5,7 @@
             <field name="model">ir.cron</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Scheduled Actions">
                     <field name="nextcall"/>
                     <field name="name"/>
@@ -20,7 +20,7 @@
             <field name="model">ir.cron</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Scheduled Action">
                     <field name="name" select="1"/>
                     <field name="active" select="1"/>
@@ -62,7 +62,7 @@
             <field name="view_id" ref="cron_view_form"/>
             <field name="act_window_id" ref="act_cron_form"/>
         </record>
-        <menuitem name="Administration/IR/"
+        <menuitem parent_id="ir.menu_ir"
             action="act_cron_form" id="menu_cron_form"/>
     </data>
 </terp>
