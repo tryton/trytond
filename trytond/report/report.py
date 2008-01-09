@@ -113,7 +113,8 @@ class Report(object):
         put objs in the pool var
         """
         if pool.get(cls._name):
-            cls = type(cls._name, (cls, parent_class), nattr)
+            parent_class = pool.get(cls._name).__class__
+            cls = type(cls._name, (cls, parent_class), {})
 
         obj = object.__new__(cls)
         obj.__init__(pool, pool_obj)
