@@ -39,8 +39,6 @@ def get_db_and_pool(db_name, force_demo=False, update_module=False,
         load_modules(database, force_demo, update_module)
 
         if not update_module:
-            #import report
-            #report.interface.register_all(database)
             pool.get('ir.cron').pool_jobs(database.dbname)
     if wizard:
         return database, pool_wizard
