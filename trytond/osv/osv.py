@@ -172,21 +172,7 @@ class OSV(ORM):
         """
         if pool.get(cls._name):
             parent_class = pool.get(cls._name).__class__
-            nattr = {}
-            for i in (
-                    '_columns',
-                    '_defaults',
-                    '_inherits',
-                    '_constraints',
-                    '_sql_constraints',
-                    ):
-                new = copy.copy(getattr(pool.get(cls._name), i))
-                if hasattr(new, 'update'):
-                    new.update(cls.__dict__.get(i, {}))
-                else:
-                    new.extend(cls.__dict__.get(i, []))
-                nattr[i] = new
-            cls = type(cls._name, (cls, parent_class), nattr)
+            cls = type(cls._name, (cls, parent_class), {})
 
         obj = object.__new__(cls)
         obj.__init__(pool)
