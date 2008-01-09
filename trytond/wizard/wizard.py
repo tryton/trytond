@@ -116,18 +116,7 @@ class Wizard(object):
         """
         if pool.get(cls._name):
             parent_class = pool.get(cls._name).__class__
-            new_states = copy.copy(getattr(pool.get(cls._name), 'states'))
-            for i in (
-                    'actions',
-                    'result',
-                    ):
-                new = copy.copy(getattr(new_states, i))
-                if hasattr(new, 'update'):
-                    new.update(cls.__dict__.get(i, {}))
-                else:
-                    new.extend(cls.__dict__.get(i, []))
-                new_states[i] = new
-            cls = type(cls._name, (cls, parent_class), {'states': new_states})
+            cls = type(cls._name, (cls, parent_class), {})
 
         obj = object.__new__(cls)
         obj.__init__(pool, pool_obj)
