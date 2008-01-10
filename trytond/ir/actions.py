@@ -107,11 +107,9 @@ class ActionsReport(OSV):
         'report_content': fields.function(_report_content,
             fnct_inv=_report_content_inv, method=True,
             type='binary', string='Content',),
-        'auto': fields.boolean('Automatic', required=True),
     }
     _defaults = {
         'type': lambda *a: 'ir.actions.report',
-        'auto': lambda *a: True,
         'report_content': lambda *a: False,
     }
 

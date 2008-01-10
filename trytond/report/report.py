@@ -30,8 +30,8 @@ class ReportService(Service):
         try:
             report = pooler.get_pool_report(cursor.dbname).get(report_name)
             if not report:
-                self.abort_response('Report Error', 'warning',
-                        'Report %s doesn\'t exist' % str(report_name))
+                report = Report.create_instance(self, 'report', pooler.get_pool(cursor.dbname))
+                report._name = report_name
             res = report.execute(cursor, user, ids, datas, context)
             return res
         except ExceptORM, inst:
@@ -114,18 +114,7 @@ class Report(object):
         """
         if pool.get(cls._name):
             parent_class = pool.get(cls._name).__class__
-            nattr = {}
-            for i in (
-                    '_context',
-                    ):
-                new = copy.copy(getattr(pool.get(cls._name), i))
-                if hasattr(new, 'update'):
-                    new.update(cls.__dict__.get(i, {}))
-                else:
-                    new.extend(cls.__dict__.get(i, []))
-                nattr[i] = new
-            cls = type(cls._name, (cls, parent_class), nattr)
-
+            cls = type(cls._name, (cls, parent_class), {})
 
         obj = object.__new__(cls)
         obj.__init__(pool, pool_obj)
@@ -134,7 +123,8 @@ class Report(object):
     create_instance = classmethod(create_instance)
 
     def __init__(self, pool, pool_obj):
-        pool.add(self._name, self)
+        if self._name:
+            pool.add(self._name, self)
         self.pool = pool_obj
         super(Report, self).__init__()
 
