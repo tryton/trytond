@@ -133,7 +133,8 @@ class RecordTagHandler:
         # Manage the top level tag
         if name == "record":
             self.model = self.mh.pool.get(attributes["model"].encode('utf8'))
-            assert self.model, "The model %s does not exist !" % (rec_model,)
+            assert self.model, "The model %s does not exist !" % \
+                    (attributes["model"].encode('utf8'),)
 
             self.xml_id = attributes["id"].encode('utf8')
 
