@@ -32,6 +32,7 @@ class ReportService(Service):
             if not report:
                 report = Report.create_instance(self, 'report', pooler.get_pool(cursor.dbname))
                 report._name = report_name
+                self.add(report._name, report)
             res = report.execute(cursor, user, ids, datas, context)
             return res
         except ExceptORM, inst:
