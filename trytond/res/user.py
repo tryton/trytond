@@ -135,9 +135,10 @@ User()
 
 
 class Group2(Group):
-    _columns = {
-        'users': fields.many2many('res.user', 'res_group_user_rel', 'gid',
-            'uid', 'Users'),
-    }
+
+    def __init__(self, pool):
+        super(Group2, self).__init__(pool)
+        self._columns['users'] = fields.many2many(
+            'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
 
 Group2()
