@@ -201,8 +201,16 @@ class UIMenu(OSV):
         for action_keyword in action_keyword_obj.browse(cursor, user,
                 action_keyword_ids, context=context):
             model_id = int(action_keyword.model.split(',')[1])
+            action_obj = self.pool.get(action_keyword.action.type)
+            action_id = action_obj.search(cursor, user, [
+                ('action', '=', action_keyword.action.id),
+                ], context=context)
+            if action_id:
+                action_id = action_id[0]
+            else:
+                action_id = 0
             res[model_id] = action_keyword.action.type + \
-                    ',' + str(action_keyword.action.id)
+                    ',' + str(action_id)
         return res
 
     def _action_inv(self, cursor, user, menu_id, name, value, arg,
