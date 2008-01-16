@@ -63,13 +63,19 @@ class MenuitemTagHandler:
             # TODO maybe use a prefetch for this:
             self.mh.cursor.execute(
             "SELECT a.name, a.type, v.type, wv.view_mode " \
-            "FROM ir_actions a " \
-                "LEFT JOIN ir_act_window act on (a.id = act.id) " \
-                "LEFT JOIN ir_ui_view v on (v.id = act.view_id) " \
-                "LEFT JOIN ir_act_window_view wv on (a.id = wv.act_window_id) " \
-            "WHERE a.id = %d " \
+            "FROM ir_action a " \
+                "LEFT JOIN ir_action_report report ON (a.id = report.action) " \
+                "LEFT JOIN ir_action_act_window act ON (a.id = act.action) " \
+                "LEFT JOIN ir_action_wizard wizard ON (a.id = wizard.action) " \
+                "LEFT JOIN ir_action_url url ON (a.id = url.action) " \
+                "LEFT JOIN ir_action_act_window_view wv on (act.id = wv.act_window_id) " \
+                "LEFT JOIN ir_ui_view v on (v.id = wv.view_id) " \
+            "WHERE report.id = %d " \
+                "OR act.id = %d " \
+                "OR wizard.id = %d " \
+                "OR url.id = %d " \
             "ORDER by wv.sequence " \
-            "LIMIT 1", (action_id,))
+            "LIMIT 1", (action_id, action_id, action_id, action_id))
             action_name, action_type, view_type, view_mode = \
                 self.mh.cursor.fetchone()
 
@@ -78,11 +84,11 @@ class MenuitemTagHandler:
             icon = attributes.get('icon', '').encode('utf8')
             if icon:
                 values['icon'] = icon
-            elif action_type == 'ir.actions.wizard':
+            elif action_type == 'ir.action.wizard':
                 values['icon'] = 'STOCK_EXECUTE'
-            elif action_type == 'ir.actions.report':
+            elif action_type == 'ir.action.report':
                 values['icon'] = 'STOCK_PRINT'
-            elif action_type == 'ir.actions.act_window':
+            elif action_type == 'ir.action.act_window':
                 if view_type == 'tree':
                     values['icon'] = 'STOCK_INDENT'
                 elif view_mode and view_mode.startswith('tree'):

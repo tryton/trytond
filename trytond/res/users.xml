@@ -55,20 +55,20 @@
               ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_user_form">
+        <record model="ir.action.act_window" id="act_user_form">
             <field name="name">Users</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">res.user</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_user_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="user_view_tree"/>
             <field name="act_window_id" ref="act_user_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_user_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
@@ -109,20 +109,20 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_group_form">
+        <record model="ir.action.act_window" id="act_group_form">
             <field name="name">Groups</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">res.group</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_group_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="group_view_tree"/>
             <field name="act_window_id" ref="act_group_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_group_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
@@ -155,33 +155,33 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_role_form">
+        <record model="ir.action.act_window" id="act_role_form">
             <field name="name">Roles</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">res.role</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_role_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="role_view_tree"/>
             <field name="act_window_id" ref="act_role_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_role_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="role_view_form"/>
             <field name="act_window_id" ref="act_role_form"/>
         </record>
-        <record model="ir.actions.act_window" id="act_role_tree">
+        <record model="ir.action.act_window" id="act_role_tree">
             <field name="name">Roles</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">res.role</field>
             <field name="view_type">tree</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_role_form_view3">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>

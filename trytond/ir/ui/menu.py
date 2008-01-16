@@ -220,11 +220,14 @@ class UIMenu(OSV):
         if action_keyword_ids:
             action_keyword_obj.unlink(cursor, user, action_keyword_ids,
                     context=ctx)
-        action_id = value.split(',')[1]
+        action_type, action_id = value.split(',')
+        action_obj = self.pool.get(action_type)
+        action = action_obj.browse(cursor, user, int(action_id),
+                context=context)
         action_keyword_obj.create(cursor, user, {
             'keyword': 'tree_open',
             'model': self._name + ',' + str(menu_id),
-            'action': action_id,
+            'action': action.action.id,
             }, context=ctx)
 
     _columns = {
@@ -240,10 +243,10 @@ class UIMenu(OSV):
         'action': fields.function(_action, fnct_inv=_action_inv,
             method=True, type='reference', string='Action',
             selection=[
-                ('ir.actions.report.custom', 'ir.actions.report.custom'),
-                ('ir.actions.report.xml', 'ir.actions.report.xml'),
-                ('ir.actions.act_window', 'ir.actions.act_window'),
-                ('ir.actions.wizard', 'ir.actions.wizard'),
+                ('ir.action.report', 'ir.action.report'),
+                ('ir.action.act_window', 'ir.action.act_window'),
+                ('ir.action.wizard', 'ir.action.wizard'),
+                ('ir.action.url', 'ir.action.url'),
                 ]),
     }
     _defaults = {

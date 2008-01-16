@@ -576,7 +576,7 @@ class ModuleUpdateList(Wizard):
                 'view_mode': 'tree,form',
                 'res_model': 'ir.module.module',
                 'view_id': False,
-                'type': 'ir.actions.act_window',
+                'type': 'ir.action.act_window',
                 }
 
     def _get_repositories(self, cr, uid, data, context):

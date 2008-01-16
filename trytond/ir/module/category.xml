@@ -25,14 +25,14 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_category_tree">
+        <record model="ir.action.act_window" id="act_category_tree">
             <field name="name">Categories</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.module.category</field>
             <field name="view_type">tree</field>
             <field name="domain">[('parent_id', '=', False)]</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_category_tree_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>

@@ -30,21 +30,21 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_property_form_default">
+        <record model="ir.action.act_window" id="act_property_form_default">
             <field name="name">Default properties</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.property</field>
             <field name="view_type">form</field>
             <field name="domain">[('res_id','=',False)]</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_property_form_view1_default">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="property_view_tree"/>
             <field name="act_window_id" ref="act_property_form_default"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_property_form_view2_default">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
@@ -53,20 +53,20 @@
         </record>
         <menuitem parent_id="ir.menu_ir"
             action="act_property_form_default" id="menu_property_form_default"/>
-        <record model="ir.actions.act_window" id="act_property_form">
+        <record model="ir.action.act_window" id="act_property_form">
             <field name="name">Properties</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.property</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_property_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="property_view_tree"/>
             <field name="act_window_id" ref="act_property_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_property_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>

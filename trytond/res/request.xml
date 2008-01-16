@@ -61,20 +61,20 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_request_form">
+        <record model="ir.action.act_window" id="act_request_form">
             <field name="name">Requests</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">res.request</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_request_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="request_view_tree"/>
             <field name="act_window_id" ref="act_request_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_request_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>

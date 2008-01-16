@@ -30,19 +30,19 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_view_form">
+        <record model="ir.action.act_window" id="act_view_form">
             <field name="name">Views</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.ui.view</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_view_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_view_tree"/>
             <field name="act_window_id" ref="act_view_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_view_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
@@ -77,19 +77,19 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_view_sc_form">
+        <record model="ir.action.act_window" id="act_view_sc_form">
             <field name="name">View Shortcuts</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.ui.view_sc</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_view_sc_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_sc_view_tree"/>
             <field name="act_window_id" ref="act_view_sc_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_view_sc_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>

@@ -52,7 +52,6 @@ class DB(Service):
                         'WHERE login <> \'root\' ORDER BY login')
                 res = cursor.dictfetchall()
             except Exception, e:
-                print e
                 logger.notify_channel("web-service", LOG_ERROR,
                     'CREATE DB: %s failed' % (db_name,))
                 raise

@@ -70,20 +70,20 @@
               ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_module_form">
+        <record model="ir.action.act_window" id="act_module_form">
             <field name="name">Modules</field>
-            <field name="type">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.module.module</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_module_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="module_view_tree"/>
             <field name="act_window_id" ref="act_module_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
+        <record model="ir.action.act_window.view"
             id="act_module_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
@@ -97,7 +97,7 @@
         </record>
         <menuitem parent_id="menu_modules"
             action="act_module_form" id="menu_module_form"/>
-        <record model="ir.actions.wizard" id="act_module_update_list">
+        <record model="ir.action.wizard" id="act_module_update_list">
             <field name="name">Update Module List</field>
             <field name="wiz_name">ir.module.module.update_list</field>
         </record>
@@ -131,7 +131,7 @@
             action="act_module_update_list"
             type="wizard"
             id="menu_module_update_list"/>
-        <record model="ir.actions.wizard" id="act_module_install_upgrade">
+        <record model="ir.action.wizard" id="act_module_install_upgrade">
             <field name="name">Install / Upgrade Modules</field>
             <field name="wiz_name">ir.module.module.install_upgrade</field>
         </record>
