@@ -93,6 +93,8 @@ class MenuitemTagHandler:
                     values['icon'] = 'STOCK_INDENT'
                 elif view_mode and view_mode.startswith('tree'):
                     values['icon'] = 'STOCK_JUSTIFY_FILL'
+                elif view_mode and view_mode.startswith('form'):
+                    values['icon'] = 'STOCK_NEW'
                 elif view_mode and view_mode.startswith('graph'):
                     values['icon'] = 'terp-graph'
                 elif view_mode and view_mode.startswith('calendar'):
