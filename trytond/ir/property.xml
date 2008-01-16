@@ -40,14 +40,12 @@
         <record model="ir.action.act_window.view"
             id="act_property_form_view1_default">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="property_view_tree"/>
             <field name="act_window_id" ref="act_property_form_default"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_property_form_view2_default">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="property_view_form"/>
             <field name="act_window_id" ref="act_property_form_default"/>
         </record>
@@ -62,14 +60,12 @@
         <record model="ir.action.act_window.view"
             id="act_property_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="property_view_tree"/>
             <field name="act_window_id" ref="act_property_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_property_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="property_view_form"/>
             <field name="act_window_id" ref="act_property_form"/>
         </record>
