@@ -62,7 +62,7 @@ class MenuitemTagHandler:
 
             # TODO maybe use a prefetch for this:
             self.mh.cursor.execute(
-            "SELECT a.name, a.type, v.type, wv.view_mode " \
+            "SELECT a.name, a.type, act.view_type, v.type " \
             "FROM ir_action a " \
                 "LEFT JOIN ir_action_report report ON (a.id = report.action) " \
                 "LEFT JOIN ir_action_act_window act ON (a.id = act.action) " \
