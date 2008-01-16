@@ -168,18 +168,8 @@ class ActionActWindow(OSV):
     def _views_get_fnc(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for act in self.browse(cursor, user, ids, context=context):
-            res[act.id] = [(view.view_id.id, view.view_mode) \
+            res[act.id] = [(view.view_id.id, view.view_id.type) \
                     for view in act.view_ids]
-            if (not act.view_ids):
-                modes = act.view_mode.split(',')
-                find = False
-                if act.view_id.id:
-                    res[act.id].append((act.view_id.id, act.view_id.type))
-                for mode in modes:
-                    if act.view_id and (mode == act.view_id.type) and not find:
-                        find = True
-                        continue
-                    res[act.id].append((False, mode))
         return res
 
     _columns = {
@@ -218,12 +208,7 @@ class ActionActWindowView(OSV):
     _description = __doc__
     _columns = {
         'sequence': fields.integer('Sequence'),
-        'view_id': fields.many2one('ir.ui.view', 'View'),
-        'view_mode': fields.selection((
-            ('tree', 'Tree'),
-            ('form', 'Form'),
-            ('graph', 'Graph'),
-            ('calendar', 'Calendar')), string='Type of view', required=True),
+        'view_id': fields.many2one('ir.ui.view', 'View', required=True),
         'act_window_id': fields.many2one('ir.action.act_window', 'Action',
             ondelete='CASCADE'),
         'multi': fields.boolean('On multiple doc.',

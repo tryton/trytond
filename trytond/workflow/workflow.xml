@@ -38,14 +38,12 @@
         <record model="ir.action.act_window.view"
             id="act_workflow_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="workflow_view_tree"/>
             <field name="act_window_id" ref="act_workflow_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_workflow_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="workflow_view_form"/>
             <field name="act_window_id" ref="act_workflow_form"/>
         </record>
@@ -118,14 +116,12 @@
         <record model="ir.action.act_window.view"
             id="act_activity_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="activity_view_tree"/>
             <field name="act_window_id" ref="act_activity_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_activity_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="activity_view_form"/>
             <field name="act_window_id" ref="act_activity_form"/>
         </record>
@@ -173,14 +169,12 @@
         <record model="ir.action.act_window.view"
             id="act_transition_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="transition_view_tree"/>
             <field name="act_window_id" ref="act_transition_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_transition_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="transition_view_form"/>
             <field name="act_window_id" ref="act_transition_form"/>
         </record>
@@ -224,7 +218,6 @@
         <record model="ir.action.act_window.view"
             id="act_instance_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="instance_view_tree"/>
             <field name="act_window_id" ref="act_instance_form"/>
         </record>
@@ -266,14 +259,12 @@
         <record model="ir.action.act_window.view"
             id="act_workitem_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="workitem_view_tree"/>
             <field name="act_window_id" ref="act_workitem_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_workitem_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="workitem_view_form"/>
             <field name="act_window_id" ref="act_workitem_form"/>
         </record>

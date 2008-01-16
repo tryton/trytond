@@ -49,14 +49,12 @@
         <record model="ir.action.act_window.view"
             id="act_sequence_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="sequence_view_tree"/>
             <field name="act_window_id" ref="act_sequence_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_sequence_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="sequence_view_form"/>
             <field name="act_window_id" ref="act_sequence_form"/>
         </record>
@@ -96,14 +94,12 @@
         <record model="ir.action.act_window.view"
             id="act_sequence_type_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
             <field name="view_id" ref="sequence_type_view_tree"/>
             <field name="act_window_id" ref="act_sequence_type_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_sequence_type_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
             <field name="view_id" ref="sequence_type_view_form"/>
             <field name="act_window_id" ref="act_sequence_type_form"/>
         </record>
