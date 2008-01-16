@@ -22,10 +22,6 @@ class Group(OSV):
     ]
 
     def write(self, cursor, user, ids, vals, context=None):
-        if 'name' in vals:
-            if vals['name'].startswith('-'):
-                raise ExceptOSV('Error',
-                        'The name of the group can not start with "-"')
         res = super(Group, self).write(cursor, user, ids, vals,
                 context=context)
         # Restart the cache on the company_get method
@@ -70,8 +66,8 @@ class User(OSV):
         'signature': fields.Text('Signature', size=64),
         #'address_id': fields.Many2One('res.partner.address', 'Address'),
         'active': fields.Boolean('Active'),
-        'action_id': fields.Many2One('ir.actions.actions', 'Home Action'),
-        'menu_id': fields.Many2One('ir.actions.actions', 'Menu Action'),
+        'action_id': fields.Many2One('ir.action', 'Home Action'),
+        'menu_id': fields.Many2One('ir.action', 'Menu Action'),
         'groups_id': fields.Many2Many('res.group', 'res_group_user_rel',
             'uid', 'gid', 'Groups'), 
         'roles_id': fields.Many2Many('res.role', 'res_role_user_rel',
@@ -95,7 +91,23 @@ class User(OSV):
 #        return company_id
 #    company_get = Cache()(company_get)
 
+    def _convert_vals(self, cursor, user, vals, context=None):
+        vals = vals.copy()
+        action_obj = self.pool.get('ir.action')
+        if 'action_id' in vals:
+            vals['action_id'] = action_obj.get_action_id(cursor, user,
+                    vals['action_id'], context=context)
+        if 'menu_id' in vals:
+            vals['menu_id'] = action_obj.get_action_id(cursor, user,
+                    vals['menu_id'], context=context)
+        return vals
+
+    def create(self, cursor, user, vals, context=None):
+        vals = self._convert_vals(cursor, user, vals, context=context)
+        return super(User, self).create(cursor, user, vals, context=context)
+
     def write(self, cursor, user, ids, vals, context=None):
+        vals = self._convert_vals(cursor, user, vals, context=context)
         res = super(User, self).write(cursor, user, ids, vals, context=context)
         # Restart the cache for company_get and domain_get method
 #        self.company_get()
@@ -135,9 +147,11 @@ User()
 
 
 class Group2(Group):
-    _columns = {
-        'users': fields.many2many('res.user', 'res_group_user_rel', 'gid',
-            'uid', 'Users'),
-    }
+
+    def __init__(self, pool):
+        Group.__init__(self, pool)
+
+        self._columns['users'] = fields.many2many('res.user',
+                'res_group_user_rel', 'gid', 'uid', 'Users')
 
 Group2()

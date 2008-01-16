@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <terp>
     <data>
-        <menuitem name="Actions" id="menu_actions" parent_id="ir.menu_ir"/>
-        <record model="ir.ui.view" id="actions_actions_view_form">
-            <field name="model">ir.actions.actions</field>
+        <menuitem name="Actions" id="menu_action" parent_id="ir.menu_ir"/>
+        <record model="ir.ui.view" id="action_view_form">
+            <field name="model">ir.action</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -24,8 +24,8 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.ui.view" id="actions_actions_view_tree">
-            <field name="model">ir.actions.actions</field>
+        <record model="ir.ui.view" id="action_view_tree">
+            <field name="model">ir.action</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -36,30 +36,30 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_actions_actions_form">
+        <record model="ir.action.act_window" id="act_action_form">
             <field name="name">Actions</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.actions</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.action</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_actions_form_view1">
+        <record model="ir.action.act_window.view"
+            id="act_action_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_actions_view_tree"/>
-            <field name="act_window_id" ref="act_actions_actions_form"/>
+            <field name="view_id" ref="action_view_tree"/>
+            <field name="act_window_id" ref="act_action_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_actions_form_view2">
+        <record model="ir.action.act_window.view"
+            id="act_action_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_actions_view_form"/>
-            <field name="act_window_id" ref="act_actions_actions_form"/>
+            <field name="view_id" ref="action_view_form"/>
+            <field name="act_window_id" ref="act_action_form"/>
         </record>
-        <menuitem parent_id="menu_actions"
-            action="act_actions_actions_form" id="menu_actions_actions"/>
-        <record model="ir.ui.view" id="actions_report_view_form">
-            <field name="model">ir.actions.report</field>
+        <menuitem parent_id="menu_action"
+            action="act_action_form" id="menu_act_action"/>
+        <record model="ir.ui.view" id="action_report_view_form">
+            <field name="model">ir.action.report</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -70,12 +70,21 @@
                     <field name="report_name" select="2"/>
                     <field name="report"/>
                     <field name="auto"/>
+                    <field name="keywords" colspan="4" nolabel="1">
+                        <tree string="Keywords">
+                            <field name="keyword"/>
+                        </tree>
+                        <form string="Keyword">
+                            <field name="keyword"/>
+                            <field name="model"/>
+                        </form>
+                    </field>
                 </form>
                 ]]>
             </field>
         </record>
-        <record model="ir.ui.view" id="actions_report_view_tree">
-            <field name="model">ir.actions.report</field>
+        <record model="ir.ui.view" id="action_report_view_tree">
+            <field name="model">ir.action.report</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -88,30 +97,30 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_actions_report_form">
+        <record model="ir.action.act_window" id="act_action_report_form">
             <field name="name">Reports</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.report</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.action.report</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_report_form_view1">
+        <record model="ir.action.act_window.view"
+            id="act_action_report_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_report_view_tree"/>
-            <field name="act_window_id" ref="act_actions_report_form"/>
+            <field name="view_id" ref="action_report_view_tree"/>
+            <field name="act_window_id" ref="act_action_report_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_report_form_view2">
+        <record model="ir.action.act_window.view"
+            id="act_action_report_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_report_view_form"/>
-            <field name="act_window_id" ref="act_actions_report_form"/>
+            <field name="view_id" ref="action_report_view_form"/>
+            <field name="act_window_id" ref="act_action_report_form"/>
         </record>
-        <menuitem parent_id="menu_actions"
-            action="act_actions_report_form" id="menu_actions_report_form"/>
-        <record model="ir.ui.view" id="actions_act_window_view_form">
-            <field name="model">ir.actions.act_window</field>
+        <menuitem parent_id="menu_action"
+            action="act_action_report_form" id="menu_action_report_form"/>
+        <record model="ir.ui.view" id="action_act_window_view_form">
+            <field name="model">ir.action.act_window</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -141,12 +150,21 @@
                     <newline/>
                     <field name="view_mode"/>
                     <field name="view_id"/>
+                    <field name="keywords" colspan="4" nolabel="1">
+                        <tree string="Keywords">
+                            <field name="keyword"/>
+                        </tree>
+                        <form string="Keyword">
+                            <field name="keyword"/>
+                            <field name="model"/>
+                        </form>
+                    </field>
                 </form>
                 ]]>
             </field>
         </record>
-        <record model="ir.ui.view" id="actions_act_window_view_tree">
-            <field name="model">ir.actions.act_window</field>
+        <record model="ir.ui.view" id="action_act_window_view_tree">
+            <field name="model">ir.action.act_window</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -160,28 +178,28 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_actions_act_window_form">
+        <record model="ir.action.act_window" id="act_action_act_window_form">
             <field name="name">Window Actions</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.act_window</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.action.act_window</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view" id="act_actions_act_window_view1">
+        <record model="ir.action.act_window.view" id="act_action_act_window_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_act_window_view_tree"/>
-            <field name="act_window_id" ref="act_actions_act_window_form"/>
+            <field name="view_id" ref="action_act_window_view_tree"/>
+            <field name="act_window_id" ref="act_action_act_window_form"/>
         </record>
-        <record model="ir.actions.act_window.view" id="act_actions_act_window_view2">
+        <record model="ir.action.act_window.view" id="act_action_act_window_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_act_window_view_form"/>
-            <field name="act_window_id" ref="act_actions_act_window_form"/>
+            <field name="view_id" ref="action_act_window_view_form"/>
+            <field name="act_window_id" ref="act_action_act_window_form"/>
         </record>
-        <menuitem parent_id="menu_actions"
-            action="act_actions_act_window_form" id="menu_actions_act_window"/>
-        <record model="ir.ui.view" id="actions_wizard_view_form">
-            <field name="model">ir.actions.wizard</field>
+        <menuitem parent_id="menu_action"
+            action="act_action_act_window_form" id="menu_action_act_window"/>
+        <record model="ir.ui.view" id="action_wizard_view_form">
+            <field name="model">ir.action.wizard</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -190,12 +208,21 @@
                     <field name="type" select="1"/>
                     <field name="wiz_name" select="1"/>
                     <field name="multi"/>
+                    <field name="keywords" colspan="4" nolabel="1">
+                        <tree string="Keywords">
+                            <field name="keyword"/>
+                        </tree>
+                        <form string="Keyword">
+                            <field name="keyword"/>
+                            <field name="model"/>
+                        </form>
+                    </field>
                 </form>
                 ]]>
             </field>
         </record>
-        <record model="ir.ui.view" id="actions_wizard_view_tree">
-            <field name="model">ir.actions.wizard</field>
+        <record model="ir.ui.view" id="action_wizard_view_tree">
+            <field name="model">ir.action.wizard</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -208,27 +235,27 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="act_actions_wizard_form">
+        <record model="ir.action.act_window" id="act_action_wizard_form">
             <field name="name">Wizards</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">ir.actions.wizard</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.action.wizard</field>
             <field name="view_type">form</field>
         </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_wizard_form_view1">
+        <record model="ir.action.act_window.view"
+            id="act_action_wizard_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="actions_wizard_view_tree"/>
-            <field name="act_window_id" ref="act_actions_wizard_form"/>
+            <field name="view_id" ref="action_wizard_view_tree"/>
+            <field name="act_window_id" ref="act_action_wizard_form"/>
         </record>
-        <record model="ir.actions.act_window.view"
-            id="act_actions_wizard_form_view2">
+        <record model="ir.action.act_window.view"
+            id="act_action_wizard_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="actions_wizard_view_form"/>
-            <field name="act_window_id" ref="act_actions_wizard_form"/>
+            <field name="view_id" ref="action_wizard_view_form"/>
+            <field name="act_window_id" ref="act_action_wizard_form"/>
         </record>
-        <menuitem parent_id="menu_actions"
-            action="act_actions_wizard_form" id="menu_actions_wizard"/>
+        <menuitem parent_id="menu_action"
+            action="act_action_wizard_form" id="menu_action_wizard"/>
     </data>
 </terp>
