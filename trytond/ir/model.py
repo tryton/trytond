@@ -1,6 +1,6 @@
 "model"
 from trytond.osv import fields, OSV
-from trytond.netsvc import Logger, LocalService, LOG_ERROR, LOG_INFO, LOG_WARNING
+from trytond.netsvc import Logger, LocalService, LOG_ERROR, LOG_INFO, LOG_WARNING, LOG_DEBUG
 from trytond.osv.orm import except_orm
 from trytond.tools import Cache
 import time
@@ -172,7 +172,7 @@ class ModelData(OSV):
             module_data_ids = self.search(cursor, user,[])
             self.fs2db[cursor.dbname] = dict([
                 ((x.fs_id, x.module),
-                 (x.db_id, x.model)) for x in \
+                 (x.db_id, x.model, x.id)) for x in \
                 self.browse(cursor, user, module_data_ids)])
 
     def populate_fs2values(self, cursor, user):
@@ -221,23 +221,27 @@ class ModelData(OSV):
 
         if (fs_id, module) in self.fs2db[cursor.dbname]:
             # this record is already in the db:
-            db_id, db_model = \
+            db_id, db_model, mdata_id = \
                    self.fs2db[cursor.dbname][(fs_id, module)]
             old_values = self.fs2values[cursor.dbname][(fs_id, module)]
             old_values = eval(old_values)
 
-            # Check if this record has been modified in the db:
+
+            # Check if values for this record has been modified in the
+            # db, if not it's ok to overwrite them.
             if model != db_model:
                 raise Exception("This record try to overwrite"
                 "data with the wrong model.")
             object_ref = self.pool.get(model)
-            db_values = object_ref.read(cursor, user, db_id, old_values.keys())
+            # XXX maybe use a browse instead:
+            db_values = object_ref.read(cursor, user, db_id, values.keys())
 
-            modified = False
-            for key in old_values:
+            to_update = {}
+            for key in values:
 
+                # first handle correctly the datas returned by read()
                 if object_ref._columns[key]._type == 'many2one':
-                    db_field = db_values[key][0]
+                    db_field = db_values[key] and db_values[key][0] or False
                 elif object_ref._columns[key]._type in ['one2one', 'one2many', "many2many"]:
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
@@ -246,15 +250,38 @@ class ModelData(OSV):
                 else:
                     db_field = db_values[key]
 
-                if old_values[key] != db_field:
-                    modified = True
-                    break
+                # if the fs value is the same has in the db, whe ignore it
+                if db_field == values[key]:
+                    continue
 
-            if not modified:
-                # Update the model_data with the modified values
+                # we cannot update a field if it was changed by a user
+                if key not in  old_values:
+                    default_value = object_ref._defaults.get(
+                        key, lambda *a:None)(cursor, user)
+                    if db_field != default_value:
+                        logger = Logger()
+                        logger.notify_channel('init', LOG_WARNING,
+                            "Field %s of %s@%s not updated (id: %s), because "\
+                            "it has changed since the last update"% \
+                            (key, db_id, model, fs_id))
+                        continue
 
-                self.pool.get(model).write(cursor, user, db_id, values)
-                self.create(cursor, user, {
+                elif (old_values[key] and db_field) and old_values[key] != db_field:
+                    logger = Logger()
+                    logger.notify_channel('init', LOG_WARNING,
+                        "Field %s of %s@%s not updated (id: %s), because "\
+                        "it has changed since the last update."% (key, db_id, model, fs_id))
+                    continue
+
+                # so, the field in the fs and in the db are different,
+                # and no user changed the value in the db:
+                to_update[key] = values[key]
+
+            # if there is values to update:
+            if to_update:
+                self.pool.get(model).write(cursor, user, db_id, to_update)
+            if values != old_values:
+                self.write(cursor, user, mdata_id, {
                     'fs_id': fs_id,
                     'model': model,
                     'module': module,
@@ -263,19 +290,13 @@ class ModelData(OSV):
                     'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                     })
 
-            else:
-                # We may not overwrite modified data:
-                logger = Logger()
-                logger.notify_channel('init', LOG_INFO,
-                    'Record %s ignored, the corresponding data (%s@%s) '
-                    'in the db has been modified' % (fs_id,db_id, model))
             # Remove this record from the value list. This means that
             # the corresponding record have been found.
             del self.fs2values[cursor.dbname][(fs_id, module)]
         else:
             # this record is new
             db_id = self.pool.get(model).create(cursor, user, values)
-            self.create(cursor, user, {
+            mdata_id = self.create(cursor, user, {
                 'fs_id': fs_id,
                 'model': model,
                 'module': module,
@@ -283,11 +304,11 @@ class ModelData(OSV):
                 'values': str(values),
                 })
             # update fs2db:
-            self.fs2db[cursor.dbname][(fs_id, module)]= (db_id, model, str(values))
+            self.fs2db[cursor.dbname][(fs_id, module)]= (db_id, model, str(values), mdata_id)
 
     def post_import(self, cursor, user, modules):
 
-        # Test because of a wrong extra call see todo at the end of
+        # Test because of a wrong extra call. See todo at the end of
         # load_module_graph in module.py
         # Globaly this function is a bit dirty.
         if not (self.fs2values and self.fs2values.get(cursor.dbname)):
@@ -295,11 +316,11 @@ class ModelData(OSV):
 
         wf_service = LocalService("workflow")
 
-        data_unlink = []
+        mdata_unlink = []
 
         for (fs_id, module) in self.fs2values[cursor.dbname]:
             if module in modules:
-                (db_id, model, values) = self.fs2db[cursor.dbname][(fs_id, module)]
+                (db_id, model, mdata_id) = self.fs2db[cursor.dbname][(fs_id, module)]
 
                 if model == 'workflow.activity':
                     cursor.execute('SELECT res_type, db_id ' \
@@ -323,8 +344,9 @@ class ModelData(OSV):
                         'Deleting %s@%s' % (db_id, model))
                 try:
                     self.pool.get(model).unlink(cursor, user, db_id)
-                    data_unlink.append((fs_id, module))
+                    mdata_unlink.append(mdata_id)
                 except:
+                    raise
                     logger.notify_channel('init', LOG_ERROR,
                             'Could not delete id: %d of model %s\t' \
                                     'There should be some relation ' \
@@ -333,12 +355,8 @@ class ModelData(OSV):
                                     'and restart --update=module' % \
                                     (db_id, model))
 
-        if data_unlink:
-            cursor.execute("""
-            DELETE FROM ir_model_data
-            WHERE (fs_id, module) in (%s)
-            """% ','.join(["('%s','%s')"%x for x in data_unlink]))
-
+        if mdata_unlink:
+            self.unlink(cursor, user, mdata_unlink)
         del self.fs2values[cursor.dbname]
 
         return True

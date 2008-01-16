@@ -43,6 +43,9 @@ class View(OSV):
     ]
 
     def unlink(self, cursor, user, ids, context=None):
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         views = self.browse(cursor, user, ids, context=context)
         for view in views:
             # Restart the cache
