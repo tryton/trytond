@@ -239,10 +239,16 @@ class ModelData(OSV):
             to_update = {}
             for key in values:
 
-                # first handle correctly the datas returned by read()
-                if object_ref._columns[key]._type == 'many2one':
+                # search the field type in the object or in a parent
+                if key in object_ref._columns:
+                    field_type = object_ref._columns[key]._type
+                else:
+                    field_type = object_ref._inherit_fields[key][2]._type
+
+                # handle the value regarding to the type
+                if field_type == 'many2one':
                     db_field = db_values[key] and db_values[key][0] or False
-                elif object_ref._columns[key]._type in ['one2one', 'one2many', "many2many"]:
+                elif field_type in ['one2one', 'one2many', "many2many"]:
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
                         'Field %s on %s : integrity not tested.'%(key, model))
