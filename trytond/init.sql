@@ -41,7 +41,7 @@ CREATE TABLE ir_model (
 CREATE TABLE ir_model_fields (
   id serial,
   model varchar(64) DEFAULT ''::varchar NOT NULL,
-  model_id int references ir_model,
+  model_id int references ir_model on delete cascade,
   name varchar(64) DEFAULT ''::varchar NOT NULL,
   relation varchar(64),
   field_description varchar(256),
@@ -172,7 +172,7 @@ create table wkf_transition
 create table wkf_instance
 (
     id serial,
-    wkf_id int references wkf on delete set null,
+    wkf_id int references wkf on delete restrict,
     uid int default null,
     res_id int not null,
     res_type varchar(64) not null,
