@@ -524,7 +524,7 @@ class ModuleDependency(OSV):
 
     _columns = {
         'name': fields.char('Name',  size=128),
-        'module_id': fields.many2one('ir.module.module', 'Module', select=1),
+        'module_id': fields.many2one('ir.module.module', 'Module', select=1, ondelete='cascade'),
         'state': fields.function(_state, method=True, type='selection',
             selection=[
             ('uninstallable','Uninstallable'),

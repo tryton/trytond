@@ -32,7 +32,7 @@ class ModelFields(OSV):
         'model': fields.char('Model Name', size=64, required=True),
         'relation': fields.char('Model Relation', size=64),
         'model_id': fields.many2one('ir.model', 'Model id', required=True,
-            select=True),
+            select=True, ondelete='cascade'),
         'field_description': fields.char('Field Description', size=256),
         'ttype': fields.char('Field Type', size=64),
         'relate': fields.boolean('Click and Relate'),
