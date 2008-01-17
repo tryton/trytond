@@ -2,3 +2,5 @@ syntax: glob
 .hgignore
 *.pyc
 *~
+addons/*
+trytond.conf

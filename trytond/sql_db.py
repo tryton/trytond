@@ -116,20 +116,20 @@ def init_db(cursor):
     addons_path = os.path.join(os.path.dirname(__file__), 'addons')
 
     for i in (os.listdir(addons_path) + ['ir', 'workflow', 'res']):
-        terp_file = opj(addons_path, i, '__terp__.py')
+        tryton_file = opj(addons_path, i, '__tryton__.py')
         mod_path = opj(addons_path, i)
         if i in ('ir', 'workflow', 'res'):
             root_path = os.path.dirname(__file__)
-            terp_file = opj(root_path, i, '__terp__.py')
+            tryton_file = opj(root_path, i, '__tryton__.py')
             mod_path = opj(root_path, i)
         info = {}
-        if os.path.isfile(terp_file) \
+        if os.path.isfile(tryton_file) \
                 and not os.path.isfile(opj(addons_path, i + '.zip')):
-            info = eval(file(terp_file).read())
+            info = eval(file(tryton_file).read())
         elif zipfile.is_zipfile(mod_path):
             zfile = zipfile.ZipFile(mod_path)
             i = os.path.splitext(i)[0]
-            info = eval(zfile.read(opj(i, '__terp__.py')))
+            info = eval(zfile.read(opj(i, '__tryton__.py')))
         if info:
             categs = info.get('category', 'Uncategorized').split('/')
             p_id = None
