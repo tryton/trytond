@@ -1611,7 +1611,7 @@ class ORM(object):
             result = self.view_header_get(cursor, user, False, node.localName,
                     context)
             if result:
-                node.setAttribute('string', result)
+                node.setAttribute('string', result.decode('utf8'))
 
         if node.nodeType == node.ELEMENT_NODE:
             # translate view
@@ -1643,13 +1643,13 @@ class ORM(object):
                 for fname, gname in cursor.fetchall():
                     if oldgroup != gname:
                         child = doc.createElement('separator')
-                        child.setAttribute('string', gname)
+                        child.setAttribute('string', gname.decode('utf8'))
                         child.setAttribute('colspan', "4")
                         oldgroup = gname
                         parent.insertBefore(child, node)
 
                     child = doc.createElement('field')
-                    child.setAttribute('name', fname)
+                    child.setAttribute('name', fname.decode('utf8'))
                     parent.insertBefore(child, node)
                 parent.removeChild(node)
 
