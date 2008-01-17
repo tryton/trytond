@@ -106,18 +106,18 @@ def create_graph(module_list, force=None):
     for module in module_list:
         if module[-4:] == '.zip':
             module = module[:-4]
-        terp_file = OPJ(ADDONS_PATH, module, '__terp__.py')
+        tryton_file = OPJ(ADDONS_PATH, module, '__tryton__.py')
         mod_path = OPJ(ADDONS_PATH, module)
         if module in ('ir', 'workflow', 'res'):
             root_path = os.path.dirname(__file__)
-            terp_file = OPJ(root_path, module, '__terp__.py')
+            tryton_file = OPJ(root_path, module, '__tryton__.py')
             mod_path = OPJ(root_path, module)
-        if os.path.isfile(terp_file) or zipfile.is_zipfile(mod_path+'.zip'):
+        if os.path.isfile(tryton_file) or zipfile.is_zipfile(mod_path+'.zip'):
             try:
-                info = eval(tools.file_open(terp_file).read())
+                info = eval(tools.file_open(tryton_file).read())
             except:
                 Logger().notify_channel('init', LOG_ERROR,
-                        'addon:%s:eval file %s' % (module, terp_file))
+                        'addon:%s:eval file %s' % (module, tryton_file))
                 raise
             if info.get('installable', True):
                 packages.append((module, info.get('depends', []), info))

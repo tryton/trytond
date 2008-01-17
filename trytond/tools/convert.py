@@ -274,7 +274,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.taghandler = None
 
         # Managed tags are handled by the current class
-        self.managedtags= ["data", "terp"]
+        self.managedtags= ["data", "tryton"]
         self.idlist = []
 
 
@@ -301,7 +301,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             elif name == "data":
                 self.noupdate = attributes.get("noupdate", False)
 
-            elif name == "terp":
+            elif name == "tryton":
                 pass
 
             else:

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<terp>
+<tryton>
     <data>
         <menuitem name="UI" parent_id="menu_ir" id="menu_ui"/>
     </data>
-</terp>
+</tryton>

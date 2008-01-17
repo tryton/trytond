@@ -128,10 +128,10 @@ class Module(OSV):
 
     @staticmethod
     def get_module_info(name):
-        "Return the content of the __terp__.py"
+        "Return the content of the __tryton__.py"
         try:
             file_p = tools.file_open(os.path.join(ADDONS_PATH, name,
-                '__terp__.py'))
+                '__tryton__.py'))
             data = file_p.read()
             info = eval(data)
             file_p.close()
@@ -320,36 +320,36 @@ class Module(OSV):
             if ids:
                 module_id = ids[0]
                 mod = self.browse(cursor, user, module_id)
-                terp = Module.get_module_info(mod_name)
-                if terp.get('installable', True) \
+                tryton = Module.get_module_info(mod_name)
+                if tryton.get('installable', True) \
                         and mod.state == 'uninstallable':
                     self.write(cursor, user, module_id, {
                         'state': 'uninstalled'}, context=context)
-                if vercmp(terp.get('version', ''),
+                if vercmp(tryton.get('version', ''),
                         mod.latest_version or '0') > 0:
                     self.write(cursor, user, module_id, {
-                        'latest_version': terp.get('version'),
+                        'latest_version': tryton.get('version'),
                         'url': '',
                         }, context=context)
                     res[0] += 1
                 self.write(cursor, user, module_id, {
-                    'description': terp.get('description', ''),
-                    'shortdesc': terp.get('name', ''),
-                    'author': terp.get('author', ''),
-                    'website': terp.get('website', ''),
-                    'license': terp.get('license', 'GPL-2'),
+                    'description': tryton.get('description', ''),
+                    'shortdesc': tryton.get('name', ''),
+                    'author': tryton.get('author', ''),
+                    'website': tryton.get('website', ''),
+                    'license': tryton.get('license', 'GPL-2'),
                     })
                 self._update_dependencies(cursor, user, module_id,
-                        terp.get('depends', []))
+                        tryton.get('depends', []))
                 self._update_category(cursor, user, module_id,
-                        terp.get('category', 'None'))
+                        tryton.get('category', 'None'))
                 continue
             mod_path = os.path.join(ADDONS_PATH, name)
             if os.path.isdir(mod_path) \
                     or os.path.islink(mod_path) \
                     or zipfile.is_zipfile(mod_path):
-                terp = Module.get_module_info(mod_name)
-                if not terp or not terp.get('installable', True):
+                tryton = Module.get_module_info(mod_name)
+                if not tryton or not tryton.get('installable', True):
                     continue
                 if not os.path.isfile(
                         os.path.join(ADDONS_PATH, mod_name+'.zip')):
@@ -364,18 +364,18 @@ class Module(OSV):
                 new_id = self.create(cursor, user, {
                     'name': mod_name,
                     'state': 'uninstalled',
-                    'description': terp.get('description', ''),
-                    'shortdesc': terp.get('name', ''),
-                    'author': terp.get('author', 'Unknown'),
-                    'website': terp.get('website', ''),
-                    'latest_version': terp.get('version', ''),
-                    'license': terp.get('license', 'GPL-2'),
+                    'description': tryton.get('description', ''),
+                    'shortdesc': tryton.get('name', ''),
+                    'author': tryton.get('author', 'Unknown'),
+                    'website': tryton.get('website', ''),
+                    'latest_version': tryton.get('version', ''),
+                    'license': tryton.get('license', 'GPL-2'),
                 })
                 res[1] += 1
                 self._update_dependencies(cursor, user, new_id,
-                        terp.get('depends', []))
+                        tryton.get('depends', []))
                 self._update_category(cursor, user, new_id,
-                        terp.get('category', 'None'))
+                        tryton.get('category', 'None'))
 
         import socket
         socket.setdefaulttimeout(10)
@@ -448,17 +448,17 @@ class Module(OSV):
             except IOError:
                 raise ExceptORM('Error', 'Can not create the module file: %s'
                         % (fname,))
-            terp = Module.get_module_info(mod.name)
+            tryton = Module.get_module_info(mod.name)
             self.write(cursor, user, mod.id, {
-                'description': terp.get('description', ''),
-                'shortdesc': terp.get('name', ''),
-                'author': terp.get('author', 'Unknown'),
-                'website': terp.get('website', ''),
-                'license': terp.get('license', 'GPL-2'),
+                'description': tryton.get('description', ''),
+                'shortdesc': tryton.get('name', ''),
+                'author': tryton.get('author', 'Unknown'),
+                'website': tryton.get('website', ''),
+                'license': tryton.get('license', 'GPL-2'),
                 })
-            self._update_dependencies(cursor, user, mod.id, terp.get('depends',
+            self._update_dependencies(cursor, user, mod.id, tryton.get('depends',
                 []))
-            self._update_category(cursor, user, mod.id, terp.get('category',
+            self._update_category(cursor, user, mod.id, tryton.get('category',
                 'Uncategorized'))
         return res
 
