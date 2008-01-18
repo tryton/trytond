@@ -44,7 +44,7 @@ class WorkflowActivity(OSV):
     _columns = {
         'name': fields.char('Name', size=64, required=True),
         'wkf_id': fields.many2one('workflow', 'Workflow', required=True,
-            select=1),
+            select=1, ondelete='cascade'),
         'split_mode': fields.selection([
             ('XOR', 'Xor'),
             ('OR', 'Or'),
@@ -93,9 +93,9 @@ class WorkflowTransition(OSV):
         'role_id': fields.many2one('res.role', 'Role Required'),
         'condition': fields.char('Condition', required=True, size=128),
         'act_from': fields.many2one('workflow.activity', 'Source Activity',
-            required=True, select=1),
+            required=True, select=1, ondelete='cascade'),
         'act_to': fields.many2one('workflow.activity', 'Destination Activity',
-            required=True, select=1),
+            required=True, select=1, ondelete='cascade'),
     }
     _defaults = {
         'condition': lambda *a: 'True',
@@ -112,7 +112,7 @@ class WorkflowInstance(OSV):
     _log_access = False
     _description = __doc__
     _columns = {
-        'wkf_id': fields.many2one('workflow', 'Workflow', ondelete="cascade"),
+        'wkf_id': fields.many2one('workflow', 'Workflow', ondelete="restrict"),
         'uid': fields.integer('User ID'),
         'res_id': fields.integer('Resource ID'),
         'res_type': fields.char('Resource Model', size=64),

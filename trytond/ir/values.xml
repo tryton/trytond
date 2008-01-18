@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<terp>
+<tryton>
     <data>
         <record model="ir.ui.view" id="values_view_form">
             <field name="model">ir.values</field>
@@ -56,4 +56,4 @@
         <menuitem parent_id="ir.menu_ir"
             action="act_values_form" id="menu_values_form"/>
     </data>
-</terp>
+</tryton>

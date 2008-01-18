@@ -584,6 +584,55 @@ class ORM(object):
                                 cursor.execute("DROP INDEX \"%s_%s_index\"" % \
                                         (self._table, k))
                                 cursor.commit()
+                            if isinstance(field, fields.many2one):
+                                ref_obj = self.pool.get(field._obj)
+                                if ref_obj:
+                                    ref = ref_obj._table
+                                else:
+                                    ref = field._obj.replace('.', '_')
+                                if ref != 'ir_actions':
+                                    cursor.execute('SELECT confdeltype, conname ' \
+                                            'FROM pg_constraint as con, ' \
+                                                'pg_class as cl1, pg_class as cl2, ' \
+                                            'pg_attribute as att1, pg_attribute as att2 ' \
+                                            'WHERE con.conrelid = cl1.oid ' \
+                                                'AND cl1.relname = %s ' \
+                                                'AND con.confrelid = cl2.oid ' \
+                                                'AND cl2.relname = %s ' \
+                                                'AND array_lower(con.conkey, 1) = 1 ' \
+                                                'AND con.conkey[1] = att1.attnum ' \
+                                                'AND att1.attrelid = cl1.oid ' \
+                                                'AND att1.attname = %s ' \
+                                                'AND array_lower(con.confkey, 1) = 1 ' \
+                                                'AND con.confkey[1] = att2.attnum ' \
+                                                'AND att2.attrelid = cl2.oid ' \
+                                                'AND att2.attname = %s ' \
+                                                'AND con.contype = \'f\'',
+                                            (self._table, ref, k, 'id'))
+                                    res = cursor.dictfetchall()
+                                    if res:
+                                        confdeltype = {
+                                                'RESTRICT': 'r',
+                                                'NO ACTION': 'a',
+                                                'CASCADE': 'c',
+                                                'SET NULL': 'n',
+                                                'SET DEFAULT': 'd',
+                                        }
+                                        if res[0]['confdeltype'] != \
+                                                confdeltype.get(
+                                                        field.ondelete.upper(),
+                                                        'a'):
+                                            cursor.execute('ALTER TABLE "' + \
+                                                    self._table + '" ' \
+                                                    'DROP CONSTRAINT "' + \
+                                                    res[0]['conname'] + '"')
+                                            cursor.execute('ALTER TABLE "' + \
+                                                    self._table + '" ' \
+                                                    'ADD FOREIGN KEY ' \
+                                                    '("' + k + '") ' \
+                                                    'REFERENCES "' + ref + \
+                                                    '" ON DELETE ' + field.ondelete)
+                                            cursor.commit()
                     else:
                         # TODO add error message
                         logger.notify_channel('init', LOG_ERROR, '')
@@ -1562,7 +1611,7 @@ class ORM(object):
             result = self.view_header_get(cursor, user, False, node.localName,
                     context)
             if result:
-                node.setAttribute('string', result)
+                node.setAttribute('string', result.decode('utf8'))
 
         if node.nodeType == node.ELEMENT_NODE:
             # translate view
@@ -1594,13 +1643,13 @@ class ORM(object):
                 for fname, gname in cursor.fetchall():
                     if oldgroup != gname:
                         child = doc.createElement('separator')
-                        child.setAttribute('string', gname)
+                        child.setAttribute('string', gname.decode('utf8'))
                         child.setAttribute('colspan', "4")
                         oldgroup = gname
                         parent.insertBefore(child, node)
 
                     child = doc.createElement('field')
-                    child.setAttribute('name', fname)
+                    child.setAttribute('name', fname.decode('utf8'))
                     parent.insertBefore(child, node)
                 parent.removeChild(node)
 

@@ -50,7 +50,7 @@ class ConfigManager(object):
         parser.add_option("-c", "--config", dest="config",
                 help="specify alternate config file")
         parser.add_option("-s", "--save", action="store_true", dest="save",
-                default=False, help="save configuration to ~/.terp_serverrc")
+                default=False, help="save configuration to ~/.trytondrc")
         parser.add_option("-v", "--verbose", action="store_true",
                 dest="verbose", default=False, help="enable debugging")
         parser.add_option("--pidfile", dest="pidfile",
@@ -125,12 +125,12 @@ class ConfigManager(object):
         # or even to start the server...
         if os.name == 'nt':
             rcfilepath = os.path.join(os.path.abspath(
-                os.path.dirname(sys.argv[0])), 'tinyerp-server.conf')
+                os.path.dirname(sys.argv[0])), 'tryton-server.conf')
         else:
-            rcfilepath = os.path.expanduser('~/.terp_serverrc')
+            rcfilepath = os.path.expanduser('~/.trytondrc')
 
         self.rcfile = fname or opt.config \
-                or os.environ.get('TERP_SERVER') or rcfilepath
+                or os.environ.get('TRYTOND') or rcfilepath
         self.load()
 
         # Verify that we want to log or not, if not the output will go to stdout
