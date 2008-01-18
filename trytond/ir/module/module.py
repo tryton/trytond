@@ -3,6 +3,7 @@ import os
 import re
 import zipfile
 import urllib
+import zipimport
 from trytond.osv import fields, OSV
 import trytond.tools as tools
 from trytond.module import ADDONS_PATH
@@ -426,6 +427,7 @@ class Module(OSV):
         return res
 
     def download(self, cursor, user, ids, download=True, context=None):
+        # TODO download import only if all dependencies are present
         res = []
         for mod in self.browse(cursor, user, ids, context=context):
             if not mod.url:
@@ -460,6 +462,9 @@ class Module(OSV):
                 []))
             self._update_category(cursor, user, mod.id, tryton.get('category',
                 'Uncategorized'))
+            # Import module
+            zimp = zipimport.zipimporter(fname)
+            zimp.load_module(mod.name)
         return res
 
     def _update_dependencies(self, cursor, user, module_id, depends=None):
