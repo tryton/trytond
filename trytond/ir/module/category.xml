@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<terp>
+<tryton>
     <data>
         <record model="ir.ui.view" id="category_view_form">
             <field name="model">ir.module.category</field>
@@ -41,4 +41,4 @@
         <menuitem parent_id="menu_modules"
             action="act_category_tree" id="menu_category_tree"/>
     </data>
-</terp>
+</tryton>

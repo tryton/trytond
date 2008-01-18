@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<terp>
+<tryton>
     <data>
         <menuitem name="Administration" id="menu_administration"/>
         <menuitem name="IR" id="menu_ir" parent_id="menu_administration"/>
     </data>
-</terp>
+</tryton>
