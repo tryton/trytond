@@ -234,7 +234,7 @@ class ModelData(OSV):
                 "data with the wrong model.")
             object_ref = self.pool.get(model)
             # XXX maybe use a browse instead:
-            db_values = object_ref.read(cursor, user, db_id, values.keys())
+            db_values = object_ref.browse(cursor, user, db_id)
 
             to_update = {}
             for key in values:
@@ -247,7 +247,7 @@ class ModelData(OSV):
 
                 # handle the value regarding to the type
                 if field_type == 'many2one':
-                    db_field = db_values[key] and db_values[key][0] or False
+                    db_field = db_values[key] and db_values[key].id or False
                 elif field_type in ['one2one', 'one2many', "many2many"]:
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
