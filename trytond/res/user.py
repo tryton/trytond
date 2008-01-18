@@ -69,7 +69,7 @@ class User(OSV):
         'action_id': fields.Many2One('ir.action', 'Home Action'),
         'menu_id': fields.Many2One('ir.action', 'Menu Action'),
         'groups_id': fields.Many2Many('res.group', 'res_group_user_rel',
-            'uid', 'gid', 'Groups'), 
+            'uid', 'gid', 'Groups'),
         'roles_id': fields.Many2Many('res.role', 'res_role_user_rel',
             'uid', 'rid', 'Roles'),
         #'company_id': fields.Many2One('res.company', 'Company'),
