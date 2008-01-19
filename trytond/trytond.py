@@ -129,10 +129,10 @@ class TrytonServer(object):
         if CONFIG['xmlrpc']:
             interface = CONFIG["interface"]
             try:
-                port = int(CONFIG["port"])
+                port = int(CONFIG["xmlport"])
             except:
                 self.logger.notify_channel("init", netsvc.LOG_ERROR,
-                        "invalid port '%s'!" % (CONFIG["port"],))
+                        "invalid port '%s'!" % (CONFIG["xmlport"],))
                 sys.exit(1)
 
             httpd = netsvc.HttpDaemon(interface, port, secure)
@@ -145,18 +145,18 @@ class TrytonServer(object):
                                 " services, port " + str(port))
 
         if CONFIG['netrpc']:
-            netinterface = CONFIG["netinterface"]
+            interface = CONFIG["interface"]
             try:
-                netport = int(CONFIG["netport"])
+                port = int(CONFIG["netport"])
             except Exception:
                 self.logger.notify_channel("init", netsvc.LOG_ERROR,
                         "invalid port '%s'!" % (CONFIG["netport"],))
                 sys.exit(1)
 
-            tinysocket = netsvc.TinySocketServerThread(netinterface, netport,
+            tinysocket = netsvc.TinySocketServerThread(interface, port,
                     False)
             self.logger.notify_channel("web-services", netsvc.LOG_INFO,
-                    "starting netrpc service, port " + str(netport))
+                    "starting netrpc service, port " + str(port))
 
         def handler(signum, frame):
             if CONFIG['netrpc']:
