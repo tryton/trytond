@@ -6,6 +6,8 @@ import socket
 import logging
 import os
 from pysocket import PySocket
+import traceback
+import select
 
 _SERVICE = {}
 _GROUP = {}
@@ -219,7 +221,6 @@ class XmlRpc(object):
 class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
-        import traceback
         try:
             name = self.path.split("/")[-1]
             service = LocalService(name)
@@ -337,7 +338,6 @@ class TinySocketClientThread(threading.Thread):
         self.running = False
 
     def run(self):
-        import traceback
         self.running = True
         try:
             pysocket = PySocket(self.sock)
@@ -346,6 +346,9 @@ class TinySocketClientThread(threading.Thread):
             self.threads.remove(self)
             return False
         while self.running:
+            (rlist, wlist, xlist) = select.select([self.sock], [], [], 1)
+            if not rlist:
+                continue
             try:
                 msg = pysocket.receive()
             except:
@@ -370,9 +373,10 @@ class TinySocketClientThread(threading.Thread):
                     tback = sys.exc_info()[2]
                     pdb.post_mortem(tback)
                 pysocket.send(exp, exception=True, traceback=tb_s)
-            self.sock.close()
-            self.threads.remove(self)
-            return True
+        self.sock.shutdown(socket.SHUT_RDWR)
+        self.sock.close()
+        self.threads.remove(self)
+        return True
 
     def stop(self):
         self.running = False
