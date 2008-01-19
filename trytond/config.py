@@ -10,8 +10,7 @@ class ConfigManager(object):
         self.options = {
             'verbose': False,
             'interface': '',
-            'port': '8069',
-            'netinterface': '',
+            'xmlport': '8069',
             'netport': '8070',
             'db_host': False,
             'db_port': False,
@@ -19,9 +18,8 @@ class ConfigManager(object):
             'db_user': False,
             'db_password': False,
             'db_maxconn': 64,
-            'reportgz': False,
             'netrpc': True,
-            'xmlrpc': True,
+            'xmlrpc': False,
             'soap': False,
             'pg_path': None,
             'admin_passwd': 'admin',
@@ -59,16 +57,14 @@ class ConfigManager(object):
                 help="file where the server log will be stored")
         parser.add_option("-n", "--interface", dest="interface",
                 help="specify the TCP IP address")
-        parser.add_option("-p", "--port", dest="port",
-                help="specify the TCP port")
-        parser.add_option("--net_interface", dest="netinterface",
-                help="specify the TCP IP address for netrpc")
+        parser.add_option("-p", "--xml_port", dest="xmlport",
+                help="specify the TCP port for xmlrpc")
         parser.add_option("--net_port", dest="netport",
                 help="specify the TCP port for netrpc")
         parser.add_option("--no-netrpc", dest="netrpc", action="store_false",
                 default=True, help="disable netrpc")
-        parser.add_option("--no-xmlrpc", dest="xmlrpc", action="store_false",
-                default=True, help="disable xmlrpc")
+        parser.add_option("--xmlrpc", dest="xmlrpc", action="store_true",
+                default=False, help="enable xmlrpc")
         parser.add_option("-i", "--init", dest="init",
                 help="init a module (use \"all\" for all modules)")
         parser.add_option("--without-demo", dest="without_demo",
@@ -142,7 +138,7 @@ class ConfigManager(object):
 
         for arg in (
                 'interface',
-                'port',
+                'xmlport',
                 'db_name',
                 'db_user',
                 'db_password',
@@ -155,7 +151,6 @@ class ConfigManager(object):
                 'smtp_user',
                 'smtp_password',
                 'price_accuracy',
-                'netinterface',
                 'netport',
                 'db_maxconn',
                 ):
