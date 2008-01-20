@@ -5,6 +5,16 @@ from trytond.osv.orm import except_orm
 from trytond.tools import Cache
 import time
 
+
+# Custom exception:
+
+class Unhandled_field(Exception):
+    """
+    Raised when a field type is not supported by the update mechanism.
+    """
+    pass
+
+
 class Model(OSV):
     "Model"
     _name = 'ir.model'
@@ -202,6 +212,30 @@ class ModelData(OSV):
         else:
             raise Exception("Reference to %s not found"% ".".join([module,fs_id]))
 
+
+    def _clean_value(self, key, browse_record, object_ref):
+        # XXX self is no use, move this outside the class ?
+        """
+        Take a field name, a browse_record, and a reference to the
+        corresponding object.  Return a raw value has it must look on the
+        db.
+        """
+
+        # search the field type in the object or in a parent
+        if key in object_ref._columns:
+            field_type = object_ref._columns[key]._type
+        else:
+            field_type = object_ref._inherit_fields[key][2]._type
+
+        # handle the value regarding to the type
+        if field_type == 'many2one':
+            return browse_record[key] and browse_record[key].id or False
+        elif field_type in ['one2one', 'one2many', "many2many"]:
+            raise Unhandled_field()
+        else:
+            return browse_record[key]
+
+
     def import_record(self, cursor, user, model, module, values, fs_id):
 
         if not fs_id:
@@ -218,6 +252,7 @@ class ModelData(OSV):
         self.populate_fs2db(cursor, user)
         self.populate_fs2values(cursor, user)
 
+        object_ref = self.pool.get(model)
 
         if (fs_id, module) in self.fs2db[cursor.dbname]:
             # this record is already in the db:
@@ -231,30 +266,19 @@ class ModelData(OSV):
             # db, if not it's ok to overwrite them.
             if model != db_model:
                 raise Exception("This record try to overwrite"
-                "data with the wrong model.")
-            object_ref = self.pool.get(model)
-            # XXX maybe use a browse instead:
+                "data with the wrong model: %s (module: %s)"% (fs_id, module))
             db_values = object_ref.browse(cursor, user, db_id)
 
             to_update = {}
             for key in values:
 
-                # search the field type in the object or in a parent
-                if key in object_ref._columns:
-                    field_type = object_ref._columns[key]._type
-                else:
-                    field_type = object_ref._inherit_fields[key][2]._type
-
-                # handle the value regarding to the type
-                if field_type == 'many2one':
-                    db_field = db_values[key] and db_values[key].id or False
-                elif field_type in ['one2one', 'one2many', "many2many"]:
+                try:
+                    db_field = self._clean_value(key, db_values, object_ref)
+                except Unhandled_field:
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
                         'Field %s on %s : integrity not tested.'%(key, model))
                     continue
-                else:
-                    db_field = db_values[key]
 
                 # if the fs value is the same has in the db, whe ignore it
                 if db_field == values[key]:
@@ -285,7 +309,17 @@ class ModelData(OSV):
 
             # if there is values to update:
             if to_update:
-                self.pool.get(model).write(cursor, user, db_id, to_update)
+                # write the values in the db:
+                object_ref.write(cursor, user, db_id, to_update)
+                # re-read it: this ensure that we store the real value
+                # in the model_data table:
+                db_val = object_ref.browse(cursor, user, db_id)
+                for key in to_update:
+                    try:
+                        values[key] = self._clean_value(key, db_val, object_ref)
+                    except Unhandled_field:
+                        continue
+
             if values != old_values:
                 self.write(cursor, user, mdata_id, {
                     'fs_id': fs_id,
@@ -300,8 +334,17 @@ class ModelData(OSV):
             # the corresponding record have been found.
             del self.fs2values[cursor.dbname][(fs_id, module)]
         else:
-            # this record is new
-            db_id = self.pool.get(model).create(cursor, user, values)
+            # this record is new, create it in the db:
+            db_id = object_ref.create(cursor, user, values)
+            # re-read it: this ensure that we store the real value
+            # in the model_data table:
+            db_val = object_ref.browse(cursor, user, db_id)
+            for key in values:
+                try:
+                    values[key] = self._clean_value(key, db_val, object_ref)
+                except Unhandled_field:
+                    continue
+
             mdata_id = self.create(cursor, user, {
                 'fs_id': fs_id,
                 'model': model,
