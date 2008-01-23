@@ -1124,9 +1124,12 @@ class ORM(object):
 
         # get the default values set by the user and override the default
         # values defined in the object
-        ir_values_obj = self.pool.get('ir.values')
-        res = ir_values_obj.get(cursor, user, 'default', False, [self._name])
-        for value_id, field, field_value in res:
+        #ir_values_obj = self.pool.get('ir.values')
+        #res = ir_values_obj.get(cursor, user, 'default', False, [self._name])
+        ir_default_obj = self.pool.get('ir.default')
+        defaults = ir_default_obj.get_default(cursor, user,
+                self._name, False, context=context)
+        for field, field_value in defaults.items():
             if field in fields_names:
                 fld_def = (field in self._columns) and self._columns[field] \
                         or self._inherit_fields[field][2]
@@ -2024,9 +2027,11 @@ class ORM(object):
                 table = arg[3]
             if arg[1] != 'in':
                 if (arg[2] is False) and (arg[1] == '='):
-                    qu1.append(arg[0] + ' is null')
+                    qu1.append('(%s.%s IS NULL)' % \
+                            (table._table, arg[0]))
                 elif (arg[2] is False) and (arg[1] == '<>' or arg[1] == '!='):
-                    qu1.append(arg[0] + ' is not null')
+                    qu1.append('(%s.%s IS NOT NULL)' % \
+                            (table._table, arg[0]))
                 else:
                     if arg[0] == 'id':
                         if arg[1] == 'join':
