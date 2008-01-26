@@ -53,8 +53,7 @@
                             </group>
                         </page>
                         <page string="History">
-                            <field name="history" nolabel="1" colspan="4"
-                                widget="one2many_list"/>
+                            <field name="history" nolabel="1" colspan="4"/>
                         </page>
                     </notebook>
                 </form>
