@@ -68,7 +68,8 @@ class Request(OSV):
             ('active', 'active'),
             ('closed', 'closed'),
             ], 'State', required=True, readonly=True),
-        'history': fields.One2Many('res.request.history', 'req_id', 'History'),
+        'history': fields.One2Many('res.request.history', 'req_id',
+                'History', readonly=True),
     }
     _defaults = {
         'act_from': lambda obj, cursor, user, context: user,
@@ -79,31 +80,34 @@ class Request(OSV):
     _order = 'priority DESC, trigger_date, create_date DESC'
 
     def request_send(self, cursor, user, ids, context=None):
-        #TODO use write and browse instead of SQL query
         request_history_obj = self.pool.get('res.request.history')
-        for request_id in ids:
-            cursor.execute('UPDATE res_request ' \
-                    'SET state = %s, date_sent = %s ' \
-                    'WHERE id = %d',
-                    ('waiting', time.strftime('%Y-%m-%d %H:%M:%S'), request_id))
-            cursor.execute('SELECT act_from, act_to, body, date_sent ' \
-                    'FROM res_request ' \
-                    'WHERE id = %d', (request_id,))
-            values = cursor.dictfetchone()
-            if len(values['body']) > 128:
+        for request in self.browse(cursor, user, ids, context=context):
+            values = {
+                'req_id': request.id,
+                'act_from': request.act_from.id,
+                'act_to': request.act_to.id,
+                'body': request.body,
+            }
+            if values['body'] and len(values['body']) > 128:
                 values['name'] = values['body'][:125] + '...'
             else:
                 values['name'] = values['body'] or '/'
-            values['req_id'] = id
-            request_history_obj.create(cursor, user, values)
+            request_history_obj.create(cursor, user, values, context=context)
+        self.write(cursor, user, ids, {
+            'state': 'waiting',
+            'date_send': time.strftime('%Y-%m-%d %H:%M:%S'),
+            }, context=context)
         return True
 
     def request_reply(self, cursor, user, ids, context=None):
-        for request_id in ids:
-            cursor.execute('UPDATE res_request ' \
-                    'set state = \'active\', act_from = %d, ' \
-                    'act_to = act_from, trigger_date = NULL, body = \'\' ' \
-                    'WHERE id = %d', (user, request_id))
+        for request in self.browse(cursor, user, ids, context=context):
+            self.write(cursor, user, request.id, {
+                'state': 'active',
+                'act_from': user,
+                'act_to': request.act_from.id,
+                'trigger_date': False,
+                'body': '',
+                }, context=context)
         return True
 
     def request_close(self, cursor, user, ids, context=None):
