@@ -12,7 +12,7 @@
         'attachment.xml',
         'cron.xml',
         'translation.xml',
-        'exports.xml',
+        'export.xml',
         'rule.xml',
         'property.xml',
         'module/module.xml',

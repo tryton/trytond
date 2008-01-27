@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
-        <record model="ir.ui.view" id="exports_view_form">
-            <field name="model">ir.exports</field>
+        <record model="ir.ui.view" id="export_view_form">
+            <field name="model">ir.export</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -14,8 +14,8 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.ui.view" id="exports_view_tree">
-            <field name="model">ir.exports</field>
+        <record model="ir.ui.view" id="export_view_tree">
+            <field name="model">ir.export</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -26,25 +26,25 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.action.act_window" id="act_exports_form">
+        <record model="ir.action.act_window" id="act_export_form">
             <field name="name">Exports</field>
             <field name="type">ir.action.act_window</field>
-            <field name="res_model">ir.exports</field>
+            <field name="res_model">ir.export</field>
             <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
-            id="act_exports_form_view1">
+            id="act_export_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="exports_view_tree"/>
-            <field name="act_window_id" ref="act_exports_form"/>
+            <field name="view_id" ref="export_view_tree"/>
+            <field name="act_window_id" ref="act_export_form"/>
         </record>
         <record model="ir.action.act_window.view"
-            id="act_exports_form_view2">
+            id="act_export_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="exports_view_form"/>
-            <field name="act_window_id" ref="act_exports_form"/>
+            <field name="view_id" ref="export_view_form"/>
+            <field name="act_window_id" ref="act_export_form"/>
         </record>
         <menuitem parent_id="ir.menu_ir"
-            action="act_exports_form" id="menu_exports_form"/>
+            action="act_export_form" id="menu_export_form"/>
     </data>
 </tryton>
