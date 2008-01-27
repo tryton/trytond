@@ -5,7 +5,7 @@
     'xml': [
         'res.xml',
         'lang.xml',
-        'users.xml',
+        'user.xml',
         'request.xml',
         ]
 }
