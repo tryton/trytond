@@ -29,5 +29,5 @@ The whole source code is distributed under the terms of the
 GNU Public Licence v2.
 ''' % (VERSION,)
 
-    def timezone_get(self):
+    def timezone_get(self, database, login, password):
         return time.tzname[0]

@@ -4,8 +4,8 @@
     'depends': ['ir'],
     'xml': [
         'res.xml',
-        'users.xml',
         'lang.xml',
+        'users.xml',
         'request.xml',
         ]
 }

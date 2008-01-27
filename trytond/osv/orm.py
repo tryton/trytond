@@ -958,7 +958,7 @@ class ORM(object):
                         mode=mode, noupdate=noupdate)
                 for lang in translate:
                     context2 = context.copy()
-                    context2['lang'] = lang
+                    context2['language'] = lang
                     self.write(cursor, user, [new_id], translate[lang],
                             context=context2)
             except Exception, exp:
@@ -1042,7 +1042,7 @@ class ORM(object):
                 ids = [x['id'] for x in res]
                 res_trans = self.pool.get('ir.translation')._get_ids(cursor,
                         self._name + ',' + field, 'model',
-                        context.get('lang', 'en_US'), ids)
+                        context.get('language', 'en_US'), ids)
                 for i in res:
                     i[field] = res_trans.get(i['id'], False) or i[field]
 
@@ -1124,8 +1124,6 @@ class ORM(object):
 
         # get the default values set by the user and override the default
         # values defined in the object
-        #ir_values_obj = self.pool.get('ir.values')
-        #res = ir_values_obj.get(cursor, user, 'default', False, [self._name])
         ir_default_obj = self.pool.get('ir.default')
         defaults = ir_default_obj.get_default(cursor, user,
                 self._name, False, context=context)
@@ -1267,8 +1265,8 @@ class ORM(object):
         upd_todo = []
         updend = []
         direct = []
-        totranslate = context.get('lang', False) \
-                and (context['lang'] != 'en_US')
+        totranslate = context.get('language', False) \
+                and (context['language'] != 'en_US')
         for field in vals:
             if field in self._columns:
                 if self._columns[field]._classic_write:
@@ -1348,7 +1346,7 @@ class ORM(object):
                     if self._columns[field].translate:
                         self.pool.get('ir.translation')._set_ids(cursor, user,
                                 self._name + ',' + field, 'model',
-                                context['lang'], ids, vals[field])
+                                context['language'], ids, vals[field])
 
         # call the 'set' method of fields which are not classic_write
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
@@ -1525,12 +1523,12 @@ class ORM(object):
             # translate the field label
             res_trans = translation_obj._get_source(cursor,
                     self._name + ',' + field, 'field',
-                    context.get('lang', 'en_US'))
+                    context.get('language', 'en_US'))
             if res_trans:
                 res[field]['string'] = res_trans
             help_trans = translation_obj._get_source(cursor,
                     self._name + ',' + field, 'help',
-                    context.get('lang', 'en_US'))
+                    context.get('language', 'en_US'))
             if help_trans:
                 res[field]['help'] = help_trans
 
@@ -1542,7 +1540,7 @@ class ORM(object):
                     for (key, val) in sel:
                         val2 = translation_obj._get_source(cursor,
                                 self._name + ',' + field, 'selection',
-                                context.get('lang', 'en_US'), val)
+                                context.get('language', 'en_US'), val)
                         sel2.append((key, val2 or val))
                     sel = sel2
                     res[field]['selection'] = sel
@@ -1619,16 +1617,16 @@ class ORM(object):
         if node.nodeType == node.ELEMENT_NODE:
             # translate view
             translation_obj = self.pool.get('ir.translation')
-            if ('lang' in context) and not result:
+            if ('language' in context) and not result:
                 if node.hasAttribute('string') and node.getAttribute('string'):
                     trans = translation_obj._get_source(cursor,
-                            self._name, 'view', context['lang'],
+                            self._name, 'view', context['language'],
                             node.getAttribute('string').encode('utf8'))
                     if trans:
                         node.setAttribute('string', trans.decode('utf8'))
                 if node.hasAttribute('sum') and node.getAttribute('sum'):
                     trans = translation_obj._get_source(cursor,
-                            self._name, 'view', context['lang'],
+                            self._name, 'view', context['language'],
                             node.getAttribute('sum').encode('utf8'))
                     if trans:
                         node.setAttribute('sum', trans.decode('utf8'))
@@ -2007,7 +2005,7 @@ class ORM(object):
                                 'AND type = %s ' \
                                 'AND value ' + args[i][1] + ' %s',
                             (table._name + ',' + args[i][0],
-                                context.get('lang', 'en_US'), 'model',
+                                context.get('language', 'en_US'), 'model',
                                 args[i][2]))
                     ids = [x[0] for x in cursor.fetchall()]
                     cursor.execute('SELECT id FROM "' + table._table + '" ' \

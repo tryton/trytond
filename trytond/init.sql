@@ -10,23 +10,6 @@ CREATE TABLE inherit (
 );
 
 -------------------------------------------------------------------------
--- IR dictionary
--------------------------------------------------------------------------
-
-create table ir_values
-(
-    id serial,
-    name varchar(128) not null,
-    key varchar(128) not null,
-    key2 varchar(128) not null,
-    model varchar(128) not null,
-    value text,
-    meta text default NULL,
-    res_id integer default null,
-    primary key (id)
-);
-
--------------------------------------------------------------------------
 -- Modules Description
 -------------------------------------------------------------------------
 

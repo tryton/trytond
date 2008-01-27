@@ -213,8 +213,8 @@ class Report(object):
     def _get_objects(self, cursor, user, ids, model, context):
         model_obj = self.pool.get(model)
         context = context.copy()
-        if 'lang' in context:
-            del context['lang']
+        if 'language' in context:
+            del context['language']
         #TODO change list_class
         return model_obj.browse(cursor, user, ids, context=context)
 
@@ -284,8 +284,8 @@ class Report(object):
                 node.nodeValue = res
                 node.parentNode.parentNode.replaceChild(node, node.parentNode)
             return res
-        if 'lang' in localcontext:
-            lang = localcontext['lang']
+        if 'language' in localcontext:
+            lang = localcontext['language']
             text = node.nodeValue
             if lang and text and not text.isspace():
                 translation_obj = self.pool.get('ir.translation')
@@ -342,7 +342,7 @@ class Report(object):
         return node
 
     def set_lang(self, lang, localcontext):
-        localcontext['lang'] = lang
+        localcontext['language'] = lang
         return None
 
     def format_lang(self, value, digits=2, date=False, localcontext=None):
@@ -353,7 +353,7 @@ class Report(object):
             encoding = 'UTF-8'
         if encoding == 'cp1252':
             encoding = '1252'
-        lang = localcontext.get('lang', False) or 'en_US'
+        lang = localcontext.get('language', False) or 'en_US'
         try:
             if os.name == 'nt':
                 locale.setlocale(locale.LC_ALL,
@@ -364,7 +364,7 @@ class Report(object):
             Logger().notify_channel('web-service', LOG_ERROR,
                     'Report %s: unable to set locale "%s"' % \
                             (self._name,
-                                localcontext.get('lang', False) or 'en_US'))
+                                localcontext.get('language', False) or 'en_US'))
         if date:
             date = time.strptime(value, '%Y-%m-%d')
             return time.strftime(locale.nl_langinfo(locale.D_FMT).\

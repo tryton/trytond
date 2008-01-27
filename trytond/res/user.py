@@ -1,4 +1,7 @@
 "User"
+import time
+from xml import dom
+from xml.dom import minidom
 from trytond.osv import fields, OSV, ExceptOSV
 #from trytond.tools import Cache
 
@@ -59,6 +62,23 @@ class User(OSV):
     _name = "res.user"
     _log_access = False
     _description = __doc__
+
+    def _languages(self, cursor, user, context=None):
+        lang_obj = self.pool.get('res.lang')
+        lang_ids = lang_obj.search(cursor, user, [], context=context)
+        res = []
+        for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
+            res.append([lang.code, lang.name])
+        return res
+
+    def _timezones(self, cursor, user, context=None):
+        try:
+            import pytz
+            res = [[x, x] for x in pytz.all_timezones]
+        except ImportError:
+            res = [[time.tzname[0], time.tzname[0]]]
+        return res
+
     _columns = {
         'name': fields.Char('Name', size=64, required=True, select=True),
         'login': fields.Char('Login', size=64, required=True),
@@ -76,6 +96,8 @@ class User(OSV):
         'rule_groups': fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
             'user_id', 'rule_group_id', 'Rules',
             domain="[('global', '<>', True)]"),
+        'language': fields.Selection(_languages, 'Language'),
+        'timezone': fields.Selection(_timezones, 'Timezone'),
     }
     _sql_constraints = [
         ('login_key', 'UNIQUE (login)',
@@ -84,7 +106,18 @@ class User(OSV):
     _defaults = {
         'password' : lambda *a: '',
         'active' : lambda *a: 1,
+        'language': lambda *a: 'en_US',
+        'timezone': lambda *a: time.tzname[0],
     }
+    _preferences_fields = [
+        'name',
+        'password',
+        'signature',
+    ]
+    _context_fields = [
+        'language',
+        'timezone',
+    ]
 #    def company_get(self, cursor, user, uid2):
 #        company_id = self.pool.get('res.user').browse(cursor, user,
 #               user).company_id.id
@@ -143,6 +176,44 @@ class User(OSV):
         default.update({'login': login+' (copy)'})
         return super(User, self).copy(cursor, user, obj_id, default,
                 context=context)
+
+    def get_preferences(self, cursor, user, context_only=False, context=None):
+        res = {}
+        user = self.browse(cursor, user, user, context=context)
+        if context_only:
+            fields = self._context_fields
+        else:
+            fields = self._preferences_fields + self._context_fields
+        for field in fields:
+            res[field] = user[field]
+        return res
+
+    def set_preferences(self, cursor, user, values, context=None):
+        values = values.copy()
+        fields = self._preferences_fields + self._context_fields
+        for field in values:
+            if field not in fields:
+                del values[field]
+        self.write(cursor, 1, user, values, context=context)
+
+    def get_preferences_fields_view(self, cursor, user, context=None):
+        res = {}
+        fields = self.fields_get(cursor, user,
+                fields_names=self._preferences_fields, context=context)
+
+        xml = '<?xml version="1.0" encoding="utf-8"?>' \
+                '<form string="%s" colspan="2">' % (self._description,)
+        for field in fields:
+            #TODO remove newline when colspan on form is implemented
+            xml += '<field name="%s"/><newline/>' % (field,)
+        xml += '</form>'
+        doc = dom.minidom.parseString(xml)
+        arch, fields = self._view_look_dom_arch(cursor,
+                user, doc, context=context)
+        res['arch'] = arch
+        res['fields'] = fields
+        return res
+
 User()
 
 

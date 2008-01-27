@@ -32,7 +32,7 @@ def translate(cursor, user, name, source_type, lang, source=None):
     return res
 
 def translate_code(cursor, user, source, context):
-    lang = context.get('lang', False)
+    lang = context.get('language', False)
     if lang:
         return translate(cursor, user, None, 'code', lang, source)
     else:
@@ -254,7 +254,6 @@ def trans_load_data(db_name, data, lang, strict=False, lang_name=None):
     lang_obj = pool.get('res.lang')
     trans_obj = pool.get('ir.translation')
     model_data_obj = pool.get('ir.model.data')
-    values_obj = pool.get('ir.values')
     try:
         user = 1
         cursor = pooler.get_db(db_name).cursor()
@@ -273,22 +272,6 @@ def trans_load_data(db_name, data, lang, strict=False, lang_name=None):
                 })
         else:
             lang_obj.write(cursor, user, ids, {'translatable':1})
-        lang_ids = lang_obj.search(cursor, user, [])
-        langs = lang_obj.read(cursor, user, lang_ids)
-        selection = [(x['code'], x['name']) for x in langs]
-
-        values_obj.set(cursor, user, 'meta', 'lang', 'lang',
-                [('res.user', False,)],
-                False, True, False, meta={
-                    'type': 'selection',
-                    'string': 'Language',
-                    'selection': selection,
-                    })
-
-        user_ids = pool.get('res.user').search(cursor, user, [])
-        for user_id in user_ids:
-            values_obj.set(cursor, user, 'meta', 'lang', 'lang',
-                    [('res.user', user_id,)], lang, True, False)
 
         reader = csv.reader(data)
         # read the first line of the file (it contains columns titles)
@@ -306,9 +289,9 @@ def trans_load_data(db_name, data, lang, strict=False, lang_name=None):
                     continue
 
                 # dictionary which holds values for this line of the csv file
-                # {'lang': ..., 'type': ..., 'name': ..., 'res_id': ...,
+                # {'language': ..., 'type': ..., 'name': ..., 'res_id': ...,
                 #  'src': ..., 'value': ...}
-                dic = {'lang': lang}
+                dic = {'language': lang}
                 for i in range(len(first)):
                     dic[first[i]] = row[i]
 
