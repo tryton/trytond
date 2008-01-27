@@ -6,7 +6,7 @@ import urllib
 import zipimport
 from trytond.osv import fields, OSV
 import trytond.tools as tools
-from trytond.module import ADDONS_PATH
+from trytond.module import MODULES_PATH
 from trytond.osv.orm import ExceptORM
 from trytond.wizard import Wizard, WizardOSV
 from trytond.pooler import get_db, restart_pool
@@ -131,7 +131,7 @@ class Module(OSV):
     def get_module_info(name):
         "Return the content of the __tryton__.py"
         try:
-            file_p = tools.file_open(os.path.join(ADDONS_PATH, name,
+            file_p = tools.file_open(os.path.join(MODULES_PATH, name,
                 '__tryton__.py'))
             data = file_p.read()
             info = eval(data)
@@ -301,7 +301,7 @@ class Module(OSV):
             files = Module.get_module_info(module.name).get('translations', {})
             for lang in langs:
                 if files.has_key(lang.code):
-                    filepath = os.path.join(ADDONS_PATH, module.name,
+                    filepath = os.path.join(MODULES_PATH, module.name,
                             files[lang.code])
                     tools.trans_load(filepath, lang.code)
         return True
@@ -312,7 +312,7 @@ class Module(OSV):
         res = [0, 0] # [update, add]
 
         # iterate through installed modules and mark them as being so
-        for name in os.listdir(ADDONS_PATH):
+        for name in os.listdir(MODULES_PATH):
             mod_name = name
             if name[-4:] == '.zip':
                 mod_name = name[:-4]
@@ -345,7 +345,7 @@ class Module(OSV):
                 self._update_category(cursor, user, module_id,
                         tryton.get('category', 'None'))
                 continue
-            mod_path = os.path.join(ADDONS_PATH, name)
+            mod_path = os.path.join(MODULES_PATH, name)
             if os.path.isdir(mod_path) \
                     or os.path.islink(mod_path) \
                     or zipfile.is_zipfile(mod_path):
@@ -353,13 +353,13 @@ class Module(OSV):
                 if not tryton or not tryton.get('installable', True):
                     continue
                 if not os.path.isfile(
-                        os.path.join(ADDONS_PATH, mod_name+'.zip')):
+                        os.path.join(MODULES_PATH, mod_name+'.zip')):
                     import imp
-                    # XXX must restrict to only addons paths
+                    # XXX must restrict to only modules paths
                     imp.load_module(name, *imp.find_module(mod_name))
                 else:
                     import zipimport
-                    mod_path = os.path.join(ADDONS_PATH, mod_name+'.zip')
+                    mod_path = os.path.join(MODULES_PATH, mod_name+'.zip')
                     zimp = zipimport.zipimporter(mod_path)
                     zimp.load_module(mod_name)
                 new_id = self.create(cursor, user, {
@@ -442,7 +442,7 @@ class Module(OSV):
             if not download:
                 continue
             zip_file = urllib.urlopen(mod.url).read()
-            fname = os.path.join(ADDONS_PATH, mod.name+'.zip')
+            fname = os.path.join(MODULES_PATH, mod.name+'.zip')
             try:
                 file_p = file(fname, 'wb')
                 file_p.write(zip_file)

@@ -113,18 +113,18 @@ def init_db(cursor):
             cursor.execute(line)
 
     opj = os.path.join
-    addons_path = os.path.join(os.path.dirname(__file__), 'addons')
+    modules_path = os.path.join(os.path.dirname(__file__), 'modules')
 
-    for i in (os.listdir(addons_path) + ['ir', 'workflow', 'res']):
-        tryton_file = opj(addons_path, i, '__tryton__.py')
-        mod_path = opj(addons_path, i)
+    for i in (os.listdir(modules_path) + ['ir', 'workflow', 'res']):
+        tryton_file = opj(modules_path, i, '__tryton__.py')
+        mod_path = opj(modules_path, i)
         if i in ('ir', 'workflow', 'res'):
             root_path = os.path.dirname(__file__)
             tryton_file = opj(root_path, i, '__tryton__.py')
             mod_path = opj(root_path, i)
         info = {}
         if os.path.isfile(tryton_file) \
-                and not os.path.isfile(opj(addons_path, i + '.zip')):
+                and not os.path.isfile(opj(modules_path, i + '.zip')):
             info = eval(file(tryton_file).read())
         elif zipfile.is_zipfile(mod_path):
             zfile = zipfile.ZipFile(mod_path)

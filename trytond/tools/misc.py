@@ -59,11 +59,11 @@ def exec_command_pipe(name, *args):
         cmd = prog+' '+' '.join(args)
     return os.popen2(cmd, 'b')
 
-def file_open(name, mode="r", subdir='addons'):
+def file_open(name, mode="r", subdir='modules'):
     """Open a file from the root dir, using a subdir folder."""
     root_path = os.path.dirname(os.path.dirname(__file__))
     if subdir:
-        if subdir == 'addons'\
+        if subdir == 'modules'\
                 and (name.startswith('ir' + os.sep) \
                     or name.startswith('workflow' + os.sep) \
                     or name.startswith('res' + os.sep)):

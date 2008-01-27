@@ -8,8 +8,8 @@ from netsvc import Logger, LOG_ERROR, LOG_INFO
 import zipfile
 
 OPJ = os.path.join
-ADDONS_PATH = OPJ(os.path.dirname(__file__), 'addons')
-sys.path.insert(1, ADDONS_PATH)
+MODULES_PATH = OPJ(os.path.dirname(__file__), 'modules')
+sys.path.insert(1, MODULES_PATH)
 
 class Graph(dict):
 
@@ -106,8 +106,8 @@ def create_graph(module_list, force=None):
     for module in module_list:
         if module[-4:] == '.zip':
             module = module[:-4]
-        tryton_file = OPJ(ADDONS_PATH, module, '__tryton__.py')
-        mod_path = OPJ(ADDONS_PATH, module)
+        tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
+        mod_path = OPJ(MODULES_PATH, module)
         if module in ('ir', 'workflow', 'res'):
             root_path = os.path.dirname(__file__)
             tryton_file = OPJ(root_path, module, '__tryton__.py')
@@ -117,7 +117,7 @@ def create_graph(module_list, force=None):
                 info = eval(tools.file_open(tryton_file).read())
             except:
                 Logger().notify_channel('init', LOG_ERROR,
-                        'addon:%s:eval file %s' % (module, tryton_file))
+                        'module:%s:eval file %s' % (module, tryton_file))
                 raise
             if info.get('installable', True):
                 packages.append((module, info.get('depends', []), info))
@@ -149,12 +149,12 @@ def create_graph(module_list, force=None):
 
     for package in later:
         Logger().notify_channel('init', LOG_ERROR,
-                'addon:%s:Unmet dependency' % package)
+                'module:%s:Unmet dependency' % package)
     return graph
 
 def init_module_objects(cursor, module_name, obj_list):
     Logger().notify_channel('init', LOG_INFO,
-            'addon:%s:creating or updating database tables' % module_name)
+            'module:%s:creating or updating database tables' % module_name)
     for obj in obj_list:
         obj.auto_init(cursor)
 
@@ -164,7 +164,7 @@ def load_module_graph(cursor, graph):
     statusi = 0
     for package in graph:
         module = package.name
-        Logger().notify_channel('init', LOG_INFO, 'addon:%s' % module)
+        Logger().notify_channel('init', LOG_INFO, 'module:%s' % module)
         sys.stdout.flush()
         pool = pooler.get_pool(cursor.dbname)
         modules = pool.instanciate(module)
@@ -188,7 +188,7 @@ def load_module_graph(cursor, graph):
                 if hasattr(package, 'init') or package_state=='to install':
                     mode = 'init'
                 Logger().notify_channel('init', LOG_INFO,
-                        'addon:%s:loading %s' % (module, filename))
+                        'module:%s:loading %s' % (module, filename))
                 ext = os.path.splitext(filename)[1]
                 if ext == '.csv':
                     tools.convert_csv_import(cursor, module,
@@ -222,7 +222,7 @@ def load_module_graph(cursor, graph):
     cursor.commit()
 
 def register_classes():
-    module_list = os.listdir(ADDONS_PATH)
+    module_list = os.listdir(MODULES_PATH)
     module_list.append('ir')
     module_list.append('workflow')
     module_list.append('res')
@@ -232,18 +232,18 @@ def register_classes():
     for package in create_graph(module_list):
         module = package.name
         Logger().notify_channel('init', LOG_INFO,
-                'addon:%s:registering classes' % module)
+                'module:%s:registering classes' % module)
         sys.stdout.flush()
 
         if module in ('ir', 'workflow', 'res'):
             continue
 
-        if not os.path.isfile(OPJ(ADDONS_PATH, module+'.zip')):
-            # XXX must restrict to only addons paths
+        if not os.path.isfile(OPJ(MODULES_PATH, module+'.zip')):
+            # XXX must restrict to only modules paths
             imp.load_module(module, *imp.find_module(module))
         else:
             import zipimport
-            mod_path = OPJ(ADDONS_PATH, module+'.zip')
+            mod_path = OPJ(MODULES_PATH, module+'.zip')
             try:
                 zimp = zipimport.zipimporter(mod_path)
                 zimp.load_module(module)
