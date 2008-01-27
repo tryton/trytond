@@ -1,6 +1,6 @@
 from sequence import *
 import ui
-from actions import *
+from action import *
 from model import *
 from attachment import *
 from cron import *

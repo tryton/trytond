@@ -7,7 +7,7 @@
         'ui/ui.xml',
         'ui/menu.xml',
         'ui/view.xml',
-        'actions.xml',
+        'action.xml',
         'model.xml',
         'attachment.xml',
         'cron.xml',
