@@ -99,7 +99,7 @@ class Wizard(object):
 
     def __new__(cls):
         for module in cls.__module__.split('.'):
-            if module != 'trytond' and module != 'addons':
+            if module != 'trytond' and module != 'modules':
                 break
         if not hasattr(cls, '_module'):
             cls._module = module
