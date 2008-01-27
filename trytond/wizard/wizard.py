@@ -151,7 +151,7 @@ class Wizard(object):
         res = copy.copy(result_def)
         res['datas'] = actions_res
 
-        lang = context.get('lang', 'en_US')
+        lang = context.get('language', 'en_US')
         if result_def['type'] == 'action':
             res['action'] = result_def['action'](self, cursor, user, data,
                     context)

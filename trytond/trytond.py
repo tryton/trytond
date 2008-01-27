@@ -86,7 +86,6 @@ class TrytonServer(object):
                     "FROM pg_class " \
                     "WHERE relkind = 'r' AND relname in (" \
                     "'inherit', "
-                    "'ir_values', "
                     "'ir_model', "
                     "'ir_model_fields', "
                     "'ir_ui_view', "

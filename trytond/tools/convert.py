@@ -196,16 +196,6 @@ class RecordTagHandler:
                 context['version'] = VERSION.rsplit('.', 1)[0]
                 context['ref'] = self.mh.get_id
                 context['obj'] = lambda *a: 1
-                try:
-                    import pytz
-                except:
-                    Logger().notify_channel("init", LOG_INFO,
-                            'could not find pytz library')
-                    class Pytz(object):
-                        all_timezones = []
-
-                    pytz = Pytz()
-                    context['pytz'] = pytz
                 self.values[field_name] = eval(eval_attr, context)
 
         else:

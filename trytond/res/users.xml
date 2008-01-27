@@ -38,6 +38,10 @@
                             <field name="roles_id" colspan="4"/>
                             <field name="rule_groups" colspan="4"/>
                         </page>
+                        <page string="Preferences">
+                            <field name="language"/>
+                            <field name="timezone"/>
+                        </page>
                     </notebook>
                 </form>
               ]]>

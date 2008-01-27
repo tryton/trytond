@@ -11,7 +11,6 @@
         'model.xml',
         'attachment.xml',
         'cron.xml',
-        'values.xml',
         'translation.xml',
         'exports.xml',
         'rule.xml',

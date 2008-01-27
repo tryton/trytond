@@ -177,18 +177,6 @@ class UIMenu(OSV):
             parent_path = ''
         return parent_path + menu.name
 
-    def copy(self, cursor, user, obj_id, default=None, context=None):
-        ir_values_obj = self.pool.get('ir.values')
-        res = super(UIMenu, self).copy(cursor, user, obj_id, context=context)
-        ids = ir_values_obj.search(cursor, user, [
-            ('model', '=', 'ir.ui.menu'),
-            ('res_id', '=', obj_id),
-            ])
-        for ir_value in ir_values_obj.browse(cursor, user, ids):
-            ir_values_obj.copy(cursor, user, ir_value.id,
-                    default={'res_id': res}, context=context)
-        return res
-
     def _action(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for menu_id in ids:
