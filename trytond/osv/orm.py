@@ -1846,6 +1846,9 @@ class ORM(object):
         tables = ['"' + self._table + '"']
         joins = []
         while i < len(args):
+            if args[i][1] not in ('child_of','=','like','ilike','','!=','in'):
+                raise ExceptORM("Argument '%s' not supported"% args[i][1],"")
+
             table = self
             if args[i][0] in self._inherit_fields:
                 table = self.pool.get(self._inherit_fields[args[i][0]][0])
@@ -1906,10 +1909,13 @@ class ORM(object):
                     for i in range((len(ids2) / ID_MAX) + \
                             (len(ids2) % ID_MAX)):
                         sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
-                        cursor.execute('SELECT "' + field._fields_id + \
-                                '" FROM "' + field_obj._table + '" ' \
-                                'WHERE id IN (' + \
-                                    ','.join([str(x) for x in sub_ids2]) + ')')
+                        cursor.execute(
+                            'SELECT "' + field._fields_id + \
+                            '" FROM "' + field_obj._table + '" ' \
+                            'WHERE id IN (' + \
+                                ','.join(['%s' for x in sub_ids2]) + ')',
+                            [str(x) for x in sub_ids2])
+
                         ids3.extend([x[0] for x in cursor.fetchall()])
 
                     args[i] = ('id', 'in', ids3)
@@ -1936,10 +1942,13 @@ class ORM(object):
                             return ids
                         if not len(ids):
                             return []
-                        cursor.execute('SELECT "' + field._id1 + '" ' \
-                                'FROM "' + field._rel + '" ' \
-                                'WHERE "' + field._id2 + '" IN (' + \
-                                    ','.join([str(x) for x in ids]) + ')')
+                        cursor.execute(
+                            'SELECT "' + field._id1 + '" ' \
+                            'FROM "' + field._rel + '" ' \
+                            'WHERE "' + field._id2 + '" IN (' + \
+                                ','.join(['%s' for x in ids]) + ')',
+                            [str(x) for x in ids])
+
                         ids = [x[0] for x in cursor.fetchall()]
                         return ids
 
@@ -1955,10 +1964,13 @@ class ORM(object):
                     if not len(res_ids):
                         args[i] = ('id', 'in', [0])
                     else:
-                        cursor.execute('SELECT "' + field._id1 + '" ' \
-                                'FROM "' + field._rel + '" ' \
-                                'WHERE "' + field._id2 + '" IN (' + \
-                                    ','.join([str(x) for x in res_ids]) + ')')
+                        cursor.execute(
+                            'SELECT "' + field._id1 + '" ' \
+                            'FROM "' + field._rel + '" ' \
+                            'WHERE "' + field._id2 + '" IN (' + \
+                                ','.join(['%s' for x in res_ids]) + ')',
+                            [str(x) for x in res_ids])
+
                         args[i] = ('id', 'in',
                                 [x[0] for x in cursor.fetchall()])
                 i += 1
@@ -2007,10 +2019,13 @@ class ORM(object):
                             (table._name + ',' + args[i][0],
                                 context.get('language', 'en_US'), 'model',
                                 args[i][2]))
+
                     ids = [x[0] for x in cursor.fetchall()]
-                    cursor.execute('SELECT id FROM "' + table._table + '" ' \
-                            'WHERE "' + args[i][0]+'" '+args[i][1]+' %s',
-                            (args[i][2],))
+                    cursor.execute(
+                        'SELECT id FROM "' + table._table + '" ' \
+                        'WHERE %s '+args[i][1]+' %s',#FIXME : sql injection here!
+                        (args[i][0], args[i][2],))
+
                     ids += [x[0] for x in cursor.fetchall()]
                     args[i] = ('id', 'in', ids, table)
                 else:
@@ -2115,10 +2130,13 @@ class ORM(object):
             qu1 = ' WHERE ' + ' AND '.join(qu1)
         else:
             qu1 = ''
-        order_by = order or self._order
+        #XXX should be better if order where smthg like [('name','desc'),('name','asc')]:
+        order_by = order and order.replace(';','\;') or self._order
 
-        limit_str = limit and ' LIMIT %d' % limit or ''
-        offset_str = offset and ' OFFSET %d' % offset or ''
+        limit_str = limit and (type(limit) in (float, int, long))\
+                    and ' LIMIT %d' % limit or ''
+        offset_str = offset and (type(limit) in (float, int, long))\
+                     and ' OFFSET %d' % offset or ''
 
 
         # construct a clause for the rules :
