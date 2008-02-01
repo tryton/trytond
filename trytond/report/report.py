@@ -224,6 +224,7 @@ class Report(object):
         localcontext['objects'] = objects
         localcontext['user'] = self.pool.get('res.user').\
                 browse(cursor, user, user)
+        localcontext['_language_cache'] = {}
         localcontext.update(context)
         content_io = StringIO.StringIO(content)
         content_z = zipfile.ZipFile(content_io, mode='r')
@@ -343,6 +344,22 @@ class Report(object):
 
     def set_lang(self, lang, localcontext):
         localcontext['language'] = lang
+        _language_cache = localcontext['_language_cache']
+        for obj in localcontext['objects']:
+            for table in obj._cache:
+                for obj_id in obj._cache[table]:
+                    _language_cache.setdefault(
+                            obj._context['language'], {}).setdefault(
+                                    table, {}).update(
+                                            obj._cache[table][obj_id])
+                    if lang in _language_cache \
+                            and table in _language_cache[lang] \
+                            and obj_id in _language_cache[lang][table]:
+                        obj._cache[table][obj_id] = \
+                                _language_cache[lang][table][obj_id]
+                    else:
+                        obj._cache[table][obj_id] = {'id': obj_id}
+            obj._context['language'] = lang
         return None
 
     def format_lang(self, value, digits=2, date=False, localcontext=None):
