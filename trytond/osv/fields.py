@@ -498,10 +498,11 @@ class Function(_column):
             self._symbol_f = lambda x: __builtin__.float(x or 0.0)
             self._symbol_set = (self._symbol_c, self._symbol_f)
 
-    def search(self, cursor, uid, obj, name, args):
+    def search(self, cursor, user, obj, name, arg, context=None):
         if not self._fnct_search:
             return []
-        return self._fnct_search(obj, cursor, uid, obj, name, args)
+        return self._fnct_search(obj, cursor, user, obj, name, arg,
+                context=context)
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):

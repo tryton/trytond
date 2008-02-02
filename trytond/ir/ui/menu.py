@@ -142,7 +142,7 @@ class UIMenu(OSV):
     _description = __doc__
 
     def search(self, cursor, user, args, offset=0, limit=2000, order=None,
-            context=None, count=False):
+            context=None, count=False, query_string=False):
         res_user_obj = self.pool.get('res.user')
         if context is None:
             context = {}
@@ -160,6 +160,8 @@ class UIMenu(OSV):
                     break
         if count:
             return len(result)
+        if query_string:
+            return (','.join(['%d' for x in result]), result)
         return result
 
     def _get_full_name(self, cursor, user, ids, name, args, context):

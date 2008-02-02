@@ -234,7 +234,7 @@ class WizardOSV(OSV):
         pass
 
     def search(self, cursor, user, args, offset=0, limit=None, order=None,
-            context=None, count=False):
+            context=None, count=False, query_string=False):
         pass
 
     def name_get(self, cursor, user, ids, context=None):
