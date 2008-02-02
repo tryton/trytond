@@ -1893,14 +1893,14 @@ class ORM(object):
                         j += 1
                 if field._fnct_search:
                     args.extend(field.search(cursor, user, self,
-                        arg[0][0], arg))
+                        arg[0][0], arg, context=context))
             elif field._type == 'one2many':
                 field_obj = self.pool.get(field._obj)
 
                 if isinstance(args[i][2], basestring):
                     # get the ids of the records of the "distant" resource
                     ids2 = [x[0] for x in field_obj.name_search(cursor, user,
-                        args[i][2], [], args[i][1])]
+                        args[i][2], [], args[i][1], context=context)]
                 else:
                     ids2 = args[i][2]
                 if not ids2:
@@ -1924,7 +1924,7 @@ class ORM(object):
                     if isinstance(args[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
                         field._obj).name_search(cursor, user, args[i][2], [],
-                            'like')]
+                            'like', context=context)]
                     else:
                         ids2 = args[i][2]
 
@@ -1953,7 +1953,7 @@ class ORM(object):
                     if isinstance(args[i][2], basestring):
                         res_ids = [x[0] for x in self.pool.get(field._obj
                             ).name_search(cursor, user, args[i][2], [],
-                                args[i][1])]
+                                args[i][1], context=context)]
                     else:
                         res_ids = args[i][2]
                     if not len(res_ids):
@@ -1973,7 +1973,7 @@ class ORM(object):
                     if isinstance(args[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
                             field._obj).name_search(cursor, user, args[i][2],
-                                [], 'like')]
+                                [], 'like', context=context)]
                     else:
                         ids2 = args[i][2]
 
@@ -1994,7 +1994,8 @@ class ORM(object):
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = self.pool.get(field._obj).name_search(cursor,
-                                user, args[i][2], [], args[i][1])
+                                user, args[i][2], [], args[i][1],
+                                context=context)
                         args[i] = (args[i][0], 'in', [x[0] for x in res_ids],
                                 table)
                     else:
