@@ -215,11 +215,11 @@ class ModelData(OSV):
         if (fs_id, module) in self.fs2db[cursor.dbname]:
             return self.fs2db[cursor.dbname][(fs_id, module)][0]
         else:
-            raise Exception("Reference to %s not found"% ".".join([module,fs_id]))
+            raise Exception("Reference to %s not found"%\
+                            ".".join([module,fs_id]))
 
-
-    def _clean_value(self, key, browse_record, object_ref):
-        # XXX self is no use, move this outside the class ?
+    @staticmethod
+    def _clean_value(key, browse_record, object_ref):
         """
         Take a field name, a browse_record, and a reference to the
         corresponding object.  Return a raw value has it must look on the
@@ -278,7 +278,7 @@ class ModelData(OSV):
             for key in values:
 
                 try:
-                    db_field = self._clean_value(key, db_values, object_ref)
+                    db_field = ModelData._clean_value(key, db_values, object_ref)
                 except Unhandled_field:
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
@@ -301,11 +301,13 @@ class ModelData(OSV):
                             (key, db_id, model, fs_id))
                         continue
 
-                elif (old_values[key] and db_field) and old_values[key] != db_field:
+                elif (old_values[key] and db_field) and \
+                         old_values[key] != db_field:
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
                         "Field %s of %s@%s not updated (id: %s), because "\
-                        "it has changed since the last update."% (key, db_id, model, fs_id))
+                        "it has changed since the last update."%\
+                        (key, db_id, model, fs_id))
                     continue
 
                 # so, the field in the fs and in the db are different,
@@ -321,7 +323,8 @@ class ModelData(OSV):
                 db_val = object_ref.browse(cursor, user, db_id)
                 for key in to_update:
                     try:
-                        values[key] = self._clean_value(key, db_val, object_ref)
+                        values[key] = ModelData._clean_value(
+                            key, db_val, object_ref)
                     except Unhandled_field:
                         continue
 
@@ -346,7 +349,7 @@ class ModelData(OSV):
             db_val = object_ref.browse(cursor, user, db_id)
             for key in values:
                 try:
-                    values[key] = self._clean_value(key, db_val, object_ref)
+                    values[key] = ModelData._clean_value(key, db_val, object_ref)
                 except Unhandled_field:
                     continue
 
