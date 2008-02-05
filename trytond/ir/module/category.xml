@@ -7,8 +7,10 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Module Category">
-                    <field name="name" colspan="4"/>
-                    <field name="parent_id" colspan="4"/>
+                    <label name="name"/>
+                    <field name="name"/>
+                    <label name="parent_id"/>
+                    <field name="parent_id"/>
                 </form>
                 ]]>
             </field>

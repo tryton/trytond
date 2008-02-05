@@ -7,17 +7,23 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Model Description">
+                    <label name="name"/>
                     <field name="name" select="1"/>
+                    <label name="model"/>
                     <field name="model" select="1"/>
-                    <separator string="Information" colspan="4"/>
-                    <field name="info" select="1" colspan="4" nolabel="1"/>
-                    <separator string="Fields" colspan="4"/>
-                    <field name="field_id" colspan="4" nolabel="1" readonly="1">
+                    <separator name="info" colspan="4"/>
+                    <field name="info" select="1" colspan="4"/>
+                    <field name="field_id" colspan="4" readonly="1">
                         <form string="Fields Description">
-                        <field name="name" select="1"/>
-                        <field name="field_description" select="1" colspan="4"/>
-                        <field name="ttype" select="1"/>
-                        <field name="relation" select="1"/>
+                            <label name="name"/>
+                            <field name="name"/>
+                            <newline/>
+                            <label name="ttype"/>
+                            <field name="ttype"/>
+                            <label name="relation"/>
+                            <field name="relation"/>
+                            <label name="field_description"/>
+                            <field name="field_description" colspan="3"/>
                         </form>
                     </field>
                 </form>
@@ -61,11 +67,16 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Fields">
+                    <label name="name"/>
                     <field name="name" select="1"/>
+                    <label name="model_id"/>
                     <field name="model_id" readonly="1"/>
-                    <field name="field_description" select="2" colspan="4"/>
+                    <label name="ttype"/>
                     <field name="ttype" select="2"/>
+                    <label name="relation"/>
                     <field name="relation" select="2"/>
+                    <label name="field_description"/>
+                    <field name="field_description" select="2" colspan="3"/>
                 </form>
                 ]]>
             </field>
@@ -120,13 +131,20 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Access controls">
-                    <field name="name" select="1" colspan="4"/>
+                    <label name="name"/>
+                    <field name="name" select="1" colspan="3"/>
+                    <label name="model_id"/>
                     <field name="model_id" select="1"/>
+                    <label name="group_id"/>
                     <field name="group_id" select="1"/>
                     <newline/>
+                    <label name="perm_read"/>
                     <field name="perm_read"/>
+                    <label name="perm_write"/>
                     <field name="perm_write"/>
+                    <label name="perm_create"/>
                     <field name="perm_create"/>
+                    <label name="perm_unlink"/>
                     <field name="perm_unlink"/>
                 </form>
                 ]]>

@@ -7,11 +7,16 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Repository">
+                    <label name="name"/>
                     <field name="name" select="1"/>
+                    <label name="sequence"/>
                     <field name="sequence"/>
+                    <label name="url"/>
                     <field name="url" select="1" widget="url"/>
+                    <label name="active"/>
                     <field name="active" select="1"/>
-                    <field name="filter" colspan="4"/>
+                    <label name="filter"/>
+                    <field name="filter" colspan="3"/>
                 </form>
                 ]]>
             </field>

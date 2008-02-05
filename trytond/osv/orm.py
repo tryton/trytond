@@ -1579,7 +1579,8 @@ class ORM(object):
         result = False
         fields_attrs = {}
         childs = True
-        if node.nodeType == node.ELEMENT_NODE and node.localName == 'field':
+        if node.nodeType == node.ELEMENT_NODE \
+                and node.localName in ('field', 'label', 'separator'):
             if node.hasAttribute('name'):
                 attrs = {}
                 try:
@@ -1778,6 +1779,7 @@ class ORM(object):
                 '''<form string="%s">''' % (self._description,)
                 for i in res:
                     if res[i]['type'] not in ('one2many', 'many2many'):
+                        xml += '<label name="%s"/>' % (i,)
                         xml += '<field name="%s"/>' % (i,)
                         if res[i]['type'] == 'text':
                             xml += "<newline/>"

@@ -7,11 +7,17 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="View">
+                    <label name="model"/>
                     <field name="model" select="1"/>
+                    <label name="type"/>
                     <field name="type" select="1"/>
+                    <label name="inherit_id"/>
                     <field name="inherit_id" select="1"/>
+                    <label name="field_parent"/>
                     <field name="field_parent" select="2"/>
+                    <label name="priority"/>
                     <field name="priority" select="2"/>
+                    <separator name="arch" colspan="4"/>
                     <field name="arch" colspan="4"/>
                 </form>
                 ]]>
@@ -55,8 +61,13 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="Shortcut">
-                    <field name="name" colspan="4" select="1"/>
+                    <label name="name"/>
+                    <field name="name" select="1"/>
+                    <label name="res_id"/>
+                    <field name="res_id"/>
+                    <label name="user_id"/>
                     <field name="user_id" select="1"/>
+                    <label name="sequence"/>
                     <field name="sequence"/>
                 </form>
                 ]]>

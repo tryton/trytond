@@ -43,14 +43,21 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Menu">
+                <form string="Menu" col="6">
+                    <label name="complete_name"/>
                     <field name="complete_name"/>
+                    <label name="name"/>
                     <field name="name" select="1"/>
-                    <field name="sequence"/>
-                    <field name="parent_id" colspan="4" select="1"/>
-                    <field name="action"/>
-                    <field name="groups_id" colspan="4"/>
+                    <label name="parent_id"/>
+                    <field name="parent_id" select="1"/>
+                    <label name="icon"/>
                     <field name="icon"/>
+                    <label name="action"/>
+                    <field name="action"/>
+                    <label name="sequence"/>
+                    <field name="sequence"/>
+                    <separator name="groups_id" colspan="6"/>
+                    <field name="groups_id" colspan="6"/>
                 </form>
                 ]]>
             </field>
