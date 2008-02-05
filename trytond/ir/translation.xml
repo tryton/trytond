@@ -8,18 +8,18 @@
               <![CDATA[
                 <form string="Translations">
                     <label name="name"/>
-                    <field name="name" select="2"/>
+                    <field name="name"/>
                     <label name="res_id"/>
-                    <field name="res_id" select="2"/>
+                    <field name="res_id"/>
                     <label name="type"/>
-                    <field name="type" select="2"/>
+                    <field name="type"/>
                     <label name="lang"/>
-                    <field name="lang" select="1"/>
+                    <field name="lang"/>
                     <group col="2" colspan="4" expand="1">
                         <separator name="src"/>
                         <separator name="value"/>
-                        <field name="src" select="1"/>
-                        <field name="value" select="1"/>
+                        <field name="src"/>
+                        <field name="value"/>
                     </group>
                 </form>
                 ]]>
@@ -31,11 +31,12 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Translations" editable="bottom">
-                    <field name="src"/>
-                    <field name="value"/>
-                    <field name="name"/>
-                    <field name="lang"/>
-                    <field name="type"/>
+                    <field name="src" select="1"/>
+                    <field name="value" select="1"/>
+                    <field name="name" select="2"/>
+                    <field name="lang" select="1"/>
+                    <field name="type" select="2"/>
+                    <field name="res_id" select="2"/>
                 </tree>
               ]]>
             </field>

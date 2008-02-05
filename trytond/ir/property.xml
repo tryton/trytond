@@ -8,10 +8,10 @@
                 <![CDATA[
                 <form string="Property">
                     <label name="name"/>
-                    <field name="name" select="1" colspan="3"/>
-                    <!--field name="company_id" select="1"/-->
+                    <field name="name" colspan="3"/>
+                    <!--field name="company_id"/-->
                     <label name="fields_id"/>
-                    <field name="fields_id" colspan="3" select="1"/>
+                    <field name="fields_id" colspan="3"/>
                     <label name="value"/>
                     <field name="value" colspan="3"/>
                     <label name="res_id"/>
@@ -26,9 +26,9 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Properties">
-                    <field name="name"/>
-                    <!--field name="company_id"/-->
-                    <field name="fields_id"/>
+                    <field name="name" select="1"/>
+                    <!--field name="company_id" select="1"/-->
+                    <field name="fields_id" select="1"/>
                 </tree>
                 ]]>
             </field>

@@ -8,9 +8,9 @@
               <![CDATA[
                 <form string="Attachments" col="6">
                     <label name="name"/>
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <label name="res_model"/>
-                    <field name="res_model" select="1"/>
+                    <field name="res_model"/>
                     <label name="res_id"/>
                     <field name="res_id"/>
                     <label name="datas_fname"/>
@@ -29,8 +29,8 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Attachments">
-                    <field name="name"/>
-                    <field name="res_model"/>
+                    <field name="name" select="1"/>
+                    <field name="res_model" select="1"/>
                     <field name="res_id"/>
                 </tree>
                 ]]>
