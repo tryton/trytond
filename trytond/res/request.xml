@@ -27,11 +27,16 @@
                     <notebook>
                         <page string="Request">
                             <separator string="Description" colspan="4"/>
+                            <label name="act_from"/>
                             <field name="act_from" select="1"/>
+                            <label name="act_to"/>
                             <field name="act_to" select="1"/>
-                            <field name="name" colspan="4" select="1"/>
+                            <label name="name"/>
+                            <field name="name" colspan="3" select="1"/>
                             <newline/>
+                            <separator name="body" colspan="4"/>
                             <field name="body" colspan="4" select="2"/>
+                            <label name="trigger_date"/>
                             <field name="trigger_date" select="2"/>
                             <group col="2" colspan="2">
                                 <button name="request_send" states="draft,active"
@@ -41,19 +46,24 @@
                             </group>
                             <separator string="References" colspan="4"/>
                             <!--field name="ref_partner_id"/-->
+                            <label name="priority"/>
                             <field name="priority" select="2"/>
-                            <field name="ref_doc1" colspan="4"/>
-                            <field name="ref_doc2" colspan="4"/>
-                            <separator string="Status" colspan="4"/>
-                            <field name="state"/>
+                            <newline/>
+                            <label name="ref_doc1"/>
+                            <field name="ref_doc1" colspan="3"/>
+                            <label name="ref_doc2"/>
+                            <field name="ref_doc2" colspan="3"/>
+                            <separator name="state" colspan="4"/>
+                            <field name="state" colspan="2"/>
                             <group col="3" colspan="2">
+                                <label name="active"/>
                                 <field name="active" select="2"/>
                                 <button name="request_close" states="waiting,draft,active"
                                     string="Close" type="object"/>
                             </group>
                         </page>
                         <page string="History">
-                            <field name="history" nolabel="1" colspan="4"/>
+                            <field name="history" colspan="4"/>
                         </page>
                     </notebook>
                 </form>
@@ -124,12 +134,16 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Request History">
+                <form string="Request History" col="6">
+                    <label name="act_from"/>
                     <field name="act_from"/>
+                    <label name="act_to"/>
                     <field name="act_to"/>
+                    <label name="date_sent"/>
                     <field name="date_sent"/>
-                    <newline/>
-                    <field name="body" colspan="4"/>
+                    <label name="name"/>
+                    <field name="name" colspan="5"/>
+                    <field name="body" colspan="6"/>
                 </form>
                 ]]>
             </field>

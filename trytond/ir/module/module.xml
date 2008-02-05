@@ -10,17 +10,28 @@
                 <form string="Module">
                     <notebook>
                         <page string="Module">
+                            <label name="name"/>
                             <field name="name" select="1"/>
-                            <field name="shortdesc" colspan="4" select="2"/>
+                            <label name="shortdesc"/>
+                            <field name="shortdesc" select="2"/>
+                            <separator name="description" colspan="4"/>
                             <field name="description" colspan="4" select="2"/>
+                            <label name="installed_version"/>
                             <field name="installed_version"/>
+                            <label name="latest_version"/>
                             <field name="latest_version"/>
+                            <label name="author"/>
                             <field name="author" select="2"/>
+                            <label name="website"/>
                             <field name="website" select="2" widget="url"/>
+                            <label name="url"/>
                             <field name="url" widget="url"/>
+                            <label name="license"/>
                             <field name="license"/>
+                            <label name="demo"/>
                             <field name="demo" readonly="1"/>
                             <newline/>
+                            <label name="state"/>
                             <field name="state" readonly="1" select="1"/>
                             <group col="6" colspan="2">
                                 <button string="Install" name="button_install"
@@ -40,8 +51,8 @@
                                 -->
                             </group>
                         </page>
-                        <page string="Dependencies">
-                            <field name="dependencies_id" colspan="4" nolabel="1">
+                        <page string="Dependencies" col="1">
+                            <field name="dependencies_id">
                                 <tree string="Dependencies">
                                     <field name="name"/>
                                     <field name="state"/>
@@ -107,7 +118,7 @@
                 <form string="Update Module List">
                     <label string="This function will check for new modules in the 'modules' path and on module repositories:"
                         colspan="4" align="0.0"/>
-                    <field name="repositories" colspan="4" nolabel="1"/>
+                    <field name="repositories" colspan="4"/>
                 </form>
                 ]]>
             </field>
@@ -118,8 +129,10 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="New modules">
-                    <field name="update" colspan="4"/>
-                    <field name="add" colspan="4"/>
+                    <label name="update"/>
+                    <field name="update" colspan="3"/>
+                    <label name="add"/>
+                    <field name="add" colspan="3"/>
                 </form>
                 ]]>
             </field>
@@ -143,19 +156,19 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="System Upgrade">
-                    <image name="gtk-dialog-info" colspan="2"/>
-                    <group colspan="2" col="4">
+                <form string="System Upgrade" col="2">
+                    <image name="gtk-dialog-info"/>
+                    <group col="4">
                         <label align="0.0"
                             string="Your system will be upgraded."
                             colspan="4"/>
                         <label align="0.0"
                             string="Note that this operation my take a few minutes."
                             colspan="4"/>
-                        <separator string="Modules to update"/>
-                        <field name="module_info" nolabel="1" colspan="4"/>
-                        <separator string="Modules to download"/>
-                        <field name="module_download" nolabel="1" colspan="4"/>
+                        <separator name="module_info"/>
+                        <field name="module_info" colspan="4"/>
+                        <separator name="module_download"/>
+                        <field name="module_download" colspan="4"/>
                     </group>
                 </form>
                 ]]>
@@ -166,17 +179,14 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="System upgrade done">
+                <form string="System upgrade done" col="1">
                     <separator string="System upgrade done"/>
                     <label align="0.0"
-                        string="The modules have been upgraded / installed !"
-                        colspan="4"/>
+                        string="The modules have been upgraded / installed !"/>
                     <label align="0.0"
-                        string="You may have to reinstall some language pack."
-                        colspan="4"/>
+                        string="You may have to reinstall some language pack."/>
                     <label align="0.0"
-                        string="We suggest you to reload the menu tab (Ctrl+t Ctrl+r)."
-                        colspan="4"/>
+                        string="We suggest you to reload the menu tab (Ctrl+t Ctrl+r)."/>
                 </form>
                 ]]>
             </field>

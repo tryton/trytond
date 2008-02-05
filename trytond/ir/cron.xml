@@ -21,23 +21,32 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Scheduled Action">
+                <form string="Scheduled Action" col="6">
+                    <label name="name"/>
                     <field name="name" select="1"/>
-                    <field name="active" select="1"/>
+                    <label name="user_id"/>
                     <field name="user_id" select="1"/>
+                    <label name="active"/>
+                    <field name="active" select="1"/>
+                    <label name="priority"/>
                     <field name="priority" select="1"/>
-                    <newline/>
+                    <label name="interval_number"/>
                     <field name="interval_number"/>
+                    <label name="interval_type"/>
                     <field name="interval_type"/>
                     <newline/>
-                    <field name="nextcall"/>
+                    <label name="numbercall"/>
                     <field name="numbercall"/>
+                    <label name="nextcall"/>
+                    <field name="nextcall"/>
+                    <label name="doall"/>
                     <field name="doall"/>
-                    <separator string="Action to trigger" colspan="4"/>
-                    <newline/>
+                    <separator string="Action to trigger" colspan="6"/>
+                    <label name="model"/>
                     <field name="model"  readonly="1"/>
+                    <label name="function"/>
                     <field name="function" readonly="1"/>
-                    <field name="args" colspan="4" readonly="1"/>
+                    <field name="args" colspan="6" readonly="1"/>
                 </form>
                 ]]>
             </field>

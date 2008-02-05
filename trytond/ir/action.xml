@@ -8,10 +8,11 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Action">
+                    <label name="name"/>
                     <field name="name" select="1"/>
-                    <field name="type" select="1"/>
+                    <label name="usage"/>
                     <field name="usage"/>
-                    <field name="keywords" colspan="4" nolabel="1">
+                    <field name="keywords" colspan="4">
                         <tree string="Keywords">
                             <field name="keyword"/>
                         </tree>
@@ -61,19 +62,23 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Report">
+                <form string="Report" col="8">
+                    <label name="name"/>
                     <field name="name" select="1"/>
-                    <field name="type" select="1"/>
+                    <label name="model"/>
                     <field name="model" select="1"/>
+                    <label name="report_name"/>
                     <field name="report_name" select="2"/>
+                    <label name="report"/>
                     <field name="report"/>
-                    <field name="auto"/>
-                    <field name="keywords" colspan="4" nolabel="1">
+                    <field name="keywords" colspan="8">
                         <tree string="Keywords">
                             <field name="keyword"/>
                         </tree>
                         <form string="Keyword">
+                            <label name="keyword"/>
                             <field name="keyword"/>
+                            <label name="model"/>
                             <field name="model"/>
                         </form>
                     </field>
@@ -120,16 +125,22 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Open a Window">
-                    <field name="name" select="1"/>
-                    <field name="type" readonly="1"/>
+                <form string="Open a Window" col="6">
+                    <label name="name"/>
+                    <field name="name" select="1" colspan="3"/>
+                    <label name="usage"/>
+                    <field name="usage" />
+                    <label name="res_model"/>
                     <field name="res_model" select="1"/>
+                    <label name="src_model"/>
                     <field name="src_model" select="2"/>
-                    <field name="usage"/>
+                    <label name="view_type"/>
                     <field name="view_type"/>
-                    <field name="view_ids" colspan="4">
+                    <field name="view_ids" colspan="6">
                         <form string="Views">
+                            <label name="sequence"/>
                             <field name="sequence" colspan="4"/>
+                            <label name="view_id"/>
                             <field name="view_id"/>
                         </form>
                         <tree string="Views">
@@ -137,16 +148,22 @@
                             <field name="view_id"/>
                         </tree>
                     </field>
-                    <field name="domain" colspan="4"/>
-                    <field name="context" colspan="4"/>
-                    <field name="limit"/>
-                    <field name="auto_refresh"/>
-                    <field name="keywords" colspan="4" nolabel="1">
+                    <label name="domain"/>
+                    <field name="domain" colspan="5"/>
+                    <label name="context"/>
+                    <field name="context" colspan="5"/>
+                    <label name="limit"/>
+                    <field name="limit" colspan="2"/>
+                    <label name="auto_refresh"/>
+                    <field name="auto_refresh" colspan="2"/>
+                    <field name="keywords" colspan="6">
                         <tree string="Keywords">
                             <field name="keyword"/>
                         </tree>
                         <form string="Keyword">
+                            <label name="keyword"/>
                             <field name="keyword"/>
+                            <label name="model"/>
                             <field name="model"/>
                         </form>
                     </field>
@@ -193,16 +210,18 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Wizard">
+                    <label name="name"/>
                     <field name="name" select="1"/>
-                    <field name="type" select="1"/>
+                    <label name="wiz_name"/>
                     <field name="wiz_name" select="1"/>
-                    <field name="multi"/>
                     <field name="keywords" colspan="4" nolabel="1">
                         <tree string="Keywords">
                             <field name="keyword"/>
                         </tree>
                         <form string="Keyword">
+                            <label name="keyword"/>
                             <field name="keyword"/>
+                            <label name="model"/>
                             <field name="model"/>
                         </form>
                     </field>

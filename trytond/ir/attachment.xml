@@ -6,15 +6,19 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Attachments">
-                    <field name="name" colspan="4" select="1"/>
-                    <field name="datas" colspan="4"/>
-                    <field name="datas_fname"/>
-                    <newline/>
+                <form string="Attachments" col="6">
+                    <label name="name"/>
+                    <field name="name" select="1"/>
+                    <label name="res_model"/>
                     <field name="res_model" select="1"/>
+                    <label name="res_id"/>
                     <field name="res_id"/>
-                    <separator string="Description" colspan="4"/>
-                    <field name="description" colspan="4" nolabel="1"/>
+                    <label name="datas_fname"/>
+                    <field name="datas_fname"/>
+                    <label name="datas"/>
+                    <field name="datas" colspan="3"/>
+                    <separator name="description" colspan="6"/>
+                    <field name="description" colspan="6"/>
                 </form>
                 ]]>
             </field>

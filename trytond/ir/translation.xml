@@ -7,12 +7,20 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Translations">
+                    <label name="name"/>
                     <field name="name" select="2"/>
+                    <label name="res_id"/>
                     <field name="res_id" select="2"/>
+                    <label name="type"/>
                     <field name="type" select="2"/>
+                    <label name="lang"/>
                     <field name="lang" select="1"/>
-                    <field name="src" select="1"/>
-                    <field name="value" select="1"/>
+                    <group col="2" colspan="4" expand="1">
+                        <separator name="src"/>
+                        <separator name="value"/>
+                        <field name="src" select="1"/>
+                        <field name="value" select="1"/>
+                    </group>
                 </form>
                 ]]>
             </field>

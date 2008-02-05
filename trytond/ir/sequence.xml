@@ -1,26 +1,35 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
-        <menuitem name="Sequences" parent_id="ir.menu_ir" id="menu_sequence"/>
         <record model="ir.ui.view" id="sequence_view_form">
             <field name="model">ir.sequence</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Sequences">
-                    <separator string="Configuration" colspan="4"/>
-                    <field name="name" colspan="4" select="1"/>
+                    <label name="name"/>
+                    <field name="name" colspan="3" select="1"/>
+                    <label name="code"/>
                     <field name="code" select="1"/>
+                    <label name="active"/>
                     <field name="active" select="1"/>
+                    <label name="prefix"/>
                     <field name="prefix"/>
+                    <label name="suffix"/>
                     <field name="suffix"/>
+                    <label name="padding"/>
                     <field name="padding" />
+                    <label name="number_increment"/>
                     <field name="number_increment"/>
+                    <label name="number_next"/>
                     <field name="number_next"/>
                     <separator string="Legend (for prefix, suffix)" colspan="4"/>
-                    <label string="Year: %%(year)s" colspan="4"/>
-                    <label string="Month: %%(month)s" colspan="4"/>
-                    <label string="Day: %%(day)s" colspan="4"/>
+                    <label string="Year:"/>
+                    <label string="%%(year)s" colspan="3" align="0.0"/>
+                    <label string="Month:"/>
+                    <label string="%%(month)s" colspan="3" align="0.0"/>
+                    <label string="Day:"/>
+                    <label string="%%(day)s" colspan="3" align="0.0"/>
                 </form>
                 ]]>
             </field>
@@ -58,7 +67,7 @@
             <field name="view_id" ref="sequence_view_form"/>
             <field name="act_window_id" ref="act_sequence_form"/>
         </record>
-        <menuitem parent_id="menu_sequence"
+        <menuitem parent_id="menu_ir"
             action="act_sequence_form" id="menu_sequence_form"/>
         <record model="ir.ui.view" id="sequence_type_view_form">
             <field name="model">ir.sequence.type</field>
@@ -66,7 +75,9 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Sequence Type">
+                    <label name="name"/>
                     <field name="name" select="1"/>
+                    <label name="code"/>
                     <field name="code" readonly="1"/>
                 </form>
                 ]]>
@@ -103,7 +114,7 @@
             <field name="view_id" ref="sequence_type_view_form"/>
             <field name="act_window_id" ref="act_sequence_type_form"/>
         </record>
-        <menuitem parent_id="menu_sequence"
+        <menuitem parent_id="menu_ir"
             action="act_sequence_type_form" id="menu_ir_sequence_type"/>
     </data>
 </tryton>

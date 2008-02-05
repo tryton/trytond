@@ -7,16 +7,17 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Record rules">
+                    <label name="model_id"/>
                     <field name="model_id"/>
+                    <label name="global"/>
                     <field name="global"/>
-                    <field name="name" colspan="4"/>
-                    <group colspan="4" col="6" expand="1">
-                        <field name="rules" nolabel="1" colspan="6"/>
-                        <label string="The rule is satisfied if at least one test is True"
-                            colspan="6" align="0.0"/>
-                        <label string="If there is no test defined, the rule is always satified if not global"
-                            colspan="6" align="0.0"/>
-                    </group>
+                    <label name="name"/>
+                    <field name="name" colspan="3"/>
+                    <field name="rules" colspan="4"/>
+                    <label string="The rule is satisfied if at least one test is True"
+                        colspan="4" align="0.0"/>
+                    <label string="If there is no test defined, the rule is always satified if not global"
+                        colspan="4" align="0.0"/>
                 </form>
                 ]]>
             </field>
@@ -58,12 +59,13 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Test">
-                    <group colspan="4" col="6">
-                        <field name="field_id"/>
-                        <field name="operator"/>
-                        <field name="operand"/>
-                    </group>
+                <form string="Test" col="6">
+                    <label name="field_id"/>
+                    <field name="field_id"/>
+                    <label name="operator"/>
+                    <field name="operator"/>
+                    <label name="operand"/>
+                    <field name="operand"/>
                 </form>
                 ]]>
             </field>

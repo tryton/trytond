@@ -7,12 +7,14 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Workflow">
+                <form string="Workflow" col="6">
+                    <label name="name"/>
                     <field name="name" select="1"/>
+                    <label name="osv"/>
                     <field name="osv" select="1"/>
+                    <label name="on_create"/>
                     <field name="on_create"/>
-                    <separator string="Activities" colspan="4"/>
-                    <field name="activities" colspan="4" nolabel="1"/>
+                    <field name="activities" colspan="6"/>
                 </form>
                 ]]>
             </field>
@@ -55,19 +57,29 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Activity">
-                    <field name="name" colspan="4" select="1"/>
+                    <label name="name"/>
+                    <field name="name" colspan="3" select="1"/>
+                    <label name="wkf_id"/>
                     <field name="wkf_id" select="1"/>
+                    <label name="kind"/>
                     <field name="kind" select="1"/>
-                    <field name="action" colspan="4" select="1"/>
+                    <label name="action"/>
+                    <field name="action" colspan="3" select="1"/>
+                    <label name="subflow_id"/>
                     <field name="subflow_id"/>
+                    <label name="signal_send"/>
                     <field name="signal_send"/>
                     <newline/>
+                    <label name="flow_start"/>
                     <field name="flow_start"/>
+                    <label name="flow_stop"/>
                     <field name="flow_stop"/>
-                    <field name="split_mode"/>
+                    <label name="join_mode"/>
                     <field name="join_mode"/>
-                    <separator string="Outgoing transitions" colspan="4"/>
-                    <field name="out_transitions" colspan="4" nolabel="1">
+                    <label name="split_mode"/>
+                    <field name="split_mode"/>
+                    <separator name="out_transitions" colspan="4"/>
+                    <field name="out_transitions" colspan="4">
                         <tree string="Transitions">
                             <field name="act_to"/>
                             <field name="signal"/>
@@ -76,9 +88,24 @@
                             <field name="trigger_model"/>
                             <field name="trigger_expr_id"/>
                         </tree>
+                        <form string="Transition">
+                            <label name="act_to"/>
+                            <field name="act_to" colspan="3"/>
+                            <newline/>
+                            <label name="condition"/>
+                            <field name="condition" colspan="3"/>
+                            <label name="signal"/>
+                            <field name="signal"/>
+                            <label name="role_id"/>
+                            <field name="role_id"/>
+                            <label name="trigger_model"/>
+                            <field name="trigger_model"/>
+                            <label name="trigger_expr_id"/>
+                            <field name="trigger_expr_id"/>
+                        </form>
                     </field>
-                    <separator string="Incoming transitions" colspan="4"/>
-                    <field name="in_transitions" colspan="4" nolabel="1">
+                    <separator name="in_transitions" colspan="4"/>
+                    <field name="in_transitions" colspan="4">
                         <tree string="Transitions">
                             <field name="act_from"/>
                             <field name="signal"/>
@@ -87,6 +114,21 @@
                             <field name="trigger_model"/>
                             <field name="trigger_expr_id"/>
                         </tree>
+                        <form string="Transition">
+                            <label name="act_from"/>
+                            <field name="act_from" colspan="3"/>
+                            <newline/>
+                            <label name="condition"/>
+                            <field name="condition" colspan="3"/>
+                            <label name="signal"/>
+                            <field name="signal"/>
+                            <label name="role_id"/>
+                            <field name="role_id"/>
+                            <label name="trigger_model"/>
+                            <field name="trigger_model"/>
+                            <label name="trigger_expr_id"/>
+                            <field name="trigger_expr_id"/>
+                        </form>
                     </field>
                 </form>
                 ]]>
@@ -133,12 +175,19 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Transition">
+                    <label name="act_from"/>
                     <field name="act_from" select="1"/>
+                    <label name="act_to"/>
                     <field name="act_to" select="1"/>
-                    <field name="condition" colspan="4"/>
+                    <label name="condition"/>
+                    <field name="condition" colspan="3"/>
+                    <label name="signal"/>
                     <field name="signal"/>
+                    <label name="role_id"/>
                     <field name="role_id"/>
+                    <label name="trigger_model"/>
                     <field name="trigger_model"/>
+                    <label name="trigger_expr_id"/>
                     <field name="trigger_expr_id"/>
                 </form>
                 ]]>
@@ -186,10 +235,15 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Instance">
+                    <label name="wkf_id"/>
                     <field name="wkf_id" select="1"/>
+                    <label name="uid"/>
                     <field name="uid" select="2"/>
+                    <label name="res_id"/>
                     <field name="res_id"  select="1"/>
+                    <label name="res_type"/>
                     <field name="res_type"  select="1"/>
+                    <label name="state"/>
                     <field name="state" select="2"/>
                 </form>
                 ]]>
@@ -221,6 +275,12 @@
             <field name="view_id" ref="instance_view_tree"/>
             <field name="act_window_id" ref="act_instance_form"/>
         </record>
+        <record model="ir.action.act_window.view"
+            id="act_instance_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_id" ref="instance_view_form"/>
+            <field name="act_window_id" ref="act_instance_form"/>
+        </record>
         <menuitem parent_id="menu_workflow"
             action="act_instance_form" id="menu_instance_form"/>
         <record model="ir.ui.view" id="workitem_view_form">
@@ -229,9 +289,13 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Workitem">
+                    <label name="act_id"/>
                     <field name="act_id" select="1"/>
+                    <label name="subflow_id"/>
                     <field name="subflow_id" select="1"/>
+                    <label name="inst_id"/>
                     <field name="inst_id"  select="1"/>
+                    <label name="state"/>
                     <field name="state" select="2"/>
                 </form>
                 ]]>
