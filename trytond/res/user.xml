@@ -22,11 +22,11 @@
                     <notebook>
                         <page string="User">
                             <label name="name"/>
-                            <field name="name" select="1"/>
+                            <field name="name"/>
                             <label name="active"/>
-                            <field name="active" select="1"/>
+                            <field name="active"/>
                             <label name="login"/>
-                            <field name="login" select="1"/>
+                            <field name="login"/>
                             <label name="password"/>
                             <field name="password"/>
                             <!--field name="address_id"/-->
@@ -65,8 +65,9 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Users">
-                    <field name="name"/>
-                    <field name="login"/>
+                    <field name="name" select="1"/>
+                    <field name="login" select="1"/>
+                    <field name="active" select="1"/>
                 </tree>
               ]]>
             </field>
@@ -100,7 +101,7 @@
                     <notebook>
                         <page string="Group" col="2">
                             <label name="name"/>
-                            <field name="name" select="1"/>
+                            <field name="name"/>
                             <separator name="users" colspan="2"/>
                             <field name="users" colspan="2"/>
                         </page>
@@ -123,7 +124,7 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Groups">
-                    <field name="name"/>
+                    <field name="name" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -155,7 +156,7 @@
               <![CDATA[
                 <form string="Role">
                     <label name="name"/>
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <label name="parent_id"/>
                     <field name="parent_id"/>
                 </form>
@@ -169,7 +170,7 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Roles">
-                    <field name="name"/>
+                    <field name="name" select="1"/>
                 </tree>
                 ]]>
             </field>

@@ -9,9 +9,9 @@
               <![CDATA[
                 <form string="Workflow" col="6">
                     <label name="name"/>
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <label name="osv"/>
-                    <field name="osv" select="1"/>
+                    <field name="osv"/>
                     <label name="on_create"/>
                     <field name="on_create"/>
                     <field name="activities" colspan="6"/>
@@ -25,8 +25,8 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Workflow">
-                    <field name="name"/>
-                    <field name="osv"/>
+                    <field name="name" select="1"/>
+                    <field name="osv" select="1"/>
                     <field name="on_create"/>
                 </tree>
                 ]]>
@@ -58,13 +58,13 @@
               <![CDATA[
                 <form string="Activity">
                     <label name="name"/>
-                    <field name="name" colspan="3" select="1"/>
+                    <field name="name" colspan="3"/>
                     <label name="wkf_id"/>
-                    <field name="wkf_id" select="1"/>
+                    <field name="wkf_id"/>
                     <label name="kind"/>
-                    <field name="kind" select="1"/>
+                    <field name="kind"/>
                     <label name="action"/>
-                    <field name="action" colspan="3" select="1"/>
+                    <field name="action" colspan="3"/>
                     <label name="subflow_id"/>
                     <field name="subflow_id"/>
                     <label name="signal_send"/>
@@ -140,10 +140,10 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Activity">
-                    <field name="name"/>
-                    <field name="wkf_id"/>
-                    <field name="kind"/>
-                    <field name="action"/>
+                    <field name="name" select="1"/>
+                    <field name="wkf_id" select="1"/>
+                    <field name="kind" select="1"/>
+                    <field name="action" select="2"/>
                     <field name="flow_start"/>
                     <field name="flow_stop"/>
                 </tree>
@@ -176,9 +176,9 @@
               <![CDATA[
                 <form string="Transition">
                     <label name="act_from"/>
-                    <field name="act_from" select="1"/>
+                    <field name="act_from"/>
                     <label name="act_to"/>
-                    <field name="act_to" select="1"/>
+                    <field name="act_to"/>
                     <label name="condition"/>
                     <field name="condition" colspan="3"/>
                     <label name="signal"/>
@@ -199,8 +199,8 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Transitions">
-                    <field name="act_from"/>
-                    <field name="act_to"/>
+                    <field name="act_from" select="1"/>
+                    <field name="act_to" select="1"/>
                     <field name="signal"/>
                     <field name="role_id"/>
                     <field name="condition"/>
@@ -236,15 +236,15 @@
               <![CDATA[
                 <form string="Instance">
                     <label name="wkf_id"/>
-                    <field name="wkf_id" select="1"/>
+                    <field name="wkf_id"/>
                     <label name="uid"/>
-                    <field name="uid" select="2"/>
+                    <field name="uid"/>
                     <label name="res_id"/>
-                    <field name="res_id"  select="1"/>
+                    <field name="res_id"/>
                     <label name="res_type"/>
-                    <field name="res_type"  select="1"/>
+                    <field name="res_type"/>
                     <label name="state"/>
-                    <field name="state" select="2"/>
+                    <field name="state"/>
                 </form>
                 ]]>
             </field>
@@ -255,11 +255,11 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Instances">
-                    <field name="wkf_id"/>
-                    <field name="uid"/>
-                    <field name="res_id"/>
-                    <field name="res_type"/>
-                    <field name="state"/>
+                    <field name="wkf_id" select="1"/>
+                    <field name="uid" select="2"/>
+                    <field name="res_id" select="1"/>
+                    <field name="res_type" select="1"/>
+                    <field name="state" select="2"/>
                 </tree>
                 ]]>
             </field>
@@ -290,13 +290,13 @@
               <![CDATA[
                 <form string="Workitem">
                     <label name="act_id"/>
-                    <field name="act_id" select="1"/>
+                    <field name="act_id"/>
                     <label name="subflow_id"/>
-                    <field name="subflow_id" select="1"/>
+                    <field name="subflow_id"/>
                     <label name="inst_id"/>
-                    <field name="inst_id"  select="1"/>
+                    <field name="inst_id"/>
                     <label name="state"/>
-                    <field name="state" select="2"/>
+                    <field name="state"/>
                 </form>
                 ]]>
             </field>
@@ -307,10 +307,10 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Workitems">
-                    <field name="act_id"/>
-                    <field name="subflow_id"/>
-                    <field name="inst_id"/>
-                    <field name="state"/>
+                    <field name="act_id" select="1"/>
+                    <field name="subflow_id" select="1"/>
+                    <field name="inst_id" select="1"/>
+                    <field name="state" select="2"/>
                 </tree>
               ]]>
             </field>

@@ -8,12 +8,14 @@
               <![CDATA[
                 <tree string="Requests">
                     <field name="create_date"/>
-                    <field name="act_from"/>
-                    <field name="act_to"/>
-                    <field name="name"/>
-                    <field name="priority"/>
-                    <field name="trigger_date"/>
+                    <field name="act_from" select="1"/>
+                    <field name="act_to" select="1"/>
+                    <field name="name" select="1"/>
+                    <field name="priority" select="2"/>
+                    <field name="trigger_date" select="2"/>
                     <field name="state"/>
+                    <field name="active" select="2"/>
+                    <field name="body" invisible="1" select="2"/>
                 </tree>
                 ]]>
             </field>
@@ -28,16 +30,16 @@
                         <page string="Request">
                             <separator string="Description" colspan="4"/>
                             <label name="act_from"/>
-                            <field name="act_from" select="1"/>
+                            <field name="act_from"/>
                             <label name="act_to"/>
-                            <field name="act_to" select="1"/>
+                            <field name="act_to"/>
                             <label name="name"/>
-                            <field name="name" colspan="3" select="1"/>
+                            <field name="name" colspan="3"/>
                             <newline/>
                             <separator name="body" colspan="4"/>
-                            <field name="body" colspan="4" select="2"/>
+                            <field name="body" colspan="4"/>
                             <label name="trigger_date"/>
-                            <field name="trigger_date" select="2"/>
+                            <field name="trigger_date"/>
                             <group col="2" colspan="2">
                                 <button name="request_send" states="draft,active"
                                     string="Send" type="object"/>
@@ -47,7 +49,7 @@
                             <separator string="References" colspan="4"/>
                             <!--field name="ref_partner_id"/-->
                             <label name="priority"/>
-                            <field name="priority" select="2"/>
+                            <field name="priority"/>
                             <newline/>
                             <label name="ref_doc1"/>
                             <field name="ref_doc1" colspan="3"/>
@@ -57,7 +59,7 @@
                             <field name="state" colspan="2"/>
                             <group col="3" colspan="2">
                                 <label name="active"/>
-                                <field name="active" select="2"/>
+                                <field name="active"/>
                                 <button name="request_close" states="waiting,draft,active"
                                     string="Close" type="object"/>
                             </group>
@@ -96,8 +98,8 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Request Link">
-                    <field name="name" select="1"/>
-                    <field name="object" select="1"/>
+                    <field name="name"/>
+                    <field name="object"/>
                     <field name="priority"/>
                 </form>
                 ]]>
@@ -109,8 +111,8 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Request Link">
-                    <field name="name"/>
-                    <field name="object"/>
+                    <field name="name" select="1"/>
+                    <field name="object" select="1"/>
                 </tree>
                 ]]>
             </field>

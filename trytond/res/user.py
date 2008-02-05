@@ -40,7 +40,7 @@ class Role(OSV):
     _description = __doc__
     _columns = {
         'name': fields.Char('Role Name', size=64, required=True),
-        'parent_id': fields.Many2One('res.role', 'Parent', select=True),
+        'parent_id': fields.Many2One('res.role', 'Parent', select=1),
         'child_id': fields.One2Many('res.role', 'parent_id', 'Childs')
     }
 
@@ -80,7 +80,7 @@ class User(OSV):
         return res
 
     _columns = {
-        'name': fields.Char('Name', size=64, required=True, select=True),
+        'name': fields.Char('Name', size=64, required=True, select=1),
         'login': fields.Char('Login', size=64, required=True),
         'password': fields.Char('Password', size=64, invisible=True),
         'signature': fields.Text('Signature', size=64),

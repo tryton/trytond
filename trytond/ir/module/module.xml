@@ -11,19 +11,19 @@
                     <notebook>
                         <page string="Module">
                             <label name="name"/>
-                            <field name="name" select="1"/>
+                            <field name="name"/>
                             <label name="shortdesc"/>
-                            <field name="shortdesc" select="2"/>
+                            <field name="shortdesc"/>
                             <separator name="description" colspan="4"/>
-                            <field name="description" colspan="4" select="2"/>
+                            <field name="description" colspan="4"/>
                             <label name="installed_version"/>
                             <field name="installed_version"/>
                             <label name="latest_version"/>
                             <field name="latest_version"/>
                             <label name="author"/>
-                            <field name="author" select="2"/>
+                            <field name="author"/>
                             <label name="website"/>
-                            <field name="website" select="2" widget="url"/>
+                            <field name="website" widget="url"/>
                             <label name="url"/>
                             <field name="url" widget="url"/>
                             <label name="license"/>
@@ -32,7 +32,7 @@
                             <field name="demo" readonly="1"/>
                             <newline/>
                             <label name="state"/>
-                            <field name="state" readonly="1" select="1"/>
+                            <field name="state" readonly="1"/>
                             <group col="6" colspan="2">
                                 <button string="Install" name="button_install"
                                     type="object" states="uninstalled"/>
@@ -71,12 +71,14 @@
               <![CDATA[
                 <tree string="Modules"
                     colors="blue:state=='to upgrade' or state=='to install';grey:state=='uninstalled' or state=='uninstallable'">
-                    <field name="name"/>
-                    <field name="shortdesc"/>
-                    <field name="author"/>
+                    <field name="name" select="1"/>
+                    <field name="shortdesc" select="2"/>
+                    <field name="author" select="2"/>
                     <field name="installed_version"/>
                     <field name="latest_version"/>
-                    <field name="state"/>
+                    <field name="website" select="2"/>
+                    <field name="state" select="1"/>
+                    <field name="description" invisible="1" select="2"/>
                 </tree>
               ]]>
             </field>

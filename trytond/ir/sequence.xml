@@ -8,11 +8,11 @@
               <![CDATA[
                 <form string="Sequences">
                     <label name="name"/>
-                    <field name="name" colspan="3" select="1"/>
+                    <field name="name" colspan="3"/>
                     <label name="code"/>
-                    <field name="code" select="1"/>
+                    <field name="code"/>
                     <label name="active"/>
-                    <field name="active" select="1"/>
+                    <field name="active"/>
                     <label name="prefix"/>
                     <field name="prefix"/>
                     <label name="suffix"/>
@@ -41,9 +41,9 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Sequences">
-                    <field name="name"/>
-                    <field name="code"/>
-                    <field name="active"/>
+                    <field name="name" select="1"/>
+                    <field name="code" select="1"/>
+                    <field name="active" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -76,7 +76,7 @@
               <![CDATA[
                 <form string="Sequence Type">
                     <label name="name"/>
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <label name="code"/>
                     <field name="code" readonly="1"/>
                 </form>
@@ -89,7 +89,7 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Sequence Type">
-                    <field name="name"/>
+                    <field name="name" select="1"/>
                     <field name="code"/>
                 </tree>
                 ]]>

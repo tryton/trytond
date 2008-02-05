@@ -8,13 +8,13 @@
               <![CDATA[
                 <form string="Repository">
                     <label name="name"/>
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <label name="sequence"/>
                     <field name="sequence"/>
                     <label name="url"/>
-                    <field name="url" select="1" widget="url"/>
+                    <field name="url" widget="url"/>
                     <label name="active"/>
-                    <field name="active" select="1"/>
+                    <field name="active"/>
                     <label name="filter"/>
                     <field name="filter" colspan="3"/>
                 </form>
@@ -28,9 +28,9 @@
               <![CDATA[
                 <tree string="Repositories">
                     <field name="sequence"/>
-                    <field name="active"/>
-                    <field name="name"/>
-                    <field name="url"/>
+                    <field name="active" select="1"/>
+                    <field name="name" select="1"/>
+                    <field name="url" select="1"/>
                 </tree>
                 ]]>
             </field>
