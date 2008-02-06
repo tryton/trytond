@@ -202,6 +202,8 @@ class Report(object):
         action_report_ids = action_report_obj.search(cursor, user, [
             ('report_name', '=', self._name)
             ], context=context)
+        if not action_report_ids:
+            raise ExceptOSV('Error', 'Report (%s) not find!' % self._name)
         action_report = action_report_obj.browse(cursor, user,
                 action_report_ids[0], context=context)
         objects = self._get_objects(cursor, user, ids, action_report.model,
