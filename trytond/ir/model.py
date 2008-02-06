@@ -1,7 +1,7 @@
 "model"
 from trytond.osv import fields, OSV
 from trytond.netsvc import Logger, LocalService, LOG_ERROR, LOG_INFO, LOG_WARNING, LOG_DEBUG
-from trytond.osv.orm import except_orm
+from trytond.osv.orm import ExceptORM
 from trytond.tools import Cache
 import time
 
