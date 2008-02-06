@@ -41,9 +41,9 @@
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
                             <group col="2" colspan="2">
-                                <button name="request_send" states="state in ('draft', 'active')"
+                                <button name="request_send" states="{'invisible': '''state not in ('draft', 'active')'''}"
                                     string="Send" type="object"/>
-                                <button name="request_reply" states="state == 'waiting'"
+                                <button name="request_reply" states="{'invisible': '''state != 'waiting' '''}"
                                     string="Reply" type="object"/>
                             </group>
                             <separator string="References" colspan="4"/>
@@ -60,7 +60,7 @@
                             <group col="3" colspan="2">
                                 <label name="active"/>
                                 <field name="active"/>
-                                <button name="request_close" states="state in ('waiting', 'draft', 'active')"
+                                <button name="request_close" states="{'invisible': '''state not in ('waiting', 'draft', 'active')'''}"
                                     string="Close" type="object"/>
                             </group>
                         </page>
