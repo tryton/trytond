@@ -1956,7 +1956,8 @@ class ORM(object):
                         return ids
 
                     args[i] = ('id', 'in', _rec_convert(ids2 + _rec_get(ids2,
-                        self.pool.get(field._obj), table._parent_name)))
+                        self.pool.get(field._obj),
+                        self.pool.get(field._obj)._parent_name)))
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = [x[0] for x in self.pool.get(field._obj
