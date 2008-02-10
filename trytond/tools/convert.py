@@ -126,6 +126,10 @@ class MenuitemTagHandler:
                 'ir.ui.menu', self.mh.module, self.values, self.xml_id)
             return None
 
+    def current_state(self):
+        return "Tag menuitem with id: %s"% \
+               (self.xml_id)
+
 
 class RecordTagHandler:
 
@@ -244,11 +248,14 @@ class RecordTagHandler:
         else:
             raise Exception("Unexpected closing tag '%s'"% (name,))
 
+    def current_state(self):
+        return "Tag record for model %s with id: %s"% \
+               (self.model and self.model._name or "?", self.xml_id)
 
 class TrytondXmlHandler(sax.handler.ContentHandler):
 
     def __init__(self, cursor, pool, module,):
-        "Register known taghandlers, and manged tags."
+        "Register known taghandlers, and managed tags."
 
         self.pool = pool
         self.cursor = cursor
@@ -265,7 +272,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         # Managed tags are handled by the current class
         self.managedtags= ["data", "tryton"]
-        self.idlist = []
 
 
     def get_id(self, xml_id):
@@ -285,8 +291,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
             if  name in self.taghandlerlist:
                 self.taghandler = self.taghandlerlist[name]
-                xml_id = self.taghandler.startElement(name, attributes)
-                if xml_id : self.idlist.append(xml_id)
+                self.taghandler.startElement(name, attributes)
 
             elif name == "data":
                 self.noupdate = attributes.get("noupdate", False)
@@ -296,7 +301,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
             else:
                 Logger().notify_channel("init", LOG_INFO,
-                            "Tag", name , "not supported")
+                            "Tag "+ name + " not supported")
                 return
         else:
             self.taghandler.startElement(name, attributes)
@@ -308,10 +313,15 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
     def endElement(self, name):
 
         # Closing tag found, if we are in a delegation the handler
-        # tell us what to do:
+        # know what to do:
         if self.taghandler:
             self.taghandler = self.taghandler.endElement(name)
 
+    def current_state(self):
+        if self.taghandler:
+            return self.taghandler.current_state()
+        else:
+            return "In top level tag"
 
 def convert_xml_import_sax(cursor, module, xmlstream):
 
@@ -329,7 +339,16 @@ def convert_xml_import_sax(cursor, module, xmlstream):
     source = sax.InputSource()
     source.setByteStream(xmlstream)
 
-    parser.parse(source)
+    try:
+        parser.parse(source)
+    except:
+        Logger().notify_channel(
+            "init", LOG_ERROR,
+            "Error while parsing xml file. Current state is:\n" +\
+            handler.current_state()
+            )
+
+        raise
 
     return True
 
