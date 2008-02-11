@@ -166,7 +166,6 @@ def init_module_wizards(cursor, module_name, wizard_list):
 
 def load_module_graph(cursor, graph, lang):
     package_todo = []
-    statusi = 0
     for package in graph:
         module = package.name
         Logger().notify_channel('init', LOG_INFO, 'module:%s' % module)
@@ -223,7 +222,6 @@ def load_module_graph(cursor, graph, lang):
                     "WHERE state IN ('to upgrade', 'to install') " \
                         "AND name = %s", (package.name,))
         cursor.commit()
-        statusi += 1
 
     pool = pooler.get_pool(cursor.dbname)
     # TODO : post_import is called even if there not init nor update
