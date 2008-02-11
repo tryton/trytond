@@ -248,7 +248,7 @@ class ORM(object):
     _order = 'id'
     _inherits = {}
     _sequence = None
-    _description = __doc__
+    _description = ''
     _protected = [
             'read',
             'write',
@@ -270,45 +270,129 @@ class ORM(object):
     _inherit_fields = []
     pool = None
 
-    def _field_create(self, cursor):
-        cursor.execute("SELECT id FROM ir_model WHERE model='%s'" % self._name)
+    def _field_create(self, cursor, module_name):
+        cursor.execute("SELECT id FROM ir_model WHERE model = %s",
+                (self._name,))
         if not cursor.rowcount:
             # reference model in order to have a description
             # of its fonctionnality in custom_report
             cursor.execute("INSERT INTO ir_model " \
                     "(model, name, info) VALUES (%s, %s, %s)",
                     (self._name, self._description, self.__doc__))
-        cursor.commit()
+            cursor.commit()
+            cursor.execute("SELECT id FROM ir_model WHERE model = %s",
+                    (self._name,))
+        (model_id,) = cursor.fetchone()
 
+        cursor.execute('SELECT id, name, field_description, ttype, relation, ' \
+                    'group_name, view_load ' \
+                'FROM ir_model_fields ' \
+                'WHERE model = %s ' \
+                    'AND name in ' \
+                        '(' + ','.join(['%s' for x in self._columns]) + ')',
+                        (self._name,) + tuple(self._columns))
+        columns = {}
+        for column in cursor.dictfetchall():
+            columns[column['name']] = column
+        cursor.execute('SELECT id, name, src, type FROM ir_translation ' \
+                'WHERE module = %s ' \
+                    'AND lang = %s ' \
+                    'AND type IN (%s, %s, %s) ' \
+                    'AND name IN ' \
+                        '(' + ','.join(['%s' for x in self._columns]) + ')',
+                        (module_name, 'en_US', 'field', 'help', 'selection') + \
+                                tuple([self._name + ',' + x \
+                                    for x in self._columns]))
+        trans_columns = {}
+        trans_help = {}
+        trans_selection = {}
+        for trans in cursor.dictfetchall():
+            if trans['type'] == 'field':
+                trans_columns[trans['name']] = trans
+            elif trans['type'] == 'help':
+                trans_help[trans['name']] = trans
+            elif trans['type'] == 'selection':
+                trans_selection.setdefault(trans['name'], {})
+                trans_selection[trans['name']][trans['src']] = trans
         for k in self._columns:
             field = self._columns[k]
-            cursor.execute("SELECT id, relate FROM ir_model_fields " \
-                    "WHERE model = %s AND name = %s", (self._name, k))
-            if not cursor.rowcount:
-                cursor.execute("SELECT id FROM ir_model WHERE model = %s",
-                        (self._name,))
-                (model_id,) = cursor.fetchone()
+            if k not in columns:
                 cursor.execute("INSERT INTO ir_model_fields " \
                         "(model_id, model, name, field_description, ttype, " \
-                            "relation, group_name, view_load) " \
-                        "VALUES (%d, %s, %s, %s, %s, %s, %s, %s)",
+                            "relation, group_name, view_load, help) " \
+                        "VALUES (%d, %s, %s, %s, %s, %s, %s, %s, %s)",
                         (model_id, self._name, k,
-                            field.string.replace("'", " "), field._type,
+                            field.string, field._type,
                             field._obj or 'NULL', field.group_name or '',
-                            (field.view_load and 'True') or 'False'))
+                            (field.view_load and 'True') or 'False',
+                            field.help))
+            elif columns[k]['field_description'] != field.string \
+                    or columns[k]['ttype'] != field._type \
+                    or columns[k]['relation'] != (field._obj or 'NULL') \
+                    or columns[k]['group_name'] != (field.group_name or '') \
+                    or columns[k]['view_load'] != \
+                        ((field.view_load and 'True') or 'False') \
+                    or columns[k]['help'] != field.help:
+                cursor.execute('UPDATE ir_model_fields ' \
+                        'SET field_description = %s, ' \
+                            'ttype = %s, ' \
+                            'relation = %s, ' \
+                            'group_name = %s, ' \
+                            'view_load = %s, ' \
+                            'help = %s ' \
+                        'WHERE id = %d ',
+                        (field.string, field._type, field._obj or 'NULL',
+                            field.group_name or '',
+                            (field.view_load and 'True') or 'False',
+                            field.help, columns[k]['id']))
+            trans_name = self._name + ',' + k
+            if trans_name not in trans_columns:
+                cursor.execute('INSERT INTO ir_translation ' \
+                        '(name, lang, type, src, value, module) ' \
+                        'VALUES (%s, %s, %s, %s, %s, %s)',
+                        (trans_name, 'en_US', 'field',
+                            field.string, '', module_name))
+            elif trans_columns[trans_name]['src'] != field.string:
+                cursor.execute('UPDATE ir_translation ' \
+                        'SET src = %s ' \
+                        'WHERE id = %d ',
+                        (field.string, trans_columns[trans_name]['id']))
+            if trans_name not in trans_help:
+                if field.help:
+                    cursor.execute('INSERT INTO ir_translation ' \
+                            '(name, lang, type, src, value, module) ' \
+                            'VALUES (%s, %s, %s, %s, %s, %s)',
+                            (trans_name, 'en_US', 'help',
+                                field.help, '', module_name))
+            elif trans_help[trans_name]['src'] != field.help:
+                cursor.execute('UPDATE ir_translation ' \
+                        'SET src = %s ' \
+                        'WHERE id = %d ',
+                        (field.help, trans_help[trans_name]['id']))
+            if hasattr(field, 'selection') \
+                    and isinstance(field.selection, (tuple, list)):
+                for (key, val) in field.selection:
+                    if trans_name not in trans_selection \
+                            or val not in trans_selection[trans_name]:
+                        cursor.execute('INSERT INTO ir_translation ' \
+                                '(name, lang, type, src, value, ' \
+                                    'module) ' \
+                                'VALUES (%s, %s, %s, %s, %s, %s)',
+                                (trans_name, 'en_US', 'selection', val, '',
+                                    module_name))
         cursor.commit()
 
-    def auto_init(self, cursor):
-        self.init(cursor)
-        self._auto_init(cursor)
+    def auto_init(self, cursor, module_name):
+        self.init(cursor, module_name)
+        self._auto_init(cursor, module_name)
 
-    def init(self, cursor):
+    def init(self, cursor, module_name):
         pass
 
-    def _auto_init(self, cursor):
+    def _auto_init(self, cursor, module_name):
         logger = Logger()
         create = False
-        self._field_create(cursor)
+        self._field_create(cursor, module_name)
         if self._auto:
             cursor.execute("SELECT relname FROM pg_class " \
                     "WHERE relkind in ('r', 'v') AND relname = %s",
@@ -483,7 +567,7 @@ class ORM(object):
                                             'Unable to set column %s ' \
                                                     'of table %s not null !\n'\
                                             'Try to re-run: ' \
-                                        'tinyerp-server.py --update=module\n' \
+                                        'trytond.py --update=module\n' \
                 'If it doesn\'t work, update records and execute manually:\n' \
                 'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
                                         (k, self._table, self._table, k))
@@ -1265,12 +1349,10 @@ class ORM(object):
         upd_todo = []
         updend = []
         direct = []
-        totranslate = context.get('language', False) \
-                and (context['language'] != 'en_US')
         for field in vals:
             if field in self._columns:
                 if self._columns[field]._classic_write:
-                    if (not totranslate) or not self._columns[field].translate:
+                    if not self._columns[field].translate:
                         upd0.append('"' + field + '"=' + \
                                 self._columns[field]._symbol_set[0])
                         upd1.append(self._columns[field]._symbol_set[1](
@@ -1341,12 +1423,11 @@ class ORM(object):
                             'SET ' + ','.join(upd0) + ' ' \
                             'WHERE id IN (' + ids_str + ') ', upd1)
 
-            if totranslate:
-                for field in direct:
-                    if self._columns[field].translate:
-                        self.pool.get('ir.translation')._set_ids(cursor, user,
-                                self._name + ',' + field, 'model',
-                                context['language'], ids, vals[field])
+            for field in direct:
+                if self._columns[field].translate:
+                    self.pool.get('ir.translation')._set_ids(cursor, user,
+                            self._name + ',' + field, 'model',
+                            context['language'], ids, vals[field])
 
         # call the 'set' method of fields which are not classic_write
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
@@ -2232,52 +2313,6 @@ class ORM(object):
         for i in self._inherits:
             del data[self._inherits[i]]
         return self.create(cursor, user, data)
-
-    def read_string(self, cursor, user, object_id, langs, fields_names=None,
-            context=None):
-        res = {}
-        res2 = {}
-        self.pool.get('ir.model.access').check(cursor, user, 'ir.translation',
-                'read')
-        if fields_names is None:
-            fields_names = self._columns.keys() + self._inherit_fields.keys()
-        for lang in langs:
-            res[lang] = {'code': lang}
-            for field in fields_names:
-                if field in self._columns:
-                    res_trans = self.pool.get('ir.translation').\
-                            _get_source(cursor, self._name + ',' + field,
-                                    'field', lang)
-                    if res_trans:
-                        res[lang][field] = res_trans
-                    else:
-                        res[lang][field] = self._columns[field].string
-        for table in self._inherits:
-            cols = intersect(self._inherit_fields.keys(), fields_names)
-            res2 = self.pool.get(table).read_string(cursor, user, object_id,
-                    langs, cols, context)
-        for lang in res2:
-            if lang in res:
-                res[lang] = {'code': lang}
-            for field in res2[lang]:
-                res[lang][field] = res2[lang][field]
-        return res
-
-    def write_string(self, cursor, user, object_id, langs, vals, context=None):
-        self.pool.get('ir.model.access').check(cursor, user, 'ir.translation',
-                'write')
-        for lang in langs:
-            for field in vals:
-                if field in self._columns:
-                    self.pool.get('ir.translation')._set_ids(cursor, user,
-                            self._name + ',' + field, 'field', lang, [0],
-                            vals[field])
-        for table in self._inherits:
-            cols = intersect(self._inherit_fields.keys(), vals)
-            if cols:
-                self.pool.get(table).write_string(cursor, user, object_id,
-                        langs, vals, context)
-        return True
 
     def check_recursion(self, cursor, user, ids, parent=None):
         if parent is None:

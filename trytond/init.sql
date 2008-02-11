@@ -32,6 +32,7 @@ CREATE TABLE ir_model_fields (
   group_name varchar(64),
   view_load boolean,
   relate boolean default False,
+  help text,
   primary key(id)
 );
 
@@ -58,7 +59,24 @@ CREATE TABLE ir_ui_menu (
 	primary key (id)
 );
 
-select setval('ir_ui_menu_id_seq', 2);
+
+
+--------------------------------
+-- Translation
+--------------------------------
+
+CREATE TABLE ir_translation (
+    id serial NOT NULL,
+    lang varchar(5),
+    src text,
+    name varchar(128) NOT NULL,
+    res_id integer DEFAULT 0,
+    value text,
+    "type" varchar(16),
+    module varchar(128),
+    fuzzy boolean default False,
+    primary key(id)
+);
 
 ---------------------------------
 -- Res user
@@ -81,8 +99,7 @@ CREATE TABLE res_user (
 );
 alter table res_user add constraint res_user_login_uniq unique (login);
 
-insert into res_user (id,login,password,name,action_id,active) values (1,'root',NULL,'Root',NULL,False);
-select setval('res_user_id_seq', 2);
+insert into res_user (id,login,password,name,action_id,active) values (0,'root',NULL,'Root',NULL,False);
 
 CREATE TABLE res_group (
     id serial NOT NULL,

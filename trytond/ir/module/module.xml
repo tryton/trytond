@@ -15,7 +15,7 @@
                             <label name="shortdesc"/>
                             <field name="shortdesc"/>
                             <separator name="description" colspan="4"/>
-                            <field name="description" colspan="4"/>
+                            <field name="description" invisible="0" colspan="4"/>
                             <label name="installed_version"/>
                             <field name="installed_version"/>
                             <label name="latest_version"/>

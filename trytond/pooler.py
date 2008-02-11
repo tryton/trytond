@@ -7,7 +7,7 @@ _POOL_WIZARD = {}
 _POOL_REPORT = {}
 
 def get_db_and_pool(db_name, force_demo=False, update_module=False,
-        wizard=False, report=False):
+        wizard=False, report=False, lang='en_US'):
     if db_name in _DB:
         database = _DB[db_name]
     else:
@@ -36,7 +36,7 @@ def get_db_and_pool(db_name, force_demo=False, update_module=False,
         _POOL_REPORT[db_name] = pool_report
 
         from module import load_modules
-        load_modules(database, force_demo, update_module)
+        load_modules(database, force_demo, update_module, lang)
 
         if not update_module:
             pool.get('ir.cron').pool_jobs(database.dbname)
@@ -70,8 +70,8 @@ def get_db_only(db_name):
 def get_db(db_name):
     return get_db_and_pool(db_name)[0]
 
-def get_pool(db_name, force_demo=False, update_module=False):
-    pool = get_db_and_pool(db_name, force_demo, update_module)[1]
+def get_pool(db_name, force_demo=False, update_module=False, lang='en_US'):
+    pool = get_db_and_pool(db_name, force_demo, update_module, lang=lang)[1]
     return pool
 
 def get_pool_wizard(db_name, force_demo=False, update_module=False):

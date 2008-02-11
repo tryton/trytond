@@ -251,7 +251,7 @@ def trans_load_data(db_name, data, lang, strict=False, lang_name=None):
     logger.notify_channel("init", LOG_INFO,
             'loading translation file for language %s' % (lang))
     pool = pooler.get_pool(db_name)
-    lang_obj = pool.get('res.lang')
+    lang_obj = pool.get('ir.lang')
     trans_obj = pool.get('ir.translation')
     model_data_obj = pool.get('ir.model.data')
     try:
