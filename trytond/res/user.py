@@ -64,7 +64,7 @@ class User(OSV):
     _description = __doc__
 
     def _languages(self, cursor, user, context=None):
-        lang_obj = self.pool.get('res.lang')
+        lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search(cursor, user, [], context=context)
         res = []
         for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
