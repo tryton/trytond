@@ -6,16 +6,20 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Translations">
+                <form string="Translations" col="6">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="res_id"/>
-                    <field name="res_id"/>
                     <label name="type"/>
                     <field name="type"/>
+                    <label name="res_id"/>
+                    <field name="res_id"/>
+                    <label name="fuzzy"/>
+                    <field name="fuzzy"/>
                     <label name="lang"/>
                     <field name="lang"/>
-                    <group col="2" colspan="4" expand="1">
+                    <label name="module"/>
+                    <field name="module"/>
+                    <group col="2" colspan="6" expand="1">
                         <separator name="src"/>
                         <separator name="value"/>
                         <field name="src"/>
@@ -33,10 +37,12 @@
                 <tree string="Translations" editable="bottom">
                     <field name="src" select="1"/>
                     <field name="value" select="1"/>
+                    <field name="fuzzy" select="1"/>
                     <field name="name" select="2"/>
                     <field name="lang" select="1"/>
                     <field name="type" select="2"/>
                     <field name="res_id" select="2"/>
+                    <field name="module" select="2"/>
                 </tree>
               ]]>
             </field>
@@ -60,5 +66,23 @@
         </record>
         <menuitem name="Translations" parent_id="ir.menu_ir"
             action="act_translation_form" id="menu_translation_form"/>
+        <record model="ir.action.wizard" id="act_translation_update">
+            <field name="name">Update Translations</field>
+            <field name="wiz_name">ir.translation.update</field>
+        </record>
+        <menuitem name="Update Translations"
+            parent_id="menu_translation_form"
+            action="act_translation_update"
+            type="wizard"
+            id="menu_translation_update"/>
+        <record model="ir.action.wizard" id="act_translation_export">
+            <field name="name">Export Translations</field>
+            <field name="wiz_name">ir.translation.export</field>
+        </record>
+        <menuitem name="Export Translations"
+            parent_id="menu_translation_form"
+            action="act_translation_export"
+            type="wizard"
+            id="menu_translation_export"/>
     </data>
 </tryton>

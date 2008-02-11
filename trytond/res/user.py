@@ -64,7 +64,7 @@ class User(OSV):
     _description = __doc__
 
     def _languages(self, cursor, user, context=None):
-        lang_obj = self.pool.get('res.lang')
+        lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search(cursor, user, [], context=context)
         res = []
         for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
@@ -82,7 +82,7 @@ class User(OSV):
     _columns = {
         'name': fields.Char('Name', size=64, required=True, select=1),
         'login': fields.Char('Login', size=64, required=True),
-        'password': fields.Char('Password', size=64, invisible=True),
+        'password': fields.Char('Password', size=64),
         'signature': fields.Text('Signature', size=64),
         #'address_id': fields.Many2One('res.partner.address', 'Address'),
         'active': fields.Boolean('Active'),
@@ -199,13 +199,13 @@ class User(OSV):
     def get_preferences_fields_view(self, cursor, user, context=None):
         res = {}
         fields = self.fields_get(cursor, user,
-                fields_names=self._preferences_fields, context=context)
+                fields_names=self._preferences_fields + self._context_fields,
+                context=context)
 
         xml = '<?xml version="1.0" encoding="utf-8"?>' \
-                '<form string="%s" colspan="2">' % (self._description,)
+                '<form string="%s" col="2">' % (self._description,)
         for field in fields:
-            #TODO remove newline when colspan on form is implemented
-            xml += '<field name="%s"/><newline/>' % (field,)
+            xml += '<label name="%s"/><field name="%s"/>' % (field, field)
         xml += '</form>'
         doc = dom.minidom.parseString(xml)
         arch, fields = self._view_look_dom_arch(cursor,

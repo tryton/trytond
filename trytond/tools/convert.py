@@ -259,7 +259,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         self.pool = pool
         self.cursor = cursor
-        self.user = 1
+        self.user = 0
         self.module = module
 
 

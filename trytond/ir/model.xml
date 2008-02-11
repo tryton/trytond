@@ -24,6 +24,8 @@
                             <field name="relation"/>
                             <label name="field_description"/>
                             <field name="field_description" colspan="3"/>
+                            <label name="help"/>
+                            <field name="help" colspan="3"/>
                         </form>
                     </field>
                 </form>
@@ -78,6 +80,8 @@
                     <field name="relation"/>
                     <label name="field_description"/>
                     <field name="field_description" colspan="3"/>
+                    <label name="help"/>
+                    <field name="help" colspan="3"/>
                 </form>
                 ]]>
             </field>

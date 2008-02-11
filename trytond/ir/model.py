@@ -43,7 +43,8 @@ class ModelFields(OSV):
         'relation': fields.char('Model Relation', size=64),
         'model_id': fields.many2one('ir.model', 'Model id', required=True,
             select=True, ondelete='cascade'),
-        'field_description': fields.char('Field Description', size=256),
+        'field_description': fields.char('Field Description', size=256,
+            translate=True),
         'ttype': fields.char('Field Type', size=64),
         'relate': fields.boolean('Click and Relate'),
 
@@ -51,6 +52,7 @@ class ModelFields(OSV):
             'field_id', 'group_id', 'Groups'),
         'group_name': fields.char('Group Name', size=128),
         'view_load': fields.boolean('View Auto-Load'),
+        'help': fields.Text('Help', translate=True),
     }
     _defaults = {
         'relate': lambda *a: 0,
@@ -343,7 +345,8 @@ class ModelData(OSV):
             del self.fs2values[cursor.dbname][(fs_id, module)]
         else:
             # this record is new, create it in the db:
-            db_id = object_ref.create(cursor, user, values)
+            db_id = object_ref.create(cursor, user, values,
+                    context={'module': module})
             # re-read it: this ensure that we store the real value
             # in the model_data table:
             db_val = object_ref.browse(cursor, user, db_id)
