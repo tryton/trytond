@@ -35,20 +35,20 @@
                             <field name="state" readonly="1"/>
                             <group col="6" colspan="2">
                                 <button string="Install" name="button_install"
-                                    type="object" states="state == 'uninstalled'"/>
+                                    type="object" states="{'invisible': '''state != 'uninstalled' '''}"/>
                                 <button string="Cancel Install" name="button_install_cancel"
-                                    type="object" states="state == 'to install'"/>
+                                    type="object" states="{'invisible': '''state != 'to install' '''}"/>
                                 <button string="Uninstall (beta)" name="button_uninstall"
-                                    type="object" states="state == 'installed'"/>
+                                    type="object" states="{'invisible': '''state != 'installed' '''}"/>
                                 <button string="Cancel Uninstall" name="button_uninstall_cancel"
-                                    type="object" states="state == 'to remove'"/>
+                                    type="object" states="{'invisible': '''state != 'to remove' '''}"/>
                                 <button string="Upgrade" name="button_upgrade"
-                                    type="object" states="state == 'installed'"/>
+                                    type="object" states="{'invisible': '''state != 'installed' '''}"/>
                                 <button string="Cancel Upgrade" name="button_upgrade_cancel"
-                                    type="object" states="state == 'to upgrade'"/>
+                                    type="object" states="{'invisible': '''state != 'to upgrade' '''}"/>
                                 <!--
                                 <button string="Update translations" name="button_update_translations"
-                                    type="object" states="state == 'installed'"/>
+                                    type="object" states="{'invisible': '''state != 'installed' '''}"/>
                                 -->
                             </group>
                         </page>
