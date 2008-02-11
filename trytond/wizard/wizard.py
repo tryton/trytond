@@ -201,7 +201,7 @@ class WizardOSV(OSV):
             ]
     _auto = False
 
-    def auto_init(self, cursor):
+    def auto_init(self, cursor, module_name):
         pass
 
     def init(self, cursor):

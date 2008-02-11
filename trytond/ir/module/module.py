@@ -293,7 +293,7 @@ class Module(OSV):
         return True
 
     def button_update_translations(self, cursor, user, ids, context=None):
-        lang_obj = self.pool.get('res.lang')
+        lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search(cursor, user, [('translatable', '=', True)],
                 context=context)
         langs = lang_obj.browse(cursor, user, lang_ids, context=context)
@@ -568,12 +568,12 @@ class ModuleUpdateList(Wizard):
     "Update module list"
     _name = 'ir.module.module.update_list'
 
-    def _update_module(self, cr, uid, data, context):
+    def _update_module(self, cursor, user, data, context):
         module_obj = self.pool.get('ir.module.module')
-        update, add = module_obj.update_list(cr, uid)
+        update, add = module_obj.update_list(cursor, user)
         return {'update': update, 'add': add}
 
-    def _action_module_open(self, cr, uid, data, context):
+    def _action_module_open(self, cursor, user, data, context):
         return {
                 'domain': str([]),
                 'name': 'Module List',
@@ -584,10 +584,10 @@ class ModuleUpdateList(Wizard):
                 'type': 'ir.action.act_window',
                 }
 
-    def _get_repositories(self, cr, uid, data, context):
+    def _get_repositories(self, cursor, user, data, context):
         repository_obj = self.pool.get('ir.module.repository')
-        ids = repository_obj.search(cr, uid, [])
-        res = repository_obj.read(cr, uid, ids, ['name', 'url'], context)
+        ids = repository_obj.search(cursor, user, [])
+        res = repository_obj.read(cursor, user, ids, ['name', 'url'], context)
         return {
                 'repositories': '\n'.join([x['name']+': '+x['url'] \
                         for x in res]),

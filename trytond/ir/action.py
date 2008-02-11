@@ -154,6 +154,20 @@ class ActionReport(OSV):
         'type': lambda *a: 'ir.action.report',
         'report_content': lambda *a: False,
     }
+    _sql_constraints = [
+        ('report_name_uniq', 'unique (report_name)',
+            'The internal name must be unique!'),
+    ]
+
+    def copy(self, cursor, user, object_id, default=None, context=None):
+        if default is None:
+            default = {}
+        report = self.browse(cursor, user, object_id, context=context)
+        if report.report:
+            default['report_content'] = False
+        default['report_name'] = report.report_name + '.copy'
+        return super(ActionReport, self).copy(cursor, user, object_id,
+                default=default, context=context)
 
 ActionReport()
 

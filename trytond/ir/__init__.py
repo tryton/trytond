@@ -4,6 +4,7 @@ from action import *
 from model import *
 from attachment import *
 from cron import *
+from lang import *
 from translation import *
 from export import *
 from rule import *

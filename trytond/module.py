@@ -156,10 +156,9 @@ def init_module_objects(cursor, module_name, obj_list):
     Logger().notify_channel('init', LOG_INFO,
             'module:%s:creating or updating database tables' % module_name)
     for obj in obj_list:
-        obj.auto_init(cursor)
+        obj.auto_init(cursor, module_name)
 
-def load_module_graph(cursor, graph):
-
+def load_module_graph(cursor, graph, lang):
     package_todo = []
     statusi = 0
     for package in graph:
@@ -190,12 +189,7 @@ def load_module_graph(cursor, graph):
                 Logger().notify_channel('init', LOG_INFO,
                         'module:%s:loading %s' % (module, filename))
                 ext = os.path.splitext(filename)[1]
-                if ext == '.csv':
-                    tools.convert_csv_import(cursor, module,
-                            os.path.basename(filename),
-                            tools.file_open(OPJ(module, filename)).read(),
-                            idref, mode=mode)
-                elif ext == '.sql':
+                if ext == '.sql':
                     if mode == 'init':
                         queries = tools.file_open(OPJ(module,
                             filename)).read().split(';')
@@ -206,6 +200,14 @@ def load_module_graph(cursor, graph):
                 else:
                     tools.convert_xml_import(cursor, module,
                             tools.file_open(OPJ(module, filename)))
+            for filename in package.datas.get('translation', []):
+                if lang != os.path.splitext(filename)[0]:
+                    continue
+                Logger().notify_channel('init', LOG_INFO,
+                        'module:%s:loading %s' % (module, filename))
+                translation_obj = pool.get('ir.translation')
+                translation_obj.translation_import(cursor, 0, lang, module,
+                        tools.file_open(OPJ(module, filename)))
             if demo:
                 cursor.execute('UPDATE ir_module_module SET demo = %s ' \
                         'WHERE name = %s', (True, package.name))
@@ -251,7 +253,7 @@ def register_classes():
                 Logger().notify_channel('init', LOG_ERROR,
                         'Couldn\'t find module %s' % module)
 
-def load_modules(database, force_demo=False, update_module=False):
+def load_modules(database, force_demo=False, update_module=False, lang='en_US'):
     cursor = database.cursor()
     force = []
     if force_demo:
@@ -266,7 +268,7 @@ def load_modules(database, force_demo=False, update_module=False):
     module_list = [name for (name,) in cursor.fetchall()]
     graph = create_graph(module_list, force)
 
-    load_module_graph(cursor, graph)
+    load_module_graph(cursor, graph, lang)
 
 
     for kind in ('init', 'update'):

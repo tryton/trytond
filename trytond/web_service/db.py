@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from trytond.netsvc import Service, Logger, LOG_ERROR, LOG_INFO, LOG_WARNING
 import threading
 from trytond import security
@@ -40,12 +41,7 @@ class DB(Service):
                 cursor.commit()
                 cursor.close()
                 cursor = None
-                pooler.get_pool(db_name, demo, update_module=True)
-                filename = os.path.join(
-                        os.path.dirname(os.path.dirname(__file__)),
-                        'i18n', lang + '.csv')
-                if os.path.isfile(filename):
-                    tools.trans_load(db_name, filename, lang)
+                pooler.get_pool(db_name, demo, update_module=True, lang=lang)
                 cursor = sql_db.db_connect(db_name).cursor()
                 cursor.execute('SELECT login, password, name ' \
                         'FROM res_user ' \
@@ -217,4 +213,7 @@ class DB(Service):
         return True
 
     def list_lang(self):
-        return tools.scan_languages()
+        return [
+            ('fr_FR', 'Français'),
+            ('en_US', 'English'),
+        ]

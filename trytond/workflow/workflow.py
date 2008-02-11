@@ -122,8 +122,8 @@ class WorkflowInstance(OSV):
         'state': fields.char('State', size=32),
     }
 
-    def _auto_init(self, cursor):
-        super(WorkflowInstance, self)._auto_init(cursor)
+    def _auto_init(self, cursor, module_name):
+        super(WorkflowInstance, self)._auto_init(cursor, module_name)
         cursor.execute('SELECT indexname FROM pg_indexes ' \
                 'WHERE indexname = ' \
                     '\'wkf_instance_res_id_res_type_state_index\'')
@@ -171,8 +171,8 @@ class WorkflowTrigger(OSV):
             required=True, ondelete="cascade"),
     }
 
-    def _auto_init(self, cursor):
-        super(WorkflowTrigger, self)._auto_init(cursor)
+    def _auto_init(self, cursor, module_name):
+        super(WorkflowTrigger, self)._auto_init(cursor, module_name)
         cursor.execute('SELECT indexname FROM pg_indexes ' \
                 'WHERE indexname = \'wkf_triggers_res_id_model_index\'')
         if not cursor.fetchone():
