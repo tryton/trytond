@@ -1427,7 +1427,7 @@ class ORM(object):
                 if self._columns[field].translate:
                     self.pool.get('ir.translation')._set_ids(cursor, user,
                             self._name + ',' + field, 'model',
-                            context['language'], ids, vals[field])
+                            context.get('language','en_US'), ids, vals[field])
 
         # call the 'set' method of fields which are not classic_write
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
