@@ -202,11 +202,11 @@ model,"ir.ui.menu,name",menu_attachment_form,Attachments,Attachements,0
 model,"ir.ui.menu,name",menu_category_tree,Categories,Catégories,0
 model,"ir.ui.menu,name",menu_property_form_default,Default properties,Propriétés par default,0
 model,"ir.ui.menu,name",menu_default_form,Defaults,Défaults,0
-model,"ir.ui.menu,name",menu_translation_export,Export Translations,Exporter les traductions,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exportations,0
+model,"ir.ui.menu,name",menu_translation_export,Export Translations,Exporter les traductions,0
 model,"ir.ui.menu,name",model_model_fields_form,Fields,Champs,0
-model,"ir.ui.menu,name",menu_ir,IR,IR,0
 model,"ir.ui.menu,name",menu_module_install_upgrade,Install \ Upgrade Modules,Installer \ Mettre à jour les modules,0
+model,"ir.ui.menu,name",menu_ir,IR,IR,0
 model,"ir.ui.menu,name",menu_lang_form,Languages,Langues,0
 model,"ir.ui.menu,name",menu_menu_form,Menus,Menus,0
 model,"ir.ui.menu,name",menu_model_form,Models,Modèles,0
@@ -218,20 +218,20 @@ model,"ir.ui.menu,name",menu_rule_group_form,Record Rules,Règles d'enregistreme
 model,"ir.ui.menu,name",menu_action_report_form,Reports,Rapports,0
 model,"ir.ui.menu,name",menu_repository_form,Repositories,Dépots,0
 model,"ir.ui.menu,name",menu_cron_form,Scheduled Actions,Actions planifiées,0
-model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de la séquence,0
 model,"ir.ui.menu,name",menu_sequence_form,Sequences,Séquences,0
+model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de la séquence,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traductions,0
 model,"ir.ui.menu,name",menu_ui,UI,UI,0
 model,"ir.ui.menu,name",menu_module_update_list,Update Module List,Mettre à jour la liste des modules,0
 model,"ir.ui.menu,name",menu_translation_update,Update Translations,Mettre à jour les traductions,0
-model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Raccourcis de la vue,0
 model,"ir.ui.menu,name",menu_view,Views,Vues,0
+model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Raccourcis de la vue,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Actions de la fenêtre,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Wizards,0
 selection,"ir.action.act_window,view_type",0,Form,Formulaire,0
 selection,"ir.action.act_window,view_type",0,Tree,Arbre,0
-selection,"ir.action.keyword,keyword",0,Action tree,Arbre,0
 selection,"ir.action.keyword,keyword",0,Action form,Formulaire,0
+selection,"ir.action.keyword,keyword",0,Action tree,Arbre,0
 selection,"ir.action.keyword,keyword",0,Form relate,Formulaire relié,0
 selection,"ir.action.keyword,keyword",0,Open tree,Ouvre l'arbre,0
 selection,"ir.action.keyword,keyword",0,Print form,Imprimer le formulaire,0
@@ -259,12 +259,12 @@ selection,"ir.module.module,state",0,Not Installed,Pas installé,0
 selection,"ir.module.module,state",0,To be installed,À être installé,0
 selection,"ir.module.module,state",0,To be removed,À être enlevé,0
 selection,"ir.module.module,state",0,To be upgraded,À être mis à jour,0
-selection,"ir.rule,operator",0,=,,0
-selection,"ir.rule,operator",0,<>,,0
 selection,"ir.rule,operator",0,<=,,0
+selection,"ir.rule,operator",0,<>,,0
+selection,"ir.rule,operator",0,=,,0
 selection,"ir.rule,operator",0,>=,,0
-selection,"ir.rule,operator",0,in,,0
 selection,"ir.rule,operator",0,child_of,,0
+selection,"ir.rule,operator",0,in,,0
 selection,"ir.translation,type",0,Field,Champ,0
 selection,"ir.translation,type",0,Help,Aide,0
 selection,"ir.translation,type",0,Model,Modèle,0
@@ -272,10 +272,10 @@ selection,"ir.translation,type",0,ODT,False,0
 selection,"ir.translation,type",0,Selection,Sélection,0
 selection,"ir.translation,type",0,View,Vue,0
 selection,"ir.translation,type",0,Wizard Button,Button de wizard,0
-selection,"ir.ui.menu,action",0,ir.action.report,,0
 selection,"ir.ui.menu,action",0,ir.action.act_window,,0
-selection,"ir.ui.menu,action",0,ir.action.wizard,,0
+selection,"ir.ui.menu,action",0,ir.action.report,,0
 selection,"ir.ui.menu,action",0,ir.action.url,,0
+selection,"ir.ui.menu,action",0,ir.action.wizard,,0
 selection,"ir.ui.menu,icon",0,STOCK_ABOUT,,0
 selection,"ir.ui.menu,icon",0,STOCK_ADD,,0
 selection,"ir.ui.menu,icon",0,STOCK_APPLY,,0
@@ -305,13 +305,13 @@ selection,"ir.ui.menu,icon",0,STOCK_FILE,,0
 selection,"ir.ui.menu,icon",0,STOCK_FIND,,0
 selection,"ir.ui.menu,icon",0,STOCK_FIND_AND_REPLACE,,0
 selection,"ir.ui.menu,icon",0,STOCK_FLOPPY,,0
+selection,"ir.ui.menu,icon",0,STOCK_GO_BACK,,0
+selection,"ir.ui.menu,icon",0,STOCK_GO_DOWN,,0
+selection,"ir.ui.menu,icon",0,STOCK_GO_FORWARD,,0
 selection,"ir.ui.menu,icon",0,STOCK_GOTO_BOTTOM,,0
 selection,"ir.ui.menu,icon",0,STOCK_GOTO_FIRST,,0
 selection,"ir.ui.menu,icon",0,STOCK_GOTO_LAST,,0
 selection,"ir.ui.menu,icon",0,STOCK_GOTO_TOP,,0
-selection,"ir.ui.menu,icon",0,STOCK_GO_BACK,,0
-selection,"ir.ui.menu,icon",0,STOCK_GO_DOWN,,0
-selection,"ir.ui.menu,icon",0,STOCK_GO_FORWARD,,0
 selection,"ir.ui.menu,icon",0,STOCK_GO_UP,,0
 selection,"ir.ui.menu,icon",0,STOCK_HARDDISK,,0
 selection,"ir.ui.menu,icon",0,STOCK_HELP,,0
@@ -367,20 +367,20 @@ selection,"ir.ui.menu,icon",0,STOCK_ZOOM_FIT,,0
 selection,"ir.ui.menu,icon",0,STOCK_ZOOM_IN,,0
 selection,"ir.ui.menu,icon",0,STOCK_ZOOM_OUT,,0
 selection,"ir.ui.menu,icon",0,terp-account,,0
-selection,"ir.ui.menu,icon",0,terp-crm,,0
-selection,"ir.ui.menu,icon",0,terp-mrp,,0
-selection,"ir.ui.menu,icon",0,terp-product,,0
-selection,"ir.ui.menu,icon",0,terp-purchase,,0
-selection,"ir.ui.menu,icon",0,terp-sale,,0
-selection,"ir.ui.menu,icon",0,terp-tools,,0
 selection,"ir.ui.menu,icon",0,terp-administration,,0
-selection,"ir.ui.menu,icon",0,terp-hr,,0
-selection,"ir.ui.menu,icon",0,terp-partner,,0
-selection,"ir.ui.menu,icon",0,terp-project,,0
-selection,"ir.ui.menu,icon",0,terp-report,,0
-selection,"ir.ui.menu,icon",0,terp-stock,,0
 selection,"ir.ui.menu,icon",0,terp-calendar,,0
+selection,"ir.ui.menu,icon",0,terp-crm,,0
 selection,"ir.ui.menu,icon",0,terp-graph,,0
+selection,"ir.ui.menu,icon",0,terp-hr,,0
+selection,"ir.ui.menu,icon",0,terp-mrp,,0
+selection,"ir.ui.menu,icon",0,terp-partner,,0
+selection,"ir.ui.menu,icon",0,terp-product,,0
+selection,"ir.ui.menu,icon",0,terp-project,,0
+selection,"ir.ui.menu,icon",0,terp-purchase,,0
+selection,"ir.ui.menu,icon",0,terp-report,,0
+selection,"ir.ui.menu,icon",0,terp-sale,,0
+selection,"ir.ui.menu,icon",0,terp-stock,,0
+selection,"ir.ui.menu,icon",0,terp-tools,,0
 selection,"ir.ui.view,type",0,Calendar,Calendrier,0
 selection,"ir.ui.view,type",0,Form,Formulaire,0
 selection,"ir.ui.view,type",0,Graph,Graphique,0
@@ -441,16 +441,27 @@ view,ir.rule,0,Test,Test,0
 view,ir.rule.group,0,"If there is no test defined, the rule is always satified if not global","Si il n'y a pas de test définit, la règle est toujours satisfaite s'il est n'est pas globale",0
 view,ir.rule.group,0,Record rules,Règles d'enregistrement,0
 view,ir.rule.group,0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
-view,ir.sequence,0,%%(day)s,,0
-view,ir.sequence,0,%%(year)s,,0
-view,ir.sequence,0,%%(month)s,,0
 view,ir.sequence,0,Day:,Jour:,0
+view,ir.sequence,0,%%(day)s,,0
 view,ir.sequence,0,"Legend (for prefix, suffix)","Légende (pour préfixe, suffixe)",0
 view,ir.sequence,0,Month:,Mois :,0
+view,ir.sequence,0,%%(month)s,,0
 view,ir.sequence,0,Sequences,Séquences,0
 view,ir.sequence,0,Year:,Année :,0
+view,ir.sequence,0,%%(year)s,,0
 view,ir.sequence.type,0,Sequence Type,Type de la séquence,0
 view,ir.translation,0,Translations,Traductions,0
 view,ir.ui.menu,0,Menu,Menu,0
 view,ir.ui.view,0,View,Vue,0
 view,ir.ui.view_sc,0,Shortcut,Raccourcis,0
+wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Démarrer la mis à jour,0
+wizard_button,"ir.module.module.install_upgrade,start,end",0,Close,Fermer,0
+wizard_button,"ir.module.module.update_list,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.module.module.update_list,init,update",0,Check new modules,Chercher de nouveaux modules,0
+wizard_button,"ir.module.module.update_list,update,open_window",0,Ok,Ok,0
+wizard_button,"ir.translation.export,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.translation.export,init,start",0,Start Export,Demarrer l'expartation,0
+wizard_button,"ir.translation.export,start,end",0,Close,Fermer,0
+wizard_button,"ir.translation.update,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.translation.update,init,start",0,Start Upgrade,Démarrer la mis à jour,0
