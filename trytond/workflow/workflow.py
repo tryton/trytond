@@ -1,6 +1,9 @@
 "Workflow"
-from trytond.osv import fields, OSV
+import os
+from trytond.osv import fields, OSV, ExceptOSV
 from trytond.netsvc import LocalService
+from trytond.report import Report
+from trytond.tools import exec_command_pipe
 
 
 class Workflow(OSV):
@@ -178,3 +181,155 @@ class WorkflowTrigger(OSV):
             cursor.commit()
 
 WorkflowTrigger()
+
+
+class InstanceGraph(Report):
+    _name = 'workflow.instance.graph'
+
+    def execute(self, cursor, user, ids, datas, context=None):
+        import pydot
+        workflow_obj = self.pool.get('workflow')
+        instance_obj = self.pool.get('workflow.instance')
+        workflow_id = workflow_obj.search(cursor, user, [
+            ('osv', '=', datas['model']),
+            ], limit=1, context=context)
+        if not workflow_id:
+            raise ExceptOSV('UserError', 'No workflow defined!')
+        workflow_id = workflow_id[0]
+        workflow = workflow_obj.browser(cursor, user, workflow_id,
+                context=context)
+        instance_id = instance_obj.search(cursor, user, [
+            ('res_id', '=', datas['id']),
+            ('wkf_id', '=', workflow.id),
+            ], limit=1, context=context)
+        if not instance_id:
+            raise ExceptOSV('UserError', 'No workflow instance defined!')
+        instance_id = instance_id[0]
+
+        graph = pydot.Dot(fontsize=16,
+                label="\\n\\nWorkflow: %s\\n OSV: %s" % \
+                        (worflow.name, workflow.osv))
+        graph.set('size', '10.7,7.3')
+        graph.set('center', '1')
+        graph.set('ratio', 'auto')
+        graph.set('rotate', '90')
+        graph.set('rankdir', 'LR') #TODO depend of the language
+        self.graph_instance_get(cursor, graph, instance_id,
+                datas.get('nested', False), context=context)
+        ps_string = graph.create(prog='dot', format='ps')
+
+        if os.name == 'nt':
+            prog = 'ps2pdf.bat'
+        else:
+            prog = 'ps2pdf'
+        args = (prog, '-', '-')
+        inpt, oupt = exec_command_pipe(*args)
+        inpt.write(ps_string)
+        inpt.close()
+        data = outpt.read()
+        outpt.close()
+        return ('pdf', base64.encodestring(data))
+
+    def graph_instance_get(self, cursor, graph, instance_id, nested=False,
+            context=None):
+        instance_obj = self.pool.get('workflow.instance')
+        instance = instance_obj.browse(cursor, user, instance_id,
+                context=context)
+        self.graph_get(cursor, user, graph, instance.wkf_id.id, nested,
+                self.workitem_get(cursor, user, instance.id, context=context),
+                context=context)
+
+    def workitem_get(self, cursor, user, instance_id, context=None):
+        res = {}
+        workitem_obj = self.pool.get('workflow.workitem')
+        workitem_ids = workitem_obj.search(cursor, user, [
+            ('inst_id', '=', instance_id),
+            ], context=context)
+        workitems = workitem_obj.browse(cursor, user, workitem_ids,
+                context=context)
+        for workitem in workitems:
+            res.setdefault(workitem.act_id.id, 0)
+            res[workitem.act_id.id] += 1
+            if workitem.subflow_id:
+                res.update(self.workitem_get(cursor, user,
+                    workitem.subflow_id.id, context=context))
+        return res
+
+    def graph_get(self, cursor, user, graph, workflow_id, nested=False,
+            workitem=None, context=None):
+        import pydot
+        if workitem is None:
+            workitem = {}
+        activity_obj = self.pool.get('workfow.activity')
+        workflow_obj = self.pool.get('workflow')
+        transition_obj = self.pool.get('workflow.transition')
+        activity_ids = activity_obj.search(cursor, user, [
+            ('wkf_id', '=', workflow_id),
+            ], context=context)
+        id2activities = {}
+        actfrom = {}
+        actto = {}
+        activities = activity_obj.browse(cursor, user, activity_ids,
+                context=context)
+        start = 0
+        stop = {}
+        for activity in activities:
+            if activity.flow_start:
+                start = activity.id
+            if activity.flow_stop:
+                stop['subflow.' + activity.name] =  activity.id
+            id2activities[activity.id] = activity
+            if activity.subflow_id and nested:
+                workflow = workflow_obj.browse(cursor, user,
+                        activity.subflow_id.id, context=context)
+                subgraph = pydot.Cluster('subflow' + str(workflow.id),
+                        fontsize=12, label="Subflow: " + activity.name + \
+                                '\\nOSV: ' + workflow.osv)
+                (substart, substop) = self.graph_get(cursor, user,
+                        subgraph, workflow.id, nested, workitem,
+                        context=context)
+                graph.add_subgraph(subgraph)
+                actfrom[activity.id] = substart
+                actto[activity.id] = substop
+            else:
+                args = {}
+                if activity.flow_start or activity.flow_stop:
+                    args['style'] = 'filled'
+                    args['color'] = 'lightgrey'
+                args['label'] = activity.name
+                if activity.subflow_id:
+                    args['shape'] = 'box'
+                if activity.id in workitem:
+                    args['label'] += '\\nx ' + str(workitem[activity.id])
+                    args['color'] = 'red'
+                graph.add_node(pydot.Node(activity.id, **args))
+                actfrom[activity.id] = (activity.id, {})
+                actto[activity.id] = (activity.id, {})
+        transition_ids = transition_obj.search(cursor, user, [
+            ('act_from', 'in', [x.id for x in activities]),
+            ], context=context)
+        transitions = transition_obj.browse(cursor, user, transition_ids,
+                context=context)
+        for transition in transitions:
+            args = {}
+            args['label'] = str(transition.condition).replace(' or ',
+                    '\\nor ').replace(' and ', '\\nand ')
+            if transition.signal:
+                args['label'] += '\\n' + str(transition.signal)
+                args['style'] = 'bold'
+            if id2activities[transition.act_from.id].split_mode == 'AND':
+                args['arrowtail'] = 'box'
+            elif id2activities[transition.act_from.id].split_mode == 'OR':
+                args['arrowtail'] = 'inv'
+            if id2activities[transition.act_to.id].join_mode == 'AND':
+                args['arrowhead'] = 'crow'
+
+            activity_from = actfrom[transition.act_from.id][1].get(
+                    transition.signal, actfrom[transition.act_from.id][0])
+            activity_to = actto[transition.act_to.id][1].get(
+                    transition.signal, actto[transition.act_to.id][0])
+            graph.add_edge(pydot.Edge(activity_from, activity_to,
+                fontsize=10, **args))
+        return ((start, {}), (stop.values()[0], stop))
+
+InstanceGraph()
