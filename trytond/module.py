@@ -158,6 +158,12 @@ def init_module_objects(cursor, module_name, obj_list):
     for obj in obj_list:
         obj.auto_init(cursor, module_name)
 
+def init_module_wizards(cursor, module_name, wizard_list):
+    Logger().notify_channel('init', LOG_INFO,
+            'module:%s:creating or updating wizards' % module_name)
+    for wizard in wizard_list:
+        wizard.auto_init(cursor, module_name)
+
 def load_module_graph(cursor, graph, lang):
     package_todo = []
     statusi = 0
@@ -180,6 +186,7 @@ def load_module_graph(cursor, graph, lang):
                 or hasattr(package, 'update') \
                 or (package_state in ('to install', 'to upgrade')):
             init_module_objects(cursor, module, modules)
+            init_module_wizards(cursor, module, wizards)
             demo = hasattr(package, 'demo') \
                     or (package_demo and package_state != 'installed')
             for filename in package.datas.get('xml', []):

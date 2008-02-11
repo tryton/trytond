@@ -129,6 +129,35 @@ class Wizard(object):
         self.pool = pool_obj
         super(Wizard, self).__init__()
 
+    def auto_init(self, cursor, module_name):
+        for state in self.states.keys():
+            if self.states[state]['result']['type'] == 'form':
+                for i, button in enumerate(
+                        self.states[state]['result']['state']):
+                    button_name = button[0]
+                    button_value = button[1]
+                    cursor.execute('SELECT id, name, src ' \
+                            'FROM ir_translation ' \
+                            'WHERE module = %s ' \
+                                'AND lang = %s ' \
+                                'AND type = %s ' \
+                                'AND name = %s',
+                            (module_name, 'en_US', 'wizard_button',
+                                self._name + ',' + state + ',' + button_name))
+                    res = cursor.dictfetchall()
+                    if not res:
+                        cursor.execute('INSERT INTO ir_translation ' \
+                                '(name, lang, type, src, value, module) ' \
+                                'VALUES (%s, %s, %s, %s, %s, %s)',
+                                (self._name + ',' + state + ',' + button_name,
+                                    'en_US', 'wizard_button', button_value,
+                                    '', module_name))
+                    elif res[0]['src'] != button_value:
+                        cursor.execute('UPDATE ir_translation ' \
+                                'SET src = %s, ' \
+                                    'fuzzy = True '
+                                'WHERE id = %d', (button_value, res[0]['id']))
+
     def execute(self, cursor, user, data, state='init', context=None):
         if context is None:
             context = {}
