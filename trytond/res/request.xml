@@ -37,7 +37,7 @@
                             <field name="name" colspan="3"/>
                             <newline/>
                             <separator name="body" colspan="4"/>
-                            <field name="body" colspan="4"/>
+                            <field name="body" colspan="4" invisible="0"/>
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
                             <group col="2" colspan="2">
