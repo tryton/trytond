@@ -7,14 +7,6 @@ class Request(OSV):
     _name = 'res.request'
     _table = 'res_request'
     _description = __doc__
-
-    def _links_get(self, cursor, user, context=None):
-        request_link_obj = self.pool.get('res.request.link')
-        ids = request_link_obj.search(cursor, user, [])
-        request_links = request_link_obj.browse(cursor, user, ids,
-                context=context)
-        return [(x.object, x.name) for x in request_links]
-
     _columns = {
         'create_date': fields.DateTime('Created date', readonly=True),
         'name': fields.Char('Subject', states={
@@ -48,11 +40,11 @@ class Request(OSV):
 #                'closed': [('readonly', True)],
 #                }),
         #TODO: use one2many instead limit number of reference
-        'ref_doc1': fields.Reference('Document Ref 1', selection=_links_get,
+        'ref_doc1': fields.Reference('Document Ref 1', selection='links_get',
             size=128, states={
                 'readonly': "state == 'closed'",
                 }),
-        'ref_doc2': fields.Reference('Document Ref 2', selection=_links_get,
+        'ref_doc2': fields.Reference('Document Ref 2', selection='links_get',
             size=128, states={
                 'readonly': "state == 'closed'",
                 }),
@@ -72,6 +64,13 @@ class Request(OSV):
         'priority': lambda *a: '1',
     }
     _order = 'priority DESC, trigger_date, create_date DESC'
+
+    def links_get(self, cursor, user, context=None):
+        request_link_obj = self.pool.get('res.request.link')
+        ids = request_link_obj.search(cursor, user, [])
+        request_links = request_link_obj.browse(cursor, user, ids,
+                context=context)
+        return [(x.object, x.name) for x in request_links]
 
     def request_send(self, cursor, user, ids, context=None):
         request_history_obj = self.pool.get('res.request.history')

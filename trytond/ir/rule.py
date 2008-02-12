@@ -56,8 +56,24 @@ class Rule(OSV):
     _name = 'ir.rule'
     _rec_name = 'field_id'
     _description = __doc__
+    _columns = {
+        'field_id': fields.many2one('ir.model.fields', 'Field',
+            domain="[('model_id','=', parent.model_id)]", select=1,
+            required=True),
+        'operator':fields.selection([
+            ('=', '='),
+            ('<>', '<>'),
+            ('<=', '<='),
+            ('>=', '>='),
+            ('in', 'in'),
+            ('child_of', 'child_of'),
+            ], 'Operator', required=True),
+        'operand':fields.selection('operand','Operand', size=64, required=True),
+        'rule_group': fields.many2one('ir.rule.group', 'Group', select=2,
+            required=True, ondelete="cascade")
+    }
 
-    def _operand(self, cursor, user, context):
+    def operand(self, cursor, user, context):
 
         def get(obj_name, level=3, recur=None, root_tech='', root=''):
             res = []
@@ -92,23 +108,6 @@ class Rule(OSV):
         res += get('res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
         return res
-
-    _columns = {
-        'field_id': fields.many2one('ir.model.fields', 'Field',
-            domain="[('model_id','=', parent.model_id)]", select=1,
-            required=True),
-        'operator':fields.selection([
-            ('=', '='),
-            ('<>', '<>'),
-            ('<=', '<='),
-            ('>=', '>='),
-            ('in', 'in'),
-            ('child_of', 'child_of'),
-            ], 'Operator', required=True),
-        'operand':fields.selection(_operand,'Operand', size=64, required=True),
-        'rule_group': fields.many2one('ir.rule.group', 'Group', select=2,
-            required=True, ondelete="cascade")
-    }
 
     def domain_get(self, cursor, user, model_name):
         # root user above constraint

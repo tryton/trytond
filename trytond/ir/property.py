@@ -6,8 +6,16 @@ class Property(OSV):
     "Property"
     _name = 'ir.property'
     _description = __doc__
+    _columns = {
+        'name': fields.char('Name', size=128),
+        'value': fields.reference('Value', selection='models_get2', size=128),
+        'res_id': fields.reference('Resource', selection='models_get', size=128),
+        #'company_id': fields.many2one('res.company', 'Company'),
+        'fields_id': fields.many2one('ir.model.fields', 'Fields',
+            ondelete='cascade', required=True)
+    }
 
-    def _models_get2(self, cursor, user, context=None):
+    def models_get2(self, cursor, user, context=None):
         model_fields_obj = self.pool.get('ir.model.fields')
         ids = model_fields_obj.search(cursor, user, [('view_load', '=', 1)])
         res = []
@@ -19,7 +27,7 @@ class Property(OSV):
                 done[model_field.relation] = True
         return res
 
-    def _models_get(self, cursor, user, context=None):
+    def models_get(self, cursor, user, context=None):
         model_fields_obj = self.pool.get('ir.model.fields')
         ids = model_fields_obj.search(cursor, user, [('view_load', '=', 1)])
         res = []
@@ -31,15 +39,6 @@ class Property(OSV):
                     model_field.model_id.name])
                 done[model_field.model_id.id] = True
         return res
-
-    _columns = {
-        'name': fields.char('Name', size=128),
-        'value': fields.reference('Value', selection=_models_get2, size=128),
-        'res_id': fields.reference('Resource', selection=_models_get, size=128),
-        #'company_id': fields.many2one('res.company', 'Company'),
-        'fields_id': fields.many2one('ir.model.fields', 'Fields',
-            ondelete='cascade', required=True)
-    }
 
     def unlink(self, cursor, user, ids, context=None):
         if ids:

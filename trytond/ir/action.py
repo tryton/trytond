@@ -46,15 +46,6 @@ class ActionKeyword(OSV):
     "Action keyword"
     _name = 'ir.action.keyword'
     _description = __doc__
-
-    def _models_get(self, cursor, user, context=None):
-        model_obj = self.pool.get('ir.model')
-        model_ids = model_obj.search(cursor, user, [])
-        res = []
-        for model in model_obj.browse(cursor, user, model_ids, context=context):
-            res.append([model.model, model.name])
-        return res
-
     _columns = {
         'keyword': fields.Selection([
             ('tree_open', 'Open tree'),
@@ -63,7 +54,7 @@ class ActionKeyword(OSV):
             ('form_action', 'Action form'),
             ('form_relate', 'Form relate'),
             ], string='Keyword', required=True),
-        'model': fields.Reference('Model', selection=_models_get, size=128),
+        'model': fields.Reference('Model', selection='models_get', size=128),
         'action': fields.many2one('ir.action', 'Action',
             ondelete='CASCADE'),
     }
@@ -75,6 +66,14 @@ class ActionKeyword(OSV):
             vals['action'] = action_obj.get_action_id(cursor, user,
                     vals['action'], context=context)
         return vals
+
+    def models_get(self, cursor, user, context=None):
+        model_obj = self.pool.get('ir.model')
+        model_ids = model_obj.search(cursor, user, [])
+        res = []
+        for model in model_obj.browse(cursor, user, model_ids, context=context):
+            res.append([model.model, model.name])
+        return res
 
     def unlink(self, cursor, user, ids, context=None):
         for keyword in self.browse(cursor, user, ids, context=context):
