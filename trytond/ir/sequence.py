@@ -18,14 +18,9 @@ class Sequence(OSV):
     "Sequence"
     _name = 'ir.sequence'
     _description = __doc__
-
-    def _code_get(self, cursor, user, context=None):
-        cursor.execute('select code, name from ir_sequence_type')
-        return cursor.fetchall()
-
     _columns = {
         'name': fields.char('Sequence Name',size=64, required=True),
-        'code': fields.selection(_code_get, 'Sequence Code',size=64,
+        'code': fields.selection('code_get', 'Sequence Code',size=64,
             required=True),
         'active': fields.boolean('Active'),
         'prefix': fields.char('Prefix',size=64),
@@ -40,6 +35,10 @@ class Sequence(OSV):
         'number_next': lambda *a: 1,
         'padding' : lambda *a : 0,
     }
+
+    def code_get(self, cursor, user, context=None):
+        cursor.execute('select code, name from ir_sequence_type')
+        return cursor.fetchall()
 
     def _process(self, string):
         return (string or '') % {

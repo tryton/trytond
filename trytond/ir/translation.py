@@ -30,13 +30,6 @@ class Translation(OSV, Cacheable):
     _name = "ir.translation"
     _description = __doc__
 
-    def _get_language(self, cursor, user, context):
-        lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [], context=context)
-        langs = lang_obj.browse(cursor, user, lang_ids, context=context)
-        res = [(lang.code, lang.name) for lang in langs]
-        return res
-
     def _model(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for translation in self.browse(cursor, user, ids, context=context):
@@ -57,7 +50,7 @@ class Translation(OSV, Cacheable):
     _columns = {
         'name': fields.Char('Field Name', size=128, required=True),
         'res_id': fields.Integer('Resource ID'),
-        'lang': fields.Selection(_get_language, string='Language', size=5),
+        'lang': fields.Selection('get_language', string='Language', size=5),
         'type': fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
             required=True),
         'src': fields.Text('Source'),
@@ -78,6 +71,13 @@ class Translation(OSV, Cacheable):
         CREATE INDEX ir_translation_ltn ON ir_translation (lang, type, name);
         CREATE INDEX ir_translation_res_id ON ir_translation (res_id);
     """
+
+    def get_language(self, cursor, user, context):
+        lang_obj = self.pool.get('ir.lang')
+        lang_ids = lang_obj.search(cursor, user, [], context=context)
+        langs = lang_obj.browse(cursor, user, lang_ids, context=context)
+        res = [(lang.code, lang.name) for lang in langs]
+        return res
 
     def _get_ids(self, cursor, name, ttype, lang, ids):
         translations, to_fetch = {}, []
@@ -364,19 +364,18 @@ class TranslationUpdateInit(WizardOSV):
     "Update translation - language"
     _name = 'ir.translation.update.init'
     _description = __doc__
+    _columns = {
+        'lang': fields.Selection('get_language', string='Language', size=5,
+            required=True),
+    }
 
-    def _get_language(self, cursor, user, context):
+    def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search(cursor, user, [('translatable', '=', True)],
                 context=context)
         langs = lang_obj.browse(cursor, user, lang_ids, context=context)
         res = [(lang.code, lang.name) for lang in langs if lang.code != 'en_US']
         return res
-
-    _columns = {
-        'lang': fields.Selection(_get_language, string='Language', size=5,
-            required=True),
-    }
 
 TranslationUpdateInit()
 
@@ -489,28 +488,27 @@ class TranslationExportInit(WizardOSV):
     "Export translation - language and module"
     _name = 'ir.translation.export.init'
     _description = __doc__
+    _columns = {
+        'lang': fields.Selection('get_language', string='Language', size=5,
+            required=True),
+        'module': fields.Selection('get_module', string='Module', size=128,
+            required=True),
+    }
 
-    def _get_language(self, cursor, user, context):
+    def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search(cursor, user, [], context=context)
         langs = lang_obj.browse(cursor, user, lang_ids, context=context)
         res = [(lang.code, lang.name) for lang in langs]
         return res
 
-    def _get_module(self, cursor, user, context):
+    def get_module(self, cursor, user, context):
         module_obj = self.pool.get('ir.module.module')
         module_ids = module_obj.search(cursor, user, [], context=context)
         modules = module_obj.browse(cursor, user, module_ids, context=context)
         res =  [(module.name, module.shortdesc or module.name) \
                 for module in modules]
         return res
-
-    _columns = {
-        'lang': fields.Selection(_get_language, string='Language', size=5,
-            required=True),
-        'module': fields.Selection(_get_module, string='Module', size=128,
-            required=True),
-    }
 
 TranslationExportInit()
 

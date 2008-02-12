@@ -184,6 +184,10 @@ class Selection(_column):
     _type = 'selection'
 
     def __init__(self, selections, string='unknown', **args):
+        """
+        selections is a list of (key, string)
+            or the name of the object function that return the list
+        """
         _column.__init__(self, string=string, **args)
         self.selection = selections
 

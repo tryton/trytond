@@ -62,23 +62,6 @@ class User(OSV):
     _name = "res.user"
     _log_access = False
     _description = __doc__
-
-    def _languages(self, cursor, user, context=None):
-        lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [], context=context)
-        res = []
-        for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
-            res.append([lang.code, lang.name])
-        return res
-
-    def _timezones(self, cursor, user, context=None):
-        try:
-            import pytz
-            res = [[x, x] for x in pytz.all_timezones]
-        except ImportError:
-            res = [[time.tzname[0], time.tzname[0]]]
-        return res
-
     _columns = {
         'name': fields.Char('Name', size=64, required=True, select=1),
         'login': fields.Char('Login', size=64, required=True),
@@ -96,8 +79,8 @@ class User(OSV):
         'rule_groups': fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
             'user_id', 'rule_group_id', 'Rules',
             domain="[('global', '<>', True)]"),
-        'language': fields.Selection(_languages, 'Language'),
-        'timezone': fields.Selection(_timezones, 'Timezone'),
+        'language': fields.Selection('languages', 'Language'),
+        'timezone': fields.Selection('timezones', 'Timezone'),
     }
     _sql_constraints = [
         ('login_key', 'UNIQUE (login)',
@@ -212,6 +195,22 @@ class User(OSV):
                 user, doc, context=context)
         res['arch'] = arch
         res['fields'] = fields
+        return res
+
+    def languages(self, cursor, user, context=None):
+        lang_obj = self.pool.get('ir.lang')
+        lang_ids = lang_obj.search(cursor, user, [], context=context)
+        res = []
+        for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
+            res.append([lang.code, lang.name])
+        return res
+
+    def timezones(self, cursor, user, context=None):
+        try:
+            import pytz
+            res = [[x, x] for x in pytz.all_timezones]
+        except ImportError:
+            res = [[time.tzname[0], time.tzname[0]]]
         return res
 
 User()

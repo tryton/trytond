@@ -1376,8 +1376,9 @@ class ORM(object):
                                 'is not in the selection' % \
                                 (val, field))
                 else:
-                    if val not in dict(self._columns[field].selection(
-                        self, cursor, user, context=context)):
+                    if val not in dict(getattr(self,
+                        self._columns[field].selection)(
+                        cursor, user, context=context)):
                         raise ExceptORM('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
@@ -1538,8 +1539,9 @@ class ORM(object):
                                 'is not in the selection' % \
                                 (val, field))
                 else:
-                    if val not in dict(self._columns[field].selection(
-                        self, cursor, user, context=context)):
+                    if val not in dict(getattr(self,
+                        self._columns[field].selection)(
+                        cursor, user, context=context)):
                         raise ExceptORM('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
@@ -1627,8 +1629,7 @@ class ORM(object):
                     res[field]['selection'] = sel
                 else:
                     # call the 'dynamic selection' function
-                    res[field]['selection'] = self._columns[field].selection(
-                            self, cursor, user, context)
+                    res[field]['selection'] = self._columns[field].selection
             if res[field]['type'] in (
                     'one2many',
                     'many2many',
