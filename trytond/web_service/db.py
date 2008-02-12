@@ -41,8 +41,16 @@ class DB(Service):
                 cursor.commit()
                 cursor.close()
                 cursor = None
-                pooler.get_pool(db_name, demo, update_module=True, lang=lang)
+                pooler.get_pool(db_name, demo, update_module=True, lang=[lang])
                 cursor = sql_db.db_connect(db_name).cursor()
+                if lang != 'en_US':
+                    cursor.execute('UPDATE ir_lang ' \
+                            'SET translatable = True ' \
+                            'WHERE code = %s', (lang,))
+                cursor.execute('UPDATE res_user ' \
+                        'SET language = %s ' \
+                        'WHERE login <> \'root\'', (lang,))
+                cursor.commit()
                 cursor.execute('SELECT login, password, name ' \
                         'FROM res_user ' \
                         'WHERE login <> \'root\' ORDER BY login')

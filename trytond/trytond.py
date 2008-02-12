@@ -113,13 +113,20 @@ class TrytonServer(object):
                 if not CONFIG['without_demo']:
                     CONFIG["demo"]['all'] = 1
             cursor.commit()
-            cursor.close()
 
         register_classes()
 
         if db_name:
+            lang = None
+            if cursor:
+                cursor.execute('SELECT code FROM ir_lang ' \
+                        'WHERE translatable = True')
+                lang = [x[0] for x in cursor.fetchall()]
             pooler.get_db_and_pool(db_name,
-                    update_module=bool(CONFIG['init'] or CONFIG['update']))
+                    update_module=bool(CONFIG['init'] or CONFIG['update']),
+                    lang=lang)
+        if cursor:
+            cursor.close()
 
         if CONFIG["stop_after_init"]:
             sys.exit(0)

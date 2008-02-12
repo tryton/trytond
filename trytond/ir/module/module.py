@@ -666,6 +666,7 @@ class ModuleInstallUpgrade(Wizard):
 
     def _upgrade_module(self, cursor, user, data, context):
         module_obj = self.pool.get('ir.module.module')
+        lang_obj = self.pool.get('ir.lang')
         dbname = cursor.dbname
         db = get_db(dbname)
         cursor = db.cursor()
@@ -673,9 +674,14 @@ class ModuleInstallUpgrade(Wizard):
             ('state', 'in', ['to upgrade', 'to remove', 'to install']),
             ], context=context)
         module_obj.download(cursor, user, module_ids, context=context)
+        lang_ids = lang_obj.search(cursor, user, [
+            ('translatable', '=', True),
+            ], context=context)
+        lang = [x.code for x in lang_obj.browse(cursor, user, lang_ids,
+            context=context)]
         cursor.commit()
         cursor.close()
-        restart_pool(dbname, update_module=True)
+        restart_pool(dbname, update_module=True, lang=lang)
         return {}
 
     states = {
