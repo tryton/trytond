@@ -76,6 +76,8 @@ class ActionKeyword(OSV):
         return res
 
     def unlink(self, cursor, user, ids, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         for keyword in self.browse(cursor, user, ids, context=context):
             # Restart the cache view
             try:
@@ -98,6 +100,8 @@ class ActionKeyword(OSV):
 
     def write(self, cursor, user, ids, vals, context=None):
         vals = self._convert_vals(cursor, user, vals, context=context)
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         for keyword in self.browse(cursor, user, ids, context=context):
             # Restart the cache view
             try:
