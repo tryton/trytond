@@ -33,6 +33,7 @@ class ConfigManager(object):
             'stop_after_init': False,
             'price_accuracy': 2,
             'assert_exit_level': logging.WARNING,
+            'data_path': '/var/lib/trytond',
         }
 
         assert_exit_levels = (
@@ -55,6 +56,8 @@ class ConfigManager(object):
                 help="file where the server pid will be stored")
         parser.add_option("--logfile", dest="logfile",
                 help="file where the server log will be stored")
+        parser.add_option("--data-path", dest="data_path",
+                help="path where the server will store attachment")
         parser.add_option("-n", "--interface", dest="interface",
                 help="specify the TCP IP address")
         parser.add_option("-p", "--xml_port", dest="xmlport",
@@ -137,6 +140,8 @@ class ConfigManager(object):
         # the same for the pidfile
         if self.options['pidfile'] in ('None', 'False'):
             self.options['pidfile'] = False
+        if self.options['data_path'] in ('None', 'False'):
+            self.options['data_path'] = False
 
         for arg in (
                 'interface',
@@ -155,6 +160,7 @@ class ConfigManager(object):
                 'price_accuracy',
                 'netport',
                 'db_maxconn',
+                'data_path',
                 ):
             if getattr(opt, arg):
                 self.options[arg] = getattr(opt, arg)
