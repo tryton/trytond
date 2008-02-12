@@ -1,4 +1,3 @@
-# -*- encoding: iso-8859-1 -*-
 """
  Fields:
       - simple
