@@ -28,7 +28,6 @@ csv.register_dialect("TRYTON", TRYTON)
 class Translation(OSV, Cacheable):
     "Translation"
     _name = "ir.translation"
-    _log_access = False
     _description = __doc__
 
     def _get_language(self, cursor, user, context):
@@ -279,10 +278,17 @@ class Translation(OSV, Cacheable):
                     'fuzzy': fuzzy,
                     }, context=ctx))
             else:
-                self.write(cursor, user, ids, {
-                    'value': value,
-                    'fuzzy': fuzzy,
-                    }, context=ctx)
+                cursor.execute('SELECT id FROM ir_translation ' \
+                        'WHERE (write_uid IS NULL OR write_uid = 0) ' \
+                            'AND id IN ' \
+                                '(' + ','.join(['%d' for x in ids]) + ')',
+                        ids)
+                ids2 = [x[0] for x in cursor.fetchall()]
+                if ids2:
+                    self.write(cursor, user, ids2, {
+                        'value': value,
+                        'fuzzy': fuzzy,
+                        }, context=ctx)
                 translation_ids += ids
 
         cursor.execute('DELETE FROM ir_translation ' \

@@ -164,7 +164,9 @@ def init_module_wizards(cursor, module_name, wizard_list):
     for wizard in wizard_list:
         wizard.auto_init(cursor, module_name)
 
-def load_module_graph(cursor, graph, lang):
+def load_module_graph(cursor, graph, lang=None):
+    if lang is None:
+        lang = ['en_US']
     package_todo = []
     for package in graph:
         module = package.name
@@ -207,12 +209,13 @@ def load_module_graph(cursor, graph, lang):
                     tools.convert_xml_import(cursor, module,
                             tools.file_open(OPJ(module, filename)))
             for filename in package.datas.get('translation', []):
-                if lang != os.path.splitext(filename)[0]:
+                lang2 = os.path.splitext(filename)[0]
+                if lang2 not in lang:
                     continue
                 Logger().notify_channel('init', LOG_INFO,
                         'module:%s:loading %s' % (module, filename))
                 translation_obj = pool.get('ir.translation')
-                translation_obj.translation_import(cursor, 0, lang, module,
+                translation_obj.translation_import(cursor, 0, lang2, module,
                         tools.file_open(OPJ(module, filename)))
             if demo:
                 cursor.execute('UPDATE ir_module_module SET demo = %s ' \
@@ -258,7 +261,7 @@ def register_classes():
                 Logger().notify_channel('init', LOG_ERROR,
                         'Couldn\'t find module %s' % module)
 
-def load_modules(database, force_demo=False, update_module=False, lang='en_US'):
+def load_modules(database, force_demo=False, update_module=False, lang=None):
     cursor = database.cursor()
     force = []
     if force_demo:
