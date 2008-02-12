@@ -92,8 +92,6 @@ class TrytonServer(object):
                     "'ir_ui_menu', "
                     "'res_user', "
                     "'res_group', "
-                    "'res_role', "
-                    "'res_role_user_rel', "
                     "'res_group_user_rel', "
                     "'wkf', "
                     "'wkf_activity', "
@@ -104,8 +102,9 @@ class TrytonServer(object):
                     "'wkf_logs', "
                     "'ir_module_category', "
                     "'ir_module_module', "
-                    "'ir_module_module_dependency'"
-                    "'ir_translation'"
+                    "'ir_module_module_dependency, '"
+                    "'ir_translation, '"
+                    "'ir_lang'"
                     ")")
             if len(cursor.fetchall()) == 0:
                 self.logger.notify_channel("init", netsvc.LOG_INFO, "init db")

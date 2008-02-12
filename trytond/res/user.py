@@ -34,29 +34,6 @@ class Group(OSV):
 Group()
 
 
-class Role(OSV):
-    "Role"
-    _name = "res.role"
-    _description = __doc__
-    _columns = {
-        'name': fields.Char('Role Name', size=64, required=True),
-        'parent_id': fields.Many2One('res.role', 'Parent', select=1),
-        'child_id': fields.One2Many('res.role', 'parent_id', 'Childs')
-    }
-
-    def check_recursion(self, cursor, user, ids, parent=None):
-        "Check for recursion"
-        return super(Role, self).check_recursion(cursor, user, ids,
-                parent=parent)
-
-    _constraints = [
-        (check_recursion, 'Error! You can not create recursive roles.',
-            ['parent_id'])
-    ]
-
-Role()
-
-
 class User(OSV):
     "User"
     _name = "res.user"
@@ -73,8 +50,6 @@ class User(OSV):
         'menu_id': fields.Many2One('ir.action', 'Menu Action'),
         'groups_id': fields.Many2Many('res.group', 'res_group_user_rel',
             'uid', 'gid', 'Groups'),
-        'roles_id': fields.Many2Many('res.role', 'res_role_user_rel',
-            'uid', 'rid', 'Roles'),
         #'company_id': fields.Many2One('res.company', 'Company'),
         'rule_groups': fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
             'user_id', 'rule_group_id', 'Rules',

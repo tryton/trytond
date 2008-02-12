@@ -83,7 +83,7 @@
                         <tree string="Transitions">
                             <field name="act_to"/>
                             <field name="signal"/>
-                            <field name="role_id"/>
+                            <field name="group"/>
                             <field name="condition"/>
                             <field name="trigger_model"/>
                             <field name="trigger_expr_id"/>
@@ -96,8 +96,8 @@
                             <field name="condition" colspan="3"/>
                             <label name="signal"/>
                             <field name="signal"/>
-                            <label name="role_id"/>
-                            <field name="role_id"/>
+                            <label name="group"/>
+                            <field name="group"/>
                             <label name="trigger_model"/>
                             <field name="trigger_model"/>
                             <label name="trigger_expr_id"/>
@@ -109,7 +109,7 @@
                         <tree string="Transitions">
                             <field name="act_from"/>
                             <field name="signal"/>
-                            <field name="role_id"/>
+                            <field name="group"/>
                             <field name="condition"/>
                             <field name="trigger_model"/>
                             <field name="trigger_expr_id"/>
@@ -122,8 +122,8 @@
                             <field name="condition" colspan="3"/>
                             <label name="signal"/>
                             <field name="signal"/>
-                            <label name="role_id"/>
-                            <field name="role_id"/>
+                            <label name="group"/>
+                            <field name="group"/>
                             <label name="trigger_model"/>
                             <field name="trigger_model"/>
                             <label name="trigger_expr_id"/>
@@ -183,8 +183,8 @@
                     <field name="condition" colspan="3"/>
                     <label name="signal"/>
                     <field name="signal"/>
-                    <label name="role_id"/>
-                    <field name="role_id"/>
+                    <label name="group"/>
+                    <field name="group"/>
                     <label name="trigger_model"/>
                     <field name="trigger_model"/>
                     <label name="trigger_expr_id"/>
@@ -202,7 +202,7 @@
                     <field name="act_from" select="1"/>
                     <field name="act_to" select="1"/>
                     <field name="signal"/>
-                    <field name="role_id"/>
+                    <field name="group"/>
                     <field name="condition"/>
                     <field name="trigger_model"/>
                     <field name="trigger_expr_id"/>

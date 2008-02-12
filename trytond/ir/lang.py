@@ -5,6 +5,7 @@ from trytond.osv import fields, OSV
 class Lang(OSV):
     "Language"
     _name = "ir.lang"
+    _log_access = False
     _description = __doc__
     _columns = {
         'name': fields.Char('Name', size=64, required=True),
