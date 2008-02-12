@@ -76,15 +76,44 @@ class ActionKeyword(OSV):
                     vals['action'], context=context)
         return vals
 
+    def unlink(self, cursor, user, ids, context=None):
+        for keyword in self.browse(cursor, user, ids, context=context):
+            # Restart the cache view
+            try:
+                self.pool.get(keyword.model.split(',')[0]).fields_view_get()
+            except:
+                pass
+        return super(ActionKeyword, self).unlink(cursor, user, ids,
+                context=context)
+
     def create(self, cursor, user, vals, context=None):
         vals = self._convert_vals(cursor, user, vals, context=context)
+        if 'model' in vals:
+            # Restart the cache view
+            try:
+                self.pool.get(vals['model'].split(',')[0]).fields_view_get()
+            except:
+                pass
         return super(ActionKeyword, self).create(cursor, user, vals,
                 context=context)
 
     def write(self, cursor, user, ids, vals, context=None):
         vals = self._convert_vals(cursor, user, vals, context=context)
-        return super(ActionKeyword, self).write(cursor, user, ids, vals,
+        for keyword in self.browse(cursor, user, ids, context=context):
+            # Restart the cache view
+            try:
+                self.pool.get(keyword.model.split(',')[0]).fields_view_get()
+            except:
+                pass
+        res = super(ActionKeyword, self).write(cursor, user, ids, vals,
                 context=context)
+        for keyword in self.browse(cursor, user, ids, context=context):
+            # Restart the cache view
+            try:
+                self.pool.get(keyword.model.split(',')[0]).fields_view_get()
+            except:
+                pass
+        return res
 
     def get_keyword(self, cursor, user, keyword, value, context=None):
         res = []
