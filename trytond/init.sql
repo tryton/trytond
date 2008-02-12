@@ -78,6 +78,16 @@ CREATE TABLE ir_translation (
     primary key(id)
 );
 
+CREATE TABLE ir_lang (
+    id serial NOT NULL,
+    name varchar(64) NOT NULL,
+    code varchar(5) NOT NULL,
+    translatable boolean default False,
+    active boolean default True,
+    direction varchar(3) NOT NULL,
+    primary key(id)
+);
+
 ---------------------------------
 -- Res user
 ---------------------------------
@@ -105,18 +115,6 @@ CREATE TABLE res_group (
     id serial NOT NULL,
     name varchar(32) NOT NULL,
     primary key(id)
-);
-
-create table res_role (
-    id serial NOT NULL,
-    parent_id int references res_role on delete set null,
-    name varchar(32) NOT NULL,
-    primary key(id)
-);
-
-CREATE TABLE res_role_user_rel (
-	uid integer NOT NULL references res_user on delete cascade,
-	rid integer NOT NULL references res_role on delete cascade
 );
 
 CREATE TABLE res_group_user_rel (
@@ -164,7 +162,7 @@ create table wkf_transition
     trigger_expr_id varchar(128) default NULL,
 
     signal varchar(64) default null,
-    role_id int references res_role on delete set null,
+    "group" int references res_group on delete set null,
 
     primary key(id)
 );

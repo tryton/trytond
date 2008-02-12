@@ -62,12 +62,11 @@ def check(cursor, ident, transition, signal):
     if transition['signal']:
         res = (signal == transition['signal'])
 
-    if transition['role_id']:
+    if transition['group']:
         user = ident[0]
         serv = netsvc.LocalService('object_proxy')
-        user_roles = serv.execute_cr(cursor, user, 'res.user', 'read', [user],
-                ['roles_id'])[0]['roles_id']
-        res = res and serv.execute_cr(cursor, user, 'res.role', 'check',
-                user_roles, transition['role_id'])
+        user_groups = serv.execute_cr(cursor, user, 'res.user', 'read', user,
+                ['groups_id'])['groups_id']
+        res = transition['group'] in user_groups
     res = res and eval_expr(cursor, ident, transition['condition'])
     return res
