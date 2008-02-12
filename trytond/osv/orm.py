@@ -1427,7 +1427,7 @@ class ORM(object):
                 if self._columns[field].translate:
                     self.pool.get('ir.translation')._set_ids(cursor, user,
                             self._name + ',' + field, 'model',
-                            context['language'], ids, vals[field])
+                            context.get('language','en_US'), ids, vals[field])
 
         # call the 'set' method of fields which are not classic_write
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
@@ -2037,7 +2037,8 @@ class ORM(object):
                         return ids
 
                     args[i] = ('id', 'in', _rec_convert(ids2 + _rec_get(ids2,
-                        self.pool.get(field._obj), table._parent_name)))
+                        self.pool.get(field._obj),
+                        self.pool.get(field._obj)._parent_name)))
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = [x[0] for x in self.pool.get(field._obj
