@@ -12,12 +12,13 @@ class Directory(OSV):
     _description = __doc__
     _columns = {
         'name': fields.Char('Name', size=128, required=True, select=1),
-        'parent': fields.Many2One('webdav.directory', 'Parent'),
+        'parent': fields.Many2One('webdav.directory', 'Parent',
+            ondelete='restrict'),
         'childs': fields.One2Many('webdav.directory', 'parent', 'Childs'),
         'model': fields.Many2One('ir.model', 'Model'),
         'domain': fields.Char('Domain', size=250),
     }
-    _default = {
+    _defaults = {
         'domain': lambda *a: '[]',
     }
     _sql_constraints = [
@@ -30,6 +31,8 @@ class Directory(OSV):
 
     def _uri2object(self, cursor, user, uri, object_name=_name, object_id=False,
             context=None):
+        if not uri:
+            return self._name, False
         name, uri = (uri.split('/', 1) + [None])[0:2]
         if object_name == self._name:
             object_id = self.search(cursor, user, [
@@ -45,9 +48,13 @@ class Directory(OSV):
             else:
                 if uri:
                     return None, 0
-                object_name = 'ir.attachment'
-                object_id = int(os.path.splitext(name)[0].rsplit('-',
-                    1)[1].strip())
+                try:
+                    object_id = int(os.path.splitext(name)[0].rsplit('-',
+                        1)[1].strip())
+                    object_name = 'ir.attachment'
+                except:
+                    object_id = False
+                    object_name = None
         else:
             if uri:
                 if '/' in uri:
@@ -76,7 +83,7 @@ class Directory(OSV):
             return res
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
-        if object_name == self._name:
+        if object_name == self._name and object_id:
             directory = self.browse(cursor, user, object_id, context=context)
             if directory.model:
                 model_obj = self.pool.get(directory.model.model)
@@ -147,7 +154,7 @@ class Directory(OSV):
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
         model_obj = self.pool.get(object_name)
-        if model_obj._log_access:
+        if model_obj._log_access and object_id:
             cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
                     'FROM "' + model_obj._table +'" ' \
                     'WHERE id = %d', (object_id,))
@@ -166,10 +173,78 @@ class Directory(OSV):
                 return base64.decodestring(attachment.datas)
         return DAV_NotFound
 
+    def put(self, cursor, user, uri, data, content_type, context=None):
+        from DAV.errors import DAV_Forbidden
+        from DAV.utils import get_uriparentpath, get_urifilename
+        object_name, object_id = self._uri2object(cursor, user,
+                get_uriparentpath(uri), context=context)
+        if object_name in ('ir.attachment') \
+                or not object_id:
+            raise DAV_Forbidden
+        attachment_obj = self.pool.get('ir.attachment')
+        name = get_urifilename(uri)
+        try:
+            attachment_obj.create(cursor, user, {
+                'name': name,
+                'datas': base64.encodestring(data),
+                'datas_fname': name,
+                'res_model': object_name,
+                'res_id': object_id,
+                }, context=context)
+        except:
+            raise DAV_Forbidden
+        return 201
+
+    def mkcol(self, cursor, user, uri, context=None):
+        from DAV.errors import DAV_Forbidden
+        from DAV.utils import get_uriparentpath, get_urifilename
+        if uri[-1:] == '/':
+            uri = uri[:-1]
+        object_name, object_id = self._uri2object(cursor, user,
+                get_uriparentpath(uri), context=context)
+        if object_name != 'webdav.directory':
+            raise DAV_Forbidden
+        name = get_urifilename(uri)
+        try:
+            self.create(cursor, user, {
+                'name': name,
+                'parent': object_id,
+                }, context=context)
+        except:
+            raise DAV_Forbidden
+        return 201
+
+    def rmcol(self, cursor, user, uri, context=None):
+        from DAV.errors import DAV_Forbidden
+        object_name, object_id = self._uri2object(cursor, user, uri,
+                context=context)
+        if object_name != 'webdav.directory' \
+                or not object_id:
+            raise DAV_Forbidden
+        try:
+            self.unlink(cursor, user, object_id, context=context)
+        except:
+            raise DAV_Forbidden
+        return 200
+
+    def rm(self, cursor, user, uri, context=None):
+        from DAV.errors import DAV_Forbidden
+        object_name, object_id = self._uri2object(cursor, user, uri,
+                context=context)
+        if object_name != 'ir.attachment' \
+                or not object_id:
+            raise DAV_Forbidden
+        model_obj = self.pool.get(object_name)
+        try:
+            model_obj.unlink(cursor, user, object_id, context=context)
+        except:
+            raise DAV_Forbidden
+        return 200
+
     def exists(self, cursor, user, uri, context=None):
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
-        if object_name:
+        if object_name and object_id:
             return 1
         return None
 
