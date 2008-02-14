@@ -2,6 +2,7 @@
 import os
 import base64
 from trytond.osv import fields, OSV
+from trytond.version import PACKAGE, VERSION, WEBSITE
 
 
 class Directory(OSV):
@@ -22,6 +23,9 @@ class Directory(OSV):
         ('name_parent_uniq', 'UNIQUE (name, parent)',
             'The directory name must be unique inside a directory!'),
     ]
+    ext2mime = {
+        '.png': 'image/png',
+    }
 
     def _uri2object(self, cursor, user, uri, object_name=_name, object_id=False,
             context=None):
@@ -117,16 +121,27 @@ class Directory(OSV):
             return str(len(attachment.datas))
         return '0'
 
-    def get_data(self, cursor, user, uri, context=None):
-        from DAV.errors import DAV_NotFound
+    def get_contenttype(self, cursor, user, uri, context=None):
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
         if object_name == 'ir.attachment':
-            attachment_obj = self.pool.get('ir.attachment')
-            attachment = attachment_obj.browse(cursor, user, object_id,
+            ext = os.path.splitext(uri)[1]
+            if not ext:
+                return "application/octet-stream"
+            return self.ext2mime.get(ext, 'application/octet-stream')
+        return "application/octet-stream"
+
+    def get_data(self, cursor, user, uri, context=None):
+        from DAV.errors import DAV_NotFound
+        if uri:
+            object_name, object_id = self._uri2object(cursor, user, uri,
                     context=context)
-            return base64.decodestring(attachment.datas)
-        raise DAV_NotFound
+            if object_name == 'ir.attachment':
+                attachment_obj = self.pool.get('ir.attachment')
+                attachment = attachment_obj.browse(cursor, user, object_id,
+                        context=context)
+                return base64.decodestring(attachment.datas)
+        return DAV_NotFound
 
     def exists(self, cursor, user, uri, context=None):
         object_name, object_id = self._uri2object(cursor, user, uri,
