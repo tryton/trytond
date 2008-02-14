@@ -115,10 +115,10 @@ def init_db(cursor):
     opj = os.path.join
     modules_path = os.path.join(os.path.dirname(__file__), 'modules')
 
-    for i in (os.listdir(modules_path) + ['ir', 'workflow', 'res']):
+    for i in (os.listdir(modules_path) + ['ir', 'workflow', 'res', 'webdav']):
         tryton_file = opj(modules_path, i, '__tryton__.py')
         mod_path = opj(modules_path, i)
-        if i in ('ir', 'workflow', 'res'):
+        if i in ('ir', 'workflow', 'res', 'webdav'):
             root_path = os.path.dirname(__file__)
             tryton_file = opj(root_path, i, '__tryton__.py')
             mod_path = opj(root_path, i)

@@ -8,6 +8,7 @@ import os
 from pysocket import PySocket
 import traceback
 import select
+import BaseHTTPServer
 
 _SERVICE = {}
 _GROUP = {}
@@ -420,3 +421,42 @@ class TinySocketServerThread(threading.Thread):
             self.socket.close()
         except:
             return False
+
+
+class WebDAVServerThread(threading.Thread):
+
+    def __init__(self, interface, port, secure=False):
+        from webdavsvc import WebDAVAuthRequestHandler, TrytonDAVInterface
+        threading.Thread.__init__(self)
+        self.__port = port
+        self.__interface = interface
+        self.secure = secure
+        self.running = False
+        if secure:
+            raise
+        else:
+            handler = WebDAVAuthRequestHandler
+            handler.IFACE_CLASS = TrytonDAVInterface(interface, port)
+            self.server = BaseHTTPServer.HTTPServer((interface, port),
+                    handler)
+
+    def stop(self):
+        self.running = False
+        if os.name != 'nt':
+            if hasattr(socket, 'SHUT_RDWR'):
+                if self.secure:
+                    self.server.socket.sock_shutdown(socket.SHUT_RDWR)
+                else:
+                    self.server.socket.shutdown(socket.SHUT_RDWR)
+            else:
+                if self.secure:
+                    self.server.socket.sock_shutdown(2)
+                else:
+                    self.server.socket.shutdown(2)
+        self.server.socket.close()
+
+    def run(self):
+        self.running = True
+        while self.running:
+            self.server.handle_request()
+        return True

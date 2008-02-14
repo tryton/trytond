@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <menuitem name="WebDAV" id="menu_webdav" parent_id="ir.menu_administration"/>
+        <record model="ir.ui.view" id="directory_view_tree">
+            <field name="model">webdav.directory</field>
+            <field name="type">tree</field>
+            <field name="field_parent">childs</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                    <tree string="Directories">
+                        <field name="name"/>
+                        <field name="model"/>
+                    </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="directory_view_form">
+            <field name="model">webdav.directory</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                    <form string="Directory">
+                        <label name="name"/>
+                        <field name="name"/>
+                        <label name="parent"/>
+                        <field name="parent"/>
+                        <label name="model"/>
+                        <field name="model"/>
+                        <label name="domain"/>
+                        <field name="domain"/>
+                    </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_directory_tree">
+            <field name="name">Directories</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">webdav.directory</field>
+            <field name="view_type">tree</field>
+            <field name="domain">[('parent', '=', False)]</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_directory_tree_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="directory_view_tree"/>
+            <field name="act_window_id" ref="act_directory_tree"/>
+        </record>
+        <menuitem parent_id="menu_webdav"
+            action="act_directory_tree" id="menu_directory_tree"/>
+        <record model="ir.action.act_window" id="act_directory_form">
+            <field name="name">Directories</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">webdav.directory</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_directory_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="directory_view_form"/>
+            <field name="act_window_id" ref="act_directory_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_directory_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_id" ref="directory_view_tree"/>
+            <field name="act_window_id" ref="act_directory_form"/>
+        </record>
+        <menuitem parent_id="menu_webdav"
+            action="act_directory_form" id="menu_directory_form"/>
+    </data>
+</tryton>

@@ -154,7 +154,7 @@ class TrytonServer(object):
             interface = CONFIG["interface"]
             try:
                 port = int(CONFIG["netport"])
-            except Exception:
+            except:
                 self.logger.notify_channel("init", netsvc.LOG_ERROR,
                         "invalid port '%s'!" % (CONFIG["netport"],))
                 sys.exit(1)
@@ -164,11 +164,26 @@ class TrytonServer(object):
             self.logger.notify_channel("web-services", netsvc.LOG_INFO,
                     "starting netrpc service, port " + str(port))
 
+        if CONFIG['webdav']:
+            interface = CONFIG['interface']
+            try:
+                port = int(CONFIG['webdavport'])
+            except:
+                self.logger.notify_channel('init', netsvc.LOG_ERROR,
+                        "invalid port '%s'!" % (CONFIG['webdavport'],))
+                sys.exit(1)
+
+            webdavd = netsvc.WebDAVServerThread(interface, port, False)
+            self.logger.notify_channel('web-services', netsvc.LOG_INFO,
+                    'starting webdav service, port ' + str(port))
+
         def handler(signum, frame):
             if CONFIG['netrpc']:
                 tinysocket.stop()
             if CONFIG['xmlrpc']:
                 httpd.stop()
+            if CONFIG['webdav']:
+                webdavd.stop()
             netsvc.Agent.quit()
             if CONFIG['pidfile']:
                 os.unlink(CONFIG['pidfile'])
@@ -189,6 +204,8 @@ class TrytonServer(object):
             tinysocket.start()
         if CONFIG['xmlrpc']:
             httpd.start()
+        if CONFIG['webdav']:
+            webdavd.start()
         #DISPATCHER.run()
         while True:
             time.sleep(1)
