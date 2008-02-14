@@ -37,7 +37,7 @@ class Default(OSV):
             break
         for default in self.browse(cursor, user, default_ids, context=context):
             if default.field.name not in res:
-                res[default.field.name] = default.value
+                res[default.field.name] = eval(default.value)
         return res
 
     def set_default(self, cursor, user, model, field, clause, value,
