@@ -34,6 +34,7 @@ class ConfigManager(object):
             'smtp_password': False,
             'stop_after_init': False,
             'data_path': '/var/lib/trytond',
+            'without_demo': False,
         }
 
         parser = optparse.OptionParser(version=VERSION)
@@ -49,28 +50,28 @@ class ConfigManager(object):
         parser.add_option("--data-path", dest="data_path",
                 help="path where the server will store attachment")
         parser.add_option('--debug', dest='debug_mode', action='store_true',
-                default=False, help='enable debug mode')
+                help='enable debug mode')
         parser.add_option("-v", "--verbose", action="store_true",
-                dest="verbose", default=False, help="enable debugging")
+                dest="verbose", help="enable debugging")
 
         group = optparse.OptionGroup(parser, "Services related options")
         group.add_option("--stop-after-init", action="store_true",
-                dest="stop_after_init", default=False,
+                dest="stop_after_init",
                 help="stop the server after it initializes")
         group.add_option("-n", "--interface", dest="interface",
                 help="specify the TCP IP address")
         group.add_option("-S", "--secure", dest="secure", action="store_true",
-                help="launch server over https instead of http", default=False)
+                help="launch server over https instead of http")
         group.add_option("--no-netrpc", dest="netrpc", action="store_false",
-                default=True, help="disable netrpc")
+                help="disable netrpc")
         group.add_option("-p", "--net-port", dest="netport",
                 help="specify the TCP port for netrpc")
         group.add_option("--xmlrpc", dest="xmlrpc", action="store_true",
-                default=False, help="enable xmlrpc")
+                help="enable xmlrpc")
         group.add_option("--xml-port", dest="xmlport",
                 help="specify the TCP port for xmlrpc")
         group.add_option("--webdav", dest="webdav", action="store_true",
-                default=False, help="enable webdav")
+                help="enable webdav")
         group.add_option("--webdav-port", dest="webdavport",
                 help="specify the TCP port for webdav")
         parser.add_option_group(group)
@@ -80,7 +81,7 @@ class ConfigManager(object):
                 help="init a module (use \"all\" for all modules)")
         group.add_option("--without-demo", dest="without_demo",
                 help="load demo data for a module " \
-                        "(use \"all\" for all modules)", default=False)
+                        "(use \"all\" for all modules)")
         group.add_option("-u", "--update", dest="update",
                 help="update a module (use \"all\" for all modules)")
         parser.add_option_group(group)
@@ -98,17 +99,17 @@ class ConfigManager(object):
                 help="specify the database host")
         group.add_option("--db_port", dest="db_port",
                 help="specify the database port")
-        group.add_option("--db_maxconn", dest="db_maxconn", default='64',
+        group.add_option("--db_maxconn", dest="db_maxconn",
                 help="specify the the maximum number of physical " \
                         "connections to posgresql")
         parser.add_option_group(group)
 
         group = optparse.OptionGroup(parser, "SMTP related options")
-        group.add_option('--smtp', dest='smtp_server', default='',
+        group.add_option('--smtp', dest='smtp_server',
                 help='specify the SMTP server for sending email')
-        group.add_option('--smtp-user', dest='smtp_user', default='',
+        group.add_option('--smtp-user', dest='smtp_user',
                 help='specify the SMTP username for sending email')
-        group.add_option('--smtp-password', dest='smtp_password', default='',
+        group.add_option('--smtp-password', dest='smtp_password',
                 help='specify the SMTP password for sending email')
         parser.add_option_group(group)
 
@@ -158,11 +159,6 @@ class ConfigManager(object):
                 'netport',
                 'db_maxconn',
                 'data_path',
-                ):
-            if getattr(opt, arg):
-                self.options[arg] = getattr(opt, arg)
-
-        for arg in (
                 'verbose',
                 'debug_mode',
                 'stop_after_init',
@@ -171,7 +167,8 @@ class ConfigManager(object):
                 'xmlrpc',
                 'webdav',
                 ):
-            self.options[arg] = getattr(opt, arg)
+            if getattr(opt, arg) != None:
+                self.options[arg] = getattr(opt, arg)
 
         init = {}
         if opt.init:
