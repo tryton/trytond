@@ -108,7 +108,7 @@ def create_graph(module_list, force=None):
             module = module[:-4]
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
         mod_path = OPJ(MODULES_PATH, module)
-        if module in ('ir', 'workflow', 'res'):
+        if module in ('ir', 'workflow', 'res', 'webdav'):
             root_path = os.path.dirname(__file__)
             tryton_file = OPJ(root_path, module, '__tryton__.py')
             mod_path = OPJ(root_path, module)
@@ -236,16 +236,18 @@ def register_classes():
     module_list.append('ir')
     module_list.append('workflow')
     module_list.append('res')
+    module_list.append('webdav')
     import ir
     import workflow
     import res
+    import webdav
     for package in create_graph(module_list):
         module = package.name
         Logger().notify_channel('init', LOG_INFO,
                 'module:%s:registering classes' % module)
         sys.stdout.flush()
 
-        if module in ('ir', 'workflow', 'res'):
+        if module in ('ir', 'workflow', 'res', 'webdav'):
             continue
 
         if not os.path.isfile(OPJ(MODULES_PATH, module+'.zip')):

@@ -8,21 +8,23 @@ from netsvc import LOG_INFO, LOG_DEBUG
 class ConfigManager(object):
     def __init__(self, fname=None):
         self.options = {
-            'verbose': False,
             'interface': '',
-            'xmlport': '8069',
+            'netrpc': True,
             'netport': '8070',
+            'xmlrpc': False,
+            'xmlport': '8069',
+            'webdav': False,
+            'webdavport': '8080',
+            'soap': False,
             'db_host': False,
             'db_port': False,
             'db_name': False,
             'db_user': False,
             'db_password': False,
             'db_maxconn': 64,
-            'netrpc': True,
-            'xmlrpc': False,
-            'soap': False,
             'pg_path': None,
             'admin_passwd': 'admin',
+            'verbose': False,
             'debug_mode': False,
             'pidfile': None,
             'logfile': None,
@@ -31,18 +33,8 @@ class ConfigManager(object):
             'smtp_user': False,
             'smtp_password': False,
             'stop_after_init': False,
-            'price_accuracy': 2,
-            'assert_exit_level': logging.WARNING,
             'data_path': '/var/lib/trytond',
         }
-
-        assert_exit_levels = (
-                LOG_CRITICAL,
-                LOG_ERROR,
-                LOG_WARNING,
-                LOG_INFO,
-                LOG_DEBUG,
-                )
 
         parser = optparse.OptionParser(version=VERSION)
 
@@ -50,42 +42,38 @@ class ConfigManager(object):
                 help="specify alternate config file")
         parser.add_option("-s", "--save", action="store_true", dest="save",
                 default=False, help="save configuration to ~/.trytondrc")
-        parser.add_option("-v", "--verbose", action="store_true",
-                dest="verbose", default=False, help="enable debugging")
         parser.add_option("--pidfile", dest="pidfile",
                 help="file where the server pid will be stored")
         parser.add_option("--logfile", dest="logfile",
                 help="file where the server log will be stored")
         parser.add_option("--data-path", dest="data_path",
                 help="path where the server will store attachment")
-        parser.add_option("-n", "--interface", dest="interface",
-                help="specify the TCP IP address")
-        parser.add_option("-p", "--xml_port", dest="xmlport",
-                help="specify the TCP port for xmlrpc")
-        parser.add_option("--net_port", dest="netport",
-                help="specify the TCP port for netrpc")
-        parser.add_option("--no-netrpc", dest="netrpc", action="store_false",
-                default=True, help="disable netrpc")
-        parser.add_option("--xmlrpc", dest="xmlrpc", action="store_true",
-                default=False, help="enable xmlrpc")
-        parser.add_option("--stop-after-init", action="store_true",
-                dest="stop_after_init", default=False,
-                help="stop the server after it initializes")
         parser.add_option('--debug', dest='debug_mode', action='store_true',
                 default=False, help='enable debug mode')
-        parser.add_option("--assert-exit-level", dest='assert_exit_level',
-                help="specify the level at which a failed assertion will " \
-                        "stop the server " + str(assert_exit_levels))
-        parser.add_option("-S", "--secure", dest="secure", action="store_true",
+        parser.add_option("-v", "--verbose", action="store_true",
+                dest="verbose", default=False, help="enable debugging")
+
+        group = optparse.OptionGroup(parser, "Services related options")
+        group.add_option("--stop-after-init", action="store_true",
+                dest="stop_after_init", default=False,
+                help="stop the server after it initializes")
+        group.add_option("-n", "--interface", dest="interface",
+                help="specify the TCP IP address")
+        group.add_option("-S", "--secure", dest="secure", action="store_true",
                 help="launch server over https instead of http", default=False)
-        parser.add_option('--smtp', dest='smtp_server', default='',
-                help='specify the SMTP server for sending email')
-        parser.add_option('--smtp-user', dest='smtp_user', default='',
-                help='specify the SMTP username for sending email')
-        parser.add_option('--smtp-password', dest='smtp_password', default='',
-                help='specify the SMTP password for sending email')
-        parser.add_option('--price_accuracy', dest='price_accuracy',
-                default='2', help='specify the price accuracy')
+        group.add_option("--no-netrpc", dest="netrpc", action="store_false",
+                default=True, help="disable netrpc")
+        group.add_option("-p", "--net-port", dest="netport",
+                help="specify the TCP port for netrpc")
+        group.add_option("--xmlrpc", dest="xmlrpc", action="store_true",
+                default=False, help="enable xmlrpc")
+        group.add_option("--xml-port", dest="xmlport",
+                help="specify the TCP port for xmlrpc")
+        group.add_option("--webdav", dest="webdav", action="store_true",
+                default=False, help="enable webdav")
+        group.add_option("--webdav-port", dest="webdavport",
+                help="specify the TCP port for webdav")
+        parser.add_option_group(group)
 
         group = optparse.OptionGroup(parser, "Modules related options")
         group.add_option("-i", "--init", dest="init",
@@ -95,8 +83,8 @@ class ConfigManager(object):
                         "(use \"all\" for all modules)", default=False)
         group.add_option("-u", "--update", dest="update",
                 help="update a module (use \"all\" for all modules)")
-
         parser.add_option_group(group)
+
         group = optparse.OptionGroup(parser, "Database related options")
         group.add_option("-d", "--database", dest="db_name",
                 help="specify the database name")
@@ -113,6 +101,15 @@ class ConfigManager(object):
         group.add_option("--db_maxconn", dest="db_maxconn", default='64',
                 help="specify the the maximum number of physical " \
                         "connections to posgresql")
+        parser.add_option_group(group)
+
+        group = optparse.OptionGroup(parser, "SMTP related options")
+        group.add_option('--smtp', dest='smtp_server', default='',
+                help='specify the SMTP server for sending email')
+        group.add_option('--smtp-user', dest='smtp_user', default='',
+                help='specify the SMTP username for sending email')
+        group.add_option('--smtp-password', dest='smtp_password', default='',
+                help='specify the SMTP password for sending email')
         parser.add_option_group(group)
 
         (opt, args) = parser.parse_args()
@@ -146,6 +143,7 @@ class ConfigManager(object):
         for arg in (
                 'interface',
                 'xmlport',
+                'webdavport',
                 'db_name',
                 'db_user',
                 'db_password',
@@ -157,7 +155,6 @@ class ConfigManager(object):
                 'smtp_server',
                 'smtp_user',
                 'smtp_password',
-                'price_accuracy',
                 'netport',
                 'db_maxconn',
                 'data_path',
@@ -172,15 +169,9 @@ class ConfigManager(object):
                 'without_demo',
                 'netrpc',
                 'xmlrpc',
+                'webdav',
                 ):
             self.options[arg] = getattr(opt, arg)
-
-        if opt.assert_exit_level:
-            assert opt.assert_exit_level in assert_exit_levels, \
-                    'ERROR: The assert-exit-level must be one ' \
-                    'of those values: '+str(assert_exit_levels)
-            self.options['assert_exit_level'] = getattr(logging,
-                    opt.assert_exit_level.upper())
 
         init = {}
         if opt.init:
