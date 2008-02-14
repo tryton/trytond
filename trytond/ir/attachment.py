@@ -14,7 +14,6 @@ class Attachment(OSV):
     def _datas(self, cursor, user, ids, name, arg, context=None):
         res = {}
         db_name = cursor.dbname
-        print "ids:", ids
         for attachment in self.browse(cursor, user, ids, context=context):
             value = False
             if attachment.digest:
