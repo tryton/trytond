@@ -76,7 +76,7 @@ class Directory(OSV):
             if directory.model:
                 model_obj = self.pool.get(directory.model.model)
                 model_ids = model_obj.search(cursor, user,
-                        eval(directory.domain), context=context)
+                        eval(directory.domain or "[]"), context=context)
                 for child_id, child_name in model_obj.name_get(cursor, user,
                         model_ids, context=context):
                     res.append(child_name + '-' + str(child_id))
