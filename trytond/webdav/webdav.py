@@ -1,6 +1,7 @@
 "WebDAV"
 import os
 import base64
+import time
 from trytond.osv import fields, OSV
 from trytond.version import PACKAGE, VERSION, WEBSITE
 
@@ -130,6 +131,28 @@ class Directory(OSV):
                 return "application/octet-stream"
             return self.ext2mime.get(ext, 'application/octet-stream')
         return "application/octet-stream"
+
+    def get_creationdate(self, cursor, user, uri, context=None):
+        object_name, object_id = self._uri2object(cursor, user, uri,
+                context=context)
+        model_obj = self.pool.get(object_name)
+        if model_obj._log_access:
+            cursor.execute('SELECT EXTRACT(epoch FROM create_date) ' \
+                    'FROM "' + model_obj._table +'" ' \
+                    'WHERE id = %d', (object_id,))
+            return cursor.fetchone()[0]
+        return time.time()
+
+    def get_lastmodified(self, cursor, user, uri, context=None):
+        object_name, object_id = self._uri2object(cursor, user, uri,
+                context=context)
+        model_obj = self.pool.get(object_name)
+        if model_obj._log_access:
+            cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
+                    'FROM "' + model_obj._table +'" ' \
+                    'WHERE id = %d', (object_id,))
+            return cursor.fetchone()[0]
+        return time.time()
 
     def get_data(self, cursor, user, uri, context=None):
         from DAV.errors import DAV_NotFound

@@ -1,6 +1,7 @@
 import urlparse
 import socket
 import base64
+import time
 from DAV import AuthServer, WebDAVServer, iface
 from DAV.errors import *
 from DAV.constants import COLLECTION, OBJECT
@@ -35,7 +36,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        if uri[:-1] != '/':
+        if uri[-1:] != '/':
             uri += '/'
         for child in directory_obj.get_childs(cursor, USER_ID, dburi):
             res.append(urlparse.urljoin(self.baseuri, uri + child))
@@ -101,6 +102,24 @@ class TrytonDAVInterface(iface.dav_interface):
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
         return directory_obj.get_contenttype(cursor, USER_ID, dburi)
+
+    def get_creationdate(self, uri):
+        dbname, dburi = self._get_dburi(uri)
+        if not dbname or not dburi:
+            return time.time()
+        pool = pooler.get_pool(dbname)
+        cursor = pooler.get_db(dbname).cursor()
+        directory_obj = pool.get('webdav.directory')
+        return directory_obj.get_creationdate(cursor, USER_ID, dburi)
+
+    def get_lastmodified(self, uri):
+        dbname, dburi = self._get_dburi(uri)
+        if not dbname or not dburi:
+            return time.time()
+        pool = pooler.get_pool(dbname)
+        cursor = pooler.get_db(dbname).cursor()
+        directory_obj = pool.get('webdav.directory')
+        return directory_obj.get_lastmodified(cursor, USER_ID, dburi)
 
     def exists(self, uri):
         dbname, dburi = self._get_dburi(uri)
