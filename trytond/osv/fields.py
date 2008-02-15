@@ -481,11 +481,10 @@ class Function(_column):
     _type = 'function'
     _properties = True
 
-    def __init__(self, fnct, arg=None, fnct_inv=None, fnct_inv_arg=None,
-            type='float', fnct_search=None, obj=None, method=False, **args):
+    def __init__(self, fnct, arg=None, fnct_inv='', fnct_inv_arg=None,
+            type='float', fnct_search='', obj=None, **args):
         _column.__init__(self, **args)
         self._obj = obj
-        self._method = method
         self._fnct = fnct
         self._fnct_inv = fnct_inv
         self._arg = arg
@@ -504,29 +503,20 @@ class Function(_column):
     def search(self, cursor, user, obj, name, args, context=None):
         if not self._fnct_search:
             return []
-        return self._fnct_search(obj, cursor, user, obj, name, args,
+        return getattr(obj, self._fnct_search)(cursor, user, name, args,
                 context=context)
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        if context is None:
-            context = {}
-        if values is None:
-            values = {}
-        res = {}
-        table = obj._table
-        if self._method:
-            # TODO get HAS to receive uid for permissions !
-            return self._fnct(obj, cursor, user, ids, name, self._arg, context)
-        else:
-            return self._fnct(cursor, table, ids, name, self._arg, context)
+        return getattr(obj, self._fnct)(cursor, user, ids, name, self._arg,
+                context=context)
 
     def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
         if context is None:
             context = {}
         if self._fnct_inv:
-            self._fnct_inv(obj, cursor, user, obj_id, name, value,
-                    self._fnct_inv_arg, context)
+            gettattr(obj, self._fnct_inv)(cursor, user, obj_id, name, value,
+                    self._fnct_inv_arg, context=context)
 
 function = Function
 
