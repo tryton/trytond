@@ -515,7 +515,7 @@ class Function(_column):
         if context is None:
             context = {}
         if self._fnct_inv:
-            gettattr(obj, self._fnct_inv)(cursor, user, obj_id, name, value,
+            getattr(obj, self._fnct_inv)(cursor, user, obj_id, name, value,
                     self._fnct_inv_arg, context=context)
 
 function = Function
