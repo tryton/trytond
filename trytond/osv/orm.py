@@ -935,8 +935,8 @@ class ORM(object):
                                 (tuple, list)):
                             sel = fields_def[field[len(prefix)]]['selection']
                         else:
-                            sel = fields_def[field[len(prefix)]]['selection'](
-                                    self, cursor, user, context)
+                            sel = getattr(self, fields_def[field[len(prefix)]]\
+                                    ['selection'])(cursor, user, context)
                         for key, val in sel:
                             if str(key) == line[i]:
                                 res = key
