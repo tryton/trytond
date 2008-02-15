@@ -249,7 +249,7 @@ class ORM(object):
     _inherits = {}
     _sequence = None
     _description = ''
-    _protected = [
+    _rpc_allowed = [
             'read',
             'write',
             'create',

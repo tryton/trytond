@@ -54,6 +54,12 @@ class Translation(OSV, Cacheable):
         CREATE INDEX ir_translation_res_id ON ir_translation (res_id);
     """
 
+    def __init__(self, pool):
+        super(Translation, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'get_language',
+        ])
+
     def model(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for translation in self.browse(cursor, user, ids, context=context):
@@ -368,6 +374,12 @@ class TranslationUpdateInit(WizardOSV):
             required=True),
     }
 
+    def __init__(self, pool):
+        super(TranslationUpdateInit, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'get_language',
+        ])
+
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search(cursor, user, [('translatable', '=', True)],
@@ -493,6 +505,13 @@ class TranslationExportInit(WizardOSV):
         'module': fields.Selection('get_module', string='Module', size=128,
             required=True),
     }
+
+    def __init__(self, pool):
+        super(TranslationExportInit, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'get_language',
+            'get_module',
+        ])
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')

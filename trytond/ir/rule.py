@@ -73,6 +73,12 @@ class Rule(OSV):
             required=True, ondelete="cascade")
     }
 
+    def __init__(self, pool):
+        super(Rule, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'operand',
+        ])
+
     def operand(self, cursor, user, context):
 
         def get(obj_name, level=3, recur=None, root_tech='', root=''):

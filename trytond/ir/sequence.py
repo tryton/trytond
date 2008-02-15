@@ -7,8 +7,8 @@ class SequenceType(OSV):
     _name = 'ir.sequence.type'
     _description = __doc__
     _columns = {
-        'name': fields.char('Sequence Name',size=64, required=True),
-        'code': fields.char('Sequence Code',size=32, required=True),
+        'name': fields.Char('Sequence Name',size=64, required=True),
+        'code': fields.Char('Sequence Code',size=32, required=True),
     }
 
 SequenceType()
@@ -19,15 +19,15 @@ class Sequence(OSV):
     _name = 'ir.sequence'
     _description = __doc__
     _columns = {
-        'name': fields.char('Sequence Name',size=64, required=True),
-        'code': fields.selection('code_get', 'Sequence Code',size=64,
+        'name': fields.Char('Sequence Name',size=64, required=True),
+        'code': fields.Selection('code_get', 'Sequence Code',size=64,
             required=True),
-        'active': fields.boolean('Active'),
-        'prefix': fields.char('Prefix',size=64),
-        'suffix': fields.char('Suffix',size=64),
-        'number_next': fields.integer('Next Number', required=True),
-        'number_increment': fields.integer('Increment Number', required=True),
-        'padding' : fields.integer('Number padding', required=True),
+        'active': fields.Boolean('Active'),
+        'prefix': fields.Char('Prefix',size=64),
+        'suffix': fields.Char('Suffix',size=64),
+        'number_next': fields.Integer('Next Number', required=True),
+        'number_increment': fields.Integer('Increment Number', required=True),
+        'padding' : fields.Integer('Number padding', required=True),
     }
     _defaults = {
         'active': lambda *a: True,
@@ -35,6 +35,12 @@ class Sequence(OSV):
         'number_next': lambda *a: 1,
         'padding' : lambda *a : 0,
     }
+
+    def __init__(self, pool):
+        super(Sequence, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'code_get',
+        ])
 
     def code_get(self, cursor, user, context=None):
         cursor.execute('select code, name from ir_sequence_type')

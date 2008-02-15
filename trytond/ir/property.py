@@ -15,6 +15,13 @@ class Property(OSV):
             ondelete='cascade', required=True)
     }
 
+    def __init__(self, pool):
+        super(Property, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'models_get2',
+            'models_get',
+        ])
+
     def models_get2(self, cursor, user, context=None):
         model_fields_obj = self.pool.get('ir.model.fields')
         ids = model_fields_obj.search(cursor, user, [('view_load', '=', 1)])

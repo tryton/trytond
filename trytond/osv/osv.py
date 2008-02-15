@@ -44,27 +44,11 @@ class OSVService(Service):
             if not obj:
                 self.abort_response('Object Error', 'warning',
                 'Object %s doesn\'t exist' % str(object_name))
-            if (not method in getattr(obj,'_protected')) and len(args) \
-                    and args[0] and len(obj._inherits):
-                types = {object_name: args[0]}
-                cursor.execute('SELECT inst_type, inst_id, object_name_id ' \
-                        'FROM inherit ' \
-                        'WHERE object_name_type = %s '\
-                            'AND  object_name_id in (' + \
-                            ','.join([str(x) for x in args[0]]) + ')',
-                            (object_name,))
-                for inst_type, inst_id, object_name_id in cursor.fetchall():
-                    if not inst_type in types:
-                        types[inst_type] = []
-                    types[inst_type].append(inst_id)
-                    types[object_name].remove(object_name_id)
-                for i, ids in types.items():
-                    if len(ids):
-                        obj_t = pooler.get_pool(cursor.dbname).get(i)
-                        res = getattr(obj_t, method)(cursor, user, ids,
-                                *args[1:], **kargs)
-            else:
-                res = getattr(obj, method)(cursor, user, *args, **kargs)
+            if method not in obj._rpc_allowed:
+                self.abort_response('Object Error', 'warning',
+                        'Calling method %s on object %s is not allowed' \
+                                % (method, object_name))
+            res = getattr(obj, method)(cursor, user, *args, **kargs)
             return res
         except ExceptORM, inst:
             self.abort_response(inst.name, 'warning', inst.value)

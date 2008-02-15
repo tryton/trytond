@@ -126,6 +126,55 @@ class Module(OSV):
     "Module"
     _name = "ir.module.module"
     _description = __doc__
+    _columns = {
+        'name': fields.Char("Name", size=128, readonly=True, required=True),
+        'category_id': fields.Many2One('ir.module.category', 'Category',
+            readonly=True),
+        'shortdesc': fields.Char('Short description', size=256, readonly=True),
+        'description': fields.Text("Description", readonly=True),
+        'author': fields.Char("Author", size=128, readonly=True),
+        'website': fields.Char("Website", size=256, readonly=True),
+        'installed_version': fields.Function('get_installed_version',
+            string='Installed version', type='char'),
+        'latest_version': fields.Char('Latest version', size=64, readonly=True),
+        'url': fields.Char('URL', size=128),
+        'dependencies_id': fields.One2Many('ir.module.module.dependency',
+            'module_id', 'Dependencies', readonly=True),
+        'state': fields.Selection([
+            ('uninstallable', 'Not Installable'),
+            ('uninstalled', 'Not Installed'),
+            ('installed', 'Installed'),
+            ('to upgrade', 'To be upgraded'),
+            ('to remove', 'To be removed'),
+            ('to install', 'To be installed'),
+        ], string='State', readonly=True),
+        'demo': fields.Boolean('Demo data'),
+        'license': fields.Selection([('GPL-2', 'GPL-2'),
+            ('Other proprietary', 'Other proprietary')], string='License',
+            readonly=True),
+    }
+    _defaults = {
+        'state': lambda *a: 'uninstalled',
+        'demo': lambda *a: False,
+        'license': lambda *a: 'GPL-2',
+    }
+    _order = 'name'
+    _sql_constraints = [
+        ('name_uniq', 'unique (name)',
+            'The name of the module must be unique!'),
+    ]
+
+    def __init__(self, pool):
+        super(Module, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'button_install',
+            'button_install_cancel',
+            'button_uninstall',
+            'button_uninstall_cancel',
+            'button_upgrade',
+            'button_upgrade_cancel',
+            'button_update_translations',
+        ])
 
     @staticmethod
     def get_module_info(name):
@@ -140,7 +189,7 @@ class Module(OSV):
             return {}
         return info
 
-    def _get_installed_version(self, cursor, user, ids, name, arg,
+    def get_installed_version(self, cursor, user, ids, name, arg,
             context=None):
         res = {}
         for module in self.browse(cursor, user, ids, context=context):
@@ -150,45 +199,6 @@ class Module(OSV):
             else:
                 res[module.id] = ''
         return res
-
-    _columns = {
-        'name': fields.char("Name", size=128, readonly=True, required=True),
-        'category_id': fields.many2one('ir.module.category', 'Category',
-            readonly=True),
-        'shortdesc': fields.char('Short description', size=256, readonly=True),
-        'description': fields.text("Description", readonly=True),
-        'author': fields.char("Author", size=128, readonly=True),
-        'website': fields.char("Website", size=256, readonly=True),
-        'installed_version': fields.function(_get_installed_version,
-            method=True, string='Installed version', type='char'),
-        'latest_version': fields.char('Latest version', size=64, readonly=True),
-        'url': fields.char('URL', size=128),
-        'dependencies_id': fields.one2many('ir.module.module.dependency',
-            'module_id', 'Dependencies', readonly=True),
-        'state': fields.selection([
-            ('uninstallable','Not Installable'),
-            ('uninstalled','Not Installed'),
-            ('installed','Installed'),
-            ('to upgrade','To be upgraded'),
-            ('to remove','To be removed'),
-            ('to install','To be installed')
-        ], string='State', readonly=True),
-        'demo': fields.boolean('Demo data'),
-        'license': fields.selection([('GPL-2', 'GPL-2'),
-            ('Other proprietary', 'Other proprietary')], string='License',
-            readonly=True),
-    }
-
-    _defaults = {
-        'state': lambda *a: 'uninstalled',
-        'demo': lambda *a: False,
-        'license': lambda *a: 'GPL-2',
-    }
-    _order = 'name'
-
-    _sql_constraints = [
-        ('name_uniq', 'unique (name)', 'The name of the module must be unique!')
-    ]
 
     def unlink(self, cursor, user, ids, context=None):
         if not ids:
@@ -512,8 +522,23 @@ class ModuleDependency(OSV):
     "Module dependency"
     _name = "ir.module.module.dependency"
     _description = __doc__
+    _columns = {
+        'name': fields.Char('Name',  size=128),
+        'module_id': fields.Many2One('ir.module.module', 'Module', select=1,
+            ondelete='cascade'),
+        'state': fields.Function('state', type='selection',
+            selection=[
+            ('uninstallable','Uninstallable'),
+            ('uninstalled','Not Installed'),
+            ('installed','Installed'),
+            ('to upgrade','To be upgraded'),
+            ('to remove','To be removed'),
+            ('to install','To be installed'),
+            ('unknown', 'Unknown'),
+            ], string='State', readonly=True),
+    }
 
-    def _state(self, cursor, user, ids, name, args, context=None):
+    def state(self, cursor, user, ids, name, args, context=None):
         result = {}
         module_obj = self.pool.get('ir.module.module')
         for dependency in self.browse(cursor, user, ids):
@@ -526,21 +551,6 @@ class ModuleDependency(OSV):
             else:
                 result[dependency.id] = 'unknown'
         return result
-
-    _columns = {
-        'name': fields.char('Name',  size=128),
-        'module_id': fields.many2one('ir.module.module', 'Module', select=1, ondelete='cascade'),
-        'state': fields.function(_state, method=True, type='selection',
-            selection=[
-            ('uninstallable','Uninstallable'),
-            ('uninstalled','Not Installed'),
-            ('installed','Installed'),
-            ('to upgrade','To be upgraded'),
-            ('to remove','To be removed'),
-            ('to install','To be installed'),
-            ('unknown', 'Unknown'),
-            ], string='State', readonly=True),
-    }
 
 ModuleDependency()
 
