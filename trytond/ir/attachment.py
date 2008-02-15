@@ -9,8 +9,23 @@ class Attachment(OSV):
     "Attachment"
     _name = 'ir.attachment'
     _description = __doc__
+    _columns = {
+        'name': fields.Char('Attachment Name',size=64, required=True),
+        'datas': fields.Function('datas', fnct_inv='datas_inv',
+            type='binary', string='Datas'),
+        'datas_fname': fields.Char('Data Filename',size=64),
+        'description': fields.Text('Description'),
+        'res_model': fields.Char('Resource Model',size=64, readonly=True),
+        'res_id': fields.Integer('Resource ID', readonly=True),
+        'link': fields.Char('Link', size=256),
+        'digest': fields.Char('Digest', size=32),
+        'collision': fields.Integer('Collision'),
+    }
+    _defaults = {
+        'collision': lambda *a: 0,
+    }
 
-    def _datas(self, cursor, user, ids, name, arg, context=None):
+    def datas(self, cursor, user, ids, name, arg, context=None):
         res = {}
         db_name = cursor.dbname
         for attachment in self.browse(cursor, user, ids, context=context):
@@ -27,7 +42,7 @@ class Attachment(OSV):
             res[attachment.id] = value
         return res
 
-    def _datas_inv(self, cursor, user, obj_id, name, value, args, context=None):
+    def datas_inv(self, cursor, user, obj_id, name, value, args, context=None):
         if not value:
             return
         db_name = cursor.dbname
@@ -77,21 +92,5 @@ class Attachment(OSV):
                 'SET digest = %s, ' \
                     'collision = %d ' \
                 'WHERE id = %d', (digest, collision, obj_id))
-
-    _columns = {
-        'name': fields.Char('Attachment Name',size=64, required=True),
-        'datas': fields.Function(_datas, fnct_inv=_datas_inv, method=True,
-            type='binary', string='Datas'),
-        'datas_fname': fields.Char('Data Filename',size=64),
-        'description': fields.Text('Description'),
-        'res_model': fields.Char('Resource Model',size=64, readonly=True),
-        'res_id': fields.Integer('Resource ID', readonly=True),
-        'link': fields.Char('Link', size=256),
-        'digest': fields.Char('Digest', size=32),
-        'collision': fields.Integer('Collision'),
-    }
-    _defaults = {
-        'collision': lambda *a: 0,
-    }
 
 Attachment()

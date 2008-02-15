@@ -151,8 +151,30 @@ ActionKeyword()
 
 class ActionReport(OSV):
     "Action report"
+    _name = 'ir.action.report'
+    _sequence = 'ir_action_id_seq'
+    _description = __doc__
+    _inherits = {'ir.action': 'action'}
+    _columns = {
+        'model': fields.Char('Model', size=64, required=True),
+        'report_name': fields.Char('Internal Name', size=64, required=True),
+        'report': fields.Char('Path', size=128),
+        'report_content_data': fields.Binary('Content'),
+        'report_content': fields.Function('report_content',
+            fnct_inv='report_content_inv', type='binary',
+            string='Content',),
+        'action': fields.Many2One('ir.action', 'Action', required=True),
+    }
+    _defaults = {
+        'type': lambda *a: 'ir.action.report',
+        'report_content': lambda *a: False,
+    }
+    _sql_constraints = [
+        ('report_name_uniq', 'unique (report_name)',
+            'The internal name must be unique!'),
+    ]
 
-    def _report_content(self, cursor, user, ids, name, arg, context=None):
+    def report_content(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for report in self.browse(cursor, user, ids, context=context):
             data = report[name + '_data']
@@ -164,32 +186,9 @@ class ActionReport(OSV):
             res[report.id] = data
         return res
 
-    def _report_content_inv(self, cursor, user, obj_id, name, value, arg,
+    def report_content_inv(self, cursor, user, obj_id, name, value, arg,
             context=None):
         self.write(cursor, user, obj_id, {name+'_data': value}, context=context)
-
-    _name = 'ir.action.report'
-    _sequence = 'ir_action_id_seq'
-    _description = __doc__
-    _inherits = {'ir.action': 'action'}
-    _columns = {
-        'model': fields.char('Model', size=64, required=True),
-        'report_name': fields.char('Internal Name', size=64, required=True),
-        'report': fields.Char('Path', size=128),
-        'report_content_data': fields.binary('Content'),
-        'report_content': fields.function(_report_content,
-            fnct_inv=_report_content_inv, method=True,
-            type='binary', string='Content',),
-        'action': fields.many2one('ir.action', 'Action', required=True),
-    }
-    _defaults = {
-        'type': lambda *a: 'ir.action.report',
-        'report_content': lambda *a: False,
-    }
-    _sql_constraints = [
-        ('report_name_uniq', 'unique (report_name)',
-            'The internal name must be unique!'),
-    ]
 
     def copy(self, cursor, user, object_id, default=None, context=None):
         if default is None:
@@ -210,31 +209,23 @@ class ActionActWindow(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-
-    def _views_get_fnc(self, cursor, user, ids, name, arg, context=None):
-        res = {}
-        for act in self.browse(cursor, user, ids, context=context):
-            res[act.id] = [(view.view_id.id, view.view_id.type) \
-                    for view in act.view_ids]
-        return res
-
     _columns = {
-        'domain': fields.char('Domain Value', size=250),
-        'context': fields.char('Context Value', size=250),
-        'res_model': fields.char('Model', size=64),
-        'src_model': fields.char('Source model', size=64),
-        'view_type': fields.selection([('tree','Tree'), ('form','Form')],
+        'domain': fields.Char('Domain Value', size=250),
+        'context': fields.Char('Context Value', size=250),
+        'res_model': fields.Char('Model', size=64),
+        'src_model': fields.Char('Source model', size=64),
+        'view_type': fields.Selection([('tree','Tree'), ('form','Form')],
             string='Type of view'),
-        'usage': fields.char('Action Usage', size=32),
-        'view_ids': fields.one2many('ir.action.act_window.view',
+        'usage': fields.Char('Action Usage', size=32),
+        'view_ids': fields.One2Many('ir.action.act_window.view',
             'act_window_id', 'Views'),
-        'views': fields.function(_views_get_fnc, method=True, type='binary',
+        'views': fields.Function('views_get_fnc', type='binary',
             string='Views'),
-        'limit': fields.integer('Limit',
+        'limit': fields.Integer('Limit',
             help='Default limit for the list view'),
-        'auto_refresh': fields.integer('Auto-Refresh',
+        'auto_refresh': fields.Integer('Auto-Refresh',
             help='Add an auto-refresh on the view'),
-        'action': fields.many2one('ir.action', 'Action', required=True),
+        'action': fields.Many2One('ir.action', 'Action', required=True),
     }
     _defaults = {
         'type': lambda *a: 'ir.action.act_window',
@@ -243,6 +234,13 @@ class ActionActWindow(OSV):
         'limit': lambda *a: 80,
         'auto_refresh': lambda *a: 0,
     }
+
+    def views_get_fnc(self, cursor, user, ids, name, arg, context=None):
+        res = {}
+        for act in self.browse(cursor, user, ids, context=context):
+            res[act.id] = [(view.view_id.id, view.view_id.type) \
+                    for view in act.view_ids]
+        return res
 
 ActionActWindow()
 

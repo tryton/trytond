@@ -29,24 +29,6 @@ class Translation(OSV, Cacheable):
     "Translation"
     _name = "ir.translation"
     _description = __doc__
-
-    def _model(self, cursor, user, ids, name, arg, context=None):
-        res = {}
-        for translation in self.browse(cursor, user, ids, context=context):
-            res[translation.id] = translation.name.split(',')[0]
-        return res
-
-    def _model_search(self, cursor, user, obj, name, args, context=None):
-        args2 = []
-        i = 0
-        while i < len(args):
-            cursor.execute('SELECT id FROM ir_translation ' \
-                    'WHERE split_part(name, \',\', 1) ' + args[i][1] + ' %s',
-                    (args[i][2],))
-            args2.append(('id', 'in', [x[0] for x in cursor.fetchall()]))
-            i += 1
-        return args2
-
     _columns = {
         'name': fields.Char('Field Name', size=128, required=True),
         'res_id': fields.Integer('Resource ID'),
@@ -57,8 +39,8 @@ class Translation(OSV, Cacheable):
         'value': fields.Text('Translation Value'),
         'module': fields.Char('Module', size=128, readonly=True),
         'fuzzy': fields.Boolean('Fuzzy'),
-        'model': fields.Function(_model, fnct_search=_model_search,
-            method=True, type='char', string='Model'),
+        'model': fields.Function('model', fnct_search='model_search',
+            type='char', string='Model'),
     }
     _defaults = {
         'fuzzy': lambda *a: 0,
@@ -71,6 +53,23 @@ class Translation(OSV, Cacheable):
         CREATE INDEX ir_translation_ltn ON ir_translation (lang, type, name);
         CREATE INDEX ir_translation_res_id ON ir_translation (res_id);
     """
+
+    def model(self, cursor, user, ids, name, arg, context=None):
+        res = {}
+        for translation in self.browse(cursor, user, ids, context=context):
+            res[translation.id] = translation.name.split(',')[0]
+        return res
+
+    def model_search(self, cursor, user, name, args, context=None):
+        args2 = []
+        i = 0
+        while i < len(args):
+            cursor.execute('SELECT id FROM ir_translation ' \
+                    'WHERE split_part(name, \',\', 1) ' + args[i][1] + ' %s',
+                    (args[i][2],))
+            args2.append(('id', 'in', [x[0] for x in cursor.fetchall()]))
+            i += 1
+        return args2
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')

@@ -140,31 +140,32 @@ class UIMenu(OSV):
     "UI menu"
     _name = 'ir.ui.menu'
     _description = __doc__
+    _columns = {
+        'name': fields.Char('Menu', size=64, required=True, translate=True),
+        'sequence': fields.Integer('Sequence'),
+        'child_id' : fields.One2Many('ir.ui.menu', 'parent_id','Child ids'),
+        'parent_id': fields.Many2One('ir.ui.menu', 'Parent Menu', select=True),
+        'groups_id': Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
+            'menu_id', 'gid', 'Groups'),
+        'complete_name': fields.Function('get_full_name',
+            string='Complete Name', type='char', size=128),
+        'icon': fields.selection(ICONS, 'Icon', size=64),
+        'action': fields.Function('action', fnct_inv='action_inv',
+            type='reference', string='Action',
+            selection=[
+                ('ir.action.report', 'ir.action.report'),
+                ('ir.action.act_window', 'ir.action.act_window'),
+                ('ir.action.wizard', 'ir.action.wizard'),
+                ('ir.action.url', 'ir.action.url'),
+                ]),
+    }
+    _defaults = {
+        'icon' : lambda *a: 'STOCK_OPEN',
+        'sequence' : lambda *a: 10,
+    }
+    _order = "sequence, id"
 
-    def search(self, cursor, user, args, offset=0, limit=2000, order=None,
-            context=None, count=False, query_string=False):
-        res_user_obj = self.pool.get('res.user')
-        if context is None:
-            context = {}
-        ids = super(UIMenu, self).search(cursor, user, args, offset, limit,
-                order, context=context)
-        user_groups = res_user_obj.read(cursor, user, [user])[0]['groups_id']
-        result = []
-        for menu in self.browse(cursor, user, ids):
-            if not len(menu.groups_id):
-                result.append(menu.id)
-                continue
-            for group in menu.groups_id:
-                if group.id in user_groups:
-                    result.append(menu.id)
-                    break
-        if count:
-            return len(result)
-        if query_string:
-            return (','.join(['%d' for x in result]), result)
-        return result
-
-    def _get_full_name(self, cursor, user, ids, name, args, context):
+    def get_full_name(self, cursor, user, ids, name, args, context):
         res = {}
         for menu in self.browse(cursor, user, ids):
             res[menu.id] = self._get_one_full_name(menu)
@@ -179,7 +180,7 @@ class UIMenu(OSV):
             parent_path = ''
         return parent_path + menu.name
 
-    def _action(self, cursor, user, ids, name, arg, context=None):
+    def action(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for menu_id in ids:
             res[menu_id] = False
@@ -203,7 +204,7 @@ class UIMenu(OSV):
                     ',' + str(action_id)
         return res
 
-    def _action_inv(self, cursor, user, menu_id, name, value, arg,
+    def action_inv(self, cursor, user, menu_id, name, value, arg,
             context=None):
         if context is None:
             context = {}
@@ -228,31 +229,6 @@ class UIMenu(OSV):
             'action': action.action.id,
             }, context=ctx)
 
-    _columns = {
-        'name': fields.char('Menu', size=64, required=True, translate=True),
-        'sequence': fields.integer('Sequence'),
-        'child_id' : fields.one2many('ir.ui.menu', 'parent_id','Child ids'),
-        'parent_id': fields.many2one('ir.ui.menu', 'Parent Menu', select=True),
-        'groups_id': Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
-            'menu_id', 'gid', 'Groups'),
-        'complete_name': fields.function(_get_full_name, method=True,
-            string='Complete Name', type='char', size=128),
-        'icon': fields.selection(ICONS, 'Icon', size=64),
-        'action': fields.function(_action, fnct_inv=_action_inv,
-            method=True, type='reference', string='Action',
-            selection=[
-                ('ir.action.report', 'ir.action.report'),
-                ('ir.action.act_window', 'ir.action.act_window'),
-                ('ir.action.wizard', 'ir.action.wizard'),
-                ('ir.action.url', 'ir.action.url'),
-                ]),
-    }
-    _defaults = {
-        'icon' : lambda *a: 'STOCK_OPEN',
-        'sequence' : lambda *a: 10,
-    }
-    _order = "sequence, id"
-
     def create(self, cursor, user, vals, context=None):
         new_id = super(UIMenu, self).create(cursor, user, vals,
                 context=context)
@@ -264,6 +240,27 @@ class UIMenu(OSV):
                         new_id, '', context.get('module')))
         return new_id
 
+    def search(self, cursor, user, args, offset=0, limit=2000, order=None,
+            context=None, count=False, query_string=False):
+        res_user_obj = self.pool.get('res.user')
+        if context is None:
+            context = {}
+        ids = super(UIMenu, self).search(cursor, user, args, offset, limit,
+                order, context=context)
+        user_groups = res_user_obj.read(cursor, user, [user])[0]['groups_id']
+        result = []
+        for menu in self.browse(cursor, user, ids):
+            if not len(menu.groups_id):
+                result.append(menu.id)
+                continue
+            for group in menu.groups_id:
+                if group.id in user_groups:
+                    result.append(menu.id)
+                    break
+        if count:
+            return len(result)
+        if query_string:
+            return (','.join(['%d' for x in result]), result)
+        return result
+
 UIMenu()
-
-
