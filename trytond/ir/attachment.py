@@ -10,18 +10,20 @@ class Attachment(OSV):
     _name = 'ir.attachment'
     _description = __doc__
 
-    #TODO directory structure is on 2 level, check if it is enough
     def _datas(self, cursor, user, ids, name, arg, context=None):
         res = {}
         db_name = cursor.dbname
         for attachment in self.browse(cursor, user, ids, context=context):
             value = False
             if attachment.digest:
-                digest = attachment.digest
+                filename = attachment.digest
+                if attachment.collision:
+                    filename = filename + '-' + str(attachment.collision)
                 filename = os.path.join(CONFIG['data_path'], db_name,
-                        digest[0:2], digest[2:4], digest)
+                        filename[0:2], filename[2:4], filename)
                 file_p = file(filename, 'rb')
                 value = base64.encodestring(file_p.read())
+                file_p.close()
             res[attachment.id] = value
         return res
 
@@ -38,11 +40,43 @@ class Attachment(OSV):
         if not os.path.isdir(directory):
             os.makedirs(directory, 0770)
         filename = os.path.join(directory, digest)
-        file_p = file(filename, 'wb')
-        file_p.write(data)
+        collision = 0
+        if os.path.isfile(filename):
+            file_p = file(filename, 'rb')
+            data2 = file_p.read()
+            file_p.close()
+            if data != data2:
+                cursor.execute('SELECT DISTINCT(collision) FROM ir_attachment ' \
+                        'WHERE digest = %s ' \
+                            'AND collision != 0 ' \
+                        'ORDER BY collision', (digest,))
+                collision2 = 0
+                for row in cursor.fetchall():
+                    collision2 = row[0]
+                    filename = os.path.join(directory,
+                            digest + '-' + str(collision2))
+                    if os.path.isfile(filename):
+                        file_p = file(filename, 'rb')
+                        data2 = file_p.read()
+                        file_p.close()
+                        if data == data2:
+                            collision = collision2
+                            break
+                if collision == 0:
+                    collision = collision2 + 1
+                    filename = os.path.join(directory,
+                            digest + '-' + str(collision))
+                    file_p = file(filename, 'wb')
+                    file_p.write(data)
+                    file_p.close()
+        else:
+            file_p = file(filename, 'wb')
+            file_p.write(data)
+            file_p.close()
         cursor.execute('UPDATE ir_attachment ' \
-                'SET digest = %s ' \
-                'WHERE id = %d', (digest, obj_id))
+                'SET digest = %s, ' \
+                    'collision = %d ' \
+                'WHERE id = %d', (digest, collision, obj_id))
 
     _columns = {
         'name': fields.Char('Attachment Name',size=64, required=True),
@@ -54,6 +88,10 @@ class Attachment(OSV):
         'res_id': fields.Integer('Resource ID', readonly=True),
         'link': fields.Char('Link', size=256),
         'digest': fields.Char('Digest', size=32),
+        'collision': fields.Integer('Collision'),
+    }
+    _defaults = {
+        'collision': lambda *a: 0,
     }
 
 Attachment()
