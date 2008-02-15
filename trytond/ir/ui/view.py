@@ -29,8 +29,11 @@ class View(OSV):
         'module': lambda obj, cursor, user, context: context.get('module', ''),
     }
     _order = "priority"
+    _constraints = [
+        ('check_xml', 'Invalid XML for View Architecture!', ['arch'])
+    ]
 
-    def _check_xml(self, cursor, user, ids):
+    def check_xml(self, cursor, user, ids):
         "Check XML"
         views = self.browse(cursor, user, ids)
         cursor.execute('SELECT id, name, src FROM ir_translation ' \
@@ -99,10 +102,6 @@ class View(OSV):
                             '(' + ','.join(['%s' for x in strings]) + ')',
                     (view.model, 'view') + tuple(strings))
         return True
-
-    _constraints = [
-        (_check_xml, 'Invalid XML for View Architecture!', ['arch'])
-    ]
 
     def unlink(self, cursor, user, ids, context=None):
 
