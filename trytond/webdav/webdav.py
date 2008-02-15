@@ -25,6 +25,15 @@ class Directory(OSV):
         ('name_parent_uniq', 'UNIQUE (name, parent)',
             'The directory name must be unique inside a directory!'),
     ]
+
+    def check_recursion(self, cursor, user, ids, parent=None):
+        return super(Directory, self).check_recursion(cursor, user, ids,
+                parent='parent')
+
+    _constraints = [
+        (check_recursion,
+            'Error! You can not create recursive directories.', ['parent']),
+    ]
     ext2mime = {
         '.png': 'image/png',
     }
