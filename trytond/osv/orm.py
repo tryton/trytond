@@ -1177,7 +1177,7 @@ class ORM(object):
         field_error = []
         field_err_str = []
         for field in self._constraints:
-            if not field[0](self, cursor, user, ids):
+            if not getattr(self, field[0])(cursor, user, ids):
                 if len(field) > 1:
                     field_error += field[2]
                 field_err_str.append(field[1])
