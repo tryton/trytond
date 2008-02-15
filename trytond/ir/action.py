@@ -59,6 +59,12 @@ class ActionKeyword(OSV):
             ondelete='CASCADE'),
     }
 
+    def __init__(self, pool):
+        super(ActionKeyword, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'get_keyword',
+        ])
+
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
         action_obj = self.pool.get('ir.action')

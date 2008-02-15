@@ -82,6 +82,16 @@ class User(OSV):
 #        return company_id
 #    company_get = Cache()(company_get)
 
+    def __init__(self, pool):
+        super(User, self).__init__(pool)
+        self._rpc_allowed.extend([
+            'get_preferences',
+            'set_preferences',
+            'get_preferences_fields_view',
+            'languages',
+            'timezones',
+        ])
+
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
         action_obj = self.pool.get('ir.action')
