@@ -137,7 +137,7 @@ def create_graph(module_list, force=None):
             graph.add_node(package, deps)
             node = Node(package, graph)
             node.datas = datas
-            for kind in ('init', 'update'):
+            for kind in ('init', 'update', 'demo'):
                 if (package in CONFIG[kind]) \
                         or ('all' in CONFIG[kind]) \
                         or (kind in force):
