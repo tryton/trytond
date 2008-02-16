@@ -256,8 +256,8 @@ class TrytonDAVInterface(iface.dav_interface):
     def copytree(self, src, dst, overwrite):
         return copytree(self, src, dst, overwrite)
 
-    def moveone(self, uri):
-        return moveone(self, uri)
+    def moveone(self, src, dst, overwrite):
+        return moveone(self, src, dst, overwrite)
 
     def movetree(self, src, dst, overwrite):
         return movetree(self, src, dst, overwrite)
