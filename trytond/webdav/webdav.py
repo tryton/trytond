@@ -140,8 +140,8 @@ class Directory(OSV):
             attachment_obj = self.pool.get('ir.attachment')
             attachment = attachment_obj.browse(cursor, user, object_id,
                     context=context)
-            if attachment.datas:
-                return str(len(attachment.datas))
+            if attachment.datas_size:
+                return str(attachment.datas_size)
         return '0'
 
     def get_contenttype(self, cursor, user, uri, context=None):

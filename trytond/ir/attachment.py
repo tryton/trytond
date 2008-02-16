@@ -20,6 +20,8 @@ class Attachment(OSV):
         'link': fields.Char('Link', size=256),
         'digest': fields.Char('Digest', size=32),
         'collision': fields.Integer('Collision'),
+        'datas_size': fields.Function('datas', type='integer',
+            string='Datas size'),
     }
     _defaults = {
         'collision': lambda *a: 0,
@@ -35,15 +37,21 @@ class Attachment(OSV):
         db_name = cursor.dbname
         for attachment in self.browse(cursor, user, ids, context=context):
             value = False
+            if name == 'datas_size':
+                value = 0
             if attachment.digest:
                 filename = attachment.digest
                 if attachment.collision:
                     filename = filename + '-' + str(attachment.collision)
                 filename = os.path.join(CONFIG['data_path'], db_name,
                         filename[0:2], filename[2:4], filename)
-                file_p = file(filename, 'rb')
-                value = base64.encodestring(file_p.read())
-                file_p.close()
+                if name == 'datas_size':
+                    statinfo = os.stat(filename)
+                    value = statinfo.st_size
+                else:
+                    file_p = file(filename, 'rb')
+                    value = base64.encodestring(file_p.read())
+                    file_p.close()
             res[attachment.id] = value
         return res
 
