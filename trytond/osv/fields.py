@@ -512,8 +512,6 @@ class Function(_column):
                 context=context)
 
     def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
-        if context is None:
-            context = {}
         if self._fnct_inv:
             getattr(obj, self._fnct_inv)(cursor, user, obj_id, name, value,
                     self._fnct_inv_arg, context=context)
@@ -534,7 +532,7 @@ class Serialized(_column):
 serialized = Serialized
 
 
-class Property(function):
+class Property(Function):
 
     def _fnct_write(self, obj, cursor, user, obj_id, prop, id_val, val,
             context=None):
@@ -542,7 +540,7 @@ class Property(function):
         return property_obj.set(cursor, user, prop, obj._name, obj_id,
                 (id_val and val + ',' + str(id_val)) or False, context=context)
 
-    def _fnct_read(self, obj, cursor, user, ids, prop, val, context=None):
+    def _fnct_read(self, obj, cursor, user, ids, prop, arg, context=None):
         property_obj = obj.pool.get('ir.property')
         res = property_obj.get(cursor, user, prop, obj._name, ids,
                 context=context)
@@ -557,7 +555,16 @@ class Property(function):
         return res
 
     def __init__(self, obj_prop, **args):
-        function.__init__(self, self._fnct_read, False, self._fnct_write,
+        function.__init__(self, '', False, self._fnct_write,
                 (obj_prop, ), **args)
+
+    def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
+            values=None):
+        return self._fnct_read(obj, cursor, user, ids, name, self._arg,
+                context=context)
+
+    def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
+        self._fnct_write(obj, cursor, user, obj_id, name, value,
+                    self._fnct_inv_arg, context=context)
 
 property = Property
