@@ -36,16 +36,17 @@ class Directory(OSV):
 
     def _uri2object(self, cursor, user, uri, object_name=_name, object_id=False,
             context=None):
+        attachment_obj = self.pool.get('ir.attachment')
         if not uri:
             return self._name, False
         name, uri = (uri.split('/', 1) + [None])[0:2]
         if object_name == self._name:
-            object_id = self.search(cursor, user, [
+            directory_ids = self.search(cursor, user, [
                 ('name', '=', name),
                 ('parent', '=', object_id),
                 ], limit=1, context=context)
-            if object_id:
-                object_id = object_id[0]
+            if directory_ids:
+                object_id = directory_ids[0]
                 directory = self.browse(cursor, user, object_id,
                         context=context)
                 if directory.model and uri:
@@ -53,22 +54,33 @@ class Directory(OSV):
             else:
                 if uri:
                     return None, 0
-                try:
-                    object_id = int(os.path.splitext(name)[0].rsplit('-',
-                        1)[1].strip())
+                attachment_ids = attachment_obj.search(cursor, user, [
+                    ('res_model', '=', object_name),
+                    ('res_id', '=', object_id),
+                    ('datas_fname', '=', name),
+                    ], limit=1, context=context)
+                if attachment_ids:
                     object_name = 'ir.attachment'
-                except:
-                    object_id = False
+                    object_id = attachment_ids[0]
+                else:
                     object_name = None
+                    object_id = False
         else:
             if uri:
                 if '/' in uri:
                     return None, 0
                 #TODO add report
-                object_name = 'ir.attachment'
-                object_id = int(os.path.splitext(uri)[0].rsplit('-',
-                    1)[1].strip())
-                uri = None
+                attachment_ids = attachment_obj.search(cursor, user, [
+                    ('res_model', '=', object_name),
+                    ('res_id', '=', object_id),
+                    ('datas_fname', '=', name),
+                    ], limit=1, context=context)
+                if attachment_ids:
+                    object_name = 'ir.attachment'
+                    object_id = attachment_ids[0]
+                else:
+                    object_name = None
+                    object_id = False
             else:
                 object_id = int(name.rsplit('-', 1)[1].strip())
         if uri:
@@ -110,10 +122,7 @@ class Directory(OSV):
             for attachment in attachment_obj.browse(cursor, user, attachment_ids,
                     context=context):
                 if attachment.datas_fname and not attachment.link:
-                    fname, fext = os.path.splitext(attachment.datas_fname)
-                    if not fext:
-                        fext = 'data'
-                    res.append(fname + '-' + str(attachment.id) + fext)
+                    res.append(attachment.datas_fname)
         return res
 
     def get_resourcetype(self, cursor, user, uri, context=None):
@@ -131,7 +140,8 @@ class Directory(OSV):
             attachment_obj = self.pool.get('ir.attachment')
             attachment = attachment_obj.browse(cursor, user, object_id,
                     context=context)
-            return str(len(attachment.datas))
+            if attachment.datas:
+                return str(len(attachment.datas))
         return '0'
 
     def get_contenttype(self, cursor, user, uri, context=None):
@@ -171,12 +181,13 @@ class Directory(OSV):
         if uri:
             object_name, object_id = self._uri2object(cursor, user, uri,
                     context=context)
-            if object_name == 'ir.attachment':
+            if object_name == 'ir.attachment' and object_id:
                 attachment_obj = self.pool.get('ir.attachment')
                 attachment = attachment_obj.browse(cursor, user, object_id,
                         context=context)
-                return base64.decodestring(attachment.datas)
-        return DAV_NotFound
+                if attachment.datas:
+                    return base64.decodestring(attachment.datas)
+        raise DAV_NotFound
 
     def put(self, cursor, user, uri, data, content_type, context=None):
         from DAV.errors import DAV_Forbidden
@@ -187,17 +198,27 @@ class Directory(OSV):
                 or not object_id:
             raise DAV_Forbidden
         attachment_obj = self.pool.get('ir.attachment')
-        name = get_urifilename(uri)
-        try:
-            attachment_obj.create(cursor, user, {
-                'name': name,
-                'datas': base64.encodestring(data),
-                'datas_fname': name,
-                'res_model': object_name,
-                'res_id': object_id,
-                }, context=context)
-        except:
-            raise DAV_Forbidden
+        object_name, object_id = self._uri2object(cursor, user, uri,
+                context=context)
+        if not object_id:
+            name = get_urifilename(uri)
+            try:
+                attachment_obj.create(cursor, user, {
+                    'name': name,
+                    'datas': base64.encodestring(data),
+                    'datas_fname': name,
+                    'res_model': object_name,
+                    'res_id': object_id,
+                    }, context=context)
+            except:
+                raise DAV_Forbidden
+        else:
+            try:
+                attachment_obj.write(cursor, user, object_id, {
+                    'datas': base64.encodestring(data),
+                    }, context=context)
+            except:
+                raise DAV_Forbidden
         return 201
 
     def mkcol(self, cursor, user, uri, context=None):

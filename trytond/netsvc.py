@@ -423,6 +423,14 @@ class TinySocketServerThread(threading.Thread):
             return False
 
 
+class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
+        BaseHTTPServer.HTTPServer):
+
+    def server_bind(self):
+        self.socket.setsockopt(socket.SOL_SOCKET,
+                socket.SO_REUSEADDR, 1)
+        BaseHTTPServer.HTTPServer.server_bind(self)
+
 class WebDAVServerThread(threading.Thread):
 
     def __init__(self, interface, port, secure=False):
@@ -437,7 +445,7 @@ class WebDAVServerThread(threading.Thread):
         else:
             handler = WebDAVAuthRequestHandler
             handler.IFACE_CLASS = TrytonDAVInterface(interface, port)
-            self.server = BaseHTTPServer.HTTPServer((interface, port),
+            self.server = BaseThreadedHTTPServer((interface, port),
                     handler)
 
     def stop(self):
