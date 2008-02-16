@@ -29,10 +29,28 @@ class Directory(OSV):
     _constraints = [
         ('check_recursion',
             'Error! You can not create recursive directories.', ['parent']),
+        ('check_attachment',
+            'Error! You can not create a directory \n' \
+                    'with the same name of an existing file \n' \
+                    'inside the same directory.', ['name']),
     ]
     ext2mime = {
         '.png': 'image/png',
     }
+
+    def check_attachment(self, cursor, user, ids):
+        attachment_obj = self.pool.get('ir.attachment')
+        for directory in self.browse(cursor, user, ids):
+            if directory.parent:
+                attachment_ids = attachment_obj.search(cursor, user, [
+                    ('res_model', '=', self._name),
+                    ('res_id', '=', directory.parent.id),
+                    ])
+                for attachment in attachment_obj.browse(cursor, user,
+                        attachment_ids):
+                    if attachment.datas_fname == directory.name:
+                        return False
+        return True
 
     def _uri2object(self, cursor, user, uri, object_name=_name, object_id=False,
             context=None):
@@ -194,13 +212,14 @@ class Directory(OSV):
         from DAV.utils import get_uriparentpath, get_urifilename
         object_name, object_id = self._uri2object(cursor, user,
                 get_uriparentpath(uri), context=context)
-        if object_name in ('ir.attachment') \
+        if not object_name \
+                or object_name in ('ir.attachment') \
                 or not object_id:
             raise DAV_Forbidden
         attachment_obj = self.pool.get('ir.attachment')
-        object_name, object_id = self._uri2object(cursor, user, uri,
+        object_name2, object_id2 = self._uri2object(cursor, user, uri,
                 context=context)
-        if not object_id:
+        if not object_id2:
             name = get_urifilename(uri)
             try:
                 attachment_obj.create(cursor, user, {
@@ -214,7 +233,7 @@ class Directory(OSV):
                 raise DAV_Forbidden
         else:
             try:
-                attachment_obj.write(cursor, user, object_id, {
+                attachment_obj.write(cursor, user, object_id2, {
                     'datas': base64.encodestring(data),
                     }, context=context)
             except:
@@ -275,3 +294,28 @@ class Directory(OSV):
         return None
 
 Directory()
+
+
+class Attachment(OSV):
+    _name = 'ir.attachment'
+
+    def __init__(self, pool):
+        super(Attachment, self).__init__(pool)
+        self._constraints.append(
+                ('check_directory',
+                    'Error! You can not create a attachment \n' \
+                            'on a directory that have the same name \n' \
+                            'than a child directory.', ['datas_fname']))
+
+    def check_directory(self, cursor, user, ids):
+        directory_obj = self.pool.get('webdav.directory')
+        for attachment in self.browse(cursor, user, ids):
+            if attachment.res_model == 'webdav.directory':
+                directory = directory_obj.browse(cursor, user,
+                        attachment.res_id)
+                for child in directory.childs:
+                    if child.name == attachment.name:
+                        return False
+        return True
+
+Attachment()
