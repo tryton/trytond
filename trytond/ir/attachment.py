@@ -24,6 +24,11 @@ class Attachment(OSV):
     _defaults = {
         'collision': lambda *a: 0,
     }
+    _sql_constraints = [
+        ('res_model_res_id_datas_fname',
+            'UNIQUE (res_model, res_id, datas_fname)',
+            'Error! You can not create attachment with the same name!'),
+    ]
 
     def datas(self, cursor, user, ids, name, arg, context=None):
         res = {}

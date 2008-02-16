@@ -12,8 +12,23 @@ import security
 import pooler
 from version import PACKAGE, VERSION, WEBSITE
 
-# This work because there is only one thread
-USER_ID = 0
+# Local int for multi-thread
+import sys
+if sys.version_info[:2] < (2, 4):
+    from threadinglocal import local
+else:
+    from threading import local
+
+
+class LocalInt(local):
+
+    def __init__(self, value=0):
+        self.value = value
+
+    def __int__(self):
+        return int(self.value)
+
+USER_ID = LocalInt(0)
 
 # Fix for bad use of Document in DAV.utils make_xmlresponse
 from DAV.utils import VERSION as DAV_VERSION
@@ -46,14 +61,14 @@ class TrytonDAVInterface(iface.dav_interface):
         directory_obj = pool.get('webdav.directory')
         if uri[-1:] != '/':
             uri += '/'
-        for child in directory_obj.get_childs(cursor, USER_ID, dburi):
+        for child in directory_obj.get_childs(cursor, int(USER_ID), dburi):
             res.append(urlparse.urljoin(self.baseuri, uri + child))
         cursor.close()
         return res
 
     def get_data(self, uri):
         dbname, dburi = self._get_dburi(uri)
-        if not dbname or self.is_collection(uri):
+        if not dbname or (self.exists(uri) and self.is_collection(uri)):
             res = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">'
             res += '<html>'
             res += '<head>'
@@ -80,8 +95,10 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        res = directory_obj.get_data(cursor, USER_ID, dburi)
-        cursor.close()
+        try:
+            res = directory_obj.get_data(cursor, int(USER_ID), dburi)
+        finally:
+            cursor.close()
         return res
 
     def put(self, uri, data, content_type=''):
@@ -93,7 +110,7 @@ class TrytonDAVInterface(iface.dav_interface):
         directory_obj = pool.get('webdav.directory')
         try:
             try:
-                res = directory_obj.put(cursor, USER_ID, dburi, data,
+                res = directory_obj.put(cursor, int(USER_ID), dburi, data,
                         content_type)
                 cursor.commit()
             except:
@@ -112,7 +129,7 @@ class TrytonDAVInterface(iface.dav_interface):
         directory_obj = pool.get('webdav.directory')
         try:
             try:
-                res = directory_obj.mkcol(cursor, USER_ID, dburi)
+                res = directory_obj.mkcol(cursor, int(USER_ID), dburi)
                 cursor.commit()
             except:
                 cursor.rollback()
@@ -128,7 +145,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        res = directory_obj.get_resourcetype(cursor, USER_ID, dburi)
+        res = directory_obj.get_resourcetype(cursor, int(USER_ID), dburi)
         cursor.close()
         return res
 
@@ -142,7 +159,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        res = directory_obj.get_contentlength(cursor, USER_ID, dburi)
+        res = directory_obj.get_contentlength(cursor, int(USER_ID), dburi)
         cursor.close()
         return res
 
@@ -153,7 +170,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        res = directory_obj.get_contenttype(cursor, USER_ID, dburi)
+        res = directory_obj.get_contenttype(cursor, int(USER_ID), dburi)
         cursor.close()
         return res
 
@@ -164,7 +181,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        res = directory_obj.get_creationdate(cursor, USER_ID, dburi)
+        res = directory_obj.get_creationdate(cursor, int(USER_ID), dburi)
         cursor.close()
         return res
 
@@ -175,7 +192,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        res = directory_obj.get_lastmodified(cursor, USER_ID, dburi)
+        res = directory_obj.get_lastmodified(cursor, int(USER_ID), dburi)
         cursor.close()
         return res
 
@@ -188,7 +205,7 @@ class TrytonDAVInterface(iface.dav_interface):
         directory_obj = pool.get('webdav.directory')
         try:
             try:
-                res = directory_obj.rmcol(cursor, USER_ID, dburi)
+                res = directory_obj.rmcol(cursor, int(USER_ID), dburi)
                 cursor.commit()
             except:
                 cursor.rollback()
@@ -206,7 +223,7 @@ class TrytonDAVInterface(iface.dav_interface):
         directory_obj = pool.get('webdav.directory')
         try:
             try:
-                res = directory_obj.rm(cursor, USER_ID, dburi)
+                res = directory_obj.rm(cursor, int(USER_ID), dburi)
                 cursor.commit()
             except:
                 cursor.rollback()
@@ -222,7 +239,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         directory_obj = pool.get('webdav.directory')
-        res = directory_obj.exists(cursor, USER_ID, dburi)
+        res = directory_obj.exists(cursor, int(USER_ID), dburi)
         cursor.close()
         return res
 
@@ -268,6 +285,6 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         if not dbname:
             return 1
         USER_ID = security.login(dbname, user, password)
-        if USER_ID:
+        if int(USER_ID):
             return 1
         return 0
