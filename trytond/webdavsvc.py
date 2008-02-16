@@ -82,7 +82,9 @@ class TrytonDAVInterface(iface.dav_interface):
             if dbname:
                 res += '<li><a href="%s">..</a></li>' \
                         % (get_uriparentpath(uri) or '/')
-            for child in self.get_childs(uri):
+            childs = self.get_childs(uri)
+            childs.sort()
+            for child in childs:
                 res += '<li><a href="%s">%s</a></li>' \
                         % (child, get_urifilename(child))
             res += '</ul>'
