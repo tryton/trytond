@@ -13,10 +13,10 @@ class Workflow(OSV):
     _log_access = False
     _description = __doc__
     _columns = {
-        'name': fields.char('Name', size=64, required=True),
-        'osv': fields.char('Resource Model', size=64, required=True),
-        'on_create': fields.boolean('On Create'),
-        'activities': fields.one2many('workflow.activity', 'wkf_id',
+        'name': fields.Char('Name', size=64, required=True),
+        'osv': fields.Char('Resource Model', size=64, required=True),
+        'on_create': fields.Boolean('On Create'),
+        'activities': fields.One2Many('workflow.activity', 'workflow',
             'Activities'),
     }
     _defaults = {
@@ -45,32 +45,32 @@ class WorkflowActivity(OSV):
     _log_access = False
     _description = __doc__
     _columns = {
-        'name': fields.char('Name', size=64, required=True),
-        'wkf_id': fields.many2one('workflow', 'Workflow', required=True,
+        'name': fields.Char('Name', size=64, required=True),
+        'workflow': fields.Many2One('workflow', 'Workflow', required=True,
             select=1, ondelete='cascade'),
-        'split_mode': fields.selection([
+        'split_mode': fields.Selection([
             ('XOR', 'Xor'),
             ('OR', 'Or'),
             ('AND', 'And'),
             ], 'Split Mode', size=3, required=True),
-        'join_mode': fields.selection([
+        'join_mode': fields.Selection([
             ('XOR', 'Xor'),
             ('AND', 'And'),
             ], 'Join Mode', size=3, required=True),
-        'kind': fields.selection([
+        'kind': fields.Selection([
             ('dummy', 'Dummy'),
             ('function', 'Function'),
             ('subflow', 'Subflow'),
             ('stopall', 'Stop All'),
             ], 'Kind', size=64, required=True),
-        'action': fields.char('Action', size=64),
-        'flow_start': fields.boolean('Flow Start'),
-        'flow_stop': fields.boolean('Flow Stop'),
-        'subflow_id': fields.many2one('workflow', 'Subflow'),
-        'signal_send': fields.char('Signal (subflow.*)', size=32),
-        'out_transitions': fields.one2many('workflow.transition', 'act_from',
+        'action': fields.Char('Action', size=64),
+        'flow_start': fields.Boolean('Flow Start'),
+        'flow_stop': fields.Boolean('Flow Stop'),
+        'subflow': fields.Many2One('workflow', 'Subflow'),
+        'signal_send': fields.Char('Signal (subflow.*)', size=32),
+        'out_transitions': fields.One2Many('workflow.transition', 'act_from',
             'Outgoing transitions'),
-        'in_transitions': fields.one2many('workflow.transition', 'act_to',
+        'in_transitions': fields.One2Many('workflow.transition', 'act_to',
             'Incoming transitions'),
     }
     _defaults = {
@@ -90,14 +90,14 @@ class WorkflowTransition(OSV):
     _rec_name = 'signal'
     _description = __doc__
     _columns = {
-        'trigger_model': fields.char('Trigger Type', size=128),
-        'trigger_expr_id': fields.char('Trigger Expr ID', size=128),
-        'signal': fields.char('Signal (button Name)', size=64),
-        'group': fields.many2one('res.group', 'Group Required'),
-        'condition': fields.char('Condition', required=True, size=128),
-        'act_from': fields.many2one('workflow.activity', 'Source Activity',
+        'trigger_model': fields.Char('Trigger Type', size=128),
+        'trigger_expr_id': fields.Char('Trigger Expr ID', size=128),
+        'signal': fields.Char('Signal (button Name)', size=64),
+        'group': fields.Many2One('res.group', 'Group Required'),
+        'condition': fields.Char('Condition', required=True, size=128),
+        'act_from': fields.Many2One('workflow.activity', 'Source Activity',
             required=True, select=1, ondelete='cascade'),
-        'act_to': fields.many2one('workflow.activity', 'Destination Activity',
+        'act_to': fields.Many2One('workflow.activity', 'Destination Activity',
             required=True, select=1, ondelete='cascade'),
     }
     _defaults = {
@@ -115,11 +115,11 @@ class WorkflowInstance(OSV):
     _log_access = False
     _description = __doc__
     _columns = {
-        'wkf_id': fields.many2one('workflow', 'Workflow', ondelete="restrict"),
-        'uid': fields.integer('User ID'),
-        'res_id': fields.integer('Resource ID'),
-        'res_type': fields.char('Resource Model', size=64),
-        'state': fields.char('State', size=32),
+        'workflow': fields.Many2One('workflow', 'Workflow', ondelete="restrict"),
+        'uid': fields.Integer('User ID'),
+        'res_id': fields.Integer('Resource ID'),
+        'res_type': fields.Char('Resource Model', size=64),
+        'state': fields.Char('State', size=32),
     }
 
     def _auto_init(self, cursor, module_name):
@@ -144,13 +144,13 @@ class WorkflowWorkitem(OSV):
     _rec_name = 'state'
     _description = __doc__
     _columns = {
-        'act_id': fields.many2one('workflow.activity', 'Activity',
+        'activity': fields.Many2One('workflow.activity', 'Activity',
             required=True, ondelete="cascade"),
-        'subflow_id': fields.many2one('workflow.instance', 'Subflow',
+        'subflow': fields.Many2One('workflow.instance', 'Subflow',
             ondelete="cascade"),
-        'inst_id': fields.many2one('workflow.instance', 'Instance',
+        'instance': fields.Many2One('workflow.instance', 'Instance',
             required=True, ondelete="cascade", select=1),
-        'state': fields.char('State', size=64),
+        'state': fields.Char('State', size=64),
     }
 
 WorkflowWorkitem()
@@ -163,11 +163,11 @@ class WorkflowTrigger(OSV):
     _log_access = False
     _description = __doc__
     _columns = {
-        'res_id': fields.integer('Resource ID', size=128),
-        'model': fields.char('Model', size=128),
-        'instance_id': fields.many2one('workflow.instance',
+        'res_id': fields.Integer('Resource ID', size=128),
+        'model': fields.Char('Model', size=128),
+        'instance': fields.Many2One('workflow.instance',
             'Destination Instance', ondelete="cascade"),
-        'workitem_id': fields.many2one('workflow.workitem', 'Workitem',
+        'workitem': fields.Many2One('workflow.workitem', 'Workitem',
             required=True, ondelete="cascade"),
     }
 
@@ -200,7 +200,7 @@ class InstanceGraph(Report):
                 context=context)
         instance_id = instance_obj.search(cursor, user, [
             ('res_id', '=', datas['id']),
-            ('wkf_id', '=', workflow.id),
+            ('workflow', '=', workflow.id),
             ], limit=1, context=context)
         if not instance_id:
             raise ExceptOSV('UserError', 'No workflow instance defined!')
@@ -235,7 +235,7 @@ class InstanceGraph(Report):
         instance_obj = self.pool.get('workflow.instance')
         instance = instance_obj.browse(cursor, user, instance_id,
                 context=context)
-        self.graph_get(cursor, user, graph, instance.wkf_id.id, nested,
+        self.graph_get(cursor, user, graph, instance.workflow.id, nested,
                 self.workitem_get(cursor, user, instance.id, context=context),
                 context=context)
 
@@ -243,16 +243,16 @@ class InstanceGraph(Report):
         res = {}
         workitem_obj = self.pool.get('workflow.workitem')
         workitem_ids = workitem_obj.search(cursor, user, [
-            ('inst_id', '=', instance_id),
+            ('instance', '=', instance_id),
             ], context=context)
         workitems = workitem_obj.browse(cursor, user, workitem_ids,
                 context=context)
         for workitem in workitems:
-            res.setdefault(workitem.act_id.id, 0)
-            res[workitem.act_id.id] += 1
-            if workitem.subflow_id:
+            res.setdefault(workitem.activity.id, 0)
+            res[workitem.activity.id] += 1
+            if workitem.subflow:
                 res.update(self.workitem_get(cursor, user,
-                    workitem.subflow_id.id, context=context))
+                    workitem.subflow.id, context=context))
         return res
 
     def graph_get(self, cursor, user, graph, workflow_id, nested=False,
@@ -264,7 +264,7 @@ class InstanceGraph(Report):
         workflow_obj = self.pool.get('workflow')
         transition_obj = self.pool.get('workflow.transition')
         activity_ids = activity_obj.search(cursor, user, [
-            ('wkf_id', '=', workflow_id),
+            ('workflow', '=', workflow_id),
             ], context=context)
         id2activities = {}
         actfrom = {}
@@ -279,9 +279,9 @@ class InstanceGraph(Report):
             if activity.flow_stop:
                 stop['subflow.' + activity.name] =  activity.id
             id2activities[activity.id] = activity
-            if activity.subflow_id and nested:
+            if activity.subflow and nested:
                 workflow = workflow_obj.browse(cursor, user,
-                        activity.subflow_id.id, context=context)
+                        activity.subflow.id, context=context)
                 subgraph = pydot.Cluster('subflow' + str(workflow.id),
                         fontsize=12, label="Subflow: " + activity.name + \
                                 '\\nOSV: ' + workflow.osv)
@@ -297,7 +297,7 @@ class InstanceGraph(Report):
                     args['style'] = 'filled'
                     args['color'] = 'lightgrey'
                 args['label'] = activity.name
-                if activity.subflow_id:
+                if activity.subflow:
                     args['shape'] = 'box'
                 if activity.id in workitem:
                     args['label'] += '\\nx ' + str(workitem[activity.id])

@@ -8,7 +8,7 @@ def create(cursor, act_datas, inst_id, ident):
         cursor.execute("SELECT NEXTVAL('wkf_workitem_id_seq')")
         (id_new,) = cursor.fetchone()
         cursor.execute("INSERT INTO wkf_workitem " \
-                "(id, act_id, inst_id, state) VALUES (%d, %s, %s, 'active')",
+                "(id, activity, instance, state) VALUES (%d, %s, %s, 'active')",
                 (id_new, act['id'], inst_id))
         cursor.execute('SELECT * FROM wkf_workitem WHERE id=%d', (id_new,))
         res = cursor.dictfetchone()
@@ -16,7 +16,7 @@ def create(cursor, act_datas, inst_id, ident):
 
 def process(cursor, workitem, ident, signal=None, force_running=False):
     cursor.execute('SELECT * FROM wkf_activity WHERE id = %d',
-            (workitem['act_id'],))
+            (workitem['activity'],))
     activity = cursor.dictfetchone()
     triggers = False
     if workitem['state'] == 'active':
@@ -34,7 +34,7 @@ def process(cursor, workitem, ident, signal=None, force_running=False):
 
     if triggers:
         cursor.execute('SELECT * FROM wkf_transition ' \
-                'WHERE act_from = %d', (workitem['act_id'],))
+                'WHERE act_from = %d', (workitem['activity'],))
         alltrans = cursor.dictfetchall()
         for trans in alltrans:
             if trans['trigger_model']:
@@ -44,7 +44,7 @@ def process(cursor, workitem, ident, signal=None, force_running=False):
                     cursor.execute('SELECT NEXTVAL(\'wkf_triggers_id_seq\')')
                     (new_id,) = cursor.fetchone()
                     cursor.execute('INSERT INTO wkf_triggers ' \
-                            '(model, res_id, instance_id, workitem_id, id) ' \
+                            '(model, res_id, instance, workitem, id) ' \
                             'VALUES (%s, %d, %d, %d, %d)',
                             (trans['trigger_model'], res_id,
                                 workitem['inst_id'], workitem['id'], new_id))
@@ -63,10 +63,10 @@ def _execute(cursor, workitem, activity, ident):
         cursor.execute("SELECT i.id, w.osv, i.res_id " \
                 "FROM wkf_instance i " \
                 "LEFT JOIN wkf w " \
-                    "ON (i.wkf_id = w.id) " \
+                    "ON (i.workflow = w.id) " \
                 "WHERE i.id in (" \
-                    "SELECT inst_id FROM wkf_workitem " \
-                    "WHERE subflow_id = %d)", (workitem['inst_id'],))
+                    "SELECT instance FROM wkf_workitem " \
+                    "WHERE subflow = %d)", (workitem['inst_id'],))
         for i in cursor.fetchall():
             instance.validate(cursor, i[0], (ident[0], i[1], i[2]),
                     activity['signal_send'], force_running=True)
@@ -82,8 +82,8 @@ def _execute(cursor, workitem, activity, ident):
     elif activity['kind'] == 'stopall':
         if workitem['state'] == 'active':
             _state_set(cursor, workitem, 'running')
-            cursor.execute('DELECT FROM wkf_workitem ' \
-                    'WHERE inst_id = %d AND id <> %d',
+            cursor.execute('DELETE FROM wkf_workitem ' \
+                    'WHERE instance = %d AND id <> %d',
                     (workitem['inst_id'], workitem['id']))
             if activity['action']:
                 wkf_expr.execute(cursor, ident, workitem, activity)
@@ -101,13 +101,13 @@ def _execute(cursor, workitem, activity, ident):
                         'Wrong return value: ' + str(id_new) + ' ' + \
                         str(type(id_new))
                 cursor.execute('SELECT id FROM wkf_instance ' \
-                        'WHERE res_id = %d AND wkf_id = %d',
+                        'WHERE res_id = %d AND workflow = %d',
                         (id_new, activity['subflow_id']))
                 (id_new,) = cursor.fetchone()
             else:
                 id_new = instance.create(cursor, ident, activity['subflow_id'])
             cursor.execute('UPDATE wkf_workitem ' \
-                    'SET subflow_id = %d WHERE id = %d',
+                    'SET subflow = %d WHERE id = %d',
                     (id_new, workitem['id']))
             workitem['subflow_id'] = id_new
         if workitem['state'] == 'running':
@@ -122,7 +122,7 @@ def _split_test(cursor, workitem, split_mode, ident, signal=None):
     test = False
     transitions = []
     cursor.execute('SELECT * FROM wkf_transition ' \
-            'WHERE act_from = %d', (workitem['act_id'],))
+            'WHERE act_from = %d', (workitem['activity'],))
     alltrans = cursor.dictfetchall()
     if split_mode == 'XOR' or split_mode == 'OR':
         for transition in alltrans:

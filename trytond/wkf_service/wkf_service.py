@@ -80,7 +80,7 @@ class WorkflowService(Service):
         """
         # get ids of wkf instances for the old resource (res_id)
         # XXX shouldn't we get only active instances?
-        cursor.execute('SELECT id, wkf_id FROM wkf_instance ' \
+        cursor.execute('SELECT id, workflow FROM wkf_instance ' \
                 'WHERE res_id = %d AND res_type = %s', (res_id, res_type))
         for old_inst_id, wkf_id in cursor.fetchall():
             # first active instance for new resource (new_rid), using same wkf
@@ -88,16 +88,16 @@ class WorkflowService(Service):
                 'SELECT id '\
                 'FROM wkf_instance '\
                 'WHERE res_id = %d AND res_type = %s ' \
-                    'AND wkf_id = %d AND state = %s',
+                    'AND workflow = %d AND state = %s',
                 (new_rid, res_type, wkf_id, 'active'))
             new_id = cursor.fetchone()
             if new_id:
                 # select all workitems which "wait" for the old instance
                 cursor.execute('SELECT id FROM wkf_workitem ' \
-                        'WHERE subflow_id = %d', (old_inst_id,))
+                        'WHERE subflow = %d', (old_inst_id,))
                 for (item_id,) in cursor.fetchall():
                     # redirect all those workitems
                     # to the wkf instance of the new resource
                     cursor.execute('UPDATE wkf_workitem ' \
-                            'SET subflow_id = %d ' \
+                            'SET subflow = %d ' \
                             'WHERE id = %d', (new_id[0], item_id))

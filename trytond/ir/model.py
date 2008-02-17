@@ -388,7 +388,7 @@ class ModelData(OSV):
                     cursor.execute('SELECT res_type, db_id ' \
                             'FROM wkf_instance ' \
                             'WHERE id IN (' \
-                                'SELECT inst_id FROM wkf_workitem ' \
+                                'SELECT instance FROM wkf_workitem ' \
                                 'WHERE act_id = %d)', (db_id,))
                     wkf_todo.extend(cursor.fetchall())
                     cursor.execute("UPDATE wkf_transition " \

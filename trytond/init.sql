@@ -137,8 +137,8 @@ create table wkf
 create table wkf_activity
 (
     id serial,
-    wkf_id int references wkf on delete cascade,
-    subflow_id int references wkf on delete set null,
+    workflow int references wkf on delete cascade,
+    subflow int references wkf on delete set null,
     split_mode varchar(3) default 'XOR',
     join_mode varchar(3) default 'XOR',
     kind varchar(16) not null default 'dummy',
@@ -169,7 +169,7 @@ create table wkf_transition
 create table wkf_instance
 (
     id serial,
-    wkf_id int references wkf on delete restrict,
+    workflow int references wkf on delete restrict,
     uid int default null,
     res_id int not null,
     res_type varchar(64) not null,
@@ -180,9 +180,9 @@ create table wkf_instance
 create table wkf_workitem
 (
     id serial,
-    act_id int not null references wkf_activity on delete cascade,
-    inst_id int not null references wkf_instance on delete cascade,
-    subflow_id int references wkf_instance on delete cascade,
+    activity int not null references wkf_activity on delete cascade,
+    instance int not null references wkf_instance on delete cascade,
+    subflow int references wkf_instance on delete cascade,
     state varchar(64) default 'blocked',
     primary key(id)
 );
@@ -199,7 +199,7 @@ create table wkf_logs
     res_type varchar(128) not null,
     res_id int not null,
     uid int references res_user on delete set null,
-    act_id int references wkf_activity on delete set null,
+    activity int references wkf_activity on delete set null,
     time time not null,
     info varchar(128) default NULL,
     primary key(id)
