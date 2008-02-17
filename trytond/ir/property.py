@@ -17,10 +17,11 @@ class Property(OSV):
 
     def __init__(self, pool):
         super(Property, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'models_get2',
-            'models_get',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'models_get2',
+                'models_get',
+            ]
 
     def models_get2(self, cursor, user, context=None):
         model_fields_obj = self.pool.get('ir.model.fields')

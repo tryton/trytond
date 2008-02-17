@@ -84,13 +84,14 @@ class User(OSV):
 
     def __init__(self, pool):
         super(User, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'get_preferences',
-            'set_preferences',
-            'get_preferences_fields_view',
-            'languages',
-            'timezones',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'get_preferences',
+                'set_preferences',
+                'get_preferences_fields_view',
+                'languages',
+                'timezones',
+            ]
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
@@ -205,7 +206,8 @@ class Group2(Group):
 
     def __init__(self, pool):
         super(Group2, self).__init__(pool)
-        self._columns['users'] = fields.many2many(
-            'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
+        if pool:
+            self._columns['users'] = fields.many2many(
+                'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
 
 Group2()

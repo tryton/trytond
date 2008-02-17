@@ -182,9 +182,10 @@ class ViewShortcut(OSV):
 
     def __init__(self, pool):
         super(ViewShortcut, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'get_sc',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'get_sc',
+            ]
 
     def get_sc(self, cursor, user, user_id, model='ir.ui.menu', context=None):
         "Provide user's shortcuts"

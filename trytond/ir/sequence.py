@@ -38,9 +38,10 @@ class Sequence(OSV):
 
     def __init__(self, pool):
         super(Sequence, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'code_get',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'code_get',
+            ]
 
     def code_get(self, cursor, user, context=None):
         cursor.execute('select code, name from ir_sequence_type')

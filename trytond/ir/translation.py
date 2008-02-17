@@ -56,9 +56,10 @@ class Translation(OSV, Cacheable):
 
     def __init__(self, pool):
         super(Translation, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'get_language',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'get_language',
+            ]
 
     def model(self, cursor, user, ids, name, arg, context=None):
         res = {}
@@ -376,9 +377,10 @@ class TranslationUpdateInit(WizardOSV):
 
     def __init__(self, pool):
         super(TranslationUpdateInit, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'get_language',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'get_language',
+            ]
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
@@ -508,10 +510,11 @@ class TranslationExportInit(WizardOSV):
 
     def __init__(self, pool):
         super(TranslationExportInit, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'get_language',
-            'get_module',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'get_language',
+                'get_module',
+            ]
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
