@@ -60,14 +60,14 @@
                 <form string="Activity">
                     <label name="name"/>
                     <field name="name" colspan="3"/>
-                    <label name="wkf_id"/>
-                    <field name="wkf_id"/>
+                    <label name="workflow"/>
+                    <field name="workflow"/>
                     <label name="kind"/>
                     <field name="kind"/>
                     <label name="action"/>
                     <field name="action" colspan="3"/>
-                    <label name="subflow_id"/>
-                    <field name="subflow_id"/>
+                    <label name="subflow"/>
+                    <field name="subflow"/>
                     <label name="signal_send"/>
                     <field name="signal_send"/>
                     <newline/>
@@ -142,7 +142,7 @@
               <![CDATA[
                 <tree string="Activity">
                     <field name="name" select="1"/>
-                    <field name="wkf_id" select="1"/>
+                    <field name="workflow" select="1"/>
                     <field name="kind" select="1"/>
                     <field name="action" select="2"/>
                     <field name="flow_start"/>
@@ -236,8 +236,8 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Instance">
-                    <label name="wkf_id"/>
-                    <field name="wkf_id"/>
+                    <label name="workflow"/>
+                    <field name="workflow"/>
                     <label name="uid"/>
                     <field name="uid"/>
                     <label name="res_id"/>
@@ -256,7 +256,7 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Instances">
-                    <field name="wkf_id" select="1"/>
+                    <field name="workflow" select="1"/>
                     <field name="uid" select="2"/>
                     <field name="res_id" select="1"/>
                     <field name="res_type" select="1"/>
@@ -290,12 +290,12 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Workitem">
-                    <label name="act_id"/>
-                    <field name="act_id"/>
-                    <label name="subflow_id"/>
-                    <field name="subflow_id"/>
-                    <label name="inst_id"/>
-                    <field name="inst_id"/>
+                    <label name="activity"/>
+                    <field name="activity"/>
+                    <label name="subflow"/>
+                    <field name="subflow"/>
+                    <label name="instance"/>
+                    <field name="instance"/>
                     <label name="state"/>
                     <field name="state"/>
                 </form>
@@ -308,9 +308,9 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Workitems">
-                    <field name="act_id" select="1"/>
-                    <field name="subflow_id" select="1"/>
-                    <field name="inst_id" select="1"/>
+                    <field name="activity" select="1"/>
+                    <field name="subflow" select="1"/>
+                    <field name="instance" select="1"/>
                     <field name="state" select="2"/>
                 </tree>
               ]]>
