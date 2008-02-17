@@ -53,7 +53,7 @@
                             </group>
                         </page>
                         <page string="Dependencies" col="1">
-                            <field name="dependencies_id">
+                            <field name="dependencies">
                                 <tree string="Dependencies">
                                     <field name="name"/>
                                     <field name="state"/>

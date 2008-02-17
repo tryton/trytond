@@ -97,10 +97,10 @@ field,"ir.module.category,childs",0,Parent Category,Catégorie parente,0
 field,"ir.module.category,name",0,Name,Nom,0
 field,"ir.module.category,parent",0,Parent Category,Catégorie parente,0
 field,"ir.module.module,author",0,Author,Auteur,0
-field,"ir.module.module,category_id",0,Category,Catégorie,0
+field,"ir.module.module,category",0,Category,Catégorie,0
 field,"ir.module.module,demo",0,Demo data,Donnée de démonstration,0
-field,"ir.module.module,dependencies_id",0,Dependencies,Dépendances,0
-field,"ir.module.module.dependency,module_id",0,Module,Module,0
+field,"ir.module.module,dependencies",0,Dependencies,Dépendances,0
+field,"ir.module.module.dependency,module",0,Module,Module,0
 field,"ir.module.module.dependency,name",0,Name,Nom,0
 field,"ir.module.module.dependency,state",0,State,État,0
 field,"ir.module.module,description",0,Description,Description,0
