@@ -48,7 +48,7 @@ class Directory(OSV):
                     ])
                 for attachment in attachment_obj.browse(cursor, user,
                         attachment_ids):
-                    if attachment.datas_fname == directory.name:
+                    if attachment.name == directory.name:
                         return False
         return True
 
@@ -75,7 +75,7 @@ class Directory(OSV):
                 attachment_ids = attachment_obj.search(cursor, user, [
                     ('res_model', '=', object_name),
                     ('res_id', '=', object_id),
-                    ('datas_fname', '=', name),
+                    ('name', '=', name),
                     ], limit=1, context=context)
                 if attachment_ids:
                     object_name = 'ir.attachment'
@@ -91,7 +91,7 @@ class Directory(OSV):
                 attachment_ids = attachment_obj.search(cursor, user, [
                     ('res_model', '=', object_name),
                     ('res_id', '=', object_id),
-                    ('datas_fname', '=', name),
+                    ('name', '=', name),
                     ], limit=1, context=context)
                 if attachment_ids:
                     object_name = 'ir.attachment'
@@ -139,8 +139,8 @@ class Directory(OSV):
                 ], context=context)
             for attachment in attachment_obj.browse(cursor, user, attachment_ids,
                     context=context):
-                if attachment.datas_fname and not attachment.link:
-                    res.append(attachment.datas_fname)
+                if attachment.name and not attachment.link:
+                    res.append(attachment.name)
         return res
 
     def get_resourcetype(self, cursor, user, uri, context=None):
@@ -225,7 +225,7 @@ class Directory(OSV):
                 attachment_obj.create(cursor, user, {
                     'name': name,
                     'datas': base64.encodestring(data),
-                    'datas_fname': name,
+                    'name': name,
                     'res_model': object_name,
                     'res_id': object_id,
                     }, context=context)
@@ -301,11 +301,12 @@ class Attachment(OSV):
 
     def __init__(self, pool):
         super(Attachment, self).__init__(pool)
-        self._constraints.append(
+        self._constraints = self._constraints + [
                 ('check_directory',
                     'Error! You can not create a attachment \n' \
                             'on a directory that have the same name \n' \
-                            'than a child directory.', ['datas_fname']))
+                            'than a child directory.', ['name']),
+                ]
 
     def check_directory(self, cursor, user, ids):
         directory_obj = self.pool.get('webdav.directory')
