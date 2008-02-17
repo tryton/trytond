@@ -13,7 +13,7 @@ field,"ir.action.act_window.view,multi",0,On multiple doc.,Sur plusieurs doc.,0
 field,"ir.action.act_window,views",0,Views,Vues,0
 field,"ir.action.act_window.view,sequence",0,Sequence,Séquence,0
 field,"ir.action.act_window,view_type",0,Type of view,Type de vue,0
-field,"ir.action.act_window.view,view_id",0,View,Vue,0
+field,"ir.action.act_window.view,view",0,View,Vue,0
 field,"ir.action.keyword,action",0,Action,Action,0
 field,"ir.action.keyword,keyword",0,Keyword,Mot-clè,0
 field,"ir.action.keyword,model",0,Model,Modèle,0

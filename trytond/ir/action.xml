@@ -46,13 +46,13 @@
         <record model="ir.action.act_window.view"
             id="act_action_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="action_view_tree"/>
+            <field name="view" ref="action_view_tree"/>
             <field name="act_window" ref="act_action_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="action_view_form"/>
+            <field name="view" ref="action_view_form"/>
             <field name="act_window" ref="act_action_form"/>
         </record>
         <menuitem parent_id="menu_action"
@@ -111,13 +111,13 @@
         <record model="ir.action.act_window.view"
             id="act_action_report_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="action_report_view_tree"/>
+            <field name="view" ref="action_report_view_tree"/>
             <field name="act_window" ref="act_action_report_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_report_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="action_report_view_form"/>
+            <field name="view" ref="action_report_view_form"/>
             <field name="act_window" ref="act_action_report_form"/>
         </record>
         <menuitem parent_id="menu_action"
@@ -142,12 +142,12 @@
                         <form string="Views">
                             <label name="sequence"/>
                             <field name="sequence" colspan="4"/>
-                            <label name="view_id"/>
-                            <field name="view_id"/>
+                            <label name="view"/>
+                            <field name="view"/>
                         </form>
                         <tree string="Views">
                             <field name="sequence"/>
-                            <field name="view_id"/>
+                            <field name="view"/>
                         </tree>
                     </field>
                     <label name="domain"/>
@@ -183,7 +183,7 @@
                     <field name="res_model" select="1"/>
                     <field name="src_model" select="2"/>
                     <field name="view_type"/>
-                    <field name="view_id"/>
+                    <field name="view"/>
                     <field name="domain"/>
                 </tree>
                 ]]>
@@ -197,12 +197,12 @@
         </record>
         <record model="ir.action.act_window.view" id="act_action_act_window_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="action_act_window_view_tree"/>
+            <field name="view" ref="action_act_window_view_tree"/>
             <field name="act_window" ref="act_action_act_window_form"/>
         </record>
         <record model="ir.action.act_window.view" id="act_action_act_window_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="action_act_window_view_form"/>
+            <field name="view" ref="action_act_window_view_form"/>
             <field name="act_window" ref="act_action_act_window_form"/>
         </record>
         <menuitem parent_id="menu_action"
@@ -255,13 +255,13 @@
         <record model="ir.action.act_window.view"
             id="act_action_wizard_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="action_wizard_view_tree"/>
+            <field name="view" ref="action_wizard_view_tree"/>
             <field name="act_window" ref="act_action_wizard_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_wizard_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="action_wizard_view_form"/>
+            <field name="view" ref="action_wizard_view_form"/>
             <field name="act_window" ref="act_action_wizard_form"/>
         </record>
         <menuitem parent_id="menu_action"

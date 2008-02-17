@@ -37,7 +37,7 @@
         <record model="ir.action.act_window.view"
             id="act_category_tree_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="category_view_tree"/>
+            <field name="view" ref="category_view_tree"/>
             <field name="act_window" ref="act_category_tree"/>
         </record>
         <menuitem parent_id="menu_modules"

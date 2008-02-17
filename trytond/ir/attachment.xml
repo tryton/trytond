@@ -43,13 +43,13 @@
         <record model="ir.action.act_window.view"
             id="act_attachment_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="attachment_view_tree"/>
+            <field name="view" ref="attachment_view_tree"/>
             <field name="act_window" ref="act_attachment_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_attachment_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="attachment_view_form"/>
+            <field name="view" ref="attachment_view_form"/>
             <field name="act_window" ref="act_attachment_form"/>
         </record>
         <menuitem name="Attachments" parent_id="ir.menu_ir"

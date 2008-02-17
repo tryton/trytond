@@ -23,7 +23,7 @@
         <record model="ir.action.act_window.view"
             id="act_menu_tree_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="menu_view_tree_tree"/>
+            <field name="view" ref="menu_view_tree_tree"/>
             <field name="act_window" ref="act_menu_tree"/>
         </record>
         <record model="ir.ui.view" id="menu_view_tree">
@@ -72,13 +72,13 @@
         <record model="ir.action.act_window.view"
             id="act_menu_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="menu_view_tree"/>
+            <field name="view" ref="menu_view_tree"/>
             <field name="act_window" ref="act_menu_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_menu_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="menu_view_form"/>
+            <field name="view" ref="menu_view_form"/>
             <field name="act_window" ref="act_menu_form"/>
         </record>
         <menuitem parent_id="menu_ui"
