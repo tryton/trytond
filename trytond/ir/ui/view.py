@@ -18,8 +18,8 @@ class View(OSV):
             ('graph', 'Graph'),
             ('calendar', 'Calendar')), 'View Type', required=True),
         'arch': fields.Text('View Architecture', required=True),
-        'inherit_id': fields.Many2One('ir.ui.view', 'Inherited View'),
-        'field_parent': fields.Char('Childs Field',size=64),
+        'inherit': fields.Many2One('ir.ui.view', 'Inherited View'),
+        'field_childs': fields.Char('Childs Field',size=64),
         'module': fields.Char('Module', size=128, readonly=True),
     }
     _defaults = {
