@@ -40,7 +40,7 @@ class ModelField(OSV):
     _columns = {
         'name': fields.Char('Name', size=64),
         'relation': fields.Char('Model Relation', size=64),
-        'model': fields.Many2One('ir.model', 'Model id', required=True,
+        'model': fields.Many2One('ir.model', 'Model', required=True,
             select=True, ondelete='cascade'),
         'field_description': fields.Char('Field Description', size=256,
             translate=True),
@@ -69,13 +69,13 @@ class ModelAccess(OSV):
     _name = 'ir.model.access'
     _description = __doc__
     _columns = {
-        'name': fields.char('Name', size=64, required=True),
-        'model_id': fields.many2one('ir.model', 'Model', required=True),
-        'group_id': fields.many2one('res.group', 'Group'),
-        'perm_read': fields.boolean('Read Access'),
-        'perm_write': fields.boolean('Write Access'),
-        'perm_create': fields.boolean('Create Access'),
-        'perm_unlink': fields.boolean('Delete Permission'),
+        'name': fields.Char('Name', size=64, required=True),
+        'model': fields.Many2One('ir.model', 'Model', required=True),
+        'group': fields.Many2One('res.group', 'Group'),
+        'perm_read': fields.Boolean('Read Access'),
+        'perm_write': fields.Boolean('Write Access'),
+        'perm_create': fields.Boolean('Create Access'),
+        'perm_unlink': fields.Boolean('Delete Permission'),
     }
 
     def check(self, cursor, user, model_name, mode='read',
@@ -87,9 +87,9 @@ class ModelAccess(OSV):
         cursor.execute('SELECT MAX(CASE WHEN perm_'+mode+' THEN 1 else 0 END) '
             'FROM ir_model_access a '
                 'JOIN ir_model m '
-                    'ON (a.model_id=m.id) '
+                    'ON (a.model = m.id) '
                 'JOIN res_group_user_rel gu '
-                    'ON (gu.gid = a.group_id) '
+                    'ON (gu.gid = a.group) '
             'WHERE m.model = %s AND gu.uid = %s', (model_name, user,))
         row = cursor.fetchall()
         if row[0][0] == None:
@@ -97,8 +97,8 @@ class ModelAccess(OSV):
                         'MAX(CASE WHEN perm_' + mode + ' THEN 1 else 0 END) ' \
                     'FROM ir_model_access a ' \
                     'JOIN ir_model m ' \
-                        'ON (a.model_id = m.id) ' \
-                    'WHERE a.group_id IS NULL AND m.model = %s', (model_name,))
+                        'ON (a.model = m.id) ' \
+                    'WHERE a.group IS NULL AND m.model = %s', (model_name,))
             row = cursor.fetchall()
             if row[0][0] == None:
                 return True
