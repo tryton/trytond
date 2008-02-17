@@ -117,9 +117,9 @@ field,"ir.module.repository,filter",0,Filter,Filtre,0
 field,"ir.module.repository,name",0,Name,Nom,0
 field,"ir.module.repository,sequence",0,Sequence,Séquence,0
 field,"ir.module.repository,url",0,Url,Url,0
-field,"ir.property,fields_id",0,Fields,Champs,0
+field,"ir.property,field",0,Field,Champ,0
 field,"ir.property,name",0,Name,Nom,0
-field,"ir.property,res_id",0,Resource,Ressource,0
+field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Valeur,0
 field,"ir.rule,field_id",0,Field,Champ,0
 field,"ir.rule.group,global",0,Global,Global,0

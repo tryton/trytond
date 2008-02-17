@@ -10,12 +10,12 @@
                     <label name="name"/>
                     <field name="name" colspan="3"/>
                     <!--field name="company_id"/-->
-                    <label name="fields_id"/>
-                    <field name="fields_id" colspan="3"/>
+                    <label name="field"/>
+                    <field name="field" colspan="3"/>
                     <label name="value"/>
                     <field name="value" colspan="3"/>
-                    <label name="res_id"/>
-                    <field name="res_id" colspan="3"/>
+                    <label name="res"/>
+                    <field name="res" colspan="3"/>
                 </form>
                 ]]>
             </field>
@@ -28,7 +28,7 @@
                 <tree string="Properties">
                     <field name="name" select="1"/>
                     <!--field name="company_id" select="1"/-->
-                    <field name="fields_id" select="1"/>
+                    <field name="field" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -38,7 +38,7 @@
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.property</field>
             <field name="view_type">form</field>
-            <field name="domain">[('res_id','=',False)]</field>
+            <field name="domain">[('res','=',False)]</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_property_form_view1_default">
