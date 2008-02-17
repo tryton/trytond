@@ -49,14 +49,14 @@ field,"ir.cron,name",0,Name,Nom,0
 field,"ir.cron,nextcall",0,Next call date,Date d'appel suivant,0
 field,"ir.cron,numbercall",0,Number of calls,Nombre d'appels,0
 field,"ir.cron,priority",0,Priority,Priorité,0
-field,"ir.cron,user_id",0,User,Utilisateur,0
+field,"ir.cron,user",0,User,Utilisateur,0
 field,"ir.default,clause",0,Clause,Clause,0
 field,"ir.default,field",0,Field,Champ,0
 field,"ir.default,model",0,Model,Modèle,0
 field,"ir.default,user",0,User,Utilisateur,0
 field,"ir.default,value",0,Value,Valeur,0
 field,"ir.export,export_fields",0,Export Id,Id d'exportation,0
-field,"ir.export.line,export_id",0,Exportation,Exportation,0
+field,"ir.export.line,export",0,Exportation,Exportation,0
 field,"ir.export.line,name",0,Field name,Champ du nom,0
 field,"ir.export,name",0,Export name,Nom de l'exportation,0
 field,"ir.export,resource",0,Resource,Ressource,0

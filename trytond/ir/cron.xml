@@ -9,7 +9,7 @@
                 <tree string="Scheduled Actions">
                     <field name="nextcall"/>
                     <field name="name" select="1"/>
-                    <field name="user_id" select="1"/>
+                    <field name="user" select="1"/>
                     <field name="priority" select="1"/>
                     <field name="interval_number"/>
                     <field name="interval_type"/>
@@ -27,8 +27,8 @@
                 <form string="Scheduled Action" col="6">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="user_id"/>
-                    <field name="user_id"/>
+                    <label name="user"/>
+                    <field name="user"/>
                     <label name="active"/>
                     <field name="active"/>
                     <label name="priority"/>
