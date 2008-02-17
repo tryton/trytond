@@ -157,15 +157,15 @@ class ModelData(OSV):
     _name = 'ir.model.data'
     _description = __doc__
     _columns = {
-        'fs_id': fields.char('Identifier on File System', required=True,
+        'fs_id': fields.Char('Identifier on File System', required=True,
             size=64, help="The id of the record as known on the file system."),
-        'model': fields.char('Model', required=True, size=64),
-        'module': fields.char('Module', required=True, size=64),
-        'db_id': fields.integer('Resource ID',
+        'model': fields.Char('Model', required=True, size=64),
+        'module': fields.Char('Module', required=True, size=64),
+        'db_id': fields.Integer('Resource ID',
             help="The id of the record in the database."),
-        'date_update': fields.datetime('Update Date'),
-        'date_init': fields.datetime('Init Date'),
-        'values': fields.text('Values'),
+        'date_update': fields.DateTime('Update Date'),
+        'date_init': fields.DateTime('Init Date'),
+        'values': fields.Text('Values'),
     }
     _defaults = {
         'date_init': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -279,7 +279,8 @@ class ModelData(OSV):
             for key in values:
 
                 try:
-                    db_field = ModelData._clean_value(key, db_values, object_ref)
+                    db_field = ModelData._clean_value(key, db_values,
+                            object_ref)
                 except Unhandled_field:
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
@@ -351,7 +352,8 @@ class ModelData(OSV):
             db_val = object_ref.browse(cursor, user, db_id)
             for key in values:
                 try:
-                    values[key] = ModelData._clean_value(key, db_val, object_ref)
+                    values[key] = ModelData._clean_value(key, db_val,
+                            object_ref)
                 except Unhandled_field:
                     continue
 
@@ -363,10 +365,10 @@ class ModelData(OSV):
                 'values': str(values),
                 })
             # update fs2db:
-            self.fs2db[cursor.dbname][(fs_id, module)]= (db_id, model, str(values), mdata_id)
+            self.fs2db[cursor.dbname][(fs_id, module)]= (db_id, model,
+                    str(values), mdata_id)
 
     def post_import(self, cursor, user, modules):
-
         # Test because of a wrong extra call. See todo at the end of
         # load_module_graph in module.py
         # Globaly this function is a bit dirty.
@@ -379,7 +381,8 @@ class ModelData(OSV):
 
         for (fs_id, module) in self.fs2values[cursor.dbname]:
             if module in modules:
-                (db_id, model, mdata_id) = self.fs2db[cursor.dbname][(fs_id, module)]
+                (db_id, model, mdata_id) = self.fs2db[cursor.dbname]\
+                        [(fs_id, module)]
 
                 if model == 'workflow.activity':
                     cursor.execute('SELECT res_type, db_id ' \
@@ -407,9 +410,9 @@ class ModelData(OSV):
                 except:
                     raise
                     logger.notify_channel('init', LOG_ERROR,
-                            'Could not delete id: %d of model %s\t' \
+                            'Could not delete id: %d of model %s\n' \
                                     'There should be some relation ' \
-                                    'that points to this resource\t' \
+                                    'that points to this resource\n' \
                                     'You should manually fix this ' \
                                     'and restart --update=module' % \
                                     (db_id, model))
@@ -417,9 +420,7 @@ class ModelData(OSV):
         if mdata_unlink:
             self.unlink(cursor, user, mdata_unlink)
         del self.fs2values[cursor.dbname]
-
         return True
-
 
 
 ModelData()
