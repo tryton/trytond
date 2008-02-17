@@ -21,10 +21,10 @@ class Model(OSV):
     _rec_name = 'model'
     _description = __doc__
     _columns = {
-        'name': fields.char('Model name', size=64, translate=True),
-        'model': fields.char('Object name', size=64, required=True),
-        'info': fields.text('Information'),
-        'field_id': fields.one2many('ir.model.fields', 'model_id', 'Fields',
+        'name': fields.Char('Model name', size=64, translate=True),
+        'model': fields.Char('Object name', size=64, required=True),
+        'info': fields.Text('Information'),
+        'fields': fields.One2Many('ir.model.fields', 'model_id', 'Fields',
             required=True),
     }
     _defaults = {

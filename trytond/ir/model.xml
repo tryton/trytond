@@ -13,7 +13,7 @@
                     <field name="model"/>
                     <separator name="info" colspan="4"/>
                     <field name="info" colspan="4"/>
-                    <field name="field_id" colspan="4" readonly="1">
+                    <field name="fields" colspan="4" readonly="1">
                         <form string="Fields Description">
                             <label name="name"/>
                             <field name="name"/>

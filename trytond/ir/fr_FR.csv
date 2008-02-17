@@ -79,7 +79,7 @@ field,"ir.model.data,fs_id",0,Identifier on File System,Identifiant sur le syst√
 field,"ir.model.data,model",0,Model,Mod√®le,0
 field,"ir.model.data,module",0,Module,Module,0
 field,"ir.model.data,values",0,Values,Valeurs,0
-field,"ir.model,field_id",0,Fields,Champs,0
+field,"ir.model,fields",0,Fields,Champs,0
 field,"ir.model.fields,field_description",0,Field Description,Champ de description,0
 field,"ir.model.fields,group_name",0,Group Name,Nom du groupe,0
 field,"ir.model.fields,groups",0,Groups,Groupes,0
