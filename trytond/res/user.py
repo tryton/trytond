@@ -12,7 +12,7 @@ class Group(OSV):
     _description = __doc__
     _columns = {
         'name': fields.Char('Group Name', size=64, required=True),
-        'model_access': fields.One2Many('ir.model.access', 'group_id',
+        'model_access': fields.One2Many('ir.model.access', 'group',
             'Access Controls'),
         'rule_groups': fields.Many2Many('ir.rule.group', 'group_rule_group_rel',
             'group_id', 'rule_group_id', 'Rules',
@@ -46,8 +46,8 @@ class User(OSV):
         'signature': fields.Text('Signature', size=64),
         #'address_id': fields.Many2One('res.partner.address', 'Address'),
         'active': fields.Boolean('Active'),
-        'action_id': fields.Many2One('ir.action', 'Home Action'),
-        'menu_id': fields.Many2One('ir.action', 'Menu Action'),
+        'action': fields.Many2One('ir.action', 'Home Action'),
+        'menu': fields.Many2One('ir.action', 'Menu Action'),
         'groups_id': fields.Many2Many('res.group', 'res_group_user_rel',
             'uid', 'gid', 'Groups'),
         #'company_id': fields.Many2One('res.company', 'Company'),
@@ -96,12 +96,12 @@ class User(OSV):
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
         action_obj = self.pool.get('ir.action')
-        if 'action_id' in vals:
-            vals['action_id'] = action_obj.get_action_id(cursor, user,
-                    vals['action_id'], context=context)
-        if 'menu_id' in vals:
-            vals['menu_id'] = action_obj.get_action_id(cursor, user,
-                    vals['menu_id'], context=context)
+        if 'action' in vals:
+            vals['action'] = action_obj.get_action_id(cursor, user,
+                    vals['action'], context=context)
+        if 'menu' in vals:
+            vals['menu'] = action_obj.get_action_id(cursor, user,
+                    vals['menu'], context=context)
         return vals
 
     def create(self, cursor, user, vals, context=None):

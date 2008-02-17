@@ -9,8 +9,8 @@
             <field name="password">admin</field>
             <field name="name">Administrator</field>
             <field name="signature">Administrator</field>
-            <field name="action_id" ref="ir.act_menu_tree"/>
-            <field name="menu_id" ref="ir.act_menu_tree"/>
+            <field name="action" ref="ir.act_menu_tree"/>
+            <field name="menu" ref="ir.act_menu_tree"/>
             <field name="groups_id" eval="[(6, 0, [ref('group_admin')])]"/>
         </record>
         <record model="ir.ui.view" id="user_view_form">
@@ -31,10 +31,10 @@
                             <field name="password"/>
                             <!--field name="address_id"/-->
                             <!--field name="company_id" required="1"/-->
-                            <label name="action_id"/>
-                            <field name="action_id" required="1"/>
-                            <label name="menu_id"/>
-                            <field name="menu_id"
+                            <label name="action"/>
+                            <field name="action" required="1"/>
+                            <label name="menu"/>
+                            <field name="menu"
                                 domain="[('usage','=','menu')]"
                                 required="True"/>
                             <separator name="signature" colspan="4"/>
