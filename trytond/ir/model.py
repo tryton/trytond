@@ -24,7 +24,7 @@ class Model(OSV):
         'name': fields.Char('Model name', size=64, translate=True),
         'model': fields.Char('Object name', size=64, required=True),
         'info': fields.Text('Information'),
-        'fields': fields.One2Many('ir.model.fields', 'model_id', 'Fields',
+        'fields': fields.One2Many('ir.model.field', 'model', 'Fields',
             required=True),
     }
     _defaults = {
@@ -33,25 +33,24 @@ class Model(OSV):
 
 Model()
 
-class ModelFields(OSV):
-    "Model fields"
-    _name = 'ir.model.fields'
+class ModelField(OSV):
+    "Model field"
+    _name = 'ir.model.field'
     _description = __doc__
     _columns = {
-        'name': fields.char('Name', size=64),
-        'model': fields.char('Model Name', size=64, required=True),
-        'relation': fields.char('Model Relation', size=64),
-        'model_id': fields.many2one('ir.model', 'Model id', required=True,
+        'name': fields.Char('Name', size=64),
+        'relation': fields.Char('Model Relation', size=64),
+        'model': fields.Many2One('ir.model', 'Model id', required=True,
             select=True, ondelete='cascade'),
-        'field_description': fields.char('Field Description', size=256,
+        'field_description': fields.Char('Field Description', size=256,
             translate=True),
-        'ttype': fields.char('Field Type', size=64),
-        'relate': fields.boolean('Click and Relate'),
+        'ttype': fields.Char('Field Type', size=64),
+        'relate': fields.Boolean('Click and Relate'),
 
-        'groups': fields.many2many('res.group', 'ir_model_fields_group_rel',
+        'groups': fields.Many2Many('res.group', 'ir_model_field_group_rel',
             'field_id', 'group_id', 'Groups'),
-        'group_name': fields.char('Group Name', size=128),
-        'view_load': fields.boolean('View Auto-Load'),
+        'group_name': fields.Char('Group Name', size=128),
+        'view_load': fields.Boolean('View Auto-Load'),
         'help': fields.Text('Help', translate=True),
     }
     _defaults = {
@@ -62,7 +61,7 @@ class ModelFields(OSV):
     }
     _order = "id"
 
-ModelFields()
+ModelField()
 
 
 class ModelAccess(OSV):

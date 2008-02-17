@@ -65,7 +65,7 @@
         <menuitem parent_id="ir.menu_ir"
             action="act_model_form" id="menu_model_form"/>
         <record model="ir.ui.view" id="model_fields_view_form">
-            <field name="model">ir.model.fields</field>
+            <field name="model">ir.model.field</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -87,7 +87,7 @@
             </field>
         </record>
         <record model="ir.ui.view" id="model_fields_view_tree">
-            <field name="model">ir.model.fields</field>
+            <field name="model">ir.model.field</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
@@ -102,7 +102,7 @@
         </record>
         <record model="ir.action.act_window" id="act_model_fields_form">
             <field name="name">Fields</field>
-            <field name="res_model">ir.model.fields</field>
+            <field name="res_model">ir.model.field</field>
             <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"

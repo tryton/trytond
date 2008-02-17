@@ -57,7 +57,7 @@ class Rule(OSV):
     _rec_name = 'field_id'
     _description = __doc__
     _columns = {
-        'field_id': fields.many2one('ir.model.fields', 'Field',
+        'field_id': fields.many2one('ir.model.field', 'Field',
             domain="[('model_id','=', parent.model_id)]", select=1,
             required=True),
         'operator':fields.selection([

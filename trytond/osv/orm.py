@@ -284,11 +284,14 @@ class ORM(object):
                     (self._name,))
         (model_id,) = cursor.fetchone()
 
-        cursor.execute('SELECT id, name, field_description, ttype, relation, ' \
-                    'group_name, view_load ' \
-                'FROM ir_model_fields ' \
-                'WHERE model = %s ' \
-                    'AND name in ' \
+        cursor.execute('SELECT f.id AS id, f.name AS name, ' \
+                    'f.field_description AS field_description, ' \
+                    'f.ttype AS ttype, f.relation AS relation, ' \
+                    'f.group_name AS group_name, f.view_load AS view_load ' \
+                'FROM ir_model_field AS f, ir_model AS m ' \
+                'WHERE f.model = m.id ' \
+                    'AND m.model = %s ' \
+                    'AND f.name in ' \
                         '(' + ','.join(['%s' for x in self._columns]) + ')',
                         (self._name,) + tuple(self._columns))
         columns = {}
@@ -316,12 +319,11 @@ class ORM(object):
         for k in self._columns:
             field = self._columns[k]
             if k not in columns:
-                cursor.execute("INSERT INTO ir_model_fields " \
-                        "(model_id, model, name, field_description, ttype, " \
+                cursor.execute("INSERT INTO ir_model_field " \
+                        "(model, name, field_description, ttype, " \
                             "relation, group_name, view_load, help) " \
-                        "VALUES (%d, %s, %s, %s, %s, %s, %s, %s, %s)",
-                        (model_id, self._name, k,
-                            field.string, field._type,
+                        "VALUES (%d, %s, %s, %s, %s, %s, %s, %s)",
+                        (model_id, k, field.string, field._type,
                             field._obj or 'NULL', field.group_name or '',
                             (field.view_load and 'True') or 'False',
                             field.help))
@@ -332,7 +334,7 @@ class ORM(object):
                     or columns[k]['view_load'] != \
                         ((field.view_load and 'True') or 'False') \
                     or columns[k]['help'] != field.help:
-                cursor.execute('UPDATE ir_model_fields ' \
+                cursor.execute('UPDATE ir_model_field ' \
                         'SET field_description = %s, ' \
                             'ttype = %s, ' \
                             'relation = %s, ' \
@@ -1718,10 +1720,12 @@ class ORM(object):
                 doc = node.ownerDocument
                 models = ["'" + x + "'" for x in  [self._name] + \
                         self._inherits.keys()]
-                cursor.execute('SELECT name, group_name ' \
-                        'FROM ir_model_fields ' \
-                        'WHERE model in (' + ','.join(models) + ') ' \
-                            'AND view_load ORDER BY group_name, id')
+                cursor.execute('SELECT f.name AS name, ' \
+                            'f.group_name AS group_name ' \
+                        'FROM ir_model_field AS f, ir_model AS m ' \
+                        'WHERE f.model = m.id ' \
+                            'AND m.model in (' + ','.join(models) + ') ' \
+                            'AND f.view_load ORDER BY f.group_name, f.id')
                 oldgroup = None
                 for fname, gname in cursor.fetchall():
                     if oldgroup != gname:

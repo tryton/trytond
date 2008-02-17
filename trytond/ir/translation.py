@@ -87,16 +87,16 @@ class Translation(OSV, Cacheable):
 
     def _get_ids(self, cursor, name, ttype, lang, ids):
         translations, to_fetch = {}, []
-        if name.split(',')[0] == 'ir.model.fields':
-            model_fields_obj = self.pool.get('ir.model.fields')
+        if name.split(',')[0] == 'ir.model.field':
+            model_fields_obj = self.pool.get('ir.model.field')
             field_name = name.split(',')[1]
             if field_name == 'field_description':
                 ttype = 'field'
             else:
                 ttype = 'help'
-            for field in model_fields_obj.read(cursor, 1, ids,
+            for field in model_fields_obj.read(cursor, 0, ids,
                     ['model', 'name']):
-                name = field['model'] + ',' + field['name']
+                name = field['model'][1] + ',' + field['name']
                 translations[field['id']] = self._get_source(cursor,
                         name, ttype, lang)
             return translations
@@ -125,8 +125,8 @@ class Translation(OSV, Cacheable):
         return translations
 
     def _set_ids(self, cursor, user, name, ttype, lang, ids, value):
-        if name.split(',')[0] == 'ir.model.fields':
-            model_fields_obj = self.pool.get('ir.model.fields')
+        if name.split(',')[0] == 'ir.model.field':
+            model_fields_obj = self.pool.get('ir.model.field')
             field_name = name.split(',')[1]
             if field_name == 'field_description':
                 ttype = 'field'
