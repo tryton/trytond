@@ -33,7 +33,6 @@ field,"ir.action,usage",0,Usage,Utilisation,0
 field,"ir.action.wizard,action",0,Action,Action,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Nom du wizard,0
 field,"ir.attachment,datas",0,Data,Donnée,0
-field,"ir.attachment,datas_fname",0,Data Filename,Nom de fichier donnée,0
 field,"ir.attachment,description",0,Description,Description,0
 field,"ir.attachment,link",0,Link,Lien,0
 field,"ir.attachment,name",0,Attachment Name,Nom de l'attachement,0

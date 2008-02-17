@@ -13,7 +13,6 @@ class Attachment(OSV):
         'name': fields.Char('Attachment Name',size=64, required=True),
         'datas': fields.Function('datas', fnct_inv='datas_inv',
             type='binary', string='Datas'),
-        'datas_fname': fields.Char('Data Filename',size=64),
         'description': fields.Text('Description'),
         'res_model': fields.Char('Resource Model',size=64,
             readonly=True, required=True),
@@ -29,8 +28,8 @@ class Attachment(OSV):
         'collision': lambda *a: 0,
     }
     _sql_constraints = [
-        ('res_model_res_id_datas_fname',
-            'UNIQUE (res_model, res_id, datas_fname)',
+        ('res_model_res_id_name',
+            'UNIQUE (res_model, res_id, name)',
             'Error! You can not create attachment with the same name!'),
     ]
 
