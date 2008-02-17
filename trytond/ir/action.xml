@@ -138,7 +138,7 @@
                     <field name="src_model"/>
                     <label name="view_type"/>
                     <field name="view_type"/>
-                    <field name="view_ids" colspan="6">
+                    <field name="act_window_views" colspan="6">
                         <form string="Views">
                             <label name="sequence"/>
                             <field name="sequence" colspan="4"/>
