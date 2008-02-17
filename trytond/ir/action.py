@@ -224,7 +224,7 @@ class ActionActWindow(OSV):
         'view_type': fields.Selection([('tree','Tree'), ('form','Form')],
             string='Type of view'),
         'usage': fields.Char('Action Usage', size=32),
-        'view_ids': fields.One2Many('ir.action.act_window.view',
+        'act_window_views': fields.One2Many('ir.action.act_window.view',
             'act_window_id', 'Views'),
         'views': fields.Function('views_get_fnc', type='binary',
             string='Views'),
@@ -246,7 +246,7 @@ class ActionActWindow(OSV):
         res = {}
         for act in self.browse(cursor, user, ids, context=context):
             res[act.id] = [(view.view_id.id, view.view_id.type) \
-                    for view in act.view_ids]
+                    for view in act.act_window_views]
         return res
 
 ActionActWindow()
