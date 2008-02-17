@@ -34,7 +34,7 @@
             id="act_lang_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="lang_view_tree"/>
-            <field name="act_window_id" ref="act_lang_form"/>
+            <field name="act_window" ref="act_lang_form"/>
         </record>
         <menuitem name="Languages" parent_id="ir.menu_ir"
             action="act_lang_form" id="menu_lang_form"/>

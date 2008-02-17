@@ -82,13 +82,13 @@
             id="act_user_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="user_view_tree"/>
-            <field name="act_window_id" ref="act_user_form"/>
+            <field name="act_window" ref="act_user_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_user_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="user_view_form"/>
-            <field name="act_window_id" ref="act_user_form"/>
+            <field name="act_window" ref="act_user_form"/>
         </record>
         <menuitem parent_id="res.menu_res"
             action="act_user_form" id="menu_user_form"/>
@@ -139,13 +139,13 @@
             id="act_group_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="group_view_tree"/>
-            <field name="act_window_id" ref="act_group_form"/>
+            <field name="act_window" ref="act_group_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_group_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="group_view_form"/>
-            <field name="act_window_id" ref="act_group_form"/>
+            <field name="act_window" ref="act_group_form"/>
         </record>
         <menuitem parent_id="res.menu_res"
             action="act_group_form" id="menu_group_form"/>

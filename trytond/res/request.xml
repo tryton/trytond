@@ -82,13 +82,13 @@
             id="act_request_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="request_view_tree"/>
-            <field name="act_window_id" ref="act_request_form"/>
+            <field name="act_window" ref="act_request_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_request_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="request_view_form"/>
-            <field name="act_window_id" ref="act_request_form"/>
+            <field name="act_window" ref="act_request_form"/>
         </record>
         <menuitem parent_id="res.menu_res" 
             action="act_request_form" id="menu_request_form"/>

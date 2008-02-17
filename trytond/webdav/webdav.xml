@@ -44,7 +44,7 @@
             id="act_directory_tree_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="directory_view_tree"/>
-            <field name="act_window_id" ref="act_directory_tree"/>
+            <field name="act_window" ref="act_directory_tree"/>
         </record>
         <menuitem parent_id="menu_webdav"
             action="act_directory_tree" id="menu_directory_tree"/>
@@ -58,13 +58,13 @@
             id="act_directory_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="directory_view_form"/>
-            <field name="act_window_id" ref="act_directory_form"/>
+            <field name="act_window" ref="act_directory_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_directory_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="directory_view_tree"/>
-            <field name="act_window_id" ref="act_directory_form"/>
+            <field name="act_window" ref="act_directory_form"/>
         </record>
         <menuitem name="New Directory" parent_id="menu_directory_tree"
             action="act_directory_form" id="menu_directory_form"/>

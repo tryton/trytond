@@ -47,13 +47,13 @@
             id="act_action_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="action_view_tree"/>
-            <field name="act_window_id" ref="act_action_form"/>
+            <field name="act_window" ref="act_action_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="action_view_form"/>
-            <field name="act_window_id" ref="act_action_form"/>
+            <field name="act_window" ref="act_action_form"/>
         </record>
         <menuitem parent_id="menu_action"
             action="act_action_form" id="menu_act_action"/>
@@ -112,13 +112,13 @@
             id="act_action_report_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="action_report_view_tree"/>
-            <field name="act_window_id" ref="act_action_report_form"/>
+            <field name="act_window" ref="act_action_report_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_report_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="action_report_view_form"/>
-            <field name="act_window_id" ref="act_action_report_form"/>
+            <field name="act_window" ref="act_action_report_form"/>
         </record>
         <menuitem parent_id="menu_action"
             action="act_action_report_form" id="menu_action_report_form"/>
@@ -198,12 +198,12 @@
         <record model="ir.action.act_window.view" id="act_action_act_window_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="action_act_window_view_tree"/>
-            <field name="act_window_id" ref="act_action_act_window_form"/>
+            <field name="act_window" ref="act_action_act_window_form"/>
         </record>
         <record model="ir.action.act_window.view" id="act_action_act_window_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="action_act_window_view_form"/>
-            <field name="act_window_id" ref="act_action_act_window_form"/>
+            <field name="act_window" ref="act_action_act_window_form"/>
         </record>
         <menuitem parent_id="menu_action"
             action="act_action_act_window_form" id="menu_action_act_window"/>
@@ -256,13 +256,13 @@
             id="act_action_wizard_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="action_wizard_view_tree"/>
-            <field name="act_window_id" ref="act_action_wizard_form"/>
+            <field name="act_window" ref="act_action_wizard_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_wizard_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="action_wizard_view_form"/>
-            <field name="act_window_id" ref="act_action_wizard_form"/>
+            <field name="act_window" ref="act_action_wizard_form"/>
         </record>
         <menuitem parent_id="menu_action"
             action="act_action_wizard_form" id="menu_action_wizard"/>

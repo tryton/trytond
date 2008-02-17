@@ -7,7 +7,7 @@ field,"ir.action.act_window,limit",0,Limit,Limite,0
 field,"ir.action.act_window,res_model",0,Model,Modèle,0
 field,"ir.action.act_window,src_model",0,Source model,Modèle source,0
 field,"ir.action.act_window,usage",0,Action Usage,Utilisation,0
-field,"ir.action.act_window.view,act_window_id",0,Action,Action,0
+field,"ir.action.act_window.view,act_window",0,Action,Action,0
 field,"ir.action.act_window,act_window_views",0,Views,Vues,0
 field,"ir.action.act_window.view,multi",0,On multiple doc.,Sur plusieurs doc.,0
 field,"ir.action.act_window,views",0,Views,Vues,0

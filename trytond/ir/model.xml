@@ -54,13 +54,13 @@
             id="act_model_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="model_view_tree"/>
-            <field name="act_window_id" ref="act_model_form"/>
+            <field name="act_window" ref="act_model_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_model_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="model_view_form"/>
-            <field name="act_window_id" ref="act_model_form"/>
+            <field name="act_window" ref="act_model_form"/>
         </record>
         <menuitem parent_id="ir.menu_ir"
             action="act_model_form" id="menu_model_form"/>
@@ -109,13 +109,13 @@
             id="act_model_fields_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="model_fields_view_tree"/>
-            <field name="act_window_id" ref="act_model_fields_form"/>
+            <field name="act_window" ref="act_model_fields_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_model_fields_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="model_fields_view_form"/>
-            <field name="act_window_id" ref="act_model_fields_form"/>
+            <field name="act_window" ref="act_model_fields_form"/>
         </record>
         <menuitem parent_id="ir.menu_ir"
             action="act_model_fields_form" id="model_model_fields_form"/>
@@ -166,13 +166,13 @@
             id="act_model_access_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="model_access_view_tree"/>
-            <field name="act_window_id" ref="act_model_access_form"/>
+            <field name="act_window" ref="act_model_access_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_model_access_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="model_access_view_form"/>
-            <field name="act_window_id" ref="act_model_access_form"/>
+            <field name="act_window" ref="act_model_access_form"/>
         </record>
         <menuitem parent_id="ir.menu_ir"
             action="act_model_access_form" id="menu_model_access_form"/>

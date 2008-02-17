@@ -94,13 +94,13 @@
             id="act_module_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="module_view_tree"/>
-            <field name="act_window_id" ref="act_module_form"/>
+            <field name="act_window" ref="act_module_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_module_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="module_view_form"/>
-            <field name="act_window_id" ref="act_module_form"/>
+            <field name="act_window" ref="act_module_form"/>
         </record>
         <record model="ir.action.keyword" id="act_category_keyword1">
             <field name="action" ref="act_module_form"/>

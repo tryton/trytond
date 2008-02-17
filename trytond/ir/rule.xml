@@ -44,13 +44,13 @@
             id="act_rule_group_form_view1">
             <field name="sequence" eval="1"/>
             <field name="view_id" ref="rule_group_view_tree"/>
-            <field name="act_window_id" ref="act_rule_group_form"/>
+            <field name="act_window" ref="act_rule_group_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_rule_group_form_view2">
             <field name="sequence" eval="2"/>
             <field name="view_id" ref="rule_group_view_form"/>
-            <field name="act_window_id" ref="act_rule_group_form"/>
+            <field name="act_window" ref="act_rule_group_form"/>
         </record>
         <menuitem parent_id="ir.menu_ir"
             action="act_rule_group_form" id="menu_rule_group_form"/>
