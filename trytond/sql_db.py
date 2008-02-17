@@ -170,7 +170,7 @@ def init_db(cursor):
             module_id = cursor.fetchone()[0]
             cursor.execute('INSERT INTO ir_module_module ' \
                     '(id, author, latest_version, website, name, shortdesc, ' \
-                    'description, category_id, state) ' \
+                    'description, category, state) ' \
                     'VALUES (%d, %s, %s, %s, %s, %s, %s, %d, %s)',
                     (module_id, info.get('author', ''),
                 version.VERSION.rsplit('.', 1)[0] + '.' + info.get('version', ''),
@@ -179,7 +179,7 @@ def init_db(cursor):
             dependencies = info.get('depends', [])
             for dependency in dependencies:
                 cursor.execute('INSERT INTO ir_module_module_dependency ' \
-                        '(module_id, name) VALUES (%s, %s)',
+                        '(module, name) VALUES (%s, %s)',
                         (module_id, dependency))
 
 psycopg.register_type(psycopg.new_type((1082,), "date", lambda x:x))

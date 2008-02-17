@@ -234,7 +234,7 @@ CREATE TABLE ir_module_module (
     state character varying(16),
     latest_version character varying(64),
     shortdesc character varying(256),
-    category_id integer REFERENCES ir_module_category ON DELETE SET NULL,
+    category integer REFERENCES ir_module_category ON DELETE SET NULL,
     description text,
     demo boolean default False,
     primary key(id)
@@ -249,6 +249,6 @@ CREATE TABLE ir_module_module_dependency (
     write_uid integer references res_user on delete set null,
     name character varying(128),
     version_pattern character varying(128) default NULL,
-    module_id integer REFERENCES ir_module_module ON DELETE cascade,
+    module integer REFERENCES ir_module_module ON DELETE cascade,
     primary key(id)
 );

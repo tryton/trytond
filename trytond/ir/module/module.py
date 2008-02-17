@@ -128,7 +128,7 @@ class Module(OSV):
     _description = __doc__
     _columns = {
         'name': fields.Char("Name", size=128, readonly=True, required=True),
-        'category_id': fields.Many2One('ir.module.category', 'Category',
+        'category': fields.Many2One('ir.module.category', 'Category',
             readonly=True),
         'shortdesc': fields.Char('Short description', size=256, readonly=True),
         'description': fields.Text("Description", readonly=True),
@@ -138,8 +138,8 @@ class Module(OSV):
             string='Installed version', type='char'),
         'latest_version': fields.Char('Latest version', size=64, readonly=True),
         'url': fields.Char('URL', size=128),
-        'dependencies_id': fields.One2Many('ir.module.module.dependency',
-            'module_id', 'Dependencies', readonly=True),
+        'dependencies': fields.One2Many('ir.module.module.dependency',
+            'module', 'Dependencies', readonly=True),
         'state': fields.Selection([
             ('uninstallable', 'Not Installable'),
             ('uninstalled', 'Not Installed'),
@@ -225,13 +225,13 @@ class Module(OSV):
         demo = True
         for module in self.browse(cursor, user, ids, context=context):
             mdemo = True
-            for dep in module.dependencies_id:
+            for dep in module.dependencies:
                 ids2 = self.search(cursor, user, [('name', '=', dep.name)],
                         context=context)
                 mdemo = self.state_change(cursor, user, ids2, newstate,
                         context, level-1,) \
                                 and mdemo
-            if not module.dependencies_id:
+            if not module.dependencies:
                 mdemo = module.demo
             if module.state == 'uninstalled':
                 self.write(cursor, user, [module.id], {
@@ -254,8 +254,8 @@ class Module(OSV):
                 ids2 = []
                 for dep in dependency_obj.browse(cursor, user, dep_ids,
                         context=context):
-                    if dep.module_id.state != 'to upgrade':
-                        ids2.append(dep.module_id.id)
+                    if dep.module.state != 'to upgrade':
+                        ids2.append(dep.module.id)
                 self.state_upgrade(cursor, user, ids2, newstate, context, level)
             if module.state == 'installed':
                 self.write(cursor, user, module.id, {
@@ -278,7 +278,7 @@ class Module(OSV):
         for module in self.browse(cursor, user, ids, context=context):
             cursor.execute('SELECT m.state, m.name ' \
                     'FROM ir_module_module_dependency d ' \
-                    'JOIN ir_module_module m on (d.module_id=m.id) ' \
+                    'JOIN ir_module_module m on (d.module = m.id) ' \
                     'WHERE d.name = %s ' \
                         'AND m.state not in ' \
                         '(\'uninstalled\',\'uninstallable\',\'to remove\')',
@@ -481,14 +481,14 @@ class Module(OSV):
     def _update_dependencies(self, cursor, user, module_id, depends=None):
         dependency_obj = self.pool.get('ir.module.module.dependency')
         dependency_ids = dependency_obj.search(cursor, user, [
-            ('module_id', '=', module_id),
+            ('module', '=', module_id),
             ])
         dependency_obj.unlink(cursor, user, dependency_ids)
         if depends is None:
             depends = []
         for depend in depends:
             dependency_obj.create(cursor, user, {
-                'module_id': module_id,
+                'module': module_id,
                 'name': depend,
                 })
 
@@ -515,7 +515,7 @@ class Module(OSV):
             else:
                 parent_id = category_ids[0]
             categs = categs[1:]
-        self.write(cursor, user, module_id, {'category_id': parent_id})
+        self.write(cursor, user, module_id, {'category': parent_id})
 
 Module()
 
@@ -525,7 +525,7 @@ class ModuleDependency(OSV):
     _description = __doc__
     _columns = {
         'name': fields.Char('Name',  size=128),
-        'module_id': fields.Many2One('ir.module.module', 'Module', select=1,
+        'module': fields.Many2One('ir.module.module', 'Module', select=1,
             ondelete='cascade'),
         'state': fields.Function('state', type='selection',
             selection=[
