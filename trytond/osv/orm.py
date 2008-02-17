@@ -295,12 +295,11 @@ class ORM(object):
         for column in cursor.dictfetchall():
             columns[column['name']] = column
         cursor.execute('SELECT id, name, src, type FROM ir_translation ' \
-                'WHERE module = %s ' \
-                    'AND lang = %s ' \
+                'WHERE lang = %s ' \
                     'AND type IN (%s, %s, %s) ' \
                     'AND name IN ' \
                         '(' + ','.join(['%s' for x in self._columns]) + ')',
-                        (module_name, 'en_US', 'field', 'help', 'selection') + \
+                        ('en_US', 'field', 'help', 'selection') + \
                                 tuple([self._name + ',' + x \
                                     for x in self._columns]))
         trans_columns = {}
