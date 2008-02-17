@@ -150,12 +150,12 @@ field,"ir.translation,src",0,Source,Source,0
 field,"ir.translation,type",0,Type,Type,0
 field,"ir.translation,value",0,Translation Value,Valeur de traduction,0
 field,"ir.ui.menu,action",0,Action,Action,0
-field,"ir.ui.menu,child_id",0,Child ids,Ids enfants,0
+field,"ir.ui.menu,childs",0,Childs,Enfants,0
 field,"ir.ui.menu,complete_name",0,Complete Name,Nom complet,0
 field,"ir.ui.menu,groups_id",0,Groups,Groupes,0
 field,"ir.ui.menu,icon",0,Icon,Icône,0
 field,"ir.ui.menu,name",0,Menu,Menu,0
-field,"ir.ui.menu,parent_id",0,Parent Menu,Menu parent,0
+field,"ir.ui.menu,parent",0,Parent Menu,Menu parent,0
 field,"ir.ui.menu,sequence",0,Sequence,Séquence,0
 field,"ir.ui.view,arch",0,View Architecture,Architecture de la vue,0
 field,"ir.ui.view,field_parent",0,Childs Field,Champs enfants,0

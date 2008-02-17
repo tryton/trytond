@@ -36,7 +36,7 @@
             <field name="view" ref="lang_view_tree"/>
             <field name="act_window" ref="act_lang_form"/>
         </record>
-        <menuitem name="Languages" parent_id="ir.menu_ir"
+        <menuitem name="Languages" parent="ir.menu_ir"
             action="act_lang_form" id="menu_lang_form"/>
     </data>
 </tryton>

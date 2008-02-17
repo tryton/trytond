@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
-        <menuitem name="WebDAV" id="menu_webdav" parent_id="ir.menu_administration"/>
+        <menuitem name="WebDAV" id="menu_webdav"
+            parent="ir.menu_administration"/>
         <record model="ir.ui.view" id="directory_view_tree">
             <field name="model">webdav.directory</field>
             <field name="type">tree</field>
@@ -46,7 +47,7 @@
             <field name="view" ref="directory_view_tree"/>
             <field name="act_window" ref="act_directory_tree"/>
         </record>
-        <menuitem parent_id="menu_webdav"
+        <menuitem parent="menu_webdav"
             action="act_directory_tree" id="menu_directory_tree"/>
         <record model="ir.action.act_window" id="act_directory_form">
             <field name="name">Directory</field>
@@ -66,7 +67,7 @@
             <field name="view" ref="directory_view_tree"/>
             <field name="act_window" ref="act_directory_form"/>
         </record>
-        <menuitem name="New Directory" parent_id="menu_directory_tree"
+        <menuitem name="New Directory" parent="menu_directory_tree"
             action="act_directory_form" id="menu_directory_form"/>
     </data>
 </tryton>

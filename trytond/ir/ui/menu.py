@@ -143,9 +143,9 @@ class UIMenu(OSV):
     _columns = {
         'name': fields.Char('Menu', size=64, required=True, translate=True),
         'sequence': fields.Integer('Sequence'),
-        'child_id' : fields.One2Many('ir.ui.menu', 'parent_id','Child ids'),
-        'parent_id': fields.Many2One('ir.ui.menu', 'Parent Menu', select=True),
-        'groups_id': Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
+        'childs' : fields.One2Many('ir.ui.menu', 'parent','Childs'),
+        'parent': fields.Many2One('ir.ui.menu', 'Parent Menu', select=1),
+        'groups': Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
             'menu_id', 'gid', 'Groups'),
         'complete_name': fields.Function('get_full_name',
             string='Complete Name', type='char', size=128),
@@ -174,8 +174,8 @@ class UIMenu(OSV):
     def _get_one_full_name(self, menu, level=6):
         if level <= 0:
             return '...'
-        if menu.parent_id:
-            parent_path = self._get_one_full_name(menu.parent_id, level-1) + "/"
+        if menu.parent:
+            parent_path = self._get_one_full_name(menu.parent, level-1) + "/"
         else:
             parent_path = ''
         return parent_path + menu.name
@@ -250,10 +250,10 @@ class UIMenu(OSV):
         user_groups = res_user_obj.read(cursor, user, [user])[0]['groups_id']
         result = []
         for menu in self.browse(cursor, user, ids):
-            if not len(menu.groups_id):
+            if not len(menu.groups):
                 result.append(menu.id)
                 continue
-            for group in menu.groups_id:
+            for group in menu.groups:
                 if group.id in user_groups:
                     result.append(menu.id)
                     break

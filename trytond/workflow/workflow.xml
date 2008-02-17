@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
-        <menuitem name="Workflow" id="menu_workflow" parent_id="ir.menu_administration"/>
+        <menuitem name="Workflow" id="menu_workflow"
+            parent="ir.menu_administration"/>
         <record model="ir.ui.view" id="workflow_view_form">
             <field name="model">workflow</field>
             <field name="type">form</field>
@@ -49,7 +50,7 @@
             <field name="view" ref="workflow_view_form"/>
             <field name="act_window" ref="act_workflow_form"/>
         </record>
-        <menuitem parent_id="menu_workflow"
+        <menuitem parent="menu_workflow"
             action="act_workflow_form" id="menu_workflow_form"/>
         <record model="ir.ui.view" id="activity_view_form">
             <field name="model">workflow.activity</field>
@@ -167,7 +168,7 @@
             <field name="view" ref="activity_view_form"/>
             <field name="act_window" ref="act_activity_form"/>
         </record>
-        <menuitem parent_id="menu_workflow"
+        <menuitem parent="menu_workflow"
             action="act_activity_form" id="menu_activity_form"/>
         <record model="ir.ui.view" id="transition_view_form">
             <field name="model">workflow.transition</field>
@@ -227,7 +228,7 @@
             <field name="view" ref="transition_view_form"/>
             <field name="act_window" ref="act_transition_form"/>
         </record>
-        <menuitem parent_id="menu_workflow"
+        <menuitem parent="menu_workflow"
             action="act_transition_form" id="menu_transition_form"/>
         <record model="ir.ui.view" id="instance_view_form">
             <field name="model">workflow.instance</field>
@@ -281,7 +282,7 @@
             <field name="view" ref="instance_view_form"/>
             <field name="act_window" ref="act_instance_form"/>
         </record>
-        <menuitem parent_id="menu_workflow"
+        <menuitem parent="menu_workflow"
             action="act_instance_form" id="menu_instance_form"/>
         <record model="ir.ui.view" id="workitem_view_form">
             <field name="model">workflow.workitem</field>
@@ -332,7 +333,7 @@
             <field name="view" ref="workitem_view_form"/>
             <field name="act_window" ref="act_workitem_form"/>
         </record>
-        <menuitem parent_id="menu_workflow"
+        <menuitem parent="menu_workflow"
             action="act_workitem_form" id="menu_workitem_form"/>
     </data>
 </tryton>

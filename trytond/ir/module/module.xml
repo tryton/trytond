@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
-        <menuitem name="Modules" parent_id="menu_ir" id="menu_modules"/>
+        <menuitem name="Modules" parent="menu_ir" id="menu_modules"/>
         <record model="ir.ui.view" id="module_view_form">
             <field name="model">ir.module.module</field>
             <field name="type">form</field>
@@ -107,7 +107,7 @@
             <field name="keyword">tree_open</field>
             <field name="model">ir.module.category,0</field>
         </record>
-        <menuitem parent_id="menu_modules"
+        <menuitem parent="menu_modules"
             action="act_module_form" id="menu_module_form"/>
         <record model="ir.action.wizard" id="act_module_update_list">
             <field name="name">Update Module List</field>
@@ -141,7 +141,7 @@
             </field>
         </record>
 
-        <menuitem name="Update Module List" parent_id="menu_modules"
+        <menuitem name="Update Module List" parent="menu_modules"
             action="act_module_update_list"
             type="wizard"
             id="menu_module_update_list"/>
@@ -195,7 +195,7 @@
             </field>
         </record>
         <menuitem name="Install \ Upgrade Modules"
-            parent_id="menu_modules"
+            parent="menu_modules"
             action="act_module_install_upgrade"
             type="wizard"
             id="menu_module_install_upgrade"/>

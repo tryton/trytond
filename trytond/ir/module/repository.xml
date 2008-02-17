@@ -53,7 +53,7 @@
             <field name="view" ref="repository_view_form"/>
             <field name="act_window" ref="act_repository_form"/>
         </record>
-        <menuitem parent_id="menu_modules"
+        <menuitem parent="menu_modules"
             action="act_repository_form" id="menu_repository_form"/>
     </data>
 </tryton>

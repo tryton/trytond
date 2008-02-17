@@ -40,7 +40,7 @@
             <field name="view" ref="category_view_tree"/>
             <field name="act_window" ref="act_category_tree"/>
         </record>
-        <menuitem parent_id="menu_modules"
+        <menuitem parent="menu_modules"
             action="act_category_tree" id="menu_category_tree"/>
     </data>
 </tryton>
