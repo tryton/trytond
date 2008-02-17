@@ -54,13 +54,13 @@ RuleGroup()
 class Rule(OSV):
     "Rule"
     _name = 'ir.rule'
-    _rec_name = 'field_id'
+    _rec_name = 'field'
     _description = __doc__
     _columns = {
-        'field_id': fields.many2one('ir.model.field', 'Field',
+        'field': fields.Many2One('ir.model.field', 'Field',
             domain="[('model', '=', parent.model)]", select=1,
             required=True),
-        'operator':fields.selection([
+        'operator':fields.Selection([
             ('=', '='),
             ('<>', '<>'),
             ('<=', '<='),
@@ -68,8 +68,8 @@ class Rule(OSV):
             ('in', 'in'),
             ('child_of', 'child_of'),
             ], 'Operator', required=True),
-        'operand':fields.selection('operand','Operand', size=64, required=True),
-        'rule_group': fields.many2one('ir.rule.group', 'Group', select=2,
+        'operand':fields.Selection('operand','Operand', size=64, required=True),
+        'rule_group': fields.Many2One('ir.rule.group', 'Group', select=2,
             required=True, ondelete="cascade")
     }
 
@@ -145,12 +145,12 @@ class Rule(OSV):
         for rule in self.browse(cursor, 1, ids):
             if rule.operator in ('in', 'child_of'):
                 dom = eval("[('%s', '%s', [%s])]" % \
-                        (rule.field_id.name, rule.operator, rule.operand),
+                        (rule.field.name, rule.operator, rule.operand),
                         {'user': self.pool.get('res.user').browse(cursor, 1,
                             user), 'time': time})
             else:
                 dom = eval("[('%s', '%s', %s)]" % \
-                        (rule.field_id.name, rule.operator, rule.operand),
+                        (rule.field.name, rule.operator, rule.operand),
                         {'user': self.pool.get('res.user').browse(cursor, 1,
                             user), 'time': time})
 
