@@ -65,8 +65,8 @@ field,"ir.lang,code",0,Code,Code,0
 field,"ir.lang,direction",0,Direction,Direction,0
 field,"ir.lang,name",0,Name,Nom,0
 field,"ir.lang,translatable",0,Translatable,Traduisible,0
-field,"ir.model.access,group_id",0,Group,Groupe,0
-field,"ir.model.access,model_id",0,Model,Modèle,0
+field,"ir.model.access,group",0,Group,Groupe,0
+field,"ir.model.access,model",0,Model,Modèle,0
 field,"ir.model.access,name",0,Name,Nom,0
 field,"ir.model.access,perm_create",0,Create Access,Accès à la creation,0
 field,"ir.model.access,perm_read",0,Read Access,Accès à la lecture,0
@@ -84,8 +84,7 @@ field,"ir.model.field,field_description",0,Field Description,Champ de descriptio
 field,"ir.model.field,group_name",0,Group Name,Nom du groupe,0
 field,"ir.model.field,groups",0,Groups,Groupes,0
 field,"ir.model.field,help",0,Help,Aide,0
-field,"ir.model.field,model",0,Model Name,Nom du modèle,0
-field,"ir.model.field,model_id",0,Model id,Id de modèle,0
+field,"ir.model.field,model",0,Model,Modèle,0
 field,"ir.model.field,name",0,Name,Nom,0
 field,"ir.model.field,relate",0,Click and Relate,Clicker et relier,0
 field,"ir.model.field,relation",0,Model Relation,Relation du modèle,0

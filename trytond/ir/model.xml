@@ -72,8 +72,8 @@
                 <form string="Fields">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="model_id"/>
-                    <field name="model_id" readonly="1"/>
+                    <label name="model"/>
+                    <field name="model" readonly="1"/>
                     <label name="ttype"/>
                     <field name="ttype"/>
                     <label name="relation"/>
@@ -126,8 +126,8 @@
               <![CDATA[
                 <tree string="Access controls">
                     <field name="name" select="1"/>
-                    <field name="model_id" select="1"/>
-                    <field name="group_id" select="1"/>
+                    <field name="model" select="1"/>
+                    <field name="group" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -140,10 +140,10 @@
                 <form string="Access controls">
                     <label name="name"/>
                     <field name="name" colspan="3"/>
-                    <label name="model_id"/>
-                    <field name="model_id"/>
-                    <label name="group_id"/>
-                    <field name="group_id"/>
+                    <label name="model"/>
+                    <field name="model"/>
+                    <label name="group"/>
+                    <field name="group"/>
                     <newline/>
                     <label name="perm_read"/>
                     <field name="perm_read"/>
