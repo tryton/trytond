@@ -75,9 +75,10 @@ class Rule(OSV):
 
     def __init__(self, pool):
         super(Rule, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'operand',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'operand',
+            ]
 
     def operand(self, cursor, user, context):
 

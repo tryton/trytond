@@ -61,9 +61,10 @@ class ActionKeyword(OSV):
 
     def __init__(self, pool):
         super(ActionKeyword, self).__init__(pool)
-        self._rpc_allowed.extend([
-            'get_keyword',
-        ])
+        if pool:
+            self._rpc_allowed = self._rpc_allowed + [
+                'get_keyword',
+            ]
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
