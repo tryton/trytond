@@ -158,8 +158,8 @@ field,"ir.ui.menu,name",0,Menu,Menu,0
 field,"ir.ui.menu,parent",0,Parent Menu,Menu parent,0
 field,"ir.ui.menu,sequence",0,Sequence,Séquence,0
 field,"ir.ui.view,arch",0,View Architecture,Architecture de la vue,0
-field,"ir.ui.view,field_parent",0,Childs Field,Champs enfants,0
-field,"ir.ui.view,inherit_id",0,Inherited View,Vue héritée,0
+field,"ir.ui.view,field_childs",0,Childs Field,Champs enfants,0
+field,"ir.ui.view,inherit",0,Inherited View,Vue héritée,0
 field,"ir.ui.view,model",0,Model,Modèle,0
 field,"ir.ui.view,module",0,Module,Module,0
 field,"ir.ui.view,priority",0,Priority,Priorité,0

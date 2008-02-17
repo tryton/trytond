@@ -11,10 +11,10 @@
                     <field name="model"/>
                     <label name="type"/>
                     <field name="type"/>
-                    <label name="inherit_id"/>
-                    <field name="inherit_id"/>
-                    <label name="field_parent"/>
-                    <field name="field_parent"/>
+                    <label name="inherit"/>
+                    <field name="inherit"/>
+                    <label name="field_childs"/>
+                    <field name="field_childs"/>
                     <label name="priority"/>
                     <field name="priority"/>
                     <separator name="arch" colspan="4"/>
@@ -32,8 +32,8 @@
                     <field name="priority" select="2"/>
                     <field name="model" select="1"/>
                     <field name="type" select="1"/>
-                    <field name="inherit_id" select="1"/>
-                    <field name="field_parent" select="2"/>
+                    <field name="inherit" select="1"/>
+                    <field name="field_childs" select="2"/>
                 </tree>
                 ]]>
             </field>

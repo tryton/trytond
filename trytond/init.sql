@@ -45,7 +45,7 @@ CREATE TABLE ir_ui_view (
 	model varchar(64) DEFAULT ''::varchar NOT NULL,
 	"type" varchar(64) DEFAULT 'form'::varchar NOT NULL,
 	arch text NOT NULL,
-	field_parent varchar(64),
+	field_childs varchar(64),
 	priority integer DEFAULT 5 NOT NULL,
 	primary key(id)
 );

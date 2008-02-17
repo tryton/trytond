@@ -1819,12 +1819,12 @@ class ORM(object):
         while test:
             if view_id:
                 where = (model and (" and model='%s'" % (self._name,))) or ''
-                cursor.execute('SELECT arch, name, field_parent, id, type, ' \
-                            'inherit_id ' \
+                cursor.execute('SELECT arch, name, field_childs, id, type, ' \
+                            'inherit ' \
                         'FROM ir_ui_view WHERE id = %d ' + where, (view_id,))
             else:
-                cursor.execute('SELECT arch, name, field_parent, id, type, ' \
-                        'inherit_id ' \
+                cursor.execute('SELECT arch, name, field_childs, id, type, ' \
+                        'inherit ' \
                         'FROM ir_ui_view ' \
                         'WHERE model = %s AND type = %s ORDER BY priority',
                         (self._name,view_type))
@@ -1844,7 +1844,7 @@ class ORM(object):
             def _inherit_apply_rec(result, inherit_id):
                 # get all views which inherit from (ie modify) this view
                 cursor.execute('SELECT arch, id FROM ir_ui_view ' \
-                        'WHERE inherit_id = %d AND model = %s ' \
+                        'WHERE inherit = %d AND model = %s ' \
                         'ORDER BY priority', (inherit_id, self._name))
                 sql_inherit = cursor.fetchall()
                 for (inherit, view_id) in sql_inherit:
@@ -1855,7 +1855,7 @@ class ORM(object):
             result['arch'] = _inherit_apply_rec(result['arch'], sql_res[3])
 
             result['name'] = sql_res[1]
-            result['field_parent'] = sql_res[2] or False
+            result['field_childs'] = sql_res[2] or False
         # otherwise, build some kind of default view
         else:
             if view_type == 'form':
@@ -1882,7 +1882,7 @@ class ORM(object):
                 xml = ''
             result['arch'] = xml
             result['name'] = 'default'
-            result['field_parent'] = False
+            result['field_childs'] = False
             result['view_id'] = 0
 
         doc = dom.minidom.parseString(result['arch'])

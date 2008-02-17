@@ -4,7 +4,7 @@
         <record model="ir.ui.view" id="menu_view_tree_tree">
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
-            <field name="field_parent">childs</field>
+            <field name="field_childs">childs</field>
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Menu" toolbar="1">
