@@ -9,8 +9,8 @@
                 <form string="Module Category">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="parent_id"/>
-                    <field name="parent_id"/>
+                    <label name="parent"/>
+                    <field name="parent"/>
                 </form>
                 ]]>
             </field>
@@ -18,7 +18,7 @@
         <record model="ir.ui.view" id="category_view_tree">
             <field name="model">ir.module.category</field>
             <field name="type">tree</field>
-            <field name="field_parent">child_ids</field>
+            <field name="field_parent">childs</field>
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Module Categories">
@@ -32,7 +32,7 @@
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.module.category</field>
             <field name="view_type">tree</field>
-            <field name="domain">[('parent_id', '=', False)]</field>
+            <field name="domain">[('parent', '=', False)]</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_category_tree_view1">

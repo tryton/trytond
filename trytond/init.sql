@@ -215,7 +215,7 @@ CREATE TABLE ir_module_category (
     create_date timestamp without time zone,
     write_date timestamp without time zone,
     write_uid integer references res_user on delete set null,
-    parent_id integer REFERENCES ir_module_category ON DELETE SET NULL,
+    parent integer REFERENCES ir_module_category ON DELETE SET NULL,
     name character varying(128) NOT NULL,
     primary key(id)
 );

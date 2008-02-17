@@ -137,12 +137,12 @@ def init_db(cursor):
                 if p_id is not None:
                     cursor.execute('SELECT id ' \
                             'FROM ir_module_category ' \
-                            'WHERE name = %s AND parent_id = %d',
+                            'WHERE name = %s AND parent = %d',
                             (categs[0], p_id))
                 else:
                     cursor.execute('SELECT id ' \
                             'FROM ir_module_category ' \
-                            'WHERE name = %s AND parent_id is NULL',
+                            'WHERE name = %s AND parent is NULL',
                             (categs[0],))
                 c_id = cursor.fetchone()
                 if not c_id:
@@ -150,7 +150,7 @@ def init_db(cursor):
                             'SELECT NEXTVAL(\'ir_module_category_id_seq\')')
                     c_id = cursor.fetchone()[0]
                     cursor.execute('INSERT INTO ir_module_category ' \
-                            '(id, name, parent_id) ' \
+                            '(id, name, parent) ' \
                             'VALUES (%d, %s, %d)', (c_id, categs[0], p_id))
                 else:
                     c_id = c_id[0]
