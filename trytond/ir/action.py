@@ -225,7 +225,7 @@ class ActionActWindow(OSV):
             string='Type of view'),
         'usage': fields.Char('Action Usage', size=32),
         'act_window_views': fields.One2Many('ir.action.act_window.view',
-            'act_window_id', 'Views'),
+            'act_window', 'Views'),
         'views': fields.Function('views_get_fnc', type='binary',
             string='Views'),
         'limit': fields.Integer('Limit',
@@ -258,11 +258,11 @@ class ActionActWindowView(OSV):
     _rec_name = 'view_id'
     _description = __doc__
     _columns = {
-        'sequence': fields.integer('Sequence'),
-        'view_id': fields.many2one('ir.ui.view', 'View', required=True),
-        'act_window_id': fields.many2one('ir.action.act_window', 'Action',
+        'sequence': fields.Integer('Sequence'),
+        'view_id': fields.Many2One('ir.ui.view', 'View', required=True),
+        'act_window': fields.Many2One('ir.action.act_window', 'Action',
             ondelete='CASCADE'),
-        'multi': fields.boolean('On multiple doc.',
+        'multi': fields.Boolean('On multiple doc.',
             help="If set to true, the action will not be displayed \n" \
                     "on the right toolbar of a form views."),
     }
