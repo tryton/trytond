@@ -54,7 +54,7 @@ class Request(OSV):
             ('active', 'active'),
             ('closed', 'closed'),
             ], 'State', required=True, readonly=True),
-        'history': fields.One2Many('res.request.history', 'req_id',
+        'history': fields.One2Many('res.request.history', 'request',
                 'History', readonly=True),
     }
     _defaults = {
@@ -87,7 +87,7 @@ class Request(OSV):
         request_history_obj = self.pool.get('res.request.history')
         for request in self.browse(cursor, user, ids, context=context):
             values = {
-                'req_id': request.id,
+                'request': request.id,
                 'act_from': request.act_from.id,
                 'act_to': request.act_to.id,
                 'body': request.body,
@@ -158,7 +158,7 @@ class RequestHistory(OSV):
     _description = __doc__
     _columns = {
         'name': fields.Char('Summary', size=128, required=True),
-        'req_id': fields.Many2One('res.request', 'Request', required=True,
+        'request': fields.Many2One('res.request', 'Request', required=True,
             ondelete='cascade', select=True),
         'act_from': fields.Many2One('res.user', 'From', required=True,
             readonly=True),
