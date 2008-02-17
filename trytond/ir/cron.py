@@ -29,7 +29,7 @@ class Cron(OSV, Agent):
     _description = __doc__
     _columns = {
         'name': fields.char('Name', size=60, required=True),
-        'user_id': fields.many2one('res.user', 'User', required=True),
+        'user': fields.many2one('res.user', 'User', required=True),
         'active': fields.boolean('Active'),
         'interval_number': fields.integer('Interval Number'),
         'interval_type': fields.selection( [
@@ -55,7 +55,7 @@ class Cron(OSV, Agent):
     _defaults = {
         'nextcall' : lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
         'priority' : lambda *a: 5,
-        'user_id' : lambda obj,cursor,user,context: user,
+        'user' : lambda obj,cursor,user,context: user,
         'interval_number' : lambda *a: 1,
         'interval_type' : lambda *a: 'months',
         'numbercall' : lambda *a: 1,
@@ -93,7 +93,7 @@ class Cron(OSV, Agent):
                     if numbercall > 0:
                         numbercall -= 1
                     if not done or job['doall']:
-                        self._callback(cursor, job['user_id'], job['model'],
+                        self._callback(cursor, job['user'], job['model'],
                                 job['function'], job['args'])
                     if numbercall:
                         nextcall += _INTERVALTYPES[job['interval_type']](
