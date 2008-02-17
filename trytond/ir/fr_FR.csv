@@ -93,9 +93,9 @@ field,"ir.model.field,view_load",0,View Auto-Load,Vue auto-chargée,0
 field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Object name,Nom de l'objet,0
 field,"ir.model,name",0,Model name,Nom du modèle,0
-field,"ir.module.category,child_ids",0,Parent Category,Catégorie parente,0
+field,"ir.module.category,childs",0,Parent Category,Catégorie parente,0
 field,"ir.module.category,name",0,Name,Nom,0
-field,"ir.module.category,parent_id",0,Parent Category,Catégorie parente,0
+field,"ir.module.category,parent",0,Parent Category,Catégorie parente,0
 field,"ir.module.module,author",0,Author,Auteur,0
 field,"ir.module.module,category_id",0,Category,Catégorie,0
 field,"ir.module.module,demo",0,Demo data,Donnée de démonstration,0

@@ -500,17 +500,17 @@ class Module(OSV):
             if parent_id is not None:
                 category_ids = category_obj.search(cursor, user, [
                     ('name', '=', categs[0]),
-                    ('parent_id', '=', parent_id),
+                    ('parent', '=', parent_id),
                     ])
             else:
                 category_ids = category_obj.search(cursor, user, [
                     ('name', '=', categs[0]),
-                    ('parent_id', '=', False),
+                    ('parent', '=', False),
                     ])
             if not category_ids:
                 parent_id = category_obj.create(cursor, user, {
                     'name': categs[0],
-                    'parent_id': parent_id,
+                    'parent': parent_id,
                     })
             else:
                 parent_id = category_ids[0]
