@@ -9,20 +9,20 @@ class RuleGroup(OSV):
     _name = 'ir.rule.group'
     _description = __doc__
     _columns = {
-        'name': fields.char('Name', size=128, select=1),
-        'model_id': fields.many2one('ir.model', 'Model', select=1,
+        'name': fields.Char('Name', size=128, select=1),
+        'model': fields.Many2One('ir.model', 'Model', select=1,
             required=True),
-        'global': fields.boolean('Global', select=1,
+        'global': fields.Boolean('Global', select=1,
             help="Make the rule global \n" \
                     "or it needs to be put on a group or user"),
-        'rules': fields.one2many('ir.rule', 'rule_group', 'Tests',
+        'rules': fields.One2Many('ir.rule', 'rule_group', 'Tests',
             help="The rule is satisfied if at least one test is True"),
-        'groups': fields.many2many('res.group', 'group_rule_group_rel',
+        'groups': fields.Many2Many('res.group', 'group_rule_group_rel',
             'rule_group_id', 'group_id', 'Groups'),
-        'users': fields.many2many('res.user', 'user_rule_group_rel',
+        'users': fields.Many2Many('res.user', 'user_rule_group_rel',
             'rule_group_id', 'user_id', 'Users'),
     }
-    _order = 'model_id, global DESC'
+    _order = 'model, global DESC'
     _defaults = {
         'global': lambda *a: True,
     }
@@ -58,7 +58,7 @@ class Rule(OSV):
     _description = __doc__
     _columns = {
         'field_id': fields.many2one('ir.model.field', 'Field',
-            domain="[('model_id','=', parent.model_id)]", select=1,
+            domain="[('model', '=', parent.model)]", select=1,
             required=True),
         'operator':fields.selection([
             ('=', '='),
@@ -123,7 +123,7 @@ class Rule(OSV):
 
         cursor.execute("SELECT r.id FROM ir_rule r " \
                 "JOIN (ir_rule_group g " \
-                    "JOIN ir_model m ON (g.model_id = m.id)) " \
+                    "JOIN ir_model m ON (g.model = m.id)) " \
                     "ON (g.id = r.rule_group) " \
                 "WHERE m.model = %s "
                     "AND (g.id IN (" \
@@ -195,7 +195,7 @@ class Rule(OSV):
         # Test if there is no rule_group that have no rule
         cursor.execute("""SELECT g.id FROM
             ir_rule_group g
-                JOIN ir_model m ON (g.model_id = m.id)
+                JOIN ir_model m ON (g.model = m.id)
             WHERE m.model = %s
                 AND (g.id NOT IN (SELECT rule_group FROM ir_rule))
                 AND (g.id IN (SELECT rule_group_id FROM user_rule_group_rel
