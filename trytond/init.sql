@@ -103,12 +103,12 @@ CREATE TABLE res_user (
     login varchar(64) NOT NULL UNIQUE,
     password varchar(32) default null,
 --  action_id int references ir_act_window on delete set null,
-    action_id int,
+    action int,
     primary key(id)
 );
 alter table res_user add constraint res_user_login_uniq unique (login);
 
-insert into res_user (id,login,password,name,action_id,active) values (0,'root',NULL,'Root',NULL,False);
+insert into res_user (id,login,password,name,action,active) values (0,'root',NULL,'Root',NULL,False);
 
 CREATE TABLE res_group (
     id serial NOT NULL,
