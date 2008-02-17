@@ -53,7 +53,7 @@
             <field name="view" ref="default_view_form"/>
             <field name="act_window" ref="act_default_form"/>
         </record>
-        <menuitem parent_id="ir.menu_ir"
+        <menuitem parent="ir.menu_ir"
             action="act_default_form" id="menu_default_form"/>
     </data>
 </tryton>

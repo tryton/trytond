@@ -48,13 +48,13 @@ class MenuitemTagHandler:
 
         self.xml_id = attributes['id']
 
-        for attr in ('name', 'icon', 'sequence', 'parent_id', 'action',):
+        for attr in ('name', 'icon', 'sequence', 'parent', 'action',):
             if attributes.get(attr):
                 values[attr] = attributes.get(attr).encode('utf8')
 
 
-        if values.get('parent_id'):
-            values['parent_id'] = self.mh.get_id(values['parent_id'])
+        if values.get('parent'):
+            values['parent'] = self.mh.get_id(values['parent'])
 
         action_name = False
         if values.get('action'):

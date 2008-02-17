@@ -67,7 +67,7 @@
             <field name="view" ref="sequence_view_form"/>
             <field name="act_window" ref="act_sequence_form"/>
         </record>
-        <menuitem parent_id="menu_ir"
+        <menuitem parent="menu_ir"
             action="act_sequence_form" id="menu_sequence_form"/>
         <record model="ir.ui.view" id="sequence_type_view_form">
             <field name="model">ir.sequence.type</field>
@@ -114,7 +114,7 @@
             <field name="view" ref="sequence_type_view_form"/>
             <field name="act_window" ref="act_sequence_type_form"/>
         </record>
-        <menuitem parent_id="menu_ir"
+        <menuitem parent="menu_ir"
             action="act_sequence_type_form" id="menu_ir_sequence_type"/>
     </data>
 </tryton>

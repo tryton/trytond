@@ -4,6 +4,7 @@
         <record model="ir.ui.view" id="menu_view_tree_tree">
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
+            <field name="field_parent">childs</field>
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Menu" toolbar="1">
@@ -11,14 +12,13 @@
                 </tree>
                 ]]>
             </field>
-            <field name="field_parent">child_id</field>
         </record>
         <record model="ir.action.act_window" id="act_menu_tree">
             <field name="name">Menu</field>
             <field name="res_model">ir.ui.menu</field>
             <field name="view_type">tree</field>
             <field name="usage">menu</field>
-            <field name="domain" eval="'[(\'parent_id\',\'=\',False)]'"/>
+            <field name="domain" eval="'[(\'parent\', \'=\', False)]'"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_menu_tree_view1">
@@ -35,7 +35,7 @@
                 <tree string="Menu">
                     <field name="complete_name" icon="icon"/>
                     <field name="name" invisible="1" select="1"/>
-                    <field name="parent_id" invisible="1" select="1"/>
+                    <field name="parent" invisible="1" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -48,8 +48,8 @@
                 <form string="Menu">
                     <label name="name"/>
                     <field name="name" invisible="0" colspan="3"/>
-                    <label name="parent_id"/>
-                    <field name="parent_id" invisible="0"/>
+                    <label name="parent"/>
+                    <field name="parent" invisible="0"/>
                     <label name="icon"/>
                     <field name="icon"/>
                     <label name="action"/>
@@ -58,8 +58,8 @@
                     <field name="sequence"/>
                     <label name="complete_name"/>
                     <field name="complete_name" colspan="3"/>
-                    <separator name="groups_id" colspan="4"/>
-                    <field name="groups_id" colspan="4"/>
+                    <separator name="groups" colspan="4"/>
+                    <field name="groups" colspan="4"/>
                 </form>
                 ]]>
             </field>
@@ -81,7 +81,7 @@
             <field name="view" ref="menu_view_form"/>
             <field name="act_window" ref="act_menu_form"/>
         </record>
-        <menuitem parent_id="menu_ui"
+        <menuitem parent="menu_ui"
             action="act_menu_form" id="menu_menu_form"/>
     </data>
 </tryton>

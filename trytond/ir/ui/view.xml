@@ -55,7 +55,7 @@
             <field name="view" ref="view_view_form"/>
             <field name="act_window" ref="act_view_form"/>
         </record>
-        <menuitem parent_id="menu_ui"
+        <menuitem parent="menu_ui"
             action="act_view_form" id="menu_view"/>
         <record model="ir.ui.view" id="view_sc_view_form">
             <field name="model">ir.ui.view_sc</field>
@@ -105,7 +105,7 @@
             <field name="view" ref="view_sc_view_form"/>
             <field name="act_window" ref="act_view_sc_form"/>
         </record>
-        <menuitem parent_id="menu_ui"
+        <menuitem parent="menu_ui"
             action="act_view_sc_form" id="menu_view_sc"/>
     </data>
 </tryton>

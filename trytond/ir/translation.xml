@@ -64,14 +64,14 @@
             <field name="view" ref="translation_view_form"/>
             <field name="act_window" ref="act_translation_form"/>
         </record>
-        <menuitem name="Translations" parent_id="ir.menu_ir"
+        <menuitem name="Translations" parent="ir.menu_ir"
             action="act_translation_form" id="menu_translation_form"/>
         <record model="ir.action.wizard" id="act_translation_update">
             <field name="name">Update Translations</field>
             <field name="wiz_name">ir.translation.update</field>
         </record>
         <menuitem name="Update Translations"
-            parent_id="menu_translation_form"
+            parent="menu_translation_form"
             action="act_translation_update"
             type="wizard"
             id="menu_translation_update"/>
@@ -80,7 +80,7 @@
             <field name="wiz_name">ir.translation.export</field>
         </record>
         <menuitem name="Export Translations"
-            parent_id="menu_translation_form"
+            parent="menu_translation_form"
             action="act_translation_export"
             type="wizard"
             id="menu_translation_export"/>

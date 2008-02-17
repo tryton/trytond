@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
-        <menuitem name="Actions" id="menu_action" parent_id="ir.menu_ir"/>
+        <menuitem name="Actions" id="menu_action" parent="ir.menu_ir"/>
         <record model="ir.ui.view" id="action_view_form">
             <field name="model">ir.action</field>
             <field name="type">form</field>
@@ -55,7 +55,7 @@
             <field name="view" ref="action_view_form"/>
             <field name="act_window" ref="act_action_form"/>
         </record>
-        <menuitem parent_id="menu_action"
+        <menuitem parent="menu_action"
             action="act_action_form" id="menu_act_action"/>
         <record model="ir.ui.view" id="action_report_view_form">
             <field name="model">ir.action.report</field>
@@ -120,7 +120,7 @@
             <field name="view" ref="action_report_view_form"/>
             <field name="act_window" ref="act_action_report_form"/>
         </record>
-        <menuitem parent_id="menu_action"
+        <menuitem parent="menu_action"
             action="act_action_report_form" id="menu_action_report_form"/>
         <record model="ir.ui.view" id="action_act_window_view_form">
             <field name="model">ir.action.act_window</field>
@@ -205,7 +205,7 @@
             <field name="view" ref="action_act_window_view_form"/>
             <field name="act_window" ref="act_action_act_window_form"/>
         </record>
-        <menuitem parent_id="menu_action"
+        <menuitem parent="menu_action"
             action="act_action_act_window_form" id="menu_action_act_window"/>
         <record model="ir.ui.view" id="action_wizard_view_form">
             <field name="model">ir.action.wizard</field>
@@ -264,7 +264,7 @@
             <field name="view" ref="action_wizard_view_form"/>
             <field name="act_window" ref="act_action_wizard_form"/>
         </record>
-        <menuitem parent_id="menu_action"
+        <menuitem parent="menu_action"
             action="act_action_wizard_form" id="menu_action_wizard"/>
     </data>
 </tryton>
