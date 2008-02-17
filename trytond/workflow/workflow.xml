@@ -40,13 +40,13 @@
         <record model="ir.action.act_window.view"
             id="act_workflow_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="workflow_view_tree"/>
+            <field name="view" ref="workflow_view_tree"/>
             <field name="act_window" ref="act_workflow_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_workflow_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="workflow_view_form"/>
+            <field name="view" ref="workflow_view_form"/>
             <field name="act_window" ref="act_workflow_form"/>
         </record>
         <menuitem parent_id="menu_workflow"
@@ -158,13 +158,13 @@
         <record model="ir.action.act_window.view"
             id="act_activity_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="activity_view_tree"/>
+            <field name="view" ref="activity_view_tree"/>
             <field name="act_window" ref="act_activity_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_activity_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="activity_view_form"/>
+            <field name="view" ref="activity_view_form"/>
             <field name="act_window" ref="act_activity_form"/>
         </record>
         <menuitem parent_id="menu_workflow"
@@ -218,13 +218,13 @@
         <record model="ir.action.act_window.view"
             id="act_transition_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="transition_view_tree"/>
+            <field name="view" ref="transition_view_tree"/>
             <field name="act_window" ref="act_transition_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_transition_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="transition_view_form"/>
+            <field name="view" ref="transition_view_form"/>
             <field name="act_window" ref="act_transition_form"/>
         </record>
         <menuitem parent_id="menu_workflow"
@@ -272,13 +272,13 @@
         <record model="ir.action.act_window.view"
             id="act_instance_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="instance_view_tree"/>
+            <field name="view" ref="instance_view_tree"/>
             <field name="act_window" ref="act_instance_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_instance_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="instance_view_form"/>
+            <field name="view" ref="instance_view_form"/>
             <field name="act_window" ref="act_instance_form"/>
         </record>
         <menuitem parent_id="menu_workflow"
@@ -323,13 +323,13 @@
         <record model="ir.action.act_window.view"
             id="act_workitem_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view_id" ref="workitem_view_tree"/>
+            <field name="view" ref="workitem_view_tree"/>
             <field name="act_window" ref="act_workitem_form"/>
         </record>
         <record model="ir.action.act_window.view"
             id="act_workitem_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view_id" ref="workitem_view_form"/>
+            <field name="view" ref="workitem_view_form"/>
             <field name="act_window" ref="act_workitem_form"/>
         </record>
         <menuitem parent_id="menu_workflow"

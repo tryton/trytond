@@ -245,7 +245,7 @@ class ActionActWindow(OSV):
     def views_get_fnc(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for act in self.browse(cursor, user, ids, context=context):
-            res[act.id] = [(view.view_id.id, view.view_id.type) \
+            res[act.id] = [(view.view.id, view.view.type) \
                     for view in act.act_window_views]
         return res
 
@@ -255,11 +255,11 @@ ActionActWindow()
 class ActionActWindowView(OSV):
     "Action act window view"
     _name = 'ir.action.act_window.view'
-    _rec_name = 'view_id'
+    _rec_name = 'view'
     _description = __doc__
     _columns = {
         'sequence': fields.Integer('Sequence'),
-        'view_id': fields.Many2One('ir.ui.view', 'View', required=True),
+        'view': fields.Many2One('ir.ui.view', 'View', required=True),
         'act_window': fields.Many2One('ir.action.act_window', 'Action',
             ondelete='CASCADE'),
         'multi': fields.Boolean('On multiple doc.',

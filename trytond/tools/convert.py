@@ -69,7 +69,7 @@ class MenuitemTagHandler:
                 "LEFT JOIN ir_action_wizard wizard ON (a.id = wizard.action) " \
                 "LEFT JOIN ir_action_url url ON (a.id = url.action) " \
                 "LEFT JOIN ir_action_act_window_view wv on (act.id = wv.act_window) " \
-                "LEFT JOIN ir_ui_view v on (v.id = wv.view_id) " \
+                "LEFT JOIN ir_ui_view v on (v.id = wv.view) " \
             "WHERE report.id = %d " \
                 "OR act.id = %d " \
                 "OR wizard.id = %d " \
