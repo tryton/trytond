@@ -10,7 +10,7 @@ class Default(OSV):
     _columns = {
         'model': fields.Many2One('ir.model', 'Model', required=True,
             ondelete='cascade'),
-        'field': fields.Many2One('ir.model.fields', 'Field', required=True,
+        'field': fields.Many2One('ir.model.field', 'Field', required=True,
             ondelete='cascade'),
         'value': fields.Text('Value'),
         'clause': fields.Text('Clause'),
@@ -43,7 +43,7 @@ class Default(OSV):
     def set_default(self, cursor, user, model, field, clause, value,
             user_default, context=None):
         model_obj = self.pool.get('ir.model')
-        field_obj = self.pool.get('ir.model.fields')
+        field_obj = self.pool.get('ir.model.field')
         model_id = model_obj.search(cursor, user, [
             ('model', '=', model),
             ], context=context)[0]

@@ -21,10 +21,9 @@ CREATE TABLE ir_model (
   primary key(id)
 );
 
-CREATE TABLE ir_model_fields (
+CREATE TABLE ir_model_field (
   id serial,
-  model varchar(64) DEFAULT ''::varchar NOT NULL,
-  model_id int references ir_model on delete cascade,
+  model int references ir_model on delete cascade,
   name varchar(64) DEFAULT ''::varchar NOT NULL,
   relation varchar(64),
   field_description varchar(256),

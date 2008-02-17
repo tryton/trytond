@@ -11,7 +11,7 @@ class Property(OSV):
         'value': fields.reference('Value', selection='models_get2', size=128),
         'res_id': fields.reference('Resource', selection='models_get', size=128),
         #'company_id': fields.many2one('res.company', 'Company'),
-        'fields_id': fields.many2one('ir.model.fields', 'Fields',
+        'fields_id': fields.many2one('ir.model.field', 'Fields',
             ondelete='cascade', required=True)
     }
 
@@ -24,7 +24,7 @@ class Property(OSV):
             ]
 
     def models_get2(self, cursor, user, context=None):
-        model_fields_obj = self.pool.get('ir.model.fields')
+        model_fields_obj = self.pool.get('ir.model.field')
         ids = model_fields_obj.search(cursor, user, [('view_load', '=', 1)])
         res = []
         done = {}
@@ -36,7 +36,7 @@ class Property(OSV):
         return res
 
     def models_get(self, cursor, user, context=None):
-        model_fields_obj = self.pool.get('ir.model.fields')
+        model_fields_obj = self.pool.get('ir.model.field')
         ids = model_fields_obj.search(cursor, user, [('view_load', '=', 1)])
         res = []
         done = {}
@@ -50,7 +50,7 @@ class Property(OSV):
 
     def unlink(self, cursor, user, ids, context=None):
         if ids:
-            cursor.execute('DELETE FROM ir_model_fields ' \
+            cursor.execute('DELETE FROM ir_model_field ' \
                     'WHERE id IN (' \
                         'SELECT fields_id FROM ir_property ' \
                         'WHERE (fields_id IS NOT NULL) ' \
@@ -65,7 +65,7 @@ class Property(OSV):
         name: property name
         model: object name
         """
-        model_fields_obj = self.pool.get('ir.model.fields')
+        model_fields_obj = self.pool.get('ir.model.field')
         res = {}
 
         fields_id = model_fields_obj.search(cursor, user, [
@@ -104,7 +104,7 @@ class Property(OSV):
         """
         Set property value for res_id
         """
-        model_fields_obj = self.pool.get('ir.model.fields')
+        model_fields_obj = self.pool.get('ir.model.field')
         fields_id = model_fields_obj.search(cursor, user, [
             ('name', '=', name),
             ('model', '=', model),

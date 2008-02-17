@@ -79,18 +79,18 @@ field,"ir.model.data,fs_id",0,Identifier on File System,Identifiant sur le syst�
 field,"ir.model.data,model",0,Model,Modèle,0
 field,"ir.model.data,module",0,Module,Module,0
 field,"ir.model.data,values",0,Values,Valeurs,0
-field,"ir.model,fields",0,Fields,Champs,0
-field,"ir.model.fields,field_description",0,Field Description,Champ de description,0
-field,"ir.model.fields,group_name",0,Group Name,Nom du groupe,0
-field,"ir.model.fields,groups",0,Groups,Groupes,0
-field,"ir.model.fields,help",0,Help,Aide,0
-field,"ir.model.fields,model",0,Model Name,Nom du modèle,0
-field,"ir.model.fields,model_id",0,Model id,Id de modèle,0
-field,"ir.model.fields,name",0,Name,Nom,0
-field,"ir.model.fields,relate",0,Click and Relate,Clicker et relier,0
-field,"ir.model.fields,relation",0,Model Relation,Relation du modèle,0
-field,"ir.model.fields,ttype",0,Field Type,Champ du type,0
-field,"ir.model.fields,view_load",0,View Auto-Load,Vue auto-chargée,0
+field,"ir.model,field",0,Fields,Champs,0
+field,"ir.model.field,field_description",0,Field Description,Champ de description,0
+field,"ir.model.field,group_name",0,Group Name,Nom du groupe,0
+field,"ir.model.field,groups",0,Groups,Groupes,0
+field,"ir.model.field,help",0,Help,Aide,0
+field,"ir.model.field,model",0,Model Name,Nom du modèle,0
+field,"ir.model.field,model_id",0,Model id,Id de modèle,0
+field,"ir.model.field,name",0,Name,Nom,0
+field,"ir.model.field,relate",0,Click and Relate,Clicker et relier,0
+field,"ir.model.field,relation",0,Model Relation,Relation du modèle,0
+field,"ir.model.field,ttype",0,Field Type,Champ du type,0
+field,"ir.model.field,view_load",0,View Auto-Load,Vue auto-chargée,0
 field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Object name,Nom de l'objet,0
 field,"ir.model,name",0,Model name,Nom du modèle,0
@@ -410,7 +410,7 @@ view,ir.lang,0,Languages,Langues,0
 view,ir.model,0,Fields Description,Champs de description,0
 view,ir.model,0,Model Description,Description du modèle,0
 view,ir.model.access,0,Access controls,Contrôles d'accès,0
-view,ir.model.fields,0,Fields,Champs,0
+view,ir.model.field,0,Fields,Champs,0
 view,ir.module.category,0,Module Categories,Catégories de module,0
 view,ir.module.category,0,Module Category,Catégorie de module,0
 view,ir.module.module,0,Cancel Install,Annuler l'installation,0
