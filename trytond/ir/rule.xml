@@ -60,8 +60,8 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Test" col="6">
-                    <label name="field_id"/>
-                    <field name="field_id"/>
+                    <label name="field"/>
+                    <field name="field"/>
                     <label name="operator"/>
                     <field name="operator"/>
                     <label name="operand"/>
@@ -76,7 +76,7 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Test">
-                    <field name="field_id"/>
+                    <field name="field"/>
                     <field name="operator"/>
                     <field name="operand"/>
                 </tree>

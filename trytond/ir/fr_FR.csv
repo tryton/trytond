@@ -121,7 +121,7 @@ field,"ir.property,field",0,Field,Champ,0
 field,"ir.property,name",0,Name,Nom,0
 field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Valeur,0
-field,"ir.rule,field_id",0,Field,Champ,0
+field,"ir.rule,field",0,Field,Champ,0
 field,"ir.rule.group,global",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Groupes,0
 field,"ir.rule.group,model",0,Model,Modèle,0
