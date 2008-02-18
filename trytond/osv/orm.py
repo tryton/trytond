@@ -538,20 +538,18 @@ class ORM(object):
                                             (self._table, k, default))
                             # and add constraints if needed
                             if isinstance(field, fields.many2one):
-                                #FIXME: Remove this try/except
-                                try:
+                                if field._obj == 'res.user':
+                                    ref = 'res_user'
+                                elif field._obj == 'res.group':
+                                    ref = 'res_group'
+                                else:
                                     ref = self.pool.get(field._obj)._table
-                                except AttributeError:
-                                    ref = field._obj.replace('.','_')
-                                # ir_actions is inherited so foreign
-                                # key doesn't work on it
-                                if ref != 'ir_actions':
-                                    cursor.execute("ALTER TABLE \"%s\" " \
-                                            "ADD FOREIGN KEY (\"%s\") " \
-                                                "REFERENCES \"%s\" " \
-                                                "ON DELETE %s" % \
-                                            (self._table, k, ref,
-                                                field.ondelete))
+                                cursor.execute("ALTER TABLE \"%s\" " \
+                                        "ADD FOREIGN KEY (\"%s\") " \
+                                            "REFERENCES \"%s\" " \
+                                            "ON DELETE %s" % \
+                                        (self._table, k, ref,
+                                            field.ondelete))
                             if field.select:
                                 cursor.execute("CREATE INDEX \"%s_%s_index\" " \
                                         "ON \"%s\" (\"%s\")" % \
