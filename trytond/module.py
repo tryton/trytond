@@ -76,7 +76,7 @@ class Node(Singleton):
 
     def __setattr__(self, name, value):
         super(Node, self).__setattr__(name, value)
-        if name in ('init', 'update'):
+        if name in ('init', 'update', 'demo'):
             CONFIG[name][self.name] = 1
             for child in self.childs:
                 setattr(child, name, value)
@@ -276,12 +276,18 @@ def load_modules(database, force_demo=False, update_module=False, lang=None):
         cursor.execute("SELECT name FROM ir_module_module " \
                 "WHERE state IN ('installed', 'to upgrade', 'to remove')")
     module_list = [name for (name,) in cursor.fetchall()]
+    for module in CONFIG['init'].keys():
+        if CONFIG['init'][module]:
+            module_list.append(module)
+    for module in CONFIG['update'].keys():
+        if CONFIG['update'][module]:
+            module_list.append(module)
     graph = create_graph(module_list, force)
 
     load_module_graph(cursor, graph, lang)
 
 
-    for kind in ('init', 'update'):
+    for kind in ('init', 'update', 'demo'):
         CONFIG[kind] = {}
 
     if update_module:

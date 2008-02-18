@@ -81,7 +81,7 @@ class TrytonServer(object):
             self.logger.notify_channel("init", netsvc.LOG_INFO,
                     "could not connect to database '%s'!" % db_name,)
 
-        if cursor and CONFIG['init'] and CONFIG['init']['all']:
+        if cursor and CONFIG['init']:
             cursor.execute("SELECT relname " \
                     "FROM pg_class " \
                     "WHERE relkind = 'r' AND relname in (" \
@@ -109,8 +109,6 @@ class TrytonServer(object):
             if len(cursor.fetchall()) == 0:
                 self.logger.notify_channel("init", netsvc.LOG_INFO, "init db")
                 sql_db.init_db(cursor)
-                if not CONFIG['without_demo']:
-                    CONFIG["demo"]['all'] = 1
             cursor.commit()
 
         register_classes()
