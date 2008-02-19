@@ -30,7 +30,6 @@
                             <label name="password"/>
                             <field name="password"/>
                             <!--field name="address_id"/-->
-                            <!--field name="company_id" required="1"/-->
                             <label name="action"/>
                             <field name="action" required="1"/>
                             <label name="menu"/>

@@ -27,7 +27,7 @@ class Group(OSV):
     def write(self, cursor, user, ids, vals, context=None):
         res = super(Group, self).write(cursor, user, ids, vals,
                 context=context)
-        # Restart the cache on the company_get method
+        # Restart the cache on the domain_get method
         self.pool.get('ir.rule').domain_get()
         return res
 
@@ -50,7 +50,6 @@ class User(OSV):
         'menu': fields.Many2One('ir.action', 'Menu Action'),
         'groups_id': fields.Many2Many('res.group', 'res_group_user_rel',
             'uid', 'gid', 'Groups'),
-        #'company_id': fields.Many2One('res.company', 'Company'),
         'rule_groups': fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
             'user_id', 'rule_group_id', 'Rules',
             domain="[('global', '<>', True)]"),
@@ -76,11 +75,6 @@ class User(OSV):
         'language',
         'timezone',
     ]
-#    def company_get(self, cursor, user, uid2):
-#        company_id = self.pool.get('res.user').browse(cursor, user,
-#               user).company_id.id
-#        return company_id
-#    company_get = Cache()(company_get)
 
     def __init__(self, pool):
         super(User, self).__init__(pool)
@@ -111,8 +105,7 @@ class User(OSV):
     def write(self, cursor, user, ids, vals, context=None):
         vals = self._convert_vals(cursor, user, vals, context=context)
         res = super(User, self).write(cursor, user, ids, vals, context=context)
-        # Restart the cache for company_get and domain_get method
-#        self.company_get()
+        # Restart the cache for domain_get method
         self.pool.get('ir.rule').domain_get()
         return res
 
@@ -154,7 +147,12 @@ class User(OSV):
         else:
             fields = self._preferences_fields + self._context_fields
         for field in fields:
-            res[field] = user[field]
+            if self._columns[field]._type in ('many2one', 'one2one'):
+                res[field] = user[field].id
+            elif self._columns[field]._type in ('one2many', 'many2many'):
+                res[field] = [x.id for x in user[field]]
+            else:
+                res[field] = user[field]
         return res
 
     def set_preferences(self, cursor, user, values, context=None):
