@@ -243,7 +243,7 @@ class ORM(object):
     _table = None
     _name = None
     _rec_name = 'name'
-    _parent_name = 'parent_id'
+    _parent_name = 'parent'
     _date_name = 'date'
     _order = 'id'
     _inherits = {}
