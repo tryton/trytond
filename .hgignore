@@ -2,3 +2,6 @@ syntax: glob
 .hgignore
 *.pyc
 *~
+build/*
+dist/*
+MANIFEST
