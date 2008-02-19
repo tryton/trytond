@@ -10,7 +10,6 @@ class Property(OSV):
         'name': fields.Char('Name', size=128),
         'value': fields.Reference('Value', selection='models_get2', size=128),
         'res': fields.Reference('Resource', selection='models_get', size=128),
-        #'company_id': fields.many2one('res.company', 'Company'),
         'field': fields.Many2One('ir.model.field', 'Field',
             ondelete='cascade', required=True)
     }
@@ -120,19 +119,16 @@ class Property(OSV):
             ('field', '=', field_id),
             ('res', '=', False),
             ], limit=1, context=context)
-        default_id = False
         if default_id:
             default_val = self.browse(cursor, user, default_id[0],
                     context=context).value
 
-#        company_id = obj.pool.get('res.user').company_get(cursor, user, user)
         res = False
         if (val != default_val):
             res = self.create(cursor, user, {
                 'name': name,
                 'value': val,
                 'res': model + ',' + str(res_id),
-#                'company_id': company_id,
                 'field': field_id,
             }, context=context)
         return res
