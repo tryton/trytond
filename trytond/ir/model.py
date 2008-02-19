@@ -172,10 +172,10 @@ class ModelData(OSV):
     }
 
     def __init__(self, pool):
-        OSV.__init__(self, pool)
-
-        self.fs2db = None
-        self.fs2values = None
+        super(ModelData, self).__init__(pool)
+        if pool:
+            self.fs2db = None
+            self.fs2values = None
 
 
     def populate_fs2db(self, cursor, user):
