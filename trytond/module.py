@@ -232,7 +232,10 @@ def load_module_graph(cursor, graph, lang=None):
     cursor.commit()
 
 def register_classes():
-    module_list = os.listdir(MODULES_PATH)
+    if os.path.exists(MODULES_PATH) and os.path.isdir(MODULES_PATH):
+        module_list = os.listdir(MODULES_PATH)
+    else:
+        module_list = []
     module_list.append('ir')
     module_list.append('workflow')
     module_list.append('res')
