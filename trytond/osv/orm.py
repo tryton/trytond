@@ -555,12 +555,15 @@ class ORM(object):
                                         "ON \"%s\" (\"%s\")" % \
                                         (self._table, k, self._table, k))
                             if field.required:
-                                try:
+                                cursor.execute('SELECT id FROM "%s" ' \
+                                        'WHERE "%s" IS NULL' % \
+                                        (self._table, k))
+                                if not cursor.rowcount:
                                     cursor.execute("ALTER TABLE \"%s\" " \
                                             "ALTER COLUMN \"%s\" " \
                                                 "SET NOT NULL" % \
                                                 (self._table, k))
-                                except:
+                                else:
                                     logger.notify_channel('init',
                                             LOG_WARNING,
                                             'Unable to set column %s ' \
@@ -1767,7 +1770,8 @@ class ORM(object):
 
             doc_src = dom.minidom.parseString(src)
             doc_dest = dom.minidom.parseString(inherit)
-            for node2 in doc_dest.childNodes:
+            parent_node = doc_dest.firstChild
+            for node2 in parent_node.childNodes:
                 if not node2.nodeType == node2.ELEMENT_NODE:
                     continue
                 node = _find(doc_src, node2)
