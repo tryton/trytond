@@ -46,9 +46,9 @@ setup(name=PACKAGE,
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
     license=LICENSE,
-    requires=[
-        'psycopg (<2.0)',
-        'xml',
-        'egenix-mx-base',
-    ],
+    #requires=[
+    #    'psycopg (<2.0)',
+    #    'xml',
+    #    'egenix-mx-base',
+    #],
 )
