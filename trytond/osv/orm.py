@@ -2141,18 +2141,21 @@ class ORM(object):
                     for xitem in todel[::-1]:
                         del arg[2][xitem]
                     #TODO fix max_stack_depth
-                    if arg[0] == 'id':
-                        qu1.append('(%s.id in (%s))' % \
-                                (table._table,
-                                    ','.join(['%d'] * len(arg[2])),))
-                    else:
-                        qu1.append('(%s.%s in (%s))' % \
-                                (table._table, arg[0], ','.join(
-                                    [table._columns[arg[0]].\
-                                            _symbol_set[0]] * len(arg[2]))))
-                    if todel:
-                        qu1[-1] = '(' + qu1[-1] + ' or ' + arg[0] + ' is null)'
-                    qu2 += arg[2]
+                    if len(arg[2]):
+                        if arg[0] == 'id':
+                            qu1.append('(%s.id in (%s))' % \
+                                    (table._table,
+                                        ','.join(['%d'] * len(arg[2])),))
+                        else:
+                            qu1.append('(%s.%s in (%s))' % \
+                                    (table._table, arg[0], ','.join(
+                                        [table._columns[arg[0]].\
+                                                _symbol_set[0]] * len(arg[2]))))
+                        if todel:
+                            qu1[-1] = '(' + qu1[-1] + ' or ' + arg[0] + ' is null)'
+                        qu2 += arg[2]
+                    elif todel:
+                        qu1.append('(' + arg[0] + ' IS NULL)')
                 else:
                     qu1.append(' false')
             else:
