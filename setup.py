@@ -1,7 +1,21 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+from distutils.command import sdist
 import os
+
+
+class mysdist(sdist.sdist):
+
+    def add_defaults(self):
+        sdist.sdist.add_defaults(self)
+        if self.distribution.has_pure_modules():
+            build_py = self.get_finalized_command('build_py')
+            data = []
+            for package in build_py.packages:
+                src_dir = build_py.get_package_dir(package)
+                data.extend(build_py.find_data_files(package, src_dir))
+            self.filelist.extend(data)
 
 execfile(os.path.join('trytond', 'version.py'))
 
@@ -51,4 +65,7 @@ setup(name=PACKAGE,
     #    'xml',
     #    'egenix-mx-base',
     #],
+    cmdclass={
+        'sdist': mysdist,
+    },
 )
