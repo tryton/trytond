@@ -6,6 +6,7 @@ from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING, LocalService
 import fields
 from trytond.tools import Cache
 import md5
+import time
 
 ID_MAX = 1000
 
@@ -763,27 +764,29 @@ class ORM(object):
         self._inherits_reload()
         if not self._sequence:
             self._sequence = self._table+'_id_seq'
+
+        if self._log_access:
+            if not self._columns:
+                self._columns = {}
+            self._columns['create_uid'] = fields.Many2One('res.user',
+                    'Creation user', required=True, readonly=True)
+            self._columns['create_date'] = fields.DateTime('Creation date',
+                    required=True, readonly=True)
+            self._columns['write_uid'] = fields.Many2One('res.user',
+                       'Last modification by', readonly=True)
+            self._columns['write_date'] = fields.DateTime(
+                    'Last modification date', readonly=True)
+            if not self._defaults:
+                self._defaults = {}
+            self._defaults['create_uid'] = \
+                    lambda self, cursor, user, context: user
+            self._defaults['create_date'] = \
+                    lambda *a: time.strftime("%Y-%m-%d %H:%M:%S")
+
         for k in self._defaults:
             assert (k in self._columns) or (k in self._inherit_fields), \
             'Default function defined in %s but field %s does not exist!' % \
                 (self._name, k,)
-        # FIXME: does not work at all
-#        if self._log_access:
-#            self._columns.update({
-#                'create_uid': fields.many2one('res.user', 'Creation user',
-#                       required=True, readonly=True),
-#                'create_date': fields.datetime('Creation date', required=True,
-#                       readonly=True),
-#                'write_uid': fields.many2one('res.user',
-#                       'Last modification by', readonly=True),
-#                'write_date': fields.datetime('Last modification date',
-#                       readonly=True),
-#                })
-#             self._defaults.update({
-#                 'create_uid': lambda self, cursor, user, context: user,
-#                 'create_date': lambda *a: time.strftime("%Y-%m-%d %H:%M:%S")
-#                 })
-
     def _inherits_reload_src(self):
         "Update objects that uses this one to update their _inherits fields"
         for obj in self.pool.object_name_pool.values():
@@ -1344,6 +1347,11 @@ class ORM(object):
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'write')
 
+        if 'write_uid' in vals:
+            del vals['write_uid']
+        if 'write_date' in vals:
+            del vals['write_date']
+
         #for v in self._inherits.values():
         #    assert v not in vals, (v, vals)
         upd0 = []
@@ -1478,13 +1486,20 @@ class ORM(object):
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'create')
 
+        if 'create_uid' in vals:
+            del vals['create_uid']
+        if 'create_date' in vals:
+            del vals['create_date']
+
         default = []
         avoid_table = []
         for (i, j) in self._inherits.items():
             if j in vals:
                 avoid_table.append(i)
         for i in self._columns.keys(): # + self._inherit_fields.keys():
-            if not i in vals:
+            if not i in vals \
+                    and i not in ('create_uid', 'create_date',
+                            'write_uid', 'write_date'):
                 default.append(i)
         for i in self._inherit_fields.keys():
             if (not i in vals) \
