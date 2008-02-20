@@ -31,9 +31,9 @@ class DB(Service):
         try:
             try:
                 database = sql_db.db_connect('template1', serialize=1)
-                database.truedb.autocommit()
                 cursor = database.cursor()
                 cursor.execute('CREATE DATABASE ' + db_name + ' ENCODING \'unicode\'')
+                cursor.commit()
                 cursor.close()
 
                 cursor = sql_db.db_connect(db_name).cursor()
@@ -72,11 +72,11 @@ class DB(Service):
         logger = Logger()
 
         database = sql_db.db_connect('template1', serialize=1)
-        database.truedb.autocommit()
         cursor = database.cursor()
         try:
             try:
                 cursor.execute('DROP DATABASE ' + db_name)
+                cursor.commit()
             except:
                 logger.notify_channel("web-service", LOG_ERROR,
                     'DROP DB: %s failed' % (db_name,))
@@ -133,9 +133,9 @@ class DB(Service):
             raise Exception, "Couldn't restore database with password"
 
         database = sql_db.db_connect('template1', serialize=1)
-        database.truedb.autocommit()
         cursor = database.cursor()
         cursor.execute('CREATE DATABASE ' + db_name + ' ENCODING \'unicode\'')
+        cursor.commit()
         cursor.close()
 
         cmd = ['pg_restore']
@@ -169,7 +169,6 @@ class DB(Service):
     def db_exist(self, db_name):
         try:
             database = sql_db.db_connect(db_name)
-            database.truedb.close()
             return True
         except:
             return False
@@ -211,7 +210,6 @@ class DB(Service):
             cursor.close()
         except:
             res = []
-        database.truedb.close()
         return res
 
     def change_admin_password(self, old_password, new_password):
