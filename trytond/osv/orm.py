@@ -104,8 +104,10 @@ class BrowseRecord(object):
             # create browse records for 'remote' objects
             for data in datas:
                 for i, j in ffields:
+                    obj = self._table.pool.get(j._obj)
+                    if not obj:
+                        continue
                     if j._type in ('many2one', 'one2one'):
-                        obj = self._table.pool.get(j._obj)
                         if not j._classic_write and data[i]:
                             ids2 = data[i][0]
                         else:
@@ -116,7 +118,7 @@ class BrowseRecord(object):
                                 list_class=self._list_class)
                     elif j._type in ('one2many', 'many2many') and len(data[i]):
                         data[i] = self._list_class([BrowseRecord(self._cursor,
-                            self._user, x, self._table.pool.get(j._obj),
+                            self._user, x, obj,
                             self._cache, context=self._context,
                             list_class=self._list_class) for x in data[i]],
                             self._context)
