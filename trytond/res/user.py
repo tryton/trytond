@@ -37,7 +37,6 @@ Group()
 class User(OSV):
     "User"
     _name = "res.user"
-    _log_access = False
     _description = __doc__
     _columns = {
         'name': fields.Char('Name', size=64, required=True, select=1),
