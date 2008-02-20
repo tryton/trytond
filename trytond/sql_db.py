@@ -1,4 +1,5 @@
-import psycopg
+from psycopg2.pool import ThreadedConnectionPool
+from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE, cursor
 import re
 import os
 from mx import DateTime as mdt
@@ -9,7 +10,37 @@ from config import CONFIG
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"? .*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"? .*$')
 
-class FakeCursor:
+class tryton_cursor(cursor):
+
+    def __build_dict(self, row):
+        res = {}
+        for i in range(len(self.description)):
+            res[self.description[i][0]] = row[i]
+        return res
+
+    def dictfetchone(self):
+        row = self.fetchone()
+        if row:
+            return self.__build_dict(row)
+        else:
+            return row
+
+    def dictfetchmany(self, size):
+        res = []
+        rows = self.fetchmany(size)
+        for row in rows:
+            res.append(self.__build_dict(row))
+        return res
+
+    def dictfetchall(self):
+        res = []
+        rows = self.fetchall()
+        for row in rows:
+            res.append(self.__build_dict(row))
+        return res
+
+
+class FakeCursor(object):
     nbr = 0
     _tables = {}
     sql_from_log = {}
@@ -17,10 +48,11 @@ class FakeCursor:
     sql_log = False
     count = 0
 
-    def __init__(self, database, con, dbname):
-        self.db = database
-        self.obj = database.cursor()
-        self.con = con
+    def __init__(self, connpool, conn, dbname, cursor_factory):
+        self._connpool = connpool
+        self.conn = conn
+        self.cursor_factory = cursor_factory
+        self.cursor = conn.cursor(cursor_factory=self.cursor_factory)
         self.dbname = dbname
 
     def execute(self, sql, params=None):
@@ -37,10 +69,11 @@ class FakeCursor:
             sql = sql.encode('utf-8')
         if self.sql_log:
             now = mdt.now()
+        sql = sql.replace('%d', '%s')
         if para:
-            res = self.obj.execute(sql, para)
+            res = self.cursor.execute(sql, para)
         else:
-            res = self.obj.execute(sql)
+            res = self.cursor.execute(sql)
         if self.sql_log:
             self.count += 1
             res_from = RE_FROM.match(sql.lower())
@@ -72,26 +105,36 @@ class FakeCursor:
         if self.sql_log:
             self.print_log('from')
             self.print_log('into')
-        self.obj.close()
+        self.cursor.close()
 
         # This force the cursor to be freed, and thus, available again. It is
         # important because otherwise we can overload the server very easily
         # because of a cursor shortage (because cursors are not garbage
         # collected as fast as they should). The problem is probably due in
         # part because browse records keep a reference to the cursor.
-        del self.obj
+        del self.cursor
+        self._connpool.putconn(self.conn)
+
+    def commit(self):
+        self.conn.commit()
+
+    def rollback(self):
+        self.conn.rollback()
 
     def __getattr__(self, name):
-        return getattr(self.obj, name)
+        return getattr(self.cursor, name)
 
 class FakeDB:
 
-    def __init__(self, truedb, dbname):
-        self.truedb = truedb
+    def __init__(self, connpool, dbname):
+        self._connpool = connpool
         self.dbname = dbname
 
-    def cursor(self):
-        return FakeCursor(self.truedb, {}, self.dbname)
+    def cursor(self, cursor_factory=tryton_cursor):
+        conn = self._connpool.getconn()
+        conn.set_isolation_level(ISOLATION_LEVEL_SERIALIZABLE)
+        return FakeCursor(self._connpool, conn, self.dbname,
+                cursor_factory=cursor_factory)
 
 def db_connect(db_name, serialize=0):
     host = CONFIG['db_host'] and "host=%s" % CONFIG['db_host'] or ''
@@ -101,10 +144,9 @@ def db_connect(db_name, serialize=0):
     password = CONFIG['db_password'] \
             and "password=%s" % CONFIG['db_password'] or ''
     maxconn = int(CONFIG['db_maxconn']) or 64
-    tdb = psycopg.connect('%s %s %s %s %s' % (host, port, name, user, password),
-            serialize=serialize, maxconn=maxconn)
-    fdb = FakeDB(tdb, db_name)
-    return fdb
+    dsn = '%s %s %s %s %s' % (host, port, name, user, password)
+    connpool = ThreadedConnectionPool(0, maxconn, dsn)
+    return FakeDB(connpool, db_name)
 
 def init_db(cursor):
     sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
@@ -184,7 +226,3 @@ def init_db(cursor):
                 cursor.execute('INSERT INTO ir_module_module_dependency ' \
                         '(module, name) VALUES (%s, %s)',
                         (module_id, dependency))
-
-psycopg.register_type(psycopg.new_type((1082,), "date", lambda x:x))
-psycopg.register_type(psycopg.new_type((1083,), "time", lambda x:x))
-psycopg.register_type(psycopg.new_type((1114,), "datetime", lambda x:x))
