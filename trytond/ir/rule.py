@@ -80,45 +80,57 @@ class Rule(OSV):
                 'operand',
             ]
 
+
+    def _operand_get(self, cursor, user, obj_name='', level=3, recur=None, root_tech='', root=''):
+        res = {}
+        if not obj_name:
+            obj_name = 'res.user'
+        res.update({"False": "False", "True": "True", "user.id": "User"})
+        if not recur:
+            recur = []
+        obj_fields = self.pool.get(obj_name).fields_get(cursor, user)
+        key = obj_fields.keys()
+        key.sort()
+        for k in key:
+
+            if obj_fields[k]['type'] in ('many2one'):
+                #res.append((root_tech + '.' + k + '.id',
+                #    root + '/' + obj_fields[k]['string']))
+                res[root + '/' + obj_fields[k]['string']] = \
+                        root_tech + '.' + k + '.id'
+
+            elif obj_fields[k]['type'] in ('many2many', 'one2many'):
+                #res.append(('\',\'.join(map(lambda x: str(x.id), ' + \
+                #        root_tech + '.' + k + ')) or 0',
+                #    root + '/' + obj_fields[k]['string']))
+                res[root + '/' + obj_fields[k]['string']] = \
+                        '\',\'.join(map(lambda x: str(x.id), ' + \
+                        root_tech + '.' + k + ')) or 0'
+            else:
+                #res.append((root_tech + '.' + k,
+                #    root + '/' + obj_fields[k]['string']))
+                res[root + '/' + obj_fields[k]['string']] = \
+                        root_tech + '.' + k
+
+            if (obj_fields[k]['type'] in recur) and (level>0):
+                res.update(self._operand_get(cursor, user,
+                    obj_fields[k]['relation'], level-1,
+                    recur, root_tech + '.' + k, root + '/' + \
+                            obj_fields[k]['string']))
+
+        return res
+
     def operand(self, cursor, user, context):
-
-        def get(obj_name, level=3, recur=None, root_tech='', root=''):
-            res = []
-            if not recur:
-                recur = []
-            obj_fields = self.pool.get(obj_name).fields_get(cursor, user)
-            key = obj_fields.keys()
-            key.sort()
-            for k in key:
-
-                if obj_fields[k]['type'] in ('many2one'):
-                    res.append((root_tech + '.' + k + '.id',
-                        root + '/' + obj_fields[k]['string']))
-
-                elif obj_fields[k]['type'] in ('many2many', 'one2many'):
-                    res.append(('\',\'.join(map(lambda x: str(x.id), ' + \
-                            root_tech + '.' + k + '))',
-                        root + '/' + obj_fields[k]['string']))
-
-                else:
-                    res.append((root_tech + '.' + k,
-                        root + '/' + obj_fields[k]['string']))
-
-                if (obj_fields[k]['type'] in recur) and (level>0):
-                    res.extend(get(obj_fields[k]['relation'], level-1,
-                        recur, root_tech + '.' + k, root + '/' + \
-                                obj_fields[k]['string']))
-
-            return res
-
-        res = [("False", "False"), ("True", "True"), ("user.id", "User")]
-        res += get('res.user', level=1,
+        res = []
+        operands = self._operand_get(cursor, user, 'res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
+        for i in operands.keys():
+            res.append((i, i))
         return res
 
     def domain_get(self, cursor, user, model_name):
         # root user above constraint
-        if user == 1:
+        if user == 0:
             return '', []
 
         cursor.execute("SELECT r.id FROM ir_rule r " \
@@ -141,17 +153,21 @@ class Rule(OSV):
         obj = self.pool.get(model_name)
         clause = {}
         clause_global = {}
+        operand2query = self._operand_get(cursor, user, 'res.user', level=1,
+                recur=['many2one'], root_tech='user', root='User')
         # Use root user to prevent recursion
-        for rule in self.browse(cursor, 1, ids):
+        for rule in self.browse(cursor, 0, ids):
             if rule.operator in ('in', 'child_of'):
                 dom = eval("[('%s', '%s', [%s])]" % \
-                        (rule.field.name, rule.operator, rule.operand),
-                        {'user': self.pool.get('res.user').browse(cursor, 1,
+                        (rule.field.name, rule.operator,
+                            operand2query[rule.operand]),
+                        {'user': self.pool.get('res.user').browse(cursor, 0,
                             user), 'time': time})
             else:
                 dom = eval("[('%s', '%s', %s)]" % \
-                        (rule.field.name, rule.operator, rule.operand),
-                        {'user': self.pool.get('res.user').browse(cursor, 1,
+                        (rule.field.name, rule.operator,
+                            operand2query[rule.operand]),
+                        {'user': self.pool.get('res.user').browse(cursor, 0,
                             user), 'time': time})
 
             if rule.rule_group['global']:
@@ -203,7 +219,7 @@ class Rule(OSV):
                     UNION SELECT rule_group_id FROM group_rule_group_rel g_rel
                         JOIN res_group_user_rel u_rel
                             ON g_rel.group_id = u_rel.gid
-                        WHERE u_rel.user = %d))""", (model_name, user, user))
+                        WHERE u_rel.uid = %d))""", (model_name, user, user))
         if not cursor.fetchall():
             query, val = _query(clause, 'OR')
 
