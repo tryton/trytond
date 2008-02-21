@@ -69,6 +69,8 @@ class User(OSV):
         'name',
         'password',
         'signature',
+        'menu',
+        'action',
     ]
     _context_fields = [
         'language',
@@ -140,7 +142,7 @@ class User(OSV):
 
     def get_preferences(self, cursor, user, context_only=False, context=None):
         res = {}
-        user = self.browse(cursor, user, user, context=context)
+        user = self.browse(cursor, 0, user, context=context)
         if context_only:
             fields = self._context_fields
         else:
@@ -176,6 +178,8 @@ class User(OSV):
         doc = dom.minidom.parseString(xml)
         arch, fields = self._view_look_dom_arch(cursor,
                 user, doc, context=context)
+        for field in fields:
+            fields[field]['readonly'] = False
         res['arch'] = arch
         res['fields'] = fields
         return res
