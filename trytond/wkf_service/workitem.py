@@ -1,7 +1,7 @@
 import wkf_expr
 import instance
 
-# TODO: remove triggers
+# TODO: remove trigger
 
 def create(cursor, act_datas, inst_id, ident):
     for act in act_datas:
@@ -41,9 +41,9 @@ def process(cursor, workitem, ident, signal=None, force_running=False):
                 ids = wkf_expr.eval_expr(cursor, ident,
                         trans['trigger_expr_id'])
                 for res_id in ids:
-                    cursor.execute('SELECT NEXTVAL(\'wkf_triggers_id_seq\')')
+                    cursor.execute('SELECT NEXTVAL(\'wkf_trigger_id_seq\')')
                     (new_id,) = cursor.fetchone()
-                    cursor.execute('INSERT INTO wkf_triggers ' \
+                    cursor.execute('INSERT INTO wkf_trigger ' \
                             '(model, res_id, instance, workitem, id) ' \
                             'VALUES (%s, %d, %d, %d, %d)',
                             (trans['trigger_model'], res_id,
