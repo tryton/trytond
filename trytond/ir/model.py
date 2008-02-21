@@ -273,7 +273,10 @@ class ModelData(OSV):
             db_id, db_model, mdata_id = \
                    self.fs2db[cursor.dbname][(fs_id, module)]
             old_values = self.fs2values[cursor.dbname][(fs_id, module)]
-            old_values = eval(old_values)
+            if old_values == None:
+                old_values = {}
+            else:
+                old_values = eval(old_values)
 
 
             # Check if values for this record has been modified in the
@@ -365,7 +368,7 @@ class ModelData(OSV):
 
             # Remove this record from the value list. This means that
             # the corresponding record have been found.
-            del self.fs2values[cursor.dbname][(fs_id, module)]
+            self.fs2values[cursor.dbname][(fs_id, module)] = None
         else:
             # this record is new, create it in the db:
             db_id = object_ref.create(cursor, user, values,
@@ -403,6 +406,8 @@ class ModelData(OSV):
         mdata_unlink = []
 
         for (fs_id, module) in self.fs2values[cursor.dbname]:
+            if self.fs2values[cursor.dbname][(fs_id, module)] == None:
+                continue
             if module in modules:
                 (db_id, model, mdata_id) = self.fs2db[cursor.dbname]\
                         [(fs_id, module)]
