@@ -100,21 +100,6 @@ ICONS = [(x, x) for x in [
     'STOCK_ZOOM_FIT',
     'STOCK_ZOOM_IN',
     'STOCK_ZOOM_OUT',
-    'terp-account',
-    'terp-crm',
-    'terp-mrp',
-    'terp-product',
-    'terp-purchase',
-    'terp-sale',
-    'terp-tools',
-    'terp-administration',
-    'terp-hr',
-    'terp-partner',
-    'terp-project',
-    'terp-report',
-    'terp-stock',
-    'terp-calendar',
-    'terp-graph',
 ]]
 
 
