@@ -13,6 +13,9 @@ ID_MAX = 1000
 def intersect(i, j):
     return [x for x in j if x in i]
 
+def exclude(i, j):
+    return [x for x in i if x not in j]
+
 
 class ExceptORM(Exception):
 
@@ -1063,7 +1066,8 @@ class ORM(object):
             load='_classic_read'):
         self.pool.get('ir.model.access').check(cursor, user, self._name, 'read')
         if not fields_names:
-            fields_names = self._columns.keys() + self._inherit_fields.keys()
+            fields_names = self._columns.keys() + \
+                    exclude(self._inherit_fields.keys(), self._columns.keys())
         select = ids
         if isinstance(ids, (int, long)):
             select = [ids]
@@ -1140,6 +1144,7 @@ class ORM(object):
         for table in self._inherits:
             col = self._inherits[table]
             cols = intersect(self._inherit_fields.keys(), fields_names)
+            cols = exclude(cols, self._columns.keys())
             if not cols:
                 continue
             res2 = self.pool.get(table).read(cursor, user,
