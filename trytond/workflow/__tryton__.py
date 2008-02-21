@@ -1,7 +1,7 @@
 {
     'name': 'Workflow',
     'active': True,
-    'depends': ['ir'],
+    'depends': ['ir', 'res'],
     'xml': [
         'workflow.xml',
         ],

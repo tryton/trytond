@@ -6,5 +6,6 @@
         'res.xml',
         'user.xml',
         'request.xml',
+        'ir.xml',
         ]
 }
