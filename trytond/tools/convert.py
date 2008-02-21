@@ -176,18 +176,22 @@ class RecordTagHandler:
             eval_attr = attributes.get('eval', '').encode('utf8')
 
             if search_attr:
+                if attributes.get('model', ''):
+                    search_model = attributes['model'].encode('utf8')
+                else:
+                    search_model = self.model._columns[field_name]._obj
+                f_obj = self.mh.pool.get(search_model)
                 answer = f_obj.browse(
-                    cursor, self.mh.user,
-                    model.search(self.mh.cursor,self.mh.user, search_attr))
+                    self.mh.cursor, self.mh.user,
+                    f_obj.search(self.mh.cursor, self.mh.user, eval(search_attr)))
 
                 if not answer: return
 
-                if field_name in model._columns:
-                    if model._columns[field_name]._type == 'many2many':
-                        self.values[field_name] = [(6, 0, [x['id'] for x in answer])]
+                if self.model._columns[field_name]._type == 'many2many':
+                    self.values[field_name] = [(6, 0, [x['id'] for x in answer])]
 
-                    elif model._columns[field_name]._type == 'many2one':
-                        self.values[field_name] = answer[0]['id']
+                elif self.model._columns[field_name]._type == 'many2one':
+                    self.values[field_name] = answer[0]['id']
 
             elif ref_attr:
                 self.values[field_name] = self.mh.get_id(ref_attr)
