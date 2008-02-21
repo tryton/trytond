@@ -307,6 +307,7 @@ class ModelData(OSV):
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
                         'Field %s on %s : integrity not tested.'%(key, model))
+                    to_update[key] = values[key]
                     continue
 
                 # if the fs value is the same has in the db, whe ignore it
