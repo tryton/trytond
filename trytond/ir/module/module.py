@@ -6,7 +6,7 @@ import urllib
 import zipimport
 from trytond.osv import fields, OSV
 import trytond.tools as tools
-from trytond.module import MODULES_PATH
+from trytond.module import MODULES_PATH, create_graph, get_module_list
 from trytond.osv.orm import ExceptORM
 from trytond.wizard import Wizard, WizardOSV
 from trytond.pooler import get_db, restart_pool
@@ -218,54 +218,73 @@ class Module(OSV):
                                 'or will be installed')
         return super(Module, self).unlink(cursor, user, ids, context=context)
 
-    #TODO: remove the level check recursion
-    def state_change(self, cursor, user, ids, newstate, context=None, level=50):
-        if level < 1:
-            raise Exception, 'Recursion error in modules dependencies!'
-        demo = True
+    def state_install(self, cursor, user, ids, context=None):
+        graph, packages, later = create_graph(get_module_list())
         for module in self.browse(cursor, user, ids, context=context):
-            mdemo = True
-            for dep in module.dependencies:
-                ids2 = self.search(cursor, user, [('name', '=', dep.name)],
-                        context=context)
-                mdemo = self.state_change(cursor, user, ids2, newstate,
-                        context, level-1,) \
-                                and mdemo
-            if not module.dependencies:
-                mdemo = module.demo
-            if module.state == 'uninstalled':
-                self.write(cursor, user, [module.id], {
-                    'state': newstate,
-                    'demo': mdemo,
-                    }, context=context)
-            demo = demo and mdemo
-        return demo
-
-    def state_upgrade(self, cursor, user, ids, newstate, context=None,
-            level=50):
-        dependency_obj = self.pool.get('ir.module.module.dependency')
-        if level < 1:
-            raise Exception, 'Recursion error in modules dependencies!'
-        for module in self.browse(cursor, user, ids):
-            dep_ids = dependency_obj.search(cursor, user, [
-                ('name', '=', module.name),
+            if module.name not in graph:
+                missings = []
+                for package, deps, datas in packages:
+                    if package == module.name:
+                        missings = [x for x in deps if x not in graph]
+                raise ExceptORM('Error',
+                        'Missing dependencies %s for module "%s"' % \
+                        (missings, module.name))
+            def get_parents(name, graph):
+                parents = []
+                for node in graph:
+                    if node.depth == graph[name].depth - 1 \
+                            and graph[name] in node.childs:
+                        parents.append(node.name)
+                parents2 = []
+                for parent in parents:
+                    parents2 += get_parents(parent, graph)
+                return parents + parents2
+            dependencies = get_parents(module.name, graph)
+            module_dep_ids = self.search(cursor, user, [
+                ('name', 'in', dependencies),
                 ], context=context)
-            if dep_ids:
-                ids2 = []
-                for dep in dependency_obj.browse(cursor, user, dep_ids,
-                        context=context):
-                    if dep.module.state != 'to upgrade':
-                        ids2.append(dep.module.id)
-                self.state_upgrade(cursor, user, ids2, newstate, context, level)
-            if module.state == 'installed':
-                self.write(cursor, user, module.id, {
-                    'state': newstate,
-                    }, context=context)
-        return True
+            demo = True
+            module_install_ids = [module.id]
+            for module_dep in self.browse(cursor, user, module_dep_ids,
+                    context=context):
+                if module_dep.state != 'uninstalled':
+                    if not module_dep.demo:
+                        demo = False
+                else:
+                    module_install_ids.append(module_dep.id)
+            self.write(cursor, user, module_install_ids, {
+                'state': 'to install',
+                'demo': demo,
+                }, context=context)
+
+    def state_upgrade(self, cursor, user, ids, context=None):
+        graph, packages, later = create_graph(get_module_list())
+        for module in self.browse(cursor, user, ids):
+            if module.name not in graph:
+                missings = []
+                for package, deps, datas in packages:
+                    if package == module.name:
+                        missings = [x for x in deps if x not in graph]
+                raise ExceptORM('Error',
+                        'Missing dependencies %s for module "%s"' % \
+                        (missings, module.name))
+            def get_childs(name, graph):
+                childs = [x.name for x in graph[name].childs]
+                childs2 = []
+                for child in childs:
+                    childs2 += get_childs(child, graph)
+                return childs + childs2
+            dependencies = get_childs(module.name, graph)
+            module_installed_ids = self.search(cursor, user, [
+                ('name', 'in', dependencies),
+                ('state', '=', 'installed'),
+                ], context=context)
+            self.write(cursor, user, module_installed_ids + [module.id], {
+                'state': 'to upgrade',
+                }, context=context)
 
     def button_install(self, cursor, user, ids, context=None):
-        return self.state_change(cursor, user, ids, 'to install',
-                context=context)
+        return self.state_install(cursor, user, ids, context=context)
 
     def button_install_cancel(self, cursor, user, ids, context=None):
         self.write(cursor, user, ids, {
@@ -297,7 +316,7 @@ class Module(OSV):
         return True
 
     def button_upgrade(self, cursor, user, ids, context=None):
-        return self.state_upgrade(cursor, user, ids, 'to upgrade', context)
+        return self.state_upgrade(cursor, user, ids, context)
 
     def button_upgrade_cancel(self, cursor, user, ids, context=None):
         self.write(cursor, user, ids, {'state': 'installed'}, context=context)

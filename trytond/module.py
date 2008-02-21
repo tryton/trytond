@@ -159,7 +159,7 @@ def create_graph(module_list, force=None):
         missings = [x for x in deps if x not in graph]
         Logger().notify_channel('init', LOG_ERROR,
                 'module:%s:Unmet dependency %s' % (package, missings))
-    return graph
+    return graph, packages, later
 
 def init_module_objects(cursor, module_name, obj_list):
     Logger().notify_channel('init', LOG_INFO,
@@ -237,10 +237,10 @@ def load_module_graph(cursor, graph, lang=None):
 
     pool = pooler.get_pool(cursor.dbname)
     # TODO : post_import is called even if there not init nor update
-    pool.get('ir.model.data').post_import(cursor, 1, package_todo)
+    pool.get('ir.model.data').post_import(cursor, 0, package_todo)
     cursor.commit()
 
-def register_classes():
+def get_module_list():
     if os.path.exists(MODULES_PATH) and os.path.isdir(MODULES_PATH):
         module_list = os.listdir(MODULES_PATH)
     else:
@@ -249,11 +249,14 @@ def register_classes():
     module_list.append('workflow')
     module_list.append('res')
     module_list.append('webdav')
+    return module_list
+
+def register_classes():
     import ir
     import workflow
     import res
     import webdav
-    for package in create_graph(module_list):
+    for package in create_graph(get_module_list())[0]:
         module = package.name
         Logger().notify_channel('init', LOG_INFO,
                 'module:%s:registering classes' % module)
@@ -293,7 +296,7 @@ def load_modules(database, force_demo=False, update_module=False, lang=None):
     for module in CONFIG['update'].keys():
         if CONFIG['update'][module]:
             module_list.append(module)
-    graph = create_graph(module_list, force)
+    graph = create_graph(module_list, force)[0]
 
     load_module_graph(cursor, graph, lang)
 
