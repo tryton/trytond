@@ -1471,6 +1471,12 @@ class ORM(object):
 
         self._validate(cursor, user, ids)
 
+        # Restart rule cache
+        if self.pool.get('ir.rule.group').search(cursor, 0, [
+            ('model.model', '=', self._name),
+            ], context=context):
+            self.pool.get('ir.rule').domain_get()
+
         if context.has_key('read_delta'):
             del context['read_delta']
 
@@ -2069,8 +2075,22 @@ class ORM(object):
                                 args[i][1], context=context)]
                     else:
                         res_ids = args[i][2]
-                    if not len(res_ids):
-                        args[i] = ('id', 'in', [0])
+                    if res_ids == False:
+                        cursor.execute('SELECT id ' \
+                                'FROM "' + self._table + '" ' \
+                                'WHERE id NOT IN ( ' \
+                                    'SELECT "' + field._id1 + '" ' \
+                                        'FROM "' + field._rel + '" ' \
+                                    ')')
+                        args[i] = ('id', 'in',
+                                [x[0] for x in cursor.fetchall()])
+                    elif res_ids == True:
+                        cursor.execute('SELECT "' + field._id1 + '" ' \
+                                'FROM "' + field._rel + '"')
+                        args[i] = ('id', 'in',
+                                [x[0] for x in cursor.fetchall()])
+                    elif not res_ids:
+                        args[i] = ('id', '=', '0')
                     else:
                         cursor.execute(
                             'SELECT "' + field._id1 + '" ' \
