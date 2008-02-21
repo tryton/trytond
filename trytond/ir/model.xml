@@ -125,9 +125,12 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Access controls">
-                    <field name="name" select="1"/>
                     <field name="model" select="1"/>
                     <field name="group" select="1"/>
+                    <field name="perm_read" select="2"/>
+                    <field name="perm_write" select="2"/>
+                    <field name="perm_create" select="2"/>
+                    <field name="perm_unlink" select="2"/>
                 </tree>
                 ]]>
             </field>
@@ -138,8 +141,6 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Access controls">
-                    <label name="name"/>
-                    <field name="name" colspan="3"/>
                     <label name="model"/>
                     <field name="model"/>
                     <label name="group"/>
@@ -153,6 +154,8 @@
                     <field name="perm_create"/>
                     <label name="perm_unlink"/>
                     <field name="perm_unlink"/>
+                    <separator name="description" colspan="4"/>
+                    <field name="description" colspan="4"/>
                 </form>
                 ]]>
             </field>

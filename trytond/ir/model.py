@@ -18,7 +18,6 @@ class Unhandled_field(Exception):
 class Model(OSV):
     "Model"
     _name = 'ir.model'
-    _rec_name = 'model'
     _description = __doc__
     _columns = {
         'name': fields.Char('Model name', size=64, translate=True),
@@ -68,21 +67,26 @@ class ModelAccess(OSV):
     "Model access"
     _name = 'ir.model.access'
     _description = __doc__
+    _rec_name = 'model'
     _columns = {
-        'name': fields.Char('Name', size=64, required=True),
         'model': fields.Many2One('ir.model', 'Model', required=True),
         'group': fields.Many2One('res.group', 'Group'),
         'perm_read': fields.Boolean('Read Access'),
         'perm_write': fields.Boolean('Write Access'),
         'perm_create': fields.Boolean('Create Access'),
         'perm_unlink': fields.Boolean('Delete Permission'),
+        'description': fields.Text('Description'),
     }
+    _sql_constraints = [
+        ('model_group_uniq', 'UNIQUE("model", "group")',
+            'Only on record by model and group is allowed!'),
+    ]
 
     def check(self, cursor, user, model_name, mode='read',
             raise_exception=True):
         assert mode in ['read', 'write', 'create', 'unlink'], \
                 'Invalid access mode for security'
-        if user == 1:
+        if user == 0:
             return True
         cursor.execute('SELECT MAX(CASE WHEN perm_'+mode+' THEN 1 else 0 END) '
             'FROM ir_model_access a '
