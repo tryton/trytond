@@ -1,5 +1,6 @@
 "Action"
 from trytond.osv import fields, OSV
+from trytond.osv.orm import ExceptORM
 from trytond.tools import file_open
 
 
@@ -13,6 +14,8 @@ class Action(OSV):
         'usage': fields.char('Usage', size=32),
         'keywords': fields.one2many('ir.action.keyword', 'action',
             'Keywords'),
+        'groups': fields.Many2Many('res.group', 'ir_action_group_rel',
+            'action_id', 'gid', 'Groups'),
     }
     _defaults = {
         'usage': lambda *a: False,
@@ -141,7 +144,12 @@ class ActionKeyword(OSV):
             ], context=context))
         for action_keyword in self.browse(cursor, user, action_keyword_ids,
                 context=context):
-            action_obj = self.pool.get(action_keyword.action.type)
+            try:
+                action_obj = self.pool.get(action_keyword.action.type)
+            except ExceptORM, exception:
+                if exception.name == 'AccessError':
+                    continue
+                raise
             action_id = action_obj.search(cursor, user, [
                 ('action', '=', action_keyword.action.id),
                 ], context=context)
