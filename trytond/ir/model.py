@@ -174,6 +174,10 @@ class ModelData(OSV):
     _defaults = {
         'date_init': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
     }
+    _sql_constraints = [
+        ('fs_id_module_uniq', 'UNIQUE("fs_id", "module")',
+            'The couple (fs_id, module) must be unique!'),
+    ]
 
     def __init__(self, pool):
         super(ModelData, self).__init__(pool)
@@ -277,6 +281,20 @@ class ModelData(OSV):
             if model != db_model:
                 raise Exception("This record try to overwrite"
                 "data with the wrong model: %s (module: %s)"% (fs_id, module))
+
+            #Re-create object if it was deleted
+            if not object_ref.search(cursor, user, [('id', '=', db_id)]):
+                db_id = object_ref.create(cursor, user, values)
+                data_id = self.search(cursor, user, [
+                    ('fs_id', '=', fs_id),
+                    ('module', '=', module),
+                    ], limit=1)[0]
+                self.write(cursor, user, data_id, {
+                    'db_id': db_id,
+                    })
+                self.fs2db[cursor.dbname][(fs_id, module)] = \
+                        (db_id, db_model, mdata_id)
+
             db_values = object_ref.browse(cursor, user, db_id)
 
             to_update = {}
