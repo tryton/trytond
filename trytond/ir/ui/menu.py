@@ -225,27 +225,4 @@ class UIMenu(OSV):
                         new_id, '', context.get('module')))
         return new_id
 
-    def search(self, cursor, user, args, offset=0, limit=2000, order=None,
-            context=None, count=False, query_string=False):
-        res_user_obj = self.pool.get('res.user')
-        if context is None:
-            context = {}
-        ids = super(UIMenu, self).search(cursor, user, args, offset, limit,
-                order, context=context)
-        user_groups = res_user_obj.read(cursor, user, [user])[0]['groups_id']
-        result = []
-        for menu in self.browse(cursor, user, ids):
-            if not len(menu.groups):
-                result.append(menu.id)
-                continue
-            for group in menu.groups:
-                if group.id in user_groups:
-                    result.append(menu.id)
-                    break
-        if count:
-            return len(result)
-        if query_string:
-            return (','.join(['%d' for x in result]), result)
-        return result
-
 UIMenu()

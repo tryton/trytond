@@ -376,5 +376,21 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
+        <record model="ir.rule.group" id="rule_group_menu">
+            <field name="model" search="[('model', '=', 'ir.ui.menu')]"/>
+            <field name="global" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_menu1">
+            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.ui.menu')]"/>
+            <field name="operator">in</field>
+            <field name="operand">User/Groups</field>
+            <field name="rule_group" ref="rule_group_menu"/>
+        </record>
+        <record model="ir.rule" id="rule_menu2">
+            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.ui.menu')]"/>
+            <field name="operator">=</field>
+            <field name="operand">False</field>
+            <field name="rule_group" ref="rule_group_menu"/>
+        </record>
     </data>
 </tryton>
