@@ -231,8 +231,7 @@ def load_module_graph(cursor, graph, lang=None):
                         'WHERE name = %s', (True, package.name))
             package_todo.append(package.name)
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
-                    "WHERE state IN ('to upgrade', 'to install') " \
-                        "AND name = %s", (package.name,))
+                    "WHERE name = %s", (package.name,))
         cursor.commit()
 
     pool = pooler.get_pool(cursor.dbname)
