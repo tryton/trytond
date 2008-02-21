@@ -5,7 +5,7 @@ from trytond.netsvc import Service, LocalService, Logger, LOG_ERROR
 from trytond import pooler
 import copy
 import sys
-from psycopg import IntegrityError
+from psycopg2 import IntegrityError
 from trytond.tools import UpdateableDict
 
 MODULE_LIST = []

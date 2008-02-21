@@ -31,7 +31,7 @@
 import sys, os, signal
 import netsvc
 import time
-import psycopg
+import psycopg2
 import pooler
 import sql_db
 import config
@@ -77,7 +77,7 @@ class TrytonServer(object):
         try:
             if db_name:
                 cursor = pooler.get_db_only(db_name).cursor()
-        except psycopg.OperationalError:
+        except psycopg2.OperationalError:
             self.logger.notify_channel("init", netsvc.LOG_INFO,
                     "could not connect to database '%s'!" % db_name,)
 
