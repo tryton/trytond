@@ -91,6 +91,14 @@
         </record>
         <menuitem parent="res.menu_res"
             action="act_user_form" id="menu_user_form"/>
+        <record model="ir.model.access" id="access_user_admin">
+            <field name="model" search="[('model', '=', 'res.user')]"/>
+            <field name="group" ref="group_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
         <record model="ir.ui.view" id="group_view_form">
             <field name="model">res.group</field>
             <field name="type">form</field>
@@ -148,5 +156,13 @@
         </record>
         <menuitem parent="res.menu_res"
             action="act_group_form" id="menu_group_form"/>
+        <record model="ir.model.access" id="access_group_admin">
+            <field name="model" search="[('model', '=', 'res.group')]"/>
+            <field name="group" ref="group_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
     </data>
 </tryton>
