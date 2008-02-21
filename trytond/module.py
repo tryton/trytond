@@ -35,6 +35,13 @@ class Graph(dict):
                 yield module
             level += 1
 
+    def __str__(self):
+        res = ''
+        for i in self:
+            res += str(i)
+            res += '\n'
+        return res
+
 
 class Singleton(object):
 
@@ -77,7 +84,6 @@ class Node(Singleton):
     def __setattr__(self, name, value):
         super(Node, self).__setattr__(name, value)
         if name in ('init', 'update', 'demo'):
-            CONFIG[name][self.name] = 1
             for child in self.childs:
                 setattr(child, name, value)
         if name == 'depth':
@@ -147,9 +153,12 @@ def create_graph(module_list, force=None):
             packages.append((package, deps, datas))
         packages.pop(0)
 
-    for package in later:
+    for package, deps, datas in packages:
+        if package not in later:
+            continue
+        missings = [x for x in deps if x not in graph]
         Logger().notify_channel('init', LOG_ERROR,
-                'module:%s:Unmet dependency' % package)
+                'module:%s:Unmet dependency %s' % (package, missings))
     return graph
 
 def init_module_objects(cursor, module_name, obj_list):
@@ -248,7 +257,6 @@ def register_classes():
         module = package.name
         Logger().notify_channel('init', LOG_INFO,
                 'module:%s:registering classes' % module)
-        sys.stdout.flush()
 
         if module in ('ir', 'workflow', 'res', 'webdav'):
             continue
@@ -302,12 +310,7 @@ def load_modules(database, force_demo=False, update_module=False, lang=None):
                     'WHERE NOT noupdate AND module = %s ' \
                     'ORDER BY id DESC', (mod_name,))
             for rmod, rid in cursor.fetchall():
-                # TODO: Improved
-                # I can not use the class_pool has _table could be
-                # defined in __init__ and I can not use the pool has
-                # the module could not be loaded in the pool
-                uid = 1
-                pool.get(rmod).unlink(cursor, uid, [rid])
+                pool.get(rmod).unlink(cursor, 0, [rid])
             cursor.commit()
         cursor.execute("UPDATE ir_module_module SET state = %s " \
                 "WHERE state IN ('to remove')", ('uninstalled',))
