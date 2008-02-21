@@ -48,7 +48,7 @@ class MenuitemTagHandler:
 
         self.xml_id = attributes['id']
 
-        for attr in ('name', 'icon', 'sequence', 'parent', 'action',):
+        for attr in ('name', 'icon', 'sequence', 'parent', 'action', 'groups'):
             if attributes.get(attr):
                 values[attr] = attributes.get(attr).encode('utf8')
 
@@ -101,6 +101,18 @@ class MenuitemTagHandler:
                     values['icon'] = 'terp-calendar'
             else:
                 values['icon'] = 'STOCK_NEW'
+
+        if values.get('groups'):
+            g_names = values.split(',')
+            groups_value = []
+            for group in g_names:
+                if group.startswith('-'):
+                    group_id = self.get_id(group[1:])
+                    groups_value.append((3, group_id))
+                else:
+                    group_id = self.get_id(group)
+                    groups_value.append((4, group_id))
+            values['groups'] = groups_value
 
         if not values.get('name'):
             if not action_name:
