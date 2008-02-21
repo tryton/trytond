@@ -158,8 +158,8 @@ WorkflowWorkitem()
 
 class WorkflowTrigger(OSV):
     "Workflow trigger"
-    _table = "wkf_triggers"
-    _name = "workflow.triggers"
+    _table = "wkf_trigger"
+    _name = "workflow.trigger"
     _log_access = False
     _description = __doc__
     _columns = {
@@ -174,10 +174,10 @@ class WorkflowTrigger(OSV):
     def _auto_init(self, cursor, module_name):
         super(WorkflowTrigger, self)._auto_init(cursor, module_name)
         cursor.execute('SELECT indexname FROM pg_indexes ' \
-                'WHERE indexname = \'wkf_triggers_res_id_model_index\'')
+                'WHERE indexname = \'wkf_trigger_res_id_model_index\'')
         if not cursor.fetchone():
-            cursor.execute('CREATE INDEX wkf_triggers_res_id_model_index ' \
-                    'ON wkf_triggers (res_id, model)')
+            cursor.execute('CREATE INDEX wkf_trigger_res_id_model_index ' \
+                    'ON wkf_trigger (res_id, model)')
             cursor.commit()
 
 WorkflowTrigger()

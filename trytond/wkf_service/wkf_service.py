@@ -32,7 +32,7 @@ class WorkflowService(Service):
 
     def trg_trigger(self, user, res_type, res_id, cursor):
         "Trigger trigger"
-        cursor.execute('SELECT instance_id FROM wkf_triggers ' \
+        cursor.execute('SELECT instance_id FROM wkf_trigger ' \
                 'WHERE res_id = %d AND model = %s', (res_id, res_type))
         # TODO remove the query from for statement
         for (instance_id,) in cursor.fetchall():
