@@ -47,7 +47,7 @@ class User(OSV):
         'active': fields.Boolean('Active'),
         'action': fields.Many2One('ir.action', 'Home Action'),
         'menu': fields.Many2One('ir.action', 'Menu Action'),
-        'groups_id': fields.Many2Many('res.group', 'res_group_user_rel',
+        'groups': fields.Many2Many('res.group', 'res_group_user_rel',
             'uid', 'gid', 'Groups'),
         'rule_groups': fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
             'user_id', 'rule_group_id', 'Rules',
@@ -75,6 +75,7 @@ class User(OSV):
     _context_fields = [
         'language',
         'timezone',
+        'groups',
     ]
 
     def __init__(self, pool):
@@ -157,12 +158,12 @@ class User(OSV):
         return res
 
     def set_preferences(self, cursor, user, values, context=None):
-        values = values.copy()
+        values_clean = values.copy()
         fields = self._preferences_fields + self._context_fields
         for field in values:
-            if field not in fields:
-                del values[field]
-        self.write(cursor, 1, user, values, context=context)
+            if field not in fields or field == 'groups':
+                del values_clean[field]
+        self.write(cursor, 1, user, values_clean, context=context)
 
     def get_preferences_fields_view(self, cursor, user, context=None):
         res = {}
@@ -179,7 +180,10 @@ class User(OSV):
         arch, fields = self._view_look_dom_arch(cursor,
                 user, doc, context=context)
         for field in fields:
-            fields[field]['readonly'] = False
+            if field not in ('groups'):
+                fields[field]['readonly'] = False
+            else:
+                fields[field]['readonly'] = True
         res['arch'] = arch
         res['fields'] = fields
         return res
