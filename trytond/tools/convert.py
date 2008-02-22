@@ -46,7 +46,7 @@ class MenuitemTagHandler:
 
         values = {}
 
-        self.xml_id = attributes['id']
+        self.xml_id = attributes['id'].encode('utf8')
 
         for attr in ('name', 'icon', 'sequence', 'parent', 'action', 'groups'):
             if attributes.get(attr):
