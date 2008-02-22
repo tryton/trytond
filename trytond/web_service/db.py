@@ -7,6 +7,7 @@ from trytond import pooler
 from trytond import tools
 import base64
 import os
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 
 class DB(Service):
@@ -32,6 +33,7 @@ class DB(Service):
             try:
                 database = sql_db.db_connect('template1', serialize=1)
                 cursor = database.cursor()
+                cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
                 cursor.execute('CREATE DATABASE ' + db_name + ' ENCODING \'unicode\'')
                 cursor.commit()
                 cursor.close()
@@ -55,7 +57,7 @@ class DB(Service):
                         'FROM res_user ' \
                         'WHERE login <> \'root\' ORDER BY login')
                 res = cursor.dictfetchall()
-            except Exception, e:
+            except:
                 logger.notify_channel("web-service", LOG_ERROR,
                     'CREATE DB: %s failed' % (db_name,))
                 raise
@@ -73,6 +75,7 @@ class DB(Service):
 
         database = sql_db.db_connect('template1', serialize=1)
         cursor = database.cursor()
+        cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         try:
             try:
                 cursor.execute('DROP DATABASE ' + db_name)
