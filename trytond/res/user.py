@@ -1,5 +1,6 @@
 "User"
 import time
+import copy
 from xml import dom
 from xml.dom import minidom
 from trytond.osv import fields, OSV, ExceptOSV
@@ -212,6 +213,7 @@ class Group2(Group):
     def __init__(self, pool):
         super(Group2, self).__init__(pool)
         if pool:
+            self._columns = copy.copy(self._columns)
             self._columns['users'] = fields.many2many(
                 'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
 
