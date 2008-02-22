@@ -432,5 +432,51 @@
         <record model="ir.ui.menu" id="ir.menu_translation_export">
             <field name="groups" eval="[(4, ref('res.group_admin'))]"/>
         </record>
+        <record model="ir.ui.view" id="module_view_form">
+            <field name="model">ir.module.module</field>
+            <field name="inherit" ref="ir.module_view_form"/>
+            <field name="arch" type="xml">
+                <![CDATA[
+                    <data>
+                        <xpath
+                            expr="/form/notebook/page/group/button[@name=&quot;button_install&quot;]"
+                            position="replace">
+                            <button string="Install" name="button_install"
+                                type="object" states="{'invisible': '''state != 'uninstalled' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
+                        </xpath>
+                        <xpath
+                            expr="/form/notebook/page/group/button[@name=&quot;button_install_cancel&quot;]"
+                            position="replace">
+                            <button string="Cancel Install" name="button_install_cancel"
+                                type="object" states="{'invisible': '''state != 'to install' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
+                        </xpath>
+                        <xpath
+                            expr="/form/notebook/page/group/button[@name=&quot;button_uninstall&quot;]"
+                            position="replace">
+                            <button string="Uninstall (beta)" name="button_uninstall"
+                                type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
+                        </xpath>
+                        <xpath
+                            expr="/form/notebook/page/group/button[@name=&quot;button_uninstall_cancel&quot;]"
+                            position="replace">
+                            <button string="Cancel Uninstall" name="button_uninstall_cancel"
+                                type="object" states="{'invisible': '''state != 'to remove' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
+                        </xpath>
+                        <xpath
+                            expr="/form/notebook/page/group/button[@name=&quot;button_upgrade&quot;]"
+                            position="replace">
+                            <button string="Upgrade" name="button_upgrade"
+                                type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
+                        </xpath>
+                        <xpath
+                            expr="/form/notebook/page/group/button[@name=&quot;button_upgrade_cancel&quot;]"
+                            position="replace">
+                            <button string="Cancel Upgrade" name="button_upgrade_cancel"
+                                type="object" states="{'invisible': '''state != 'to upgrade' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
+                        </xpath>
+                    </data>
+                ]]>
+            </field>
+        </record>
     </data>
 </tryton>
