@@ -287,7 +287,8 @@ class ModelData(OSV):
 
             #Re-create object if it was deleted
             if not object_ref.search(cursor, user, [('id', '=', db_id)]):
-                db_id = object_ref.create(cursor, user, values)
+                db_id = object_ref.create(cursor, user, values,
+                        context={'module': module})
                 data_id = self.search(cursor, user, [
                     ('fs_id', '=', fs_id),
                     ('module', '=', module),
