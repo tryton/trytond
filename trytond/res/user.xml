@@ -11,7 +11,7 @@
             <field name="signature">Administrator</field>
             <field name="action" ref="ir.act_menu_tree"/>
             <field name="menu" ref="ir.act_menu_tree"/>
-            <field name="groups_id" eval="[(6, 0, [ref('group_admin')])]"/>
+            <field name="groups" eval="[(6, 0, [ref('group_admin')])]"/>
         </record>
         <record model="ir.ui.view" id="user_view_form">
             <field name="model">res.user</field>
@@ -40,8 +40,8 @@
                             <field name="signature" colspan="4"/>
                         </page>
                         <page string="Security" col="1">
-                            <separator name="groups_id"/>
-                            <field name="groups_id"/>
+                            <separator name="groups"/>
+                            <field name="groups"/>
                             <separator name="roles_id"/>
                             <field name="roles_id"/>
                             <separator name="rule_groups"/>

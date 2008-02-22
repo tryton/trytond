@@ -66,7 +66,7 @@ def check(cursor, ident, transition, signal):
         user = ident[0]
         serv = netsvc.LocalService('object_proxy')
         user_groups = serv.execute_cr(cursor, user, 'res.user', 'read', user,
-                ['groups_id'])['groups_id']
+                ['groups'])['groups']
         res = transition['group'] in user_groups
     res = res and eval_expr(cursor, ident, transition['condition'])
     return res
