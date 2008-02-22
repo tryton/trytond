@@ -393,7 +393,8 @@ class ModelData(OSV):
                 })
             # update fs2db:
             self.fs2db[cursor.dbname][(fs_id, module)]= (db_id, model,
-                    str(values), mdata_id)
+                    mdata_id)
+            self.fs2values[cursor.dbname][(fs_id, module)] = None
 
     def post_import(self, cursor, user, modules):
         # Test because of a wrong extra call. See todo at the end of
