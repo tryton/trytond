@@ -26,7 +26,7 @@ class View(OSV):
         'arch': lambda *a: '<?xml version="1.0"?>\n' \
                 '<tree title="Unknwown">\n\t<field name="name"/>\n</tree>',
         'priority': lambda *a: 16,
-        'module': lambda obj, cursor, user, context: context.get('module', ''),
+        'module': lambda obj, cursor, user, context: context and context.get('module', '') or '',
     }
     _order = "priority"
     _constraints = [
