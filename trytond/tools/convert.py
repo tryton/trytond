@@ -174,12 +174,13 @@ class RecordTagHandler:
         elif name == "field":
 
             field_name = attributes['name'].encode('utf8')
+            field_type = attributes.get('type', '').encode('utf8')
             # Create a new entry in the values
             self.values[field_name] = ""
             # Remind the current name (see characters)
             self.current_field = field_name
             # Put a flag to escape cdata tags
-            if field_name == "arch":
+            if field_type == "xml":
                 self.cdata = "start"
 
             # Catch the known attributes
@@ -247,10 +248,17 @@ class RecordTagHandler:
                 raise Exception("Application error"
                                 "current_field expected to be set.")
             # Escape end cdata tag :
-            if self.cdata == 'inside':
+            if self.cdata in ('inside', 'start'):
                 self.values[self.current_field] =\
                     CDATA_END.sub('', self.values[self.current_field])
                 self.cdata = 'done'
+
+                value = self.values[self.current_field]
+                match = re.findall('[^%]%\((.*?)\)[ds]', value)
+                xml_ids = {}
+                for xml_id in match:
+                    xml_ids[xml_id] = self.mh.get_id(xml_id)
+                self.values[self.current_field] = value % xml_ids
 
             self.current_field = None
             return self
