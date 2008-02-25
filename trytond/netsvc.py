@@ -262,12 +262,14 @@ class SimpleThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
         SimpleXMLRPCServer.SimpleXMLRPCServer.server_bind(self)
 
 
+class SimpleThreadedXMLRPCServer6(SimpleThreadedXMLRPCServer):
+    address_family = socket.AF_INET6
+
+
 class HttpDaemon(threading.Thread):
 
     def __init__(self, interface, port, secure=False):
         threading.Thread.__init__(self)
-        self.__port = port
-        self.__interface = interface
         self.secure = secure
         self.running = False
         if secure:
@@ -293,8 +295,19 @@ class HttpDaemon(threading.Thread):
 #                    SecureXMLRPCRequestHandler,0)
             raise
         else:
-            self.server = SimpleThreadedXMLRPCServer((interface, port),
-                    SimpleXMLRPCRequestHandler,0)
+            server_class = SimpleThreadedXMLRPCServer
+            if socket.has_ipv6:
+                try:
+                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                    server_class = SimpleThreadedXMLRPCServer6
+                    if not interface:
+                        interface = '::'
+                except:
+                    pass
+            if not interface:
+                interface = '0.0.0.0'
+            self.server = server_class((interface, port),
+                    SimpleXMLRPCRequestHandler, 0)
 
     def attach(self, path, gateway):
         pass
@@ -386,11 +399,20 @@ class TinySocketClientThread(threading.Thread):
 class TinySocketServerThread(threading.Thread):
     def __init__(self, interface, port, secure=False):
         threading.Thread.__init__(self)
-        self.__port = port
-        self.__interface = interface
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        familly = socket.AF_INET
+        if socket.has_ipv6:
+            try:
+                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                familly = socket.AF_INET6
+                if not interface:
+                    interface = '::'
+            except:
+                pass
+        if not interface:
+            interface = '0.0.0.0'
+        self.socket = socket.socket(familly, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind((self.__interface, self.__port))
+        self.socket.bind((interface, port))
         self.socket.listen(5)
         self.threads = []
         self.secure = secure
@@ -431,13 +453,16 @@ class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
                 socket.SO_REUSEADDR, 1)
         BaseHTTPServer.HTTPServer.server_bind(self)
 
+
+class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
+    address_family = socket.AF_INET6
+
+
 class WebDAVServerThread(threading.Thread):
 
     def __init__(self, interface, port, secure=False):
         from webdavsvc import WebDAVAuthRequestHandler, TrytonDAVInterface
         threading.Thread.__init__(self)
-        self.__port = port
-        self.__interface = interface
         self.secure = secure
         self.running = False
         if secure:
@@ -445,8 +470,18 @@ class WebDAVServerThread(threading.Thread):
         else:
             handler = WebDAVAuthRequestHandler
             handler.IFACE_CLASS = TrytonDAVInterface(interface, port)
-            self.server = BaseThreadedHTTPServer((interface, port),
-                    handler)
+            server_class = BaseThreadedHTTPServer
+            if socket.has_ipv6:
+                try:
+                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                    server_class = BaseThreadedHTTPServer6
+                    if not interface:
+                        interface = '::'
+                except:
+                    pass
+            if not interface:
+                interface = '0.0.0.0'
+            self.server = server_class((interface, port), handler)
 
     def stop(self):
         self.running = False
