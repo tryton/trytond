@@ -10,14 +10,12 @@ class Directory(OSV):
     "Directory"
     _name = "webdav.directory"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=128, required=True, select=1),
-        'parent': fields.Many2One('webdav.directory', 'Parent',
-            ondelete='restrict'),
-        'childs': fields.One2Many('webdav.directory', 'parent', 'Childs'),
-        'model': fields.Many2One('ir.model', 'Model'),
-        'domain': fields.Char('Domain', size=250),
-    }
+    name = fields.Char('Name', size=128, required=True, select=1)
+    parent = fields.Many2One('webdav.directory', 'Parent',
+       ondelete='restrict')
+    childs = fields.One2Many('webdav.directory', 'parent', 'Childs')
+    model = fields.Many2One('ir.model', 'Model')
+    domain = fields.Char('Domain', size=250)
     _defaults = {
         'domain': lambda *a: '[]',
     }

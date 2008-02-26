@@ -126,33 +126,31 @@ class Module(OSV):
     "Module"
     _name = "ir.module.module"
     _description = __doc__
-    _columns = {
-        'name': fields.Char("Name", size=128, readonly=True, required=True),
-        'category': fields.Many2One('ir.module.category', 'Category',
-            readonly=True),
-        'shortdesc': fields.Char('Short description', size=256, readonly=True),
-        'description': fields.Text("Description", readonly=True),
-        'author': fields.Char("Author", size=128, readonly=True),
-        'website': fields.Char("Website", size=256, readonly=True),
-        'installed_version': fields.Function('get_installed_version',
-            string='Installed version', type='char'),
-        'latest_version': fields.Char('Latest version', size=64, readonly=True),
-        'url': fields.Char('URL', size=128),
-        'dependencies': fields.One2Many('ir.module.module.dependency',
-            'module', 'Dependencies', readonly=True),
-        'state': fields.Selection([
-            ('uninstallable', 'Not Installable'),
-            ('uninstalled', 'Not Installed'),
-            ('installed', 'Installed'),
-            ('to upgrade', 'To be upgraded'),
-            ('to remove', 'To be removed'),
-            ('to install', 'To be installed'),
-        ], string='State', readonly=True),
-        'demo': fields.Boolean('Demo data'),
-        'license': fields.Selection([('GPL-2', 'GPL-2'),
-            ('Other proprietary', 'Other proprietary')], string='License',
-            readonly=True),
-    }
+    name = fields.Char("Name", size=128, readonly=True, required=True)
+    category = fields.Many2One('ir.module.category', 'Category',
+        readonly=True)
+    shortdesc = fields.Char('Short description', size=256, readonly=True)
+    description = fields.Text("Description", readonly=True)
+    author = fields.Char("Author", size=128, readonly=True)
+    website = fields.Char("Website", size=256, readonly=True)
+    installed_version = fields.Function('get_installed_version',
+        string='Installed version', type='char')
+    latest_version = fields.Char('Latest version', size=64, readonly=True)
+    url = fields.Char('URL', size=128)
+    dependencies = fields.One2Many('ir.module.module.dependency',
+        'module', 'Dependencies', readonly=True)
+    state = fields.Selection([
+        ('uninstallable', 'Not Installable'),
+        ('uninstalled', 'Not Installed'),
+        ('installed', 'Installed'),
+        ('to upgrade', 'To be upgraded'),
+        ('to remove', 'To be removed'),
+        ('to install', 'To be installed'),
+        ], string='State', readonly=True)
+    demo = fields.Boolean('Demo data')
+    license = fields.Selection([('GPL-2', 'GPL-2'),
+        ('Other proprietary', 'Other proprietary')], string='License',
+        readonly=True)
     _defaults = {
         'state': lambda *a: 'uninstalled',
         'demo': lambda *a: False,
@@ -542,23 +540,21 @@ class ModuleDependency(OSV):
     "Module dependency"
     _name = "ir.module.module.dependency"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name',  size=128),
-        'module': fields.Many2One('ir.module.module', 'Module', select=1,
-            ondelete='cascade'),
-        'state': fields.Function('state', type='selection',
-            selection=[
-            ('uninstallable','Uninstallable'),
-            ('uninstalled','Not Installed'),
-            ('installed','Installed'),
-            ('to upgrade','To be upgraded'),
-            ('to remove','To be removed'),
-            ('to install','To be installed'),
-            ('unknown', 'Unknown'),
-            ], string='State', readonly=True),
-    }
+    name = fields.Char('Name',  size=128)
+    module = fields.Many2One('ir.module.module', 'Module', select=1,
+       ondelete='cascade')
+    state = fields.Function('get_state', type='selection',
+       selection=[
+       ('uninstallable','Uninstallable'),
+       ('uninstalled','Not Installed'),
+       ('installed','Installed'),
+       ('to upgrade','To be upgraded'),
+       ('to remove','To be removed'),
+       ('to install','To be installed'),
+       ('unknown', 'Unknown'),
+       ], string='State', readonly=True)
 
-    def state(self, cursor, user, ids, name, args, context=None):
+    def get_state(self, cursor, user, ids, name, args, context=None):
         result = {}
         module_obj = self.pool.get('ir.module.module')
         for dependency in self.browse(cursor, user, ids):
@@ -577,19 +573,15 @@ ModuleDependency()
 
 class ModuleUpdateListInit(WizardOSV):
     _name = 'ir.module.module.update_list.init'
-    _columns = {
-        'repositories': fields.Text('Repositories', readonly=True),
-    }
+    repositories = fields.Text('Repositories', readonly=True)
 
 ModuleUpdateListInit()
 
 
 class ModuleUpdateListUpdate(WizardOSV):
     _name = 'ir.module.module.update_list.update'
-    _columns = {
-        'update': fields.Integer('Number of modules updated', readonly=True),
-        'add': fields.Integer('Number of modules added', readonly=True),
-    }
+    update = fields.Integer('Number of modules updated', readonly=True)
+    add = fields.Integer('Number of modules added', readonly=True)
 
 ModuleUpdateListUpdate()
 
@@ -660,18 +652,14 @@ ModuleUpdateList()
 
 class ModuleInstallUpgradeInit(WizardOSV):
     _name = 'ir.module.module.install_upgrade.init'
-    _columns = {
-        'module_info': fields.Text('Modules to update', readonly=True),
-        'module_download': fields.Text('Modules to download', readonly=True),
-    }
+    module_info = fields.Text('Modules to update', readonly=True)
+    module_download = fields.Text('Modules to download', readonly=True)
 
 ModuleInstallUpgradeInit()
 
 
 class ModuleInstallUpgradeStart(WizardOSV):
     _name = 'ir.module.module.install_upgrade.start'
-    _columns = {
-    }
 
 ModuleInstallUpgradeStart()
 

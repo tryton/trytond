@@ -33,7 +33,7 @@ def _symbol_set(symb):
         return symb.encode('utf-8')
     return str(symb)
 
-class _column(object):
+class Column(object):
     _classic_read = True
     _classic_write = True
     _properties = False
@@ -75,7 +75,7 @@ class _column(object):
         raise Exception, 'undefined get method !'
 
 
-class Boolean(_column):
+class Boolean(Column):
     _type = 'boolean'
     _symbol_c = '%s'
     _symbol_f = lambda x: x and 'True' or 'False'
@@ -84,7 +84,7 @@ class Boolean(_column):
 boolean = Boolean
 
 
-class Integer(_column):
+class Integer(Column):
     _type = 'integer'
     _symbol_c = '%d'
     _symbol_f = lambda x: int(x or 0)
@@ -93,21 +93,21 @@ class Integer(_column):
 integer = Integer
 
 
-class Reference(_column):
+class Reference(Column):
     _type = 'reference'
 
     def __init__(self, string, selection, size, **args):
-        _column.__init__(self, string=string, size=size, selection=selection,
+        Column.__init__(self, string=string, size=size, selection=selection,
                 **args)
 
 reference = Reference
 
 
-class Char(_column):
+class Char(Column):
     _type = 'char'
 
     def __init__(self, string, size, **args):
-        _column.__init__(self, string=string, size=size, **args)
+        Column.__init__(self, string=string, size=size, **args)
         self._symbol_set = (self._symbol_c, self._symbol_set_char)
 
     def _symbol_set_char(self, symb):
@@ -134,44 +134,44 @@ class Char(_column):
 char = Char
 
 
-class Text(_column):
+class Text(Column):
     _type = 'text'
 
 text = Text
 
 
-class Float(_column):
+class Float(Column):
     _type = 'float'
     _symbol_c = '%f'
     _symbol_f = lambda x: __builtin__.float(x or 0.0)
     _symbol_set = (_symbol_c, _symbol_f)
 
     def __init__(self, string='unknown', digits=None, **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self.digits = digits
 
 float = Float
 
 
-class Date(_column):
+class Date(Column):
     _type = 'date'
 
 date = Date
 
 
-class DateTime(_column):
+class DateTime(Column):
     _type = 'datetime'
 
 datetime = DateTime
 
 
-class Time(_column):
+class Time(Column):
     _type = 'time'
 
 time = Time
 
 
-class Binary(_column):
+class Binary(Column):
     _type = 'binary'
     _symbol_c = '%s'
     _symbol_f = lambda symb: symb and psycopg2.Binary(symb) or None
@@ -180,7 +180,7 @@ class Binary(_column):
 binary = Binary
 
 
-class Selection(_column):
+class Selection(Column):
     _type = 'selection'
 
     def __init__(self, selections, string='unknown', **args):
@@ -188,13 +188,13 @@ class Selection(_column):
         selections is a list of (key, string)
             or the name of the object function that return the list
         """
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self.selection = selections
 
 selection = Selection
 
 
-class One2One(_column):
+class One2One(Column):
     _classic_read = False
     _classic_write = True
     _type = 'one2one'
@@ -202,7 +202,7 @@ class One2One(_column):
     def __init__(self, obj, string='unknown', **args):
         warnings.warn("The one2one field doesn't work anymore",
                 DeprecationWarning)
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
 
     def set(self, cursor, obj_src, src_id, field, act, user=None, context=None):
@@ -224,13 +224,13 @@ class One2One(_column):
 one2one = One2One
 
 
-class Many2One(_column):
+class Many2One(Column):
     _classic_read = False
     _classic_write = True
     _type = 'many2one'
 
     def __init__(self, obj, string='unknown', **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
 
     # TODO: speed improvement
@@ -299,13 +299,13 @@ class Many2One(_column):
 many2one = Many2One
 
 
-class One2Many(_column):
+class One2Many(Column):
     _classic_read = False
     _classic_write = False
     _type = 'one2many'
 
     def __init__(self, obj, fields_id, string='unknown', limit=None, **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
         self._fields_id = fields_id
         self._limit = limit
@@ -377,14 +377,14 @@ class One2Many(_column):
 one2many = One2Many
 
 
-class Many2Many(_column):
+class Many2Many(Column):
     _classic_read = False
     _classic_write = False
     _type = 'many2many'
 
     def __init__(self, obj, rel, id1, id2, string='unknown', limit=None,
             **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
         self._rel = rel
         self._id1 = id1
@@ -475,7 +475,7 @@ class Many2Many(_column):
 many2many = Many2Many
 
 
-class Function(_column):
+class Function(Column):
     _classic_read = False
     _classic_write = False
     _type = 'function'
@@ -483,7 +483,7 @@ class Function(_column):
 
     def __init__(self, fnct, arg=None, fnct_inv='', fnct_inv_arg=None,
             type='float', fnct_search='', obj=None, **args):
-        _column.__init__(self, **args)
+        Column.__init__(self, **args)
         self._obj = obj
         self._fnct = fnct
         self._fnct_inv = fnct_inv
@@ -519,7 +519,7 @@ class Function(_column):
 function = Function
 
 
-class Serialized(_column):
+class Serialized(Column):
     def __init__(self, string='unknown', serialize_func=repr,
             deserialize_func=eval, type='text', **args):
         self._serialize_func = serialize_func

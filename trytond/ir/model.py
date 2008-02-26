@@ -19,13 +19,11 @@ class Model(OSV):
     "Model"
     _name = 'ir.model'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Model name', size=64, translate=True),
-        'model': fields.Char('Object name', size=64, required=True),
-        'info': fields.Text('Information'),
-        'fields': fields.One2Many('ir.model.field', 'model', 'Fields',
-            required=True),
-    }
+    name = fields.Char('Model name', size=64, translate=True)
+    model = fields.Char('Object name', size=64, required=True)
+    info = fields.Text('Information')
+    fields = fields.One2Many('ir.model.field', 'model', 'Fields',
+       required=True)
     _defaults = {
         'name': lambda *a: 'No Name',
     }
@@ -36,22 +34,19 @@ class ModelField(OSV):
     "Model field"
     _name = 'ir.model.field'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=64),
-        'relation': fields.Char('Model Relation', size=64),
-        'model': fields.Many2One('ir.model', 'Model', required=True,
-            select=True, ondelete='cascade'),
-        'field_description': fields.Char('Field Description', size=256,
-            translate=True),
-        'ttype': fields.Char('Field Type', size=64),
-        'relate': fields.Boolean('Click and Relate'),
-
-        'groups': fields.Many2Many('res.group', 'ir_model_field_group_rel',
-            'field_id', 'group_id', 'Groups'),
-        'group_name': fields.Char('Group Name', size=128),
-        'view_load': fields.Boolean('View Auto-Load'),
-        'help': fields.Text('Help', translate=True),
-    }
+    name = fields.Char('Name', size=64)
+    relation = fields.Char('Model Relation', size=64)
+    model = fields.Many2One('ir.model', 'Model', required=True,
+       select=True, ondelete='cascade')
+    field_description = fields.Char('Field Description', size=256,
+       translate=True)
+    ttype = fields.Char('Field Type', size=64)
+    relate = fields.Boolean('Click and Relate')
+    groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
+       'field_id', 'group_id', 'Groups')
+    group_name = fields.Char('Group Name', size=128)
+    view_load = fields.Boolean('View Auto-Load')
+    help = fields.Text('Help', translate=True)
     _defaults = {
         'relate': lambda *a: 0,
         'view_load': lambda *a: 0,
@@ -68,15 +63,13 @@ class ModelAccess(OSV):
     _name = 'ir.model.access'
     _description = __doc__
     _rec_name = 'model'
-    _columns = {
-        'model': fields.Many2One('ir.model', 'Model', required=True),
-        'group': fields.Many2One('res.group', 'Group'),
-        'perm_read': fields.Boolean('Read Access'),
-        'perm_write': fields.Boolean('Write Access'),
-        'perm_create': fields.Boolean('Create Access'),
-        'perm_unlink': fields.Boolean('Delete Permission'),
-        'description': fields.Text('Description'),
-    }
+    model = fields.Many2One('ir.model', 'Model', required=True)
+    group = fields.Many2One('res.group', 'Group')
+    perm_read = fields.Boolean('Read Access')
+    perm_write = fields.Boolean('Write Access')
+    perm_create = fields.Boolean('Create Access')
+    perm_unlink = fields.Boolean('Delete Permission')
+    description = fields.Text('Description')
     _sql_constraints = [
         ('model_group_uniq', 'UNIQUE("model", "group")',
             'Only on record by model and group is allowed!'),
@@ -160,17 +153,15 @@ class ModelData(OSV):
     "Model data"
     _name = 'ir.model.data'
     _description = __doc__
-    _columns = {
-        'fs_id': fields.Char('Identifier on File System', required=True,
-            size=64, help="The id of the record as known on the file system."),
-        'model': fields.Char('Model', required=True, size=64),
-        'module': fields.Char('Module', required=True, size=64),
-        'db_id': fields.Integer('Resource ID',
-            help="The id of the record in the database."),
-        'date_update': fields.DateTime('Update Date'),
-        'date_init': fields.DateTime('Init Date'),
-        'values': fields.Text('Values'),
-    }
+    fs_id = fields.Char('Identifier on File System', required=True,
+       size=64, help="The id of the record as known on the file system.")
+    model = fields.Char('Model', required=True, size=64)
+    module = fields.Char('Module', required=True, size=64)
+    db_id = fields.Integer('Resource ID',
+       help="The id of the record in the database.")
+    date_update = fields.DateTime('Update Date')
+    date_init = fields.DateTime('Init Date')
+    values = fields.Text('Values')
     _defaults = {
         'date_init': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
     }

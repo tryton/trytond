@@ -241,7 +241,6 @@ class ORM(object):
             - relations (one2many, many2one, many2many)
             - functions
     """
-    _columns = {}
     _sql_constraints = []
     _constraints = []
     _defaults = {}
@@ -275,6 +274,21 @@ class ORM(object):
     _sql = ''
     _inherit_fields = []
     pool = None
+    __columns = None
+
+    def _getcolumns(self):
+        if self.__columns:
+            return self.__columns
+        res = {}
+        for attr in dir(self):
+            if attr == '_columns':
+                continue
+            if isinstance(getattr(self, attr), fields.Column):
+                res[attr] = getattr(self, attr)
+        self.__columns = res
+        return res
+
+    _columns = property(fget=_getcolumns)
 
     def _field_create(self, cursor, module_name):
         cursor.execute("SELECT id FROM ir_model WHERE model = %s",
@@ -759,6 +773,8 @@ class ORM(object):
                         cursor.commit()
 
     def __init__(self):
+        # reinit the cachel on _columns
+        self.__columns = None
         if not self._table:
             self._table = self._name.replace('.', '_')
         if not self._description:
@@ -771,15 +787,13 @@ class ORM(object):
             self._sequence = self._table+'_id_seq'
 
         if self._log_access:
-            if not self._columns:
-                self._columns = {}
-            self._columns['create_uid'] = fields.Many2One('res.user',
+            self.create_uid = fields.Many2One('res.user',
                     'Creation user', required=True, readonly=True)
-            self._columns['create_date'] = fields.DateTime('Creation date',
+            self.create_date = fields.DateTime('Creation date',
                     required=True, readonly=True)
-            self._columns['write_uid'] = fields.Many2One('res.user',
+            self.write_uid = fields.Many2One('res.user',
                        'Last modification by', readonly=True)
-            self._columns['write_date'] = fields.DateTime(
+            self.write_date = fields.DateTime(
                     'Last modification date', readonly=True)
             if not self._defaults:
                 self._defaults = {}
