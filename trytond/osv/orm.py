@@ -174,27 +174,23 @@ def get_pg_type(field):
     type expression to create the column)
     '''
     type_dict = {
-            fields.boolean:'bool',
-            fields.integer:'int4',
-            fields.text:'text',
-            fields.date:'date',
-            fields.time:'time',
-            fields.datetime:'timestamp',
-            fields.binary:'bytea',
-            fields.many2one:'int4',
+            fields.Boolean: 'bool',
+            fields.Integer: 'int4',
+            fields.Text: 'text',
+            fields.Date: 'date',
+            fields.Time: 'time',
+            fields.DateTime: 'timestamp',
+            fields.Binary: 'bytea',
+            fields.Many2One: 'int4',
+            fields.Float: 'float8',
+            fields.Numeric: 'numeric',
             }
 
     if type_dict.has_key(type(field)):
         f_type = (type_dict[type(field)], type_dict[type(field)])
-    elif isinstance(field, fields.float):
-        if field.digits:
-            f_type = ('numeric', 'NUMERIC(%d, %d)' % \
-                    (field.digits[0],field.digits[1]))
-        else:
-            f_type = ('float8', 'DOUBLE PRECISION')
-    elif isinstance(field, (fields.char, fields.reference)):
+    elif isinstance(field, (fields.Char, fields.Reference)):
         f_type = ('varchar', 'VARCHAR(%d)' % (field.size,))
-    elif isinstance(field, fields.selection):
+    elif isinstance(field, fields.Selection):
         if isinstance(field.selection, list) \
                 and isinstance(field.selection[0][0], (str, unicode)):
             f_size = reduce(lambda x, y: max(x, len(y[0])), field.selection,
@@ -209,12 +205,10 @@ def get_pg_type(field):
             f_type = ('int4', 'INTEGER')
         else:
             f_type = ('varchar', 'VARCHAR(%d)' % f_size)
-    elif isinstance(field, fields.function) \
+    elif isinstance(field, fields.Function) \
             and type_dict.has_key(eval('fields.' + (field._type))):
         ftype = eval('fields.' + (field._type))
         f_type = (type_dict[ftype], type_dict[ftype])
-    elif isinstance(field, fields.function) and field._type == 'float':
-        f_type = ('float8', 'DOUBLE PRECISION')
     else:
         logger = Logger()
         logger.notify_channel("init", LOG_WARNING,
@@ -496,7 +490,7 @@ class ORM(object):
                     continue
 
                 field = self._columns[k]
-                if isinstance(field, fields.one2many):
+                if isinstance(field, fields.One2Many):
                     cursor.execute("SELECT relname FROM pg_class " \
                             "WHERE relkind = 'r' AND relname = %s",
                             (field._obj,))
@@ -513,7 +507,7 @@ class ORM(object):
                                     "ADD FOREIGN KEY (%s) " \
                                     "REFERENCES \"%s\" ON DELETE SET NULL" % \
                                     (self._obj, field._fields_id, field._table))
-                elif isinstance(field, fields.many2many):
+                elif isinstance(field, fields.Many2Many):
                     cursor.execute("SELECT relname FROM pg_class " \
                             "WHERE relkind in ('r','v') AND relname=%s",
                             (field._rel,))
@@ -554,7 +548,7 @@ class ORM(object):
                                 (self._table, k))
                     res = cursor.dictfetchall()
                     if not res:
-                        if not isinstance(field, fields.function):
+                        if not isinstance(field, fields.Function):
                             # add the missing field
                             cursor.execute("ALTER TABLE \"%s\" " \
                                     "ADD COLUMN \"%s\" %s" % \
@@ -571,7 +565,7 @@ class ORM(object):
                                             "SET \"%s\" = '%s'" % \
                                             (self._table, k, default))
                             # and add constraints if needed
-                            if isinstance(field, fields.many2one):
+                            if isinstance(field, fields.Many2One):
                                 if field._obj == 'res.user':
                                     ref = 'res_user'
                                 elif field._obj == 'res.group':
@@ -613,7 +607,7 @@ class ORM(object):
                         f_pg_type = f_pg_def['typname']
                         f_pg_size = f_pg_def['size']
                         f_pg_notnull = f_pg_def['attnotnull']
-                        if isinstance(field, fields.function):
+                        if isinstance(field, fields.Function):
                             logger.notify_channel('init', LOG_WARNING,
                                     'column %s (%s) in table %s was converted '\
                                             'to a function !\n' \
@@ -704,7 +698,7 @@ class ORM(object):
                                 cursor.execute("DROP INDEX \"%s_%s_index\"" % \
                                         (self._table, k))
                                 cursor.commit()
-                            if isinstance(field, fields.many2one):
+                            if isinstance(field, fields.Many2One):
                                 ref_obj = self.pool.get(field._obj)
                                 if ref_obj:
                                     ref = ref_obj._table
