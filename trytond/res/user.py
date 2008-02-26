@@ -56,12 +56,6 @@ class User(OSV):
         ('login_key', 'UNIQUE (login)',
             'You can not have two users with the same login!')
     ]
-    _defaults = {
-        'password' : lambda *a: '',
-        'active' : lambda *a: 1,
-        'language': lambda *a: 'en_US',
-        'timezone': lambda *a: time.tzname[0],
-    }
     _preferences_fields = [
         'name',
         'password',
@@ -74,6 +68,18 @@ class User(OSV):
         'timezone',
         'groups',
     ]
+
+    def default_password(self, cursor, user, context=None):
+        return ''
+
+    def default_active(self, cursor, user, context=None):
+        return 1
+
+    def default_language(self, cursor, user, context=None):
+        return 'en_US'
+
+    def default_timezone(self, cursor, user, context=None):
+        return time.tzname[0]
 
     def __init__(self, pool):
         super(User, self).__init__(pool)

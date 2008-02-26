@@ -15,10 +15,14 @@ class Lang(OSV):
        ('ltr', 'Left-to-right'),
        ('rtl', 'Right-to-left'),
        ], 'Direction',required=True)
-    _defaults = {
-        'active': lambda *a: 1,
-        'translatable': lambda *a: 0,
-        'direction': lambda *a: 'ltr',
-    }
+
+    def default_active(self, cursor, user, context=None):
+        return 1
+
+    def default_translatable(self, cursor, user, context=None):
+        return 0
+
+    def default_direction(self, cursor, user, context=None):
+        return 'ltr'
 
 Lang()

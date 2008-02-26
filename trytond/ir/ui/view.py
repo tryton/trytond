@@ -20,16 +20,20 @@ class View(OSV):
     inherit = fields.Many2One('ir.ui.view', 'Inherited View')
     field_childs = fields.Char('Childs Field',size=64)
     module = fields.Char('Module', size=128, readonly=True)
-    _defaults = {
-        'arch': lambda *a: '<?xml version="1.0"?>\n' \
-                '<tree title="Unknwown">\n\t<field name="name"/>\n</tree>',
-        'priority': lambda *a: 16,
-        'module': lambda obj, cursor, user, context: context and context.get('module', '') or '',
-    }
     _order = "priority"
     _constraints = [
         ('check_xml', 'Invalid XML for View Architecture!', ['arch'])
     ]
+
+    def default_arch(self, cursor, user, context=None):
+        return '<?xml version="1.0"?>\n' \
+                '<tree title="Unknwown">\n\t<field name="name"/>\n</tree>'
+
+    def default_priority(self, cursor, user, context=None):
+        return 16
+
+    def default_module(self, cursor, user, context=None):
+        return context and context.get('module', '') or ''
 
     def check_xml(self, cursor, user, ids):
         "Check XML"
@@ -175,6 +179,7 @@ class ViewShortcut(OSV):
     user_id = fields.Many2One('res.user', 'User Ref.', required=True,
        ondelete='cascade')
     resource = fields.Char('Resource Name', size=64, required=True)
+    _order = 'sequence'
 
     def __init__(self, pool):
         super(ViewShortcut, self).__init__(pool)
@@ -191,9 +196,7 @@ class ViewShortcut(OSV):
             ], context=context)
         return self.read(cursor, user, ids, ['res_id', 'name'], context=context)
 
-    _order = 'sequence'
-    _defaults = {
-        'resource': lambda *a: 'ir.ui.menu',
-    }
+    def default_resource(self, cursor, user, context=None):
+        return 'ir.ui.menu'
 
 ViewShortcut()

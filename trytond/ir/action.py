@@ -15,9 +15,9 @@ class Action(OSV):
             'Keywords')
     groups = fields.Many2Many('res.group', 'ir_action_group_rel',
             'action_id', 'gid', 'Groups')
-    _defaults = {
-        'usage': lambda *a: False,
-    }
+
+    def default_usage(self, cursor, user, context=None):
+        return False
 
     def get_action_id(self, cursor, user, action_id, context=None):
         if self.search(cursor, user, [
@@ -174,14 +174,16 @@ class ActionReport(OSV):
         fnct_inv='report_content_inv', type='binary',
         string='Content')
     action = fields.Many2One('ir.action', 'Action', required=True)
-    _defaults = {
-        'type': lambda *a: 'ir.action.report',
-        'report_content': lambda *a: False,
-    }
     _sql_constraints = [
         ('report_name_uniq', 'unique (report_name)',
             'The internal name must be unique!'),
     ]
+
+    def default_type(self, cursor, user, context=None):
+        return 'ir.action.report'
+
+    def default_report_content(self, cursor, user, context=None):
+        return False
 
     def get_report_content(self, cursor, user, ids, name, arg, context=None):
         res = {}
@@ -234,13 +236,21 @@ class ActionActWindow(OSV):
     auto_refresh = fields.Integer('Auto-Refresh',
        help='Add an auto-refresh on the view')
     action = fields.Many2One('ir.action', 'Action', required=True)
-    _defaults = {
-        'type': lambda *a: 'ir.action.act_window',
-        'view_type': lambda *a: 'form',
-        'context': lambda *a: '{}',
-        'limit': lambda *a: 80,
-        'auto_refresh': lambda *a: 0,
-    }
+
+    def default_type(self, cursor, user, context=None):
+        return 'ir.action.act_window'
+
+    def default_view_type(self, cursor, user, context=None):
+        return 'form'
+
+    def default_context(self, cursor, user, context=None):
+        return '{}'
+
+    def default_limit(self, cursor, user, context=None):
+        return 80
+
+    def default_auto_refresh(self, cursor, user, context=None):
+        return 0
 
     def views_get_fnc(self, cursor, user, ids, name, arg, context=None):
         res = {}
@@ -264,10 +274,10 @@ class ActionActWindowView(OSV):
     multi = fields.Boolean('On multiple doc.',
        help="If set to true, the action will not be displayed \n" \
                "on the right toolbar of a form views.")
-    _defaults = {
-        'multi': lambda *a: False,
-    }
     _order = 'sequence'
+
+    def default_multi(self, cursor, user, context=None):
+        return False
 
 ActionActWindowView()
 
@@ -280,9 +290,9 @@ class ActionWizard(OSV):
     _inherits = {'ir.action': 'action'}
     wiz_name = fields.char('Wizard name', size=64, required=True)
     action = fields.many2one('ir.action', 'Action', required=True)
-    _defaults = {
-        'type': lambda *a: 'ir.action.wizard',
-    }
+
+    def default_type(self, cursor, user, context=None):
+        return 'ir.action.wizard'
 
 ActionWizard()
 
@@ -299,9 +309,11 @@ class ActionURL(OSV):
        ('self', 'This Window'),
        ], 'Action Target', required=True)
     action = fields.many2one('ir.action', 'Action', required=True)
-    _defaults = {
-        'type': lambda *a: 'ir.action.act_url',
-        'target': lambda *a: 'new',
-    }
+
+    def default_type(self, cursor, user, context=None):
+        return 'ir.action.act_url'
+
+    def default_target(self, cursor, user, context=None):
+        return 'new'
 
 ActionURL()

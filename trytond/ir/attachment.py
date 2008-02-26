@@ -22,14 +22,14 @@ class Attachment(OSV):
     collision = fields.Integer('Collision')
     datas_size = fields.Function('datas', type='integer',
        string='Datas size')
-    _defaults = {
-        'collision': lambda *a: 0,
-    }
     _sql_constraints = [
         ('res_model_res_id_name',
             'UNIQUE (res_model, res_id, name)',
             'Error! You can not create attachment with the same name!'),
     ]
+
+    def default_collision(self, cursor, user, context=None):
+        return 0
 
     def datas(self, cursor, user, ids, name, arg, context=None):
         res = {}

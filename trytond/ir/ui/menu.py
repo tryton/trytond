@@ -142,11 +142,13 @@ class UIMenu(OSV):
            ('ir.action.wizard', 'ir.action.wizard'),
            ('ir.action.url', 'ir.action.url'),
            ])
-    _defaults = {
-        'icon' : lambda *a: 'STOCK_OPEN',
-        'sequence' : lambda *a: 10,
-    }
     _order = "sequence, id"
+
+    def default_icon(self, cursor, user, context=None):
+        return 'STOCK_OPEN'
+
+    def default_sequence(self, cursor, user, context=None):
+        return 10
 
     def get_full_name(self, cursor, user, ids, name, args, context):
         res = {}
