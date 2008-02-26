@@ -136,7 +136,10 @@ class FakeDB:
         return FakeCursor(self._connpool, conn, self.dbname,
                 cursor_factory=cursor_factory)
 
-def db_connect(db_name, serialize=0):
+    def close(self):
+        self._connpool.closeall()
+
+def db_connect(db_name):
     host = CONFIG['db_host'] and "host=%s" % CONFIG['db_host'] or ''
     port = CONFIG['db_port'] and "port=%s" % CONFIG['db_port'] or ''
     name = "dbname=%s" % db_name
