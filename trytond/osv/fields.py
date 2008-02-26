@@ -47,7 +47,7 @@ class Column(object):
     def __init__(self, string='unknown', required=False, readonly=False,
             domain=None, context='', states=None, priority=0,
             change_default=False, size=None, ondelete="set null",
-            translate=False, select=False, **args):
+            translate=False, select=False, on_change=None, **args):
         self.states = states or {}
         self.string = string
         self.readonly = readonly
@@ -63,6 +63,7 @@ class Column(object):
         self.group_name = False
         self.view_load = 0
         self.select = select
+        self.on_change = on_change
         for i in args:
             if args[i]:
                 setattr(self, i, args[i])

@@ -1650,8 +1650,9 @@ class ORM(object):
                     'translate',
                     'help',
                     'select',
+                    'on_change',
                     ):
-                if getattr(self._columns[field], arg):
+                if getattr(self._columns[field], arg, False):
                     res[field][arg] = getattr(self._columns[field], arg)
             if not read_access:
                 res[field]['readonly'] = True
@@ -1739,7 +1740,7 @@ class ORM(object):
                                 and field.localName in ('form', 'tree'):
                             node.removeChild(field)
                             xarch, xfields = self.pool.get(relation
-                                    ).__view_look_dom_arch(cursor, user, field,
+                                    )._view_look_dom_arch(cursor, user, field,
                                             context)
                             views[str(field.localName)] = {
                                 'arch': xarch,
@@ -1803,7 +1804,7 @@ class ORM(object):
                     context))
         return fields_attrs
 
-    def __view_look_dom_arch(self, cursor, user, node, context=None):
+    def _view_look_dom_arch(self, cursor, user, node, context=None):
         fields_def = self.__view_look_dom(cursor, user, node, context=context)
         arch = node.toxml(encoding="utf-8").replace('\t', '')
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
@@ -1944,7 +1945,7 @@ class ORM(object):
             result['view_id'] = 0
 
         doc = dom.minidom.parseString(result['arch'])
-        xarch, xfields = self.__view_look_dom_arch(cursor, user, doc,
+        xarch, xfields = self._view_look_dom_arch(cursor, user, doc,
                 context=context)
         result['arch'] = xarch
         result['fields'] = xfields
@@ -1967,8 +1968,6 @@ class ORM(object):
         return result
 
     fields_view_get = Cache()(fields_view_get)
-
-    _view_look_dom_arch = __view_look_dom_arch
 
     def _where_calc(self, cursor, user, args, active_test=True, context=None):
         if context is None:
