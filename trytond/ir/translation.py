@@ -40,9 +40,6 @@ class Translation(OSV, Cacheable):
     fuzzy = fields.Boolean('Fuzzy')
     model = fields.Function('get_model', fnct_search='model_search',
        type='char', string='Model')
-    _defaults = {
-        'fuzzy': lambda *a: 0,
-    }
     _sql_constraints = [
         ('translation_uniq', 'UNIQUE (name, res_id, lang, type, src)',
             'Translation must be unique'),
@@ -51,6 +48,9 @@ class Translation(OSV, Cacheable):
         CREATE INDEX ir_translation_ltn ON ir_translation (lang, type, name);
         CREATE INDEX ir_translation_res_id ON ir_translation (res_id);
     """
+
+    def default_fuzzy(self, cursor, user, context=None):
+        return 0
 
     def __init__(self, pool):
         super(Translation, self).__init__(pool)

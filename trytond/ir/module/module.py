@@ -151,16 +151,20 @@ class Module(OSV):
     license = fields.Selection([('GPL-2', 'GPL-2'),
         ('Other proprietary', 'Other proprietary')], string='License',
         readonly=True)
-    _defaults = {
-        'state': lambda *a: 'uninstalled',
-        'demo': lambda *a: False,
-        'license': lambda *a: 'GPL-2',
-    }
     _order = 'name'
     _sql_constraints = [
         ('name_uniq', 'unique (name)',
             'The name of the module must be unique!'),
     ]
+
+    def default_state(self, cursor, user, context=None):
+        return 'uninstalled'
+
+    def default_demo(self, cursor, user, context=None):
+        return False
+
+    def default_license(self, cursor, user, context=None):
+        return 'GPL-2'
 
     def __init__(self, pool):
         super(Module, self).__init__(pool)

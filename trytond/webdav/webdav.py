@@ -16,9 +16,6 @@ class Directory(OSV):
     childs = fields.One2Many('webdav.directory', 'parent', 'Childs')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain', size=250)
-    _defaults = {
-        'domain': lambda *a: '[]',
-    }
     _sql_constraints = [
         ('name_parent_uniq', 'UNIQUE (name, parent)',
             'The directory name must be unique inside a directory!'),
@@ -35,6 +32,9 @@ class Directory(OSV):
     ext2mime = {
         '.png': 'image/png',
     }
+
+    def default_domain(self, cursor, user, context=None):
+        return '[]'
 
     def check_attachment(self, cursor, user, ids):
         attachment_obj = self.pool.get('ir.attachment')

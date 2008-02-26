@@ -55,13 +55,19 @@ class Request(OSV):
        ], 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
-    _defaults = {
-        'act_from': lambda obj, cursor, user, context: user,
-        'state': lambda *a: 'draft',
-        'active': lambda *a: True,
-        'priority': lambda *a: '1',
-    }
     _order = 'priority DESC, trigger_date, create_date DESC'
+
+    def default_act_from(self, cursor, user, context=None):
+        return user
+
+    def default_state(self, cursor, user, context=None):
+        return 'draft'
+
+    def default_active(self, cursor, user, context=None):
+        return 1
+
+    def default_priority(self, cursor, user, context=None):
+        return '1'
 
     def __init__(self, pool):
         super(Request, self).__init__(pool)
@@ -140,10 +146,10 @@ class RequestLink(OSV):
     name = fields.Char('Name', size=64, required=True, translate=True)
     object = fields.Char('Object', size=64, required=True)
     priority = fields.Integer('Priority')
-    _defaults = {
-        'priority': lambda *a: 5,
-    }
     _order = 'priority'
+
+    def default_priority(self, cursor, user, context=None):
+        return 5
 
 RequestLink()
 
@@ -160,11 +166,17 @@ class RequestHistory(OSV):
     act_to = fields.Many2One('res.user', 'To', required=True)
     body = fields.Text('Body')
     date_sent = fields.DateTime('Date sent', required=True)
-    _defaults = {
-        'name': lambda *a: 'NoName',
-        'act_from': lambda obj, cursor, user, context: user,
-        'act_to': lambda obj, cursor, user, context: user,
-        'date_sent': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
-    }
+
+    def default_name(self, cursor, user, context=None):
+        return 'No Name'
+
+    def default_act_from(self, cursor, user, context=None):
+        return user
+
+    def default_act_to(self, cursor, user, context=None):
+        return user
+
+    def default_date_sent(self, cursor, user, context=None):
+        return time.strftime('%Y-%m-%d %H:%M:%S')
 
 RequestHistory()

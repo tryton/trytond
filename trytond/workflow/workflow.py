@@ -17,9 +17,9 @@ class Workflow(OSV):
     on_create = fields.Boolean('On Create')
     activities = fields.One2Many('workflow.activity', 'workflow',
        'Activities')
-    _defaults = {
-        'on_create': lambda *a: True
-    }
+
+    def default_on_create(self, cursor, user, context=None):
+        return 1
 
     def write(self, cursor, user, ids, vals, context=None):
         wf_service = LocalService("workflow")
@@ -69,11 +69,15 @@ class WorkflowActivity(OSV):
        'Outgoing transitions')
     in_transitions = fields.One2Many('workflow.transition', 'act_to',
        'Incoming transitions')
-    _defaults = {
-        'kind': lambda *a: 'dummy',
-        'join_mode': lambda *a: 'XOR',
-        'split_mode': lambda *a: 'XOR',
-    }
+
+    def default_kind(self, cursor, user, context=None):
+        return 'dummy'
+
+    def default_join_mode(self, cursor, user, context=None):
+        return 'XOR'
+
+    def default_split_mode(self, cursor, user, context=None):
+        return 'XOR'
 
 WorkflowActivity()
 
@@ -94,9 +98,9 @@ class WorkflowTransition(OSV):
        required=True, select=1, ondelete='cascade')
     act_to = fields.Many2One('workflow.activity', 'Destination Activity',
        required=True, select=1, ondelete='cascade')
-    _defaults = {
-        'condition': lambda *a: 'True',
-    }
+
+    def default_condition(self, cursor, user, context=None):
+        return 'True'
 
 WorkflowTransition()
 

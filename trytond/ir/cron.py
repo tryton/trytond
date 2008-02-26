@@ -49,16 +49,30 @@ class Cron(OSV, Agent):
     args = fields.Text('Arguments')
     priority = fields.Integer('Priority',
        help='0=Very Urgent\n10=Not urgent')
-    _defaults = {
-        'nextcall' : lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
-        'priority' : lambda *a: 5,
-        'user' : lambda obj,cursor,user,context: user,
-        'interval_number' : lambda *a: 1,
-        'interval_type' : lambda *a: 'months',
-        'numbercall' : lambda *a: 1,
-        'active' : lambda *a: 1,
-        'doall' : lambda *a: 1
-    }
+
+    def default_nextcall(self, cursor, user, context=None):
+        return time.strftime('%Y-%m-%d %H:%M:%S')
+
+    def default_priority(self, cursor, user, context=None):
+        return 5
+
+    def default_user(self, cursor, user, context=None):
+        return user
+
+    def default_interval_number(self, cursor, user, context=None):
+        return 1
+
+    def default_interval_type(self, cursor, user, context=None):
+        return 'months'
+
+    def default_numbercall(self, cursor, user, context=None):
+        return 1
+
+    def default_active(self, cursor, user, context=None):
+        return 1
+
+    def default_doall(self, cursor, user, context=None):
+        return 1
 
     def _callback(self, cursor, user, model, func, args):
         args = (args or []) and eval(args)

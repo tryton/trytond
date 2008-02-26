@@ -25,12 +25,18 @@ class Sequence(OSV):
     number_next = fields.Integer('Next Number', required=True)
     number_increment = fields.Integer('Increment Number', required=True)
     padding = fields.Integer('Number padding', required=True)
-    _defaults = {
-        'active': lambda *a: True,
-        'number_increment': lambda *a: 1,
-        'number_next': lambda *a: 1,
-        'padding' : lambda *a : 0,
-    }
+
+    def default_active(self, cursor, user, context=None):
+        return 1
+
+    def default_number_increment(self, cursor, user, context=None):
+        return 1
+
+    def default_number_next(self, cursor, user, context=None):
+        return 1
+
+    def default_padding(self, cursor, user, context=None):
+        return 0
 
     def __init__(self, pool):
         super(Sequence, self).__init__(pool)

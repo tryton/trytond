@@ -21,9 +21,9 @@ class RuleGroup(OSV):
     users = fields.Many2Many('res.user', 'user_rule_group_rel',
        'rule_group_id', 'user_id', 'Users')
     _order = 'model, global_p DESC'
-    _defaults = {
-        'global_p': lambda *a: True,
-    }
+
+    def default_global_p(self, cursor, user, context=None):
+        return 1
 
     def unlink(self, cursor, user, ids, context=None):
         res = super(RuleGroup, self).unlink(cursor, user, ids,

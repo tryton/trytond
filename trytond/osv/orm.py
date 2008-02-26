@@ -243,7 +243,6 @@ class ORM(object):
     """
     _sql_constraints = []
     _constraints = []
-    _defaults = {}
     _log_access = True
     _table = None
     _name = None
@@ -275,13 +274,14 @@ class ORM(object):
     _inherit_fields = []
     pool = None
     __columns = None
+    __defaults = None
 
     def _getcolumns(self):
         if self.__columns:
             return self.__columns
         res = {}
         for attr in dir(self):
-            if attr == '_columns':
+            if attr in ('_columns', '_defaults'):
                 continue
             if isinstance(getattr(self, attr), fields.Column):
                 res[attr] = getattr(self, attr)
@@ -289,6 +289,20 @@ class ORM(object):
         return res
 
     _columns = property(fget=_getcolumns)
+
+    def _getdefaults(self):
+        if self.__defaults:
+            return self.__defaults
+        res = {}
+        columns = self._columns.keys()
+        columns += self._inherit_fields.keys()
+        for column in columns:
+            if getattr(self, 'default_' + column, False):
+                res[column] = getattr(self, 'default_' + column)
+        self.__defaults = res
+        return res
+
+    _defaults = property(fget=_getdefaults)
 
     def _field_create(self, cursor, module_name):
         cursor.execute("SELECT id FROM ir_model WHERE model = %s",
@@ -547,7 +561,7 @@ class ORM(object):
                                     (self._table, k, get_pg_type(field)[1]))
                             # initialize it
                             if not create and k in self._defaults:
-                                default = self._defaults[k](self, cursor, 1, {})
+                                default = self._defaults[k](cursor, 1, {})
                                 if not default:
                                     cursor.execute("UPDATE \"%s\" " \
                                             "SET \"%s\" = NULL" % \
@@ -650,7 +664,7 @@ class ORM(object):
                             if field.required and f_pg_notnull == 0:
                                 # set the field to the default value if any
                                 if self._defaults.has_key(k):
-                                    default = self._defaults[k](self, cursor,
+                                    default = self._defaults[k](cursor,
                                             1, {})
                                     if not (default is False):
                                         cursor.execute("UPDATE \"%s\" " \
@@ -773,8 +787,9 @@ class ORM(object):
                         cursor.commit()
 
     def __init__(self):
-        # reinit the cachel on _columns
+        # reinit the cachel on _columns and _defaults
         self.__columns = None
+        self.__defaults = None
         if not self._table:
             self._table = self._name.replace('.', '_')
         if not self._description:
@@ -795,12 +810,6 @@ class ORM(object):
                        'Last modification by', readonly=True)
             self.write_date = fields.DateTime(
                     'Last modification date', readonly=True)
-            if not self._defaults:
-                self._defaults = {}
-            self._defaults['create_uid'] = \
-                    lambda self, cursor, user, context: user
-            self._defaults['create_date'] = \
-                    lambda *a: time.strftime("%Y-%m-%d %H:%M:%S")
 
         for k in self._defaults:
             assert (k in self._columns) or (k in self._inherit_fields), \
@@ -824,6 +833,12 @@ class ORM(object):
                         self.pool.get(table)._inherit_fields[col][2])
         self._inherit_fields = res
         self._inherits_reload_src()
+
+    def default_create_uid(self, cursor, user, context=None):
+        return user
+
+    def default_create_date(self, cursor, user, context=None):
+        return time.strftime("%Y-%m-%d %H:%M:%S")
 
     def browse(self, cursor, user, select, context=None, list_class=None):
         list_class = list_class or BrowseRecordList
@@ -1221,8 +1236,7 @@ class ORM(object):
         # get the default values defined in the object
         for field in fields_names:
             if field in self._defaults:
-                value[field] = self._defaults[field](self, cursor, user,
-                        context)
+                value[field] = self._defaults[field](cursor, user, context)
                 fld_def = ((field in self._columns) and self._columns[field]) \
                         or ((field in self._inherit_fields) \
                             and self._inherit_fields[field][2]) \
@@ -2338,7 +2352,7 @@ class ORM(object):
             default = {}
         if 'state' not in default:
             if 'state' in self._defaults:
-                default['state'] = self._defaults['state'](self, cursor, user,
+                default['state'] = self._defaults['state'](cursor, user,
                         context)
         data = self.read(cursor, user, object_id, context=context)
         fields2 = self.fields_get(cursor, user)

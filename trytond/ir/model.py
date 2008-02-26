@@ -24,9 +24,9 @@ class Model(OSV):
     info = fields.Text('Information')
     fields = fields.One2Many('ir.model.field', 'model', 'Fields',
        required=True)
-    _defaults = {
-        'name': lambda *a: 'No Name',
-    }
+
+    def default_name(self, cursor, user, context=None):
+        return 'No Name'
 
 Model()
 
@@ -47,13 +47,19 @@ class ModelField(OSV):
     group_name = fields.Char('Group Name', size=128)
     view_load = fields.Boolean('View Auto-Load')
     help = fields.Text('Help', translate=True)
-    _defaults = {
-        'relate': lambda *a: 0,
-        'view_load': lambda *a: 0,
-        'name': lambda *a: 'No Name',
-        'field_description': lambda *a: 'No description available',
-    }
     _order = "id"
+
+    def default_relate(self, cursor, user, context=None):
+        return 0
+
+    def default_view_load(self, cursor, user, context=None):
+        return 0
+
+    def default_name(self, cursor, user, context=None):
+        return 'No Name'
+
+    def default_field_description(self, cursor, user, context=None):
+        return 'No description available'
 
 ModelField()
 
@@ -162,13 +168,13 @@ class ModelData(OSV):
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
-    _defaults = {
-        'date_init': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
-    }
     _sql_constraints = [
         ('fs_id_module_uniq', 'UNIQUE("fs_id", "module")',
             'The couple (fs_id, module) must be unique!'),
     ]
+
+    def default_date_init(self, cursor, user, context=None):
+        return time.strftime('%Y-%m-%d %H:%M:%S')
 
     def __init__(self, pool):
         super(ModelData, self).__init__(pool)
