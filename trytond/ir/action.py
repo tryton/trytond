@@ -268,12 +268,13 @@ class ActionActWindowView(OSV):
     _rec_name = 'view'
     _description = __doc__
     sequence = fields.Integer('Sequence')
-    view = fields.Many2One('ir.ui.view', 'View', required=True)
+    view = fields.Many2One('ir.ui.view', 'View', required=True,
+            ondelete='CASCADE')
     act_window = fields.Many2One('ir.action.act_window', 'Action',
-       ondelete='CASCADE')
+            ondelete='CASCADE')
     multi = fields.Boolean('On multiple doc.',
-       help="If set to true, the action will not be displayed \n" \
-               "on the right toolbar of a form views.")
+            help="If set to true, the action will not be displayed \n" \
+                    "on the right toolbar of a form views.")
     _order = 'sequence'
 
     def default_multi(self, cursor, user, context=None):
