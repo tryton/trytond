@@ -29,7 +29,7 @@ class DB(Service):
 
         logger = Logger()
 
-        database = sql_db.db_connect('template1', serialize=1)
+        database = sql_db.db_connect('template1')
         cursor = database.cursor()
         cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         try:
@@ -73,7 +73,7 @@ class DB(Service):
         pooler.close_db(db_name)
         logger = Logger()
 
-        database = sql_db.db_connect('template1', serialize=1)
+        database = sql_db.db_connect('template1')
         cursor = database.cursor()
         cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         try:

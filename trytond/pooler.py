@@ -55,7 +55,7 @@ def restart_pool(db_name, force_demo=False, update_module=False, lang=None):
 
 def close_db(db_name):
     if db_name in _DB:
-        _DB[db_name].truedb.close()
+        _DB[db_name].close()
         del _DB[db_name]
     if db_name in _POOL:
         del _POOL[db_name]
