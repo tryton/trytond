@@ -236,7 +236,6 @@ CREATE TABLE ir_module_module (
     shortdesc character varying(256),
     category integer REFERENCES ir_module_category ON DELETE SET NULL,
     description text,
-    demo boolean default False,
     primary key(id)
 );
 ALTER TABLE ir_module_module add constraint name_uniq unique (name);

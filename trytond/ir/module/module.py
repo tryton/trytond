@@ -147,7 +147,6 @@ class Module(OSV):
         ('to remove', 'To be removed'),
         ('to install', 'To be installed'),
         ], string='State', readonly=True)
-    demo = fields.Boolean('Demo data')
     license = fields.Selection([('GPL-2', 'GPL-2'),
         ('Other proprietary', 'Other proprietary')], string='License',
         readonly=True)
@@ -159,9 +158,6 @@ class Module(OSV):
 
     def default_state(self, cursor, user, context=None):
         return 'uninstalled'
-
-    def default_demo(self, cursor, user, context=None):
-        return False
 
     def default_license(self, cursor, user, context=None):
         return 'GPL-2'
@@ -242,21 +238,12 @@ class Module(OSV):
                     parents2 += get_parents(parent, graph)
                 return parents + parents2
             dependencies = get_parents(module.name, graph)
-            module_dep_ids = self.search(cursor, user, [
+            module_install_ids = self.search(cursor, user, [
                 ('name', 'in', dependencies),
+                ('state', '=', 'uninstalled'),
                 ], context=context)
-            demo = True
-            module_install_ids = [module.id]
-            for module_dep in self.browse(cursor, user, module_dep_ids,
-                    context=context):
-                if module_dep.state != 'uninstalled':
-                    if not module_dep.demo:
-                        demo = False
-                else:
-                    module_install_ids.append(module_dep.id)
-            self.write(cursor, user, module_install_ids, {
+            self.write(cursor, user, module_install_ids + [module.id], {
                 'state': 'to install',
-                'demo': demo,
                 }, context=context)
 
     def state_upgrade(self, cursor, user, ids, context=None):
@@ -291,7 +278,6 @@ class Module(OSV):
     def button_install_cancel(self, cursor, user, ids, context=None):
         self.write(cursor, user, ids, {
             'state': 'uninstalled',
-            'demo': False,
             }, context=context)
         return True
 

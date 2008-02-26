@@ -23,7 +23,7 @@ class DB(Service):
         self.export_method(self.list_lang)
         self.export_method(self.change_admin_password)
 
-    def create(self, password, db_name, demo, lang):
+    def create(self, password, db_name, lang):
         security.check_super(password)
         res = False
 
@@ -43,7 +43,7 @@ class DB(Service):
                 cursor.commit()
                 cursor.close()
                 cursor = None
-                pooler.get_pool(db_name, demo, update_module=True, lang=[lang])
+                pooler.get_pool(db_name, update_module=True, lang=[lang])
                 cursor = sql_db.db_connect(db_name).cursor()
                 if lang != 'en_US':
                     cursor.execute('UPDATE ir_lang ' \
