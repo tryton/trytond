@@ -17,7 +17,6 @@
         'rule.xml',
         'property.xml',
         'module/module.xml',
-        'module/repository.xml',
         'module/category.xml',
         'default.xml',
         ],
