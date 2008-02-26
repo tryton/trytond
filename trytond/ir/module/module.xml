@@ -28,8 +28,6 @@
                             <field name="url" widget="url"/>
                             <label name="license"/>
                             <field name="license"/>
-                            <label name="demo"/>
-                            <field name="demo" readonly="1"/>
                             <newline/>
                             <label name="state"/>
                             <field name="state" readonly="1"/>

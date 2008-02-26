@@ -34,7 +34,6 @@ class ConfigManager(object):
             'smtp_password': False,
             'stop_after_init': False,
             'data_path': '/var/lib/trytond',
-            'without_demo': False,
         }
 
         parser = optparse.OptionParser(version=VERSION)
@@ -79,9 +78,6 @@ class ConfigManager(object):
         group = optparse.OptionGroup(parser, "Modules related options")
         group.add_option("-i", "--init", dest="init",
                 help="init a module (use \"all\" for all modules)")
-        group.add_option("--without-demo", dest="without_demo",
-                help="load demo data for a module " \
-                        "(use \"all\" for all modules)")
         group.add_option("-u", "--update", dest="update",
                 help="update a module (use \"all\" for all modules)")
         parser.add_option_group(group)
@@ -162,7 +158,6 @@ class ConfigManager(object):
                 'verbose',
                 'debug_mode',
                 'stop_after_init',
-                'without_demo',
                 'netrpc',
                 'xmlrpc',
                 'webdav',
@@ -175,8 +170,6 @@ class ConfigManager(object):
             for i in opt.init.split(','):
                 init[i] = 1
         self.options['init'] = init
-        self.options["demo"] = not opt.without_demo \
-                and self.options['init'] or {}
 
         update = {}
         if opt.update:
