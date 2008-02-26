@@ -9,19 +9,17 @@ class View(OSV):
     _name = 'ir.ui.view'
     _description = __doc__
     _rec_name = 'model'
-    _columns = {
-        'model': fields.Char('Model', size=64, required=True),
-        'priority': fields.Integer('Priority', required=True),
-        'type': fields.Selection((
-            ('tree','Tree'),
-            ('form','Form'),
-            ('graph', 'Graph'),
-            ('calendar', 'Calendar')), 'View Type', required=True),
-        'arch': fields.Text('View Architecture', required=True),
-        'inherit': fields.Many2One('ir.ui.view', 'Inherited View'),
-        'field_childs': fields.Char('Childs Field',size=64),
-        'module': fields.Char('Module', size=128, readonly=True),
-    }
+    model = fields.Char('Model', size=64, required=True)
+    priority = fields.Integer('Priority', required=True)
+    type = fields.Selection((
+       ('tree','Tree'),
+       ('form','Form'),
+       ('graph', 'Graph'),
+       ('calendar', 'Calendar')), 'View Type', required=True)
+    arch = fields.Text('View Architecture', required=True)
+    inherit = fields.Many2One('ir.ui.view', 'Inherited View')
+    field_childs = fields.Char('Childs Field',size=64)
+    module = fields.Char('Module', size=128, readonly=True)
     _defaults = {
         'arch': lambda *a: '<?xml version="1.0"?>\n' \
                 '<tree title="Unknwown">\n\t<field name="name"/>\n</tree>',
@@ -171,14 +169,12 @@ class ViewShortcut(OSV):
     "View shortcut"
     _name = 'ir.ui.view_sc'
     _description = __doc__
-    _columns = {
-        'name': fields.char('Shortcut Name', size=64, required=True),
-        'res_id': fields.integer('Resource Ref.', required=True),
-        'sequence': fields.integer('Sequence'),
-        'user_id': fields.many2one('res.user', 'User Ref.', required=True,
-            ondelete='cascade'),
-        'resource': fields.char('Resource Name', size=64, required=True)
-    }
+    name = fields.Char('Shortcut Name', size=64, required=True)
+    res_id = fields.Integer('Resource Ref.', required=True)
+    sequence = fields.Integer('Sequence')
+    user_id = fields.Many2One('res.user', 'User Ref.', required=True,
+       ondelete='cascade')
+    resource = fields.Char('Resource Name', size=64, required=True)
 
     def __init__(self, pool):
         super(ViewShortcut, self).__init__(pool)

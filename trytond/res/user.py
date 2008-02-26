@@ -11,16 +11,14 @@ class Group(OSV):
     "Group"
     _name = "res.group"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Group Name', size=64, required=True),
-        'model_access': fields.One2Many('ir.model.access', 'group',
-            'Access Controls'),
-        'rule_groups': fields.Many2Many('ir.rule.group', 'group_rule_group_rel',
-            'group_id', 'rule_group_id', 'Rules',
-            domain="[('global', '<>', True)]"),
-        'menu_access': fields.Many2Many('ir.ui.menu', 'ir_ui_menu_group_rel',
-            'gid', 'menu_id', 'Access Menu'),
-    }
+    name = fields.Char('Group Name', size=64, required=True)
+    model_access = fields.One2Many('ir.model.access', 'group',
+       'Access Controls')
+    rule_groups = fields.Many2Many('ir.rule.group', 'group_rule_group_rel',
+       'group_id', 'rule_group_id', 'Rules',
+       domain="[('global', '<>', True)]")
+    menu_access = fields.Many2Many('ir.ui.menu', 'ir_ui_menu_group_rel',
+       'gid', 'menu_id', 'Access Menu')
     _sql_constraints = [
         ('name_uniq', 'unique (name)', 'The name of the group must be unique!')
     ]
@@ -39,23 +37,21 @@ class User(OSV):
     "User"
     _name = "res.user"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=64, required=True, select=1),
-        'login': fields.Char('Login', size=64, required=True),
-        'password': fields.Char('Password', size=64),
-        'signature': fields.Text('Signature', size=64),
-        #'address_id': fields.Many2One('res.partner.address', 'Address'),
-        'active': fields.Boolean('Active'),
-        'action': fields.Many2One('ir.action', 'Home Action'),
-        'menu': fields.Many2One('ir.action', 'Menu Action'),
-        'groups': fields.Many2Many('res.group', 'res_group_user_rel',
-            'uid', 'gid', 'Groups'),
-        'rule_groups': fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
-            'user_id', 'rule_group_id', 'Rules',
-            domain="[('global', '<>', True)]"),
-        'language': fields.Selection('languages', 'Language'),
-        'timezone': fields.Selection('timezones', 'Timezone'),
-    }
+    name = fields.Char('Name', size=64, required=True, select=1)
+    login = fields.Char('Login', size=64, required=True)
+    password = fields.Char('Password', size=64)
+    signature = fields.Text('Signature', size=64)
+    #address_id = fields.Many2One('res.partner.address', 'Address')
+    active = fields.Boolean('Active')
+    action = fields.Many2One('ir.action', 'Home Action')
+    menu = fields.Many2One('ir.action', 'Menu Action')
+    groups = fields.Many2Many('res.group', 'res_group_user_rel',
+       'uid', 'gid', 'Groups')
+    rule_groups = fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
+       'user_id', 'rule_group_id', 'Rules',
+       domain="[('global', '<>', True)]")
+    language = fields.Selection('languages', 'Language')
+    timezone = fields.Selection('timezones', 'Timezone')
     _sql_constraints = [
         ('login_key', 'UNIQUE (login)',
             'You can not have two users with the same login!')
@@ -209,12 +205,7 @@ User()
 
 
 class Group2(Group):
-
-    def __init__(self, pool):
-        super(Group2, self).__init__(pool)
-        if pool:
-            self._columns = copy.copy(self._columns)
-            self._columns['users'] = fields.many2many(
-                'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
+    users = fields.many2many(
+        'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
 
 Group2()

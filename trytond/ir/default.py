@@ -7,15 +7,13 @@ class Default(OSV):
     _name = 'ir.default'
     _description = __doc__
     _rec_name = 'value'
-    _columns = {
-        'model': fields.Many2One('ir.model', 'Model', required=True,
-            ondelete='cascade'),
-        'field': fields.Many2One('ir.model.field', 'Field', required=True,
-            ondelete='cascade'),
-        'value': fields.Text('Value'),
-        'clause': fields.Text('Clause'),
-        'user': fields.Many2One('res.user', 'User', ondelete='cascade'),
-    }
+    model = fields.Many2One('ir.model', 'Model', required=True,
+       ondelete='cascade')
+    field = fields.Many2One('ir.model.field', 'Field', required=True,
+       ondelete='cascade')
+    value = fields.Text('Value')
+    clause = fields.Text('Clause')
+    user = fields.Many2One('res.user', 'User', ondelete='cascade')
 
     def get_default(self, cursor, user, model, clause, context=None):
         res = {}

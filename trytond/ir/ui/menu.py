@@ -125,25 +125,23 @@ class UIMenu(OSV):
     "UI menu"
     _name = 'ir.ui.menu'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Menu', size=64, required=True, translate=True),
-        'sequence': fields.Integer('Sequence'),
-        'childs' : fields.One2Many('ir.ui.menu', 'parent','Childs'),
-        'parent': fields.Many2One('ir.ui.menu', 'Parent Menu', select=1),
-        'groups': Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
-            'menu_id', 'gid', 'Groups'),
-        'complete_name': fields.Function('get_full_name',
-            string='Complete Name', type='char', size=128),
-        'icon': fields.selection(ICONS, 'Icon', size=64),
-        'action': fields.Function('action', fnct_inv='action_inv',
-            type='reference', string='Action',
-            selection=[
-                ('ir.action.report', 'ir.action.report'),
-                ('ir.action.act_window', 'ir.action.act_window'),
-                ('ir.action.wizard', 'ir.action.wizard'),
-                ('ir.action.url', 'ir.action.url'),
-                ]),
-    }
+    name = fields.Char('Menu', size=64, required=True, translate=True)
+    sequence = fields.Integer('Sequence')
+    childs = fields.One2Many('ir.ui.menu', 'parent','Childs')
+    parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1)
+    groups = Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
+       'menu_id', 'gid', 'Groups')
+    complete_name = fields.Function('get_full_name',
+       string='Complete Name', type='char', size=128)
+    icon = fields.selection(ICONS, 'Icon', size=64)
+    action = fields.Function('get_action', fnct_inv='action_inv',
+       type='reference', string='Action',
+       selection=[
+           ('ir.action.report', 'ir.action.report'),
+           ('ir.action.act_window', 'ir.action.act_window'),
+           ('ir.action.wizard', 'ir.action.wizard'),
+           ('ir.action.url', 'ir.action.url'),
+           ])
     _defaults = {
         'icon' : lambda *a: 'STOCK_OPEN',
         'sequence' : lambda *a: 10,
@@ -165,7 +163,7 @@ class UIMenu(OSV):
             parent_path = ''
         return parent_path + menu.name
 
-    def action(self, cursor, user, ids, name, arg, context=None):
+    def get_action(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for menu_id in ids:
             res[menu_id] = False

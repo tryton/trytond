@@ -29,19 +29,17 @@ class Translation(OSV, Cacheable):
     "Translation"
     _name = "ir.translation"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Field Name', size=128, required=True),
-        'res_id': fields.Integer('Resource ID'),
-        'lang': fields.Selection('get_language', string='Language', size=5),
-        'type': fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
-            required=True),
-        'src': fields.Text('Source'),
-        'value': fields.Text('Translation Value'),
-        'module': fields.Char('Module', size=128, readonly=True),
-        'fuzzy': fields.Boolean('Fuzzy'),
-        'model': fields.Function('model', fnct_search='model_search',
-            type='char', string='Model'),
-    }
+    name = fields.Char('Field Name', size=128, required=True)
+    res_id = fields.Integer('Resource ID')
+    lang = fields.Selection('get_language', string='Language', size=5),
+    type = fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
+       required=True)
+    src = fields.Text('Source')
+    value = fields.Text('Translation Value')
+    module = fields.Char('Module', size=128, readonly=True)
+    fuzzy = fields.Boolean('Fuzzy')
+    model = fields.Function('get_model', fnct_search='model_search',
+       type='char', string='Model')
     _defaults = {
         'fuzzy': lambda *a: 0,
     }
@@ -61,7 +59,7 @@ class Translation(OSV, Cacheable):
                 'get_language',
             ]
 
-    def model(self, cursor, user, ids, name, arg, context=None):
+    def get_model(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for translation in self.browse(cursor, user, ids, context=context):
             res[translation.id] = translation.name.split(',')[0]
@@ -370,10 +368,8 @@ class TranslationUpdateInit(WizardOSV):
     "Update translation - language"
     _name = 'ir.translation.update.init'
     _description = __doc__
-    _columns = {
-        'lang': fields.Selection('get_language', string='Language', size=5,
-            required=True),
-    }
+    lang = fields.Selection('get_language', string='Language', size=5,
+        required=True)
 
     def __init__(self, pool):
         super(TranslationUpdateInit, self).__init__(pool)
@@ -501,12 +497,10 @@ class TranslationExportInit(WizardOSV):
     "Export translation - language and module"
     _name = 'ir.translation.export.init'
     _description = __doc__
-    _columns = {
-        'lang': fields.Selection('get_language', string='Language', size=5,
-            required=True),
-        'module': fields.Selection('get_module', string='Module', size=128,
-            required=True),
-    }
+    lang = fields.Selection('get_language', string='Language', size=5,
+       required=True)
+    module = fields.Selection('get_module', string='Module', size=128,
+       required=True)
 
     def __init__(self, pool):
         super(TranslationExportInit, self).__init__(pool)
@@ -538,9 +532,7 @@ class TranslationExportStart(WizardOSV):
     "Export translation - file"
     _description = __doc__
     _name = 'ir.translation.export.start'
-    _columns = {
-        'file': fields.Binary('File', readonly=True),
-    }
+    file = fields.Binary('File', readonly=True)
 
 TranslationExportStart()
 

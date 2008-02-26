@@ -8,15 +8,13 @@ class Action(OSV):
     "Action"
     _name = 'ir.action'
     _description = __doc__
-    _columns = {
-        'name': fields.char('Name', required=True, size=64, translate=True),
-        'type': fields.char('Type', required=True, size=32, readonly=True),
-        'usage': fields.char('Usage', size=32),
-        'keywords': fields.one2many('ir.action.keyword', 'action',
-            'Keywords'),
-        'groups': fields.Many2Many('res.group', 'ir_action_group_rel',
-            'action_id', 'gid', 'Groups'),
-    }
+    name = fields.char('Name', required=True, size=64, translate=True)
+    type = fields.char('Type', required=True, size=32, readonly=True)
+    usage = fields.char('Usage', size=32)
+    keywords = fields.one2many('ir.action.keyword', 'action',
+            'Keywords')
+    groups = fields.Many2Many('res.group', 'ir_action_group_rel',
+            'action_id', 'gid', 'Groups')
     _defaults = {
         'usage': lambda *a: False,
     }
@@ -49,18 +47,16 @@ class ActionKeyword(OSV):
     "Action keyword"
     _name = 'ir.action.keyword'
     _description = __doc__
-    _columns = {
-        'keyword': fields.Selection([
+    keyword = fields.Selection([
             ('tree_open', 'Open tree'),
             ('tree_action', 'Action tree'),
             ('form_print', 'Print form'),
             ('form_action', 'Action form'),
             ('form_relate', 'Form relate'),
-            ], string='Keyword', required=True),
-        'model': fields.Reference('Model', selection='models_get', size=128),
-        'action': fields.many2one('ir.action', 'Action',
-            ondelete='CASCADE'),
-    }
+            ], string='Keyword', required=True)
+    model = fields.Reference('Model', selection='models_get', size=128)
+    action = fields.many2one('ir.action', 'Action',
+            ondelete='CASCADE')
 
     def __init__(self, pool):
         super(ActionKeyword, self).__init__(pool)
@@ -170,16 +166,14 @@ class ActionReport(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    _columns = {
-        'model': fields.Char('Model', size=64, required=True),
-        'report_name': fields.Char('Internal Name', size=64, required=True),
-        'report': fields.Char('Path', size=128),
-        'report_content_data': fields.Binary('Content'),
-        'report_content': fields.Function('report_content',
-            fnct_inv='report_content_inv', type='binary',
-            string='Content',),
-        'action': fields.Many2One('ir.action', 'Action', required=True),
-    }
+    model = fields.Char('Model', size=64, required=True)
+    report_name = fields.Char('Internal Name', size=64, required=True)
+    report = fields.Char('Path', size=128)
+    report_content_data = fields.Binary('Content')
+    report_content = fields.Function('get_report_content',
+        fnct_inv='report_content_inv', type='binary',
+        string='Content')
+    action = fields.Many2One('ir.action', 'Action', required=True)
     _defaults = {
         'type': lambda *a: 'ir.action.report',
         'report_content': lambda *a: False,
@@ -189,7 +183,7 @@ class ActionReport(OSV):
             'The internal name must be unique!'),
     ]
 
-    def report_content(self, cursor, user, ids, name, arg, context=None):
+    def get_report_content(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for report in self.browse(cursor, user, ids, context=context):
             data = report[name + '_data']
@@ -224,24 +218,22 @@ class ActionActWindow(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    _columns = {
-        'domain': fields.Char('Domain Value', size=250),
-        'context': fields.Char('Context Value', size=250),
-        'res_model': fields.Char('Model', size=64),
-        'src_model': fields.Char('Source model', size=64),
-        'view_type': fields.Selection([('tree','Tree'), ('form','Form')],
-            string='Type of view'),
-        'usage': fields.Char('Action Usage', size=32),
-        'act_window_views': fields.One2Many('ir.action.act_window.view',
-            'act_window', 'Views'),
-        'views': fields.Function('views_get_fnc', type='binary',
-            string='Views'),
-        'limit': fields.Integer('Limit',
-            help='Default limit for the list view'),
-        'auto_refresh': fields.Integer('Auto-Refresh',
-            help='Add an auto-refresh on the view'),
-        'action': fields.Many2One('ir.action', 'Action', required=True),
-    }
+    domain = fields.Char('Domain Value', size=250)
+    context = fields.Char('Context Value', size=250)
+    res_model = fields.Char('Model', size=64)
+    src_model = fields.Char('Source model', size=64)
+    view_type = fields.Selection([('tree','Tree'), ('form','Form')],
+       string='Type of view')
+    usage = fields.Char('Action Usage', size=32)
+    act_window_views = fields.One2Many('ir.action.act_window.view',
+       'act_window', 'Views')
+    views = fields.Function('views_get_fnc', type='binary',
+       string='Views')
+    limit = fields.Integer('Limit',
+       help='Default limit for the list view')
+    auto_refresh = fields.Integer('Auto-Refresh',
+       help='Add an auto-refresh on the view')
+    action = fields.Many2One('ir.action', 'Action', required=True)
     _defaults = {
         'type': lambda *a: 'ir.action.act_window',
         'view_type': lambda *a: 'form',
@@ -265,15 +257,13 @@ class ActionActWindowView(OSV):
     _name = 'ir.action.act_window.view'
     _rec_name = 'view'
     _description = __doc__
-    _columns = {
-        'sequence': fields.Integer('Sequence'),
-        'view': fields.Many2One('ir.ui.view', 'View', required=True),
-        'act_window': fields.Many2One('ir.action.act_window', 'Action',
-            ondelete='CASCADE'),
-        'multi': fields.Boolean('On multiple doc.',
-            help="If set to true, the action will not be displayed \n" \
-                    "on the right toolbar of a form views."),
-    }
+    sequence = fields.Integer('Sequence')
+    view = fields.Many2One('ir.ui.view', 'View', required=True)
+    act_window = fields.Many2One('ir.action.act_window', 'Action',
+       ondelete='CASCADE')
+    multi = fields.Boolean('On multiple doc.',
+       help="If set to true, the action will not be displayed \n" \
+               "on the right toolbar of a form views.")
     _defaults = {
         'multi': lambda *a: False,
     }
@@ -288,10 +278,8 @@ class ActionWizard(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    _columns = {
-        'wiz_name': fields.char('Wizard name', size=64, required=True),
-        'action': fields.many2one('ir.action', 'Action', required=True),
-    }
+    wiz_name = fields.char('Wizard name', size=64, required=True)
+    action = fields.many2one('ir.action', 'Action', required=True)
     _defaults = {
         'type': lambda *a: 'ir.action.wizard',
     }
@@ -305,14 +293,12 @@ class ActionURL(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    _columns = {
-        'url': fields.text('Action Url',required=True),
-        'target': fields.selection([
-            ('new', 'New Window'),
-            ('self', 'This Window'),
-            ], 'Action Target', required=True),
-        'action': fields.many2one('ir.action', 'Action', required=True),
-    }
+    url = fields.text('Action Url',required=True)
+    target = fields.selection([
+       ('new', 'New Window'),
+       ('self', 'This Window'),
+       ], 'Action Target', required=True)
+    action = fields.many2one('ir.action', 'Action', required=True)
     _defaults = {
         'type': lambda *a: 'ir.action.act_url',
         'target': lambda *a: 'new',

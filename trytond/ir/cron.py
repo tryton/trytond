@@ -27,31 +27,28 @@ class Cron(OSV, Agent):
     "Cron"
     _name = "ir.cron"
     _description = __doc__
-    _columns = {
-        'name': fields.char('Name', size=60, required=True),
-        'user': fields.many2one('res.user', 'User', required=True),
-        'active': fields.boolean('Active'),
-        'interval_number': fields.integer('Interval Number'),
-        'interval_type': fields.selection( [
-            ('minutes', 'Minutes'),
-            ('hours', 'Hours'),
-            ('days', 'Days'),
-            ('weeks', 'Weeks'),
-            ('months', 'Months'),
-            ], 'Interval Unit'),
-        'numbercall': fields.integer('Number of calls',
-            help='Number of time the function is called,\n' \
-                    'a negative number indicates that the function ' \
-                    'will always be called'),
-        'doall' : fields.boolean('Repeat missed'),
-        'nextcall' : fields.datetime('Next call date', required=True),
-        'model': fields.char('Model', size=64),
-        'function': fields.char('Function', size=64),
-        'args': fields.text('Arguments'),
-        'priority': fields.integer('Priority',
-            help='0=Very Urgent\n10=Not urgent')
-    }
-
+    name = fields.Char('Name', size=60, required=True)
+    user = fields.Many2One('res.user', 'User', required=True)
+    active = fields.Boolean('Active')
+    interval_number = fields.Integer('Interval Number')
+    interval_type = fields.Selection( [
+       ('minutes', 'Minutes'),
+       ('hours', 'Hours'),
+       ('days', 'Days'),
+       ('weeks', 'Weeks'),
+       ('months', 'Months'),
+       ], 'Interval Unit')
+    numbercall = fields.Integer('Number of calls',
+       help='Number of time the function is called,\n' \
+               'a negative number indicates that the function ' \
+               'will always be called')
+    doall = fields.Boolean('Repeat missed')
+    nextcall = fields.DateTime('Next call date', required=True)
+    model = fields.Char('Model', size=64)
+    function = fields.Char('Function', size=64)
+    args = fields.Text('Arguments')
+    priority = fields.Integer('Priority',
+       help='0=Very Urgent\n10=Not urgent')
     _defaults = {
         'nextcall' : lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
         'priority' : lambda *a: 5,

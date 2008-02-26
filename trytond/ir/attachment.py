@@ -9,21 +9,19 @@ class Attachment(OSV):
     "Attachment"
     _name = 'ir.attachment'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Attachment Name',size=64, required=True),
-        'datas': fields.Function('datas', fnct_inv='datas_inv',
-            type='binary', string='Datas'),
-        'description': fields.Text('Description'),
-        'res_model': fields.Char('Resource Model',size=64,
-            readonly=True, required=True),
-        'res_id': fields.Integer('Resource ID', readonly=True,
-            required=True),
-        'link': fields.Char('Link', size=256),
-        'digest': fields.Char('Digest', size=32),
-        'collision': fields.Integer('Collision'),
-        'datas_size': fields.Function('datas', type='integer',
-            string='Datas size'),
-    }
+    name = fields.Char('Attachment Name',size=64, required=True)
+    datas = fields.Function('datas', fnct_inv='datas_inv',
+       type='binary', string='Datas')
+    description = fields.Text('Description')
+    res_model = fields.Char('Resource Model',size=64,
+       readonly=True, required=True)
+    res_id = fields.Integer('Resource ID', readonly=True,
+       required=True)
+    link = fields.Char('Link', size=256)
+    digest = fields.Char('Digest', size=32)
+    collision = fields.Integer('Collision')
+    datas_size = fields.Function('datas', type='integer',
+       string='Datas size')
     _defaults = {
         'collision': lambda *a: 0,
     }
