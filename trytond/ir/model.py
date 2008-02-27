@@ -416,15 +416,15 @@ class ModelData(OSV):
                             'FROM wkf_instance ' \
                             'WHERE id IN (' \
                                 'SELECT instance FROM wkf_workitem ' \
-                                'WHERE act_id = %d)', (db_id,))
+                                'WHERE act_id = %s)', (db_id,))
                     wkf_todo.extend(cursor.fetchall())
                     cursor.execute("UPDATE wkf_transition " \
                             "SET condition = 'True', role_id = NULL, " \
                                 "signal = NULL, act_to = act_from, " \
-                                "act_from = %d " \
-                            "WHERE act_to = %d", (db_id, db_id))
+                                "act_from = %s " \
+                            "WHERE act_to = %s", (db_id, db_id))
                     cursor.execute("DELETE FROM wkf_transition " \
-                            "WHERE act_to = %d", (db_id,))
+                            "WHERE act_to = %s", (db_id,))
 
                     wf_service.trg_write(user, model, db_id, cursor)
 

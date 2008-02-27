@@ -102,7 +102,7 @@ class Attachment(OSV):
             file_p.close()
         cursor.execute('UPDATE ir_attachment ' \
                 'SET digest = %s, ' \
-                    'collision = %d ' \
-                'WHERE id = %d', (digest, collision, obj_id))
+                    'collision = %s ' \
+                'WHERE id = %s', (digest, collision, obj_id))
 
 Attachment()

@@ -114,8 +114,8 @@ class Cron(OSV, Agent):
                 if not numbercall:
                     addsql = ', active=False'
                 cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
-                            "numbercall = %d" + addsql + " " \
-                            "WHERE id = %d",
+                            "numbercall = %s" + addsql + " " \
+                            "WHERE id = %s",
                             (nextcall.strftime('%Y-%m-%d %H:%M:%S'),
                                 numbercall, job['id']))
                 cursor.commit()

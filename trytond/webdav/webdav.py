@@ -177,7 +177,7 @@ class Directory(OSV):
         if model_obj._log_access:
             cursor.execute('SELECT EXTRACT(epoch FROM create_date) ' \
                     'FROM "' + model_obj._table +'" ' \
-                    'WHERE id = %d', (object_id,))
+                    'WHERE id = %s', (object_id,))
             return cursor.fetchone()[0]
         return time.time()
 
@@ -188,7 +188,7 @@ class Directory(OSV):
         if model_obj._log_access and object_id:
             cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
                     'FROM "' + model_obj._table +'" ' \
-                    'WHERE id = %d', (object_id,))
+                    'WHERE id = %s', (object_id,))
             return cursor.fetchone()[0]
         return time.time()
 

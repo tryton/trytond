@@ -73,7 +73,7 @@ class Rule(OSV):
         super(Rule, self).__init__(pool)
         if pool:
             self._rpc_allowed = self._rpc_allowed + [
-                'operand',
+                'get_operand',
             ]
 
 
@@ -136,12 +136,12 @@ class Rule(OSV):
                 "WHERE m.model = %s "
                     "AND (g.id IN (" \
                             "SELECT rule_group_id FROM user_rule_group_rel " \
-                                "WHERE user_id = %d " \
+                                "WHERE user_id = %s " \
                             "UNION SELECT rule_group_id " \
                                 "FROM group_rule_group_rel g_rel " \
                                 "JOIN res_group_user_rel u_rel " \
                                     "ON (g_rel.group_id = u_rel.gid) " \
-                                "WHERE u_rel.uid = %d) "
+                                "WHERE u_rel.uid = %s) "
                     "OR g.global_p)", (model_name, user, user))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
@@ -211,11 +211,11 @@ class Rule(OSV):
             WHERE m.model = %s
                 AND (g.id NOT IN (SELECT rule_group FROM ir_rule))
                 AND (g.id IN (SELECT rule_group_id FROM user_rule_group_rel
-                    WHERE user_id = %d
+                    WHERE user_id = %s
                     UNION SELECT rule_group_id FROM group_rule_group_rel g_rel
                         JOIN res_group_user_rel u_rel
                             ON g_rel.group_id = u_rel.gid
-                        WHERE u_rel.uid = %d))""", (model_name, user, user))
+                        WHERE u_rel.uid = %s))""", (model_name, user, user))
         if not cursor.fetchall():
             query, val = _query(clause, 'OR')
 

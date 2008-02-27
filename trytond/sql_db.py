@@ -69,7 +69,6 @@ class FakeCursor(object):
             sql = sql.encode('utf-8')
         if self.sql_log:
             now = mdt.now()
-        sql = sql.replace('%d', '%s')
         if para:
             res = self.cursor.execute(sql, para)
         else:
@@ -185,7 +184,7 @@ def init_db(cursor):
                 if p_id is not None:
                     cursor.execute('SELECT id ' \
                             'FROM ir_module_category ' \
-                            'WHERE name = %s AND parent = %d',
+                            'WHERE name = %s AND parent = %s',
                             (categs[0], p_id))
                 else:
                     cursor.execute('SELECT id ' \
@@ -199,7 +198,7 @@ def init_db(cursor):
                     c_id = cursor.fetchone()[0]
                     cursor.execute('INSERT INTO ir_module_category ' \
                             '(id, name, parent) ' \
-                            'VALUES (%d, %s, %d)', (c_id, categs[0], p_id))
+                            'VALUES (%s, %s, %s)', (c_id, categs[0], p_id))
                 else:
                     c_id = c_id[0]
                 p_id = c_id
@@ -219,7 +218,7 @@ def init_db(cursor):
             cursor.execute('INSERT INTO ir_module_module ' \
                     '(id, author, latest_version, website, name, shortdesc, ' \
                     'description, category, state) ' \
-                    'VALUES (%d, %s, %s, %s, %s, %s, %s, %d, %s)',
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
                     (module_id, info.get('author', ''),
                 version.VERSION.rsplit('.', 1)[0] + '.' + info.get('version', ''),
                 info.get('website', ''), i, info.get('name', False),

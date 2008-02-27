@@ -112,8 +112,8 @@ class Many2ManyUniq(fields.Many2Many):
         for act in values:
             if act[0] == 4:
                 cursor.execute('SELECT * FROM ' + self._rel + ' ' \
-                        'WHERE ' + self._id1 + ' = %d ' \
-                            'AND ' + self._id2 + ' = %d',
+                        'WHERE ' + self._id1 + ' = %s ' \
+                            'AND ' + self._id2 + ' = %s',
                         (obj_id, act[1]))
                 if cursor.fetchall():
                     val.remove(act)
@@ -220,7 +220,7 @@ class UIMenu(OSV):
         if 'module' in context:
             cursor.execute('INSERT INTO ir_translation ' \
                     '(name, lang, type, src, res_id, value, module) ' \
-                    'VALUES (%s, %s, %s, %s, %d, %s, %s)',
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                     ('ir.ui.menu,name', 'en_US', 'model', vals['name'],
                         new_id, '', context.get('module')))
         return new_id

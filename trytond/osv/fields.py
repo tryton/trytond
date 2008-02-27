@@ -26,7 +26,7 @@ import psycopg2
 import warnings
 import __builtin__
 
-def _symbol_set(symb):
+def _symbol_f(symb):
     if symb == None or symb == False:
         return None
     elif isinstance(symb, unicode):
@@ -40,7 +40,7 @@ class Column(object):
     _type = 'unknown'
     _obj = None
     _symbol_c = '%s'
-    _symbol_f = _symbol_set
+    _symbol_f = _symbol_f
     _symbol_set = (_symbol_c, _symbol_f)
     _symbol_get = None
 
@@ -87,7 +87,7 @@ boolean = Boolean
 
 class Integer(Column):
     _type = 'integer'
-    _symbol_c = '%d'
+    _symbol_c = '%s'
     _symbol_f = lambda x: int(x or 0)
     _symbol_set = (_symbol_c, _symbol_f)
 
@@ -143,7 +143,7 @@ text = Text
 
 class Float(Column):
     _type = 'float'
-    _symbol_c = '%f'
+    _symbol_c = '%s'
     _symbol_f = lambda x: __builtin__.float(x or 0.0)
     _symbol_set = (_symbol_c, _symbol_f)
 
@@ -225,12 +225,12 @@ class One2One(Column):
         if act[0] == 0:
             id_new = obj.create(cursor, user, act[1])
             cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                    'SET "' + field + '" = %d ' \
-                    'WHERE id = %d', (id_new, src_id))
+                    'SET "' + field + '" = %s ' \
+                    'WHERE id = %s', (id_new, src_id))
         else:
             cursor.execute('SELECT "' + field + '" ' \
                     'FROM "' + obj_src._table + '" ' \
-                    'WHERE id = %d', (act[0],))
+                    'WHERE id = %s', (act[0],))
             (obj_id,) = cursor.fetchone()
             obj.write(cursor, user, [obj_id] , act[1], context=context)
 
@@ -284,30 +284,30 @@ class Many2One(Column):
                 if act[0] == 0:
                     id_new = obj.create(cursor, act[2])
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                            'SET "' + field + '" = %d ' \
-                            'WHERE id = %d', (id_new, obj_id))
+                            'SET "' + field + '" = %s ' \
+                            'WHERE id = %s', (id_new, obj_id))
                 elif act[0] == 1:
                     obj.write(cursor, [act[1]], act[2], context=context)
                 elif act[0] == 2:
                     cursor.execute('DELETE FROM "' + table + '" ' \
-                            'WHERE id = %d', (act[1],))
+                            'WHERE id = %s', (act[1],))
                 elif act[0] == 3 or act[0] == 5:
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
                             'SET "' + field + '" = NULL ' \
-                            'WHERE id = %d', (obj_id,))
+                            'WHERE id = %s', (obj_id,))
                 elif act[0] == 4:
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                            'SET "' + field + '" = %d ' \
-                            'WHERE id = %d', (act[1], obj_id))
+                            'SET "' + field + '" = %s ' \
+                            'WHERE id = %s', (act[1], obj_id))
         else:
             if values:
                 cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                        'SET "' + field + '" = %d ' \
-                        'WHERE id = %d', (values, obj_id))
+                        'SET "' + field + '" = %s ' \
+                        'WHERE id = %s', (values, obj_id))
             else:
                 cursor.execute('UPDATE "' + obj_src._table + '" ' \
                         'SET "' + field + '" = NULL ' \
-                        'WHERE id = %d', (obj_id,))
+                        'WHERE id = %s', (obj_id,))
 
 many2one = Many2One
 
@@ -360,15 +360,15 @@ class One2Many(Column):
             elif act[0] == 3:
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE id = %d', (act[1],))
+                        'WHERE id = %s', (act[1],))
             elif act[0] == 4:
                 cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._fields_id + '" = %d ' \
-                        'WHERE id = %d', (obj_id, act[1]))
+                        'SET "' + self._fields_id + '" = %s ' \
+                        'WHERE id = %s', (obj_id, act[1]))
             elif act[0] == 5:
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE "' + self._fields_id + '" = %d', (obj_id,))
+                        'WHERE "' + self._fields_id + '" = %s', (obj_id,))
             elif act[0] == 6:
                 if not act[2]:
                     ids2 = [0]
@@ -376,13 +376,13 @@ class One2Many(Column):
                     ids2 = act[2]
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE "' + self._fields_id + '" = %d ' \
+                        'WHERE "' + self._fields_id + '" = %s ' \
                             'AND id not IN (' + \
                                 ','.join([str(x) for x in ids2]) + ')',
                                 (obj_id,))
                 if act[2]:
                     cursor.execute('UPDATE "' + _table + '" ' \
-                            'SET "' + self._fields_id + '" = %d ' \
+                            'SET "' + self._fields_id + '" = %s ' \
                             'WHERE id IN (' + \
                                 ','.join([str(x) for x in act[2]]) + ')',
                                 (obj_id,))
@@ -416,7 +416,7 @@ class Many2Many(Column):
         for i in ids:
             res[i] = []
         ids_s = ','.join([str(x) for x in ids])
-        limit_str = self._limit is not None and ' limit %d' % self._limit or ''
+        limit_str = self._limit is not None and ' limit %s' % self._limit or ''
         obj = obj.pool.get(self._obj)
 
         domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
@@ -432,7 +432,7 @@ class Many2Many(Column):
                     'AND ' + self._rel + '.' + self._id2 + ' = ' + \
                         obj._table + '.id ' + domain1 + \
                 limit_str + ' ORDER BY ' + obj._table + '.' + obj._order + \
-                ' offset %d', domain2 + [offset])
+                ' offset %s', domain2 + [offset])
         for i in cursor.fetchall():
             res[i[1]].append(i[0])
         return res
@@ -448,34 +448,34 @@ class Many2Many(Column):
                 idnew = obj.create(cursor, user, act[2])
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
-                        'VALUES (%d, %d)', (obj_id, idnew))
+                        'VALUES (%s, %s)', (obj_id, idnew))
             elif act[0] == 1:
                 obj.write(cursor, user, [act[1]] , act[2], context=context)
             elif act[0] == 2:
                 obj.unlink(cursor, user, [act[1]], context=context)
             elif act[0] == 3:
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
-                        'WHERE "' + self._id1 + '" = %d ' \
-                            'AND "'+ self._id2 + '" = %d', (obj_id, act[1]))
+                        'WHERE "' + self._id1 + '" = %s ' \
+                            'AND "'+ self._id2 + '" = %s', (obj_id, act[1]))
             elif act[0] == 4:
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
-                        'VALUES (%d, %d)', (obj_id, act[1]))
+                        'VALUES (%s, %s)', (obj_id, act[1]))
             elif act[0] == 5:
                 cursor.execute('UPDATE "' + self._rel + '" ' \
                         'SET "' + self._id2 + '" = NULL ' \
-                        'WHERE "' + self._id2 + '" = %d', (obj_id,))
+                        'WHERE "' + self._id2 + '" = %s', (obj_id,))
             elif act[0] == 6:
                 domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
                         user, obj._name)
                 if domain1:
                     domain1 = ' AND ' + domain1
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
-                        'WHERE "' + self._id1 + '" = %d ' \
+                        'WHERE "' + self._id1 + '" = %s ' \
                             'AND "' + self._id2 + '" IN (' \
                             'SELECT ' + self._rel + '.' + self._id2 + ' ' \
                             'FROM "' + self._rel + '", "' + obj._table + '" ' \
-                            'WHERE ' + self._rel + '.' + self._id1 + ' = %d ' \
+                            'WHERE ' + self._rel + '.' + self._id1 + ' = %s ' \
                                 'AND ' + self._rel + '.' + self._id2 + ' = ' + \
                                 obj._table + '.id ' + domain1 + ')',
                                 [obj_id, obj_id] + domain2)
@@ -483,7 +483,7 @@ class Many2Many(Column):
                 for act_nbr in act[2]:
                     cursor.execute('INSERT INTO "' + self._rel + '" ' \
                             '(' + self._id1 + ', ' + self._id2 + ') ' \
-                            'VALUES (%d, %d)', (obj_id, act_nbr))
+                            'VALUES (%s, %s)', (obj_id, act_nbr))
 
 many2many = Many2Many
 
@@ -491,7 +491,6 @@ many2many = Many2Many
 class Function(Column):
     _classic_read = False
     _classic_write = False
-    _type = 'function'
     _properties = True
 
     def __init__(self, fnct, arg=None, fnct_inv='', fnct_inv_arg=None,
@@ -508,10 +507,9 @@ class Function(Column):
             self.readonly = 1
         self._type = type
         self._fnct_search = fnct_search
-        if type == 'float':
-            self._symbol_c = '%f'
-            self._symbol_f = lambda x: __builtin__.float(x or 0.0)
-            self._symbol_set = (self._symbol_c, self._symbol_f)
+        self._symbol_c = eval(self._type)._symbol_c
+        self._symbol_f = eval(self._type)._symbol_f
+        self._symbol_set = (self._symbol_c, self._symbol_f)
 
     def search(self, cursor, user, obj, name, args, context=None):
         if not self._fnct_search:

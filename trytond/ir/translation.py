@@ -214,7 +214,7 @@ class Translation(OSV, Cacheable):
                 'selection'):
             cursor.execute('SELECT module FROM ir_translation ' \
                     'WHERE name = %s ' \
-                        'AND res_id = %d ' \
+                        'AND res_id = %s ' \
                         'AND lang = %s ' \
                         'AND type = %s ' \
                         'AND src = %s ',
@@ -226,7 +226,7 @@ class Translation(OSV, Cacheable):
         else:
             cursor.execute('SELECT module, src FROM ir_translation ' \
                     'WHERE name = %s ' \
-                        'AND res_id = %d ' \
+                        'AND res_id = %s ' \
                         'AND lang = %s ' \
                         'AND type = %s',
                     (vals.get('name', ''), vals.get('res_id', 0), 'en_US',
@@ -304,7 +304,7 @@ class Translation(OSV, Cacheable):
                 cursor.execute('SELECT id FROM ir_translation ' \
                         'WHERE (write_uid IS NULL OR write_uid = 0) ' \
                             'AND id IN ' \
-                                '(' + ','.join(['%d' for x in ids]) + ')',
+                                '(' + ','.join(['%s' for x in ids]) + ')',
                         ids)
                 ids2 = [x[0] for x in cursor.fetchall()]
                 if ids2:
@@ -446,7 +446,7 @@ class TranslationUpdate(Wizard):
                     'SET fuzzy = True, ' \
                         'src = %s ' \
                     'WHERE name = %s ' \
-                        'AND res_id = %d ' \
+                        'AND res_id = %s ' \
                         'AND type = %s ' \
                         'AND lang = %s',
                     (row['src'], row['name'], row['res_id'], row['type'],
