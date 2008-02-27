@@ -56,7 +56,7 @@ class Sequence(OSV):
                 'day':time.strftime('%d'),
                 }
 
-    def get_id(self, cursor, user, sequence_id, test='id=%d'):
+    def get_id(self, cursor, user, sequence_id, test='id=%s'):
         cursor.execute('lock table ir_sequence')
         cursor.execute('SELECT id, number_next, number_increment, prefix, ' \
                     'suffix, padding ' \
@@ -66,7 +66,7 @@ class Sequence(OSV):
         if res:
             cursor.execute('UPDATE ir_sequence ' \
                     'SET number_next = number_next + number_increment ' \
-                    'WHERE id = %d AND active = True', (res['id'],))
+                    'WHERE id = %s AND active = True', (res['id'],))
             if res['number_next']:
                 return self._process(res['prefix']) + \
                         '%%0%sd' % res['padding'] % res['number_next'] + \

@@ -350,7 +350,7 @@ class ORM(object):
                 cursor.execute("INSERT INTO ir_model_field " \
                         "(model, name, field_description, ttype, " \
                             "relation, group_name, view_load, help) " \
-                        "VALUES (%d, %s, %s, %s, %s, %s, %s, %s)",
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (model_id, k, field.string, field._type,
                             field._obj or 'NULL', field.group_name or '',
                             (field.view_load and 'True') or 'False',
@@ -369,7 +369,7 @@ class ORM(object):
                             'group_name = %s, ' \
                             'view_load = %s, ' \
                             'help = %s ' \
-                        'WHERE id = %d ',
+                        'WHERE id = %s ',
                         (field.string, field._type, field._obj or 'NULL',
                             field.group_name or '',
                             (field.view_load and 'True') or 'False',
@@ -384,7 +384,7 @@ class ORM(object):
             elif trans_columns[trans_name]['src'] != field.string:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
-                        'WHERE id = %d ',
+                        'WHERE id = %s ',
                         (field.string, trans_columns[trans_name]['id']))
             if trans_name not in trans_help:
                 if field.help:
@@ -396,7 +396,7 @@ class ORM(object):
             elif trans_help[trans_name]['src'] != field.help:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
-                        'WHERE id = %d ',
+                        'WHERE id = %s ',
                         (field.help, trans_help[trans_name]['id']))
             if hasattr(field, 'selection') \
                     and isinstance(field.selection, (tuple, list)):
@@ -1323,7 +1323,7 @@ class ORM(object):
         for i in range((len(ids) / ID_MAX) + \
                 ((len(ids) % ID_MAX) and 1 or 0)):
             sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
-            str_d = ','.join(('%d',) * len(sub_ids))
+            str_d = ','.join(('%s',) * len(sub_ids))
             if domain1:
                 cursor.execute('SELECT id FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ') ' + domain1,
@@ -1424,8 +1424,8 @@ class ORM(object):
                                 (val, field))
 
         if self._log_access:
-            upd0.append('write_uid=%d')
-            upd0.append('write_date=now()')
+            upd0.append('write_uid = %s')
+            upd0.append('write_date = now()')
             upd1.append(user)
 
         if len(upd0):
@@ -1563,11 +1563,11 @@ class ORM(object):
         for table in tocreate:
             new_id = self.pool.get(table).create(cursor, user, tocreate[table])
             upd0 += ',' + self._inherits[table]
-            upd1 += ',%d'
+            upd1 += ',%s'
             upd2.append(new_id)
             cursor.execute('INSERT INTO inherit ' \
                     '(obj_type, obj_id, inst_type, inst_id) ' \
-                    'values (%s, %d, %s, %d)',
+                    'values (%s, %s, %s, %s)',
                     (table, new_id, self._name, id_new))
 
         for field in vals:
@@ -1600,7 +1600,7 @@ class ORM(object):
                                 (val, field))
         if self._log_access:
             upd0 += ', create_uid, create_date'
-            upd1 += ', %d, now()'
+            upd1 += ', %s, now()'
             upd2.append(user)
         cursor.execute('INSERT INTO "' + self._table + '" ' \
                 '(id' + upd0 + ') ' \
@@ -1874,7 +1874,7 @@ class ORM(object):
                 where = (model and (" and model='%s'" % (self._name,))) or ''
                 cursor.execute('SELECT arch, name, field_childs, id, type, ' \
                             'inherit ' \
-                        'FROM ir_ui_view WHERE id = %d ' + where, (view_id,))
+                        'FROM ir_ui_view WHERE id = %s ' + where, (view_id,))
             else:
                 cursor.execute('SELECT arch, name, field_childs, id, type, ' \
                         'inherit ' \
@@ -1897,7 +1897,7 @@ class ORM(object):
             def _inherit_apply_rec(result, inherit_id):
                 # get all views which inherit from (ie modify) this view
                 cursor.execute('SELECT arch, id FROM ir_ui_view ' \
-                        'WHERE inherit = %d AND model = %s ' \
+                        'WHERE inherit = %s AND model = %s ' \
                         'ORDER BY priority', (inherit_id, self._name))
                 sql_inherit = cursor.fetchall()
                 for (inherit, view_id) in sql_inherit:
@@ -2208,7 +2208,7 @@ class ORM(object):
                         if arg[0] == 'id':
                             qu1.append('(%s.id in (%s))' % \
                                     (table._table,
-                                        ','.join(['%d'] * len(arg[2])),))
+                                        ','.join(['%s'] * len(arg[2])),))
                         else:
                             qu1.append('(%s.%s in (%s))' % \
                                     (table._table, arg[0], ','.join(

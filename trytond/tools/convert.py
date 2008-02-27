@@ -70,16 +70,16 @@ class MenuitemTagHandler:
                 "LEFT JOIN ir_action_url url ON (a.id = url.action) " \
                 "LEFT JOIN ir_action_act_window_view wv on (act.id = wv.act_window) " \
                 "LEFT JOIN ir_ui_view v on (v.id = wv.view) " \
-            "WHERE report.id = %d " \
-                "OR act.id = %d " \
-                "OR wizard.id = %d " \
-                "OR url.id = %d " \
+            "WHERE report.id = %s " \
+                "OR act.id = %s " \
+                "OR wizard.id = %s " \
+                "OR url.id = %s " \
             "ORDER by wv.sequence " \
             "LIMIT 1", (action_id, action_id, action_id, action_id))
             action_name, action_type, view_type, view_mode = \
                 self.mh.cursor.fetchone()
 
-            values['action'] = '%s,%d' % (action_type, action_id)
+            values['action'] = '%s,%s' % (action_type, action_id)
 
             icon = attributes.get('icon', '').encode('utf8')
             if icon:

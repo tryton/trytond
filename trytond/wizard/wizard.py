@@ -156,7 +156,7 @@ class Wizard(object):
                         cursor.execute('UPDATE ir_translation ' \
                                 'SET src = %s, ' \
                                     'fuzzy = True '
-                                'WHERE id = %d', (button_value, res[0]['id']))
+                                'WHERE id = %s', (button_value, res[0]['id']))
 
     def execute(self, cursor, user, data, state='init', context=None):
         if context is None:
