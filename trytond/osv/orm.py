@@ -307,7 +307,6 @@ class ORM(object):
             cursor.execute("INSERT INTO ir_model " \
                     "(model, name, info) VALUES (%s, %s, %s)",
                     (self._name, self._description, self.__doc__))
-            cursor.commit()
             cursor.execute("SELECT id FROM ir_model WHERE model = %s",
                     (self._name,))
         (model_id,) = cursor.fetchone()
@@ -409,7 +408,6 @@ class ORM(object):
                                 'VALUES (%s, %s, %s, %s, %s, %s)',
                                 (trans_name, 'en_US', 'selection', val, '',
                                     module_name))
-        cursor.commit()
 
     def auto_init(self, cursor, module_name):
         self.init(cursor, module_name)
@@ -431,7 +429,6 @@ class ORM(object):
                         "(id SERIAL NOT NULL, " \
                             "PRIMARY KEY(id)) WITH OIDS" % self._table)
                 create = True
-            cursor.commit()
             if self._log_access:
                 logs = {
                     'create_uid': 'INTEGER REFERENCES res_user ' \
@@ -452,7 +449,6 @@ class ORM(object):
                         cursor.execute("ALTER TABLE \"%s\" " \
                                 "ADD COLUMN \"%s\" %s" %
                             (self._table, k, logs[k]))
-                        cursor.commit()
 
             # iterate on the database columns to drop the NOT NULL constraints
             # of fields which were required but have been removed
@@ -532,7 +528,6 @@ class ORM(object):
                                 "ON \"%s\" (\"%s\")" % \
                                 (field._rel, field._id2, field._rel,
                                     field._id2))
-                        cursor.commit()
                 else:
                     cursor.execute("SELECT c.relname, a.attname, a.attlen, " \
                                 "a.atttypmod, a.attnotnull, a.atthasdef, " \
@@ -601,7 +596,6 @@ class ORM(object):
                 'If it doesn\'t work, update records and execute manually:\n' \
                 'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
                                         (k, self._table, self._table, k))
-                            cursor.commit()
                     elif len(res)==1:
                         f_pg_def = res[0]
                         f_pg_type = f_pg_def['typname']
@@ -652,7 +646,6 @@ class ORM(object):
                                     cursor.execute("ALTER TABLE \"%s\" " \
                                             "DROP COLUMN temp_change_size" % \
                                             (self._table,))
-                                    cursor.commit()
                             # if the field is required
                             # and hasn't got a NOT NULL constraint
                             if field.required and f_pg_notnull == 0:
@@ -664,13 +657,11 @@ class ORM(object):
                                         cursor.execute("UPDATE \"%s\" " \
                                         "SET \"%s\" = '%s' WHERE %s is NULL" % \
                                             (self._table, k, default, k))
-                                        cursor.commit()
                                 # add the NOT NULL constraint
                                 try:
                                     cursor.execute("ALTER TABLE \"%s\" " \
                                         "ALTER COLUMN \"%s\" SET NOT NULL" % \
                                         (self._table, k))
-                                    cursor.commit()
                                 except:
                                     logger.notify_channel('init',
                                             LOG_WARNING,
@@ -679,12 +670,10 @@ class ORM(object):
 'If you want to have it, you should update the records and execute manually:\n'\
                             'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
                                         (k, self._table, self._table, k))
-                                cursor.commit()
                             elif not field.required and f_pg_notnull == 1:
                                 cursor.execute("ALTER TABLE \"%s\" " \
                                         "ALTER COLUMN \"%s\" DROP NOT NULL" % \
                                         (self._table, k))
-                                cursor.commit()
                             cursor.execute("SELECT indexname FROM pg_indexes " \
                     "WHERE indexname = '%s_%s_index' AND tablename = '%s'" % \
                                     (self._table, k, self._table))
@@ -693,11 +682,9 @@ class ORM(object):
                                 cursor.execute("CREATE INDEX \"%s_%s_index\" " \
                                         "ON \"%s\" (\"%s\")" % \
                                         (self._table, k, self._table, k))
-                                cursor.commit()
                             if res and not field.select:
                                 cursor.execute("DROP INDEX \"%s_%s_index\"" % \
                                         (self._table, k))
-                                cursor.commit()
                             if isinstance(field, fields.Many2One):
                                 ref_obj = self.pool.get(field._obj)
                                 if ref_obj:
@@ -746,7 +733,6 @@ class ORM(object):
                                                     '("' + k + '") ' \
                                                     'REFERENCES "' + ref + \
                                                     '" ON DELETE ' + field.ondelete)
-                                            cursor.commit()
                     else:
                         # TODO add error message
                         logger.notify_channel('init', LOG_ERROR, '')
@@ -764,7 +750,6 @@ class ORM(object):
                     cursor.execute('ALTER TABLE \"%s\" ' \
                             'ADD CONSTRAINT \"%s_%s\" %s' % \
                             (self._table, self._table, key, con,))
-                    cursor.commit()
                 except:
                     logger.notify_channel('init', LOG_WARNING,
                             'unable to add \'%s\' constraint on table %s !\n' \
@@ -778,7 +763,6 @@ class ORM(object):
                     line2 = line.replace('\n', '').strip()
                     if line2:
                         cursor.execute(line2)
-                        cursor.commit()
 
     def __init__(self):
         # reinit the cachel on _columns and _defaults
