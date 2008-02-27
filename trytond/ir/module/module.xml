@@ -162,8 +162,6 @@
                             colspan="4"/>
                         <separator name="module_info"/>
                         <field name="module_info" colspan="4"/>
-                        <separator name="module_download"/>
-                        <field name="module_download" colspan="4"/>
                     </group>
                 </form>
                 ]]>

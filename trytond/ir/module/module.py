@@ -521,7 +521,6 @@ ModuleUpdateList()
 class ModuleInstallUpgradeInit(WizardOSV):
     _name = 'ir.module.module.install_upgrade.init'
     module_info = fields.Text('Modules to update', readonly=True)
-    module_download = fields.Text('Modules to download', readonly=True)
 
 ModuleInstallUpgradeInit()
 
@@ -542,12 +541,9 @@ class ModuleInstallUpgrade(Wizard):
             ('state', 'in', ['to upgrade', 'to remove', 'to install']),
             ], context=context)
         modules = module_obj.browse(cursor, user, module_ids, context=context)
-        url = module_obj.download(cursor, user, module_ids, download=False,
-                context=context)
         return {
             'module_info': '\n'.join([x.name + ': ' + x.state \
                     for x in modules]),
-            'module_download': '\n'.join(url),
         }
 
     def _upgrade_module(self, cursor, user, data, context):
@@ -559,7 +555,6 @@ class ModuleInstallUpgrade(Wizard):
         module_ids = module_obj.search(cursor, user, [
             ('state', 'in', ['to upgrade', 'to remove', 'to install']),
             ], context=context)
-        module_obj.download(cursor, user, module_ids, context=context)
         lang_ids = lang_obj.search(cursor, user, [
             ('translatable', '=', True),
             ], context=context)
