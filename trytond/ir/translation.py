@@ -481,10 +481,10 @@ class TranslationUpdate(Wizard):
             },
         },
         'start': {
-            'actions': [_update_translation],
+            'actions': ['_update_translation'],
             'result': {
                 'type': 'action',
-                'action': _action_translation_open,
+                'action': '_action_translation_open',
                 'state': 'end',
             },
         },
@@ -562,7 +562,7 @@ class TranslationExport(Wizard):
             },
         },
         'start': {
-            'actions': [_export_translation],
+            'actions': ['_export_translation'],
             'result': {
                 'type': 'form',
                 'object': 'ir.translation.export.start',

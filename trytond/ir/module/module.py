@@ -496,7 +496,7 @@ class ModuleUpdateList(Wizard):
                 }
             },
             'update': {
-                'actions': [_update_module],
+                'actions': ['_update_module'],
                 'result': {
                     'type': 'form',
                     'object': 'ir.module.module.update_list.update',
@@ -509,7 +509,7 @@ class ModuleUpdateList(Wizard):
                 'actions': [],
                 'result': {
                     'type': 'action',
-                    'action': _action_module_open,
+                    'action': '_action_module_open',
                     'state':'end',
                 }
             },
@@ -567,7 +567,7 @@ class ModuleInstallUpgrade(Wizard):
 
     states = {
         'init': {
-            'actions': [_get_install],
+            'actions': ['_get_install'],
             'result': {
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.init',
@@ -578,7 +578,7 @@ class ModuleInstallUpgrade(Wizard):
             },
         },
         'start': {
-            'actions': [_upgrade_module],
+            'actions': ['_upgrade_module'],
             'result': {
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.start',
