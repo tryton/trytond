@@ -8,14 +8,14 @@ def create(cursor, act_datas, inst_id, ident):
         cursor.execute("SELECT NEXTVAL('wkf_workitem_id_seq')")
         (id_new,) = cursor.fetchone()
         cursor.execute("INSERT INTO wkf_workitem " \
-                "(id, activity, instance, state) VALUES (%d, %s, %s, 'active')",
+                "(id, activity, instance, state) VALUES (%s, %s, %s, 'active')",
                 (id_new, act['id'], inst_id))
-        cursor.execute('SELECT * FROM wkf_workitem WHERE id=%d', (id_new,))
+        cursor.execute('SELECT * FROM wkf_workitem WHERE id=%s', (id_new,))
         res = cursor.dictfetchone()
         process(cursor, res, ident)
 
 def process(cursor, workitem, ident, signal=None, force_running=False):
-    cursor.execute('SELECT * FROM wkf_activity WHERE id = %d',
+    cursor.execute('SELECT * FROM wkf_activity WHERE id = %s',
             (workitem['activity'],))
     activity = cursor.dictfetchone()
     triggers = False
@@ -34,7 +34,7 @@ def process(cursor, workitem, ident, signal=None, force_running=False):
 
     if triggers:
         cursor.execute('SELECT * FROM wkf_transition ' \
-                'WHERE act_from = %d', (workitem['activity'],))
+                'WHERE act_from = %s', (workitem['activity'],))
         alltrans = cursor.dictfetchall()
         for trans in alltrans:
             if trans['trigger_model']:
@@ -45,14 +45,14 @@ def process(cursor, workitem, ident, signal=None, force_running=False):
                     (new_id,) = cursor.fetchone()
                     cursor.execute('INSERT INTO wkf_trigger ' \
                             '(model, res_id, instance, workitem, id) ' \
-                            'VALUES (%s, %d, %d, %d, %d)',
+                            'VALUES (%s, %s, %s, %s, %s)',
                             (trans['trigger_model'], res_id,
                                 workitem['inst_id'], workitem['id'], new_id))
     return True
 
 def _state_set(cursor, workitem, state):
     cursor.execute('UPDATE wkf_workitem ' \
-            'SET state = %s WHERE id = %d', (state, workitem['id']))
+            'SET state = %s WHERE id = %s', (state, workitem['id']))
     workitem['state'] = state
 
 def _execute(cursor, workitem, activity, ident):
@@ -66,7 +66,7 @@ def _execute(cursor, workitem, activity, ident):
                     "ON (i.workflow = w.id) " \
                 "WHERE i.id in (" \
                     "SELECT instance FROM wkf_workitem " \
-                    "WHERE subflow = %d)", (workitem['inst_id'],))
+                    "WHERE subflow = %s)", (workitem['inst_id'],))
         for i in cursor.fetchall():
             instance.validate(cursor, i[0], (ident[0], i[1], i[2]),
                     activity['signal_send'], force_running=True)
@@ -83,7 +83,7 @@ def _execute(cursor, workitem, activity, ident):
         if workitem['state'] == 'active':
             _state_set(cursor, workitem, 'running')
             cursor.execute('DELETE FROM wkf_workitem ' \
-                    'WHERE instance = %d AND id <> %d',
+                    'WHERE instance = %s AND id <> %s',
                     (workitem['inst_id'], workitem['id']))
             if activity['action']:
                 wkf_expr.execute(cursor, ident, workitem, activity)
@@ -101,18 +101,18 @@ def _execute(cursor, workitem, activity, ident):
                         'Wrong return value: ' + str(id_new) + ' ' + \
                         str(type(id_new))
                 cursor.execute('SELECT id FROM wkf_instance ' \
-                        'WHERE res_id = %d AND workflow = %d',
+                        'WHERE res_id = %s AND workflow = %s',
                         (id_new, activity['subflow_id']))
                 (id_new,) = cursor.fetchone()
             else:
                 id_new = instance.create(cursor, ident, activity['subflow_id'])
             cursor.execute('UPDATE wkf_workitem ' \
-                    'SET subflow = %d WHERE id = %d',
+                    'SET subflow = %s WHERE id = %s',
                     (id_new, workitem['id']))
             workitem['subflow_id'] = id_new
         if workitem['state'] == 'running':
             cursor.execute("SELECT state FROM wkf_instance " \
-                    "WHERE id = %d", (workitem['subflow_id'],))
+                    "WHERE id = %s", (workitem['subflow_id'],))
             (state,) = cursor.fetchone()
             if state == 'complete':
                 _state_set(cursor, workitem, 'complete')
@@ -122,7 +122,7 @@ def _split_test(cursor, workitem, split_mode, ident, signal=None):
     test = False
     transitions = []
     cursor.execute('SELECT * FROM wkf_transition ' \
-            'WHERE act_from = %d', (workitem['activity'],))
+            'WHERE act_from = %s', (workitem['activity'],))
     alltrans = cursor.dictfetchall()
     if split_mode == 'XOR' or split_mode == 'OR':
         for transition in alltrans:
@@ -138,15 +138,15 @@ def _split_test(cursor, workitem, split_mode, ident, signal=None):
                 test = False
                 break
             cursor.execute('SELECT COUNT(*) ' \
-                    'FROM wkf_witm_trans WHERE trans_id = %d AND inst_id = %d',
+                    'FROM wkf_witm_trans WHERE trans_id = %s AND inst_id = %s',
                     (transition['id'], workitem['inst_id']))
             (count,) = cursor.fetchone()
             if not count:
                 transitions.append((transition['id'], workitem['inst_id']))
     if test and len(transitions):
         cursor.executemany('INSERT INTO wkf_witm_trans ' \
-                '(trans_id, inst_id) values (%d, %d)', transitions)
-        cursor.execute('DELETE FROM wkf_workitem WHERE id = %d',
+                '(trans_id, inst_id) values (%s, %s)', transitions)
+        cursor.execute('DELETE FROM wkf_workitem WHERE id = %s',
                 (workitem['id'],))
         for transition in transitions:
             _join_test(cursor, transition[0], transition[1], ident)
@@ -156,21 +156,21 @@ def _split_test(cursor, workitem, split_mode, ident, signal=None):
 def _join_test(cursor, trans_id, inst_id, ident):
     # TODO remove the subquery
     cursor.execute('SELECT * FROM wkf_activity ' \
-            'WHERE id = (SELECT act_to FROM wkf_transition WHERE id = %d)',
+            'WHERE id = (SELECT act_to FROM wkf_transition WHERE id = %s)',
             (trans_id,))
     activity = cursor.dictfetchone()
     if activity['join_mode'] == 'XOR':
         create(cursor, [activity], inst_id, ident)
         cursor.execute('DELETE FROM wkf_witm_trans ' \
-                'WHERE inst_id = %d AND trans_id = %d', (inst_id, trans_id))
+                'WHERE inst_id = %s AND trans_id = %s', (inst_id, trans_id))
     else:
         cursor.execute('SELECT id FROM wkf_transition ' \
-                'WHERE act_to = %d', (activity['id'],))
+                'WHERE act_to = %s', (activity['id'],))
         trans_ids = cursor.fetchall()
         delete = True
         for (trans_id,) in trans_ids:
             cursor.execute('SELECT COUNT(*) FROM wkf_witm_trans ' \
-                    'WHERE trans_id = %d AND inst_id = %d',
+                    'WHERE trans_id = %s AND inst_id = %s',
                     (trans_id, inst_id))
             (count,) = cursor.fetchone()
             if not count:
@@ -179,6 +179,6 @@ def _join_test(cursor, trans_id, inst_id, ident):
         if delete:
             for (trans_id,) in trans_ids:
                 cursor.execute('DELETE FROM wkf_witm_trans ' \
-                        'WHERE trans_id = %d AND inst_id = %d',
+                        'WHERE trans_id = %s AND inst_id = %s',
                         (trans_id, inst_id))
             create(cursor, [activity], inst_id, ident)

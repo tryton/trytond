@@ -8,24 +8,22 @@ class RuleGroup(OSV):
     "Rule group"
     _name = 'ir.rule.group'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=128, select=1),
-        'model': fields.Many2One('ir.model', 'Model', select=1,
-            required=True),
-        'global': fields.Boolean('Global', select=1,
-            help="Make the rule global \n" \
-                    "or it needs to be put on a group or user"),
-        'rules': fields.One2Many('ir.rule', 'rule_group', 'Tests',
-            help="The rule is satisfied if at least one test is True"),
-        'groups': fields.Many2Many('res.group', 'group_rule_group_rel',
-            'rule_group_id', 'group_id', 'Groups'),
-        'users': fields.Many2Many('res.user', 'user_rule_group_rel',
-            'rule_group_id', 'user_id', 'Users'),
-    }
-    _order = 'model, global DESC'
-    _defaults = {
-        'global': lambda *a: True,
-    }
+    name = fields.Char('Name', size=128, select=1)
+    model = fields.Many2One('ir.model', 'Model', select=1,
+       required=True)
+    global_p = fields.Boolean('Global', select=1,
+       help="Make the rule global \n" \
+               "or it needs to be put on a group or user")
+    rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
+       help="The rule is satisfied if at least one test is True")
+    groups = fields.Many2Many('res.group', 'group_rule_group_rel',
+       'rule_group_id', 'group_id', 'Groups')
+    users = fields.Many2Many('res.user', 'user_rule_group_rel',
+       'rule_group_id', 'user_id', 'Users')
+    _order = 'model, global_p DESC'
+
+    def default_global_p(self, cursor, user, context=None):
+        return 1
 
     def unlink(self, cursor, user, ids, context=None):
         res = super(RuleGroup, self).unlink(cursor, user, ids,
@@ -56,28 +54,26 @@ class Rule(OSV):
     _name = 'ir.rule'
     _rec_name = 'field'
     _description = __doc__
-    _columns = {
-        'field': fields.Many2One('ir.model.field', 'Field',
-            domain="[('model', '=', parent.model)]", select=1,
-            required=True),
-        'operator':fields.Selection([
-            ('=', '='),
-            ('<>', '<>'),
-            ('<=', '<='),
-            ('>=', '>='),
-            ('in', 'in'),
-            ('child_of', 'child_of'),
-            ], 'Operator', required=True),
-        'operand':fields.Selection('operand','Operand', size=64, required=True),
-        'rule_group': fields.Many2One('ir.rule.group', 'Group', select=2,
-            required=True, ondelete="cascade")
-    }
+    field = fields.Many2One('ir.model.field', 'Field',
+       domain="[('model', '=', parent.model)]", select=1,
+       required=True)
+    operator = fields.Selection([
+       ('=', '='),
+       ('<>', '<>'),
+       ('<=', '<='),
+       ('>=', '>='),
+       ('in', 'in'),
+       ('child_of', 'child_of'),
+       ], 'Operator', required=True)
+    operand = fields.Selection('get_operand','Operand', size=64, required=True)
+    rule_group = fields.Many2One('ir.rule.group', 'Group', select=2,
+       required=True, ondelete="cascade")
 
     def __init__(self, pool):
         super(Rule, self).__init__(pool)
         if pool:
             self._rpc_allowed = self._rpc_allowed + [
-                'operand',
+                'get_operand',
             ]
 
 
@@ -120,7 +116,7 @@ class Rule(OSV):
 
         return res
 
-    def operand(self, cursor, user, context):
+    def get_operand(self, cursor, user, context):
         res = []
         operands = self._operand_get(cursor, user, 'res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
@@ -140,13 +136,13 @@ class Rule(OSV):
                 "WHERE m.model = %s "
                     "AND (g.id IN (" \
                             "SELECT rule_group_id FROM user_rule_group_rel " \
-                                "WHERE user_id = %d " \
+                                "WHERE user_id = %s " \
                             "UNION SELECT rule_group_id " \
                                 "FROM group_rule_group_rel g_rel " \
                                 "JOIN res_group_user_rel u_rel " \
                                     "ON (g_rel.group_id = u_rel.gid) " \
-                                "WHERE u_rel.uid = %d) "
-                    "OR g.global)", (model_name, user, user))
+                                "WHERE u_rel.uid = %s) "
+                    "OR g.global_p)", (model_name, user, user))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
             return '', []
@@ -170,7 +166,7 @@ class Rule(OSV):
                         {'user': self.pool.get('res.user').browse(cursor, 0,
                             user), 'time': time})
 
-            if rule.rule_group['global']:
+            if rule.rule_group['global_p']:
                 clause_global.setdefault(rule.rule_group.id, [])
                 clause_global[rule.rule_group.id].append(
                         obj._where_calc(cursor, user, dom, active_test=False))
@@ -215,11 +211,11 @@ class Rule(OSV):
             WHERE m.model = %s
                 AND (g.id NOT IN (SELECT rule_group FROM ir_rule))
                 AND (g.id IN (SELECT rule_group_id FROM user_rule_group_rel
-                    WHERE user_id = %d
+                    WHERE user_id = %s
                     UNION SELECT rule_group_id FROM group_rule_group_rel g_rel
                         JOIN res_group_user_rel u_rel
                             ON g_rel.group_id = u_rel.gid
-                        WHERE u_rel.uid = %d))""", (model_name, user, user))
+                        WHERE u_rel.uid = %s))""", (model_name, user, user))
         if not cursor.fetchall():
             query, val = _query(clause, 'OR')
 

@@ -72,7 +72,7 @@ class Node(Singleton):
         node.depth = self.depth + 1
         if node not in self.childs:
             self.childs.append(node)
-        for attr in ('init', 'update', 'demo'):
+        for attr in ('init', 'update'):
             if hasattr(self, attr):
                 setattr(node, attr, True)
         self.childs.sort(lambda x, y: cmp(x.name, y.name))
@@ -83,7 +83,7 @@ class Node(Singleton):
 
     def __setattr__(self, name, value):
         super(Node, self).__setattr__(name, value)
-        if name in ('init', 'update', 'demo'):
+        if name in ('init', 'update'):
             for child in self.childs:
                 setattr(child, name, value)
         if name == 'depth':
@@ -143,7 +143,7 @@ def create_graph(module_list, force=None):
             graph.add_node(package, deps)
             node = Node(package, graph)
             node.datas = datas
-            for kind in ('init', 'update', 'demo'):
+            for kind in ('init', 'update'):
                 if (package in CONFIG[kind]) \
                         or ('all' in CONFIG[kind]) \
                         or (kind in force):
@@ -187,18 +187,16 @@ def load_module_graph(cursor, graph, lang=None):
         wizards = pool_wizard.instanciate(module, pool)
         pool_report = pooler.get_pool_report(cursor.dbname)
         reports = pool_report.instanciate(module, pool)
-        cursor.execute('SELECT state, demo FROM ir_module_module WHERE name = %s',
+        cursor.execute('SELECT state FROM ir_module_module WHERE name = %s',
                 (module,))
-        (package_state, package_demo) = (cursor.rowcount and cursor.fetchone()) \
-                or ('uninstalled', False)
+        package_state = (cursor.rowcount and cursor.fetchone()[0]) \
+                or 'uninstalled'
         idref = {}
         if hasattr(package, 'init') \
                 or hasattr(package, 'update') \
                 or (package_state in ('to install', 'to upgrade')):
             init_module_objects(cursor, module, modules)
             init_module_wizards(cursor, module, wizards)
-            demo = hasattr(package, 'demo') \
-                    or (package_demo and package_state != 'installed')
 
             #Instanciate a new parser for the package:
             tryton_parser = tools.TrytondXmlHandler(
@@ -237,9 +235,6 @@ def load_module_graph(cursor, graph, lang=None):
                 translation_obj = pool.get('ir.translation')
                 translation_obj.translation_import(cursor, 0, lang2, module,
                         tools.file_open(OPJ(module, filename)))
-            if demo:
-                cursor.execute('UPDATE ir_module_module SET demo = %s ' \
-                        'WHERE name = %s', (True, package.name))
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))
@@ -291,11 +286,9 @@ def register_classes():
                 Logger().notify_channel('init', LOG_ERROR,
                         'Couldn\'t find module %s' % module)
 
-def load_modules(database, force_demo=False, update_module=False, lang=None):
+def load_modules(database, update_module=False, lang=None):
     cursor = database.cursor()
     force = []
-    if force_demo:
-        force.append('demo')
     if update_module:
         cursor.execute("SELECT name FROM ir_module_module " \
                 "WHERE state IN ('installed', 'to install', " \
@@ -315,7 +308,7 @@ def load_modules(database, force_demo=False, update_module=False, lang=None):
     load_module_graph(cursor, graph, lang)
 
 
-    for kind in ('init', 'update', 'demo'):
+    for kind in ('init', 'update'):
         CONFIG[kind] = {}
 
     if update_module:

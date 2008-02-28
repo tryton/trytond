@@ -12,16 +12,14 @@ class Workflow(OSV):
     _table = "wkf"
     _log_access = False
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=64, required=True),
-        'osv': fields.Char('Resource Model', size=64, required=True),
-        'on_create': fields.Boolean('On Create'),
-        'activities': fields.One2Many('workflow.activity', 'workflow',
-            'Activities'),
-    }
-    _defaults = {
-        'on_create': lambda *a: True
-    }
+    name = fields.Char('Name', size=64, required=True)
+    osv = fields.Char('Resource Model', size=64, required=True)
+    on_create = fields.Boolean('On Create')
+    activities = fields.One2Many('workflow.activity', 'workflow',
+       'Activities')
+
+    def default_on_create(self, cursor, user, context=None):
+        return 1
 
     def write(self, cursor, user, ids, vals, context=None):
         wf_service = LocalService("workflow")
@@ -44,40 +42,42 @@ class WorkflowActivity(OSV):
     _table = "wkf_activity"
     _log_access = False
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=64, required=True),
-        'workflow': fields.Many2One('workflow', 'Workflow', required=True,
-            select=1, ondelete='cascade'),
-        'split_mode': fields.Selection([
-            ('XOR', 'Xor'),
-            ('OR', 'Or'),
-            ('AND', 'And'),
-            ], 'Split Mode', size=3, required=True),
-        'join_mode': fields.Selection([
-            ('XOR', 'Xor'),
-            ('AND', 'And'),
-            ], 'Join Mode', size=3, required=True),
-        'kind': fields.Selection([
-            ('dummy', 'Dummy'),
-            ('function', 'Function'),
-            ('subflow', 'Subflow'),
-            ('stopall', 'Stop All'),
-            ], 'Kind', size=64, required=True),
-        'action': fields.Char('Action', size=64),
-        'flow_start': fields.Boolean('Flow Start'),
-        'flow_stop': fields.Boolean('Flow Stop'),
-        'subflow': fields.Many2One('workflow', 'Subflow'),
-        'signal_send': fields.Char('Signal (subflow.*)', size=32),
-        'out_transitions': fields.One2Many('workflow.transition', 'act_from',
-            'Outgoing transitions'),
-        'in_transitions': fields.One2Many('workflow.transition', 'act_to',
-            'Incoming transitions'),
-    }
-    _defaults = {
-        'kind': lambda *a: 'dummy',
-        'join_mode': lambda *a: 'XOR',
-        'split_mode': lambda *a: 'XOR',
-    }
+    name = fields.Char('Name', size=64, required=True)
+    workflow = fields.Many2One('workflow', 'Workflow', required=True,
+       select=1, ondelete='cascade')
+    split_mode = fields.Selection([
+       ('XOR', 'Xor'),
+       ('OR', 'Or'),
+       ('AND', 'And'),
+       ], 'Split Mode', size=3, required=True)
+    join_mode = fields.Selection([
+       ('XOR', 'Xor'),
+       ('AND', 'And'),
+       ], 'Join Mode', size=3, required=True)
+    kind = fields.Selection([
+       ('dummy', 'Dummy'),
+       ('function', 'Function'),
+       ('subflow', 'Subflow'),
+       ('stopall', 'Stop All'),
+       ], 'Kind', size=64, required=True)
+    action = fields.Char('Action', size=64)
+    flow_start = fields.Boolean('Flow Start')
+    flow_stop = fields.Boolean('Flow Stop')
+    subflow =  fields.Many2One('workflow', 'Subflow')
+    signal_send = fields.Char('Signal (subflow.*)', size=32)
+    out_transitions = fields.One2Many('workflow.transition', 'act_from',
+       'Outgoing transitions')
+    in_transitions = fields.One2Many('workflow.transition', 'act_to',
+       'Incoming transitions')
+
+    def default_kind(self, cursor, user, context=None):
+        return 'dummy'
+
+    def default_join_mode(self, cursor, user, context=None):
+        return 'XOR'
+
+    def default_split_mode(self, cursor, user, context=None):
+        return 'XOR'
 
 WorkflowActivity()
 
@@ -89,20 +89,18 @@ class WorkflowTransition(OSV):
     _log_access = False
     _rec_name = 'signal'
     _description = __doc__
-    _columns = {
-        'trigger_model': fields.Char('Trigger Type', size=128),
-        'trigger_expr_id': fields.Char('Trigger Expr ID', size=128),
-        'signal': fields.Char('Signal (button Name)', size=64),
-        'group': fields.Many2One('res.group', 'Group Required'),
-        'condition': fields.Char('Condition', required=True, size=128),
-        'act_from': fields.Many2One('workflow.activity', 'Source Activity',
-            required=True, select=1, ondelete='cascade'),
-        'act_to': fields.Many2One('workflow.activity', 'Destination Activity',
-            required=True, select=1, ondelete='cascade'),
-    }
-    _defaults = {
-        'condition': lambda *a: 'True',
-    }
+    trigger_model = fields.Char('Trigger Type', size=128)
+    trigger_expr_id = fields.Char('Trigger Expr ID', size=128)
+    signal = fields.Char('Signal (button Name)', size=64)
+    group = fields.Many2One('res.group', 'Group Required')
+    condition = fields.Char('Condition', required=True, size=128)
+    act_from = fields.Many2One('workflow.activity', 'Source Activity',
+       required=True, select=1, ondelete='cascade')
+    act_to = fields.Many2One('workflow.activity', 'Destination Activity',
+       required=True, select=1, ondelete='cascade')
+
+    def default_condition(self, cursor, user, context=None):
+        return 'True'
 
 WorkflowTransition()
 
@@ -114,13 +112,11 @@ class WorkflowInstance(OSV):
     _rec_name = 'res_type'
     _log_access = False
     _description = __doc__
-    _columns = {
-        'workflow': fields.Many2One('workflow', 'Workflow', ondelete="restrict"),
-        'uid': fields.Integer('User ID'),
-        'res_id': fields.Integer('Resource ID'),
-        'res_type': fields.Char('Resource Model', size=64),
-        'state': fields.Char('State', size=32),
-    }
+    workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict")
+    uid = fields.Integer('User ID')
+    res_id = fields.Integer('Resource ID')
+    res_type = fields.Char('Resource Model', size=64)
+    state = fields.Char('State', size=32)
 
     def _auto_init(self, cursor, module_name):
         super(WorkflowInstance, self)._auto_init(cursor, module_name)
@@ -143,15 +139,13 @@ class WorkflowWorkitem(OSV):
     _log_access = False
     _rec_name = 'state'
     _description = __doc__
-    _columns = {
-        'activity': fields.Many2One('workflow.activity', 'Activity',
-            required=True, ondelete="cascade"),
-        'subflow': fields.Many2One('workflow.instance', 'Subflow',
-            ondelete="cascade"),
-        'instance': fields.Many2One('workflow.instance', 'Instance',
-            required=True, ondelete="cascade", select=1),
-        'state': fields.Char('State', size=64),
-    }
+    activity = fields.Many2One('workflow.activity', 'Activity',
+       required=True, ondelete="cascade")
+    subflow = fields.Many2One('workflow.instance', 'Subflow',
+       ondelete="cascade")
+    instance = fields.Many2One('workflow.instance', 'Instance',
+       required=True, ondelete="cascade", select=1)
+    state = fields.Char('State', size=64)
 
 WorkflowWorkitem()
 
@@ -162,14 +156,12 @@ class WorkflowTrigger(OSV):
     _name = "workflow.trigger"
     _log_access = False
     _description = __doc__
-    _columns = {
-        'res_id': fields.Integer('Resource ID', size=128),
-        'model': fields.Char('Model', size=128),
-        'instance': fields.Many2One('workflow.instance',
-            'Destination Instance', ondelete="cascade"),
-        'workitem': fields.Many2One('workflow.workitem', 'Workitem',
-            required=True, ondelete="cascade"),
-    }
+    res_id = fields.Integer('Resource ID', size=128)
+    model = fields.Char('Model', size=128)
+    instance = fields.Many2One('workflow.instance',
+       'Destination Instance', ondelete="cascade")
+    workitem = fields.Many2One('workflow.workitem', 'Workitem',
+       required=True, ondelete="cascade")
 
     def _auto_init(self, cursor, module_name):
         super(WorkflowTrigger, self)._auto_init(cursor, module_name)

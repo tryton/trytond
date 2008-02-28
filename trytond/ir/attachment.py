@@ -9,29 +9,27 @@ class Attachment(OSV):
     "Attachment"
     _name = 'ir.attachment'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Attachment Name',size=64, required=True),
-        'datas': fields.Function('datas', fnct_inv='datas_inv',
-            type='binary', string='Datas'),
-        'description': fields.Text('Description'),
-        'res_model': fields.Char('Resource Model',size=64,
-            readonly=True, required=True),
-        'res_id': fields.Integer('Resource ID', readonly=True,
-            required=True),
-        'link': fields.Char('Link', size=256),
-        'digest': fields.Char('Digest', size=32),
-        'collision': fields.Integer('Collision'),
-        'datas_size': fields.Function('datas', type='integer',
-            string='Datas size'),
-    }
-    _defaults = {
-        'collision': lambda *a: 0,
-    }
+    name = fields.Char('Attachment Name',size=64, required=True)
+    datas = fields.Function('datas', fnct_inv='datas_inv',
+       type='binary', string='Datas')
+    description = fields.Text('Description')
+    res_model = fields.Char('Resource Model',size=64,
+       readonly=True, required=True)
+    res_id = fields.Integer('Resource ID', readonly=True,
+       required=True)
+    link = fields.Char('Link', size=256)
+    digest = fields.Char('Digest', size=32)
+    collision = fields.Integer('Collision')
+    datas_size = fields.Function('datas', type='integer',
+       string='Datas size')
     _sql_constraints = [
         ('res_model_res_id_name',
             'UNIQUE (res_model, res_id, name)',
             'Error! You can not create attachment with the same name!'),
     ]
+
+    def default_collision(self, cursor, user, context=None):
+        return 0
 
     def datas(self, cursor, user, ids, name, arg, context=None):
         res = {}
@@ -104,7 +102,7 @@ class Attachment(OSV):
             file_p.close()
         cursor.execute('UPDATE ir_attachment ' \
                 'SET digest = %s, ' \
-                    'collision = %d ' \
-                'WHERE id = %d', (digest, collision, obj_id))
+                    'collision = %s ' \
+                'WHERE id = %s', (digest, collision, obj_id))
 
 Attachment()
