@@ -216,6 +216,8 @@ class Wizard(object):
         if result_def['type'] == 'choice':
             next_state = getattr(self, result_def['next_state'])(cursor, user,
                     data, context)
+            if next_state == 'end':
+                return {'type': 'state', 'state': 'end'}
             return self.execute(cursor, user, data, next_state, context)
         return res
 
