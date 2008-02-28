@@ -5,20 +5,15 @@ from trytond import pooler
 from trytond.osv.fields import Integer
 import csv
 import os.path
-from trytond.netsvc import Logger, LOG_ERROR, LOG_INFO, LocalService
+from trytond.netsvc import Logger, LOG_ERROR, LOG_INFO, LocalService, LOG_WARNING
 from trytond.config import CONFIG
 from trytond.version import VERSION
 import logging
+import time
+from xml import sax
 
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
-
-# TODO :
-# Add some exception helper, and give a good diagnostic for the errors
-
-
-from xml import sax
-
 
 class DummyTagHandler:
     """Dubhandler implementing empty methods. Will be used when whe
@@ -133,9 +128,8 @@ class MenuitemTagHandler:
             return self
         else:
 
-            res = self.mh.pool.get('ir.model.data').import_record(
-                self.mh.cursor, self.mh.user,
-                'ir.ui.menu', self.mh.module, self.values, self.xml_id)
+            res = self.mh.import_record(
+                'ir.ui.menu', self.values, self.xml_id)
             return None
 
     def current_state(self):
@@ -264,17 +258,71 @@ class RecordTagHandler:
             return self
 
         elif name == "record":
-            res = self.mh.pool.get('ir.model.data').import_record(
-                self.mh.cursor, self.mh.user,
-                self.model._name, self.mh.module, self.values, self.xml_id)
+            res = self.mh.import_record(
+                self.model._name, self.values, self.xml_id)
 
             return None
         else:
             raise Exception("Unexpected closing tag '%s'"% (name,))
 
     def current_state(self):
-        return "Tag record for model %s with id: %s"% \
+        return "Last tag record seen: model %s with id %s."% \
                (self.model and self.model._name or "?", self.xml_id)
+
+
+# Custom exception:
+class Unhandled_field(Exception):
+    """
+    Raised when a field type is not supported by the update mechanism.
+    """
+    pass
+
+class Fs2bdAccessor:
+    """
+    Used in TrytondXmlHandler.
+    Provide some helper function to ease cache access and management.
+    """
+
+    def __init__(self, cursor, user, modeldata_obj):
+        self.fs2db = {}
+        self.fetched_modules = []
+        self.modeldata_obj = modeldata_obj
+        self.cursor = cursor
+        self.user = user
+
+    def get(self, module, fs_id):
+        if module not in self.fetched_modules:
+            self.fetch_new_module(module)
+        return self.fs2db[module].get(fs_id, None)
+
+    def set(self, module, fs_id, values):
+        """
+        Whe call the prefetch function here to. Like that whe are sure
+        not to erase data when get is called.
+        """
+        if not module in self.fetched_modules:
+            self.fetch_new_module(module)
+        if fs_id not in self.fs2db[module]:
+            self.fs2db[module][fs_id] = {}
+        fs2db_val = self.fs2db[module][fs_id]
+        for key, val in values.items():
+            fs2db_val[key] = val
+
+    def fetch_new_module(self, module):
+        if module == "ir.ui.menu": raise
+        self.fs2db[module] = {}
+        module_data_ids = self.modeldata_obj.search(
+            self.cursor, self.user, [('module','=',module)]
+            )
+        for rec in self.modeldata_obj.browse(
+            self.cursor, self.user, module_data_ids):
+
+            self.fs2db[rec.module][rec.fs_id] = {
+                "db_id": rec.db_id, "model": rec.model,
+                "id": rec.id, "values": rec.values
+                }
+        self.fetched_modules.append(module)
+
 
 class TrytondXmlHandler(sax.handler.ContentHandler):
 
@@ -285,7 +333,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.cursor = cursor
         self.user = 0
         self.module = module
-
+        self.modeldata_obj = pool.get('ir.model.data')
+        self.fs2db = Fs2bdAccessor(cursor, self.user, self.modeldata_obj)
+        self.to_delete = self.populate_to_delete()
 
         # Tag handlders are used to delegate the processing
         self.taghandlerlist = {
@@ -297,15 +347,32 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         # Managed tags are handled by the current class
         self.managedtags= ["data", "tryton"]
 
+        # Connect to the sax api:
+        self.sax_parser = sax.make_parser()
+        # Tell the parser we are not interested in XML namespaces
+        self.sax_parser.setFeature(sax.handler.feature_namespaces, 0)
+        self.sax_parser.setContentHandler(self)
 
-    def get_id(self, xml_id):
 
-        module = self.module
-        if '.' in xml_id:
-            module, xml_id = xml_id.split('.')
+    def parse_xmlstream(self, stream):
+        """
+        Take a byte stream has input and parse the xml content.
+        """
 
-        return self.pool.get('ir.model.data').get_id(
-            self.cursor, self.user, module, xml_id)
+        source = sax.InputSource()
+        source.setByteStream(stream)
+
+        try:
+            self.sax_parser.parse(source)
+        except:
+            Logger().notify_channel(
+                "init", LOG_ERROR,
+                "Error while parsing xml file. Current state is:\n" +\
+                    self.current_state()
+                )
+
+            raise
+        return self.to_delete
 
     def startElement(self, name, attributes):
         """Rebind the current handler if necessary and call
@@ -347,35 +414,288 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         else:
             return "In top level tag"
 
-def convert_xml_import_sax(cursor, module, xmlstream):
+    def get_id(self, xml_id):
 
-    parser = sax.make_parser()
-    # Tell the parser we are not interested in XML namespaces
-    parser.setFeature(sax.handler.feature_namespaces, 0)
+        if '.' in xml_id:
+            module, xml_id = xml_id.split('.')
+        else:
+            module = self.module
 
-    handler = TrytondXmlHandler(
-        cursor=cursor,
-        pool=pooler.get_pool(cursor.dbname),
-        module=module,
-        )
+        if self.fs2db.get(module, xml_id) == None:
+            raise Exception("Reference to %s not found"% \
+                                ".".join([module,xml_id]))
+        return self.fs2db.get(module, xml_id)["db_id"]
 
-    parser.setContentHandler(handler)
-    source = sax.InputSource()
-    source.setByteStream(xmlstream)
 
-    try:
-        parser.parse(source)
-    except:
-        Logger().notify_channel(
-            "init", LOG_ERROR,
-            "Error while parsing xml file. Current state is:\n" +\
-            handler.current_state()
+
+    @staticmethod
+    def _clean_value(key, browse_record, object_ref):
+        """
+        Take a field name, a browse_record, and a reference to the
+        corresponding object.  Return a raw value has it must look on the
+        db.
+        """
+
+        # search the field type in the object or in a parent
+        if key in object_ref._columns:
+            field_type = object_ref._columns[key]._type
+        else:
+            field_type = object_ref._inherit_fields[key][2]._type
+
+        # handle the value regarding to the type
+        if field_type == 'many2one':
+            return browse_record[key] and browse_record[key].id or False
+        elif field_type in ['one2one', 'one2many', "many2many"]:
+            raise Unhandled_field()
+        else:
+            return browse_record[key]
+
+
+    def populate_to_delete(self):
+        """Create a list of all the records that whe should met in the update
+        process. The records that are not encountered are deleted from the
+        database in post_import."""
+
+        # Fetch the data in id descending order to avoid depedendcy
+        # problem when the corresponding recordds will be deleted:
+        module_data_ids = self.modeldata_obj.search(
+            self.cursor, self.user, [('module','=',self.module)],
+            order="id desc",
+            )
+        return [rec.fs_id for rec in self.modeldata_obj.browse(
+                self.cursor, self.user, module_data_ids)]
+
+    def import_record(self, model, values, fs_id):
+
+        cursor = self.cursor
+        module = self.module
+        user = self.user
+
+        if not fs_id:
+            raise Exception('import_record : Argument fs_id is mandatory')
+
+        if '.' in fs_id:
+            assert len(fs_id.split('.')) == 2, '"%s" contains too many dots. '\
+                    'file system ids should contain ot most one dot ! ' \
+                    'These are used to refer to other modules data, ' \
+                    'as in module.reference_id' % (fs_id)
+
+            module, fs_id = fs_id.split('.')
+
+        object_ref = self.pool.get(model)
+
+        if self.fs2db.get(module, fs_id):
+            # this record is already in the db:
+            # XXX maybe use only one call to get()
+            db_id, db_model, mdata_id, old_values = \
+                [self.fs2db.get(module, fs_id)[x] for x in \
+                     ["db_id","model","id","values"]
+                 ]
+
+            if old_values == None:
+                old_values = {}
+            else:
+                old_values = eval(old_values)
+
+
+            # Check if values for this record has been modified in the
+            # db, if not it's ok to overwrite them.
+            if model != db_model:
+                raise Exception("This record try to overwrite"
+                "data with the wrong model: %s (module: %s)"% (fs_id, module))
+
+            #Re-create object if it was deleted
+            if not object_ref.search(cursor, user, [('id', '=', db_id)]):
+                db_id = object_ref.create(cursor, user, values,
+                        context={'module': module})
+                data_id = self.modeldata_obj.search(cursor, user, [
+                    ('fs_id', '=', fs_id),
+                    ('module', '=', module),
+                    ], limit=1)[0]
+                self.modeldata_obj.write(cursor, user, data_id, {
+                    'db_id': db_id,
+                    })
+                self.fs2db.get(module, fs_id)["db_id"] = db_id
+
+            db_val = object_ref.browse(cursor, user, db_id)
+
+            to_update = {}
+            for key in values:
+
+                try:
+                    db_field = self._clean_value(key, db_val, object_ref)
+                except Unhandled_field:
+                    logger = Logger()
+                    logger.notify_channel('init', LOG_WARNING,
+                        'Field %s on %s : integrity not tested.'%(key, model))
+                    to_update[key] = values[key]
+                    continue
+
+                # if the fs value is the same has in the db, whe ignore it
+                if db_field == values[key]:
+                    continue
+
+                # we cannot update a field if it was changed by a user
+                if key not in  old_values:
+                    default_value = object_ref._defaults.get(
+                        key, lambda *a:None)(cursor, user)
+                    if db_field != default_value:
+                        logger = Logger()
+
+                        logger.notify_channel('init', LOG_WARNING,
+                            "Field %s of %s@%s not updated (id: %s), because "\
+                            "it has changed since the last update"% \
+                            (key, db_id, model, fs_id))
+                        continue
+
+                elif (old_values[key] and db_field) and \
+                         old_values[key] != db_field:
+                    logger = Logger()
+                    logger.notify_channel('init', LOG_WARNING,
+                        "Field %s of %s@%s not updated (id: %s), because "\
+                        "it has changed since the last update."%\
+                        (key, db_id, model, fs_id))
+                    continue
+
+                # so, the field in the fs and in the db are different,
+                # and no user changed the value in the db:
+                to_update[key] = values[key]
+
+            # if there is values to update:
+            if to_update:
+                # write the values in the db:
+                object_ref.write(cursor, user, db_id, to_update)
+                # re-read it: this ensure that we store the real value
+                # in the model_data table:
+                db_val = object_ref.browse(cursor, user, db_id)
+                for key in to_update:
+                    try:
+                        values[key] = self._clean_value(
+                            key, db_val, object_ref)
+                    except Unhandled_field:
+                        continue
+
+            if values != old_values:
+                self.modeldata_obj.write(cursor, user, mdata_id, {
+                    'fs_id': fs_id,
+                    'model': model,
+                    'module': module,
+                    'db_id': db_id,
+                    'values': str(values),
+                    'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
+                    })
+
+            # Remove this record from the to_delete list. This means that
+            # the corresponding record have been found.
+            if module == self.module:
+                self.to_delete.remove(fs_id)
+        else:
+            # this record is new, create it in the db:
+            db_id = object_ref.create(cursor, user, values,
+                    context={'module': module})
+            # re-read it: this ensure that we store the real value
+            # in the model_data table:
+            db_val = object_ref.browse(cursor, user, db_id)
+            for key in values:
+                try:
+                    values[key] = self._clean_value(key, db_val,
+                            object_ref)
+                except Unhandled_field:
+                    continue
+
+            mdata_id = self.modeldata_obj.create(cursor, user, {
+                'fs_id': fs_id,
+                'model': model,
+                'module': module,
+                'db_id': db_id,
+                'values': str(values),
+                })
+            # update fs2db:
+            self.fs2db.set(module, fs_id, {
+                    "db_id": db_id, "model": model,
+                    "id": mdata_id, "values": str(values)})
+
+
+def post_import(cursor, module, to_delete):
+    """
+    Remove the records that are given in to_delete.
+    """
+
+    user = 0
+    wf_service = LocalService("workflow")
+    mdata_unlink = []
+    pool = pooler.get_pool(cursor.dbname)
+    modeldata_obj = pool.get("ir.model.data")
+
+    mdata_ids = modeldata_obj.search(
+            cursor, user, [('fs_id','in',to_delete)],
+            order="id desc",
             )
 
-        raise
+    for mrec in modeldata_obj.browse(cursor, user, mdata_ids):
+        mdata_id, model,db_id = mrec.id, mrec.model, mrec.db_id
+
+        # Whe skip transitions, they will be deleted with the
+        # corresponding activity:
+        if model == 'workflow.transition':
+            continue
+
+        if model == 'workflow.activity':
+
+            wkf_todo = []
+            # search for records that are in the state/activity that
+            # we want to delete...
+            cursor.execute('SELECT res_type, db_id ' \
+                    'FROM wkf_instance ' \
+                    'WHERE id IN (' \
+                        'SELECT instance FROM wkf_workitem ' \
+                        'WHERE act_id = %d)', (db_id,))
+            #... connect the transitions backward...
+            wkf_todo.extend(cursor.fetchall())
+            cursor.execute("UPDATE wkf_transition " \
+                    "SET condition = 'True', role_id = NULL, " \
+                        "signal = NULL, act_to = act_from, " \
+                        "act_from = %d " \
+                    "WHERE act_to = %d", (db_id, db_id))
+            # ... and force the record to follow them:
+            for wkf_model,wkf_model_id in wkf_todo:
+                wf_service = netsvc.LocalService("workflow")
+                wf_service.trg_write(uid, model, id, cr)
+
+            # Collect the ids of these transition in model_data
+            cursor.execute(
+                "SELECT md.id FROM ir_model_data md " \
+                    "JOIN wkf_transition t ON "\
+                    "(md.model='workflow.transition' and md.db_id=t.id)" \
+                    "WHERE t.act_to = %d", (db_id,))
+            mdata_unlink.extend([x[0] for x in cr.fetchall()])
+
+            # And finally delete the transitions
+            cursor.execute("DELETE FROM wkf_transition " \
+                    "WHERE act_to = %d", (db_id,))
+
+            wf_service.trg_write(user, model, db_id, cursor)
+
+
+        logger = Logger()
+        logger.notify_channel('init', LOG_INFO,
+                'Deleting %s@%s' % (db_id, model))
+        try:
+            # Deletion of the record
+            pool.get(model).unlink(cursor, user, db_id)
+            mdata_unlink.append(mdata_id)
+        except:
+            raise
+            logger.notify_channel('init', LOG_ERROR,
+                    'Could not delete id: %d of model %s\n' \
+                            'There should be some relation ' \
+                            'that points to this resource\n' \
+                            'You should manually fix this ' \
+                            'and restart --update=module' % \
+                            (db_id, model))
+
+    # Clean model_data: 
+    if mdata_unlink:
+        modeldata_obj.unlink(cursor, user, mdata_unlink)
 
     return True
-
-
-# use  convert_xml_import_sax or convert_xml_import_dom
-convert_xml_import = convert_xml_import_sax
