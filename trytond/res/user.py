@@ -5,6 +5,7 @@ from xml import dom
 from xml.dom import minidom
 from trytond.osv import fields, OSV, ExceptOSV
 #from trytond.tools import Cache
+from trytond.wizard import Wizard, WizardOSV
 
 
 class Group(OSV):
@@ -80,6 +81,18 @@ class User(OSV):
 
     def default_timezone(self, cursor, user, context=None):
         return time.tzname[0]
+
+    def default_menu(self, cursor, user, context=None):
+        action_obj = self.pool.get('ir.action')
+        action_ids = action_obj.search(cursor, user, [
+            ('usage', '=', 'menu'),
+            ], limit=1, context=context)
+        if action_ids:
+            return action_ids[0]
+        return False
+
+    def default_action(self, cursor, user, context=None):
+        return self.default_menu(cursor, user, context=context)
 
     def __init__(self, pool):
         super(User, self).__init__(pool)
@@ -215,3 +228,50 @@ class Group2(Group):
         'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
 
 Group2()
+
+
+class UserConfigInit(WizardOSV):
+    _name = 'res.user.config.init'
+
+UserConfigInit()
+
+
+class UserConfig(Wizard):
+    'Configure users'
+    _name = 'res.user.config'
+    states = {
+        'init': {
+            'result': {
+                'type': 'form',
+                'object': 'res.user.config.init',
+                'state': [
+                    ('end', 'Cancel', 'gtk-cancel'),
+                    ('user', 'Ok', 'gtk-ok', True),
+                ],
+            },
+        },
+        'user': {
+            'result': {
+                'type': 'form',
+                'object': 'res.user',
+                'state': [
+                    ('end', 'End', 'gtk-cancel'),
+                    ('add', 'Add', 'gtk-ok', True),
+                ],
+            },
+        },
+        'add': {
+            'result': {
+                'type': 'action',
+                'action': '_add',
+                'state': 'user',
+            },
+        },
+    }
+
+    def _add(self, cursor, user, data, context=None):
+        res_obj = self.pool.get('res.user')
+        res_obj.create(cursor, user, data['form'], context=context)
+        return {'form': {}}
+
+UserConfig()

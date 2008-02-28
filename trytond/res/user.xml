@@ -9,7 +9,7 @@
             <field name="password">admin</field>
             <field name="name">Administrator</field>
             <field name="signature">Administrator</field>
-            <field name="action" ref="ir.act_menu_tree"/>
+            <field name="action" ref="ir.act_module_config_wizard"/>
             <field name="menu" ref="ir.act_menu_tree"/>
             <field name="groups" eval="[(6, 0, [ref('group_admin')])]"/>
         </record>
@@ -177,6 +177,28 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
+        </record>
+        <record model="ir.ui.view" id="user_config_init_view_form">
+            <field name="model">res.user.config.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Add Users" col="2">
+                    <separator string="Add Users" align="0.0" colspan="2"/>
+                    <image name="gtk-info"/>
+                    <group col="1">
+                        <label string="You can now add some users into the system."
+                            align="0.0"/>
+                        <label string="Be careful that the login must be unique!"
+                            align="0.0"/>
+                    </group>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.module.module.config_wizard.item"
+            id="config_wizard_item_user">
+            <field name="name">res.user.config</field>
         </record>
     </data>
 </tryton>
