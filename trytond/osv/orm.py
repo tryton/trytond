@@ -1502,6 +1502,9 @@ class ORM(object):
         user = user id
         vals = dictionary of the form {'field_name': field_value, ...}
         """
+
+        vals = vals.copy()
+
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'create')
 
