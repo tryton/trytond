@@ -462,7 +462,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             self.cursor, self.user, [('module','=',self.module)],
             order="id desc",
             )
-        return [(rec.id,rec.model,rec.db_id) for rec in self.modeldata_obj.browse(
+        return [rec.fs_id for rec in self.modeldata_obj.browse(
                 self.cursor, self.user, module_data_ids)]
 
     def import_record(self, model, values, fs_id):
@@ -588,7 +588,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # Remove this record from the to_delete list. This means that
             # the corresponding record have been found.
             if module == self.module:
-                self.to_delete.remove((mdata_id, model, db_id))
+                self.to_delete.remove(fs_id)
         else:
             # this record is new, create it in the db:
             db_id = object_ref.create(cursor, user, values,
@@ -627,7 +627,13 @@ def post_import(cursor, module, to_delete):
     pool = pooler.get_pool(cursor.dbname)
     modeldata_obj = pool.get("ir.model.data")
 
-    for mdata_id, model,db_id in to_delete:
+    mdata_ids = modeldata_obj.search(
+            cursor, user, [('fs_id','in',to_delete)],
+            order="id desc",
+            )
+
+    for mrec in modeldata_obj.browse(cursor, user, mdata_ids):
+        mdata_id, model,db_id = mrec.id, mrec.model, mrec.db_id
 
         # Whe skip transitions, they will be deleted with the
         # corresponding activity:
