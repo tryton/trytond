@@ -176,7 +176,7 @@ def init_module_wizards(cursor, module_name, wizard_list):
 def load_module_graph(cursor, graph, lang=None):
     if lang is None:
         lang = ['en_US']
-    package_todo = []
+    modules_todo = []
     for package in graph:
         module = package.name
         Logger().notify_channel('init', LOG_INFO, 'module:%s' % module)
@@ -199,6 +199,13 @@ def load_module_graph(cursor, graph, lang=None):
             init_module_wizards(cursor, module, wizards)
             demo = hasattr(package, 'demo') \
                     or (package_demo and package_state != 'installed')
+
+            #Instanciate a new parser for the package:
+            tryton_parser = tools.TrytondXmlHandler(
+                cursor=cursor,
+                pool=pooler.get_pool(cursor.dbname),
+                module=module,)
+
             for filename in package.datas.get('xml', []):
                 mode = 'update'
                 if hasattr(package, 'init') or package_state=='to install':
@@ -215,8 +222,12 @@ def load_module_graph(cursor, graph, lang=None):
                             if new_query:
                                 cursor.execute(new_query)
                 else:
-                    tools.convert_xml_import(cursor, module,
-                            tools.file_open(OPJ(module, filename)))
+                    # Feed the parser with xml content:
+                    tryton_parser.parse_xmlstream(
+                        tools.file_open(OPJ(module, filename)))
+
+            modules_todo.append((module, tryton_parser.to_delete))
+
             for filename in package.datas.get('translation', []):
                 lang2 = os.path.splitext(filename)[0]
                 if lang2 not in lang:
@@ -229,14 +240,18 @@ def load_module_graph(cursor, graph, lang=None):
             if demo:
                 cursor.execute('UPDATE ir_module_module SET demo = %s ' \
                         'WHERE name = %s', (True, package.name))
-            package_todo.append(package.name)
+
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))
         cursor.commit()
 
-    pool = pooler.get_pool(cursor.dbname)
-    # TODO : post_import is called even if there not init nor update
-    pool.get('ir.model.data').post_import(cursor, 0, package_todo)
+
+    # Vacuum :
+    while modules_todo:
+        (module, to_delete) = modules_todo.pop()
+        tools.post_import(cursor, module, to_delete)
+
+
     cursor.commit()
 
 def get_module_list():
