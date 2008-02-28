@@ -130,11 +130,11 @@ class User(OSV):
     def unlink(self, cursor, user, ids, context=None):
         if isinstance(ids, (int, long)):
             ids = [ids]
-        if 1 in ids:
+        if 0 in ids:
             raise ExceptOSV('UserError',
                     'You can not remove the root user\n' \
                             'as it is used internally for resources\n' \
-                            'created by Tiny ERP ' \
+                            'created by the system ' \
                             '(updates, module installation, ...)')
         return super(User, self).unlink(cursor, user, ids, context=context)
 
