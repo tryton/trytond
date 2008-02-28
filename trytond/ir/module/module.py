@@ -449,6 +449,102 @@ class ModuleDependency(OSV):
 ModuleDependency()
 
 
+class ModuleConfigWizardItem(OSV):
+    "Config wizard to run after installing module"
+    _name = 'ir.module.module.config_wizard.item'
+    _description = __doc__
+    name = fields.Char('Name', size=64, required=True, readonly=True)
+    sequence= fields.Integer('Sequence')
+    state = fields.Selection([
+        ('open', 'Open'),
+        ('done', 'Done'),
+        ], string='State', required=True)
+    _order = 'sequence'
+
+    def default_state(self, cursor, user, context=None):
+        return 'open'
+
+    def default_sequence(self, cursor, user, context=None):
+        return 10
+
+ModuleConfigWizardItem()
+
+
+class ModuleConfigWizardFirst(WizardOSV):
+    _name = 'ir.module.module.config_wizard.first'
+
+ModuleConfigWizardFirst()
+
+
+class ModuleConfigWizard(Wizard):
+    'Run config wizards'
+    _name = 'ir.module.module.config_wizard'
+    states = {
+        'init': {
+            'result': {
+                'type': 'choice',
+                'next_state': '_first',
+            },
+        },
+        'first': {
+            'result': {
+                'type': 'form',
+                'object': 'ir.module.module.config_wizard.first',
+                'state': [
+                    ('end', 'Cancel', 'gtk-cancel'),
+                    ('wizard', 'Ok', 'gtk-ok', True),
+                ],
+            },
+        },
+        'wizard': {
+            'result': {
+                'type': 'action',
+                'action': '_action_wizard',
+                'state': 'next',
+            },
+        },
+        'next': {
+            'result': {
+                'type': 'choice',
+                'next_state': '_next',
+            },
+        },
+    }
+
+    def _first(self, cursor, user, data, context=None):
+        res = self._next(cursor, user, data, context=context)
+        if res == 'wizard':
+            return 'first'
+        return res
+
+    def _action_wizard(self, cursor, user, data, context=None):
+        item_obj = self.pool.get('ir.module.module.config_wizard.item')
+        item_ids = item_obj.search(cursor, user, [
+            ('state', '=', 'open'),
+            ], limit=1, context=context)
+        if item_ids:
+            item = item_obj.browse(cursor, user, item_ids[0], context=context)
+            item_obj.write(cursor, user, item.id, {
+                'state': 'done',
+                }, context=context)
+            return {
+                    'type': 'ir.action.wizard',
+                    'wiz_name': item.name,
+                    }
+        return {}
+
+    def _next(self, cursor, user, data, context=None):
+        item_obj = self.pool.get('ir.module.module.config_wizard.item')
+        item_ids = item_obj.search(cursor, user, [
+            ('state', '=', 'open'),
+            ], context=context)
+        if item_ids:
+            return 'wizard'
+        return 'end'
+
+ModuleConfigWizard()
+
+
 class ModuleUpdateListInit(WizardOSV):
     _name = 'ir.module.module.update_list.init'
 
