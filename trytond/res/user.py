@@ -113,6 +113,8 @@ class User(OSV):
         return res
 
     def unlink(self, cursor, user, ids, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
         if 1 in ids:
             raise ExceptOSV('UserError',
                     'You can not remove the root user\n' \
