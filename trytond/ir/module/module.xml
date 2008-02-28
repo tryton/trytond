@@ -104,6 +104,56 @@
         </record>
         <menuitem parent="menu_modules"
             action="act_module_form" id="menu_module_form"/>
+        <record model="ir.ui.view" id="config_wizard_item_view_tree">
+            <field name="model">ir.module.module.config_wizard.item</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Config Wizard Items" editable="bottom">
+                    <field name="name"/>
+                    <field name="sequence"/>
+                    <field name="state"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_config_wizard_item_form">
+            <field name="name">Config Wizard Items</field>
+            <field name="res_model">ir.module.module.config_wizard.item</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_config_wizard_item_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="config_wizard_item_view_tree"/>
+            <field name="act_window" ref="act_config_wizard_item_form"/>
+        </record>
+        <menuitem parent="menu_modules"
+            action="act_config_wizard_item_form"
+            id="menu_config_wizard_item_form"/>
+        <record model="ir.action.wizard" id="act_module_config_wizard">
+            <field name="name">Module Configuration</field>
+            <field name="wiz_name">ir.module.module.config_wizard</field>
+        </record>
+        <record model="ir.ui.view" id="module_config_wizard_first_view_form">
+            <field name="model">ir.module.module.config_wizard.first</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Module Configuration Wizard" col="2">
+                    <separator string="Welcome to the module configuration wizard!"
+                        align="0.0" colspan="2"/>
+                    <image name="gtk-info"/>
+                    <group col="1">
+                        <label string="You will be able to configure your installation"
+                            align="0.0"/>
+                        <label string="depending on the modules you have installed."
+                            align="0.0"/>
+                    </group>
+                </form>
+                ]]>
+            </field>
+        </record>
         <record model="ir.action.wizard" id="act_module_update_list">
             <field name="name">Update Module List</field>
             <field name="wiz_name">ir.module.module.update_list</field>
