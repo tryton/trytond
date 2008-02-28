@@ -456,8 +456,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         process. The records that are not encountered are deleted from the
         database in post_import."""
 
+        # Fetch the data in id descending order to avoid depedendcy
+        # problem when the corresponding recordds will be deleted:
         module_data_ids = self.modeldata_obj.search(
-            self.cursor, self.user, [('module','=',self.module)]
+            self.cursor, self.user, [('module','=',self.module)],
+            order="id desc",
             )
         return [(rec.id,rec.model,rec.db_id) for rec in self.modeldata_obj.browse(
                 self.cursor, self.user, module_data_ids)]
@@ -623,10 +626,6 @@ def post_import(cursor, module, to_delete):
     mdata_unlink = []
     pool = pooler.get_pool(cursor.dbname)
     modeldata_obj = pool.get("ir.model.data")
-
-    # Sort by model_data id descending and thus avoiding most
-    # dependency problems:
-    to_delete.sort(key= lambda x : -x[0])
 
     for mdata_id, model,db_id in to_delete:
 
