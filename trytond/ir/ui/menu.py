@@ -112,8 +112,8 @@ class Many2ManyUniq(fields.Many2Many):
         for act in values:
             if act[0] == 4:
                 cursor.execute('SELECT * FROM ' + self._rel + ' ' \
-                        'WHERE ' + self._id1 + ' = %d ' \
-                            'AND ' + self._id2 + ' = %d',
+                        'WHERE ' + self._id1 + ' = %s ' \
+                            'AND ' + self._id2 + ' = %s',
                         (obj_id, act[1]))
                 if cursor.fetchall():
                     val.remove(act)
@@ -125,30 +125,30 @@ class UIMenu(OSV):
     "UI menu"
     _name = 'ir.ui.menu'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Menu', size=64, required=True, translate=True),
-        'sequence': fields.Integer('Sequence'),
-        'childs' : fields.One2Many('ir.ui.menu', 'parent','Childs'),
-        'parent': fields.Many2One('ir.ui.menu', 'Parent Menu', select=1),
-        'groups': Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
-            'menu_id', 'gid', 'Groups'),
-        'complete_name': fields.Function('get_full_name',
-            string='Complete Name', type='char', size=128),
-        'icon': fields.selection(ICONS, 'Icon', size=64),
-        'action': fields.Function('action', fnct_inv='action_inv',
-            type='reference', string='Action',
-            selection=[
-                ('ir.action.report', 'ir.action.report'),
-                ('ir.action.act_window', 'ir.action.act_window'),
-                ('ir.action.wizard', 'ir.action.wizard'),
-                ('ir.action.url', 'ir.action.url'),
-                ]),
-    }
-    _defaults = {
-        'icon' : lambda *a: 'STOCK_OPEN',
-        'sequence' : lambda *a: 10,
-    }
+    name = fields.Char('Menu', size=64, required=True, translate=True)
+    sequence = fields.Integer('Sequence')
+    childs = fields.One2Many('ir.ui.menu', 'parent','Childs')
+    parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1)
+    groups = Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
+       'menu_id', 'gid', 'Groups')
+    complete_name = fields.Function('get_full_name',
+       string='Complete Name', type='char', size=128)
+    icon = fields.selection(ICONS, 'Icon', size=64)
+    action = fields.Function('get_action', fnct_inv='action_inv',
+       type='reference', string='Action',
+       selection=[
+           ('ir.action.report', 'ir.action.report'),
+           ('ir.action.act_window', 'ir.action.act_window'),
+           ('ir.action.wizard', 'ir.action.wizard'),
+           ('ir.action.url', 'ir.action.url'),
+           ])
     _order = "sequence, id"
+
+    def default_icon(self, cursor, user, context=None):
+        return 'STOCK_OPEN'
+
+    def default_sequence(self, cursor, user, context=None):
+        return 10
 
     def get_full_name(self, cursor, user, ids, name, args, context):
         res = {}
@@ -165,7 +165,7 @@ class UIMenu(OSV):
             parent_path = ''
         return parent_path + menu.name
 
-    def action(self, cursor, user, ids, name, arg, context=None):
+    def get_action(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for menu_id in ids:
             res[menu_id] = False
@@ -220,7 +220,7 @@ class UIMenu(OSV):
         if 'module' in context:
             cursor.execute('INSERT INTO ir_translation ' \
                     '(name, lang, type, src, res_id, value, module) ' \
-                    'VALUES (%s, %s, %s, %s, %d, %s, %s)',
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                     ('ir.ui.menu,name', 'en_US', 'model', vals['name'],
                         new_id, '', context.get('module')))
         return new_id

@@ -9,8 +9,8 @@
                 <form string="Record rules">
                     <label name="model"/>
                     <field name="model"/>
-                    <label name="global"/>
-                    <field name="global"/>
+                    <label name="global_p"/>
+                    <field name="global_p"/>
                     <label name="name"/>
                     <field name="name" colspan="3"/>
                     <field name="rules" colspan="4"/>
@@ -30,7 +30,7 @@
                 <tree string="Record rules">
                     <field name="model"/>
                     <field name="name"/>
-                    <field name="global"/>
+                    <field name="global_p"/>
                 </tree>
               ]]>
             </field>

@@ -156,7 +156,7 @@ class Wizard(object):
                         cursor.execute('UPDATE ir_translation ' \
                                 'SET src = %s, ' \
                                     'fuzzy = True '
-                                'WHERE id = %d', (button_value, res[0]['id']))
+                                'WHERE id = %s', (button_value, res[0]['id']))
 
     def execute(self, cursor, user, data, state='init', context=None):
         if context is None:
@@ -171,7 +171,7 @@ class Wizard(object):
         # iterate through the list of actions defined for this state
         for action in state_def.get('actions', []):
             # execute them
-            action_res = action(self, cursor, user, data, context)
+            action_res = getattr(self, action)(cursor, user, data, context)
             assert isinstance(action_res, dict), \
                     'The return value of wizard actions ' \
                     'should be a dictionary'
@@ -182,8 +182,8 @@ class Wizard(object):
 
         lang = context.get('language', 'en_US')
         if result_def['type'] == 'action':
-            res['action'] = result_def['action'](self, cursor, user, data,
-                    context)
+            res['action'] = getattr(self, result_def['action'])(cursor, user,
+                    data, context)
         elif result_def['type'] == 'form':
             obj = self.pool.get(result_def['object'])
 
@@ -214,7 +214,7 @@ class Wizard(object):
             res['arch'] = arch
             res['state'] = button_list
         if result_def['type'] == 'choice':
-            next_state = result_def['next_state'](self, cursor, user,
+            next_state = getattr(self, result_def['next_state'])(cursor, user,
                     data, context)
             return self.execute(cursor, user, data, next_state, context)
         return res

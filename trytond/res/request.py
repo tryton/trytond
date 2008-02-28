@@ -7,63 +7,67 @@ class Request(OSV):
     _name = 'res.request'
     _table = 'res_request'
     _description = __doc__
-    _columns = {
-        'create_date': fields.DateTime('Created date', readonly=True),
-        'name': fields.Char('Subject', states={
-            'readonly': "state in ('waiting', 'active', 'closed')",
-            }, required=True, size=128),
-        'active': fields.Boolean('Active'),
-        'priority': fields.Selection([
-            ('0', 'Low'),
-            ('1', 'Normal'),
-            ('2', 'High'),
-            ], 'Priority', states={
-                'readonly': "state in ('waiting', 'closed')",
-                }, required=True),
-        'act_from': fields.Many2One('res.user', 'From', required=True,
-            readonly=True, states={
-                'readonly': "state == 'closed'",
-                }),
-        'act_to': fields.Many2One('res.user', 'To', required=True,
-            states={
-                'readonly': "state in ('waiting', 'closed')",
-                }),
-        'body': fields.Text('Request', states={
-            'readonly': "state in ('waiting', 'closed')",
-            }),
-        'date_sent': fields.DateTime('Date', readonly=True),
-        'trigger_date': fields.DateTime('Trigger Date', states={
-            'readonly': "state in ('waiting', 'closed')",
-            }),
-#        'ref_partner_id': fields.Many2One('res.partner', 'Partner Ref.',
-#            states={
-#                'closed': [('readonly', True)],
-#                }),
-        #TODO: use one2many instead limit number of reference
-        'ref_doc1': fields.Reference('Document Ref 1', selection='links_get',
-            size=128, states={
-                'readonly': "state == 'closed'",
-                }),
-        'ref_doc2': fields.Reference('Document Ref 2', selection='links_get',
-            size=128, states={
-                'readonly': "state == 'closed'",
-                }),
-        'state': fields.Selection([
-            ('draft', 'draft'),
-            ('waiting', 'waiting'),
-            ('active', 'active'),
-            ('closed', 'closed'),
-            ], 'State', required=True, readonly=True),
-        'history': fields.One2Many('res.request.history', 'request',
-                'History', readonly=True),
-    }
-    _defaults = {
-        'act_from': lambda obj, cursor, user, context: user,
-        'state': lambda *a: 'draft',
-        'active': lambda *a: True,
-        'priority': lambda *a: '1',
-    }
+    create_date = fields.DateTime('Created date', readonly=True)
+    name = fields.Char('Subject', states={
+       'readonly': "state in ('waiting', 'active', 'closed')",
+       }, required=True, size=128)
+    active = fields.Boolean('Active')
+    priority = fields.Selection([
+       ('0', 'Low'),
+       ('1', 'Normal'),
+       ('2', 'High'),
+       ], 'Priority', states={
+           'readonly': "state in ('waiting', 'closed')",
+           }, required=True)
+    act_from = fields.Many2One('res.user', 'From', required=True,
+       readonly=True, states={
+           'readonly': "state == 'closed'",
+           })
+    act_to = fields.Many2One('res.user', 'To', required=True,
+       states={
+           'readonly': "state in ('waiting', 'closed')",
+           })
+    body = fields.Text('Request', states={
+       'readonly': "state in ('waiting', 'closed')",
+       })
+    date_sent = fields.DateTime('Date', readonly=True)
+    trigger_date = fields.DateTime('Trigger Date', states={
+       'readonly': "state in ('waiting', 'closed')",
+       })
+#   'ref_partner_id': fields.Many2One('res.partner', 'Partner Ref.',
+#       states={
+#           'closed': [('readonly', True)],
+#           })
+#    TODO: use one2many instead limit number of reference
+    ref_doc1 = fields.Reference('Document Ref 1', selection='links_get',
+       size=128, states={
+           'readonly': "state == 'closed'",
+           })
+    ref_doc2 = fields.Reference('Document Ref 2', selection='links_get',
+       size=128, states={
+           'readonly': "state == 'closed'",
+           })
+    state = fields.Selection([
+       ('draft', 'draft'),
+       ('waiting', 'waiting'),
+       ('active', 'active'),
+       ('closed', 'closed'),
+       ], 'State', required=True, readonly=True)
+    history = fields.One2Many('res.request.history', 'request',
+           'History', readonly=True)
     _order = 'priority DESC, trigger_date, create_date DESC'
+
+    def default_act_from(self, cursor, user, context=None):
+        return user
+
+    def default_state(self, cursor, user, context=None):
+        return 'draft'
+
+    def default_active(self, cursor, user, context=None):
+        return 1
+
+    def default_priority(self, cursor, user, context=None):
+        return '1'
 
     def __init__(self, pool):
         super(Request, self).__init__(pool)
@@ -120,12 +124,12 @@ class Request(OSV):
 
     def request_get(self, cursor, user):
         cursor.execute('SELECT id FROM res_request ' \
-                'WHERE act_to = %d ' \
+                'WHERE act_to = %s ' \
                     'AND (trigger_date <= %s OR trigger_date IS NULL) ' \
                     'AND active = True', (user, time.strftime('%Y-%m-%d')))
         ids = [x[0] for x in cursor.fetchall()]
         cursor.execute('SELECT id FROM res_request ' \
-                'WHERE act_from = %d AND (act_to <> %d) ' \
+                'WHERE act_from = %s AND (act_to <> %s) ' \
                     'AND (trigger_date <= %s OR trigger_date IS NULL) ' \
                     'AND active = True',
                     (user, user, time.strftime('%Y-%m-%d')))
@@ -139,15 +143,13 @@ class RequestLink(OSV):
     "Request link"
     _name = 'res.request.link'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=64, required=True, translate=True),
-        'object': fields.Char('Object', size=64, required=True),
-        'priority': fields.Integer('Priority'),
-    }
-    _defaults = {
-        'priority': lambda *a: 5,
-    }
+    name = fields.Char('Name', size=64, required=True, translate=True)
+    object = fields.Char('Object', size=64, required=True)
+    priority = fields.Integer('Priority')
     _order = 'priority'
+
+    def default_priority(self, cursor, user, context=None):
+        return 5
 
 RequestLink()
 
@@ -156,21 +158,25 @@ class RequestHistory(OSV):
     "Request history"
     _name = 'res.request.history'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Summary', size=128, required=True),
-        'request': fields.Many2One('res.request', 'Request', required=True,
-            ondelete='cascade', select=True),
-        'act_from': fields.Many2One('res.user', 'From', required=True,
-            readonly=True),
-        'act_to': fields.Many2One('res.user', 'To', required=True),
-        'body': fields.Text('Body'),
-        'date_sent': fields.DateTime('Date sent', required=True)
-    }
-    _defaults = {
-        'name': lambda *a: 'NoName',
-        'act_from': lambda obj, cursor, user, context: user,
-        'act_to': lambda obj, cursor, user, context: user,
-        'date_sent': lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'),
-    }
+    name = fields.Char('Summary', size=128, required=True)
+    request = fields.Many2One('res.request', 'Request', required=True,
+       ondelete='cascade', select=True)
+    act_from = fields.Many2One('res.user', 'From', required=True,
+       readonly=True)
+    act_to = fields.Many2One('res.user', 'To', required=True)
+    body = fields.Text('Body')
+    date_sent = fields.DateTime('Date sent', required=True)
+
+    def default_name(self, cursor, user, context=None):
+        return 'No Name'
+
+    def default_act_from(self, cursor, user, context=None):
+        return user
+
+    def default_act_to(self, cursor, user, context=None):
+        return user
+
+    def default_date_sent(self, cursor, user, context=None):
+        return time.strftime('%Y-%m-%d %H:%M:%S')
 
 RequestHistory()

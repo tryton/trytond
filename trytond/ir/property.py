@@ -6,13 +6,11 @@ class Property(OSV):
     "Property"
     _name = 'ir.property'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=128),
-        'value': fields.Reference('Value', selection='models_get2', size=128),
-        'res': fields.Reference('Resource', selection='models_get', size=128),
-        'field': fields.Many2One('ir.model.field', 'Field',
-            ondelete='cascade', required=True)
-    }
+    name = fields.Char('Name', size=128)
+    value = fields.Reference('Value', selection='models_get2', size=128)
+    res = fields.Reference('Resource', selection='models_get', size=128)
+    field = fields.Many2One('ir.model.field', 'Field',
+       ondelete='cascade', required=True)
 
     def __init__(self, pool):
         super(Property, self).__init__(pool)

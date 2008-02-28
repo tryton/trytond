@@ -6,10 +6,8 @@ class SequenceType(OSV):
     "Sequence type"
     _name = 'ir.sequence.type'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Sequence Name',size=64, required=True),
-        'code': fields.Char('Sequence Code',size=32, required=True),
-    }
+    name = fields.Char('Sequence Name',size=64, required=True)
+    code = fields.Char('Sequence Code',size=32, required=True)
 
 SequenceType()
 
@@ -18,23 +16,27 @@ class Sequence(OSV):
     "Sequence"
     _name = 'ir.sequence'
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Sequence Name',size=64, required=True),
-        'code': fields.Selection('code_get', 'Sequence Code',size=64,
-            required=True),
-        'active': fields.Boolean('Active'),
-        'prefix': fields.Char('Prefix',size=64),
-        'suffix': fields.Char('Suffix',size=64),
-        'number_next': fields.Integer('Next Number', required=True),
-        'number_increment': fields.Integer('Increment Number', required=True),
-        'padding' : fields.Integer('Number padding', required=True),
-    }
-    _defaults = {
-        'active': lambda *a: True,
-        'number_increment': lambda *a: 1,
-        'number_next': lambda *a: 1,
-        'padding' : lambda *a : 0,
-    }
+    name = fields.Char('Sequence Name',size=64, required=True)
+    code = fields.Selection('code_get', 'Sequence Code',size=64,
+       required=True)
+    active = fields.Boolean('Active')
+    prefix = fields.Char('Prefix',size=64)
+    suffix = fields.Char('Suffix',size=64)
+    number_next = fields.Integer('Next Number', required=True)
+    number_increment = fields.Integer('Increment Number', required=True)
+    padding = fields.Integer('Number padding', required=True)
+
+    def default_active(self, cursor, user, context=None):
+        return 1
+
+    def default_number_increment(self, cursor, user, context=None):
+        return 1
+
+    def default_number_next(self, cursor, user, context=None):
+        return 1
+
+    def default_padding(self, cursor, user, context=None):
+        return 0
 
     def __init__(self, pool):
         super(Sequence, self).__init__(pool)
@@ -54,7 +56,7 @@ class Sequence(OSV):
                 'day':time.strftime('%d'),
                 }
 
-    def get_id(self, cursor, user, sequence_id, test='id=%d'):
+    def get_id(self, cursor, user, sequence_id, test='id=%s'):
         cursor.execute('lock table ir_sequence')
         cursor.execute('SELECT id, number_next, number_increment, prefix, ' \
                     'suffix, padding ' \
@@ -64,7 +66,7 @@ class Sequence(OSV):
         if res:
             cursor.execute('UPDATE ir_sequence ' \
                     'SET number_next = number_next + number_increment ' \
-                    'WHERE id = %d AND active = True', (res['id'],))
+                    'WHERE id = %s AND active = True', (res['id'],))
             if res['number_next']:
                 return self._process(res['prefix']) + \
                         '%%0%sd' % res['padding'] % res['number_next'] + \

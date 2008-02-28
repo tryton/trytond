@@ -29,22 +29,17 @@ class Translation(OSV, Cacheable):
     "Translation"
     _name = "ir.translation"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Field Name', size=128, required=True),
-        'res_id': fields.Integer('Resource ID'),
-        'lang': fields.Selection('get_language', string='Language', size=5),
-        'type': fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
-            required=True),
-        'src': fields.Text('Source'),
-        'value': fields.Text('Translation Value'),
-        'module': fields.Char('Module', size=128, readonly=True),
-        'fuzzy': fields.Boolean('Fuzzy'),
-        'model': fields.Function('model', fnct_search='model_search',
-            type='char', string='Model'),
-    }
-    _defaults = {
-        'fuzzy': lambda *a: 0,
-    }
+    name = fields.Char('Field Name', size=128, required=True)
+    res_id = fields.Integer('Resource ID')
+    lang = fields.Selection('get_language', string='Language', size=5),
+    type = fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
+       required=True)
+    src = fields.Text('Source')
+    value = fields.Text('Translation Value')
+    module = fields.Char('Module', size=128, readonly=True)
+    fuzzy = fields.Boolean('Fuzzy')
+    model = fields.Function('get_model', fnct_search='model_search',
+       type='char', string='Model')
     _sql_constraints = [
         ('translation_uniq', 'UNIQUE (name, res_id, lang, type, src)',
             'Translation must be unique'),
@@ -54,6 +49,9 @@ class Translation(OSV, Cacheable):
         CREATE INDEX ir_translation_res_id ON ir_translation (res_id);
     """
 
+    def default_fuzzy(self, cursor, user, context=None):
+        return 0
+
     def __init__(self, pool):
         super(Translation, self).__init__(pool)
         if pool:
@@ -61,7 +59,7 @@ class Translation(OSV, Cacheable):
                 'get_language',
             ]
 
-    def model(self, cursor, user, ids, name, arg, context=None):
+    def get_model(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for translation in self.browse(cursor, user, ids, context=context):
             res[translation.id] = translation.name.split(',')[0]
@@ -216,7 +214,7 @@ class Translation(OSV, Cacheable):
                 'selection'):
             cursor.execute('SELECT module FROM ir_translation ' \
                     'WHERE name = %s ' \
-                        'AND res_id = %d ' \
+                        'AND res_id = %s ' \
                         'AND lang = %s ' \
                         'AND type = %s ' \
                         'AND src = %s ',
@@ -228,7 +226,7 @@ class Translation(OSV, Cacheable):
         else:
             cursor.execute('SELECT module, src FROM ir_translation ' \
                     'WHERE name = %s ' \
-                        'AND res_id = %d ' \
+                        'AND res_id = %s ' \
                         'AND lang = %s ' \
                         'AND type = %s',
                     (vals.get('name', ''), vals.get('res_id', 0), 'en_US',
@@ -306,7 +304,7 @@ class Translation(OSV, Cacheable):
                 cursor.execute('SELECT id FROM ir_translation ' \
                         'WHERE (write_uid IS NULL OR write_uid = 0) ' \
                             'AND id IN ' \
-                                '(' + ','.join(['%d' for x in ids]) + ')',
+                                '(' + ','.join(['%s' for x in ids]) + ')',
                         ids)
                 ids2 = [x[0] for x in cursor.fetchall()]
                 if ids2:
@@ -370,10 +368,8 @@ class TranslationUpdateInit(WizardOSV):
     "Update translation - language"
     _name = 'ir.translation.update.init'
     _description = __doc__
-    _columns = {
-        'lang': fields.Selection('get_language', string='Language', size=5,
-            required=True),
-    }
+    lang = fields.Selection('get_language', string='Language', size=5,
+        required=True)
 
     def __init__(self, pool):
         super(TranslationUpdateInit, self).__init__(pool)
@@ -450,7 +446,7 @@ class TranslationUpdate(Wizard):
                     'SET fuzzy = True, ' \
                         'src = %s ' \
                     'WHERE name = %s ' \
-                        'AND res_id = %d ' \
+                        'AND res_id = %s ' \
                         'AND type = %s ' \
                         'AND lang = %s',
                     (row['src'], row['name'], row['res_id'], row['type'],
@@ -485,10 +481,10 @@ class TranslationUpdate(Wizard):
             },
         },
         'start': {
-            'actions': [_update_translation],
+            'actions': ['_update_translation'],
             'result': {
                 'type': 'action',
-                'action': _action_translation_open,
+                'action': '_action_translation_open',
                 'state': 'end',
             },
         },
@@ -501,12 +497,10 @@ class TranslationExportInit(WizardOSV):
     "Export translation - language and module"
     _name = 'ir.translation.export.init'
     _description = __doc__
-    _columns = {
-        'lang': fields.Selection('get_language', string='Language', size=5,
-            required=True),
-        'module': fields.Selection('get_module', string='Module', size=128,
-            required=True),
-    }
+    lang = fields.Selection('get_language', string='Language', size=5,
+       required=True)
+    module = fields.Selection('get_module', string='Module', size=128,
+       required=True)
 
     def __init__(self, pool):
         super(TranslationExportInit, self).__init__(pool)
@@ -538,9 +532,7 @@ class TranslationExportStart(WizardOSV):
     "Export translation - file"
     _description = __doc__
     _name = 'ir.translation.export.start'
-    _columns = {
-        'file': fields.Binary('File', readonly=True),
-    }
+    file = fields.Binary('File', readonly=True)
 
 TranslationExportStart()
 
@@ -570,7 +562,7 @@ class TranslationExport(Wizard):
             },
         },
         'start': {
-            'actions': [_export_translation],
+            'actions': ['_export_translation'],
             'result': {
                 'type': 'form',
                 'object': 'ir.translation.export.start',

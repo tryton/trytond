@@ -26,28 +26,28 @@ import psycopg2
 import warnings
 import __builtin__
 
-def _symbol_set(symb):
+def _symbol_f(symb):
     if symb == None or symb == False:
         return None
     elif isinstance(symb, unicode):
         return symb.encode('utf-8')
     return str(symb)
 
-class _column(object):
+class Column(object):
     _classic_read = True
     _classic_write = True
     _properties = False
     _type = 'unknown'
     _obj = None
     _symbol_c = '%s'
-    _symbol_f = _symbol_set
+    _symbol_f = _symbol_f
     _symbol_set = (_symbol_c, _symbol_f)
     _symbol_get = None
 
     def __init__(self, string='unknown', required=False, readonly=False,
             domain=None, context='', states=None, priority=0,
             change_default=False, size=None, ondelete="set null",
-            translate=False, select=False, **args):
+            translate=False, select=False, on_change=None, **args):
         self.states = states or {}
         self.string = string
         self.readonly = readonly
@@ -63,6 +63,7 @@ class _column(object):
         self.group_name = False
         self.view_load = 0
         self.select = select
+        self.on_change = on_change
         for i in args:
             if args[i]:
                 setattr(self, i, args[i])
@@ -75,7 +76,7 @@ class _column(object):
         raise Exception, 'undefined get method !'
 
 
-class Boolean(_column):
+class Boolean(Column):
     _type = 'boolean'
     _symbol_c = '%s'
     _symbol_f = lambda x: x and 'True' or 'False'
@@ -84,30 +85,30 @@ class Boolean(_column):
 boolean = Boolean
 
 
-class Integer(_column):
+class Integer(Column):
     _type = 'integer'
-    _symbol_c = '%d'
+    _symbol_c = '%s'
     _symbol_f = lambda x: int(x or 0)
     _symbol_set = (_symbol_c, _symbol_f)
 
 integer = Integer
 
 
-class Reference(_column):
+class Reference(Column):
     _type = 'reference'
 
     def __init__(self, string, selection, size, **args):
-        _column.__init__(self, string=string, size=size, selection=selection,
+        Column.__init__(self, string=string, size=size, selection=selection,
                 **args)
 
 reference = Reference
 
 
-class Char(_column):
+class Char(Column):
     _type = 'char'
 
     def __init__(self, string, size, **args):
-        _column.__init__(self, string=string, size=size, **args)
+        Column.__init__(self, string=string, size=size, **args)
         self._symbol_set = (self._symbol_c, self._symbol_set_char)
 
     def _symbol_set_char(self, symb):
@@ -134,44 +135,56 @@ class Char(_column):
 char = Char
 
 
-class Text(_column):
+class Text(Column):
     _type = 'text'
 
 text = Text
 
 
-class Float(_column):
+class Float(Column):
     _type = 'float'
-    _symbol_c = '%f'
+    _symbol_c = '%s'
     _symbol_f = lambda x: __builtin__.float(x or 0.0)
     _symbol_set = (_symbol_c, _symbol_f)
 
     def __init__(self, string='unknown', digits=None, **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self.digits = digits
 
 float = Float
 
 
-class Date(_column):
+class Numeric(Float):
+    _type = 'numeric'
+
+    def __init__(self, string='unknown', digits=None, **args):
+        Float.__init__(self, string=string, digits=digits, **args)
+        if self.digits:
+            self._symbol_f = lambda x: round(x, self.digits[1])
+            self._symbol_set = (self._symbol_c, self._symbol_f)
+
+numeric = Numeric
+
+
+class Date(Column):
     _type = 'date'
 
 date = Date
 
 
-class DateTime(_column):
+class DateTime(Column):
     _type = 'datetime'
 
 datetime = DateTime
 
 
-class Time(_column):
+class Time(Column):
     _type = 'time'
 
 time = Time
 
 
-class Binary(_column):
+class Binary(Column):
     _type = 'binary'
     _symbol_c = '%s'
     _symbol_f = lambda symb: symb and psycopg2.Binary(symb) or None
@@ -180,7 +193,7 @@ class Binary(_column):
 binary = Binary
 
 
-class Selection(_column):
+class Selection(Column):
     _type = 'selection'
 
     def __init__(self, selections, string='unknown', **args):
@@ -188,13 +201,13 @@ class Selection(_column):
         selections is a list of (key, string)
             or the name of the object function that return the list
         """
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self.selection = selections
 
 selection = Selection
 
 
-class One2One(_column):
+class One2One(Column):
     _classic_read = False
     _classic_write = True
     _type = 'one2one'
@@ -202,7 +215,7 @@ class One2One(_column):
     def __init__(self, obj, string='unknown', **args):
         warnings.warn("The one2one field doesn't work anymore",
                 DeprecationWarning)
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
 
     def set(self, cursor, obj_src, src_id, field, act, user=None, context=None):
@@ -212,25 +225,25 @@ class One2One(_column):
         if act[0] == 0:
             id_new = obj.create(cursor, user, act[1])
             cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                    'SET "' + field + '" = %d ' \
-                    'WHERE id = %d', (id_new, src_id))
+                    'SET "' + field + '" = %s ' \
+                    'WHERE id = %s', (id_new, src_id))
         else:
             cursor.execute('SELECT "' + field + '" ' \
                     'FROM "' + obj_src._table + '" ' \
-                    'WHERE id = %d', (act[0],))
+                    'WHERE id = %s', (act[0],))
             (obj_id,) = cursor.fetchone()
             obj.write(cursor, user, [obj_id] , act[1], context=context)
 
 one2one = One2One
 
 
-class Many2One(_column):
+class Many2One(Column):
     _classic_read = False
     _classic_write = True
     _type = 'many2one'
 
     def __init__(self, obj, string='unknown', **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
 
     # TODO: speed improvement
@@ -271,41 +284,41 @@ class Many2One(_column):
                 if act[0] == 0:
                     id_new = obj.create(cursor, act[2])
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                            'SET "' + field + '" = %d ' \
-                            'WHERE id = %d', (id_new, obj_id))
+                            'SET "' + field + '" = %s ' \
+                            'WHERE id = %s', (id_new, obj_id))
                 elif act[0] == 1:
                     obj.write(cursor, [act[1]], act[2], context=context)
                 elif act[0] == 2:
                     cursor.execute('DELETE FROM "' + table + '" ' \
-                            'WHERE id = %d', (act[1],))
+                            'WHERE id = %s', (act[1],))
                 elif act[0] == 3 or act[0] == 5:
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
                             'SET "' + field + '" = NULL ' \
-                            'WHERE id = %d', (obj_id,))
+                            'WHERE id = %s', (obj_id,))
                 elif act[0] == 4:
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                            'SET "' + field + '" = %d ' \
-                            'WHERE id = %d', (act[1], obj_id))
+                            'SET "' + field + '" = %s ' \
+                            'WHERE id = %s', (act[1], obj_id))
         else:
             if values:
                 cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                        'SET "' + field + '" = %d ' \
-                        'WHERE id = %d', (values, obj_id))
+                        'SET "' + field + '" = %s ' \
+                        'WHERE id = %s', (values, obj_id))
             else:
                 cursor.execute('UPDATE "' + obj_src._table + '" ' \
                         'SET "' + field + '" = NULL ' \
-                        'WHERE id = %d', (obj_id,))
+                        'WHERE id = %s', (obj_id,))
 
 many2one = Many2One
 
 
-class One2Many(_column):
+class One2Many(Column):
     _classic_read = False
     _classic_write = False
     _type = 'one2many'
 
     def __init__(self, obj, fields_id, string='unknown', limit=None, **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
         self._fields_id = fields_id
         self._limit = limit
@@ -347,15 +360,15 @@ class One2Many(_column):
             elif act[0] == 3:
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE id = %d', (act[1],))
+                        'WHERE id = %s', (act[1],))
             elif act[0] == 4:
                 cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._fields_id + '" = %d ' \
-                        'WHERE id = %d', (obj_id, act[1]))
+                        'SET "' + self._fields_id + '" = %s ' \
+                        'WHERE id = %s', (obj_id, act[1]))
             elif act[0] == 5:
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE "' + self._fields_id + '" = %d', (obj_id,))
+                        'WHERE "' + self._fields_id + '" = %s', (obj_id,))
             elif act[0] == 6:
                 if not act[2]:
                     ids2 = [0]
@@ -363,13 +376,13 @@ class One2Many(_column):
                     ids2 = act[2]
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE "' + self._fields_id + '" = %d ' \
+                        'WHERE "' + self._fields_id + '" = %s ' \
                             'AND id not IN (' + \
                                 ','.join([str(x) for x in ids2]) + ')',
                                 (obj_id,))
                 if act[2]:
                     cursor.execute('UPDATE "' + _table + '" ' \
-                            'SET "' + self._fields_id + '" = %d ' \
+                            'SET "' + self._fields_id + '" = %s ' \
                             'WHERE id IN (' + \
                                 ','.join([str(x) for x in act[2]]) + ')',
                                 (obj_id,))
@@ -377,14 +390,14 @@ class One2Many(_column):
 one2many = One2Many
 
 
-class Many2Many(_column):
+class Many2Many(Column):
     _classic_read = False
     _classic_write = False
     _type = 'many2many'
 
     def __init__(self, obj, rel, id1, id2, string='unknown', limit=None,
             **args):
-        _column.__init__(self, string=string, **args)
+        Column.__init__(self, string=string, **args)
         self._obj = obj
         self._rel = rel
         self._id1 = id1
@@ -403,7 +416,7 @@ class Many2Many(_column):
         for i in ids:
             res[i] = []
         ids_s = ','.join([str(x) for x in ids])
-        limit_str = self._limit is not None and ' limit %d' % self._limit or ''
+        limit_str = self._limit is not None and ' limit %s' % self._limit or ''
         obj = obj.pool.get(self._obj)
 
         domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
@@ -419,7 +432,7 @@ class Many2Many(_column):
                     'AND ' + self._rel + '.' + self._id2 + ' = ' + \
                         obj._table + '.id ' + domain1 + \
                 limit_str + ' ORDER BY ' + obj._table + '.' + obj._order + \
-                ' offset %d', domain2 + [offset])
+                ' offset %s', domain2 + [offset])
         for i in cursor.fetchall():
             res[i[1]].append(i[0])
         return res
@@ -435,34 +448,34 @@ class Many2Many(_column):
                 idnew = obj.create(cursor, user, act[2])
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
-                        'VALUES (%d, %d)', (obj_id, idnew))
+                        'VALUES (%s, %s)', (obj_id, idnew))
             elif act[0] == 1:
                 obj.write(cursor, user, [act[1]] , act[2], context=context)
             elif act[0] == 2:
                 obj.unlink(cursor, user, [act[1]], context=context)
             elif act[0] == 3:
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
-                        'WHERE "' + self._id1 + '" = %d ' \
-                            'AND "'+ self._id2 + '" = %d', (obj_id, act[1]))
+                        'WHERE "' + self._id1 + '" = %s ' \
+                            'AND "'+ self._id2 + '" = %s', (obj_id, act[1]))
             elif act[0] == 4:
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
-                        'VALUES (%d, %d)', (obj_id, act[1]))
+                        'VALUES (%s, %s)', (obj_id, act[1]))
             elif act[0] == 5:
                 cursor.execute('UPDATE "' + self._rel + '" ' \
                         'SET "' + self._id2 + '" = NULL ' \
-                        'WHERE "' + self._id2 + '" = %d', (obj_id,))
+                        'WHERE "' + self._id2 + '" = %s', (obj_id,))
             elif act[0] == 6:
                 domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
                         user, obj._name)
                 if domain1:
                     domain1 = ' AND ' + domain1
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
-                        'WHERE "' + self._id1 + '" = %d ' \
+                        'WHERE "' + self._id1 + '" = %s ' \
                             'AND "' + self._id2 + '" IN (' \
                             'SELECT ' + self._rel + '.' + self._id2 + ' ' \
                             'FROM "' + self._rel + '", "' + obj._table + '" ' \
-                            'WHERE ' + self._rel + '.' + self._id1 + ' = %d ' \
+                            'WHERE ' + self._rel + '.' + self._id1 + ' = %s ' \
                                 'AND ' + self._rel + '.' + self._id2 + ' = ' + \
                                 obj._table + '.id ' + domain1 + ')',
                                 [obj_id, obj_id] + domain2)
@@ -470,20 +483,19 @@ class Many2Many(_column):
                 for act_nbr in act[2]:
                     cursor.execute('INSERT INTO "' + self._rel + '" ' \
                             '(' + self._id1 + ', ' + self._id2 + ') ' \
-                            'VALUES (%d, %d)', (obj_id, act_nbr))
+                            'VALUES (%s, %s)', (obj_id, act_nbr))
 
 many2many = Many2Many
 
 
-class Function(_column):
+class Function(Column):
     _classic_read = False
     _classic_write = False
-    _type = 'function'
     _properties = True
 
     def __init__(self, fnct, arg=None, fnct_inv='', fnct_inv_arg=None,
             type='float', fnct_search='', obj=None, **args):
-        _column.__init__(self, **args)
+        Column.__init__(self, **args)
         self._obj = obj
         self._fnct = fnct
         self._fnct_inv = fnct_inv
@@ -495,10 +507,9 @@ class Function(_column):
             self.readonly = 1
         self._type = type
         self._fnct_search = fnct_search
-        if type == 'float':
-            self._symbol_c = '%f'
-            self._symbol_f = lambda x: __builtin__.float(x or 0.0)
-            self._symbol_set = (self._symbol_c, self._symbol_f)
+        self._symbol_c = eval(self._type)._symbol_c
+        self._symbol_f = eval(self._type)._symbol_f
+        self._symbol_set = (self._symbol_c, self._symbol_f)
 
     def search(self, cursor, user, obj, name, args, context=None):
         if not self._fnct_search:
@@ -519,7 +530,7 @@ class Function(_column):
 function = Function
 
 
-class Serialized(_column):
+class Serialized(Column):
     def __init__(self, string='unknown', serialize_func=repr,
             deserialize_func=eval, type='text', **args):
         self._serialize_func = serialize_func

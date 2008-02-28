@@ -126,43 +126,39 @@ class Module(OSV):
     "Module"
     _name = "ir.module.module"
     _description = __doc__
-    _columns = {
-        'name': fields.Char("Name", size=128, readonly=True, required=True),
-        'category': fields.Many2One('ir.module.category', 'Category',
-            readonly=True),
-        'shortdesc': fields.Char('Short description', size=256, readonly=True),
-        'description': fields.Text("Description", readonly=True),
-        'author': fields.Char("Author", size=128, readonly=True),
-        'website': fields.Char("Website", size=256, readonly=True),
-        'installed_version': fields.Function('get_installed_version',
-            string='Installed version', type='char'),
-        'latest_version': fields.Char('Latest version', size=64, readonly=True),
-        'url': fields.Char('URL', size=128),
-        'dependencies': fields.One2Many('ir.module.module.dependency',
-            'module', 'Dependencies', readonly=True),
-        'state': fields.Selection([
-            ('uninstallable', 'Not Installable'),
-            ('uninstalled', 'Not Installed'),
-            ('installed', 'Installed'),
-            ('to upgrade', 'To be upgraded'),
-            ('to remove', 'To be removed'),
-            ('to install', 'To be installed'),
-        ], string='State', readonly=True),
-        'demo': fields.Boolean('Demo data'),
-        'license': fields.Selection([('GPL-2', 'GPL-2'),
-            ('Other proprietary', 'Other proprietary')], string='License',
-            readonly=True),
-    }
-    _defaults = {
-        'state': lambda *a: 'uninstalled',
-        'demo': lambda *a: False,
-        'license': lambda *a: 'GPL-2',
-    }
+    name = fields.Char("Name", size=128, readonly=True, required=True)
+    category = fields.Many2One('ir.module.category', 'Category',
+        readonly=True)
+    shortdesc = fields.Char('Short description', size=256, readonly=True)
+    description = fields.Text("Description", readonly=True)
+    author = fields.Char("Author", size=128, readonly=True)
+    website = fields.Char("Website", size=256, readonly=True)
+    version = fields.Function('get_version', string='Version', type='char')
+    url = fields.Char('URL', size=128)
+    dependencies = fields.One2Many('ir.module.module.dependency',
+        'module', 'Dependencies', readonly=True)
+    state = fields.Selection([
+        ('uninstallable', 'Not Installable'),
+        ('uninstalled', 'Not Installed'),
+        ('installed', 'Installed'),
+        ('to upgrade', 'To be upgraded'),
+        ('to remove', 'To be removed'),
+        ('to install', 'To be installed'),
+        ], string='State', readonly=True)
+    license = fields.Selection([('GPL-2', 'GPL-2'),
+        ('Other proprietary', 'Other proprietary')], string='License',
+        readonly=True)
     _order = 'name'
     _sql_constraints = [
         ('name_uniq', 'unique (name)',
             'The name of the module must be unique!'),
     ]
+
+    def default_state(self, cursor, user, context=None):
+        return 'uninstalled'
+
+    def default_license(self, cursor, user, context=None):
+        return 'GPL-2'
 
     def __init__(self, pool):
         super(Module, self).__init__(pool)
@@ -190,15 +186,12 @@ class Module(OSV):
             return {}
         return info
 
-    def get_installed_version(self, cursor, user, ids, name, arg,
+    def get_version(self, cursor, user, ids, name, arg,
             context=None):
         res = {}
         for module in self.browse(cursor, user, ids, context=context):
-            if module.state in ('installed', 'to upgrade', 'to remove'):
-                res[module.id] = Module.get_module_info(
-                        module.name).get('version', '')
-            else:
-                res[module.id] = ''
+            res[module.id] = Module.get_module_info(
+                    module.name).get('version', '')
         return res
 
     def unlink(self, cursor, user, ids, context=None):
@@ -240,21 +233,12 @@ class Module(OSV):
                     parents2 += get_parents(parent, graph)
                 return parents + parents2
             dependencies = get_parents(module.name, graph)
-            module_dep_ids = self.search(cursor, user, [
+            module_install_ids = self.search(cursor, user, [
                 ('name', 'in', dependencies),
+                ('state', '=', 'uninstalled'),
                 ], context=context)
-            demo = True
-            module_install_ids = [module.id]
-            for module_dep in self.browse(cursor, user, module_dep_ids,
-                    context=context):
-                if module_dep.state != 'uninstalled':
-                    if not module_dep.demo:
-                        demo = False
-                else:
-                    module_install_ids.append(module_dep.id)
-            self.write(cursor, user, module_install_ids, {
+            self.write(cursor, user, module_install_ids + [module.id], {
                 'state': 'to install',
-                'demo': demo,
                 }, context=context)
 
     def state_upgrade(self, cursor, user, ids, context=None):
@@ -289,7 +273,6 @@ class Module(OSV):
     def button_install_cancel(self, cursor, user, ids, context=None):
         self.write(cursor, user, ids, {
             'state': 'uninstalled',
-            'demo': False,
             }, context=context)
         return True
 
@@ -338,8 +321,7 @@ class Module(OSV):
 
     # update the list of available packages
     def update_list(self, cursor, user, context=None):
-        robj = self.pool.get('ir.module.repository')
-        res = [0, 0] # [update, add]
+        res = 0
 
         # iterate through installed modules and mark them as being so
         for name in os.listdir(MODULES_PATH):
@@ -356,13 +338,6 @@ class Module(OSV):
                         and mod.state == 'uninstallable':
                     self.write(cursor, user, module_id, {
                         'state': 'uninstalled'}, context=context)
-                if vercmp(tryton.get('version', ''),
-                        mod.latest_version or '0') > 0:
-                    self.write(cursor, user, module_id, {
-                        'latest_version': tryton.get('version'),
-                        'url': '',
-                        }, context=context)
-                    res[0] += 1
                 self.write(cursor, user, module_id, {
                     'description': tryton.get('description', ''),
                     'shortdesc': tryton.get('name', ''),
@@ -382,16 +357,6 @@ class Module(OSV):
                 tryton = Module.get_module_info(mod_name)
                 if not tryton or not tryton.get('installable', True):
                     continue
-                if not os.path.isfile(
-                        os.path.join(MODULES_PATH, mod_name+'.zip')):
-                    import imp
-                    # XXX must restrict to only modules paths
-                    imp.load_module(name, *imp.find_module(mod_name))
-                else:
-                    import zipimport
-                    mod_path = os.path.join(MODULES_PATH, mod_name+'.zip')
-                    zimp = zipimport.zipimporter(mod_path)
-                    zimp.load_module(mod_name)
                 new_id = self.create(cursor, user, {
                     'name': mod_name,
                     'state': 'uninstalled',
@@ -399,102 +364,13 @@ class Module(OSV):
                     'shortdesc': tryton.get('name', ''),
                     'author': tryton.get('author', 'Unknown'),
                     'website': tryton.get('website', ''),
-                    'latest_version': tryton.get('version', ''),
                     'license': tryton.get('license', 'GPL-2'),
                 })
-                res[1] += 1
+                res += 1
                 self._update_dependencies(cursor, user, new_id,
                         tryton.get('depends', []))
                 self._update_category(cursor, user, new_id,
                         tryton.get('category', 'None'))
-
-        import socket
-        socket.setdefaulttimeout(10)
-        for repository in robj.browse(cursor, user,
-                robj.search(cursor, user, []), context=context):
-            try:
-                index_page = urllib.urlopen(repository.url).read()
-            except IOError, exception:
-                if exception.errno == 21:
-                    raise ExceptORM('Error',
-                            'This url \'%s\' must provide an html file '
-                            'with links to zip modules' % (repository.url))
-                else:
-                    raise
-            modules = re.findall(repository.filter, index_page, re.I+re.M)
-            mod_sort = {}
-            for module in modules:
-                name = module[0]
-                version = module[1]
-                extension = module[-1]
-                if name in mod_sort:
-                    if vercmp(version, mod_sort[name][0]) <= 0:
-                        continue
-                mod_sort[name] = [version, extension]
-            for name in mod_sort.keys():
-                version, extension = mod_sort[name]
-                url = repository.url+'/'+name+'-'+version+extension
-                ids = self.search(cursor, user, [('name', '=', name)],
-                        context=context)
-                if not ids:
-                    self.create(cursor, user, {
-                        'name': name,
-                        'latest_version': version,
-                        'url': url,
-                        'state': 'uninstalled',
-                    }, context=context)
-                    res[1] += 1
-                else:
-                    mod_id = ids[0]
-                    latest_version = self.browse(cursor, user, mod_id,
-                            context=context).latest_version
-                    if vercmp(version, latest_version) > 0:
-                        self.write(cursor, user, mod_id, {
-                            'latest_version': version,
-                            'url': url,
-                            }, context=context)
-                        res[0] += 1
-        return res
-
-    def download(self, cursor, user, ids, download=True, context=None):
-        # TODO download import only if all dependencies are present
-        res = []
-        for mod in self.browse(cursor, user, ids, context=context):
-            if not mod.url:
-                continue
-            match = re.search('-([a-zA-Z0-9\._-]+)(\.zip)', mod.url, re.I)
-            version = '0'
-            if match:
-                version = match.group(1)
-            if vercmp(mod.installed_version or '0', version) >= 0:
-                continue
-            res.append(mod.url)
-            if not download:
-                continue
-            zip_file = urllib.urlopen(mod.url).read()
-            fname = os.path.join(MODULES_PATH, mod.name+'.zip')
-            try:
-                file_p = file(fname, 'wb')
-                file_p.write(zip_file)
-                file_p.close()
-            except IOError:
-                raise ExceptORM('Error', 'Can not create the module file: %s'
-                        % (fname,))
-            tryton = Module.get_module_info(mod.name)
-            self.write(cursor, user, mod.id, {
-                'description': tryton.get('description', ''),
-                'shortdesc': tryton.get('name', ''),
-                'author': tryton.get('author', 'Unknown'),
-                'website': tryton.get('website', ''),
-                'license': tryton.get('license', 'GPL-2'),
-                })
-            self._update_dependencies(cursor, user, mod.id, tryton.get('depends',
-                []))
-            self._update_category(cursor, user, mod.id, tryton.get('category',
-                'Uncategorized'))
-            # Import module
-            zimp = zipimport.zipimporter(fname)
-            zimp.load_module(mod.name)
         return res
 
     def _update_dependencies(self, cursor, user, module_id, depends=None):
@@ -542,23 +418,21 @@ class ModuleDependency(OSV):
     "Module dependency"
     _name = "ir.module.module.dependency"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name',  size=128),
-        'module': fields.Many2One('ir.module.module', 'Module', select=1,
-            ondelete='cascade'),
-        'state': fields.Function('state', type='selection',
-            selection=[
-            ('uninstallable','Uninstallable'),
-            ('uninstalled','Not Installed'),
-            ('installed','Installed'),
-            ('to upgrade','To be upgraded'),
-            ('to remove','To be removed'),
-            ('to install','To be installed'),
-            ('unknown', 'Unknown'),
-            ], string='State', readonly=True),
-    }
+    name = fields.Char('Name',  size=128)
+    module = fields.Many2One('ir.module.module', 'Module', select=1,
+       ondelete='cascade')
+    state = fields.Function('get_state', type='selection',
+       selection=[
+       ('uninstallable','Uninstallable'),
+       ('uninstalled','Not Installed'),
+       ('installed','Installed'),
+       ('to upgrade','To be upgraded'),
+       ('to remove','To be removed'),
+       ('to install','To be installed'),
+       ('unknown', 'Unknown'),
+       ], string='State', readonly=True)
 
-    def state(self, cursor, user, ids, name, args, context=None):
+    def get_state(self, cursor, user, ids, name, args, context=None):
         result = {}
         module_obj = self.pool.get('ir.module.module')
         for dependency in self.browse(cursor, user, ids):
@@ -577,19 +451,14 @@ ModuleDependency()
 
 class ModuleUpdateListInit(WizardOSV):
     _name = 'ir.module.module.update_list.init'
-    _columns = {
-        'repositories': fields.Text('Repositories', readonly=True),
-    }
 
 ModuleUpdateListInit()
 
 
 class ModuleUpdateListUpdate(WizardOSV):
     _name = 'ir.module.module.update_list.update'
-    _columns = {
-        'update': fields.Integer('Number of modules updated', readonly=True),
-        'add': fields.Integer('Number of modules added', readonly=True),
-    }
+    update = fields.Integer('Number of modules updated', readonly=True)
+    add = fields.Integer('Number of modules added', readonly=True)
 
 ModuleUpdateListUpdate()
 
@@ -600,8 +469,8 @@ class ModuleUpdateList(Wizard):
 
     def _update_module(self, cursor, user, data, context):
         module_obj = self.pool.get('ir.module.module')
-        update, add = module_obj.update_list(cursor, user)
-        return {'update': update, 'add': add}
+        add = module_obj.update_list(cursor, user)
+        return {'add': add}
 
     def _action_module_open(self, cursor, user, data, context):
         return {
@@ -614,18 +483,9 @@ class ModuleUpdateList(Wizard):
                 'type': 'ir.action.act_window',
                 }
 
-    def _get_repositories(self, cursor, user, data, context):
-        repository_obj = self.pool.get('ir.module.repository')
-        ids = repository_obj.search(cursor, user, [])
-        res = repository_obj.read(cursor, user, ids, ['name', 'url'], context)
-        return {
-                'repositories': '\n'.join([x['name']+': '+x['url'] \
-                        for x in res]),
-                }
-
     states = {
             'init': {
-                'actions': [_get_repositories],
+                'actions': [],
                 'result': {
                     'type': 'form',
                     'object': 'ir.module.module.update_list.init',
@@ -636,7 +496,7 @@ class ModuleUpdateList(Wizard):
                 }
             },
             'update': {
-                'actions': [_update_module],
+                'actions': ['_update_module'],
                 'result': {
                     'type': 'form',
                     'object': 'ir.module.module.update_list.update',
@@ -649,7 +509,7 @@ class ModuleUpdateList(Wizard):
                 'actions': [],
                 'result': {
                     'type': 'action',
-                    'action': _action_module_open,
+                    'action': '_action_module_open',
                     'state':'end',
                 }
             },
@@ -660,18 +520,13 @@ ModuleUpdateList()
 
 class ModuleInstallUpgradeInit(WizardOSV):
     _name = 'ir.module.module.install_upgrade.init'
-    _columns = {
-        'module_info': fields.Text('Modules to update', readonly=True),
-        'module_download': fields.Text('Modules to download', readonly=True),
-    }
+    module_info = fields.Text('Modules to update', readonly=True)
 
 ModuleInstallUpgradeInit()
 
 
 class ModuleInstallUpgradeStart(WizardOSV):
     _name = 'ir.module.module.install_upgrade.start'
-    _columns = {
-    }
 
 ModuleInstallUpgradeStart()
 
@@ -686,12 +541,9 @@ class ModuleInstallUpgrade(Wizard):
             ('state', 'in', ['to upgrade', 'to remove', 'to install']),
             ], context=context)
         modules = module_obj.browse(cursor, user, module_ids, context=context)
-        url = module_obj.download(cursor, user, module_ids, download=False,
-                context=context)
         return {
             'module_info': '\n'.join([x.name + ': ' + x.state \
                     for x in modules]),
-            'module_download': '\n'.join(url),
         }
 
     def _upgrade_module(self, cursor, user, data, context):
@@ -703,7 +555,6 @@ class ModuleInstallUpgrade(Wizard):
         module_ids = module_obj.search(cursor, user, [
             ('state', 'in', ['to upgrade', 'to remove', 'to install']),
             ], context=context)
-        module_obj.download(cursor, user, module_ids, context=context)
         lang_ids = lang_obj.search(cursor, user, [
             ('translatable', '=', True),
             ], context=context)
@@ -716,7 +567,7 @@ class ModuleInstallUpgrade(Wizard):
 
     states = {
         'init': {
-            'actions': [_get_install],
+            'actions': ['_get_install'],
             'result': {
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.init',
@@ -727,7 +578,7 @@ class ModuleInstallUpgrade(Wizard):
             },
         },
         'start': {
-            'actions': [_upgrade_module],
+            'actions': ['_upgrade_module'],
             'result': {
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.start',

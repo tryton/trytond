@@ -119,11 +119,10 @@ class TrytonServer(object):
                 cursor.execute('SELECT code FROM ir_lang ' \
                         'WHERE translatable = True')
                 lang = [x[0] for x in cursor.fetchall()]
+                cursor.close()
             pooler.get_db_and_pool(db_name,
                     update_module=bool(CONFIG['init'] or CONFIG['update']),
                     lang=lang)
-        if cursor:
-            cursor.close()
 
         if CONFIG["stop_after_init"]:
             sys.exit(0)

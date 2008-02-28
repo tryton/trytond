@@ -10,17 +10,12 @@ class Directory(OSV):
     "Directory"
     _name = "webdav.directory"
     _description = __doc__
-    _columns = {
-        'name': fields.Char('Name', size=128, required=True, select=1),
-        'parent': fields.Many2One('webdav.directory', 'Parent',
-            ondelete='restrict'),
-        'childs': fields.One2Many('webdav.directory', 'parent', 'Childs'),
-        'model': fields.Many2One('ir.model', 'Model'),
-        'domain': fields.Char('Domain', size=250),
-    }
-    _defaults = {
-        'domain': lambda *a: '[]',
-    }
+    name = fields.Char('Name', size=128, required=True, select=1)
+    parent = fields.Many2One('webdav.directory', 'Parent',
+       ondelete='restrict')
+    childs = fields.One2Many('webdav.directory', 'parent', 'Childs')
+    model = fields.Many2One('ir.model', 'Model')
+    domain = fields.Char('Domain', size=250)
     _sql_constraints = [
         ('name_parent_uniq', 'UNIQUE (name, parent)',
             'The directory name must be unique inside a directory!'),
@@ -37,6 +32,9 @@ class Directory(OSV):
     ext2mime = {
         '.png': 'image/png',
     }
+
+    def default_domain(self, cursor, user, context=None):
+        return '[]'
 
     def check_attachment(self, cursor, user, ids):
         attachment_obj = self.pool.get('ir.attachment')
@@ -179,7 +177,7 @@ class Directory(OSV):
         if model_obj._log_access:
             cursor.execute('SELECT EXTRACT(epoch FROM create_date) ' \
                     'FROM "' + model_obj._table +'" ' \
-                    'WHERE id = %d', (object_id,))
+                    'WHERE id = %s', (object_id,))
             return cursor.fetchone()[0]
         return time.time()
 
@@ -190,7 +188,7 @@ class Directory(OSV):
         if model_obj._log_access and object_id:
             cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
                     'FROM "' + model_obj._table +'" ' \
-                    'WHERE id = %d', (object_id,))
+                    'WHERE id = %s', (object_id,))
             return cursor.fetchone()[0]
         return time.time()
 

@@ -174,27 +174,23 @@ def get_pg_type(field):
     type expression to create the column)
     '''
     type_dict = {
-            fields.boolean:'bool',
-            fields.integer:'int4',
-            fields.text:'text',
-            fields.date:'date',
-            fields.time:'time',
-            fields.datetime:'timestamp',
-            fields.binary:'bytea',
-            fields.many2one:'int4',
+            fields.Boolean: 'bool',
+            fields.Integer: 'int4',
+            fields.Text: 'text',
+            fields.Date: 'date',
+            fields.Time: 'time',
+            fields.DateTime: 'timestamp',
+            fields.Binary: 'bytea',
+            fields.Many2One: 'int4',
+            fields.Float: 'float8',
+            fields.Numeric: 'numeric',
             }
 
     if type_dict.has_key(type(field)):
         f_type = (type_dict[type(field)], type_dict[type(field)])
-    elif isinstance(field, fields.float):
-        if field.digits:
-            f_type = ('numeric', 'NUMERIC(%d, %d)' % \
-                    (field.digits[0],field.digits[1]))
-        else:
-            f_type = ('float8', 'DOUBLE PRECISION')
-    elif isinstance(field, (fields.char, fields.reference)):
+    elif isinstance(field, (fields.Char, fields.Reference)):
         f_type = ('varchar', 'VARCHAR(%d)' % (field.size,))
-    elif isinstance(field, fields.selection):
+    elif isinstance(field, fields.Selection):
         if isinstance(field.selection, list) \
                 and isinstance(field.selection[0][0], (str, unicode)):
             f_size = reduce(lambda x, y: max(x, len(y[0])), field.selection,
@@ -209,12 +205,10 @@ def get_pg_type(field):
             f_type = ('int4', 'INTEGER')
         else:
             f_type = ('varchar', 'VARCHAR(%d)' % f_size)
-    elif isinstance(field, fields.function) \
+    elif isinstance(field, fields.Function) \
             and type_dict.has_key(eval('fields.' + (field._type))):
         ftype = eval('fields.' + (field._type))
         f_type = (type_dict[ftype], type_dict[ftype])
-    elif isinstance(field, fields.function) and field._type == 'float':
-        f_type = ('float8', 'DOUBLE PRECISION')
     else:
         logger = Logger()
         logger.notify_channel("init", LOG_WARNING,
@@ -241,10 +235,8 @@ class ORM(object):
             - relations (one2many, many2one, many2many)
             - functions
     """
-    _columns = {}
     _sql_constraints = []
     _constraints = []
-    _defaults = {}
     _log_access = True
     _table = None
     _name = None
@@ -275,6 +267,36 @@ class ORM(object):
     _sql = ''
     _inherit_fields = []
     pool = None
+    __columns = None
+    __defaults = None
+
+    def _getcolumns(self):
+        if self.__columns:
+            return self.__columns
+        res = {}
+        for attr in dir(self):
+            if attr in ('_columns', '_defaults'):
+                continue
+            if isinstance(getattr(self, attr), fields.Column):
+                res[attr] = getattr(self, attr)
+        self.__columns = res
+        return res
+
+    _columns = property(fget=_getcolumns)
+
+    def _getdefaults(self):
+        if self.__defaults:
+            return self.__defaults
+        res = {}
+        columns = self._columns.keys()
+        columns += self._inherit_fields.keys()
+        for column in columns:
+            if getattr(self, 'default_' + column, False):
+                res[column] = getattr(self, 'default_' + column)
+        self.__defaults = res
+        return res
+
+    _defaults = property(fget=_getdefaults)
 
     def _field_create(self, cursor, module_name):
         cursor.execute("SELECT id FROM ir_model WHERE model = %s",
@@ -285,7 +307,6 @@ class ORM(object):
             cursor.execute("INSERT INTO ir_model " \
                     "(model, name, info) VALUES (%s, %s, %s)",
                     (self._name, self._description, self.__doc__))
-            cursor.commit()
             cursor.execute("SELECT id FROM ir_model WHERE model = %s",
                     (self._name,))
         (model_id,) = cursor.fetchone()
@@ -328,7 +349,7 @@ class ORM(object):
                 cursor.execute("INSERT INTO ir_model_field " \
                         "(model, name, field_description, ttype, " \
                             "relation, group_name, view_load, help) " \
-                        "VALUES (%d, %s, %s, %s, %s, %s, %s, %s)",
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (model_id, k, field.string, field._type,
                             field._obj or 'NULL', field.group_name or '',
                             (field.view_load and 'True') or 'False',
@@ -347,7 +368,7 @@ class ORM(object):
                             'group_name = %s, ' \
                             'view_load = %s, ' \
                             'help = %s ' \
-                        'WHERE id = %d ',
+                        'WHERE id = %s ',
                         (field.string, field._type, field._obj or 'NULL',
                             field.group_name or '',
                             (field.view_load and 'True') or 'False',
@@ -362,7 +383,7 @@ class ORM(object):
             elif trans_columns[trans_name]['src'] != field.string:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
-                        'WHERE id = %d ',
+                        'WHERE id = %s ',
                         (field.string, trans_columns[trans_name]['id']))
             if trans_name not in trans_help:
                 if field.help:
@@ -374,7 +395,7 @@ class ORM(object):
             elif trans_help[trans_name]['src'] != field.help:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
-                        'WHERE id = %d ',
+                        'WHERE id = %s ',
                         (field.help, trans_help[trans_name]['id']))
             if hasattr(field, 'selection') \
                     and isinstance(field.selection, (tuple, list)):
@@ -387,7 +408,6 @@ class ORM(object):
                                 'VALUES (%s, %s, %s, %s, %s, %s)',
                                 (trans_name, 'en_US', 'selection', val, '',
                                     module_name))
-        cursor.commit()
 
     def auto_init(self, cursor, module_name):
         self.init(cursor, module_name)
@@ -409,7 +429,6 @@ class ORM(object):
                         "(id SERIAL NOT NULL, " \
                             "PRIMARY KEY(id)) WITH OIDS" % self._table)
                 create = True
-            cursor.commit()
             if self._log_access:
                 logs = {
                     'create_uid': 'INTEGER REFERENCES res_user ' \
@@ -430,7 +449,6 @@ class ORM(object):
                         cursor.execute("ALTER TABLE \"%s\" " \
                                 "ADD COLUMN \"%s\" %s" %
                             (self._table, k, logs[k]))
-                        cursor.commit()
 
             # iterate on the database columns to drop the NOT NULL constraints
             # of fields which were required but have been removed
@@ -468,7 +486,7 @@ class ORM(object):
                     continue
 
                 field = self._columns[k]
-                if isinstance(field, fields.one2many):
+                if isinstance(field, fields.One2Many):
                     cursor.execute("SELECT relname FROM pg_class " \
                             "WHERE relkind = 'r' AND relname = %s",
                             (field._obj,))
@@ -485,7 +503,7 @@ class ORM(object):
                                     "ADD FOREIGN KEY (%s) " \
                                     "REFERENCES \"%s\" ON DELETE SET NULL" % \
                                     (self._obj, field._fields_id, field._table))
-                elif isinstance(field, fields.many2many):
+                elif isinstance(field, fields.Many2Many):
                     cursor.execute("SELECT relname FROM pg_class " \
                             "WHERE relkind in ('r','v') AND relname=%s",
                             (field._rel,))
@@ -510,7 +528,6 @@ class ORM(object):
                                 "ON \"%s\" (\"%s\")" % \
                                 (field._rel, field._id2, field._rel,
                                     field._id2))
-                        cursor.commit()
                 else:
                     cursor.execute("SELECT c.relname, a.attname, a.attlen, " \
                                 "a.atttypmod, a.attnotnull, a.atthasdef, " \
@@ -526,14 +543,14 @@ class ORM(object):
                                 (self._table, k))
                     res = cursor.dictfetchall()
                     if not res:
-                        if not isinstance(field, fields.function):
+                        if not isinstance(field, fields.Function):
                             # add the missing field
                             cursor.execute("ALTER TABLE \"%s\" " \
                                     "ADD COLUMN \"%s\" %s" % \
                                     (self._table, k, get_pg_type(field)[1]))
                             # initialize it
                             if not create and k in self._defaults:
-                                default = self._defaults[k](self, cursor, 1, {})
+                                default = self._defaults[k](cursor, 1, {})
                                 if not default:
                                     cursor.execute("UPDATE \"%s\" " \
                                             "SET \"%s\" = NULL" % \
@@ -543,7 +560,7 @@ class ORM(object):
                                             "SET \"%s\" = '%s'" % \
                                             (self._table, k, default))
                             # and add constraints if needed
-                            if isinstance(field, fields.many2one):
+                            if isinstance(field, fields.Many2One):
                                 if field._obj == 'res.user':
                                     ref = 'res_user'
                                 elif field._obj == 'res.group':
@@ -579,13 +596,12 @@ class ORM(object):
                 'If it doesn\'t work, update records and execute manually:\n' \
                 'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
                                         (k, self._table, self._table, k))
-                            cursor.commit()
                     elif len(res)==1:
                         f_pg_def = res[0]
                         f_pg_type = f_pg_def['typname']
                         f_pg_size = f_pg_def['size']
                         f_pg_notnull = f_pg_def['attnotnull']
-                        if isinstance(field, fields.function):
+                        if isinstance(field, fields.Function):
                             logger.notify_channel('init', LOG_WARNING,
                                     'column %s (%s) in table %s was converted '\
                                             'to a function !\n' \
@@ -630,25 +646,22 @@ class ORM(object):
                                     cursor.execute("ALTER TABLE \"%s\" " \
                                             "DROP COLUMN temp_change_size" % \
                                             (self._table,))
-                                    cursor.commit()
                             # if the field is required
                             # and hasn't got a NOT NULL constraint
                             if field.required and f_pg_notnull == 0:
                                 # set the field to the default value if any
                                 if self._defaults.has_key(k):
-                                    default = self._defaults[k](self, cursor,
+                                    default = self._defaults[k](cursor,
                                             1, {})
                                     if not (default is False):
                                         cursor.execute("UPDATE \"%s\" " \
                                         "SET \"%s\" = '%s' WHERE %s is NULL" % \
                                             (self._table, k, default, k))
-                                        cursor.commit()
                                 # add the NOT NULL constraint
                                 try:
                                     cursor.execute("ALTER TABLE \"%s\" " \
                                         "ALTER COLUMN \"%s\" SET NOT NULL" % \
                                         (self._table, k))
-                                    cursor.commit()
                                 except:
                                     logger.notify_channel('init',
                                             LOG_WARNING,
@@ -657,12 +670,10 @@ class ORM(object):
 'If you want to have it, you should update the records and execute manually:\n'\
                             'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
                                         (k, self._table, self._table, k))
-                                cursor.commit()
                             elif not field.required and f_pg_notnull == 1:
                                 cursor.execute("ALTER TABLE \"%s\" " \
                                         "ALTER COLUMN \"%s\" DROP NOT NULL" % \
                                         (self._table, k))
-                                cursor.commit()
                             cursor.execute("SELECT indexname FROM pg_indexes " \
                     "WHERE indexname = '%s_%s_index' AND tablename = '%s'" % \
                                     (self._table, k, self._table))
@@ -671,12 +682,10 @@ class ORM(object):
                                 cursor.execute("CREATE INDEX \"%s_%s_index\" " \
                                         "ON \"%s\" (\"%s\")" % \
                                         (self._table, k, self._table, k))
-                                cursor.commit()
                             if res and not field.select:
                                 cursor.execute("DROP INDEX \"%s_%s_index\"" % \
                                         (self._table, k))
-                                cursor.commit()
-                            if isinstance(field, fields.many2one):
+                            if isinstance(field, fields.Many2One):
                                 ref_obj = self.pool.get(field._obj)
                                 if ref_obj:
                                     ref = ref_obj._table
@@ -724,7 +733,6 @@ class ORM(object):
                                                     '("' + k + '") ' \
                                                     'REFERENCES "' + ref + \
                                                     '" ON DELETE ' + field.ondelete)
-                                            cursor.commit()
                     else:
                         # TODO add error message
                         logger.notify_channel('init', LOG_ERROR, '')
@@ -742,7 +750,6 @@ class ORM(object):
                     cursor.execute('ALTER TABLE \"%s\" ' \
                             'ADD CONSTRAINT \"%s_%s\" %s' % \
                             (self._table, self._table, key, con,))
-                    cursor.commit()
                 except:
                     logger.notify_channel('init', LOG_WARNING,
                             'unable to add \'%s\' constraint on table %s !\n' \
@@ -756,9 +763,11 @@ class ORM(object):
                     line2 = line.replace('\n', '').strip()
                     if line2:
                         cursor.execute(line2)
-                        cursor.commit()
 
     def __init__(self):
+        # reinit the cachel on _columns and _defaults
+        self.__columns = None
+        self.__defaults = None
         if not self._table:
             self._table = self._name.replace('.', '_')
         if not self._description:
@@ -771,22 +780,14 @@ class ORM(object):
             self._sequence = self._table+'_id_seq'
 
         if self._log_access:
-            if not self._columns:
-                self._columns = {}
-            self._columns['create_uid'] = fields.Many2One('res.user',
+            self.create_uid = fields.Many2One('res.user',
                     'Creation user', required=True, readonly=True)
-            self._columns['create_date'] = fields.DateTime('Creation date',
+            self.create_date = fields.DateTime('Creation date',
                     required=True, readonly=True)
-            self._columns['write_uid'] = fields.Many2One('res.user',
+            self.write_uid = fields.Many2One('res.user',
                        'Last modification by', readonly=True)
-            self._columns['write_date'] = fields.DateTime(
+            self.write_date = fields.DateTime(
                     'Last modification date', readonly=True)
-            if not self._defaults:
-                self._defaults = {}
-            self._defaults['create_uid'] = \
-                    lambda self, cursor, user, context: user
-            self._defaults['create_date'] = \
-                    lambda *a: time.strftime("%Y-%m-%d %H:%M:%S")
 
         for k in self._defaults:
             assert (k in self._columns) or (k in self._inherit_fields), \
@@ -810,6 +811,12 @@ class ORM(object):
                         self.pool.get(table)._inherit_fields[col][2])
         self._inherit_fields = res
         self._inherits_reload_src()
+
+    def default_create_uid(self, cursor, user, context=None):
+        return user
+
+    def default_create_date(self, cursor, user, context=None):
+        return time.strftime("%Y-%m-%d %H:%M:%S")
 
     def browse(self, cursor, user, select, context=None, list_class=None):
         list_class = list_class or BrowseRecordList
@@ -1207,8 +1214,7 @@ class ORM(object):
         # get the default values defined in the object
         for field in fields_names:
             if field in self._defaults:
-                value[field] = self._defaults[field](self, cursor, user,
-                        context)
+                value[field] = self._defaults[field](cursor, user, context)
                 fld_def = ((field in self._columns) and self._columns[field]) \
                         or ((field in self._inherit_fields) \
                             and self._inherit_fields[field][2]) \
@@ -1301,7 +1307,7 @@ class ORM(object):
         for i in range((len(ids) / ID_MAX) + \
                 ((len(ids) % ID_MAX) and 1 or 0)):
             sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
-            str_d = ','.join(('%d',) * len(sub_ids))
+            str_d = ','.join(('%s',) * len(sub_ids))
             if domain1:
                 cursor.execute('SELECT id FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ') ' + domain1,
@@ -1402,8 +1408,8 @@ class ORM(object):
                                 (val, field))
 
         if self._log_access:
-            upd0.append('write_uid=%d')
-            upd0.append('write_date=now()')
+            upd0.append('write_uid = %s')
+            upd0.append('write_date = now()')
             upd1.append(user)
 
         if len(upd0):
@@ -1544,11 +1550,11 @@ class ORM(object):
         for table in tocreate:
             new_id = self.pool.get(table).create(cursor, user, tocreate[table])
             upd0 += ',' + self._inherits[table]
-            upd1 += ',%d'
+            upd1 += ',%s'
             upd2.append(new_id)
             cursor.execute('INSERT INTO inherit ' \
                     '(obj_type, obj_id, inst_type, inst_id) ' \
-                    'values (%s, %d, %s, %d)',
+                    'values (%s, %s, %s, %s)',
                     (table, new_id, self._name, id_new))
 
         for field in vals:
@@ -1581,7 +1587,7 @@ class ORM(object):
                                 (val, field))
         if self._log_access:
             upd0 += ', create_uid, create_date'
-            upd1 += ', %d, now()'
+            upd1 += ', %s, now()'
             upd2.append(user)
         cursor.execute('INSERT INTO "' + self._table + '" ' \
                 '(id' + upd0 + ') ' \
@@ -1625,8 +1631,9 @@ class ORM(object):
                     'translate',
                     'help',
                     'select',
+                    'on_change',
                     ):
-                if getattr(self._columns[field], arg):
+                if getattr(self._columns[field], arg, False):
                     res[field][arg] = getattr(self._columns[field], arg)
             if not read_access:
                 res[field]['readonly'] = True
@@ -1714,7 +1721,7 @@ class ORM(object):
                                 and field.localName in ('form', 'tree'):
                             node.removeChild(field)
                             xarch, xfields = self.pool.get(relation
-                                    ).__view_look_dom_arch(cursor, user, field,
+                                    )._view_look_dom_arch(cursor, user, field,
                                             context)
                             views[str(field.localName)] = {
                                 'arch': xarch,
@@ -1778,7 +1785,7 @@ class ORM(object):
                     context))
         return fields_attrs
 
-    def __view_look_dom_arch(self, cursor, user, node, context=None):
+    def _view_look_dom_arch(self, cursor, user, node, context=None):
         fields_def = self.__view_look_dom(cursor, user, node, context=context)
         arch = node.toxml(encoding="utf-8").replace('\t', '')
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
@@ -1854,7 +1861,7 @@ class ORM(object):
                 where = (model and (" and model='%s'" % (self._name,))) or ''
                 cursor.execute('SELECT arch, name, field_childs, id, type, ' \
                             'inherit ' \
-                        'FROM ir_ui_view WHERE id = %d ' + where, (view_id,))
+                        'FROM ir_ui_view WHERE id = %s ' + where, (view_id,))
             else:
                 cursor.execute('SELECT arch, name, field_childs, id, type, ' \
                         'inherit ' \
@@ -1877,7 +1884,7 @@ class ORM(object):
             def _inherit_apply_rec(result, inherit_id):
                 # get all views which inherit from (ie modify) this view
                 cursor.execute('SELECT arch, id FROM ir_ui_view ' \
-                        'WHERE inherit = %d AND model = %s ' \
+                        'WHERE inherit = %s AND model = %s ' \
                         'ORDER BY priority', (inherit_id, self._name))
                 sql_inherit = cursor.fetchall()
                 for (inherit, view_id) in sql_inherit:
@@ -1919,7 +1926,7 @@ class ORM(object):
             result['view_id'] = 0
 
         doc = dom.minidom.parseString(result['arch'])
-        xarch, xfields = self.__view_look_dom_arch(cursor, user, doc,
+        xarch, xfields = self._view_look_dom_arch(cursor, user, doc,
                 context=context)
         result['arch'] = xarch
         result['fields'] = xfields
@@ -1942,8 +1949,6 @@ class ORM(object):
         return result
 
     fields_view_get = Cache()(fields_view_get)
-
-    _view_look_dom_arch = __view_look_dom_arch
 
     def _where_calc(self, cursor, user, args, active_test=True, context=None):
         if context is None:
@@ -2190,7 +2195,7 @@ class ORM(object):
                         if arg[0] == 'id':
                             qu1.append('(%s.id in (%s))' % \
                                     (table._table,
-                                        ','.join(['%d'] * len(arg[2])),))
+                                        ','.join(['%s'] * len(arg[2])),))
                         else:
                             qu1.append('(%s.%s in (%s))' % \
                                     (table._table, arg[0], ','.join(
@@ -2327,7 +2332,7 @@ class ORM(object):
             default = {}
         if 'state' not in default:
             if 'state' in self._defaults:
-                default['state'] = self._defaults['state'](self, cursor, user,
+                default['state'] = self._defaults['state'](cursor, user,
                         context)
         data = self.read(cursor, user, object_id, context=context)
         fields2 = self.fields_get(cursor, user)
