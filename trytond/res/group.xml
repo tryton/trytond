@@ -4,6 +4,9 @@
         <record model="res.group" id="group_admin">
             <field name="name">admin</field>
         </record>
+        <record model="ir.ui.menu" id="ir.menu_administration">
+            <field name="groups" eval="[(6, 0, [ref('group_admin')])]"/>
+        </record>
         <record model="ir.ui.view" id="group_view_form">
             <field name="model">res.group</field>
             <field name="type">form</field>
