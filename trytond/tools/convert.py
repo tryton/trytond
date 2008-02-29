@@ -535,25 +535,22 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 if db_field == values[key]:
                     continue
 
-                # we cannot update a field if it was changed by a user
+                # we cannot update a field if it was changed by a user...
                 if key not in  old_values:
-                    default_value = object_ref._defaults.get(
+                    expected_value = object_ref._defaults.get(
                         key, lambda *a:None)(cursor, user)
-                    if db_field != default_value:
-                        logger = Logger()
+                else:
+                    expected_value = old_values[key]
 
-                        logger.notify_channel('init', LOG_WARNING,
-                            "Field %s of %s@%s not updated (id: %s), because "\
-                            "it has changed since the last update"% \
-                            (key, db_id, model, fs_id))
-                        continue
-
-                elif (old_values[key] and db_field) and \
-                         old_values[key] != db_field:
+                # ... and we consider that there is an update if the
+                # expected value differs from the actual value, _and_
+                # if they are not false in a boolean context (ie None,
+                # False, {} or [])
+                if db_field != expected_value and (db_field or expected_value) :
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
                         "Field %s of %s@%s not updated (id: %s), because "\
-                        "it has changed since the last update."%\
+                        "it has changed since the last update"% \
                         (key, db_id, model, fs_id))
                     continue
 
