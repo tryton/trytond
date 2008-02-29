@@ -679,10 +679,23 @@ class ModuleInstallUpgrade(Wizard):
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.start',
                 'state': [
-                    ('end', 'Close', 'gtk-close', True),
+                    ('config', 'Ok', 'gtk-ok', True),
                 ],
             },
         },
+        'config': {
+            'result': {
+                'type': 'action',
+                'action': '_config',
+                'state': 'end',
+            },
+        },
     }
+
+    def _config(self, cursor, user, data, context=None):
+        return {
+                'type': 'ir.action.wizard',
+                'wiz_name': 'ir.module.module.config_wizard',
+                }
 
 ModuleInstallUpgrade()

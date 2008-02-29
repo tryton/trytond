@@ -1903,6 +1903,8 @@ class ORM(object):
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
                 '''<form string="%s">''' % (self._description,)
                 for i in res:
+                    if i in ('create_uid', 'create_date', 'write_uid', 'write_date'):
+                        continue
                     if res[i]['type'] not in ('one2many', 'many2many'):
                         xml += '<label name="%s"/>' % (i,)
                         xml += '<field name="%s"/>' % (i,)
