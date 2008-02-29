@@ -144,6 +144,8 @@ class RecordTagHandler:
     def __init__(self, master_handler):
         # Remind reference of parent handler
         self.mh = master_handler
+        # stock xml_id parsed in one module
+        self.xml_ids = []
 
 
     def startElement(self, name, attributes):
@@ -258,9 +260,11 @@ class RecordTagHandler:
             return self
 
         elif name == "record":
+            if self.xml_id in self.xml_ids:
+                raise Exception('Duplicate id: "%s".' % (self.xml_id,))
             res = self.mh.import_record(
                 self.model._name, self.values, self.xml_id)
-
+            self.xml_ids.append(self.xml_id)
             return None
         else:
             raise Exception("Unexpected closing tag '%s'"% (name,))
@@ -587,7 +591,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
             # Remove this record from the to_delete list. This means that
             # the corresponding record have been found.
-            if module == self.module:
+            if module == self.module and fs_id in self.to_delete:
                 self.to_delete.remove(fs_id)
         else:
             # this record is new, create it in the db:
