@@ -14,7 +14,7 @@ class User(OSV):
     _description = __doc__
     name = fields.Char('Name', size=64, required=True, select=1)
     login = fields.Char('Login', size=64, required=True)
-    password = fields.Char('Password', size=64)
+    password = fields.Sha('Password')
     signature = fields.Text('Signature', size=64)
     #address_id = fields.Many2One('res.partner.address', 'Address')
     active = fields.Boolean('Active')

@@ -99,10 +99,7 @@ class Service(object):
         self.response = service(self._response_process_id)
 
     def abort_response(self, description, origin, details):
-        if not CONFIG['debug_mode']:
-            raise Exception("%s -- %s\n\n%s" % (origin, description, details))
-        else:
-            raise
+        raise Exception("%s -- %s\n\n%s" % (origin, description, details))
 
     def current_failure(self, service):
         pass

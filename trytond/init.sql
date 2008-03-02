@@ -101,7 +101,7 @@ CREATE TABLE res_user (
     name varchar(64) not null,
     active boolean default True,
     login varchar(64) NOT NULL UNIQUE,
-    password varchar(32) default null,
+    password varchar(40) default null,
 --  action_id int references ir_act_window on delete set null,
     action int,
     primary key(id)
