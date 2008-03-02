@@ -31,7 +31,7 @@ class Translation(OSV, Cacheable):
     _description = __doc__
     name = fields.Char('Field Name', size=128, required=True)
     res_id = fields.Integer('Resource ID')
-    lang = fields.Selection('get_language', string='Language', size=5),
+    lang = fields.Selection('get_language', string='Language', size=5)
     type = fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
        required=True)
     src = fields.Text('Source')
