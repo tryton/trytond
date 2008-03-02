@@ -63,6 +63,7 @@ class ActionKeyword(OSV):
         if pool:
             self._rpc_allowed = self._rpc_allowed + [
                 'get_keyword',
+                'models_get',
             ]
 
     def _convert_vals(self, cursor, user, vals, context=None):
