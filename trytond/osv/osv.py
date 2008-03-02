@@ -19,7 +19,7 @@ class ExceptOSV(Exception):
         self.name = name
         self.exc_type = exc_type
         self.value = value
-        self.args = (exc_type, name)
+        self.args = (name, value)
 
 except_osv = ExceptOSV
 

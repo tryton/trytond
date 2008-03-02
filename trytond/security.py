@@ -1,16 +1,22 @@
 import pooler
 from config import CONFIG
+import sha
 
 _USER_CACHE = {}
 
 def login(dbname, loginname, password):
+    loginname = loginname.encode('utf-8')
+    password = password.encode('utf-8')
     cursor = pooler.get_db(dbname).cursor()
+    password_sha = sha.new(password).hexdigest()
     cursor.execute('SELECT id FROM res_user '
         'WHERE login = %s and password = %s and active',
-        (loginname.encode('utf-8'), password.encode('utf-8')))
+        (loginname, password_sha))
     res = cursor.fetchone()
     cursor.close()
     if res:
+        _USER_CACHE.setdefault(dbname, {})
+        _USER_CACHE[dbname][res[0]] = password_sha
         return res[0]
     else:
         return False
@@ -21,17 +27,20 @@ def check_super(passwd):
     else:
         raise Exception('AccessDenied')
 
-def check(dbname, user, passwd):
-    # FIXME: this should be db dependent
-    if _USER_CACHE.has_key(user) and (_USER_CACHE[user]==passwd):
+def check(dbname, user, password):
+    password = password.encode('utf-8')
+    password_sha = sha.new(password).hexdigest()
+    if _USER_CACHE.get(dbname, {}).has_key(user) \
+            and _USER_CACHE[dbname][user] == password_sha:
         return True
     cursor = pooler.get_db(dbname).cursor()
-    cursor.execute('SELECT count(*) FROM res_user ' \
-            'WHERE id = %s AND password = %s', (int(user), passwd))
-    res = cursor.fetchone()[0]
+    cursor.execute('SELECT id FROM res_user '
+        'WHERE id = %s and password = %s and active',
+        (user, password_sha))
+    res = cursor.fetchone()
     cursor.close()
-    if not bool(res):
-        raise Exception('AccessDenied')
     if res:
-        _USER_CACHE[user] = passwd
-    return bool(res)
+        _USER_CACHE.setdefault(dbname, {})
+        _USER_CACHE[dbname][res[0]] = password_sha
+        return True
+    raise Exception('NotLogged')

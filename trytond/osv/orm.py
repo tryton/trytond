@@ -188,7 +188,7 @@ def get_pg_type(field):
 
     if type_dict.has_key(type(field)):
         f_type = (type_dict[type(field)], type_dict[type(field)])
-    elif isinstance(field, (fields.Char, fields.Reference)):
+    elif isinstance(field, (fields.Char, fields.Reference, fields.Sha)):
         f_type = ('varchar', 'VARCHAR(%d)' % (field.size,))
     elif isinstance(field, fields.Selection):
         if isinstance(field.selection, list) \
