@@ -135,8 +135,9 @@ class DB(Service):
                     'RESTORE DB: %s doesn\'t work with password' % (db_name,))
             raise Exception, "Couldn't restore database with password"
 
-        database = sql_db.db_connect('template1', serialize=1)
+        database = sql_db.db_connect('template1')
         cursor = database.cursor()
+        cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cursor.execute('CREATE DATABASE ' + db_name + ' ENCODING \'unicode\'')
         cursor.commit()
         cursor.close()
@@ -172,6 +173,8 @@ class DB(Service):
     def db_exist(self, db_name):
         try:
             database = sql_db.db_connect(db_name)
+            cursor = database.cursor()
+            cursor.close()
             return True
         except:
             return False
