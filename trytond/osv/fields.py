@@ -327,10 +327,10 @@ class One2Many(Column):
     _classic_write = False
     _type = 'one2many'
 
-    def __init__(self, obj, fields_id, string='unknown', limit=None, **args):
+    def __init__(self, obj, field, string='unknown', limit=None, **args):
         Column.__init__(self, string=string, **args)
         self._obj = obj
-        self._fields_id = fields_id
+        self._field = field
         self._limit = limit
         #one2many can't be used as condition for defaults
         assert(self.change_default != True)
@@ -345,11 +345,11 @@ class One2Many(Column):
         for i in ids:
             res[i] = []
         ids2 = obj.pool.get(self._obj).search(cursor, user,
-                [(self._fields_id, 'in', ids)], offset=offset,
+                [(self._field, 'in', ids)], offset=offset,
                 limit=self._limit)
         for i in obj.pool.get(self._obj)._read_flat(cursor, user, ids2,
-                [self._fields_id], context=context, load='_classic_write'):
-            res[i[self._fields_id]].append( i['id'] )
+                [self._field], context=context, load='_classic_write'):
+            res[i[self._field]].append( i['id'] )
         return res
 
     def set(self, cursor, obj, obj_id, field, values, user=None, context=None):
@@ -361,7 +361,7 @@ class One2Many(Column):
         obj = obj.pool.get(self._obj)
         for act in values:
             if act[0] == 0:
-                act[2][self._fields_id] = obj_id
+                act[2][self._field] = obj_id
                 obj.create(cursor, user, act[2], context=context)
             elif act[0] == 1:
                 obj.write(cursor, user, [act[1]] , act[2], context=context)
@@ -369,30 +369,30 @@ class One2Many(Column):
                 obj.unlink(cursor, user, [act[1]], context=context)
             elif act[0] == 3:
                 cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._fields_id + '" = NULL ' \
+                        'SET "' + self._field + '" = NULL ' \
                         'WHERE id = %s', (act[1],))
             elif act[0] == 4:
                 cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._fields_id + '" = %s ' \
+                        'SET "' + self._field + '" = %s ' \
                         'WHERE id = %s', (obj_id, act[1]))
             elif act[0] == 5:
                 cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE "' + self._fields_id + '" = %s', (obj_id,))
+                        'SET "' + self._field + '" = NULL ' \
+                        'WHERE "' + self._field + '" = %s', (obj_id,))
             elif act[0] == 6:
                 if not act[2]:
                     ids2 = [0]
                 else:
                     ids2 = act[2]
                 cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._fields_id + '" = NULL ' \
-                        'WHERE "' + self._fields_id + '" = %s ' \
+                        'SET "' + self._field + '" = NULL ' \
+                        'WHERE "' + self._field + '" = %s ' \
                             'AND id not IN (' + \
                                 ','.join([str(x) for x in ids2]) + ')',
                                 (obj_id,))
                 if act[2]:
                     cursor.execute('UPDATE "' + _table + '" ' \
-                            'SET "' + self._fields_id + '" = %s ' \
+                            'SET "' + self._field + '" = %s ' \
                             'WHERE id IN (' + \
                                 ','.join([str(x) for x in act[2]]) + ')',
                                 (obj_id,))
