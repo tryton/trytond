@@ -1679,6 +1679,8 @@ class ORM(object):
                 res[field]['relation'] = self._columns[field]._obj
                 res[field]['domain'] = self._columns[field]._domain
                 res[field]['context'] = self._columns[field]._context
+            if res[field]['type'] == 'one2many':
+                res[field]['relation_field'] = self._columns[field]._field
 
         if fields_names:
             # filter out fields which aren't in the fields_names list
