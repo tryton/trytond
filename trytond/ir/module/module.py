@@ -160,18 +160,17 @@ class Module(OSV):
     def default_license(self, cursor, user, context=None):
         return 'GPL-2'
 
-    def __init__(self, pool):
-        super(Module, self).__init__(pool)
-        if pool:
-            self._rpc_allowed = self._rpc_allowed + [
-                'button_install',
-                'button_install_cancel',
-                'button_uninstall',
-                'button_uninstall_cancel',
-                'button_upgrade',
-                'button_upgrade_cancel',
-                'button_update_translations',
-            ]
+    def __init__(self):
+        super(Module, self).__init__()
+        self._rpc_allowed = self._rpc_allowed + [
+            'button_install',
+            'button_install_cancel',
+            'button_uninstall',
+            'button_uninstall_cancel',
+            'button_upgrade',
+            'button_upgrade_cancel',
+            'button_update_translations',
+        ]
 
     @staticmethod
     def get_module_info(name):

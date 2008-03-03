@@ -159,14 +159,14 @@ class OSV(ORM):
             cls = type(cls._name, (cls, parent_class), {})
 
         obj = object.__new__(cls)
-        obj.__init__(pool)
+        pool.add(obj._name, obj)
+        obj.pool = pool
+        obj.__init__()
         return obj
 
     create_instance = classmethod(create_instance)
 
-    def __init__(self, pool):
-        pool.add(self._name, self)
-        self.pool = pool
+    def __init__(self):
         super(OSV, self).__init__()
 
 osv = OSV

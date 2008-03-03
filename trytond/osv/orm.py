@@ -419,6 +419,7 @@ class ORM(object):
     def _auto_init(self, cursor, module_name):
         logger = Logger()
         create = False
+
         self._field_create(cursor, module_name)
         if self._auto:
             cursor.execute("SELECT relname FROM pg_class " \
@@ -742,7 +743,10 @@ class ORM(object):
                     (self._table,))
             create = not bool(cursor.fetchone())
 
-        for (key, con, _) in self._sql_constraints:
+        for (key, con, msg) in self._sql_constraints:
+
+            self.pool._sql_error[self._table + '_' + key] = msg
+
             cursor.execute("SELECT conname FROM pg_constraint " \
                     "WHERE conname = %s", ((self._table + '_' + key),))
             if not cursor.dictfetchall():
@@ -772,8 +776,6 @@ class ORM(object):
             self._table = self._name.replace('.', '_')
         if not self._description:
             self._description = self._name
-        for (key, ham, msg) in self._sql_constraints:
-            self.pool._sql_error[self._table + '_' + key] = msg
 
         self._inherits_reload()
         if not self._sequence:
@@ -793,6 +795,7 @@ class ORM(object):
             assert (k in self._columns) or (k in self._inherit_fields), \
             'Default function defined in %s but field %s does not exist!' % \
                 (self._name, k,)
+
     def _inherits_reload_src(self):
         "Update objects that uses this one to update their _inherits fields"
         for obj in self.pool.object_name_pool.values():

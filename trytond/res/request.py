@@ -69,16 +69,15 @@ class Request(OSV):
     def default_priority(self, cursor, user, context=None):
         return '1'
 
-    def __init__(self, pool):
-        super(Request, self).__init__(pool)
-        if pool:
-            self._rpc_allowed = self._rpc_allowed + [
-                'links_get',
-                'request_send',
-                'request_reply',
-                'request_close',
-                'request_get',
-            ]
+    def __init__(self):
+        super(Request, self).__init__()
+        self._rpc_allowed = self._rpc_allowed + [
+            'links_get',
+            'request_send',
+            'request_reply',
+            'request_close',
+            'request_get',
+        ]
 
     def links_get(self, cursor, user, context=None):
         request_link_obj = self.pool.get('res.request.link')

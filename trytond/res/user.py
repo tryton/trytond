@@ -68,16 +68,15 @@ class User(OSV):
     def default_action(self, cursor, user, context=None):
         return self.default_menu(cursor, user, context=context)
 
-    def __init__(self, pool):
-        super(User, self).__init__(pool)
-        if pool:
-            self._rpc_allowed = self._rpc_allowed + [
-                'get_preferences',
-                'set_preferences',
-                'get_preferences_fields_view',
-                'languages',
-                'timezones',
-            ]
+    def __init__(self):
+        super(User, self).__init__()
+        self._rpc_allowed = self._rpc_allowed + [
+            'get_preferences',
+            'set_preferences',
+            'get_preferences_fields_view',
+            'languages',
+            'timezones',
+        ]
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
