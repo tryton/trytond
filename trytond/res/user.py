@@ -70,12 +70,10 @@ class User(OSV):
 
     def __init__(self):
         super(User, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
+        self._rpc_allowed += [
             'get_preferences',
             'set_preferences',
             'get_preferences_fields_view',
-            'languages',
-            'timezones',
         ]
 
     def _convert_vals(self, cursor, user, vals, context=None):

@@ -12,13 +12,6 @@ class Property(OSV):
     field = fields.Many2One('ir.model.field', 'Field',
        ondelete='cascade', required=True)
 
-    def __init__(self):
-        super(Property, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'models_get2',
-            'models_get',
-        ]
-
     def models_get2(self, cursor, user, context=None):
         model_field_obj = self.pool.get('ir.model.field')
         ids = model_field_obj.search(cursor, user, [('view_load', '=', 1)])

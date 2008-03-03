@@ -211,8 +211,7 @@ class Selection(Column):
         selections is a list of (key, string)
             or the name of the object function that return the list
         """
-        Column.__init__(self, string=string, **args)
-        self.selection = selections
+        Column.__init__(self, string=string, selection=selections, **args)
 
 selection = Selection
 

@@ -60,10 +60,7 @@ class ActionKeyword(OSV):
 
     def __init__(self):
         super(ActionKeyword, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'get_keyword',
-            'models_get',
-        ]
+        self._rpc_allowed.append('get_keyword')
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()

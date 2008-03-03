@@ -71,8 +71,7 @@ class Request(OSV):
 
     def __init__(self):
         super(Request, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'links_get',
+        self._rpc_allowed += [
             'request_send',
             'request_reply',
             'request_close',

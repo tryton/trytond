@@ -38,12 +38,6 @@ class Sequence(OSV):
     def default_padding(self, cursor, user, context=None):
         return 0
 
-    def __init__(self):
-        super(Sequence, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'code_get',
-        ]
-
     def code_get(self, cursor, user, context=None):
         cursor.execute('select code, name from ir_sequence_type')
         return cursor.fetchall()
