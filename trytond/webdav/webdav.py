@@ -297,15 +297,14 @@ Directory()
 class Attachment(OSV):
     _name = 'ir.attachment'
 
-    def __init__(self, pool):
-        super(Attachment, self).__init__(pool)
-        if pool:
-            self._constraints = self._constraints + [
-                ('check_directory',
-                    'Error! You can not create a attachment \n' \
-                            'on a directory that have the same name \n' \
-                            'than a child directory.', ['name']),
-            ]
+    def __init__(self):
+        super(Attachment, self).__init__()
+        self._constraints = self._constraints + [
+            ('check_directory',
+                'Error! You can not create a attachment \n' \
+                        'on a directory that have the same name \n' \
+                        'than a child directory.', ['name']),
+        ]
 
     def check_directory(self, cursor, user, ids):
         directory_obj = self.pool.get('webdav.directory')

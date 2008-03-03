@@ -181,12 +181,11 @@ class ViewShortcut(OSV):
     resource = fields.Char('Resource Name', size=64, required=True)
     _order = 'sequence'
 
-    def __init__(self, pool):
-        super(ViewShortcut, self).__init__(pool)
-        if pool:
-            self._rpc_allowed = self._rpc_allowed + [
-                'get_sc',
-            ]
+    def __init__(self):
+        super(ViewShortcut, self).__init__()
+        self._rpc_allowed = self._rpc_allowed + [
+            'get_sc',
+        ]
 
     def get_sc(self, cursor, user, user_id, model='ir.ui.menu', context=None):
         "Provide user's shortcuts"

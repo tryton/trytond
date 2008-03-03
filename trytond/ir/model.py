@@ -166,11 +166,10 @@ class ModelData(OSV):
     def default_date_init(self, cursor, user, context=None):
         return time.strftime('%Y-%m-%d %H:%M:%S')
 
-    def __init__(self, pool):
-        super(ModelData, self).__init__(pool)
-        if pool:
-            self.fs2db = None
-            self.fs2values = None
+    def __init__(self):
+        super(ModelData, self).__init__()
+        self.fs2db = None
+        self.fs2values = None
 
 
     def get_id(self, cursor, user, module, fs_id):

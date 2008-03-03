@@ -58,13 +58,12 @@ class ActionKeyword(OSV):
     action = fields.many2one('ir.action', 'Action',
             ondelete='CASCADE')
 
-    def __init__(self, pool):
-        super(ActionKeyword, self).__init__(pool)
-        if pool:
-            self._rpc_allowed = self._rpc_allowed + [
-                'get_keyword',
-                'models_get',
-            ]
+    def __init__(self):
+        super(ActionKeyword, self).__init__()
+        self._rpc_allowed = self._rpc_allowed + [
+            'get_keyword',
+            'models_get',
+        ]
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
