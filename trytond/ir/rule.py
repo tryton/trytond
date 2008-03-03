@@ -69,13 +69,6 @@ class Rule(OSV):
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=2,
        required=True, ondelete="cascade")
 
-    def __init__(self):
-        super(Rule, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'get_operand',
-        ]
-
-
     def _operand_get(self, cursor, user, obj_name='', level=3, recur=None, root_tech='', root=''):
         res = {}
         if not obj_name:

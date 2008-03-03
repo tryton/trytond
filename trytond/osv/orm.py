@@ -247,21 +247,6 @@ class ORM(object):
     _inherits = {}
     _sequence = None
     _description = ''
-    _rpc_allowed = [
-            'read',
-            'write',
-            'create',
-            'default_get',
-            'unlink',
-            'fields_get',
-            'fields_view_get',
-            'search',
-            'name_get',
-            'name_search',
-            'copy',
-            'import_data',
-            'search_count',
-            ]
     _auto = True
     _obj = None
     _sql = ''
@@ -769,6 +754,22 @@ class ORM(object):
                         cursor.execute(line2)
 
     def __init__(self):
+        self._rpc_allowed = [
+                'read',
+                'write',
+                'create',
+                'default_get',
+                'unlink',
+                'fields_get',
+                'fields_view_get',
+                'search',
+                'name_get',
+                'name_search',
+                'copy',
+                'import_data',
+                'search_count',
+                ]
+
         # reinit the cachel on _columns and _defaults
         self.__columns = None
         self.__defaults = None
@@ -790,6 +791,11 @@ class ORM(object):
                        'Last modification by', readonly=True)
             self.write_date = fields.DateTime(
                     'Last modification date', readonly=True)
+
+        for name in self._columns:
+            if isinstance(self._columns[name], (fields.Selection, fields.Reference)) \
+                    and not isinstance(self._columns[name].selection, (list, tuple)):
+                self._rpc_allowed.append(self._columns[name].selection)
 
         for k in self._defaults:
             assert (k in self._columns) or (k in self._inherit_fields), \

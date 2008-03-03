@@ -52,12 +52,6 @@ class Translation(OSV, Cacheable):
     def default_fuzzy(self, cursor, user, context=None):
         return 0
 
-    def __init__(self):
-        super(Translation, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'get_language',
-        ]
-
     def get_model(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for translation in self.browse(cursor, user, ids, context=context):
@@ -370,12 +364,6 @@ class TranslationUpdateInit(WizardOSV):
     lang = fields.Selection('get_language', string='Language', size=5,
         required=True)
 
-    def __init__(self):
-        super(TranslationUpdateInit, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'get_language',
-        ]
-
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search(cursor, user, [('translatable', '=', True)],
@@ -499,13 +487,6 @@ class TranslationExportInit(WizardOSV):
        required=True)
     module = fields.Selection('get_module', string='Module', size=128,
        required=True)
-
-    def __init__(self):
-        super(TranslationExportInit, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
-            'get_language',
-            'get_module',
-        ]
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')

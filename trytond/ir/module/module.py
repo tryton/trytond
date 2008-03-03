@@ -162,7 +162,7 @@ class Module(OSV):
 
     def __init__(self):
         super(Module, self).__init__()
-        self._rpc_allowed = self._rpc_allowed + [
+        self._rpc_allowed += [
             'button_install',
             'button_install_cancel',
             'button_uninstall',
