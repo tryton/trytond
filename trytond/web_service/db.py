@@ -53,7 +53,7 @@ class DB(Service):
                         'SET language = %s ' \
                         'WHERE login <> \'root\'', (lang,))
                 cursor.commit()
-                cursor.execute('SELECT login, password, name ' \
+                cursor.execute('SELECT login, login as password, name ' \
                         'FROM res_user ' \
                         'WHERE login <> \'root\' ORDER BY login')
                 res = cursor.dictfetchall()
