@@ -35,7 +35,7 @@ class User(OSV):
             'set_preferences',
             'get_preferences_fields_view',
         ]
-        self._sql_constraints = [
+        self._sql_constraints += [
             ('login_key', 'UNIQUE (login)',
                 'You can not have two users with the same login!')
         ]
