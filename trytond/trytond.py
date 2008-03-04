@@ -170,7 +170,7 @@ class TrytonServer(object):
                         "invalid port '%s'!" % (CONFIG['webdavport'],))
                 sys.exit(1)
 
-            webdavd = netsvc.WebDAVServerThread(interface, port, False)
+            webdavd = netsvc.WebDAVServerThread(interface, port, secure)
             self.logger.notify_channel('web-services', netsvc.LOG_INFO,
                     'starting webdav service, port ' + str(port))
 
