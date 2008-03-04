@@ -254,7 +254,7 @@ class SecureXMLRPCRequestHandler(SimpleXMLRPCRequestHandler):
 
     def setup(self):
         self.connection = self.request
-        self.rfile = socket.fileobject(self.request, "rb", self.rbufsize)
+        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
         self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
 
 
@@ -486,18 +486,50 @@ class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
     address_family = socket.AF_INET6
 
 
+class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
+
+    def __init__(self, server_address, HandlerClass):
+        from OpenSSL import SSL
+        BaseThreadedHTTPServer.__init__(self, server_address, HandlerClass)
+        ctx = SSL.Context(SSL.SSLv23_METHOD)
+        ctx.use_privatekey_file(CONFIG['privatekey'])
+        ctx.use_certificate_file(CONFIG['certificate'])
+        self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
+            self.socket_type))
+        self.server_bind()
+        self.server_activate()
+
+
+class SecureThreadedHTTPServer6(SecureThreadedHTTPServer):
+    address_family = socket.AF_INET6
+
+
 class WebDAVServerThread(threading.Thread):
 
     def __init__(self, interface, port, secure=False):
-        from webdavsvc import WebDAVAuthRequestHandler, TrytonDAVInterface
+        from webdavsvc import WebDAVAuthRequestHandler, SecureWebDAVAuthRequestHandler, \
+                TrytonDAVInterface
         threading.Thread.__init__(self)
         self.secure = secure
         self.running = False
         if secure:
-            raise
+            handler = SecureWebDAVAuthRequestHandler
+            handler.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
+            server_class = SecureThreadedHTTPServer
+            if socket.has_ipv6:
+                try:
+                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                    server_class = SecureThreadedHTTPServer6
+                    if not interface:
+                        interface = '::'
+                except:
+                    pass
+            if not interface:
+                interface = '0.0.0.0'
+            self.server = server_class((interface, port), handler)
         else:
             handler = WebDAVAuthRequestHandler
-            handler.IFACE_CLASS = TrytonDAVInterface(interface, port)
+            handler.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
             server_class = BaseThreadedHTTPServer
             if socket.has_ipv6:
                 try:
