@@ -171,10 +171,13 @@ class ActionReport(OSV):
         fnct_inv='report_content_inv', type='binary',
         string='Content')
     action = fields.Many2One('ir.action', 'Action', required=True)
-    _sql_constraints = [
-        ('report_name_uniq', 'unique (report_name)',
-            'The internal name must be unique!'),
-    ]
+
+    def __init__(self):
+        super(ActionReport, self).__init__()
+        self._sql_constraints += [
+            ('report_name_uniq', 'unique (report_name)',
+                'The internal name must be unique!'),
+        ]
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.report'

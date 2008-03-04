@@ -14,9 +14,12 @@ class Group(OSV):
        domain="[('global', '<>', True)]")
     menu_access = fields.Many2Many('ir.ui.menu', 'ir_ui_menu_group_rel',
        'gid', 'menu_id', 'Access Menu')
-    _sql_constraints = [
-        ('name_uniq', 'unique (name)', 'The name of the group must be unique!')
-    ]
+
+    def __init__(self):
+        super(Group, self).__init__()
+        self._sql_constraints += [
+            ('name_uniq', 'unique (name)', 'The name of the group must be unique!')
+        ]
 
     def write(self, cursor, user, ids, vals, context=None):
         res = super(Group, self).write(cursor, user, ids, vals,

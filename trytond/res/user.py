@@ -27,22 +27,30 @@ class User(OSV):
        domain="[('global', '<>', True)]")
     language = fields.Selection('languages', 'Language')
     timezone = fields.Selection('timezones', 'Timezone')
-    _sql_constraints = [
-        ('login_key', 'UNIQUE (login)',
-            'You can not have two users with the same login!')
-    ]
-    _preferences_fields = [
-        'name',
-        'password',
-        'signature',
-        'menu',
-        'action',
-    ]
-    _context_fields = [
-        'language',
-        'timezone',
-        'groups',
-    ]
+
+    def __init__(self):
+        super(User, self).__init__()
+        self._rpc_allowed += [
+            'get_preferences',
+            'set_preferences',
+            'get_preferences_fields_view',
+        ]
+        self._sql_constraints = [
+            ('login_key', 'UNIQUE (login)',
+                'You can not have two users with the same login!')
+        ]
+        self._preferences_fields = [
+            'name',
+            'password',
+            'signature',
+            'menu',
+            'action',
+        ]
+        self._context_fields = [
+            'language',
+            'timezone',
+            'groups',
+        ]
 
     def default_password(self, cursor, user, context=None):
         return ''
@@ -67,14 +75,6 @@ class User(OSV):
 
     def default_action(self, cursor, user, context=None):
         return self.default_menu(cursor, user, context=context)
-
-    def __init__(self):
-        super(User, self).__init__()
-        self._rpc_allowed += [
-            'get_preferences',
-            'set_preferences',
-            'get_preferences_fields_view',
-        ]
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()

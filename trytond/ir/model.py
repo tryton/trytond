@@ -66,10 +66,13 @@ class ModelAccess(OSV):
     perm_create = fields.Boolean('Create Access')
     perm_unlink = fields.Boolean('Delete Permission')
     description = fields.Text('Description')
-    _sql_constraints = [
-        ('model_group_uniq', 'UNIQUE("model", "group")',
-            'Only on record by model and group is allowed!'),
-    ]
+
+    def __init__(self):
+        super(ModelAccess, self).__init__()
+        self._sql_constraints += [
+            ('model_group_uniq', 'UNIQUE("model", "group")',
+                'Only on record by model and group is allowed!'),
+        ]
 
     def check(self, cursor, user, model_name, mode='read',
             raise_exception=True):
@@ -158,19 +161,16 @@ class ModelData(OSV):
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
-    _sql_constraints = [
-        ('fs_id_module_uniq', 'UNIQUE("fs_id", "module")',
-            'The couple (fs_id, module) must be unique!'),
-    ]
-
-    def default_date_init(self, cursor, user, context=None):
-        return time.strftime('%Y-%m-%d %H:%M:%S')
 
     def __init__(self):
         super(ModelData, self).__init__()
-        self.fs2db = None
-        self.fs2values = None
+        self._sql_constraints = [
+            ('fs_id_module_uniq', 'UNIQUE("fs_id", "module")',
+                'The couple (fs_id, module) must be unique!'),
+        ]
 
+    def default_date_init(self, cursor, user, context=None):
+        return time.strftime('%Y-%m-%d %H:%M:%S')
 
     def get_id(self, cursor, user, module, fs_id):
         """

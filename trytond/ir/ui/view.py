@@ -21,9 +21,12 @@ class View(OSV):
     field_childs = fields.Char('Childs Field',size=64)
     module = fields.Char('Module', size=128, readonly=True)
     _order = "priority"
-    _constraints = [
-        ('check_xml', 'Invalid XML for View Architecture!', ['arch'])
-    ]
+
+    def __init__(self):
+        super(View, self).__init__()
+        self._constraints += [
+            ('check_xml', 'Invalid XML for View Architecture!', ['arch'])
+        ]
 
     def default_arch(self, cursor, user, context=None):
         return '<?xml version="1.0"?>\n' \
