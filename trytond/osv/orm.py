@@ -544,6 +544,7 @@ class ORM(object):
                                             (self._table, k, default))
                             # and add constraints if needed
                             if isinstance(field, fields.Many2One):
+                                # res.user and res.group are not present when ir initialize
                                 if field._obj == 'res.user':
                                     ref = 'res_user'
                                 elif field._obj == 'res.group':
