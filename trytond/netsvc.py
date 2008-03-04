@@ -250,6 +250,14 @@ class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
             )
 
 
+class SecureXMLRPCRequestHandler(SimpleXMLRPCRequestHandler):
+
+    def setup(self):
+        self.connection = self.request
+        self.rfile = socket.fileobject(self.request, "rb", self.rbufsize)
+        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
+
+
 class SimpleThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
         SimpleXMLRPCServer.SimpleXMLRPCServer):
 
@@ -263,6 +271,25 @@ class SimpleThreadedXMLRPCServer6(SimpleThreadedXMLRPCServer):
     address_family = socket.AF_INET6
 
 
+class SecureThreadedXMLRPCServer(SimpleThreadedXMLRPCServer):
+
+    def __init__(self, server_address, HandlerClass, logRequests=1):
+        from OpenSSL import SSL
+        SimpleThreadedXMLRPCServer.__init__(self, server_address, HandlerClass,
+                logRequests)
+        ctx = SSL.Context(SSL.SSLv23_METHOD)
+        ctx.use_privatekey_file(CONFIG['privatekey'])
+        ctx.use_certificate_file(CONFIG['certificate'])
+        self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
+            self.socket_type))
+        self.server_bind()
+        self.server_activate()
+
+
+class SecureThreadedXMLRPCServer6(SecureThreadedXMLRPCServer):
+    address_family = socket.AF_INET6
+
+
 class HttpDaemon(threading.Thread):
 
     def __init__(self, interface, port, secure=False):
@@ -270,27 +297,19 @@ class HttpDaemon(threading.Thread):
         self.secure = secure
         self.running = False
         if secure:
-#            from ssl import SecureXMLRPCServer
-#            class SecureXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
-#                    SecureXMLRPCServer.SecureXMLRPCRequestHandler):
-#                SecureXMLRPCServer.SecureXMLRPCRequestHandler.rpc_paths = (
-#                        '/xmlrpc/db',
-#                        '/xmlrpc/common',
-#                        '/xmlrpc/object',
-#                        '/xmlrpc/report',
-#                        '/xmlrpc/wizard',
-#                        )
-#            class SecureThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
-#                    SecureXMLRPCServer.SecureXMLRPCServer):
-#
-#                def server_bind(self):
-#                    self.socket.setsockopt(socket.SOL_SOCKET,
-#                            socket.SO_REUSEADDR, 1)
-#                    SecureXMLRPCServer.SecureXMLRPCServer.server_bind(self)
-#
-#            self.server = SecureThreadedXMLRPCServer((interface, port),
-#                    SecureXMLRPCRequestHandler,0)
-            raise
+            server_class = SecureThreadedXMLRPCServer
+            if socket.has_ipv6:
+                try:
+                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                    server_class = SecureThreadedXMLRPCServer6
+                    if not interface:
+                        interface = '::'
+                except:
+                    pass
+            if not interface:
+                interface = '0.0.0.0'
+            self.server = server_class((interface, port),
+                    SecureXMLRPCRequestHandler, 0)
         else:
             server_class = SimpleThreadedXMLRPCServer
             if socket.has_ipv6:
@@ -342,11 +361,12 @@ class HttpDaemon(threading.Thread):
 
 
 class TinySocketClientThread(threading.Thread):
-    def __init__(self, sock, threads):
+    def __init__(self, sock, threads, secure):
         threading.Thread.__init__(self)
         self.sock = sock
         self.threads = threads
         self.running = False
+        self.secure = secure
 
     def run(self):
         self.running = True
@@ -384,8 +404,7 @@ class TinySocketClientThread(threading.Thread):
                     tback = sys.exc_info()[2]
                     pdb.post_mortem(tback)
                 pysocket.send(str(exp), exception=True, traceback=tb_s)
-        self.sock.shutdown(socket.SHUT_RDWR)
-        self.sock.close()
+        pysocket.disconnect()
         self.threads.remove(self)
         return True
 
@@ -409,6 +428,12 @@ class TinySocketServerThread(threading.Thread):
             interface = '0.0.0.0'
         self.socket = socket.socket(familly, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if secure:
+            from OpenSSL import SSL
+            ctx = SSL.Context(SSL.SSLv23_METHOD)
+            ctx.use_privatekey_file(CONFIG['privatekey'])
+            ctx.use_certificate_file(CONFIG['certificate'])
+            self.socket = SSL.Connection(ctx, self.socket)
         self.socket.bind((interface, port))
         self.socket.listen(5)
         self.threads = []
@@ -420,7 +445,7 @@ class TinySocketServerThread(threading.Thread):
             self.running = True
             while self.running:
                 (clientsocket, address) = self.socket.accept()
-                c_thread = TinySocketClientThread(clientsocket, self.threads)
+                c_thread = TinySocketClientThread(clientsocket, self.threads, self.secure)
                 self.threads.append(c_thread)
                 c_thread.start()
             self.socket.close()
@@ -433,10 +458,16 @@ class TinySocketServerThread(threading.Thread):
         for thread in self.threads:
             thread.stop()
         try:
-            if hasattr(socket, 'SHUT_RDWR'):
-                self.socket.shutdown(socket.SHUT_RDWR)
+            if self.secure:
+                if hasattr(socket, 'SHUT_RDWR'):
+                    self.socket.sock_shutdown(socket.SHUT_RDWR)
+                else:
+                    self.socket.sock_shutdown(2)
             else:
-                self.socket.shutdown(2)
+                if hasattr(socket, 'SHUT_RDWR'):
+                    self.socket.shutdown(socket.SHUT_RDWR)
+                else:
+                    self.socket.shutdown(2)
             self.socket.close()
         except:
             return False
