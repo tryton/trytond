@@ -38,8 +38,12 @@ if DAV_VERSION == '0.6':
 
 class TrytonDAVInterface(iface.dav_interface):
 
-    def __init__(self, interface, port):
-        self.baseuri = 'http://%s:%s/' % (interface or socket.gethostname(), port)
+    def __init__(self, interface, port, secure=False):
+        if secure:
+            protocol = 'https'
+        else:
+            protocol = 'http'
+        self.baseuri = '%s://%s:%s/' % (protocol, interface or socket.gethostname(), port)
 
     def _get_dburi(self, uri):
         uri = urlparse.urlsplit(uri)[2]
@@ -290,3 +294,10 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         if int(USER_ID):
             return 1
         return 0
+
+class SecureWebDAVAuthRequestHandler(WebDAVAuthRequestHandler):
+
+    def setup(self):
+        self.connection = self.request
+        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
+        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)

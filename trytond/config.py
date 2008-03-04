@@ -29,6 +29,8 @@ class ConfigManager(object):
             'pidfile': None,
             'logfile': None,
             'secure': False,
+            'privatekey': '/etc/ssl/trytond/server.key',
+            'certificate': '/etc/ssl/trytond/server.pem',
             'smtp_server': 'localhost',
             'smtp_user': False,
             'smtp_password': False,
@@ -59,8 +61,6 @@ class ConfigManager(object):
                 help="stop the server after it initializes")
         group.add_option("-n", "--interface", dest="interface",
                 help="specify the TCP IP address")
-        group.add_option("-S", "--secure", dest="secure", action="store_true",
-                help="launch server over https instead of http")
         group.add_option("--no-netrpc", dest="netrpc", action="store_false",
                 help="disable netrpc")
         group.add_option("-p", "--net-port", dest="netport",
@@ -73,6 +73,15 @@ class ConfigManager(object):
                 help="enable webdav")
         group.add_option("--webdav-port", dest="webdavport",
                 help="specify the TCP port for webdav")
+        parser.add_option_group(group)
+
+        group = optparse.OptionGroup(parser, "SSL options")
+        group.add_option("-S", "--secure", dest="secure", action="store_true",
+                help="launch server over SSL")
+        group.add_option("--privatekey", dest="privatekey",
+                help="specify the file for the private key")
+        group.add_option("--certificate", dest="certificate",
+                help="specify the file for the certificate")
         parser.add_option_group(group)
 
         group = optparse.OptionGroup(parser, "Modules related options")
@@ -149,6 +158,8 @@ class ConfigManager(object):
                 'logfile',
                 'pidfile',
                 'secure',
+                'privatekey',
+                'certificate',
                 'smtp_server',
                 'smtp_user',
                 'smtp_password',
