@@ -794,7 +794,8 @@ class ORM(object):
 
         for name in self._columns:
             if isinstance(self._columns[name], (fields.Selection, fields.Reference)) \
-                    and not isinstance(self._columns[name].selection, (list, tuple)):
+                    and not isinstance(self._columns[name].selection, (list, tuple)) \
+                    and not self._columns[name].selection in self._rpc_allowed:
                 self._rpc_allowed.append(self._columns[name].selection)
 
         for k in self._defaults:
