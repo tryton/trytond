@@ -15,6 +15,10 @@ class Default(OSV):
     clause = fields.Text('Clause')
     user = fields.Many2One('res.user', 'User', ondelete='cascade')
 
+    def __init__(self):
+        super(Default, self).__init__()
+        self._rpc_allowed += ['get_default',]
+
     def get_default(self, cursor, user, model, clause, context=None):
         res = {}
         test_user = user
