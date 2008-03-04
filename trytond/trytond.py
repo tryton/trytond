@@ -157,7 +157,7 @@ class TrytonServer(object):
                 sys.exit(1)
 
             tinysocket = netsvc.TinySocketServerThread(interface, port,
-                    False)
+                    secure)
             self.logger.notify_channel("web-services", netsvc.LOG_INFO,
                     "starting netrpc service, port " + str(port))
 
