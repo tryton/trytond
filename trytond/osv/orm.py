@@ -235,8 +235,6 @@ class ORM(object):
             - relations (one2many, many2one, many2many)
             - functions
     """
-    _sql_constraints = []
-    _constraints = []
     _log_access = True
     _table = None
     _name = None
@@ -244,13 +242,12 @@ class ORM(object):
     _parent_name = 'parent'
     _date_name = 'date'
     _order = 'id'
-    _inherits = {}
+    _inherits = {} #XXX remove from class instance
     _sequence = None
     _description = ''
     _auto = True
     _obj = None
     _sql = ''
-    _inherit_fields = []
     pool = None
     __columns = None
     __defaults = None
@@ -769,10 +766,13 @@ class ORM(object):
                 'import_data',
                 'search_count',
                 ]
-
-        # reinit the cachel on _columns and _defaults
+        self._sql_constraints = []
+        self._constraints = []
+        self._inherit_fields = []
+        # reinit the cache on _columns and _defaults
         self.__columns = None
         self.__defaults = None
+
         if not self._table:
             self._table = self._name.replace('.', '_')
         if not self._description:

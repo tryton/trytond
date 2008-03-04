@@ -16,22 +16,25 @@ class Directory(OSV):
     childs = fields.One2Many('webdav.directory', 'parent', 'Childs')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain', size=250)
-    _sql_constraints = [
-        ('name_parent_uniq', 'UNIQUE (name, parent)',
-            'The directory name must be unique inside a directory!'),
-    ]
     _parent_name = 'parent'
-    _constraints = [
-        ('check_recursion',
-            'Error! You can not create recursive directories.', ['parent']),
-        ('check_attachment',
-            'Error! You can not create a directory \n' \
-                    'with the same name of an existing file \n' \
-                    'inside the same directory.', ['name']),
-    ]
-    ext2mime = {
-        '.png': 'image/png',
-    }
+
+    def __init__(self):
+        super(Directory, self).__init__()
+        self._sql_constraints += [
+            ('name_parent_uniq', 'UNIQUE (name, parent)',
+                'The directory name must be unique inside a directory!'),
+        ]
+        self._constraints += [
+            ('check_recursion',
+                'Error! You can not create recursive directories.', ['parent']),
+            ('check_attachment',
+                'Error! You can not create a directory \n' \
+                        'with the same name of an existing file \n' \
+                        'inside the same directory.', ['name']),
+        ]
+        self.ext2mime = {
+            '.png': 'image/png',
+        }
 
     def default_domain(self, cursor, user, context=None):
         return '[]'
@@ -299,7 +302,7 @@ class Attachment(OSV):
 
     def __init__(self):
         super(Attachment, self).__init__()
-        self._constraints = self._constraints + [
+        self._constraints += [
             ('check_directory',
                 'Error! You can not create a attachment \n' \
                         'on a directory that have the same name \n' \

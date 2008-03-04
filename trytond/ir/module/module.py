@@ -149,10 +149,13 @@ class Module(OSV):
         ('Other proprietary', 'Other proprietary')], string='License',
         readonly=True)
     _order = 'name'
-    _sql_constraints = [
-        ('name_uniq', 'unique (name)',
-            'The name of the module must be unique!'),
-    ]
+
+    def __init__(self):
+        super(Module, self).__init__()
+        self._sql_constraints = [
+            ('name_uniq', 'unique (name)',
+                'The name of the module must be unique!'),
+        ]
 
     def default_state(self, cursor, user, context=None):
         return 'uninstalled'
