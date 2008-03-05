@@ -1,6 +1,10 @@
 import pooler
 from config import CONFIG
 import sha
+import time
+import random
+
+SESSION_TIMEOUT = 600 #seconds
 
 _USER_CACHE = {}
 
@@ -16,8 +20,11 @@ def login(dbname, loginname, password):
     cursor.close()
     if res:
         _USER_CACHE.setdefault(dbname, {})
-        _USER_CACHE[dbname][res[0]] = password_sha
-        return res[0]
+        user_id = res[0]
+        timestamp = time.time()
+        session = str(random.random())
+        _USER_CACHE[dbname][user_id] = (timestamp, session)
+        return (user_id, session)
     else:
         return False
 
@@ -27,20 +34,13 @@ def check_super(passwd):
     else:
         raise Exception('AccessDenied')
 
-def check(dbname, user, password):
-    password = password.encode('utf-8')
-    password_sha = sha.new(password).hexdigest()
-    if _USER_CACHE.get(dbname, {}).has_key(user) \
-            and _USER_CACHE[dbname][user] == password_sha:
-        return True
-    cursor = pooler.get_db(dbname).cursor()
-    cursor.execute('SELECT id FROM res_user '
-        'WHERE id = %s and password = %s and active',
-        (user, password_sha))
-    res = cursor.fetchone()
-    cursor.close()
-    if res:
-        _USER_CACHE.setdefault(dbname, {})
-        _USER_CACHE[dbname][res[0]] = password_sha
-        return True
+def check(dbname, user, session, reset_timeout=True):
+    session = session.encode('utf-8')
+    if _USER_CACHE.get(dbname, {}).has_key(user):
+        timestamp, real_session = _USER_CACHE[dbname][user]
+        if real_session == session \
+                and abs(timestamp - time.time()) < SESSION_TIMEOUT:
+            if reset_timeout:
+                _USER_CACHE[dbname][user] = (time.time(), real_session)
+            return True
     raise Exception('NotLogged')
