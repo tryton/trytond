@@ -26,7 +26,10 @@
                             <field name="login"/>
                             <label name="password"/>
                             <field name="password"/>
+                            <label name="email"/>
+                            <field name="email" widget="email"/>
                             <!--field name="address_id"/-->
+                            <newline/>
                             <label name="action"/>
                             <field name="action" required="1"/>
                             <label name="menu"/>
