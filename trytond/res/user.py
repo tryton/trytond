@@ -25,7 +25,9 @@ class User(OSV):
     rule_groups = fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
        'user_id', 'rule_group_id', 'Rules',
        domain="[('global', '<>', True)]")
-    language = fields.Selection('languages', 'Language')
+    language = fields.Many2One('ir.lang', 'Language')
+    language_direction = fields.Function('get_language_direction', type='char',
+            string='Language Direction')
     timezone = fields.Selection('timezones', 'Timezone')
     email = fields.Char('Email', size=320)
 
@@ -50,6 +52,7 @@ class User(OSV):
         ]
         self._context_fields = [
             'language',
+            'language_direction',
             'timezone',
             'groups',
         ]
@@ -59,9 +62,6 @@ class User(OSV):
 
     def default_active(self, cursor, user, context=None):
         return 1
-
-    def default_language(self, cursor, user, context=None):
-        return 'en_US'
 
     def default_timezone(self, cursor, user, context=None):
         return time.tzname[0]
@@ -77,6 +77,17 @@ class User(OSV):
 
     def default_action(self, cursor, user, context=None):
         return self.default_menu(cursor, user, context=context)
+
+    def get_language_direction(self, cursor, user, ids, name, arg, context=None):
+        res = {}
+        lang_obj = self.pool.get('ir.lang')
+        default_direction = lang_obj.default_direction(cursor, user, context=context)
+        for user in self.browse(cursor, user, ids, context=context):
+            if user.language:
+                res[user.id] = user.language.direction
+            else:
+                res[user.id] = default_direction
+        return res
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
@@ -142,7 +153,10 @@ class User(OSV):
             fields = self._preferences_fields + self._context_fields
         for field in fields:
             if self._columns[field]._type in ('many2one', 'one2one'):
-                res[field] = user[field].id
+                if field == 'language':
+                    res[field] = user[field].code
+                else:
+                    res[field] = user[field].id
             elif self._columns[field]._type in ('one2many', 'many2many'):
                 res[field] = [x.id for x in user[field]]
             else:
@@ -168,26 +182,24 @@ class User(OSV):
         fields_keys = fields.keys()
         fields_keys.sort(lambda x, y: cmp(fields_names.index(x), fields_names.index(y)))
         for field in fields_keys:
-            xml += '<label name="%s"/><field name="%s"/>' % (field, field)
+            if field == 'language':
+                xml += '<label name="%s"/><field name="%s" widget="selection"/>' % \
+                        (field, field)
+            elif field == 'language_direction':
+                pass
+            else:
+                xml += '<label name="%s"/><field name="%s"/>' % (field, field)
         xml += '</form>'
         doc = dom.minidom.parseString(xml)
         arch, fields = self._view_look_dom_arch(cursor,
                 user, doc, context=context)
         for field in fields:
-            if field not in ('groups'):
+            if field not in ('groups', 'language_direction'):
                 fields[field]['readonly'] = False
             else:
                 fields[field]['readonly'] = True
         res['arch'] = arch
         res['fields'] = fields
-        return res
-
-    def languages(self, cursor, user, context=None):
-        lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [], context=context)
-        res = []
-        for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
-            res.append([lang.code, lang.name])
         return res
 
     def timezones(self, cursor, user, context=None):

@@ -49,7 +49,7 @@
                         </page>
                         <page string="Preferences" col="2">
                             <label name="language"/>
-                            <field name="language"/>
+                            <field name="language" widget="selection"/>
                             <label name="timezone"/>
                             <field name="timezone"/>
                         </page>
