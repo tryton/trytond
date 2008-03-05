@@ -141,7 +141,7 @@ class Sha(Column):
 
     def __init__(self, string, **args):
         Column.__init__(self, string=string, size=40, **args)
-        self._symbol_f = lambda x: sha.new(x or '').hexdigest()
+        self._symbol_f = lambda x: x and sha.new(x).hexdigest() or ''
         self._symbol_set = (self._symbol_c, self._symbol_f)
 
 
