@@ -27,6 +27,7 @@ class User(OSV):
        domain="[('global', '<>', True)]")
     language = fields.Selection('languages', 'Language')
     timezone = fields.Selection('timezones', 'Timezone')
+    email = fields.Char('Email', size=320)
 
     def __init__(self):
         super(User, self).__init__()
@@ -42,6 +43,7 @@ class User(OSV):
         self._preferences_fields = [
             'name',
             'password',
+            'email',
             'signature',
             'menu',
             'action',
@@ -156,13 +158,15 @@ class User(OSV):
 
     def get_preferences_fields_view(self, cursor, user, context=None):
         res = {}
+        fields_names = self._preferences_fields + self._context_fields
         fields = self.fields_get(cursor, user,
-                fields_names=self._preferences_fields + self._context_fields,
-                context=context)
+                fields_names=fields_names, context=context)
 
         xml = '<?xml version="1.0" encoding="utf-8"?>' \
                 '<form string="%s" col="2">' % (self._description,)
-        for field in fields:
+        fields_keys = fields.keys()
+        fields_keys.sort(lambda x, y: cmp(fields_names.index(x), fields_names.index(y)))
+        for field in fields_keys:
             xml += '<label name="%s"/><field name="%s"/>' % (field, field)
         xml += '</form>'
         doc = dom.minidom.parseString(xml)
