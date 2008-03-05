@@ -796,8 +796,12 @@ class ORM(object):
         for name in self._columns:
             if isinstance(self._columns[name], (fields.Selection, fields.Reference)) \
                     and not isinstance(self._columns[name].selection, (list, tuple)) \
-                    and not self._columns[name].selection in self._rpc_allowed:
+                    and self._columns[name].selection not in self._rpc_allowed:
                 self._rpc_allowed.append(self._columns[name].selection)
+            if self._columns[name].on_change:
+                on_change = 'on_change_' + name
+                if on_change not in self._rpc_allowed:
+                    self._rpc_allowed.append(on_change)
 
         for k in self._defaults:
             assert (k in self._columns) or (k in self._inherit_fields), \
