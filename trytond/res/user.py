@@ -129,6 +129,7 @@ class User(OSV):
             default = {}
         login = self.read(cursor, user, obj_id, ['login'])['login']
         default.update({'login': login+' (copy)'})
+        default.update({'password': ''})
         return super(User, self).copy(cursor, user, obj_id, default,
                 context=context)
 
