@@ -19,7 +19,10 @@ class Object(Service):
         return res
 
     def execute(self, database, user, passwd, object_name, method, *args):
-        security.check(database, user, passwd)
+        if object_name == 'res.request' and method == 'request_get':
+            security.check(database, user, passwd, False)
+        else:
+            security.check(database, user, passwd)
         service = LocalService("object_proxy")
         res = service.execute(database, user, object_name, method, *args)
         return res
