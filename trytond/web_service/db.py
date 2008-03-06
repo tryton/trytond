@@ -34,7 +34,8 @@ class DB(Service):
         cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         try:
             try:
-                cursor.execute('CREATE DATABASE ' + db_name + ' ENCODING \'unicode\'')
+                cursor.execute('CREATE DATABASE ' + db_name + \
+                        ' ENCODING \'unicode\'')
                 cursor.commit()
                 cursor.close()
 
@@ -50,7 +51,8 @@ class DB(Service):
                             'SET translatable = True ' \
                             'WHERE code = %s', (lang,))
                 cursor.execute('UPDATE res_user ' \
-                        'SET language = %s ' \
+                        'SET language = ' \
+                            '(SELECT id FROM ir_lang WHERE code = %s LIMIT 1) '\
                         'WHERE login <> \'root\'', (lang,))
                 cursor.commit()
                 cursor.execute('SELECT login, login as password, name ' \
@@ -60,6 +62,11 @@ class DB(Service):
             except:
                 logger.notify_channel("web-service", LOG_ERROR,
                     'CREATE DB: %s failed' % (db_name,))
+                import traceback, sys
+                tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
+                    sys.exc_type, sys.exc_value, sys.exc_traceback))
+                logger.notify_channel("web-service", LOG_ERROR,
+                        'Exception in call: \n' + tb_s)
                 raise
             else:
                 logger.notify_channel("web-service", LOG_INFO,
@@ -83,6 +90,11 @@ class DB(Service):
             except:
                 logger.notify_channel("web-service", LOG_ERROR,
                     'DROP DB: %s failed' % (db_name,))
+                import traceback, sys
+                tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
+                    sys.exc_type, sys.exc_value, sys.exc_traceback))
+                logger.notify_channel("web-service", LOG_ERROR,
+                        'Exception in call: \n' + tb_s)
                 raise
             else:
                 logger.notify_channel("web-services", LOG_INFO,
