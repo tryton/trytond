@@ -66,7 +66,7 @@ class OSVService(Service):
                 sys.exc_type, sys.exc_value, sys.exc_traceback))
             logger = Logger()
             logger.notify_channel("web-services", LOG_ERROR,
-                    'Exception in call: ' + tb_s)
+                    'Exception in call: \n' + tb_s)
             raise
 
     def execute(self, dbname, user, object_name, method, *args, **kargs):
