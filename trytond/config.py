@@ -222,8 +222,9 @@ class ConfigManager(object):
 
         # try to create the directories and write the file
         try:
-            if not os.path.exists(os.path.dirname(self.rcfile)):
-                os.makedirs(os.path.dirname(self.rcfile))
+            dirname = os.path.dirname(self.rcfile)
+            if dirname and not os.path.exists(dirname):
+                os.makedirs(dirname)
             try:
                 parser.write(file(self.rcfile, 'w'))
             except IOError:
