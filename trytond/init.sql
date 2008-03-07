@@ -43,7 +43,7 @@ CREATE TABLE ir_ui_view (
 	id serial NOT NULL,
 	name varchar(64) DEFAULT ''::varchar NOT NULL,
 	model varchar(64) DEFAULT ''::varchar NOT NULL,
-	"type" varchar(64) DEFAULT 'form'::varchar NOT NULL,
+	"type" varchar DEFAULT 'form'::varchar NOT NULL,
 	arch text NOT NULL,
 	field_childs varchar(64),
 	priority integer DEFAULT 5 NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE ir_ui_menu (
 	id serial NOT NULL,
 	parent_id int references ir_ui_menu on delete set null,
 	name varchar(64) DEFAULT ''::varchar NOT NULL,
-	icon varchar(64) DEFAULT ''::varchar,
+	icon varchar DEFAULT ''::varchar,
 	primary key (id)
 );
 
@@ -66,12 +66,12 @@ CREATE TABLE ir_ui_menu (
 
 CREATE TABLE ir_translation (
     id serial NOT NULL,
-    lang varchar(5),
+    lang varchar,
     src text,
     name varchar(128) NOT NULL,
     res_id integer DEFAULT 0,
     value text,
-    "type" varchar(16),
+    "type" varchar,
     module varchar(128),
     fuzzy boolean default False,
     primary key(id)
@@ -83,7 +83,7 @@ CREATE TABLE ir_lang (
     code varchar(5) NOT NULL,
     translatable boolean default False,
     active boolean default True,
-    direction varchar(3) NOT NULL,
+    direction varchar NOT NULL,
     primary key(id)
 );
 
@@ -139,9 +139,9 @@ create table wkf_activity
     id serial,
     workflow int references wkf on delete cascade,
     subflow int references wkf on delete set null,
-    split_mode varchar(3) default 'XOR',
-    join_mode varchar(3) default 'XOR',
-    kind varchar(16) not null default 'dummy',
+    split_mode varchar default 'XOR'::varchar,
+    join_mode varchar default 'XOR'::varchar,
+    kind varchar not null default 'dummy'::varchar,
     name varchar(64),
     signal_send varchar(32) default null,
     flow_start boolean default False,
@@ -231,7 +231,7 @@ CREATE TABLE ir_module_module (
     name character varying(128) NOT NULL,
     author character varying(128),
     url character varying(128),
-    state character varying(16),
+    state varchar,
     latest_version character varying(64),
     shortdesc character varying(256),
     category integer REFERENCES ir_module_category ON DELETE SET NULL,

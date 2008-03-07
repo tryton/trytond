@@ -70,11 +70,14 @@ class Column(object):
                 setattr(self, i, args[i])
 
     def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
-        raise Exception, 'undefined get method !'
+        raise Exception('undefined get method!')
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        raise Exception, 'undefined get method !'
+        raise Exception('undefined get method!')
+
+    def sql_type(self):
+        raise Exception('undefined sql_type method!')
 
 
 class Boolean(Column):
@@ -82,6 +85,9 @@ class Boolean(Column):
     _symbol_c = '%s'
     _symbol_f = lambda x: x and 'True' or 'False'
     _symbol_set = (_symbol_c, _symbol_f)
+
+    def sql_type(self):
+        return ('bool', 'bool')
 
 boolean = Boolean
 
@@ -92,6 +98,9 @@ class Integer(Column):
     _symbol_f = lambda x: int(x or 0)
     _symbol_set = (_symbol_c, _symbol_f)
 
+    def sql_type(self):
+        return ('int4', 'int4')
+
 integer = Integer
 
 
@@ -101,6 +110,9 @@ class Reference(Column):
     def __init__(self, string, selection, size, **args):
         Column.__init__(self, string=string, size=size, selection=selection,
                 **args)
+
+    def sql_type(self):
+        return ('varchar', 'varchar(%d)' % (self.size,))
 
 reference = Reference
 
@@ -133,6 +145,12 @@ class Char(Column):
             u_symb = unicode(symb)
         return u_symb.encode('utf8')
 
+    def sql_type(self):
+        if self.size:
+            return ('varchar', 'varchar(%d)' % (self.size,))
+        else:
+            return ('varchar', 'varchar')
+
 char = Char
 
 
@@ -144,9 +162,15 @@ class Sha(Column):
         self._symbol_f = lambda x: x and sha.new(x).hexdigest() or ''
         self._symbol_set = (self._symbol_c, self._symbol_f)
 
+    def sql_type(self):
+        return ('varchar', 'varchar(40)')
+
 
 class Text(Column):
     _type = 'text'
+
+    def sql_type(self):
+        return ('text', 'text')
 
 text = Text
 
@@ -161,6 +185,9 @@ class Float(Column):
         Column.__init__(self, string=string, **args)
         self.digits = digits
 
+    def sql_type(self):
+        return ('float8', 'float8')
+
 float = Float
 
 
@@ -173,11 +200,17 @@ class Numeric(Float):
             self._symbol_f = lambda x: round(x, self.digits[1])
             self._symbol_set = (self._symbol_c, self._symbol_f)
 
+    def sql_type(self):
+        return ('numeric', 'numeric')
+
 numeric = Numeric
 
 
 class Date(Column):
     _type = 'date'
+
+    def sql_type(self):
+        return ('date', 'date')
 
 date = Date
 
@@ -185,11 +218,17 @@ date = Date
 class DateTime(Column):
     _type = 'datetime'
 
+    def sql_type(self):
+        return ('timestamp', 'timestamp')
+
 datetime = DateTime
 
 
 class Time(Column):
     _type = 'time'
+
+    def sql_type(self):
+        return ('time', 'time')
 
 time = Time
 
@@ -199,6 +238,9 @@ class Binary(Column):
     _symbol_c = '%s'
     _symbol_f = lambda symb: symb and psycopg2.Binary(symb) or None
     _symbol_set = (_symbol_c, _symbol_f)
+
+    def sql_type(self):
+        return ('bytea', 'bytea')
 
 binary = Binary
 
@@ -212,6 +254,9 @@ class Selection(Column):
             or the name of the object function that return the list
         """
         Column.__init__(self, string=string, selection=selections, **args)
+
+    def sql_type(self):
+        return ('varchar', 'varchar')
 
 selection = Selection
 
@@ -317,6 +362,9 @@ class Many2One(Column):
                 cursor.execute('UPDATE "' + obj_src._table + '" ' \
                         'SET "' + field + '" = NULL ' \
                         'WHERE id = %s', (obj_id,))
+
+    def sql_type(self):
+        return ('int4', 'int4')
 
 many2one = Many2One
 
@@ -537,19 +585,6 @@ class Function(Column):
                     self._fnct_inv_arg, context=context)
 
 function = Function
-
-
-class Serialized(Column):
-    def __init__(self, string='unknown', serialize_func=repr,
-            deserialize_func=eval, type='text', **args):
-        self._serialize_func = serialize_func
-        self._deserialize_func = deserialize_func
-        self._type = type
-        self._symbol_set = (self._symbol_c, self._serialize_func)
-        self._symbol_get = self._deserialize_func
-        super(serialized, self).__init__(string=string, **args)
-
-serialized = Serialized
 
 
 class Property(Function):
