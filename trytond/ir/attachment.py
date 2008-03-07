@@ -10,7 +10,7 @@ class Attachment(OSV):
     _name = 'ir.attachment'
     _description = __doc__
     name = fields.Char('Attachment Name',size=64, required=True)
-    datas = fields.Function('datas', fnct_inv='datas_inv',
+    datas = fields.Function('get_datas', fnct_inv='set_datas',
        type='binary', string='Datas')
     description = fields.Text('Description')
     res_model = fields.Char('Resource Model',size=64,
@@ -20,7 +20,7 @@ class Attachment(OSV):
     link = fields.Char('Link', size=256)
     digest = fields.Char('Digest', size=32)
     collision = fields.Integer('Collision')
-    datas_size = fields.Function('datas', type='integer',
+    datas_size = fields.Function('get_datas', type='integer',
        string='Datas size')
 
     def __init__(self):
@@ -34,7 +34,7 @@ class Attachment(OSV):
     def default_collision(self, cursor, user, context=None):
         return 0
 
-    def datas(self, cursor, user, ids, name, arg, context=None):
+    def get_datas(self, cursor, user, ids, name, arg, context=None):
         res = {}
         db_name = cursor.dbname
         for attachment in self.browse(cursor, user, ids, context=context):
@@ -57,7 +57,7 @@ class Attachment(OSV):
             res[attachment.id] = value
         return res
 
-    def datas_inv(self, cursor, user, obj_id, name, value, args, context=None):
+    def set_datas(self, cursor, user, obj_id, name, value, args, context=None):
         if not value:
             return
         db_name = cursor.dbname
