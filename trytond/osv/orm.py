@@ -167,55 +167,6 @@ class BrowseRecord(object):
 
 browse_record = BrowseRecord
 
-def get_pg_type(field):
-    '''
-    returns a tuple
-    (type returned by postgres when the column was created,
-    type expression to create the column)
-    '''
-    type_dict = {
-            fields.Boolean: 'bool',
-            fields.Integer: 'int4',
-            fields.Text: 'text',
-            fields.Date: 'date',
-            fields.Time: 'time',
-            fields.DateTime: 'timestamp',
-            fields.Binary: 'bytea',
-            fields.Many2One: 'int4',
-            fields.Float: 'float8',
-            fields.Numeric: 'numeric',
-            }
-
-    if type_dict.has_key(type(field)):
-        f_type = (type_dict[type(field)], type_dict[type(field)])
-    elif isinstance(field, (fields.Char, fields.Reference, fields.Sha)):
-        f_type = ('varchar', 'VARCHAR(%d)' % (field.size,))
-    elif isinstance(field, fields.Selection):
-        if isinstance(field.selection, list) \
-                and isinstance(field.selection[0][0], (str, unicode)):
-            f_size = reduce(lambda x, y: max(x, len(y[0])), field.selection,
-                    field.size or 16)
-        elif isinstance(field.selection, list) \
-                and isinstance(field.selection[0][0], int):
-            f_size = -1
-        else:
-            f_size = (hasattr(field,'size') and field.size) or 16
-
-        if f_size == -1:
-            f_type = ('int4', 'INTEGER')
-        else:
-            f_type = ('varchar', 'VARCHAR(%d)' % f_size)
-    elif isinstance(field, fields.Function) \
-            and type_dict.has_key(eval('fields.' + (field._type))):
-        ftype = eval('fields.' + (field._type))
-        f_type = (type_dict[ftype], type_dict[ftype])
-    else:
-        logger = Logger()
-        logger.notify_channel("init", LOG_WARNING,
-                '%s type not supported!' % (type(field)))
-        f_type = None
-    return f_type
-
 
 class ORM(object):
     """
@@ -530,7 +481,7 @@ class ORM(object):
                             # add the missing field
                             cursor.execute("ALTER TABLE \"%s\" " \
                                     "ADD COLUMN \"%s\" %s" % \
-                                    (self._table, k, get_pg_type(field)[1]))
+                                    (self._table, k, field.sql_type()[1]))
                             # initialize it
                             if not create and k in self._defaults:
                                 default = self._defaults[k](cursor, 1, {})
@@ -593,16 +544,15 @@ class ORM(object):
                                 (k, field.string, self._table))
                             f_obj_type = None
                         else:
-                            f_obj_type = get_pg_type(field) \
-                                    and get_pg_type(field)[0]
+                            f_obj_type = field.sql_type() \
+                                    and field.sql_type()[0]
                         if f_obj_type:
                             if f_pg_type != f_obj_type:
                                 logger.notify_channel('init',
                                         LOG_WARNING,
-                                        "column '%s' in table '%s' has " \
-                                        "changed type (DB = %s, def = %s) !" % \
-                                        (k, self._table, f_pg_type,
-                                            field._type))
+                                        "column '%s' in table '%s' must " \
+                                        "change type %s -> %s!" % \
+                                        (k, self._table, f_pg_type, f_obj_type,))
                             if f_pg_type == 'varchar' \
                                     and field._type == 'char' \
                                     and f_pg_size != field.size:
