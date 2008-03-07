@@ -154,7 +154,10 @@ class User(OSV):
         for field in fields:
             if self._columns[field]._type in ('many2one', 'one2one'):
                 if field == 'language':
-                    res[field] = user[field].code
+                    if user.language:
+                        res['language'] = user.language.code
+                    else:
+                        res['language'] = 'en_US'
                 else:
                     res[field] = user[field].id
             elif self._columns[field]._type in ('one2many', 'many2many'):
