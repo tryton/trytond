@@ -247,7 +247,7 @@ class ActionActWindow(OSV):
         return '{}'
 
     def default_limit(self, cursor, user, context=None):
-        return 80
+        return 0
 
     def default_auto_refresh(self, cursor, user, context=None):
         return 0
