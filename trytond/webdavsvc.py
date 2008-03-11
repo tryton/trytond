@@ -290,7 +290,7 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         dbname = self.path.split('/', 2)[1]
         if not dbname:
             return 1
-        USER_ID = security.login(dbname, user, password)
+        USER_ID = security.login(dbname, user, password, cache=False)
         if int(USER_ID):
             return 1
         return 0

@@ -8,7 +8,7 @@ SESSION_TIMEOUT = 600 #seconds
 
 _USER_CACHE = {}
 
-def login(dbname, loginname, password):
+def login(dbname, loginname, password, cache=True):
     loginname = loginname.encode('utf-8')
     password = password.encode('utf-8')
     cursor = pooler.get_db(dbname).cursor()
@@ -19,12 +19,15 @@ def login(dbname, loginname, password):
     res = cursor.fetchone()
     cursor.close()
     if res:
-        _USER_CACHE.setdefault(dbname, {})
         user_id = res[0]
-        timestamp = time.time()
-        session = str(random.random())
-        _USER_CACHE[dbname][user_id] = (timestamp, session)
-        return (user_id, session)
+        if cache:
+            _USER_CACHE.setdefault(dbname, {})
+            timestamp = time.time()
+            session = str(random.random())
+            _USER_CACHE[dbname][user_id] = (timestamp, session)
+            return (user_id, session)
+        else:
+            return user_id
     else:
         return False
 
