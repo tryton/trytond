@@ -559,7 +559,7 @@ class ORM(object):
                                 # columns with the name 'type' cannot be changed
                                 # for an unknown reason?!
                                 if k != 'type':
-                                    if f_pg_size > field.size:
+                                    if field.size and f_pg_size > field.size:
                                         logger.notify_channel('init',
                                                 LOG_WARNING,
                                                 "column '%s' in table '%s' " \
@@ -572,11 +572,11 @@ class ORM(object):
                                             "TO temp_change_size" % \
                                             (self._table,k))
                                     cursor.execute("ALTER TABLE \"%s\" " \
-                                            "ADD COLUMN \"%s\" VARCHAR(%d)" % \
-                                            (self._table,k,field.size))
+                                            "ADD COLUMN \"%s\" %s" % \
+                                            (self._table, k, field.sql_type()[1]))
                                     cursor.execute("UPDATE \"%s\" " \
-                                "SET \"%s\" = temp_change_size::VARCHAR(%d)" % \
-                                        (self._table, k, field.size))
+                                "SET \"%s\" = temp_change_size::%s" % \
+                                        (self._table, k, field.sql_type()[1]))
                                     cursor.execute("ALTER TABLE \"%s\" " \
                                             "DROP COLUMN temp_change_size" % \
                                             (self._table,))
