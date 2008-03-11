@@ -393,7 +393,7 @@ class One2Many(Column):
             res[i] = []
         ids2 = obj.pool.get(self._obj).search(cursor, user,
                 [(self._field, 'in', ids)], offset=offset,
-                limit=self._limit)
+                limit=self._limit, context=context)
         for i in obj.pool.get(self._obj)._read_flat(cursor, user, ids2,
                 [self._field], context=context, load='_classic_write'):
             res[i[self._field]].append( i['id'] )
