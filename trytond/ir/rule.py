@@ -82,21 +82,13 @@ class Rule(OSV):
         for k in key:
 
             if obj_fields[k]['type'] in ('many2one'):
-                #res.append((root_tech + '.' + k + '.id',
-                #    root + '/' + obj_fields[k]['string']))
                 res[root + '/' + obj_fields[k]['string']] = \
                         root_tech + '.' + k + '.id'
 
             elif obj_fields[k]['type'] in ('many2many', 'one2many'):
-                #res.append(('\',\'.join(map(lambda x: str(x.id), ' + \
-                #        root_tech + '.' + k + ')) or 0',
-                #    root + '/' + obj_fields[k]['string']))
                 res[root + '/' + obj_fields[k]['string']] = \
-                        '\',\'.join(map(lambda x: str(x.id), ' + \
-                        root_tech + '.' + k + ')) or 0'
+                        '[x.id for x in ' + root_tech + '.' + k + ']'
             else:
-                #res.append((root_tech + '.' + k,
-                #    root + '/' + obj_fields[k]['string']))
                 res[root + '/' + obj_fields[k]['string']] = \
                         root_tech + '.' + k
 
@@ -145,18 +137,11 @@ class Rule(OSV):
                 recur=['many2one'], root_tech='user', root='User')
         # Use root user to prevent recursion
         for rule in self.browse(cursor, 0, ids):
-            if rule.operator in ('in', 'child_of'):
-                dom = eval("[('%s', '%s', [%s])]" % \
-                        (rule.field.name, rule.operator,
-                            operand2query[rule.operand]),
-                        {'user': self.pool.get('res.user').browse(cursor, 0,
-                            user), 'time': time})
-            else:
-                dom = eval("[('%s', '%s', %s)]" % \
-                        (rule.field.name, rule.operator,
-                            operand2query[rule.operand]),
-                        {'user': self.pool.get('res.user').browse(cursor, 0,
-                            user), 'time': time})
+            dom = eval("[('%s', '%s', %s)]" % \
+                    (rule.field.name, rule.operator,
+                        operand2query[rule.operand]),
+                    {'user': self.pool.get('res.user').browse(cursor, 0,
+                        user), 'time': time})
 
             if rule.rule_group['global_p']:
                 clause_global.setdefault(rule.rule_group.id, [])
