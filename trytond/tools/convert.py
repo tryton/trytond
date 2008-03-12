@@ -11,6 +11,9 @@ from trytond.version import VERSION
 import logging
 import time
 from xml import sax
+from decimal import Decimal
+import datetime
+import time
 
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
@@ -206,8 +209,6 @@ class RecordTagHandler:
                 self.values[field_name] = self.mh.get_id(ref_attr)
 
             elif eval_attr:
-
-                import time
                 context = {}
                 context['time'] = time
                 context['version'] = VERSION.rsplit('.', 1)[0]
@@ -499,8 +500,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             if old_values == None:
                 old_values = {}
             else:
-                old_values = eval(old_values)
-
+                old_values = eval(old_values, {
+                    'Decimal': Decimal,
+                    'datetime': datetime,
+                    })
 
             # Check if values for this record has been modified in the
             # db, if not it's ok to overwrite them.
