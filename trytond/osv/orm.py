@@ -1940,7 +1940,18 @@ class ORM(object):
         tables = ['"' + self._table + '"']
         joins = []
         while i < len(args):
-            if args[i][1] not in ('child_of','=','like','ilike','','!=','in'):
+            if args[i][1] not in (
+                    'child_of',
+                    '=',
+                    'like',
+                    'ilike',
+                    '',
+                    '!=',
+                    'in',
+                    '<=',
+                    '>=',
+                    '<',
+                    '>'):
                 raise ExceptORM("Argument '%s' not supported"% args[i][1],"")
 
             table = self
