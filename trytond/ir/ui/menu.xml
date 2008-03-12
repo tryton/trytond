@@ -34,8 +34,8 @@
                 <![CDATA[
                 <tree string="Menu">
                     <field name="complete_name" icon="icon"/>
-                    <field name="name" invisible="1" select="1"/>
-                    <field name="parent" invisible="1" select="1"/>
+                    <field name="name" tree_invisible="1" select="1"/>
+                    <field name="parent" tree_invisible="1" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -47,9 +47,9 @@
                 <![CDATA[
                 <form string="Menu">
                     <label name="name"/>
-                    <field name="name" invisible="0" colspan="3"/>
+                    <field name="name" colspan="3"/>
                     <label name="parent"/>
-                    <field name="parent" invisible="0"/>
+                    <field name="parent"/>
                     <label name="icon"/>
                     <field name="icon"/>
                     <label name="action"/>

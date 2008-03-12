@@ -15,7 +15,7 @@
                     <field name="trigger_date" select="2"/>
                     <field name="state"/>
                     <field name="active" select="2"/>
-                    <field name="body" invisible="1" select="2"/>
+                    <field name="body" tree_invisible="1" select="2"/>
                 </tree>
                 ]]>
             </field>
@@ -37,7 +37,7 @@
                             <field name="name" colspan="3"/>
                             <newline/>
                             <separator name="body" colspan="4"/>
-                            <field name="body" colspan="4" invisible="0"/>
+                            <field name="body" colspan="4"/>
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
                             <group col="2" colspan="2">
