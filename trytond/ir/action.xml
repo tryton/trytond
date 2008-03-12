@@ -145,12 +145,12 @@
                     <field name="act_window_views" colspan="6">
                         <form string="Views">
                             <label name="sequence"/>
-                            <field name="sequence" colspan="4" invisible="0"/>
+                            <field name="sequence" colspan="4"/>
                             <label name="view"/>
                             <field name="view"/>
                         </form>
                         <tree string="Views" sequence="sequence">
-                            <field name="sequence" invisible="1"/>
+                            <field name="sequence" tree_invisible="1"/>
                             <field name="view"/>
                         </tree>
                     </field>

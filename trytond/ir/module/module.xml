@@ -15,7 +15,7 @@
                             <label name="shortdesc"/>
                             <field name="shortdesc"/>
                             <separator name="description" colspan="4"/>
-                            <field name="description" invisible="0" colspan="4"/>
+                            <field name="description" colspan="4"/>
                             <label name="version"/>
                             <field name="version"/>
                             <label name="license"/>
@@ -74,7 +74,7 @@
                     <field name="version"/>
                     <field name="website" select="2"/>
                     <field name="state" select="1"/>
-                    <field name="description" invisible="1" select="2"/>
+                    <field name="description" tree_invisible="1" select="2"/>
                 </tree>
               ]]>
             </field>
