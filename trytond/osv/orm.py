@@ -1791,12 +1791,12 @@ class ORM(object):
                                 parent.insertBefore(child, node)
                         parent.removeChild(node)
                     else:
+                        sib = node.nextSibling
                         for child in node2.childNodes:
                             if child.nodeType == child.ELEMENT_NODE:
                                 if pos == 'inside':
                                     node.appendChild(child)
                                 elif pos == 'after':
-                                    sib = node.nextSibling
                                     if sib:
                                         node.parentNode.insertBefore(child, sib)
                                     else:
