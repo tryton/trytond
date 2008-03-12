@@ -2286,14 +2286,14 @@ class ORM(object):
             user, ids, [self._rec_name], context, load='_classic_write')]
 
     def name_search(self, cursor, user, name='', args=None, operator='ilike',
-            context=None, limit=80):
+            context=None, limit=None):
         if args is None:
             args = []
         args = args[:]
         if name:
             args += [(self._rec_name, operator, name)]
         ids = self.search(cursor, user, args, limit=limit, context=context)
-        res = self.name_get(cursor, user, ids, context)
+        res = self.name_get(cursor, user, ids, context=context)
         return res
 
     def copy(self, cursor, user, object_id, default=None, context=None):
