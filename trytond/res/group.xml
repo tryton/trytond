@@ -2,7 +2,7 @@
 <tryton>
     <data>
         <record model="res.group" id="group_admin">
-            <field name="name">admin</field>
+            <field name="name">Admin</field>
         </record>
         <record model="ir.ui.menu" id="ir.menu_administration">
             <field name="groups" eval="[(6, 0, [ref('group_admin')])]"/>
