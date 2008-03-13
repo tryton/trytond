@@ -2220,21 +2220,17 @@ class ORM(object):
                             if arg[0] in table._columns:
                                 qu2.append(table._columns[arg[0]].\
                                         _symbol_set[1](arg[2]))
-                        if arg[1] == '=like':
-                            arg1 = 'like'
-                        else:
-                            arg1 = arg[1]
                         if arg[0] in table._columns:
                             if arg[1] in ('like', 'ilike'):
                                 qu1.append('(%s.%s %s %s)' % (table._table,
-                                    arg[0], arg1, '%s'))
+                                    arg[0], arg[1], '%s'))
                             else:
                                 qu1.append('(%s.%s %s %s)' % (table._table,
-                                    arg[0], arg1,
+                                    arg[0], arg[1],
                                     table._columns[arg[0]]._symbol_set[0]))
                         else:
                             qu1.append('(%s.%s %s \'%s\')' % \
-                                    (table._table, arg[0], arg1, arg[2]))
+                                    (table._table, arg[0], arg[1], arg[2]))
 
                         if add_null:
                             qu1[-1] = '('+qu1[-1]+' or '+arg[0]+' is null)'
