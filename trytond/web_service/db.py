@@ -217,13 +217,15 @@ class DB(Service):
                             "FROM pg_user " \
                             "WHERE usename=%s) " \
                             "AND datname not in " \
-                                "('template0', 'template1', 'postgres')",
+                                "('template0', 'template1', 'postgres') " \
+                        "ORDER BY datname",
                                 (db_user,))
             else:
                 cursor.execute("SELECT datname " \
                         "FROM pg_database " \
                         "WHERE datname not in " \
-                            "('template0', 'template1','postgres')")
+                            "('template0', 'template1','postgres') " \
+                        "ORDER BY datname")
             res = [name for (name,) in cursor.fetchall()]
             cursor.close()
         except:
