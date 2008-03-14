@@ -103,24 +103,6 @@ ICONS = [(x, x) for x in [
 ]]
 
 
-class Many2ManyUniq(fields.Many2Many):
-
-    def set(self, cursor, obj, obj_id, name, values, user=None, context=None):
-        if not values:
-            return
-        val = values[:]
-        for act in values:
-            if act[0] == 4:
-                cursor.execute('SELECT * FROM ' + self._rel + ' ' \
-                        'WHERE ' + self._id1 + ' = %s ' \
-                            'AND ' + self._id2 + ' = %s',
-                        (obj_id, act[1]))
-                if cursor.fetchall():
-                    val.remove(act)
-        return super(Many2ManyUniq, self).set(cursor, obj, obj_id, name, val,
-                user=user, context=context)
-
-
 class UIMenu(OSV):
     "UI menu"
     _name = 'ir.ui.menu'
@@ -129,7 +111,7 @@ class UIMenu(OSV):
     sequence = fields.Integer('Sequence')
     childs = fields.One2Many('ir.ui.menu', 'parent','Childs')
     parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1)
-    groups = Many2ManyUniq('res.group', 'ir_ui_menu_group_rel',
+    groups = fields.Many2Many('res.group', 'ir_ui_menu_group_rel',
        'menu_id', 'gid', 'Groups')
     complete_name = fields.Function('get_full_name',
        string='Complete Name', type='char', size=128)
