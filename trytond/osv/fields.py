@@ -515,6 +515,12 @@ class Many2Many(Column):
                         'WHERE "' + self._id1 + '" = %s ' \
                             'AND "'+ self._id2 + '" = %s', (obj_id, act[1]))
             elif act[0] == 4:
+                cursor.execute('SELECT * FROM "' + self._rel + '" ' \
+                        'WHERE ' + self._id1 + ' = %s ' \
+                            'AND ' + self._id2 + ' = %s ',
+                            (obj_id, act[1]))
+                if cursor.rowcount:
+                    continue
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
                         'VALUES (%s, %s)', (obj_id, act[1]))

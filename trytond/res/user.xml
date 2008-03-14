@@ -8,7 +8,7 @@
             <field name="signature">Administrator</field>
             <field name="action" ref="ir.act_module_config_wizard"/>
             <field name="menu" ref="ir.act_menu_tree"/>
-            <field name="groups" eval="[(6, 0, [ref('group_admin')])]"/>
+            <field name="groups" eval="[(4, ref('group_admin'))]"/>
         </record>
         <record model="ir.ui.view" id="user_view_form">
             <field name="model">res.user</field>
