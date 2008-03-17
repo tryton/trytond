@@ -591,12 +591,15 @@ class ORM(object):
                                         cursor.execute("UPDATE \"%s\" " \
                                         "SET \"%s\" = '%s' WHERE %s is NULL" % \
                                             (self._table, k, default, k))
-                                # add the NOT NULL constraint
-                                try:
+                                cursor.execute('SELECT "%s" FROM "%s" ' \
+                                        'WHERE "%s" IS NULL' % \
+                                        (k, self._table, k))
+                                if not cursor.rowcount:
+                                    # add the NOT NULL constraint
                                     cursor.execute("ALTER TABLE \"%s\" " \
                                         "ALTER COLUMN \"%s\" SET NOT NULL" % \
                                         (self._table, k))
-                                except:
+                                else:
                                     logger.notify_channel('init',
                                             LOG_WARNING,
                                             'unable to set ' \
