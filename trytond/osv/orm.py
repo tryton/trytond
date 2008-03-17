@@ -1302,6 +1302,9 @@ class ORM(object):
             context = {}
         if not ids:
             return True
+
+        vals = vals.copy()
+
         if isinstance(ids, (int, long)):
             ids = [ids]
         delta = context.get('read_delta', False)
@@ -2258,7 +2261,7 @@ class ORM(object):
 
         limit_str = limit and (type(limit) in (float, int, long))\
                     and ' LIMIT %d' % limit or ''
-        offset_str = offset and (type(limit) in (float, int, long))\
+        offset_str = offset and (type(offset) in (float, int, long))\
                      and ' OFFSET %d' % offset or ''
 
 
