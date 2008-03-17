@@ -273,8 +273,6 @@ class One2One(Column):
         self._obj = obj
 
     def set(self, cursor, obj_src, src_id, field, act, user=None, context=None):
-        if context is None:
-            context = {}
         obj = obj_src.pool.get(self._obj)
         if act[0] == 0:
             id_new = obj.create(cursor, user, act[1])
@@ -304,8 +302,6 @@ class Many2One(Column):
     # name is the name of the relation field
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        if context is None:
-            context = {}
         if values is None:
             values = {}
         res = {}
@@ -329,8 +325,6 @@ class Many2One(Column):
 
     def set(self, cursor, obj_src, obj_id, field, values, user=None,
             context=None):
-        if context is None:
-            context = {}
         obj = obj_src.pool.get(self._obj)
         table = obj_src.pool.get(self._obj)._table
         if type(values) == type([]):
@@ -384,24 +378,27 @@ class One2Many(Column):
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        if context is None:
-            context = {}
-        if values is None:
-            values = {}
+        from trytond.osv.orm import ID_MAX
         res = {}
         for i in ids:
             res[i] = []
-        ids2 = obj.pool.get(self._obj).search(cursor, user,
-                [(self._field, 'in', ids)], offset=offset,
-                limit=self._limit, context=context)
+        ids2 = []
+        for i in range((len(ids) / ID_MAX) + ((len(ids) % ID_MAX) and 1 or 0)):
+            sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+            ids2 += obj.pool.get(self._obj).search(cursor, user,
+                    [(self._field, 'in', sub_ids)], context=context)
+            if self._limit and len(ids2) > offset + self._limit:
+                break
+        if offset:
+            ids2 = ids2[offset:]
+        if self._limit:
+            ids2 = ids2[:self._limit]
         for i in obj.pool.get(self._obj)._read_flat(cursor, user, ids2,
                 [self._field], context=context, load='_classic_write'):
             res[i[self._field]].append( i['id'] )
         return res
 
     def set(self, cursor, obj, obj_id, field, values, user=None, context=None):
-        if context is None:
-            context = {}
         if not values:
             return
         _table = obj.pool.get(self._obj)._table
@@ -463,8 +460,6 @@ class Many2Many(Column):
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        if context is None:
-            context = {}
         if values is None:
             values = {}
         res = {}
@@ -495,8 +490,6 @@ class Many2Many(Column):
         return res
 
     def set(self, cursor, obj, obj_id, name, values, user=None, context=None):
-        if context is None:
-            context = {}
         if not values:
             return
         obj = obj.pool.get(self._obj)
