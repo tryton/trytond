@@ -1748,6 +1748,9 @@ class ORM(object):
                         oldgroup = gname
                         parent.insertBefore(child, node)
 
+                    child = doc.createElement('label')
+                    child.setAttribute('name', fname.decode('utf8'))
+                    parent.insertBefore(child, node)
                     child = doc.createElement('field')
                     child.setAttribute('name', fname.decode('utf8'))
                     parent.insertBefore(child, node)
