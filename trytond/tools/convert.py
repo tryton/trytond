@@ -130,7 +130,6 @@ class MenuitemTagHandler:
         if name != "menuitem":
             return self
         else:
-
             res = self.mh.import_record(
                 'ir.ui.menu', self.values, self.xml_id)
             return None
