@@ -1254,6 +1254,7 @@ class ORM(object):
                 if res and res[0]:
                     raise ExceptORM('ConcurrencyException',
                             'This record was modified in the meanwhile')
+            del context['read_delta']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'unlink')
@@ -1328,6 +1329,7 @@ class ORM(object):
                                 and self._columns[field]._classic_write:
                             raise ExceptORM('ConcurrencyException',
                                     'This record was modified in the meanwhile')
+            del context['read_delta']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'write')
@@ -1460,9 +1462,6 @@ class ORM(object):
             ('model.model', '=', self._name),
             ], context=context):
             self.pool.get('ir.rule').domain_get()
-
-        if context.has_key('read_delta'):
-            del context['read_delta']
 
         wf_service = LocalService("workflow")
         for obj_id in ids:
