@@ -718,6 +718,7 @@ class ORM(object):
                 'name_search',
                 'copy',
                 'import_data',
+                'export_data',
                 'search_count',
                 ]
         self._sql_constraints = []
