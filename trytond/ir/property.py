@@ -31,10 +31,10 @@ class Property(OSV):
         done = {}
         for model_field in model_field_obj.browse(cursor, user, ids,
                 context=context):
-            if model_field.model_id.id not in done:
-                res.append([model_field.model_id.model,
-                    model_field.model_id.name])
-                done[model_field.model_id.id] = True
+            if model_field.model.id not in done:
+                res.append([model_field.model.model,
+                    model_field.model.name])
+                done[model_field.model.id] = True
         return res
 
     def unlink(self, cursor, user, ids, context=None):
@@ -59,7 +59,7 @@ class Property(OSV):
 
         field_id = model_field_obj.search(cursor, user, [
             ('name', '=', name),
-            ('model', '=', model),
+            ('model.model', '=', model),
             ], limit=1, context=context)[0]
 
         default_id = self.search(cursor, user, [
