@@ -16,6 +16,12 @@ class Action(OSV):
     groups = fields.Many2Many('res.group', 'ir_action_group_rel',
             'action_id', 'gid', 'Groups')
 
+    def __init__(self):
+        super(Action, self).__init__()
+        self._rpc_allowed += [
+                'get_action_id',
+            ]
+
     def default_usage(self, cursor, user, context=None):
         return False
 
