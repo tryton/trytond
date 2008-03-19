@@ -2078,32 +2078,23 @@ class ORM(object):
                                 args[i][1], context=context)]
                     else:
                         res_ids = args[i][2]
-                    if res_ids == False:
-                        cursor.execute('SELECT id ' \
-                                'FROM "' + self._table + '" ' \
-                                'WHERE id NOT IN ( ' \
-                                    'SELECT "' + field._id1 + '" ' \
-                                        'FROM "' + field._rel + '" ' \
-                                    ')')
-                        args[i] = ('id', 'in',
-                                [x[0] for x in cursor.fetchall()])
-                    elif res_ids == True:
-                        cursor.execute('SELECT "' + field._id1 + '" ' \
-                                'FROM "' + field._rel + '"')
-                        args[i] = ('id', 'in',
-                                [x[0] for x in cursor.fetchall()])
+                    if res_ids == True or res_ids == False:
+                        query1 = 'SELECT "' + field._id1 + '" ' \
+                                'FROM "' + field._rel + '"'
+                        query2 = []
+                        clause = 'inselect'
+                        if res_ids == False:
+                            clause = 'notinselect'
+                        args[i] = ('id', clause, (query1, query2))
                     elif not res_ids:
                         args[i] = ('id', '=', '0')
                     else:
-                        cursor.execute(
-                            'SELECT "' + field._id1 + '" ' \
-                            'FROM "' + field._rel + '" ' \
-                            'WHERE "' + field._id2 + '" IN (' + \
-                                ','.join(['%s' for x in res_ids]) + ')',
-                            [str(x) for x in res_ids])
-
-                        args[i] = ('id', 'in',
-                                [x[0] for x in cursor.fetchall()])
+                        query1 = 'SELECT "' + field._id1 + '" ' \
+                                'FROM "' + field._rel + '" ' \
+                                'WHERE "' + field._id2 + '" IN (' + \
+                                    ','.join(['%s' for x in res_ids]) + ')'
+                        query2 = [str(x) for x in res_ids]
+                        args[i] = ('id', 'inselect', (query1, query2))
                 i += 1
 
             elif field._type == 'many2one':
@@ -2168,8 +2159,12 @@ class ORM(object):
             table = self
             if len(arg) > 3:
                 table = arg[3]
-            if arg[1] == 'inselect':
-                qu1.append('(%s.%s in (%s))' % (table._table, arg[0], arg[2][0]))
+            if arg[1] in ('inselect', 'notinselect'):
+                clause = 'IN'
+                if arg[1] == 'notinselect':
+                    clause = 'NOT IN'
+                qu1.append('(%s.%s %s (%s))' % (table._table, arg[0], clause,
+                    arg[2][0]))
                 qu2 += arg[2][1]
             elif arg[1] == 'in':
                 if len(arg[2]) > 0:
