@@ -2021,20 +2021,28 @@ class ORM(object):
                 if not ids2:
                     args[i] = ('id', '=', '0')
                 else:
-                    ids3 = []
-                    for i in range((len(ids2) / ID_MAX) + \
-                            (len(ids2) % ID_MAX)):
-                        sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
-                        cursor.execute(
-                            'SELECT "' + field._fields_id + \
-                            '" FROM "' + field_obj._table + '" ' \
-                            'WHERE id IN (' + \
-                                ','.join(['%s' for x in sub_ids2]) + ')',
-                            [str(x) for x in sub_ids2])
+                    if len(ids2) < ID_MAX:
+                        query1 = 'SELECT "' + field._fields_id + '" ' \
+                                'FROM "' + field_obj._table + '" ' \
+                                'WHERE id IN (' + \
+                                    ','.join(['%s' for x in sub_ids2]) + ')'
+                        query2 = [str(x) for x in sub_ids2]
+                        args[i] = ('id', 'inselect', (query1, query2))
+                    else:
+                        ids3 = []
+                        for i in range((len(ids2) / ID_MAX) + \
+                                (len(ids2) % ID_MAX)):
+                            sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
+                            cursor.execute(
+                                'SELECT "' + field._fields_id + \
+                                '" FROM "' + field_obj._table + '" ' \
+                                'WHERE id IN (' + \
+                                    ','.join(['%s' for x in sub_ids2]) + ')',
+                                [str(x) for x in sub_ids2])
 
-                        ids3.extend([x[0] for x in cursor.fetchall()])
+                            ids3.extend([x[0] for x in cursor.fetchall()])
 
-                    args[i] = ('id', 'in', ids3)
+                        args[i] = ('id', 'in', ids3)
                 i += 1
             elif field._type == 'many2many':
                 # XXX must find a solution for long id list
