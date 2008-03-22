@@ -601,11 +601,11 @@ class Property(Function):
 
         obj = obj.pool.get(self._obj)
         obj_names = {}
-        for obj_id, obj_name in obj.name_get(cursor, user, res.values(),
-                context=context):
+        for obj_id, obj_name in obj.name_get(cursor, user,
+                [x for x in res.values() if x], context=context):
             obj_names[obj_id] = obj_name
-        for i in res.keys():
-            if res[i] and res[i] in obj_names:
+        for i in ids:
+            if res.get(i) and res[i] in obj_names:
                 res[i] = (res[i], obj_names[res[i]])
             else:
                 res[i] = False
