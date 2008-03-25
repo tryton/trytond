@@ -106,10 +106,10 @@ class MenuitemTagHandler:
             for group in g_names:
                 if group.startswith('-'):
                     group_id = self.mh.get_id(group[1:])
-                    groups_value.append((3, group_id))
+                    groups_value.append(('remove', group_id))
                 else:
                     group_id = self.mh.get_id(group)
-                    groups_value.append((4, group_id))
+                    groups_value.append(('add', group_id))
             values['groups'] = groups_value
 
         if not values.get('name'):
@@ -199,7 +199,7 @@ class RecordTagHandler:
                 if not answer: return
 
                 if self.model._columns[field_name]._type == 'many2many':
-                    self.values[field_name] = [(6, 0, [x['id'] for x in answer])]
+                    self.values[field_name] = [('set', [x['id'] for x in answer])]
 
                 elif self.model._columns[field_name]._type == 'many2one':
                     self.values[field_name] = answer[0]['id']
