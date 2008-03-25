@@ -890,7 +890,7 @@ class ORM(object):
                                 if res_id2:
                                     res_id.append(res_id2)
                             if len(res_id):
-                                res_id = [(6, 0, res_id)]
+                                res_id = [('set', res_id)]
                         else:
                             if '.' in line[i]:
                                 module, xml_id = line[i].rsplit('.', 1)
@@ -965,7 +965,7 @@ class ORM(object):
                                 else:
                                     res.append(res3)
                             if len(res):
-                                res = [(6, 0, res)]
+                                res = [('set', res)]
                     else:
                         res = line[i] or False
                     row[field[len(prefix)]] = res
@@ -985,7 +985,7 @@ class ORM(object):
                 warning = warning + warning2
                 reduce(lambda x, y: x and y, newrow)
                 row[field] = (reduce(lambda x, y: x or y, newrow.values()) and \
-                        [(0,0,newrow)]) or []
+                        [('create', newrow)]) or []
                 i = max2
                 while (position+i)<len(datas):
                     test = True
@@ -1002,7 +1002,7 @@ class ORM(object):
                                     position + i)
                     warning = warning + warning2
                     if reduce(lambda x, y: x or y, newrow.values()):
-                        row[field].append((0, 0, newrow))
+                        row[field].append(('create', newrow))
                     i += max2
                     nbrmax = max(nbrmax, i)
 
@@ -2350,14 +2350,14 @@ class ORM(object):
                 res = []
                 rel = self.pool.get(fields2[field]['relation'])
                 for rel_id in data[field]:
-                    # the lines are first duplicated using the wrong (old) 
+                    # the lines are first duplicated using the wrong (old)
                     # parent but then are reassigned to the correct one thanks
-                    # to the (4, ...)
-                    res.append((4, rel.copy(cursor, user, rel_id,
+                    # to the ('add', ...)
+                    res.append(('add', rel.copy(cursor, user, rel_id,
                         context=context)))
                 data[field] = res
             elif ftype == 'many2many':
-                data[field] = [(6, 0, data[field])]
+                data[field] = [('set', data[field])]
         del data['id']
         for i in self._inherits:
             del data[self._inherits[i]]

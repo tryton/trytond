@@ -13,13 +13,13 @@
 
  Relationals fields
 
- Values: (0, 0,  { fields })    create
-         (1, ID, { fields })    modification
-         (2, ID)                remove (delete)
-         (3, ID)                unlink one (target id or target of relation)
-         (4, ID)                link
-         (5, ID)                unlink all (only valid for one2many)
-         (6, ?, ids)            set a list of links
+ Values: ('create', { fields })    create
+         ('write', ID, { fields })    modification
+         ('unlink', ID)                remove (delete)
+         ('remove', ID)                unlink one (target id or target of relation)
+         ('add', ID)                link
+         ('remove_all')                unlink all
+         ('set', ids)            set a list of links
 """
 
 import psycopg2
@@ -404,42 +404,44 @@ class One2Many(Column):
         _table = obj.pool.get(self._obj)._table
         obj = obj.pool.get(self._obj)
         for act in values:
-            if act[0] == 0:
-                act[2][self._field] = obj_id
-                obj.create(cursor, user, act[2], context=context)
-            elif act[0] == 1:
+            if act[0] == 'create':
+                act[1][self._field] = obj_id
+                obj.create(cursor, user, act[1], context=context)
+            elif act[0] == 'write':
                 obj.write(cursor, user, [act[1]] , act[2], context=context)
-            elif act[0] == 2:
+            elif act[0] == 'unlink':
                 obj.unlink(cursor, user, [act[1]], context=context)
-            elif act[0] == 3:
+            elif act[0] == 'remove':
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
                         'WHERE id = %s', (act[1],))
-            elif act[0] == 4:
+            elif act[0] == 'add':
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = %s ' \
                         'WHERE id = %s', (obj_id, act[1]))
-            elif act[0] == 5:
+            elif act[0] == 'remove_all':
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
                         'WHERE "' + self._field + '" = %s', (obj_id,))
-            elif act[0] == 6:
-                if not act[2]:
+            elif act[0] == 'set':
+                if not act[1]:
                     ids2 = [0]
                 else:
-                    ids2 = act[2]
+                    ids2 = act[1]
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
                         'WHERE "' + self._field + '" = %s ' \
                             'AND id not IN (' + \
                                 ','.join([str(x) for x in ids2]) + ')',
                                 (obj_id,))
-                if act[2]:
+                if act[1]:
                     cursor.execute('UPDATE "' + _table + '" ' \
                             'SET "' + self._field + '" = %s ' \
                             'WHERE id IN (' + \
-                                ','.join([str(x) for x in act[2]]) + ')',
+                                ','.join([str(x) for x in act[1]]) + ')',
                                 (obj_id,))
+            else:
+                raise Exception('Bad arguments')
 
 one2many = One2Many
 
@@ -494,20 +496,20 @@ class Many2Many(Column):
             return
         obj = obj.pool.get(self._obj)
         for act in values:
-            if act[0] == 0:
-                idnew = obj.create(cursor, user, act[2])
+            if act[0] == 'create':
+                idnew = obj.create(cursor, user, act[1])
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
                         'VALUES (%s, %s)', (obj_id, idnew))
-            elif act[0] == 1:
+            elif act[0] == 'write':
                 obj.write(cursor, user, [act[1]] , act[2], context=context)
-            elif act[0] == 2:
+            elif act[0] == 'unlink':
                 obj.unlink(cursor, user, [act[1]], context=context)
-            elif act[0] == 3:
+            elif act[0] == 'remove':
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
                         'WHERE "' + self._id1 + '" = %s ' \
                             'AND "'+ self._id2 + '" = %s', (obj_id, act[1]))
-            elif act[0] == 4:
+            elif act[0] == 'add':
                 cursor.execute('SELECT * FROM "' + self._rel + '" ' \
                         'WHERE ' + self._id1 + ' = %s ' \
                             'AND ' + self._id2 + ' = %s ',
@@ -517,11 +519,11 @@ class Many2Many(Column):
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
                         'VALUES (%s, %s)', (obj_id, act[1]))
-            elif act[0] == 5:
+            elif act[0] == 'remove_all':
                 cursor.execute('UPDATE "' + self._rel + '" ' \
                         'SET "' + self._id2 + '" = NULL ' \
                         'WHERE "' + self._id2 + '" = %s', (obj_id,))
-            elif act[0] == 6:
+            elif act[0] == 'set':
                 domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
                         user, obj._name)
                 if domain1:
@@ -536,10 +538,12 @@ class Many2Many(Column):
                                 obj._table + '.id ' + domain1 + ')',
                                 [obj_id, obj_id] + domain2)
 
-                for act_nbr in act[2]:
+                for act_nbr in act[1]:
                     cursor.execute('INSERT INTO "' + self._rel + '" ' \
                             '(' + self._id1 + ', ' + self._id2 + ') ' \
                             'VALUES (%s, %s)', (obj_id, act_nbr))
+            else:
+                raise Exception('Bad arguments')
 
 many2many = Many2Many
 
