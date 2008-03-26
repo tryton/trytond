@@ -617,7 +617,7 @@ class Property(Function):
 
     def __init__(self, obj_prop, **args):
         function.__init__(self, '', False, self._fnct_write,
-                (obj_prop, ), **args)
+                obj_prop, **args)
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
