@@ -96,14 +96,14 @@ class Property(OSV):
         model_field_obj = self.pool.get('ir.model.field')
         field_id = model_field_obj.search(cursor, user, [
             ('name', '=', name),
-            ('model', '=', model),
+            ('model.model', '=', model),
             ], limit=1, context=context)[0]
 
         property_ids = self.search(cursor, user, [
             ('field', '=', field_id),
             ('res', '=', name + ',' + str(res_id)),
             ], context=context)
-        self.unlink(cursor, property_ids, context=context)
+        self.unlink(cursor, user, property_ids, context=context)
 
         default_id = self.search(cursor, user, [
             ('field', '=', field_id),
