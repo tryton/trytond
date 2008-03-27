@@ -14,7 +14,8 @@ class Property(OSV):
 
     def models_get2(self, cursor, user, context=None):
         model_field_obj = self.pool.get('ir.model.field')
-        ids = model_field_obj.search(cursor, user, [('view_load', '=', 1)])
+        #TODO add domain for only reference fields
+        ids = model_field_obj.search(cursor, user, [])
         res = []
         done = {}
         for model_field in model_field_obj.browse(cursor, user, ids,
@@ -26,7 +27,8 @@ class Property(OSV):
 
     def models_get(self, cursor, user, context=None):
         model_field_obj = self.pool.get('ir.model.field')
-        ids = model_field_obj.search(cursor, user, [('view_load', '=', 1)])
+        #TODO add domain for only reference fields
+        ids = model_field_obj.search(cursor, user, [])
         res = []
         done = {}
         for model_field in model_field_obj.browse(cursor, user, ids,
@@ -80,7 +82,7 @@ class Property(OSV):
 
         property_ids = self.search(cursor, user, [
             ('field', '=', field_id),
-            ('res', 'in', [name + ',' + str(obj_id) \
+            ('res', 'in', [model + ',' + str(obj_id) \
                     for obj_id in  res_ids]),
             ])
         for prop in self.browse(cursor, user, property_ids):
@@ -109,6 +111,7 @@ class Property(OSV):
             ('field', '=', field_id),
             ('res', '=', False),
             ], limit=1, context=context)
+        default_val = False
         if default_id:
             default_val = self.browse(cursor, user, default_id[0],
                     context=context).value
