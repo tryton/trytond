@@ -23,30 +23,6 @@ LOG_CRITICAL = 'critical'
 from config import CONFIG
 
 
-class ServiceEndPointCall(object):
-
-    def __init__(self, id, method):
-        self._id = id
-        self._meth = method
-
-    def __call__(self, *args):
-        _RES[self._id] = self._meth(*args)
-        return self._id
-
-
-class ServiceEndPoint(object):
-
-    def __init__(self, name, id):
-        self._id = id
-        self._meth = {}
-        service = _SERVICE[name]
-        for method in service.method:
-            self._meth[method] = service.method[method]
-
-    def __getattr__(self, name):
-        return ServiceEndPointCall(self._id, self._meth[name])
-
-
 class Service(object):
     _serviceEndPointID = 0
 
@@ -59,7 +35,6 @@ class Service(object):
         self.exportedmethods = None
         self._response_process = None
         self._response_process_id = None
-        self.response = None
 
     def join_group(self, name):
         if not name in _GROUP:
@@ -70,39 +45,8 @@ class Service(object):
         if callable(method):
             self.method[method.__name__] = method
 
-    def service_end_point(self, service):
-        if Service._serviceEndPointID >= 2**16:
-            Service._serviceEndPointID = 0
-        Service._serviceEndPointID += 1
-        return ServiceEndPoint(service, self._serviceEndPointID)
-
-    def conversation_id(self):
-        return 1
-
-    def process_response(self, service, id):
-        self._response_process, self._response_process_id = service, id
-
-    def process_failure(self, service, id):
-        pass
-
-    def resume_response(self, service):
-        pass
-
-    def cancel_response(self, service):
-        pass
-
-    def suspend_response(self, service):
-        if self._response_process:
-            self._response_process(self._response_process_id,
-                                   _RES[self._response_process_id])
-        self._response_process = None
-        self.response = service(self._response_process_id)
-
     def abort_response(self, description, origin, details):
         raise Exception("%s -- %s\n\n%s" % (origin, description, details))
-
-    def current_failure(self, service):
-        pass
 
 
 class LocalService(Service):
@@ -219,15 +163,14 @@ class XmlRpc(object):
 class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
+        host, port = self.sock.getpeername()[:2]
+        Logger().notify_channel('web-service', LOG_INFO,
+                'connection from %s:%d' % (host, port))
         try:
             name = self.path.split("/")[-1]
             service = LocalService(name)
             meth = getattr(service, method)
-            service.service.response = None
             res = meth(*params)
-            res2 = service.service.response
-            if res2 != None:
-                res = res2
             return res
         except Exception, exp:
             tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
@@ -376,6 +319,7 @@ class TinySocketClientThread(threading.Thread):
             self.sock.close()
             self.threads.remove(self)
             return False
+        first = True
         while self.running:
             (rlist, wlist, xlist) = select.select([self.sock], [], [], 1)
             if not rlist:
@@ -386,14 +330,15 @@ class TinySocketClientThread(threading.Thread):
                 self.sock.close()
                 self.threads.remove(self)
                 return False
+            if first:
+                host, port = self.sock.getpeername()[:2]
+                Logger().notify_channel('web-service', LOG_INFO,
+                        'connection from %s:%d' % (host, port))
+                first = False
             try:
                 service = LocalService(msg[0])
                 method = getattr(service, msg[1])
-                service.service.response = None
                 res = method(*msg[2:])
-                res2 = service.service.response
-                if res2 != None:
-                    res = res2
                 pysocket.send(res)
             except Exception, exp:
                 tb_s = reduce(lambda x, y: x+y,
