@@ -282,7 +282,10 @@ class Report(object):
             localcontext['formatLang'] = lambda value, digits=2, date=False: \
                     self.format_lang(value, digits=digits, date=date,
                             localcontext=localcontext)
+            localcontext['time'] = time
             res = eval(node.nodeValue, localcontext)
+            if hasattr(res, '__str__'):
+                res = res.__str__()
             if isinstance(res, basestring):
                 node.nodeValue = res
                 node.parentNode.parentNode.replaceChild(node, node.parentNode)
@@ -385,7 +388,7 @@ class Report(object):
                             (self._name,
                                 localcontext.get('language', False) or 'en_US'))
         if date:
-            date = time.strptime(value, '%Y-%m-%d')
+            date = time.strptime(str(value), '%Y-%m-%d')
             return time.strftime(locale.nl_langinfo(locale.D_FMT).\
                     replace('%y', '%Y'), date)
         return locale.format('%.' + str(digits) + 'f', value, True)
