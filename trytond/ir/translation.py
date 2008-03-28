@@ -30,7 +30,7 @@ class Translation(OSV, Cacheable):
     _name = "ir.translation"
     _description = __doc__
     name = fields.Char('Field Name', size=128, required=True)
-    res_id = fields.Integer('Resource ID')
+    res_id = fields.Integer('Resource ID', select=1)
     lang = fields.Selection('get_language', string='Language', size=5)
     type = fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
        required=True)
@@ -40,10 +40,6 @@ class Translation(OSV, Cacheable):
     fuzzy = fields.Boolean('Fuzzy')
     model = fields.Function('get_model', fnct_search='model_search',
        type='char', string='Model')
-    _sql = """
-        CREATE INDEX ir_translation_ltn ON ir_translation (lang, type, name);
-        CREATE INDEX ir_translation_res_id ON ir_translation (res_id);
-    """
 
     def __init__(self):
         super(Translation, self).__init__()
@@ -51,6 +47,19 @@ class Translation(OSV, Cacheable):
             ('translation_uniq', 'UNIQUE (name, res_id, lang, type, src)',
                 'Translation must be unique'),
         ]
+
+    def _auto_init(self, cursor, module_name):
+        super(Translation, self)._auto_init(cursor, module_name)
+        cursor.execute('SELECT indexname FROM pg_indexes ' \
+                'WHERE indexname = ' \
+                    '\'ir_translation_ltn\'')
+        if not cursor.rowcount:
+            cursor.execute('CREATE INDEX ' \
+                    'ir_translation_ltn ' \
+                    'ON ir_translation (lang, type, name)')
+        cursor.execute('SELECT indexname FROM pg_indexes ' \
+                'WHERE indexname = ' \
+                    '\'ir_translation_res_id\'')
 
     def default_fuzzy(self, cursor, user, context=None):
         return 0
