@@ -316,8 +316,9 @@ def load_modules(database, update_module=False, lang=None):
                 "WHERE state IN ('to remove')")
         for (mod_name,) in cursor.fetchall():
             pool = pooler.get_pool(cursor.dbname)
-            cursor.execute('SELECT model,res_id FROM ir_model_data ' \
-                    'WHERE NOT noupdate AND module = %s ' \
+            #TODO check if ressource not updated by the user
+            cursor.execute('SELECT model, db_id FROM ir_model_data ' \
+                    'WHERE module = %s ' \
                     'ORDER BY id DESC', (mod_name,))
             for rmod, rid in cursor.fetchall():
                 pool.get(rmod).unlink(cursor, 0, [rid])
