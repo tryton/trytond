@@ -195,7 +195,7 @@ class Wizard(object):
             button_list = copy.copy(result_def['state'])
 
             default_values = obj.default_get(cursor, user, fields.keys(),
-                    context=None)
+                    context=context)
             for field in default_values.keys():
                 fields[field]['value'] = default_values[field]
 
