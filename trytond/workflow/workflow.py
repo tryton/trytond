@@ -127,7 +127,6 @@ class WorkflowInstance(OSV):
             cursor.execute('CREATE INDEX ' \
                         'wkf_instance_res_id_res_type_state_index ' \
                     'ON wkf_instance (res_id, res_type, state)')
-            cursor.commit()
 
 WorkflowInstance()
 
