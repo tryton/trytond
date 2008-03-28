@@ -178,7 +178,8 @@ class Wizard(object):
             actions_res.update(action_res)
 
         res = copy.copy(result_def)
-        res['datas'] = actions_res
+        if state_def.get('actions'):
+            res['datas'] = actions_res
 
         lang = context.get('language', 'en_US')
         if result_def['type'] == 'action':
