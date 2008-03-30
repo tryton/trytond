@@ -207,12 +207,12 @@ class Report(object):
         action_report = action_report_obj.browse(cursor, user,
                 action_report_ids[0], context=context)
         objects = self._get_objects(cursor, user, ids, action_report.model,
-                context)
+                datas, context)
         type, data = self.parse(cursor, user, action_report.report_content,
                 objects, datas, context)
         return (type, base64.encodestring(data))
 
-    def _get_objects(self, cursor, user, ids, model, context):
+    def _get_objects(self, cursor, user, ids, model, datas, context):
         model_obj = self.pool.get(model)
         context = context.copy()
         if 'language' in context:
