@@ -490,6 +490,9 @@ class ORM(object):
                                             "SET \"%s\" = NULL" % \
                                             (self._table, k))
                                 else:
+                                    if isinstance(field, fields.Many2One) \
+                                        and isinstance(default, (list, tuple)):
+                                        default = default[0]
                                     cursor.execute("UPDATE \"%s\" " \
                                             "SET \"%s\" = '%s'" % \
                                             (self._table, k, default))
