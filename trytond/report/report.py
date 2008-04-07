@@ -351,6 +351,7 @@ class Report(object):
         localcontext['language'] = lang
         _language_cache = localcontext['_language_cache']
         for obj in localcontext['objects']:
+            obj._context['language'] = lang
             for table in obj._cache:
                 for obj_id in obj._cache[table]:
                     _language_cache.setdefault(
@@ -364,7 +365,6 @@ class Report(object):
                                 _language_cache[lang][table][obj_id]
                     else:
                         obj._cache[table][obj_id] = {'id': obj_id}
-            obj._context['language'] = lang
         return None
 
     def format_lang(self, value, digits=2, date=False, localcontext=None):
