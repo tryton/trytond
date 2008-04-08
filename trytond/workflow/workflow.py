@@ -23,13 +23,13 @@ class Workflow(OSV):
 
     def write(self, cursor, user, ids, vals, context=None):
         wf_service = LocalService("workflow")
-        wf_service.clear_cache(cursor, user)
+        wf_service.clear_cache(cursor)
         return super(Workflow, self).write(cursor, user, ids, vals,
                 context=context)
 
     def create(self, cursor, user, vals, context=None):
         wf_service = LocalService("workflow")
-        wf_service.clear_cache(cursor, user)
+        wf_service.clear_cache(cursor)
         return super(Workflow, self).create(cursor, user, vals,
                 context=context)
 
