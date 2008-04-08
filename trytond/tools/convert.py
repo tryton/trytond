@@ -270,7 +270,7 @@ class RecordTagHandler:
             raise Exception("Unexpected closing tag '%s'"% (name,))
 
     def current_state(self):
-        return "Last tag record seen: model %s with id %s."% \
+        return "In tag record: model %s with id %s."% \
                (self.model and self.model._name or "?", self.xml_id)
 
 
@@ -371,7 +371,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         except:
             Logger().notify_channel(
                 "init", LOG_ERROR,
-                "Error while parsing xml file. Current state is:\n" +\
+                "Error while parsing xml file:\n" +\
                     self.current_state()
                 )
 
@@ -416,7 +416,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         if self.taghandler:
             return self.taghandler.current_state()
         else:
-            return "In top level tag"
+            return ''
 
     def get_id(self, xml_id):
 
