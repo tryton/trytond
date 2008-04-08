@@ -4,6 +4,7 @@ from trytond.osv import fields, OSV, ExceptOSV
 from trytond.netsvc import LocalService
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
+import base64
 
 
 class Workflow(OSV):
@@ -187,7 +188,7 @@ class InstanceGraph(Report):
         if not workflow_id:
             raise ExceptOSV('UserError', 'No workflow defined!')
         workflow_id = workflow_id[0]
-        workflow = workflow_obj.browser(cursor, user, workflow_id,
+        workflow = workflow_obj.browse(cursor, user, workflow_id,
                 context=context)
         instance_id = instance_obj.search(cursor, user, [
             ('res_id', '=', datas['id']),
@@ -199,13 +200,13 @@ class InstanceGraph(Report):
 
         graph = pydot.Dot(fontsize=16,
                 label="\\n\\nWorkflow: %s\\n OSV: %s" % \
-                        (worflow.name, workflow.osv))
+                        (workflow.name, workflow.osv))
         graph.set('size', '10.7,7.3')
         graph.set('center', '1')
         graph.set('ratio', 'auto')
         graph.set('rotate', '90')
         graph.set('rankdir', 'LR') #TODO depend of the language
-        self.graph_instance_get(cursor, graph, instance_id,
+        self.graph_instance_get(cursor, user, graph, instance_id,
                 datas.get('nested', False), context=context)
         ps_string = graph.create(prog='dot', format='ps')
 
@@ -214,14 +215,14 @@ class InstanceGraph(Report):
         else:
             prog = 'ps2pdf'
         args = (prog, '-', '-')
-        inpt, oupt = exec_command_pipe(*args)
+        inpt, outpt = exec_command_pipe(*args)
         inpt.write(ps_string)
         inpt.close()
         data = outpt.read()
         outpt.close()
         return ('pdf', base64.encodestring(data))
 
-    def graph_instance_get(self, cursor, graph, instance_id, nested=False,
+    def graph_instance_get(self, cursor, user, graph, instance_id, nested=False,
             context=None):
         instance_obj = self.pool.get('workflow.instance')
         instance = instance_obj.browse(cursor, user, instance_id,
@@ -251,7 +252,7 @@ class InstanceGraph(Report):
         import pydot
         if workitem is None:
             workitem = {}
-        activity_obj = self.pool.get('workfow.activity')
+        activity_obj = self.pool.get('workflow.activity')
         workflow_obj = self.pool.get('workflow')
         transition_obj = self.pool.get('workflow.transition')
         activity_ids = activity_obj.search(cursor, user, [
