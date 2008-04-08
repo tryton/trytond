@@ -1,40 +1,40 @@
-from trytond import netsvc
 from trytond import pooler
 
 
 class EnvCall(object):
 
-    def __init__(self, wf_service, d_arg):
-        self.wf_service = wf_service
-        self.d_arg = d_arg
+    def __init__(self, obj, cursor, user, method, obj_id):
+        self.obj = obj
+        self.cursor = cursor
+        self.user = user
+        self.method = method
+        self.obj_id = obj_id
 
-    def __call__(self, *args):
-        arg = self.d_arg + args
-        return self.wf_service.execute_cr(*arg)
+    def __call__(self, *args, **kargs):
+        return getattr(self.obj, self.method)(self.cursor, self.user,
+                self.obj_id, *args, **kargs)
 
 
 class Env(dict):
 
-    def __init__(self, wf_service, cursor, user, model, ids):
+    def __init__(self, cursor, user, model, obj_id):
         super(Env, self).__init__()
-        self.wf_service = wf_service
         self.cursor = cursor
         self.user = user
         self.model = model
-        self.ids = ids
+        self.obj_id = obj_id
         self.obj = pooler.get_pool(cursor.dbname).get(model)
         self.columns = self.obj._columns.keys() + \
                 self.obj._inherit_fields.keys()
 
     def __getitem__(self, key):
         if (key in self.columns) and (not super(Env, self).__contains__(key)):
-            res = self.wf_service.execute_cr(self.cursor, self.user,
-                    self.model, 'read', self.ids, [key])[0][key]
+            res = self.obj.read(self, cursor, self.user, self.obj_id,
+                    [key])[key]
             super(Env, self).__setitem__(key, res)
             return res
         elif key in dir(self.obj):
-            return EnvCall(self.wf_service, (self.cursor, self.user, self.model,
-                key, self.ids))
+            return EnvCall(self.obj, self.cursor, self.user, key, self.obj_id)
         else:
             return super(Env, self).__getitem__(key)
 
@@ -43,14 +43,13 @@ def eval_expr(cursor, ident, action):
     for line in action.split('\n'):
         user = ident[0]
         model = ident[1]
-        ids = [ident[2]]
+        obj_id = ident[2]
         if line == 'True':
             res = True
         elif line =='False':
             res = False
         else:
-            wf_service = netsvc.LocalService("object_proxy")
-            env = Env(wf_service, cursor, user, model, ids)
+            env = Env(cursor, user, model, obj_id)
             res = eval(line, env)
     return res
 
@@ -64,9 +63,8 @@ def check(cursor, ident, transition, signal):
 
     if transition['group']:
         user = ident[0]
-        serv = netsvc.LocalService('object_proxy')
-        user_groups = serv.execute_cr(cursor, user, 'res.user', 'read', user,
-                ['groups'])['groups']
+        user_obj = pooler.get_pool(cursor.dbname).get('res.user')
+        user_groups = user_obj.read(cursor, user, user, ['groups'])['groups']
         res = res and transition['group'] in user_groups
     res = res and eval_expr(cursor, ident, transition['condition'])
     return res
