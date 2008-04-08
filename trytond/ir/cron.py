@@ -96,7 +96,7 @@ class Cron(OSV, Agent):
                         'AND nextcall <= now() ' \
                         'ORDER BY priority')
             for job in cursor.dictfetchall():
-                nextcall = DateTime.strptime(job['nextcall'],
+                nextcall = DateTime.strptime(str(job['nextcall']),
                         '%Y-%m-%d %H:%M:%S')
                 numbercall = job['numbercall']
                 done = False
