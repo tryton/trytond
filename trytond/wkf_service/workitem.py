@@ -77,7 +77,7 @@ def _execute(cursor, workitem, activity, ident):
     elif activity['kind'] == 'function':
         if workitem['state'] == 'active':
             _state_set(cursor, workitem, 'running')
-            wkf_expr.execute(cursor, ident, workitem, activity)
+            wkf_expr.execute(cursor, ident, activity)
             _state_set(cursor, workitem, 'complete')
     elif activity['kind'] == 'stopall':
         if workitem['state'] == 'active':
@@ -86,13 +86,13 @@ def _execute(cursor, workitem, activity, ident):
                     'WHERE instance = %s AND id <> %s',
                     (workitem['inst_id'], workitem['id']))
             if activity['action']:
-                wkf_expr.execute(cursor, ident, workitem, activity)
+                wkf_expr.execute(cursor, ident, activity)
             _state_set(cursor, workitem, 'complete')
     elif activity['kind'] == 'subflow':
         if workitem['state'] == 'active':
             _state_set(cursor, workitem, 'running')
             if activity.get('action', False):
-                id_new = wkf_expr.execute(cursor, ident, workitem, activity)
+                id_new = wkf_expr.execute(cursor, ident, activity)
                 if not (id_new):
                     cursor.execute('DELETE FROM wkf_workitem ' \
                             'WHERE id = %s', (workitem['id'],))
@@ -126,15 +126,15 @@ def _split_test(cursor, workitem, split_mode, ident, signal=None):
     alltrans = cursor.dictfetchall()
     if split_mode == 'XOR' or split_mode == 'OR':
         for transition in alltrans:
-            if wkf_expr.check(cursor, workitem, ident, transition, signal):
+            if wkf_expr.check(cursor, ident, transition, signal):
                 test = True
-                transitions.append((transition['id'], workitem['inst_id']))
+                transitions.append((transition['id'], workitem['instance']))
                 if split_mode == 'XOR':
                     break
     else:
         test = True
         for transition in alltrans:
-            if not wkf_expr.check(cursor, workitem, ident, transition, signal):
+            if not wkf_expr.check(cursor, ident, transition, signal):
                 test = False
                 break
             cursor.execute('SELECT COUNT(*) ' \
