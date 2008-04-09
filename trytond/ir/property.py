@@ -8,6 +8,7 @@ class Property(OSV):
     _name = 'ir.property'
     _description = __doc__
     name = fields.Char('Name', size=128)
+    #TODO add function field for other type than many2one
     value = fields.Reference('Value', selection='models_get2', size=128)
     res = fields.Reference('Resource', selection='models_get', size=128)
     field = fields.Many2One('ir.model.field', 'Field',
