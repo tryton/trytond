@@ -284,12 +284,12 @@ class ORM(object):
                             "relation, group_name, view_load, help) " \
                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (model_id, k, field.string, field._type,
-                            field._obj or 'NULL', field.group_name or '',
+                            field._obj or '', field.group_name or '',
                             (field.view_load and 'True') or 'False',
                             field.help))
             elif columns[k]['field_description'] != field.string \
                     or columns[k]['ttype'] != field._type \
-                    or columns[k]['relation'] != (field._obj or 'NULL') \
+                    or columns[k]['relation'] != (field._obj or '') \
                     or columns[k]['group_name'] != (field.group_name or '') \
                     or columns[k]['view_load'] != \
                         ((field.view_load and 'True') or 'False') \
@@ -302,7 +302,7 @@ class ORM(object):
                             'view_load = %s, ' \
                             'help = %s ' \
                         'WHERE id = %s ',
-                        (field.string, field._type, field._obj or 'NULL',
+                        (field.string, field._type, field._obj or '',
                             field.group_name or '',
                             (field.view_load and 'True') or 'False',
                             field.help, columns[k]['id']))

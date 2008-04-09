@@ -293,6 +293,9 @@ class Many2One(Column):
     _classic_read = False
     _classic_write = True
     _type = 'many2one'
+    _symbol_c = '%s'
+    _symbol_f = lambda x: x and int(x) or None
+    _symbol_set = (_symbol_c, _symbol_f)
 
     def __init__(self, obj, string='unknown', **args):
         Column.__init__(self, string=string, **args)
@@ -560,6 +563,7 @@ class Function(Column):
         self._fnct = fnct
         self._fnct_inv = fnct_inv
         self._arg = arg
+        self._obj = ''
         if 'relation' in args:
             self._obj = args['relation']
         self._fnct_inv_arg = fnct_inv_arg
@@ -603,16 +607,17 @@ class Property(Function):
         res = property_obj.get(cursor, user, prop, obj._name, ids,
                 context=context)
 
-        obj = obj.pool.get(self._obj)
-        obj_names = {}
-        for obj_id, obj_name in obj.name_get(cursor, user,
-                [x for x in res.values() if x], context=context):
-            obj_names[obj_id] = obj_name
-        for i in ids:
-            if res.get(i) and res[i] in obj_names:
-                res[i] = (res[i], obj_names[res[i]])
-            else:
-                res[i] = False
+        if self._obj:
+            obj = obj.pool.get(self._obj)
+            obj_names = {}
+            for obj_id, obj_name in obj.name_get(cursor, user,
+                    [x for x in res.values() if x], context=context):
+                obj_names[obj_id] = obj_name
+            for i in ids:
+                if res.get(i) and res[i] in obj_names:
+                    res[i] = (res[i], obj_names[res[i]])
+                else:
+                    res[i] = False
         return res
 
     def __init__(self, **args):
@@ -625,6 +630,6 @@ class Property(Function):
 
     def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
         self._fnct_write(obj, cursor, user, obj_id, name, value,
-                    self._fnct_inv_arg, context=context)
+                    self._obj, context=context)
 
 property = Property
