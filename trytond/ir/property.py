@@ -1,5 +1,6 @@
 "Properties"
 from trytond.osv import OSV, fields
+from decimal import Decimal
 
 
 class Property(OSV):
@@ -39,17 +40,6 @@ class Property(OSV):
                 done[model_field.model.id] = True
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
-        if ids:
-            cursor.execute('DELETE FROM ir_model_field ' \
-                    'WHERE id IN (' \
-                        'SELECT field FROM ir_property ' \
-                        'WHERE (field IS NOT NULL) ' \
-                            'AND (id IN (' + ','.join([str(x) for x in ids]) + \
-                            ')))')
-        res = super(Property, self).unlink(cursor, user, ids, context)
-        return res
-
     def get(self, cursor, user, name, model, res_ids=None, context=None):
         """
         Return property value for each res_ids
@@ -63,6 +53,7 @@ class Property(OSV):
             ('name', '=', name),
             ('model.model', '=', model),
             ], limit=1, context=context)[0]
+        field = model_field_obj.browse(cursor, user, field_id, context=context)
 
         default_id = self.search(cursor, user, [
             ('field', '=', field_id),
@@ -72,7 +63,16 @@ class Property(OSV):
         if default_id:
             value = self.browse(cursor, user, default_id[0],
                     context=context).value
-            default_val = (value and int(value.split(',')[1])) or False
+            val = False
+            if value:
+                if value.split(',')[0]:
+                    val = int(value.split(',')[1])
+                else:
+                    if field.ttype == 'numeric':
+                        val = Decimal(value.split(',')[1])
+                    else:
+                        raise Exception('Not implemented')
+            default_val = val
 
         if not res_ids:
             return default_val
@@ -86,8 +86,16 @@ class Property(OSV):
                     for obj_id in  res_ids]),
             ])
         for prop in self.browse(cursor, user, property_ids):
-            res[int(prop.res.split(',')[1])] = (prop.value and \
-                    int(prop.value.split(',')[1])) or False
+            val = False
+            if prop.value:
+                if prop.value.split(',')[0]:
+                    val = int(prop.value.split(',')[1])
+                else:
+                    if field.ttype == 'numeric':
+                        val = Decimal(prop.value.split(',')[1])
+                    else:
+                        raise Exception('Not implemented')
+            res[int(prop.res.split(',')[1])] = val
 
         return res
 
@@ -103,7 +111,7 @@ class Property(OSV):
 
         property_ids = self.search(cursor, user, [
             ('field', '=', field_id),
-            ('res', '=', name + ',' + str(res_id)),
+            ('res', '=', model + ',' + str(res_id)),
             ], context=context)
         self.unlink(cursor, user, property_ids, context=context)
 
