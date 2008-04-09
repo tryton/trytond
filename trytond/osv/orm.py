@@ -1282,7 +1282,7 @@ class ORM(object):
                 cursor.execute('SELECT id FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ') ' + domain1,
                         sub_ids + domain2)
-                if not cursor.rowcount == len({}.fromkeys(ids)):
+                if not cursor.rowcount == len({}.fromkeys(sub_ids)):
                     raise ExceptORM('AccessError',
                             'You try to bypass an access rule ' \
                                 '(Document type: %s).' % self._description)
