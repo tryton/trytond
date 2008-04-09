@@ -615,9 +615,8 @@ class Property(Function):
                 res[i] = False
         return res
 
-    def __init__(self, obj_prop, **args):
-        function.__init__(self, '', False, self._fnct_write,
-                obj_prop, **args)
+    def __init__(self, **args):
+        function.__init__(self, '', None, self._fnct_write, None, **args)
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
