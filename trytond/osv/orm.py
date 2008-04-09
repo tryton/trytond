@@ -1187,14 +1187,11 @@ class ORM(object):
         for field in fields_names:
             if field in self._defaults:
                 value[field] = self._defaults[field](cursor, user, context)
-            fld_def = ((field in self._columns) and self._columns[field]) \
-                    or ((field in self._inherit_fields) \
-                        and self._inherit_fields[field][2]) \
-                    or False
-            if isinstance(fld_def, fields.Property):
-                property_obj = self.pool.get('ir.property')
-                value[field] = property_obj.get(cursor, user, field,
-                        self._name)
+            if field in self._columns:
+                if isinstance(self._columns[field], fields.Property):
+                    property_obj = self.pool.get('ir.property')
+                    value[field] = property_obj.get(cursor, user, field,
+                            self._name)
 
         # get the default values set by the user and override the default
         # values defined in the object
