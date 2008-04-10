@@ -287,7 +287,7 @@ class Report(object):
             if hasattr(res, '__str__'):
                 res = res.__str__()
             if isinstance(res, basestring):
-                node.nodeValue = res
+                node.nodeValue = res.decode('utf-8')
                 node.parentNode.parentNode.replaceChild(node, node.parentNode)
             return res
         if 'language' in localcontext:
