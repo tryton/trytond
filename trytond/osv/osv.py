@@ -7,6 +7,7 @@ import copy
 import sys
 from psycopg2 import IntegrityError
 from trytond.tools import UpdateableDict
+import traceback
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -61,7 +62,6 @@ class OSVService(Service):
                             self._sql_error[key])
             self.abort_response('Integrity Error', 'warning', inst[0])
         except:
-            import traceback
             tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
                 sys.exc_type, sys.exc_value, sys.exc_traceback))
             logger = Logger()
@@ -87,7 +87,26 @@ class OSVService(Service):
 
     def exec_workflow_cr(self, cursor, user, object_name, method, *args):
         wf_service = LocalService("workflow")
-        wf_service.trg_validate(user, object_name, args[0], method, cursor)
+        try:
+            wf_service.trg_validate(user, object_name, args[0], method, cursor)
+        except ExceptORM, inst:
+            self.abort_response(inst.name, 'warning', inst.value)
+        except ExceptOSV, inst:
+            self.abort_response(inst.name, inst.exc_type, inst.value)
+        except IntegrityError, inst:
+            for key in self._sql_error.keys():
+                if key in inst[0]:
+                    self.abort_response('Constraint Error', 'warning',
+                            self._sql_error[key])
+            self.abort_response('Integrity Error', 'warning', inst[0])
+
+        except:
+            tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
+                sys.exc_type, sys.exc_value, sys.exc_traceback))
+            logger = Logger()
+            logger.notify_channel("web-services", LOG_ERROR,
+                    'Exception in call: \n' + tb_s)
+            raise
         return True
 
     def exec_workflow(self, dbname, user, object_name, method, *args):
