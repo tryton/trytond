@@ -1265,7 +1265,7 @@ class ORM(object):
             "SELECT id FROM wkf_instance "\
                 "WHERE res_id IN (" + ",".join(["%s" for i in ids]) + ") "\
                 "AND res_type = %s AND state != 'complete'",
-            (ids+[self._name]))
+            ids + [self._name])
         if cursor.rowcount != 0:
             raise ExceptORM(
                 'UserError','You cannot delete a record with a running workflow.')
