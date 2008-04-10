@@ -1261,6 +1261,15 @@ class ORM(object):
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'unlink')
 
+        cursor.execute(
+            "SELECT id FROM wkf_instance "\
+                "WHERE res_id IN (" + ",".join(["%s" for i in ids]) + ") "\
+                "AND res_type = %s AND state != 'complete'",
+            (ids+[self._name]))
+        if cursor.rowcount != 0:
+            raise ExceptORM(
+                'UserError','You cannot delete a record with a running workflow.')
+
         wf_service = LocalService("workflow")
         for obj_id in ids:
             wf_service.trg_delete(user, self._name, obj_id, cursor)
