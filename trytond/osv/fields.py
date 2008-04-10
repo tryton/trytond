@@ -563,6 +563,7 @@ class Function(Column):
         self._fnct = fnct
         self._fnct_inv = fnct_inv
         self._arg = arg
+        self._field = ''
         self._obj = ''
         if 'relation' in args:
             self._obj = args['relation']
