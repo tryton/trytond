@@ -7,6 +7,7 @@ import fields
 from trytond.tools import Cache
 import md5
 import time
+import traceback
 
 ID_MAX = 1000
 
@@ -75,10 +76,11 @@ class BrowseRecord(object):
                 return getattr(self._table, name)
             else:
                 logger = Logger()
+                stack = ''.join(traceback.format_stack())
                 logger.notify_channel('orm', LOG_ERROR,
                         "Programming error: field '%s' " \
-                                "does not exist in object '%s'!" % \
-                                (name, self._table._name))
+                                "does not exist in object '%s'!\n%s" % \
+                                (name, self._table._name, stack))
                 return False
 
             # if the field is a classic one or a many2one,
