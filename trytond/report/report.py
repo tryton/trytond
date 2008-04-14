@@ -208,7 +208,7 @@ class Report(object):
                 action_report_ids[0], context=context)
         objects = self._get_objects(cursor, user, ids, action_report.model,
                 datas, context)
-        type, data = self.parse(cursor, user, action_report.report_content,
+        type, data = self.parse(cursor, user, action_report,
                 objects, datas, context)
         return (type, base64.encodestring(data))
 
@@ -220,7 +220,7 @@ class Report(object):
         #TODO change list_class
         return model_obj.browse(cursor, user, ids, context=context)
 
-    def parse(self, cursor, user, content, objects, datas, context):
+    def parse(self, cursor, user, report, objects, datas, context):
         localcontext = {}
         localcontext['datas'] = datas
         localcontext['objects'] = objects
@@ -228,17 +228,53 @@ class Report(object):
                 browse(cursor, user, user)
         localcontext['_language_cache'] = {}
         localcontext.update(context)
-        content_io = StringIO.StringIO(content)
+        content_io = StringIO.StringIO(report.report_content)
         content_z = zipfile.ZipFile(content_io, mode='r')
         content_xml = content_z.read('content.xml')
-        content_z.close()
         dom = xml.dom.minidom.parseString(content_xml)
         node = dom.documentElement
         self._parse_node(cursor, user, node, localcontext, context)
+
+        style_z = zipfile.ZipFile(content_io, mode='r')
+        style_xml = content_z.read('styles.xml')
+        style_z.close()
+        dom_style = xml.dom.minidom.parseString(style_xml)
+        node_style = dom_style.documentElement
+        self._parse_node(cursor, user, node_style, localcontext, context)
+        content_z.close()
+
+        pictures = []
+        if report.style_content:
+            style2_io = StringIO.StringIO(report.style_content)
+            style2_z = zipfile.ZipFile(style2_io, mode='r')
+            style2_xml = style2_z.read('styles.xml')
+            for file in style2_z.namelist():
+                if file.startswith('Pictures'):
+                    picture = style2_z.read(file)
+                    pictures.append((file, picture))
+            style2_z.close()
+            style2_io.close()
+            dom_style2 = xml.dom.minidom.parseString(style2_xml)
+            node_style2 = dom_style2.documentElement
+            self._parse_node(cursor, user, node_style2, localcontext, context)
+            style_header_node2 = self.find(node_style2, 'master-styles')
+            style_header_node = self.find(node_style, 'master-styles')
+            style_header_node.parentNode.replaceChild(style_header_node2,
+                    style_header_node)
+            style_header_node2 = self.find(node_style2, 'automatic-styles')
+            style_header_node = self.find(node_style, 'automatic-styles')
+            style_header_node.parentNode.replaceChild(style_header_node2,
+                    style_header_node)
+
         content_z = zipfile.ZipFile(content_io, mode='a')
         content_z.writestr('content.xml',
                 '<?xml version="1.0" encoding="UTF-8"?>' + \
                 dom.documentElement.toxml('utf-8'))
+        content_z.writestr('styles.xml',
+                '<?xml version="1.0" encoding="UTF-8"?>' + \
+                        dom_style.documentElement.toxml('utf-8'))
+        for file, picture in pictures:
+            content_z.writestr(file, picture)
         content_z.close()
         data = content_io.getvalue()
         content_io.close()
@@ -346,6 +382,16 @@ class Report(object):
                     and node.localName in parents:
                 break
         return node
+
+    def find(self, tnode, tag):
+        for node in tnode.childNodes:
+            if node.nodeType == node.ELEMENT_NODE \
+                    and node.localName == tag:
+                return node
+            res = self.find(node, tag)
+            if res is not None:
+                return res
+        return None
 
     def set_lang(self, lang, localcontext):
         localcontext['language'] = lang
