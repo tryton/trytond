@@ -216,8 +216,7 @@ class ActionReport(OSV):
         for report in self.browse(cursor, user, ids, context=context):
             try:
                 data = file_open(report.style, mode='rb').read()
-            except Exception, e:
-                print e
+            except:
                 data = False
             res[report.id] = data
         return res
