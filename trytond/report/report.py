@@ -331,7 +331,7 @@ class Report(object):
         return None
 
     def remove_parent_node(self, tag='p', tnode=None):
-        node = self.find_parent(node, [tag])
+        node = self.find_parent(tnode, [tag])
         if node:
             pnode = node.parentNode
             pnode.removeChild(node)
@@ -365,7 +365,7 @@ class Report(object):
                                 _language_cache[lang][table][obj_id]
                     else:
                         obj._cache[table][obj_id] = {'id': obj_id}
-        return None
+        return ''
 
     def format_lang(self, value, digits=2, date=False, localcontext=None):
         if localcontext is None:
