@@ -169,14 +169,18 @@ class ActionReport(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    model = fields.Char('Model', size=64, required=True)
-    report_name = fields.Char('Internal Name', size=64, required=True)
-    report = fields.Char('Path', size=128)
+    model = fields.Char('Model', size=None, required=True)
+    report_name = fields.Char('Internal Name', size=None, required=True)
+    report = fields.Char('Path', size=None)
     report_content_data = fields.Binary('Content')
     report_content = fields.Function('get_report_content',
-        fnct_inv='report_content_inv', type='binary',
-        string='Content')
+            fnct_inv='report_content_inv', type='binary',
+            string='Content')
     action = fields.Many2One('ir.action', 'Action', required=True)
+    style = fields.Property(type='char', string='Style',
+            help='Define the style to apply on the report.')
+    style_content = fields.Function('get_style_content',
+            type='binary', string='Style')
 
     def __init__(self):
         super(ActionReport, self).__init__()
@@ -206,6 +210,17 @@ class ActionReport(OSV):
     def report_content_inv(self, cursor, user, obj_id, name, value, arg,
             context=None):
         self.write(cursor, user, obj_id, {name+'_data': value}, context=context)
+
+    def get_style_content(self, cursor, user, ids, name, arg, context=None):
+        res = {}
+        for report in self.browse(cursor, user, ids, context=context):
+            try:
+                data = file_open(report.style, mode='rb').read()
+            except Exception, e:
+                print e
+                data = False
+            res[report.id] = data
+        return res
 
     def copy(self, cursor, user, object_id, default=None, context=None):
         if default is None:

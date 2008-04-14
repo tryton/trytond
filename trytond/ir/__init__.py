@@ -1,5 +1,6 @@
 from sequence import *
 import ui
+from property import *
 from action import *
 from model import *
 from attachment import *
@@ -8,6 +9,5 @@ from lang import *
 from translation import *
 from export import *
 from rule import *
-from property import *
 import module
 from default import *
