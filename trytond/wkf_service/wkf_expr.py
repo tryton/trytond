@@ -29,7 +29,7 @@ class Env(dict):
 
     def __getitem__(self, key):
         if (key in self.columns) and (not super(Env, self).__contains__(key)):
-            res = self.obj.read(self, cursor, self.user, self.obj_id,
+            res = self.obj.read(self.cursor, self.user, self.obj_id,
                     [key])[key]
             super(Env, self).__setitem__(key, res)
             return res

@@ -36,7 +36,7 @@ class WorkflowService(Service):
                 'WHERE res_id = %s AND model = %s', (res_id, res_type))
         # TODO remove the query from for statement
         for (instance_id,) in cursor.fetchall():
-            cursor.execute('SELECT user, res_type, res_id FROM wkf_instance ' \
+            cursor.execute('SELECT uid, res_type, res_id FROM wkf_instance ' \
                     'WHERE id = %s', (instance_id,))
             ident = cursor.fetchone()
             instance.update(cursor, instance_id, ident)
