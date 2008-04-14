@@ -47,7 +47,7 @@ def process(cursor, workitem, ident, signal=None, force_running=False):
                             '(model, res_id, instance, workitem, id) ' \
                             'VALUES (%s, %s, %s, %s, %s)',
                             (trans['trigger_model'], res_id,
-                                workitem['inst_id'], workitem['id'], new_id))
+                                workitem['instance'], workitem['id'], new_id))
     return True
 
 def _state_set(cursor, workitem, state):
@@ -66,7 +66,7 @@ def _execute(cursor, workitem, activity, ident):
                     "ON (i.workflow = w.id) " \
                 "WHERE i.id in (" \
                     "SELECT instance FROM wkf_workitem " \
-                    "WHERE subflow = %s)", (workitem['inst_id'],))
+                    "WHERE subflow = %s)", (workitem['instance'],))
         for i in cursor.fetchall():
             instance.validate(cursor, i[0], (ident[0], i[1], i[2]),
                     activity['signal_send'], force_running=True)
@@ -84,7 +84,7 @@ def _execute(cursor, workitem, activity, ident):
             _state_set(cursor, workitem, 'running')
             cursor.execute('DELETE FROM wkf_workitem ' \
                     'WHERE instance = %s AND id <> %s',
-                    (workitem['inst_id'], workitem['id']))
+                    (workitem['instance'], workitem['id']))
             if activity['action']:
                 wkf_expr.execute(cursor, ident, activity)
             _state_set(cursor, workitem, 'complete')
@@ -139,10 +139,10 @@ def _split_test(cursor, workitem, split_mode, ident, signal=None):
                 break
             cursor.execute('SELECT COUNT(*) ' \
                     'FROM wkf_witm_trans WHERE trans_id = %s AND inst_id = %s',
-                    (transition['id'], workitem['inst_id']))
+                    (transition['id'], workitem['instance']))
             (count,) = cursor.fetchone()
             if not count:
-                transitions.append((transition['id'], workitem['inst_id']))
+                transitions.append((transition['id'], workitem['instance']))
     if test and len(transitions):
         cursor.executemany('INSERT INTO wkf_witm_trans ' \
                 '(trans_id, inst_id) values (%s, %s)', transitions)

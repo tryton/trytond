@@ -1602,6 +1602,23 @@ class ORM(object):
                 fields_names, context))
         read_access = model_access_obj.check(cursor, user, self._name, 'write',
                 raise_exception=False)
+
+        #Add translation to cache
+        trans_args = []
+        for field in self._columns.keys():
+            trans_args.append((self._name + ',' + field, 'field',
+                context.get('language', 'en_US'), None))
+            trans_args.append((self._name + ',' + field, 'help',
+                context.get('language', 'en_US'), None))
+            if hasattr(self._columns[field], 'selection'):
+                if isinstance(self._columns[field].selection, (tuple, list)):
+                    sel = self._columns[field].selection
+                    for (key, val) in sel:
+                        trans_args.append((self._name + ',' + field,
+                            'selection', context.get('language', 'en_US'),
+                            val))
+        translation_obj._get_sources(cursor, trans_args)
+
         for field in self._columns.keys():
             res[field] = {'type': self._columns[field]._type}
             for arg in (

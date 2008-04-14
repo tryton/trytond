@@ -208,13 +208,54 @@ class Translation(OSV, Cacheable):
             self.add((lang, ttype, name, source), False)
             return False
 
+    def _get_sources(self, cursor, args):
+        '''
+        Take a list of (name, ttype, lang, source).
+        Add the translations to the cache.
+        Return a dict with the translations.
+        '''
+        res = {}
+        clause = ''
+        value = []
+        for name, ttype, lang, source in args:
+            trans = self.get((lang, ttype, name, source))
+            if trans is not None:
+                res[(name, ttype, lang, source)] = trans
+            else:
+                res[(name, ttype, lang, source)] = False
+                if clause:
+                    clause += ' OR '
+                if source:
+                    clause += '(lang=%s ' \
+                            'AND type=%s ' \
+                            'AND name=%s ' \
+                            'AND src=%s)'
+                    value.extend((lang, ttype, str(name), source))
+                else:
+                    clause += '(lang=%s ' \
+                            'AND type=%s ' \
+                            'AND name=%s)'
+                    value.extend((lang, ttype, str(name)))
+        if clause:
+            cursor.execute('SELECT lang, type, name, src, value ' \
+                    'FROM ir_translation ' \
+                    'WHERE ' + clause, value)
+            for lang, ttype, name, src, value in cursor.fetchall():
+                res[(name, ttype, lang, source)] = value
+            for name, ttype, lang, source in args:
+                self.add((lang, ttype, name, source),
+                        res[(name, ttype, lang, source)])
+        return res
+
     def unlink(self, cursor, user, ids, context=None):
         self.clear()
+        self.fields_view_get()
         return super(Translation, self).unlink(cursor, user, ids,
                 context=context)
 
     def create(self, cursor, user, vals, context=None):
         self.clear()
+        self.fields_view_get()
         if vals.get('type', '') in ('odt', 'view', 'wizard_button',
                 'selection'):
             cursor.execute('SELECT module FROM ir_translation ' \
@@ -244,6 +285,7 @@ class Translation(OSV, Cacheable):
 
     def write(self, cursor, user, ids, vals, context=None):
         self.clear()
+        self.fields_view_get()
         return super(Translation, self).write(cursor, user, ids, vals,
                 context=context)
 
