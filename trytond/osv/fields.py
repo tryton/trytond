@@ -238,6 +238,7 @@ class Binary(Column):
     _symbol_c = '%s'
     _symbol_f = lambda symb: symb and psycopg2.Binary(symb) or None
     _symbol_set = (_symbol_c, _symbol_f)
+    _symbol_get = lambda self, symb: symb and str(symb) or None
 
     def sql_type(self):
         return ('bytea', 'bytea')
