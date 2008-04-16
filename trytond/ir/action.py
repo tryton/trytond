@@ -181,6 +181,7 @@ class ActionReport(OSV):
             help='Define the style to apply on the report.')
     style_content = fields.Function('get_style_content',
             type='binary', string='Style')
+    direct_print = fields.Boolean('Direct Print')
 
     def __init__(self):
         super(ActionReport, self).__init__()
@@ -193,6 +194,9 @@ class ActionReport(OSV):
         return 'ir.action.report'
 
     def default_report_content(self, cursor, user, context=None):
+        return False
+
+    def default_direct_print(self, cursor, user, context=None):
         return False
 
     def get_report_content(self, cursor, user, ids, name, arg, context=None):

@@ -210,7 +210,7 @@ class Report(object):
                 datas, context)
         type, data = self.parse(cursor, user, action_report,
                 objects, datas, context)
-        return (type, base64.encodestring(data))
+        return (type, base64.encodestring(data), action_report.direct_print)
 
     def _get_objects(self, cursor, user, ids, model, datas, context):
         model_obj = self.pool.get(model)
