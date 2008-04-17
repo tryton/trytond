@@ -74,7 +74,11 @@
                     <label name="report"/>
                     <field name="report"/>
                     <label name="report_content"/>
-                    <field name="report_content"/>
+                    <field name="report_content" colspan="3"/>
+                    <label name="style"/>
+                    <field name="style"/>
+                    <label name="direct_print"/>
+                    <field name="direct_print"/>
                     <field name="keywords" colspan="8">
                         <tree string="Keywords">
                             <field name="keyword"/>
