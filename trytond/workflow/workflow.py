@@ -61,7 +61,7 @@ class WorkflowActivity(OSV):
        ('subflow', 'Subflow'),
        ('stopall', 'Stop All'),
        ], 'Kind', size=64, required=True)
-    action = fields.Char('Action', size=64)
+    action = fields.Char('Action', size=None)
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
     subflow =  fields.Many2One('workflow', 'Subflow')

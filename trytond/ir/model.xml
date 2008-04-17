@@ -125,12 +125,12 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Access controls">
-                    <field name="model" select="1"/>
-                    <field name="group" select="1"/>
                     <field name="perm_read" select="2"/>
                     <field name="perm_write" select="2"/>
                     <field name="perm_create" select="2"/>
                     <field name="perm_unlink" select="2"/>
+                    <field name="model" select="1"/>
+                    <field name="group" select="1"/>
                 </tree>
                 ]]>
             </field>

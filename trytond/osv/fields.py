@@ -238,6 +238,7 @@ class Binary(Column):
     _symbol_c = '%s'
     _symbol_f = lambda symb: symb and psycopg2.Binary(symb) or None
     _symbol_set = (_symbol_c, _symbol_f)
+    _symbol_get = lambda self, symb: symb and str(symb) or None
 
     def sql_type(self):
         return ('bytea', 'bytea')
@@ -371,11 +372,13 @@ class One2Many(Column):
     _classic_write = False
     _type = 'one2many'
 
-    def __init__(self, obj, field, string='unknown', limit=None, **args):
+    def __init__(self, obj, field, string='unknown', limit=None, order=None,
+            **args):
         Column.__init__(self, string=string, **args)
         self._obj = obj
         self._field = field
         self._limit = limit
+        self._order = order
         #one2many can't be used as condition for defaults
         assert(self.change_default != True)
 
@@ -389,7 +392,8 @@ class One2Many(Column):
         for i in range((len(ids) / ID_MAX) + ((len(ids) % ID_MAX) and 1 or 0)):
             sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
             ids2 += obj.pool.get(self._obj).search(cursor, user,
-                    [(self._field, 'in', sub_ids)], context=context)
+                    [(self._field, 'in', sub_ids)], order=self._order,
+                    context=context)
             if self._limit and len(ids2) > offset + self._limit:
                 break
         if offset:
@@ -455,13 +459,14 @@ class Many2Many(Column):
     _type = 'many2many'
 
     def __init__(self, obj, rel, id1, id2, string='unknown', limit=None,
-            **args):
+            order=None, **args):
         Column.__init__(self, string=string, **args)
         self._obj = obj
         self._rel = rel
         self._id1 = id1
         self._id2 = id2
         self._limit = limit
+        self._order = order
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
@@ -481,6 +486,7 @@ class Many2Many(Column):
         if domain1:
             domain1 = ' and '+domain1
 
+        #TODO fix order: can have many fields
         cursor.execute('SELECT ' + self._rel + '.' + self._id2 + ', ' + \
                     self._rel + '.' + self._id1 + ' ' \
                 'FROM "' + self._rel + '" , "' + obj._table + '" ' \
@@ -488,8 +494,9 @@ class Many2Many(Column):
                     self._rel + '.' + self._id1 + ' IN (' + ids_s + ') ' \
                     'AND ' + self._rel + '.' + self._id2 + ' = ' + \
                         obj._table + '.id ' + domain1 + \
-                limit_str + ' ORDER BY ' + obj._table + '.' + obj._order + \
-                ' offset %s', domain2 + [offset])
+                limit_str + ' ORDER BY ' + obj._table + '.' + \
+                    (self._order or obj._order) + \
+                ' OFFSET %s', domain2 + [offset])
         for i in cursor.fetchall():
             res[i[1]].append(i[0])
         return res
