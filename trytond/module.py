@@ -307,7 +307,11 @@ def load_modules(database, update_module=False, lang=None):
             module_list.append(module)
     graph = create_graph(module_list, force)[0]
 
-    load_module_graph(cursor, graph, lang)
+    try:
+        load_module_graph(cursor, graph, lang)
+    except:
+        cursor.close()
+        raise
 
 
     for kind in ('init', 'update'):
