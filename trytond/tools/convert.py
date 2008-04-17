@@ -687,7 +687,9 @@ def post_import(cursor, module, to_delete):
             # Deletion of the record
             pool.get(model).unlink(cursor, user, db_id)
             mdata_unlink.append(mdata_id)
+            cursor.commit()
         except:
+            cursor.rollback()
             logger.notify_channel('init', LOG_ERROR,
                     'Could not delete id: %d of model %s\n' \
                             'There should be some relation ' \
@@ -699,5 +701,6 @@ def post_import(cursor, module, to_delete):
     # Clean model_data: 
     if mdata_unlink:
         modeldata_obj.unlink(cursor, user, mdata_unlink)
+        cursor.commit()
 
     return True
