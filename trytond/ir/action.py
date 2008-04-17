@@ -248,7 +248,11 @@ class ActionActWindow(OSV):
     context = fields.Char('Context Value', size=250)
     res_model = fields.Char('Model', size=64)
     src_model = fields.Char('Source model', size=64)
-    view_type = fields.Selection([('tree','Tree'), ('form','Form')],
+    view_type = fields.Selection([
+        ('tree','Tree'),
+        ('form','Form'),
+        ('board', 'Board'),
+        ],
        string='Type of view')
     usage = fields.Char('Action Usage', size=32)
     act_window_views = fields.One2Many('ir.action.act_window.view',
