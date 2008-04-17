@@ -688,7 +688,6 @@ def post_import(cursor, module, to_delete):
             pool.get(model).unlink(cursor, user, db_id)
             mdata_unlink.append(mdata_id)
         except:
-            raise
             logger.notify_channel('init', LOG_ERROR,
                     'Could not delete id: %d of model %s\n' \
                             'There should be some relation ' \
