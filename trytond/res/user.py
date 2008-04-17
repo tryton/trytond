@@ -266,6 +266,6 @@ class UserConfig(Wizard):
     def _add(self, cursor, user, data, context=None):
         res_obj = self.pool.get('res.user')
         res_obj.create(cursor, user, data['form'], context=context)
-        return {'form': {}}
+        return {}
 
 UserConfig()
