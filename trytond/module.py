@@ -14,14 +14,9 @@ sys.path.insert(1, MODULES_PATH)
 class Graph(dict):
 
     def add_node(self, name, deps):
-        max_depth, father = 0, None
         for i in [Node(x, self) for x in deps]:
-            if i.depth >= max_depth:
-                father = i
-                max_depth = i.depth
-        if father:
-            father.add_child(name)
-        else:
+            i.add_child(name)
+        if not deps:
             Node(name, self)
 
     def __iter__(self):
@@ -69,13 +64,20 @@ class Node(Singleton):
 
     def add_child(self, name):
         node = Node(name, self.graph)
-        node.depth = self.depth + 1
-        if node not in self.childs:
+        node.depth = max(self.depth + 1, node.depth)
+        if node not in self.all_childs():
             self.childs.append(node)
         for attr in ('init', 'update'):
             if hasattr(self, attr):
                 setattr(node, attr, True)
         self.childs.sort(lambda x, y: cmp(x.name, y.name))
+
+    def all_childs(self):
+        res = []
+        for child in self.childs:
+            res.append(child)
+            res += child.all_childs()
+        return res
 
     def has_child(self, name):
         return Node(name, self.graph) in self.childs or \
