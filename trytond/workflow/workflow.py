@@ -220,7 +220,7 @@ class InstanceGraph(Report):
         inpt.close()
         data = outpt.read()
         outpt.close()
-        return ('pdf', base64.encodestring(data))
+        return ('pdf', base64.encodestring(data), False)
 
     def graph_instance_get(self, cursor, user, graph, instance_id, nested=False,
             context=None):
