@@ -239,5 +239,11 @@
             action="act_module_install_upgrade"
             type="wizard"
             id="menu_module_install_upgrade"/>
+
+        <record model="ir.module.module.config_wizard.item"
+            id="config_wizard_item_module">
+            <field name="name">ir.module.module.config</field>
+            <field name="sequence" eval="10000"/>
+        </record>
     </data>
 </tryton>
