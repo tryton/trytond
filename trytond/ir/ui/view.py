@@ -9,13 +9,15 @@ class View(OSV):
     _name = 'ir.ui.view'
     _description = __doc__
     _rec_name = 'model'
-    model = fields.Char('Model', size=64, required=True)
+    model = fields.Char('Model', size=None, required=True)
     priority = fields.Integer('Priority', required=True)
-    type = fields.Selection((
+    type = fields.Selection([
        ('tree','Tree'),
        ('form','Form'),
        ('graph', 'Graph'),
-       ('calendar', 'Calendar')), 'View Type', required=True)
+       ('calendar', 'Calendar'),
+       ('board', 'Board'),
+       ], 'View Type', required=True)
     arch = fields.Text('View Architecture', required=True)
     inherit = fields.Many2One('ir.ui.view', 'Inherited View')
     field_childs = fields.Char('Childs Field',size=64)
