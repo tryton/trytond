@@ -1,5 +1,6 @@
 "Default"
 from trytond.osv import fields, OSV
+from decimal import Decimal
 
 
 class Default(OSV):
@@ -37,6 +38,8 @@ class Default(OSV):
                 test_clause = False
                 continue
             break
+        ctx = {}
+        ctx['Decimal'] = Decimal
         for default in self.browse(cursor, user, default_ids, context=context):
             if default.field.name not in res:
                 res[default.field.name] = eval(default.value)
