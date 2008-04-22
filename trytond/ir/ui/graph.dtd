@@ -1,0 +1,14 @@
+<!ELEMENT graph (x, y)>
+<!ATTLIST graph type (vbar|hbar|line|pie) "vbar">
+<!ATTLIST graph string CDATA "Unknown">
+<!ATTLIST graph background CDATA "#f5f5f5">
+<!ATTLIST graph color CDATA "blue">
+<!ATTLIST graph legend (0|1) "1">
+<!ELEMENT x (field)>
+<!ELEMENT y (field+)>
+<!ELEMENT field EMPTY>
+<!ATTLIST field name CDATA #REQUIRED>
+<!ATTLIST field string CDATA #IMPLIED>
+<!ATTLIST field key CDATA #IMPLIED>
+<!ATTLIST field domain CDATA #IMPLIED>
+<!ATTLIST field fill (0|1) #IMPLIED>
