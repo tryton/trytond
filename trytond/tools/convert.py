@@ -464,7 +464,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         # problem when the corresponding recordds will be deleted:
         module_data_ids = self.modeldata_obj.search(
             self.cursor, self.user, [('module','=',self.module)],
-            order="id desc",
+            order=[('id', 'DESC')],
             )
         return [rec.fs_id for rec in self.modeldata_obj.browse(
                 self.cursor, self.user, module_data_ids)]
@@ -632,7 +632,7 @@ def post_import(cursor, module, to_delete):
 
     mdata_ids = modeldata_obj.search(
             cursor, user, [('fs_id','in',to_delete)],
-            order="id desc",
+            order=[('id', 'DESC')],
             )
 
     for mrec in modeldata_obj.browse(cursor, user, mdata_ids):

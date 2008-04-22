@@ -494,8 +494,9 @@ class Many2Many(Column):
                     self._rel + '.' + self._id1 + ' IN (' + ids_s + ') ' \
                     'AND ' + self._rel + '.' + self._id2 + ' = ' + \
                         obj._table + '.id ' + domain1 + \
-                limit_str + ' ORDER BY ' + obj._table + '.' + \
-                    (self._order or obj._order) + \
+                limit_str + ' ORDER BY ' + \
+                ','.join([obj._table + '.' + x[0] + ' ' + x[1] \
+                for x in (self._order or obj._order)]) + \
                 ' OFFSET %s', domain2 + [offset])
         for i in cursor.fetchall():
             res[i[1]].append(i[0])

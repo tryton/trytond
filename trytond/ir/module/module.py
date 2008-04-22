@@ -148,7 +148,6 @@ class Module(OSV):
     license = fields.Selection([('GPL-2', 'GPL-2'),
         ('Other proprietary', 'Other proprietary')], string='License',
         readonly=True)
-    _order = 'name'
 
     def __init__(self):
         super(Module, self).__init__()
@@ -156,6 +155,7 @@ class Module(OSV):
             ('name_uniq', 'unique (name)',
                 'The name of the module must be unique!'),
         ]
+        self._order.insert(0, ('name', 'ASC'))
 
     def default_state(self, cursor, user, context=None):
         return 'uninstalled'
@@ -461,7 +461,10 @@ class ModuleConfigWizardItem(OSV):
         ('open', 'Open'),
         ('done', 'Done'),
         ], string='State', required=True)
-    _order = 'sequence'
+
+    def __init__(self):
+        super(ModuleConfigWizardItem, self).__init__()
+        self._order.insert(0, ('sequence', 'ASC'))
 
     def default_state(self, cursor, user, context=None):
         return 'open'

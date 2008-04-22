@@ -195,7 +195,7 @@ class ORM(object):
     _rec_name = 'name'
     _parent_name = 'parent'
     _date_name = 'date'
-    _order = 'id'
+    _order = None
     _inherits = {} #XXX remove from class instance
     _sequence = None
     _description = ''
@@ -730,6 +730,7 @@ class ORM(object):
         self._sql_constraints = []
         self._constraints = []
         self._inherit_fields = []
+        self._order = [('id', 'ASC')]
         # reinit the cache on _columns and _defaults
         self.__columns = None
         self.__defaults = None
@@ -752,6 +753,7 @@ class ORM(object):
                        'Last modification by', readonly=True)
             self.write_date = fields.DateTime(
                     'Last modification date', readonly=True)
+        self.id = fields.Integer('ID', readonly=True)
 
         for name in self._columns:
             if isinstance(self._columns[name], (fields.Selection, fields.Reference)) \
@@ -1099,7 +1101,9 @@ class ORM(object):
                             ' FROM ' + table_query + '\"' + self._table +'\" ' \
                             'WHERE id IN ' \
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
-                            ' AND ' + domain1 + ' ORDER BY ' + self._order),
+                            ' AND ' + domain1 + ' ORDER BY ' + \
+                            ','.join([self._table + '.' + x[0] + ' ' + x[1] \
+                            for x in self._order])),
                             domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
                         raise ExceptORM('AccessError',
@@ -1112,7 +1116,9 @@ class ORM(object):
                             ' FROM ' + table_query + '\"' + self._table + '\" ' \
                             'WHERE id IN ' \
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
-                            ' ORDER BY ' + self._order)
+                            ' ORDER BY ' + \
+                            ','.join([self._table + '.' + x[0] + ' ' + x[1] \
+                            for x in self._order]))
                 res.extend(cursor.dictfetchall())
         else:
             res = [{'id': x} for x in ids]
@@ -1525,7 +1531,6 @@ class ORM(object):
         user = user id
         vals = dictionary of the form {'field_name': field_value, ...}
         """
-
         if self._table_query:
             return False
 
@@ -2042,14 +2047,14 @@ class ORM(object):
 
             table = self
             if args[i][0] in self._inherit_fields:
-                table = self.pool.get(self._inherit_fields[args[i][0]][0])
+                itable = self.pool.get(self._inherit_fields[args[i][0]][0])
                 table_query = ''
-                if table._table_query:
+                if itable._table_query:
                     table_query = '(' + self._table_query + ') AS '
-                if (table_query + '"' + table._table + '"' not in tables):
-                    tables.append(table_query + '"' + table._table + '"')
+                if (table_query + '"' + itable._table + '"' not in tables):
+                    tables.append(table_query + '"' + itable._table + '"')
                     joins.append(('id', 'join', '%s.%s' % \
-                            (self._table, self._inherits[table._name]), table))
+                            (self._table, self._inherits[itable._name]), itable))
             fargs = args[i][0].split('.', 1)
             field = table._columns.get(fargs[0], False)
             if not field:
@@ -2351,8 +2356,31 @@ class ORM(object):
             qu1 = ' WHERE ' + ' AND '.join(qu1)
         else:
             qu1 = ''
-        #XXX should be better if order where smthg like [('name','desc'),('name','asc')]:
-        order_by = order and order.replace(';','\;') or self._order
+
+        order_by = []
+        for field, otype in (order or self._order):
+            if otype.upper() not in ('DESC', 'ASC'):
+                raise ExceptORM('Error', 'Wrong order type (%s)!' % otype)
+            if (field not in self._columns \
+                    or not self._columns[field]._classic_write) \
+                    and (field not in self._inherit_fields.keys() \
+                    or not self._inherit_fields[field][2]._classic_write):
+                raise ExceptORM('Error', 'Wrong field name (%s) in order!' \
+                        % field)
+            if field in self._inherit_fields.keys():
+                obj = self.pool.get(self._inherit_fields[field][0])
+                order_by.append(obj._table + '.' + field + ' ' + otype)
+                if '"' + obj._table + '"' not in tables:
+                    tables.append('"' + obj._table + '"')
+                    if len(qu1):
+                        qu1 += ' AND '
+                    else:
+                        qu1 = ' WHERE '
+                    qu1 += ' %s.%s = %s.id' % (self._table,
+                            self._inherits[obj._name], obj._table)
+            else:
+                order_by.append(self._table + '.' + field + ' ' + otype)
+        order_by = ','.join(order_by)
 
         limit_str = limit and (type(limit) in (float, int, long))\
                     and ' LIMIT %d' % limit or ''
