@@ -1,0 +1,92 @@
+<!ELEMENT form (label|field|image|separator|newline|button|notebook|group|hpaned|vpaned|properties)*>
+<!ATTLIST form string CDATA "Unknown">
+<!ATTLIST form on_write CDATA #IMPLIED>
+<!ATTLIST form col CDATA "4">
+<!ELEMENT tree (field+)>
+<!ATTLIST tree string CDATA "Unknown">
+<!ATTLIST tree on_write CDATA #IMPLIED>
+<!ATTLIST tree editable (top|bottom) #IMPLIED>
+<!ATTLIST tree sequence CDATA #IMPLIED>
+<!ATTLIST tree color CDATA #IMPLIED>
+<!ELEMENT label EMPTY>
+<!ATTLIST label string CDATA "">
+<!ATTLIST label name CDATA #IMPLIED>
+<!ATTLIST label states CDATA #IMPLIED>
+<!ATTLIST label align CDATA "0.0">
+<!ATTLIST label expand (0|1) "0">
+<!ATTLIST label fill (0|1) "0">
+<!ATTLIST label xexpand (0|1) "0">
+<!ATTLIST label xfill (0|1) "1">
+<!ATTLIST label colspan CDATA "1">
+<!ATTLIST label help CDATA #IMPLIED>
+<!ELEMENT field (tree|form)*>
+<!ATTLIST field name CDATA #REQUIRED>
+<!ATTLIST field colspan CDATA "1">
+<!ATTLIST field widget (date|char|many2one|date|one2many|selection|float|numeric|float_time|interger|datetime|boolean|text|url|email|callto|sip|sha|reference|binary|many2many|image) #IMPLIED>
+<!ATTLIST field saves (0|1) #IMPLIED>
+<!ATTLIST field expand (0|1) #IMPLIED>
+<!ATTLIST field fill (0|1) #IMPLIED>
+<!ATTLIST field xexpand (0|1) "1">
+<!ATTLIST field xfill (0|1) "1">
+<!ATTLIST field help CDATA #IMPLIED>
+<!ATTLIST field width CDATA #IMPLIED>
+<!ATTLIST field height CDATA #IMPLIED>
+<!ATTLIST field readonly CDATA #IMPLIED>
+<!ATTLIST field required CDATA #IMPLIED>
+<!ATTLIST field tree_invisible (0|1) "0">
+<!ATTLIST field mode CDATA #IMPLIED>
+<!ATTLIST field completion (0|1) "0">
+<!ATTLIST field invisible (0|1) "0">
+<!ATTLIST field sum CDATA #IMPLIED>
+<!ELEMENT image EMPTY>
+<!ATTLIST image name CDATA #REQUIRED>
+<!ATTLIST image colspan CDATA "1">
+<!ATTLIST image expand (0|1) "0">
+<!ATTLIST image fill (0|1) "0">
+<!ATTLIST image help CDATA #IMPLIED>
+<!ELEMENT separator EMPTY>
+<!ATTLIST separator string CDATA "">
+<!ATTLIST separator name CDATA #IMPLIED>
+<!ATTLIST separator states CDATA #IMPLIED>
+<!ATTLIST separator align CDATA "0.0">
+<!ATTLIST separator colspan CDATA "1">
+<!ATTLIST separator expand (0|1) "0">
+<!ATTLIST separator fill (0|1) "0">
+<!ATTLIST separator help CDATA #IMPLIED>
+<!ELEMENT newline EMPTY>
+<!ELEMENT button EMPTY>
+<!ATTLIST button colspan CDATA "1">
+<!ATTLIST button help CDATA #IMPLIED>
+<!ATTLIST button string CDATA "Unknown">
+<!ATTLIST button icon CDATA #IMPLIED>
+<!ATTLIST button type (workflow|object|action) "workflow">
+<!ATTLIST button confirm (0|1) "0">
+<!ATTLIST button name CDATA #REQUIRED>
+<!ATTLIST button states CDATA #IMPLIED>
+<!ELEMENT notebook (page*)>
+<!ATTLIST notebook tabpos (up|down|left|right) #IMPLIED>
+<!ATTLIST notebook colspan CDATA "4">
+<!ELEMENT page (label|field|image|separator|newline|button|notebook|group|hpaned|vpaned|properties)*>
+<!ATTLIST page angle CDATA #IMPLIED>
+<!ATTLIST page string CDATA "Unknown">
+<!ATTLIST page col CDATA "4">
+<!ELEMENT group (label|field|image|separator|newline|button|notebook|group|hpaned|vpaned|properties)*>
+<!ATTLIST group string CDATA #IMPLIED>
+<!ATTLIST group colspan CDATA "1">
+<!ATTLIST group expand (0|1) "0">
+<!ATTLIST group fill (0|1) "1">
+<!ATTLIST group rowspan CDATA "1">
+<!ATTLIST group col CDATA "4">
+<!ELEMENT hpaned (child1?,child2?)>
+<!ATTLIST hpaned colspan CDATA "4">
+<!ATTLIST hpaned position CDATA #IMPLIED>
+<!ELEMENT vpaned (child1?,child2?)>
+<!ATTLIST vpaned colspan CDATA "4">
+<!ATTLIST vpaned position CDATA #IMPLIED>
+<!ELEMENT child1 (label|field|image|separator|newline|button|notebook|group|hpaned|vpaned|properties)*>
+<!ELEMENT child2 (label|field|image|separator|newline|button|notebook|group|hpaned|vpaned|properties)*>
+<!ELEMENT properties EMPTY>
+<!ELEMENT data (xpath+)>
+<!ELEMENT xpath ANY>
+<!ATTLIST xpath expr CDATA #REQUIRED>
+<!ATTLIST xpath position (inside|replace|after|before) "inside">
