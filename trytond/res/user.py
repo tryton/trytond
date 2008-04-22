@@ -19,7 +19,8 @@ class User(OSV):
     #address_id = fields.Many2One('res.partner.address', 'Address')
     active = fields.Boolean('Active')
     action = fields.Many2One('ir.action', 'Home Action')
-    menu = fields.Many2One('ir.action', 'Menu Action')
+    menu = fields.Many2One('ir.action', 'Menu Action',
+            domain=[('usage','=','menu')], required=True)
     groups = fields.Many2Many('res.group', 'res_group_user_rel',
        'uid', 'gid', 'Groups')
     rule_groups = fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
