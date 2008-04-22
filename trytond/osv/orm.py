@@ -190,6 +190,7 @@ class ORM(object):
     """
     _log_access = True
     _table = None
+    _table_query = ''
     _name = None
     _rec_name = 'name'
     _parent_name = 'parent'
@@ -356,7 +357,7 @@ class ORM(object):
         create = False
 
         self._field_create(cursor, module_name)
-        if self._auto:
+        if self._auto and not self._table_query:
             cursor.execute("SELECT relname FROM pg_class " \
                     "WHERE relkind in ('r', 'v') AND relname = %s",
                     (self._table,))
@@ -1083,6 +1084,9 @@ class ORM(object):
                 self._inherits.values()
 
         res = []
+        table_query = ''
+        if self._table_query:
+            table_query = '(' + self._table_query + ') AS '
         if len(fields_pre) :
             fields_pre2 = [(x in ('create_date', 'write_date')) \
                     and ('date_trunc(\'second\', ' + x + ') as ' + x) \
@@ -1092,7 +1096,7 @@ class ORM(object):
                 if domain1:
                     cursor.execute(('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
-                            ' FROM \"' + self._table +'\" ' \
+                            ' FROM ' + table_query + '\"' + self._table +'\" ' \
                             'WHERE id IN ' \
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
                             ' AND ' + domain1 + ' ORDER BY ' + self._order),
@@ -1105,7 +1109,7 @@ class ORM(object):
                 else:
                     cursor.execute('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
-                            ' FROM \"' + self._table + '\" ' \
+                            ' FROM ' + table_query + '\"' + self._table + '\" ' \
                             'WHERE id IN ' \
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
                             ' ORDER BY ' + self._order)
@@ -1274,6 +1278,8 @@ class ORM(object):
             return True
         if isinstance(ids, (int, long)):
             ids = [ids]
+        if self._table_query:
+            return True
         delta = context.get('read_delta', False)
         if delta and self._log_access:
             for i in range((len(ids) / ID_MAX) + \
@@ -1349,6 +1355,8 @@ class ORM(object):
         if context is None:
             context = {}
         if not ids:
+            return True
+        if self._table_query:
             return True
 
         vals = vals.copy()
@@ -1518,6 +1526,9 @@ class ORM(object):
         vals = dictionary of the form {'field_name': field_value, ...}
         """
 
+        if self._table_query:
+            return False
+
         vals = vals.copy()
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
@@ -1632,8 +1643,10 @@ class ORM(object):
         for parent in self._inherits:
             res.update(self.pool.get(parent).fields_get(cursor, user,
                 fields_names, context))
-        read_access = model_access_obj.check(cursor, user, self._name, 'write',
+        write_access = model_access_obj.check(cursor, user, self._name, 'write',
                 raise_exception=False)
+        if self._table_query:
+            write_access = False
 
         #Add translation to cache
         trans_args = []
@@ -1667,7 +1680,7 @@ class ORM(object):
                     ):
                 if getattr(self._columns[field], arg, False):
                     res[field][arg] = getattr(self._columns[field], arg)
-            if not read_access:
+            if not write_access:
                 res[field]['readonly'] = True
                 res[field]['states'] = {}
             for arg in ('digits', 'invisible'):
@@ -2007,7 +2020,10 @@ class ORM(object):
                 args.append(('active', '=', 1))
 
         i = 0
-        tables = ['"' + self._table + '"']
+        table_query = ''
+        if self._table_query:
+            table_query = '(' + self._table_query + ') AS '
+        tables = [table_query + '"' + self._table + '"']
         joins = []
         while i < len(args):
             if args[i][1] not in (
@@ -2027,8 +2043,11 @@ class ORM(object):
             table = self
             if args[i][0] in self._inherit_fields:
                 table = self.pool.get(self._inherit_fields[args[i][0]][0])
-                if ('"' + table._table + '"' not in tables):
-                    tables.append('"' + table._table + '"')
+                table_query = ''
+                if table._table_query:
+                    table_query = '(' + self._table_query + ') AS '
+                if (table_query + '"' + table._table + '"' not in tables):
+                    tables.append(table_query + '"' + table._table + '"')
                     joins.append(('id', 'join', '%s.%s' % \
                             (self._table, self._inherits[table._name]), table))
             fargs = args[i][0].split('.', 1)
@@ -2081,9 +2100,12 @@ class ORM(object):
                 if not ids2:
                     args[i] = ('id', '=', '0')
                 else:
+                    table_query = ''
+                    if field_obj._table_query:
+                        table_query = '(' + field_obj._table_query + ') AS '
                     if len(ids2) < ID_MAX:
                         query1 = 'SELECT "' + field._fields_id + '" ' \
-                                'FROM "' + field_obj._table + '" ' \
+                                'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')'
                         query2 = [str(x) for x in sub_ids2]
@@ -2095,7 +2117,7 @@ class ORM(object):
                             sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
                             cursor.execute(
                                 'SELECT "' + field._fields_id + \
-                                '" FROM "' + field_obj._table + '" ' \
+                                '" FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')',
                                 [str(x) for x in sub_ids2])
@@ -2212,7 +2234,10 @@ class ORM(object):
                                 context.get('language', False) or 'en_US',
                                 'model', args[i][2]]
                         query1 += ' UNION '
-                        query1 += '(SELECT id FROM "' + table._table + '" ' \
+                        table_query = ''
+                        if table._table_query:
+                            table_query = '(' + table._table_query + ') AS '
+                        query1 += '(SELECT id FROM ' + table_query + '"' + table._table + '" ' \
                                 'WHERE "' + args[i][0] + '" ' + \
                                 args[i][1] + ' %s)'
                         query2 += [args[i][2]]
