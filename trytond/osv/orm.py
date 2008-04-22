@@ -1208,6 +1208,9 @@ class ORM(object):
                     obj = self.pool.get(fld_def._obj)
                     if not obj.search(cursor, user, [('id', '=', field_value)]):
                         continue
+                    if isinstance(field_value, (int, long)):
+                        field_value = obj.name_get(cursor, user, field_value,
+                                context=context)[0]
                 if fld_def._type in ('many2many'):
                     obj = self.pool.get(fld_def._obj)
                     field_value2 = []
@@ -1220,7 +1223,7 @@ class ORM(object):
                 if fld_def._type in ('one2many'):
                     obj = self.pool.get(fld_def._obj)
                     field_value2 = []
-                    for i in range(len(field_value)):
+                    for i in range(len(field_value or [])):
                         field_value2.append({})
                         for field2 in field_value[i]:
                             if obj._columns[field2]._type \
@@ -1229,11 +1232,40 @@ class ORM(object):
                                 if not obj2.search(cursor, user,
                                         [('id', '=', field_value[i][field2])]):
                                     continue
+                                if isinstance(field_value[i][field2],
+                                        (int, long)):
+                                    field_value[i][field2] = obj2.name_get(
+                                            cursor, user,
+                                            field_value[i][field2],
+                                            context=context)[0]
                             # TODO add test for many2many and one2many
                             field_value2[i][field2] = field_value[i][field2]
                     field_value = field_value2
                 value[field] = field_value
+        value = self._default_on_change(cursor, user, value, context=context)
         return value
+
+    def _default_on_change(self, cursor, user, value, context=None):
+        res = value.copy()
+        val = {}
+        for i in self._inherits.keys():
+            val.update(self.pool.get(i)._default_on_change(cursor, user,
+                value, context=context))
+        for field in value.keys():
+            if field in self._columns:
+                if self._columns[field].on_change:
+                    args = {}
+                    for arg in self._columns[field].on_change:
+                        args[arg] = value.get(arg, False)
+                    val.update(getattr(self, 'on_change_' + field)(cursor, user,
+                        [], args, context=context))
+                if self._columns[field]._type in ('many2many', 'one2many'):
+                    obj = self.pool.get(self._columns[field]._obj)
+                    for val2 in res[field]:
+                        val2.update(obj._default_on_change(cursor, user,
+                            val, context=context))
+        res.update(val)
+        return res
 
     def unlink(self, cursor, user, ids, context=None):
         if context is None:

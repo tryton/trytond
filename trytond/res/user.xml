@@ -33,9 +33,7 @@
                             <label name="action"/>
                             <field name="action" required="1"/>
                             <label name="menu"/>
-                            <field name="menu"
-                                domain="[('usage','=','menu')]"
-                                required="True"/>
+                            <field name="menu"/>
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
                         </page>

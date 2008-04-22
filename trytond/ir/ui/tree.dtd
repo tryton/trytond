@@ -1,0 +1,20 @@
+<!ELEMENT tree (field+)>
+<!ATTLIST tree string CDATA "Unknown">
+<!ATTLIST tree on_write CDATA #IMPLIED>
+<!ATTLIST tree editable (top|bottom) #IMPLIED>
+<!ATTLIST tree sequence CDATA #IMPLIED>
+<!ATTLIST tree colors CDATA #IMPLIED>
+<!ATTLIST tree toolbar (0|1) "0">
+<!ELEMENT field EMPTY>
+<!ATTLIST field name CDATA #REQUIRED>
+<!ATTLIST field readonly CDATA #IMPLIED>
+<!ATTLIST field required CDATA #IMPLIED>
+<!ATTLIST field widget (char|many2one|date|one2many|selection|float|numeric|float_time|interger|datetime|boolean|text|url|email|callto|sip) #IMPLIED>
+<!ATTLIST field select (0|1|2) "0">
+<!ATTLIST field tree_invisible (0|1) "0">
+<!ATTLIST field icon CDATA #IMPLIED>
+<!ATTLIST field sum CDATA #IMPLIED>
+<!ELEMENT data (xpath+)>
+<!ELEMENT xpath ANY>
+<!ATTLIST xpath expr CDATA #REQUIRED>
+<!ATTLIST xpath position (inside|replace|after|before) "inside">
