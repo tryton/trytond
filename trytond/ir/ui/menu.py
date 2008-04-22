@@ -124,7 +124,10 @@ class UIMenu(OSV):
            ('ir.action.wizard', 'ir.action.wizard'),
            ('ir.action.url', 'ir.action.url'),
            ])
-    _order = "sequence, id"
+
+    def __init__(self):
+        super(UIMenu, self).__init__()
+        self._order.insert(0, ('sequence', 'ASC'))
 
     def default_icon(self, cursor, user, context=None):
         return 'STOCK_OPEN'
