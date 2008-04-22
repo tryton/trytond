@@ -2,6 +2,8 @@
 from trytond.osv import fields, OSV
 from xml import dom
 from difflib import SequenceMatcher
+import os
+from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING
 
 
 class View(OSV):
@@ -31,8 +33,7 @@ class View(OSV):
         ]
 
     def default_arch(self, cursor, user, context=None):
-        return '<?xml version="1.0"?>\n' \
-                '<tree title="Unknwown">\n\t<field name="name"/>\n</tree>'
+        return '<?xml version="1.0"?>'
 
     def default_priority(self, cursor, user, context=None):
         return 16
@@ -59,6 +60,24 @@ class View(OSV):
             ('db_id', 'in', ids),
             ])
         for view in views:
+            logger = Logger()
+            try:
+                from Ft.Xml.Domlette import ValidatingReader
+                xml = '<?xml version="1.0"?>\n<!DOCTYPE %s SYSTEM "file://%s/%s.dtd">\n'\
+                        % (view.inherit and 'data' or view.type,
+                                os.path.dirname(__file__),
+                                view.inherit and view.inherit.type or view.type)
+                xml += view.arch.strip()
+                try:
+                    ValidatingReader.parseString(xml)
+                except Exception, exception:
+                    logger.notify_channel('ir', LOG_ERROR,
+                            'Invalid xml view: %s' % (str(exception)))
+                    return False
+            except:
+                logger.notify_channel('ir', LOG_WARNING,
+                'Could not import Ft.Xml.Domlette, please install 4Suite ' \
+                        'to have xml validation')
             try:
                 document = dom.minidom.parseString(view.arch)
             except:

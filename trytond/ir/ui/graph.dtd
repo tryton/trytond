@@ -12,3 +12,7 @@
 <!ATTLIST field key CDATA #IMPLIED>
 <!ATTLIST field domain CDATA #IMPLIED>
 <!ATTLIST field fill (0|1) #IMPLIED>
+<!ELEMENT data (xpath+)>
+<!ELEMENT xpath ANY>
+<!ATTLIST xpath expr CDATA #REQUIRED>
+<!ATTLIST xpath position (inside|replace|after|before) "inside">
