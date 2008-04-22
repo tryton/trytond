@@ -190,11 +190,12 @@ class ORM(object):
     """
     _log_access = True
     _table = None
+    _table_query = ''
     _name = None
     _rec_name = 'name'
     _parent_name = 'parent'
     _date_name = 'date'
-    _order = 'id'
+    _order = None
     _inherits = {} #XXX remove from class instance
     _sequence = None
     _description = ''
@@ -356,7 +357,7 @@ class ORM(object):
         create = False
 
         self._field_create(cursor, module_name)
-        if self._auto:
+        if self._auto and not self._table_query:
             cursor.execute("SELECT relname FROM pg_class " \
                     "WHERE relkind in ('r', 'v') AND relname = %s",
                     (self._table,))
@@ -729,6 +730,7 @@ class ORM(object):
         self._sql_constraints = []
         self._constraints = []
         self._inherit_fields = []
+        self._order = [('id', 'ASC')]
         # reinit the cache on _columns and _defaults
         self.__columns = None
         self.__defaults = None
@@ -751,6 +753,7 @@ class ORM(object):
                        'Last modification by', readonly=True)
             self.write_date = fields.DateTime(
                     'Last modification date', readonly=True)
+        self.id = fields.Integer('ID', readonly=True)
 
         for name in self._columns:
             if isinstance(self._columns[name], (fields.Selection, fields.Reference)) \
@@ -1083,6 +1086,9 @@ class ORM(object):
                 self._inherits.values()
 
         res = []
+        table_query = ''
+        if self._table_query:
+            table_query = '(' + self._table_query + ') AS '
         if len(fields_pre) :
             fields_pre2 = [(x in ('create_date', 'write_date')) \
                     and ('date_trunc(\'second\', ' + x + ') as ' + x) \
@@ -1092,10 +1098,12 @@ class ORM(object):
                 if domain1:
                     cursor.execute(('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
-                            ' FROM \"' + self._table +'\" ' \
+                            ' FROM ' + table_query + '\"' + self._table +'\" ' \
                             'WHERE id IN ' \
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
-                            ' AND ' + domain1 + ' ORDER BY ' + self._order),
+                            ' AND ' + domain1 + ' ORDER BY ' + \
+                            ','.join([self._table + '.' + x[0] + ' ' + x[1] \
+                            for x in self._order])),
                             domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
                         raise ExceptORM('AccessError',
@@ -1105,10 +1113,12 @@ class ORM(object):
                 else:
                     cursor.execute('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
-                            ' FROM \"' + self._table + '\" ' \
+                            ' FROM ' + table_query + '\"' + self._table + '\" ' \
                             'WHERE id IN ' \
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
-                            ' ORDER BY ' + self._order)
+                            ' ORDER BY ' + \
+                            ','.join([self._table + '.' + x[0] + ' ' + x[1] \
+                            for x in self._order]))
                 res.extend(cursor.dictfetchall())
         else:
             res = [{'id': x} for x in ids]
@@ -1274,6 +1284,8 @@ class ORM(object):
             return True
         if isinstance(ids, (int, long)):
             ids = [ids]
+        if self._table_query:
+            return True
         delta = context.get('read_delta', False)
         if delta and self._log_access:
             for i in range((len(ids) / ID_MAX) + \
@@ -1349,6 +1361,8 @@ class ORM(object):
         if context is None:
             context = {}
         if not ids:
+            return True
+        if self._table_query:
             return True
 
         vals = vals.copy()
@@ -1517,6 +1531,8 @@ class ORM(object):
         user = user id
         vals = dictionary of the form {'field_name': field_value, ...}
         """
+        if self._table_query:
+            return False
 
         vals = vals.copy()
 
@@ -1632,8 +1648,10 @@ class ORM(object):
         for parent in self._inherits:
             res.update(self.pool.get(parent).fields_get(cursor, user,
                 fields_names, context))
-        read_access = model_access_obj.check(cursor, user, self._name, 'write',
+        write_access = model_access_obj.check(cursor, user, self._name, 'write',
                 raise_exception=False)
+        if self._table_query:
+            write_access = False
 
         #Add translation to cache
         trans_args = []
@@ -1667,7 +1685,7 @@ class ORM(object):
                     ):
                 if getattr(self._columns[field], arg, False):
                     res[field][arg] = getattr(self._columns[field], arg)
-            if not read_access:
+            if not write_access:
                 res[field]['readonly'] = True
                 res[field]['states'] = {}
             for arg in ('digits', 'invisible'):
@@ -2007,7 +2025,10 @@ class ORM(object):
                 args.append(('active', '=', 1))
 
         i = 0
-        tables = ['"' + self._table + '"']
+        table_query = ''
+        if self._table_query:
+            table_query = '(' + self._table_query + ') AS '
+        tables = [table_query + '"' + self._table + '"']
         joins = []
         while i < len(args):
             if args[i][1] not in (
@@ -2026,11 +2047,14 @@ class ORM(object):
 
             table = self
             if args[i][0] in self._inherit_fields:
-                table = self.pool.get(self._inherit_fields[args[i][0]][0])
-                if ('"' + table._table + '"' not in tables):
-                    tables.append('"' + table._table + '"')
+                itable = self.pool.get(self._inherit_fields[args[i][0]][0])
+                table_query = ''
+                if itable._table_query:
+                    table_query = '(' + self._table_query + ') AS '
+                if (table_query + '"' + itable._table + '"' not in tables):
+                    tables.append(table_query + '"' + itable._table + '"')
                     joins.append(('id', 'join', '%s.%s' % \
-                            (self._table, self._inherits[table._name]), table))
+                            (self._table, self._inherits[itable._name]), itable))
             fargs = args[i][0].split('.', 1)
             field = table._columns.get(fargs[0], False)
             if not field:
@@ -2081,9 +2105,12 @@ class ORM(object):
                 if not ids2:
                     args[i] = ('id', '=', '0')
                 else:
+                    table_query = ''
+                    if field_obj._table_query:
+                        table_query = '(' + field_obj._table_query + ') AS '
                     if len(ids2) < ID_MAX:
                         query1 = 'SELECT "' + field._fields_id + '" ' \
-                                'FROM "' + field_obj._table + '" ' \
+                                'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')'
                         query2 = [str(x) for x in sub_ids2]
@@ -2095,7 +2122,7 @@ class ORM(object):
                             sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
                             cursor.execute(
                                 'SELECT "' + field._fields_id + \
-                                '" FROM "' + field_obj._table + '" ' \
+                                '" FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')',
                                 [str(x) for x in sub_ids2])
@@ -2212,7 +2239,10 @@ class ORM(object):
                                 context.get('language', False) or 'en_US',
                                 'model', args[i][2]]
                         query1 += ' UNION '
-                        query1 += '(SELECT id FROM "' + table._table + '" ' \
+                        table_query = ''
+                        if table._table_query:
+                            table_query = '(' + table._table_query + ') AS '
+                        query1 += '(SELECT id FROM ' + table_query + '"' + table._table + '" ' \
                                 'WHERE "' + args[i][0] + '" ' + \
                                 args[i][1] + ' %s)'
                         query2 += [args[i][2]]
@@ -2326,8 +2356,31 @@ class ORM(object):
             qu1 = ' WHERE ' + ' AND '.join(qu1)
         else:
             qu1 = ''
-        #XXX should be better if order where smthg like [('name','desc'),('name','asc')]:
-        order_by = order and order.replace(';','\;') or self._order
+
+        order_by = []
+        for field, otype in (order or self._order):
+            if otype.upper() not in ('DESC', 'ASC'):
+                raise ExceptORM('Error', 'Wrong order type (%s)!' % otype)
+            if (field not in self._columns \
+                    or not self._columns[field]._classic_write) \
+                    and (field not in self._inherit_fields.keys() \
+                    or not self._inherit_fields[field][2]._classic_write):
+                raise ExceptORM('Error', 'Wrong field name (%s) in order!' \
+                        % field)
+            if field in self._inherit_fields.keys():
+                obj = self.pool.get(self._inherit_fields[field][0])
+                order_by.append(obj._table + '.' + field + ' ' + otype)
+                if '"' + obj._table + '"' not in tables:
+                    tables.append('"' + obj._table + '"')
+                    if len(qu1):
+                        qu1 += ' AND '
+                    else:
+                        qu1 = ' WHERE '
+                    qu1 += ' %s.%s = %s.id' % (self._table,
+                            self._inherits[obj._name], obj._table)
+            else:
+                order_by.append(self._table + '.' + field + ' ' + otype)
+        order_by = ','.join(order_by)
 
         limit_str = limit and (type(limit) in (float, int, long))\
                     and ' LIMIT %d' % limit or ''
