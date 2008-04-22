@@ -698,7 +698,7 @@ def post_import(cursor, module, to_delete):
                             'and restart --update=module' % \
                             (db_id, model))
 
-    # Clean model_data: 
+    # Clean model_data:
     if mdata_unlink:
         modeldata_obj.unlink(cursor, user, mdata_unlink)
         cursor.commit()
