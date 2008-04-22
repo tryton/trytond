@@ -11,6 +11,9 @@ class Category(OSV):
        'Parent Category', select=1)
     childs = fields.One2Many('ir.module.category',
        'parent', 'Parent Category')
-    _order = 'name'
+
+    def __init__(self):
+        super(Category, self).__init__()
+        self._order.insert(0, ('name', 'ASC'))
 
 Category()

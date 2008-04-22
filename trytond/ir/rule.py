@@ -20,7 +20,11 @@ class RuleGroup(OSV):
        'rule_group_id', 'group_id', 'Groups')
     users = fields.Many2Many('res.user', 'user_rule_group_rel',
        'rule_group_id', 'user_id', 'Users')
-    _order = 'model, global_p DESC'
+
+    def __init__(self):
+        super(RuleGroup, self).__init__()
+        self._order.insert(0, ('model', 'ASC'))
+        self._order.insert(1, ('global_p', 'DESC'))
 
     def default_global_p(self, cursor, user, context=None):
         return 1

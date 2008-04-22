@@ -388,7 +388,12 @@ class Translation(OSV, Cacheable):
         translation_ids = self.search(cursor, user, [
             ('lang', '=', lang),
             ('module', '=', module),
-            ], order="type, name, src, res_id", context=context)
+            ], order=[
+                ('type', 'ASC'),
+                ('name', 'ASC'),
+                ('src', 'ASC'),
+                ('res_id', 'ASC'),
+            ], context=context)
         for translation in self.browse(cursor, user, translation_ids,
                 context=context):
             row = []

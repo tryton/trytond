@@ -24,13 +24,13 @@ class View(OSV):
     inherit = fields.Many2One('ir.ui.view', 'Inherited View')
     field_childs = fields.Char('Childs Field',size=64)
     module = fields.Char('Module', size=128, readonly=True)
-    _order = "priority"
 
     def __init__(self):
         super(View, self).__init__()
         self._constraints += [
             ('check_xml', 'Invalid XML for View Architecture!', ['arch'])
         ]
+        self._order.insert(0, ('priority', 'ASC'))
 
     def default_arch(self, cursor, user, context=None):
         return '<?xml version="1.0"?>'
@@ -203,11 +203,11 @@ class ViewShortcut(OSV):
     user_id = fields.Many2One('res.user', 'User Ref.', required=True,
        ondelete='cascade')
     resource = fields.Char('Resource Name', size=64, required=True)
-    _order = 'sequence'
 
     def __init__(self):
         super(ViewShortcut, self).__init__()
         self._rpc_allowed.append('get_sc')
+        self._order.insert(0, ('sequence', 'ASC'))
 
     def get_sc(self, cursor, user, user_id, model='ir.ui.menu', context=None):
         "Provide user's shortcuts"

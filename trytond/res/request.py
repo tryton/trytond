@@ -55,7 +55,6 @@ class Request(OSV):
        ], 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
-    _order = 'priority DESC, trigger_date, create_date DESC'
 
     def default_act_from(self, cursor, user, context=None):
         return user
@@ -77,6 +76,9 @@ class Request(OSV):
             'request_close',
             'request_get',
         ]
+        self._order.insert(0, ('priority', 'DESC'))
+        self._order.insert(1, ('trigger_date', 'ASC'))
+        self._order.insert(2, ('create_date', 'DESC'))
 
     def links_get(self, cursor, user, context=None):
         request_link_obj = self.pool.get('res.request.link')
@@ -144,7 +146,10 @@ class RequestLink(OSV):
     name = fields.Char('Name', size=64, required=True, translate=True)
     object = fields.Char('Object', size=64, required=True)
     priority = fields.Integer('Priority')
-    _order = 'priority'
+
+    def __init__(self):
+        super(RequestLink, self).__init__()
+        self._order.insert(0, ('priority', 'ASC'))
 
     def default_priority(self, cursor, user, context=None):
         return 5

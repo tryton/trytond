@@ -37,7 +37,6 @@ class ModelField(OSV):
     group_name = fields.Char('Group Name', size=128)
     view_load = fields.Boolean('View Auto-Load')
     help = fields.Text('Help', translate=True)
-    _order = "id"
 
     def default_relate(self, cursor, user, context=None):
         return 0
