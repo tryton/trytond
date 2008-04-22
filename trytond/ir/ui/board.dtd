@@ -1,0 +1,56 @@
+<!ELEMENT board (image|separator|labe|newline|notebook|group|hpaned|vpaned|action)*>
+<!ATTLIST board string CDATA "Unknown">
+<!ATTLIST board col CDATA "4">
+<!ELEMENT image EMPTY>
+<!ATTLIST image name CDATA #REQUIRED>
+<!ATTLIST image colspan CDATA "1">
+<!ATTLIST image expand (0|1) "0">
+<!ATTLIST image fill (0|1) "0">
+<!ATTLIST image help CDATA #IMPLIED>
+<!ELEMENT separator EMPTY>
+<!ATTLIST separator string CDATA "">
+<!ATTLIST separator name CDATA #IMPLIED>
+<!ATTLIST separator states CDATA #IMPLIED>
+<!ATTLIST separator align CDATA "0.0">
+<!ATTLIST separator colspan CDATA "1">
+<!ATTLIST separator expand (0|1) "0">
+<!ATTLIST separator fill (0|1) "0">
+<!ATTLIST separator help CDATA #IMPLIED>
+<!ELEMENT label EMPTY>
+<!ATTLIST label string CDATA "">
+<!ATTLIST label name CDATA #IMPLIED>
+<!ATTLIST label states CDATA #IMPLIED>
+<!ATTLIST label align CDATA "0.0">
+<!ATTLIST label expand (0|1) "0">
+<!ATTLIST label fill (0|1) "0">
+<!ATTLIST label xexpand (0|1) "0">
+<!ATTLIST label xfill (0|1) "1">
+<!ATTLIST label colspan CDATA "1">
+<!ATTLIST label help CDATA #IMPLIED>
+<!ELEMENT newline EMPTY>
+<!ELEMENT notebook (page*)>
+<!ATTLIST notebook tabpos (up|down|left|right) #IMPLIED>
+<!ATTLIST notebook colspan CDATA "4">
+<!ELEMENT page (image|separator|labe|newline|notebook|group|hpaned|vpaned|action)*>
+<!ATTLIST page angle CDATA #IMPLIED>
+<!ATTLIST page string CDATA "Unknown">
+<!ATTLIST page col CDATA "4">
+<!ELEMENT group (image|separator|labe|newline|notebook|group|hpaned|vpaned|action)*>
+<!ATTLIST group string CDATA #IMPLIED>
+<!ATTLIST group colspan CDATA "1">
+<!ATTLIST group expand (0|1) "0">
+<!ATTLIST group fill (0|1) "1">
+<!ATTLIST group rowspan CDATA "1">
+<!ATTLIST group col CDATA "4">
+<!ELEMENT hpaned (child1?,child2?)>
+<!ATTLIST hpaned colspan CDATA "4">
+<!ATTLIST hpaned position CDATA #IMPLIED>
+<!ELEMENT vpaned (child1?,child2?)>
+<!ATTLIST vpaned colspan CDATA "4">
+<!ATTLIST vpaned position CDATA #IMPLIED>
+<!ELEMENT child1 (image|separator|labe|newline|notebook|group|hpaned|vpaned|action)*>
+<!ELEMENT child2 (image|separator|labe|newline|notebook|group|hpaned|vpaned|action)*>
+<!ELEMENT data (xpath+)>
+<!ELEMENT xpath ANY>
+<!ATTLIST xpath expr CDATA #REQUIRED>
+<!ATTLIST xpath position (inside|replace|after|before) "inside">
