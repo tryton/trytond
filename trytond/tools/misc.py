@@ -339,7 +339,7 @@ class Cache(object):
 
     def __init__(self, name, timeout=10000):
         self.timeout = timeout
-        self.cache = {}
+        self._cache = {}
         self._cache_instance.append(self)
         self.name = name
         self.timestamp = None
@@ -349,21 +349,21 @@ class Cache(object):
 
         def cached_result(self2, cursor=None, *args, **kwargs):
             if isinstance(cursor, str):
-                self.reset(cursor)
-                self.cache[cursor] = {}
+                Cache.reset(cursor, self.name)
+                self._cache[cursor] = {}
                 return True
             # Update named arguments with positional argument values
             kwargs.update(dict(zip(arg_names, args)))
             kwargs = kwargs.items()
             kwargs.sort()
 
-            self.cache.setdefault(cursor.dbname, {})
+            self._cache.setdefault(cursor.dbname, {})
             # Work out key as a tuple of ('argname', value) pairs
             key = (('object', str(self2)), str(kwargs))
 
             # Check cache and return cached value if possible
-            if key in self.cache[cursor.dbname]:
-                (value, last_time) = self.cache[cursor.dbname][key]
+            if key in self._cache[cursor.dbname]:
+                (value, last_time) = self._cache[cursor.dbname][key]
                 mintime = time.time() - self.timeout
                 if self.timeout <= 0 or mintime <= last_time:
                     return value
@@ -372,7 +372,7 @@ class Cache(object):
             # Should copy() this value to avoid futur modf of the cacle ?
             result = function(self2, cursor, **dict(kwargs))
 
-            self.cache[cursor.dbname][key] = (result, time.time())
+            self._cache[cursor.dbname][key] = (result, time.time())
             return result
 
         return cached_result
@@ -406,24 +406,25 @@ class Cache(object):
             if obj.name in timestamps:
                 if not obj.timestamp or timestamps[obj.name] > obj.timestamp:
                     obj.timestamp = timestamps[obj.name]
-                    obj.cache[dbname] = {}
+                    obj._cache[dbname] = {}
 
-    def reset(self, dbname):
+    @staticmethod
+    def reset(dbname, name):
         cursor = pooler.get_db(dbname).cursor()
         try:
             cursor.execute('SELECT name FROM cache_clean WHERE name = %s',
-                    (self.name,))
+                    (name,))
         except:
             cursor.rollback()
             Cache._create_db(cursor)
             cursor.execute('SELECT name FROM cache_clean WHERE name = %s',
-                    (self.name,))
+                    (name,))
         if cursor.rowcount:
             cursor.execute('UPDATE cache_clean SET "timestamp" = now() '\
-                    'WHERE name = %s', (self.name,))
+                    'WHERE name = %s', (name,))
         else:
             cursor.execute('INSERT INTO cache_clean ("timestamp", "name") ' \
-                    'VALUES (now(), %s)', (self.name,))
+                    'VALUES (now(), %s)', (name,))
         cursor.commit()
         cursor.close()
 
