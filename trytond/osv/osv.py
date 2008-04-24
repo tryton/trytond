@@ -193,19 +193,22 @@ osv = OSV
 
 class Cacheable(object):
 
-    _cache = UpdateableDict()
+    def __init__(self):
+        super(Cacheable, self).__init__()
+        self._cache = {}
 
-    def add(self, key, value):
-        self._cache[key] = value
+    def add(self, cursor, key, value):
+        self._cache.setdefault(cursor.dbname, {})
+        self._cache[cursor.dbname][key] = value
 
-    def invalidate(self, key):
-        del self._cache[key]
+    def invalidate(self, cursor, key):
+        del self._cache[cursor.dbname][key]
 
-    def get(self, key):
+    def get(self, cursor, key):
         try:
-            return self._cache[key]
+            return self._cache[cursor.dbname][key]
         except KeyError:
             return None
 
-    def clear(self):
-        self._cache.clear()
+    def clear(self, cursor):
+        self._cache[cursor.dbname].clear()
