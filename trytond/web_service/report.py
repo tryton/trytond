@@ -1,5 +1,6 @@
 from trytond.netsvc import Service, LocalService
 from trytond import security
+from trytond.tools import Cache
 
 
 class Report(Service):
@@ -12,5 +13,6 @@ class Report(Service):
     def execute(self, database, user, passwd, report_name, ids, datas=None,
             context=None):
         security.check(database, user, passwd)
+        Cache.clean(database)
         report = LocalService('report_proxy')
         return report.execute(database, user, report_name, ids, datas, context)

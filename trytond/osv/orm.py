@@ -1518,7 +1518,7 @@ class ORM(object):
         if self.pool.get('ir.rule.group').search(cursor, 0, [
             ('model.model', '=', self._name),
             ], context=context):
-            self.pool.get('ir.rule').domain_get()
+            self.pool.get('ir.rule').domain_get(cursor.dbname)
 
         wf_service = LocalService("workflow")
         for obj_id in ids:
@@ -2005,7 +2005,7 @@ class ORM(object):
             return True
         return result
 
-    fields_view_get = Cache()(fields_view_get)
+    fields_view_get = Cache('orm.fields_view_get')(fields_view_get)
 
     def _where_calc(self, cursor, user, args, active_test=True, context=None):
         if context is None:

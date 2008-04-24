@@ -250,13 +250,13 @@ class Translation(OSV, Cacheable):
 
     def unlink(self, cursor, user, ids, context=None):
         self.clear(cursor)
-        self.fields_view_get()
+        self.fields_view_get(cursor.dbname)
         return super(Translation, self).unlink(cursor, user, ids,
                 context=context)
 
     def create(self, cursor, user, vals, context=None):
         self.clear(cursor)
-        self.fields_view_get()
+        self.fields_view_get(cursor.dbname)
         if vals.get('type', '') in ('odt', 'view', 'wizard_button',
                 'selection'):
             cursor.execute('SELECT module FROM ir_translation ' \
@@ -286,7 +286,7 @@ class Translation(OSV, Cacheable):
 
     def write(self, cursor, user, ids, vals, context=None):
         self.clear(cursor)
-        self.fields_view_get()
+        self.fields_view_get(cursor.dbname)
         return super(Translation, self).write(cursor, user, ids, vals,
                 context=context)
 

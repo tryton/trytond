@@ -7,6 +7,7 @@ import inspect
 from trytond.config import CONFIG
 import socket
 import zipfile
+from trytond import pooler
 
 if sys.version_info[:2] < (2, 4):
     from threadinglocal import local
@@ -328,36 +329,41 @@ class UpdateableDict(local):
         return self.dict.__ne__(y)
 
 
+
 class Cache(object):
     """
     Use it as a decorator of the function you plan to cache
     Timeout: 0 = no timeout, otherwise in seconds
     """
+    _cache_instance = []
 
-    def __init__(self, timeout=10000):
+    def __init__(self, name, timeout=10000):
         self.timeout = timeout
         self.cache = {}
+        self._cache_instance.append(self)
+        self.name = name
+        self.timestamp = None
 
     def __call__(self, function):
         arg_names = inspect.getargspec(function)[0][2:]
 
         def cached_result(self2, cursor=None, *args, **kwargs):
-            if cursor is None:
-                self.cache = {}
+            if isinstance(cursor, str):
+                self.reset(cursor)
+                self.cache[cursor] = {}
                 return True
-
             # Update named arguments with positional argument values
             kwargs.update(dict(zip(arg_names, args)))
             kwargs = kwargs.items()
             kwargs.sort()
 
+            self.cache.setdefault(cursor.dbname, {})
             # Work out key as a tuple of ('argname', value) pairs
-            key = (('dbname', cursor.dbname), ('object', str(self2)),
-                str(kwargs))
+            key = (('object', str(self2)), str(kwargs))
 
             # Check cache and return cached value if possible
-            if key in self.cache:
-                (value, last_time) = self.cache[key]
+            if key in self.cache[cursor.dbname]:
+                (value, last_time) = self.cache[cursor.dbname][key]
                 mintime = time.time() - self.timeout
                 if self.timeout <= 0 or mintime <= last_time:
                     return value
@@ -366,10 +372,61 @@ class Cache(object):
             # Should copy() this value to avoid futur modf of the cacle ?
             result = function(self2, cursor, **dict(kwargs))
 
-            self.cache[key] = (result, time.time())
+            self.cache[cursor.dbname][key] = (result, time.time())
             return result
 
         return cached_result
+
+    @staticmethod
+    def _create_db(cursor):
+        cursor.execute('SELECT tablename FROM pg_tables ' \
+                'WHERE tablename = \'cache_clean\'')
+        if not cursor.rowcount:
+            cursor.execute('CREATE TABLE cache_clean (' \
+                        '"timestamp" timestamp without time zone, ' \
+                        '"name" varchar NOT NULL, '
+                        'PRIMARY key(name)'
+                        ')')
+            cursor.commit()
+
+    @staticmethod
+    def clean(dbname):
+        cursor = pooler.get_db(dbname).cursor()
+        try:
+            cursor.execute('SELECT "timestamp", "name" FROM cache_clean')
+        except:
+            cursor.rollback()
+            Cache._create_db(cursor)
+            cursor.execute('SELECT "timestamp", "name" FROM cache_clean')
+        timestamps = {}
+        for timestamp, name in cursor.fetchall():
+            timestamps[name] = timestamp
+        cursor.close()
+        for obj in Cache._cache_instance:
+            if obj.name in timestamps:
+                if not obj.timestamp or timestamps[obj.name] > obj.timestamp:
+                    obj.timestamp = timestamps[obj.name]
+                    obj.cache[dbname] = {}
+
+    def reset(self, dbname):
+        cursor = pooler.get_db(dbname).cursor()
+        try:
+            cursor.execute('SELECT name FROM cache_clean WHERE name = %s',
+                    (self.name,))
+        except:
+            cursor.rollback()
+            Cache._create_db(cursor)
+            cursor.execute('SELECT name FROM cache_clean WHERE name = %s',
+                    (self.name,))
+        if cursor.rowcount:
+            cursor.execute('UPDATE cache_clean SET "timestamp" = now() '\
+                    'WHERE name = %s', (self.name,))
+        else:
+            cursor.execute('INSERT INTO cache_clean ("timestamp", "name") ' \
+                    'VALUES (now(), %s)', (self.name,))
+        cursor.commit()
+        cursor.close()
+
 
 def get_languages():
     languages = {

@@ -109,7 +109,7 @@ class User(OSV):
         vals = self._convert_vals(cursor, user, vals, context=context)
         res = super(User, self).write(cursor, user, ids, vals, context=context)
         # Restart the cache for domain_get method
-        self.pool.get('ir.rule').domain_get()
+        self.pool.get('ir.rule').domain_get(cursor.dbname)
         return res
 
     def unlink(self, cursor, user, ids, context=None):

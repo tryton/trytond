@@ -123,25 +123,25 @@ class ModelAccess(OSV):
                 return False
         return True
 
-    check = Cache()(check)
+    check = Cache('ir_model_access.check')(check)
 
     # Methods to clean the cache on the Check Method.
     def write(self, cursor, user, ids, vals, context=None):
         res = super(ModelAccess, self).write(cursor, user, ids, vals,
                 context=context)
-        self.check()
+        self.check(cursor.dbname)
         return res
 
     def create(self, cursor, user, vals, context=None):
         res = super(ModelAccess, self).create(cursor, user, vals,
                 context=context)
-        self.check()
+        self.check(cursor.dbname)
         return res
 
     def unlink(self, cursor, user, ids, context=None):
         res = super(ModelAccess, self).unlink(cursor, user, ids,
                 context=context)
-        self.check()
+        self.check.cursor()
         return res
 
 ModelAccess()

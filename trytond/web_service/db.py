@@ -8,6 +8,7 @@ from trytond import tools
 import base64
 import os
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from trytond.tools import Cache
 
 
 class DB(Service):
@@ -25,6 +26,7 @@ class DB(Service):
 
     def create(self, password, db_name, lang):
         security.check_super(password)
+        Cache.clean(db_name)
         res = False
 
         logger = Logger()
@@ -77,6 +79,7 @@ class DB(Service):
 
     def drop(self, password, db_name):
         security.check_super(password)
+        Cache.clean(db_name)
         pooler.close_db(db_name)
         logger = Logger()
 
@@ -105,6 +108,7 @@ class DB(Service):
 
     def dump(self, password, db_name):
         security.check_super(password)
+        Cache.clean(db_name)
         logger = Logger()
 
         if tools.CONFIG['db_password']:
@@ -135,6 +139,7 @@ class DB(Service):
 
     def restore(self, password, db_name, data):
         security.check_super(password)
+        Cache.clean(db_name)
         logger = Logger()
 
         if self.db_exist(db_name):

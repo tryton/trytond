@@ -137,7 +137,7 @@ class View(OSV):
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get()
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
         res = super(View, self).unlink(cursor, user, ids, context=context)
@@ -149,7 +149,7 @@ class View(OSV):
             model = vals['model']
             # Restart the cache
             try:
-                self.pool.get(model).fields_view_get()
+                self.pool.get(model).fields_view_get(cursor.dbname)
             except:
                 pass
         return res
@@ -162,7 +162,7 @@ class View(OSV):
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get()
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
         res = super(View, self).write(cursor, user, ids, vals, context=context)
@@ -170,7 +170,7 @@ class View(OSV):
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get()
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
         return res
