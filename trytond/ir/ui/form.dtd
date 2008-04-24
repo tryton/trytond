@@ -19,7 +19,7 @@
 <!ATTLIST label xfill (0|1) "1">
 <!ATTLIST label colspan CDATA "1">
 <!ATTLIST label help CDATA #IMPLIED>
-<!ELEMENT field (tree|form)*>
+<!ELEMENT field (tree|form|graph)*>
 <!ATTLIST field name CDATA #REQUIRED>
 <!ATTLIST field colspan CDATA "1">
 <!ATTLIST field widget (date|char|many2one|date|one2many|selection|float|numeric|float_time|interger|datetime|boolean|text|url|email|callto|sip|sha|reference|binary|many2many|image) #IMPLIED>
