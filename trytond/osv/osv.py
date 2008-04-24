@@ -8,6 +8,7 @@ import sys
 from psycopg2 import IntegrityError
 from trytond.tools import UpdateableDict
 import traceback
+from trytond.tools import Cache
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -196,6 +197,9 @@ class Cacheable(object):
     def __init__(self):
         super(Cacheable, self).__init__()
         self._cache = {}
+        self.name = self._table
+        self.timestamp = None
+        Cache._cache_instance.append(self)
 
     def add(self, cursor, key, value):
         self._cache.setdefault(cursor.dbname, {})
@@ -211,4 +215,6 @@ class Cacheable(object):
             return None
 
     def clear(self, cursor):
+        self._cache.setdefault(cursor.dbname, {})
         self._cache[cursor.dbname].clear()
+        Cache.reset(cursor.dbname, self.name)
