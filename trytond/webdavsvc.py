@@ -11,6 +11,7 @@ from netsvc import LocalService
 import security
 import pooler
 from version import PACKAGE, VERSION, WEBSITE
+from tools.misc import Cache
 
 # Local int for multi-thread
 import sys
@@ -291,6 +292,7 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         if not dbname:
             return 1
         USER_ID = security.login(dbname, user, password, cache=False)
+        Cache.clean(dbname)
         if int(USER_ID):
             return 1
         return 0

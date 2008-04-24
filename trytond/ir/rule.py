@@ -33,21 +33,21 @@ class RuleGroup(OSV):
         res = super(RuleGroup, self).unlink(cursor, user, ids,
                 context=context)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get()
+        self.pool.get('ir.rule').domain_get(cursor.dbname)
         return res
 
     def create(self, cursor, user, vals, context=None):
         res = super(RuleGroup, self).create(cursor, user, vals,
                 context=context)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get()
+        self.pool.get('ir.rule').domain_get(cursor.dbname)
         return res
 
     def write(self, cursor, user, ids, vals, context=None):
         res = super(RuleGroup, self).write(cursor, user, ids, vals,
                 context=context)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get()
+        self.pool.get('ir.rule').domain_get(cursor.dbname)
         return res
 
 RuleGroup()
@@ -210,25 +210,25 @@ class Rule(OSV):
                 val = val_global
 
         return query, val
-    domain_get = Cache()(domain_get)
+    domain_get = Cache('ir_rule.domain_get')(domain_get)
 
     def unlink(self, cursor, user, ids, context=None):
         res = super(Rule, self).unlink(cursor, user, ids, context=context)
         # Restart the cache on the domain_get method of ir.rule
-        self.domain_get()
+        self.domain_get(cursor.dbname)
         return res
 
     def create(self, cursor, user, vals, context=None):
         res = super(Rule, self).create(cursor, user, vals, context=context)
         # Restart the cache on the domain_get method of ir.rule
-        self.domain_get()
+        self.domain_get(cursor.dbname)
         return res
 
     def write(self, cursor, user, ids, vals, context=None):
         res = super(Rule, self).write(cursor, user, ids, vals,
                 context=context)
         # Restart the cache on the domain_get method
-        self.domain_get()
+        self.domain_get(cursor.dbname)
         return res
 
 Rule()
