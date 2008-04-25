@@ -2,6 +2,7 @@ from trytond.netsvc import Service, Logger, LOG_INFO
 from trytond import security
 from trytond.version import VERSION
 import time
+from trytond.tools import Cache
 
 
 class Common(Service):
@@ -15,6 +16,7 @@ class Common(Service):
 
     def login(self, database, login, password):
         res = security.login(database, login, password)
+        Cache.clean(database)
         logger = Logger()
         msg = res and 'successful login' or 'bad login or password'
         logger.notify_channel("web-service", LOG_INFO,

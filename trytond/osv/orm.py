@@ -561,7 +561,8 @@ class ORM(object):
                                         (k, self._table, f_pg_type, f_obj_type,))
                             if f_pg_type == 'varchar' \
                                     and field._type == 'char' \
-                                    and f_pg_size != field.size:
+                                    and (f_pg_size != field.size \
+                                    and not (f_pg_size == -5 and field.size == None)):
                                 # columns with the name 'type' cannot be changed
                                 # for an unknown reason?!
                                 if k != 'type':
@@ -1518,7 +1519,7 @@ class ORM(object):
         if self.pool.get('ir.rule.group').search(cursor, 0, [
             ('model.model', '=', self._name),
             ], context=context):
-            self.pool.get('ir.rule').domain_get()
+            self.pool.get('ir.rule').domain_get(cursor.dbname)
 
         wf_service = LocalService("workflow")
         for obj_id in ids:
@@ -2005,7 +2006,7 @@ class ORM(object):
             return True
         return result
 
-    fields_view_get = Cache()(fields_view_get)
+    fields_view_get = Cache('orm.fields_view_get')(fields_view_get)
 
     def _where_calc(self, cursor, user, args, active_test=True, context=None):
         if context is None:

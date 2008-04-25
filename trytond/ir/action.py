@@ -90,7 +90,8 @@ class ActionKeyword(OSV):
         for keyword in self.browse(cursor, user, ids, context=context):
             # Restart the cache view
             try:
-                self.pool.get(keyword.model.split(',')[0]).fields_view_get()
+                self.pool.get(keyword.model.split(',')[0])\
+                        .fields_view_get(cursor.dbname)
             except:
                 pass
         return super(ActionKeyword, self).unlink(cursor, user, ids,
@@ -101,7 +102,8 @@ class ActionKeyword(OSV):
         if 'model' in vals:
             # Restart the cache view
             try:
-                self.pool.get(vals['model'].split(',')[0]).fields_view_get()
+                self.pool.get(vals['model'].split(',')[0])\
+                        .fields_view_get(cursor.dbname)
             except:
                 pass
         return super(ActionKeyword, self).create(cursor, user, vals,
@@ -114,7 +116,8 @@ class ActionKeyword(OSV):
         for keyword in self.browse(cursor, user, ids, context=context):
             # Restart the cache view
             try:
-                self.pool.get(keyword.model.split(',')[0]).fields_view_get()
+                self.pool.get(keyword.model.split(',')[0])\
+                        .fields_view_get(cursor.dbname)
             except:
                 pass
         res = super(ActionKeyword, self).write(cursor, user, ids, vals,
@@ -122,7 +125,8 @@ class ActionKeyword(OSV):
         for keyword in self.browse(cursor, user, ids, context=context):
             # Restart the cache view
             try:
-                self.pool.get(keyword.model.split(',')[0]).fields_view_get()
+                self.pool.get(keyword.model.split(',')[0])\
+                        .fields_view_get(cursor.dbname)
             except:
                 pass
         return res

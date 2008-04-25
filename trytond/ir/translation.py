@@ -43,6 +43,7 @@ class Translation(OSV, Cacheable):
 
     def __init__(self):
         super(Translation, self).__init__()
+        Cacheable.__init__(self)
         self._sql_constraints += [
             ('translation_uniq', 'UNIQUE (name, res_id, lang, type, src)',
                 'Translation must be unique'),
@@ -104,7 +105,7 @@ class Translation(OSV, Cacheable):
                         name, ttype, lang)
             return translations
         for obj_id in ids:
-            trans = self.get((lang, name, obj_id))
+            trans = self.get(cursor, (lang, name, obj_id))
             if trans is not None:
                 translations[obj_id] = trans
             else:
@@ -119,11 +120,11 @@ class Translation(OSV, Cacheable):
                             ','.join([str(x) for x in to_fetch]) + ')',
                     (lang, ttype, name))
             for res_id, value in cursor.fetchall():
-                self.add((lang, ttype, name, res_id), value)
+                self.add(cursor, (lang, ttype, name, res_id), value)
                 translations[res_id] = value
         for res_id in ids:
             if res_id not in translations:
-                self.add((lang, ttype, name, res_id), False)
+                self.add(cursor, (lang, ttype, name, res_id), False)
                 translations[res_id] = False
         return translations
 
@@ -178,7 +179,7 @@ class Translation(OSV, Cacheable):
         return len(ids)
 
     def _get_source(self, cursor, name, ttype, lang, source=None):
-        trans = self.get((lang, ttype, name, source))
+        trans = self.get(cursor, (lang, ttype, name, source))
         if trans is not None:
             return trans
 
@@ -202,10 +203,10 @@ class Translation(OSV, Cacheable):
                     (lang, ttype, str(name)))
         res = cursor.fetchone()
         if res:
-            self.add((lang, ttype, name, source), res[0])
+            self.add(cursor, (lang, ttype, name, source), res[0])
             return res[0]
         else:
-            self.add((lang, ttype, name, source), False)
+            self.add(cursor, (lang, ttype, name, source), False)
             return False
 
     def _get_sources(self, cursor, args):
@@ -218,7 +219,7 @@ class Translation(OSV, Cacheable):
         clause = ''
         value = []
         for name, ttype, lang, source in args:
-            trans = self.get((lang, ttype, name, source))
+            trans = self.get(cursor, (lang, ttype, name, source))
             if trans is not None:
                 res[(name, ttype, lang, source)] = trans
             else:
@@ -243,19 +244,19 @@ class Translation(OSV, Cacheable):
             for lang, ttype, name, src, value in cursor.fetchall():
                 res[(name, ttype, lang, source)] = value
             for name, ttype, lang, source in args:
-                self.add((lang, ttype, name, source),
+                self.add(cursor, (lang, ttype, name, source),
                         res[(name, ttype, lang, source)])
         return res
 
     def unlink(self, cursor, user, ids, context=None):
-        self.clear()
-        self.fields_view_get()
+        self.clear(cursor)
+        self.fields_view_get(cursor.dbname)
         return super(Translation, self).unlink(cursor, user, ids,
                 context=context)
 
     def create(self, cursor, user, vals, context=None):
-        self.clear()
-        self.fields_view_get()
+        self.clear(cursor)
+        self.fields_view_get(cursor.dbname)
         if vals.get('type', '') in ('odt', 'view', 'wizard_button',
                 'selection'):
             cursor.execute('SELECT module FROM ir_translation ' \
@@ -284,8 +285,8 @@ class Translation(OSV, Cacheable):
                 context=context)
 
     def write(self, cursor, user, ids, vals, context=None):
-        self.clear()
-        self.fields_view_get()
+        self.clear(cursor)
+        self.fields_view_get(cursor.dbname)
         return super(Translation, self).write(cursor, user, ids, vals,
                 context=context)
 
