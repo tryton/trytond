@@ -41,6 +41,8 @@ import wkf_service
 from module import register_classes
 import osv, security, tools, version
 
+#Fix for pyxml for ubuntu
+sys.path.append('/usr/lib/python%s/site-packages/oldxml' % sys.version[:3])
 
 class TrytonServer(object):
 

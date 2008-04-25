@@ -3,6 +3,7 @@ from trytond import security
 from threading import Semaphore
 from random import randint
 from sys import maxint
+from trytond.tools import Cache
 
 
 class Wizard(Service):
@@ -26,6 +27,7 @@ class Wizard(Service):
 
     def create(self, database, user, passwd, wiz_name, datas=None):
         security.check(database, user, passwd)
+        Cache.clean(database)
         self._semaphore.acquire()
         wiz_id = 0
         while True:
@@ -40,6 +42,7 @@ class Wizard(Service):
 
     def execute(self, database, user, passwd, wiz_id, datas, *args):
         security.check(database, user, passwd)
+        Cache.clean(database)
         if wiz_id in self.wiz_uid:
             if self.wiz_uid[wiz_id] == user:
                 return self._execute(database, user, wiz_id, datas, *args)
@@ -50,6 +53,7 @@ class Wizard(Service):
 
     def delete(self, database, user, passwd, wiz_id):
         security.check(database, user, passwd)
+        Cache.clean(database)
         if wiz_id in self.wiz_uid:
             if self.wiz_uid[wiz_id] == user:
                 self._semaphore.acquire()

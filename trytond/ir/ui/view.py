@@ -11,17 +11,17 @@ class View(OSV):
     _name = 'ir.ui.view'
     _description = __doc__
     _rec_name = 'model'
-    model = fields.Char('Model', size=None, required=True)
-    priority = fields.Integer('Priority', required=True)
+    model = fields.Char('Model', size=None, required=True, select=1)
+    priority = fields.Integer('Priority', required=True, select=1)
     type = fields.Selection([
        ('tree','Tree'),
        ('form','Form'),
        ('graph', 'Graph'),
        ('calendar', 'Calendar'),
        ('board', 'Board'),
-       ], 'View Type', required=True)
+       ], 'View Type', required=True, select=1)
     arch = fields.Text('View Architecture', required=True)
-    inherit = fields.Many2One('ir.ui.view', 'Inherited View')
+    inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1)
     field_childs = fields.Char('Childs Field',size=64)
     module = fields.Char('Module', size=128, readonly=True)
 
@@ -72,7 +72,7 @@ class View(OSV):
                     ValidatingReader.parseString(xml)
                 except Exception, exception:
                     logger.notify_channel('ir', LOG_ERROR,
-                            'Invalid xml view: %s' % (str(exception)))
+                            'Invalid xml view: %s' % (str(exception) + '\n' + xml))
                     return False
             except:
                 logger.notify_channel('ir', LOG_WARNING,
@@ -137,7 +137,7 @@ class View(OSV):
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get()
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
         res = super(View, self).unlink(cursor, user, ids, context=context)
@@ -149,7 +149,7 @@ class View(OSV):
             model = vals['model']
             # Restart the cache
             try:
-                self.pool.get(model).fields_view_get()
+                self.pool.get(model).fields_view_get(cursor.dbname)
             except:
                 pass
         return res
@@ -162,7 +162,7 @@ class View(OSV):
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get()
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
         res = super(View, self).write(cursor, user, ids, vals, context=context)
@@ -170,7 +170,7 @@ class View(OSV):
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get()
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
         return res

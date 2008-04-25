@@ -7,8 +7,8 @@ import zipfile
 import version
 from config import CONFIG
 
-RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"? .*$')
-RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"? .*$')
+RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
+RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
 
 class tryton_cursor(cursor):
 
