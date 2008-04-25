@@ -72,7 +72,7 @@ class View(OSV):
                     ValidatingReader.parseString(xml)
                 except Exception, exception:
                     logger.notify_channel('ir', LOG_ERROR,
-                            'Invalid xml view: %s' % (str(exception)))
+                            'Invalid xml view: %s' % (str(exception) + '\n' + xml))
                     return False
             except:
                 logger.notify_channel('ir', LOG_WARNING,
