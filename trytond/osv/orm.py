@@ -561,7 +561,8 @@ class ORM(object):
                                         (k, self._table, f_pg_type, f_obj_type,))
                             if f_pg_type == 'varchar' \
                                     and field._type == 'char' \
-                                    and f_pg_size != field.size:
+                                    and (f_pg_size != field.size \
+                                    and not (f_pg_size == -5 and field.size == None)):
                                 # columns with the name 'type' cannot be changed
                                 # for an unknown reason?!
                                 if k != 'type':
