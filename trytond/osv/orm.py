@@ -1922,7 +1922,8 @@ class ORM(object):
                 cursor.execute('SELECT arch, name, field_childs, id, type, ' \
                         'inherit ' \
                         'FROM ir_ui_view ' \
-                        'WHERE model = %s AND type = %s ORDER BY priority',
+                        'WHERE model = %s AND type = %s AND inherit IS NULL ' \
+                        'ORDER BY priority',
                         (self._name,view_type))
             sql_res = cursor.fetchone()
             if not sql_res:
