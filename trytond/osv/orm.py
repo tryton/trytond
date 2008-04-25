@@ -1771,7 +1771,7 @@ class ORM(object):
                     views = {}
                     for field in node.childNodes:
                         if field.nodeType == field.ELEMENT_NODE \
-                                and field.localName in ('form', 'tree'):
+                                and field.localName in ('form', 'tree', 'graph'):
                             node.removeChild(field)
                             xarch, xfields = self.pool.get(relation
                                     )._view_look_dom_arch(cursor, user, field,
@@ -1784,7 +1784,7 @@ class ORM(object):
                 fields_attrs[node.getAttribute('name')] = attrs
 
         elif node.nodeType == node.ELEMENT_NODE \
-                and node.localName in ('form','tree'):
+                and node.localName in ('form', 'tree', 'graph'):
             result = self.view_header_get(cursor, user, False, node.localName,
                     context)
             if result:
