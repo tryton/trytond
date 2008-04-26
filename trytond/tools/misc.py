@@ -337,8 +337,9 @@ class Cache(object):
     """
     _cache_instance = []
 
-    def __init__(self, name, timeout=10000):
+    def __init__(self, name, timeout=3600, max_len=1024):
         self.timeout = timeout
+        self.max_len = max_len
         self._cache = {}
         self._cache_instance.append(self)
         self.name = name
@@ -358,8 +359,22 @@ class Cache(object):
             kwargs.sort()
 
             self._cache.setdefault(cursor.dbname, {})
+
+            lower = None
+            if len(self._cache[cursor.dbname]) > self.max_len:
+                mintime = time.time() - self.timeout
+                for key in self._cache[cursor.dbname].keys():
+                    last_time = self._cache[cursor.dbname][key][1]
+                    if mintime > last_time:
+                        del self._cache[cursor.dbname][key]
+                    else:
+                        if not lower or lower[1] > last_time:
+                            lower = (key, last_time)
+            if len(self._cache[cursor.dbname]) > self.max_len and lower:
+                del self._cache[cursor.dbname][lower[0]]
+
             # Work out key as a tuple of ('argname', value) pairs
-            key = (('object', str(self2)), str(kwargs))
+            key = str(kwargs)
 
             # Check cache and return cached value if possible
             if key in self._cache[cursor.dbname]:
