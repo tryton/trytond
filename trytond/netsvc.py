@@ -332,7 +332,7 @@ class TinySocketClientThread(threading.Thread):
             try:
                 msg = pysocket.receive()
             except:
-                self.sock.close()
+                pysocket.disconnect()
                 self.threads.remove(self)
                 return False
             if first:
@@ -394,10 +394,13 @@ class TinySocketServerThread(threading.Thread):
         try:
             self.running = True
             while self.running:
-                (clientsocket, address) = self.socket.accept()
-                c_thread = TinySocketClientThread(clientsocket, self.threads, self.secure)
-                self.threads.append(c_thread)
-                c_thread.start()
+                if not int(CONFIG['max_thread']) \
+                        or len(self.threads) < int(CONFIG['max_thread']):
+                    (clientsocket, address) = self.socket.accept()
+                    c_thread = TinySocketClientThread(clientsocket, self.threads,
+                            self.secure)
+                    self.threads.append(c_thread)
+                    c_thread.start()
             self.socket.close()
         except Exception, exp:
             self.socket.close()
@@ -425,6 +428,8 @@ class TinySocketServerThread(threading.Thread):
 
 class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
         BaseHTTPServer.HTTPServer):
+
+    max_children = CONFIG['max_thread']
 
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET,
