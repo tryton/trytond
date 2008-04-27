@@ -320,10 +320,15 @@ class TinySocketClientThread(threading.Thread):
             self.threads.remove(self)
             return False
         first = True
+        timeout = 0
         while self.running:
             (rlist, wlist, xlist) = select.select([self.sock], [], [], 1)
             if not rlist:
+                timeout += 1
+                if timeout > 60:
+                    break
                 continue
+            timeout = 0
             try:
                 msg = pysocket.receive()
             except:
