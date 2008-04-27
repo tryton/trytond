@@ -8,6 +8,7 @@ from trytond.config import CONFIG
 import socket
 import zipfile
 from trytond import pooler
+from threading import Semaphore
 
 if sys.version_info[:2] < (2, 4):
     from threadinglocal import local
@@ -344,50 +345,73 @@ class Cache(object):
         self._cache_instance.append(self)
         self.name = name
         self.timestamp = None
+        self.semaphore = Semaphore()
 
     def __call__(self, function):
         arg_names = inspect.getargspec(function)[0][2:]
 
         def cached_result(self2, cursor=None, *args, **kwargs):
+            result = None
             if isinstance(cursor, str):
                 Cache.reset(cursor, self.name)
-                self._cache[cursor] = {}
+                self.semaphore.acquire()
+                try:
+                    self._cache[cursor] = {}
+                finally:
+                    self.semaphore.release()
                 return True
             # Update named arguments with positional argument values
             kwargs.update(dict(zip(arg_names, args)))
             kwargs = kwargs.items()
             kwargs.sort()
 
-            self._cache.setdefault(cursor.dbname, {})
+            self.semaphore.acquire()
+            try:
+                self._cache.setdefault(cursor.dbname, {})
+            finally:
+                self.semaphore.release()
 
             lower = None
-            if len(self._cache[cursor.dbname]) > self.max_len:
-                mintime = time.time() - self.timeout
-                for key in self._cache[cursor.dbname].keys():
-                    last_time = self._cache[cursor.dbname][key][1]
-                    if mintime > last_time:
-                        del self._cache[cursor.dbname][key]
-                    else:
-                        if not lower or lower[1] > last_time:
-                            lower = (key, last_time)
-            if len(self._cache[cursor.dbname]) > self.max_len and lower:
-                del self._cache[cursor.dbname][lower[0]]
+            self.semaphore.acquire()
+            try:
+                if len(self._cache[cursor.dbname]) > self.max_len:
+                    mintime = time.time() - self.timeout
+                    for key in self._cache[cursor.dbname].keys():
+                        last_time = self._cache[cursor.dbname][key][1]
+                        if mintime > last_time:
+                            del self._cache[cursor.dbname][key]
+                        else:
+                            if not lower or lower[1] > last_time:
+                                lower = (key, last_time)
+                if len(self._cache[cursor.dbname]) > self.max_len and lower:
+                    del self._cache[cursor.dbname][lower[0]]
+            finally:
+                self.semaphore.release()
 
             # Work out key as a tuple of ('argname', value) pairs
             key = str(kwargs)
 
             # Check cache and return cached value if possible
-            if key in self._cache[cursor.dbname]:
-                (value, last_time) = self._cache[cursor.dbname][key]
-                mintime = time.time() - self.timeout
-                if self.timeout <= 0 or mintime <= last_time:
-                    return value
+            self.semaphore.acquire()
+            try:
+                if key in self._cache[cursor.dbname]:
+                    (value, last_time) = self._cache[cursor.dbname][key]
+                    mintime = time.time() - self.timeout
+                    if self.timeout <= 0 or mintime <= last_time:
+                        result = value
+            finally:
+                self.semaphore.release()
 
-            # Work out new value, cache it and return it
-            # Should copy() this value to avoid futur modf of the cacle ?
-            result = function(self2, cursor, **dict(kwargs))
+            if not result:
+                # Work out new value, cache it and return it
+                # Should copy() this value to avoid futur modf of the cacle ?
+                result = function(self2, cursor, **dict(kwargs))
 
-            self._cache[cursor.dbname][key] = (result, time.time())
+                self.semaphore.acquire()
+                try:
+                    self._cache[cursor.dbname][key] = (result, time.time())
+                finally:
+                    self.semaphore.release()
             return result
 
         return cached_result
@@ -421,7 +445,11 @@ class Cache(object):
             if obj.name in timestamps:
                 if not obj.timestamp or timestamps[obj.name] > obj.timestamp:
                     obj.timestamp = timestamps[obj.name]
-                    obj._cache[dbname] = {}
+                    obj.semaphore.acquire()
+                    try:
+                        obj._cache[dbname] = {}
+                    finally:
+                        obj.semaphore.release()
 
     @staticmethod
     def reset(dbname, name):
