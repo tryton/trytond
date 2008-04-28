@@ -1565,7 +1565,12 @@ class ORM(object):
                 default.append(i)
 
         if len(default):
-            vals.update(self.default_get(cursor, user, default, context))
+            defaults = self.default_get(cursor, user, default, context)
+            for field in defaults.keys():
+                if self._columns[field]._type == 'many2one':
+                    vals[field] = defaults[field][0]
+                else:
+                    vals[field] = defaults[field]
 
         tocreate = {}
         for i in self._inherits:
