@@ -1270,11 +1270,11 @@ class ORM(object):
                         args[arg] = value.get(arg, False)
                     val.update(getattr(self, 'on_change_' + field)(cursor, user,
                         [], args, context=context))
-                if self._columns[field]._type in ('many2many', 'one2many'):
+                if self._columns[field]._type in ('one2many',):
                     obj = self.pool.get(self._columns[field]._obj)
                     for val2 in res[field]:
                         val2.update(obj._default_on_change(cursor, user,
-                            val, context=context))
+                            val2, context=context))
         res.update(val)
         return res
 
@@ -1396,6 +1396,8 @@ class ORM(object):
             del vals['write_uid']
         if 'write_date' in vals:
             del vals['write_date']
+        if 'id' in vals:
+            del vals['id']
 
         #for v in self._inherits.values():
         #    assert v not in vals, (v, vals)
@@ -1544,6 +1546,8 @@ class ORM(object):
             del vals['create_uid']
         if 'create_date' in vals:
             del vals['create_date']
+        if 'id' in vals:
+            del vals['id']
 
         default = []
         avoid_table = []
