@@ -389,7 +389,7 @@ class Cache(object):
                 self.semaphore.release()
 
             # Work out key as a tuple of ('argname', value) pairs
-            key = str(kwargs)
+            key = (id(self2), str(kwargs))
 
             # Check cache and return cached value if possible
             self.semaphore.acquire()
