@@ -193,7 +193,7 @@ class InstanceGraph(Report):
         instance_id = instance_obj.search(cursor, user, [
             ('res_id', '=', datas['id']),
             ('workflow', '=', workflow.id),
-            ], order='id DESC', limit=1, context=context)
+            ], order=[('id', 'DESC')], limit=1, context=context)
         if not instance_id:
             raise ExceptOSV('UserError', 'No workflow instance defined!')
         instance_id = instance_id[0]
