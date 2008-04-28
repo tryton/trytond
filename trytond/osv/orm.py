@@ -1567,8 +1567,12 @@ class ORM(object):
         if len(default):
             defaults = self.default_get(cursor, user, default, context)
             for field in defaults.keys():
-                if self._columns[field]._type == 'many2one':
-                    vals[field] = defaults[field][0]
+                if field in self._columns \
+                        and self._columns[field]._type == 'many2one':
+                    if isinstance(defaults[field], (list, tuple)):
+                        vals[field] = defaults[field][0]
+                    else:
+                        vals[field] = defaults[field]
                 else:
                     vals[field] = defaults[field]
 
