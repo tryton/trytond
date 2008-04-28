@@ -325,7 +325,7 @@ class TinySocketClientThread(threading.Thread):
             (rlist, wlist, xlist) = select.select([self.sock], [], [], 1)
             if not rlist:
                 timeout += 1
-                if timeout > 60:
+                if timeout > 600:
                     break
                 continue
             timeout = 0
