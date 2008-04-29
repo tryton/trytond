@@ -1,5 +1,5 @@
 import time
-from trytond.osv import fields, OSV
+from trytond.osv import fields, OSV, ExceptORM
 
 
 class SequenceType(OSV):
@@ -67,7 +67,7 @@ class Sequence(OSV):
             else:
                 return self._process(res['prefix']) + \
                         self._process(res['suffix'])
-        return False
+        raise ExceptORM('UserError', 'Missing sequence!')
 
     def get(self, cursor, user, code):
         return self.get_id(cursor, user, code, test='code=%s')

@@ -4,6 +4,7 @@
 <!ELEMENT record (field*)>
 <!ATTLIST record model CDATA #REQUIRED>
 <!ATTLIST record id CDATA #REQUIRED>
+<!ATTLIST record update (0|1) "0">
 <!ELEMENT field (#PCDATA)>
 <!ATTLIST field name CDATA #REQUIRED>
 <!ATTLIST field search CDATA #IMPLIED>

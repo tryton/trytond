@@ -246,6 +246,7 @@ class UserConfig(Wizard):
             },
         },
         'user': {
+            'actions': ['_reset'],
             'result': {
                 'type': 'form',
                 'object': 'res.user',
@@ -263,6 +264,9 @@ class UserConfig(Wizard):
             },
         },
     }
+
+    def _reset(self, cursor, user, data, context=None):
+        return {}
 
     def _add(self, cursor, user, data, context=None):
         res_obj = self.pool.get('res.user')
