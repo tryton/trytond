@@ -1270,11 +1270,11 @@ class ORM(object):
                         args[arg] = value.get(arg, False)
                     val.update(getattr(self, 'on_change_' + field)(cursor, user,
                         [], args, context=context))
-                if self._columns[field]._type in ('many2many', 'one2many'):
+                if self._columns[field]._type in ('one2many',):
                     obj = self.pool.get(self._columns[field]._obj)
                     for val2 in res[field]:
                         val2.update(obj._default_on_change(cursor, user,
-                            val, context=context))
+                            val2, context=context))
         res.update(val)
         return res
 
@@ -1396,6 +1396,8 @@ class ORM(object):
             del vals['write_uid']
         if 'write_date' in vals:
             del vals['write_date']
+        if 'id' in vals:
+            del vals['id']
 
         #for v in self._inherits.values():
         #    assert v not in vals, (v, vals)
@@ -1544,6 +1546,8 @@ class ORM(object):
             del vals['create_uid']
         if 'create_date' in vals:
             del vals['create_date']
+        if 'id' in vals:
+            del vals['id']
 
         default = []
         avoid_table = []
@@ -1561,7 +1565,17 @@ class ORM(object):
                 default.append(i)
 
         if len(default):
-            vals.update(self.default_get(cursor, user, default, context))
+            defaults = self.default_get(cursor, user, default, context)
+            for field in defaults.keys():
+                fld_def = (field in self._columns) and self._columns[field] \
+                        or self._inherit_fields[field][2]
+                if fld_def._type in ('many2one', 'one2one'):
+                    if isinstance(defaults[field], (list, tuple)):
+                        vals[field] = defaults[field][0]
+                    else:
+                        vals[field] = defaults[field]
+                else:
+                    vals[field] = defaults[field]
 
         tocreate = {}
         for i in self._inherits:
@@ -1771,7 +1785,7 @@ class ORM(object):
                     views = {}
                     for field in node.childNodes:
                         if field.nodeType == field.ELEMENT_NODE \
-                                and field.localName in ('form', 'tree'):
+                                and field.localName in ('form', 'tree', 'graph'):
                             node.removeChild(field)
                             xarch, xfields = self.pool.get(relation
                                     )._view_look_dom_arch(cursor, user, field,
@@ -1784,7 +1798,7 @@ class ORM(object):
                 fields_attrs[node.getAttribute('name')] = attrs
 
         elif node.nodeType == node.ELEMENT_NODE \
-                and node.localName in ('form','tree'):
+                and node.localName in ('form', 'tree', 'graph'):
             result = self.view_header_get(cursor, user, False, node.localName,
                     context)
             if result:
@@ -1922,7 +1936,8 @@ class ORM(object):
                 cursor.execute('SELECT arch, name, field_childs, id, type, ' \
                         'inherit ' \
                         'FROM ir_ui_view ' \
-                        'WHERE model = %s AND type = %s ORDER BY priority',
+                        'WHERE model = %s AND type = %s AND inherit IS NULL ' \
+                        'ORDER BY priority',
                         (self._name,view_type))
             sql_res = cursor.fetchone()
             if not sql_res:

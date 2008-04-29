@@ -9,8 +9,8 @@ class Model(OSV):
     "Model"
     _name = 'ir.model'
     _description = __doc__
-    name = fields.Char('Model name', size=64, translate=True)
-    model = fields.Char('Object name', size=64, required=True)
+    name = fields.Char('Model name', size=None, translate=True)
+    model = fields.Char('Object name', size=None, required=True)
     info = fields.Text('Information')
     fields = fields.One2Many('ir.model.field', 'model', 'Fields',
        required=True)
@@ -24,17 +24,17 @@ class ModelField(OSV):
     "Model field"
     _name = 'ir.model.field'
     _description = __doc__
-    name = fields.Char('Name', size=64)
-    relation = fields.Char('Model Relation', size=64)
+    name = fields.Char('Name', size=None)
+    relation = fields.Char('Model Relation', size=None)
     model = fields.Many2One('ir.model', 'Model', required=True,
        select=True, ondelete='cascade')
-    field_description = fields.Char('Field Description', size=256,
+    field_description = fields.Char('Field Description', size=None,
        translate=True)
-    ttype = fields.Char('Field Type', size=64)
+    ttype = fields.Char('Field Type', size=None)
     relate = fields.Boolean('Click and Relate')
     groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
        'field_id', 'group_id', 'Groups')
-    group_name = fields.Char('Group Name', size=128)
+    group_name = fields.Char('Group Name', size=None)
     view_load = fields.Boolean('View Auto-Load')
     help = fields.Text('Help', translate=True)
 
@@ -152,9 +152,9 @@ class ModelData(OSV):
     _name = 'ir.model.data'
     _description = __doc__
     fs_id = fields.Char('Identifier on File System', required=True,
-       size=64, help="The id of the record as known on the file system.")
-    model = fields.Char('Model', required=True, size=64)
-    module = fields.Char('Module', required=True, size=64)
+       size=None, help="The id of the record as known on the file system.")
+    model = fields.Char('Model', required=True, size=None)
+    module = fields.Char('Module', required=True, size=None)
     db_id = fields.Integer('Resource ID',
        help="The id of the record in the database.")
     date_update = fields.DateTime('Update Date')

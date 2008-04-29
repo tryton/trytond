@@ -159,6 +159,7 @@ class RecordTagHandler:
                     (attributes["model"].encode('utf8'),)
 
             self.xml_id = attributes["id"].encode('utf8')
+            self.update = bool(int(attributes.get('update', '0').encode('utf8')))
 
             # create/update a dict containing fields values
             self.values = {}
@@ -260,7 +261,7 @@ class RecordTagHandler:
             return self
 
         elif name == "record":
-            if self.xml_id in self.xml_ids:
+            if self.xml_id in self.xml_ids and not self.update:
                 raise Exception('Duplicate id: "%s".' % (self.xml_id,))
             res = self.mh.import_record(
                 self.model._name, self.values, self.xml_id)
@@ -629,6 +630,7 @@ def post_import(cursor, module, to_delete):
     mdata_unlink = []
     pool = pooler.get_pool(cursor.dbname)
     modeldata_obj = pool.get("ir.model.data")
+    transition_unlink = []
 
     mdata_ids = modeldata_obj.search(
             cursor, user, [('fs_id','in',to_delete)],
@@ -636,11 +638,12 @@ def post_import(cursor, module, to_delete):
             )
 
     for mrec in modeldata_obj.browse(cursor, user, mdata_ids):
-        mdata_id, model,db_id = mrec.id, mrec.model, mrec.db_id
+        mdata_id, model, db_id = mrec.id, mrec.model, mrec.db_id
 
         # Whe skip transitions, they will be deleted with the
         # corresponding activity:
         if model == 'workflow.transition':
+            transition_unlink.append((mdata_id, db_id))
             continue
 
         if model == 'workflow.activity':
@@ -697,6 +700,21 @@ def post_import(cursor, module, to_delete):
                             'You should manually fix this ' \
                             'and restart --update=module' % \
                             (db_id, model))
+
+    transition_obj = pool.get('workflow.transition')
+    for mdata_id, db_id in transition_unlink:
+        logger = Logger()
+        logger.notify_channel('init', LOG_INFO,
+                'Deleting %s@workflow.transition' % (db_id,))
+        try:
+            transition_obj.unlink(cursor, user, db_id)
+            mdata_unlink.append(mdata_id)
+            cursor.commit()
+        except:
+            cursor.rollback()
+            logger.notify_channel('init', LOG_ERROR,
+                    'Could not delete id: %d of model workflow.transition' % \
+                            (db_id,))
 
     # Clean model_data:
     if mdata_unlink:
