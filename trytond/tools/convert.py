@@ -651,18 +651,18 @@ def post_import(cursor, module, to_delete):
             wkf_todo = []
             # search for records that are in the state/activity that
             # we want to delete...
-            cursor.execute('SELECT res_type, db_id ' \
+            cursor.execute('SELECT res_type, res_id ' \
                     'FROM wkf_instance ' \
                     'WHERE id IN (' \
                         'SELECT instance FROM wkf_workitem ' \
-                        'WHERE act_id = %d)', (db_id,))
+                        'WHERE activity = %s)', (db_id,))
             #... connect the transitions backward...
             wkf_todo.extend(cursor.fetchall())
             cursor.execute("UPDATE wkf_transition " \
-                    "SET condition = 'True', role_id = NULL, " \
+                    'SET condition = \'True\', "group" = NULL, ' \
                         "signal = NULL, act_to = act_from, " \
-                        "act_from = %d " \
-                    "WHERE act_to = %d", (db_id, db_id))
+                        "act_from = %s " \
+                    "WHERE act_to = %s", (db_id, db_id))
             # ... and force the record to follow them:
             for wkf_model,wkf_model_id in wkf_todo:
                 wf_service = netsvc.LocalService("workflow")
@@ -673,12 +673,12 @@ def post_import(cursor, module, to_delete):
                 "SELECT md.id FROM ir_model_data md " \
                     "JOIN wkf_transition t ON "\
                     "(md.model='workflow.transition' and md.db_id=t.id)" \
-                    "WHERE t.act_to = %d", (db_id,))
-            mdata_unlink.extend([x[0] for x in cr.fetchall()])
+                    "WHERE t.act_to = %s", (db_id,))
+            mdata_unlink.extend([x[0] for x in cursor.fetchall()])
 
             # And finally delete the transitions
             cursor.execute("DELETE FROM wkf_transition " \
-                    "WHERE act_to = %d", (db_id,))
+                    "WHERE act_to = %s", (db_id,))
 
             wf_service.trg_write(user, model, db_id, cursor)
 
