@@ -159,6 +159,7 @@ class RecordTagHandler:
                     (attributes["model"].encode('utf8'),)
 
             self.xml_id = attributes["id"].encode('utf8')
+            self.update = bool(int(attributes.get('update', '0').encode('utf8')))
 
             # create/update a dict containing fields values
             self.values = {}
@@ -260,7 +261,7 @@ class RecordTagHandler:
             return self
 
         elif name == "record":
-            if self.xml_id in self.xml_ids:
+            if self.xml_id in self.xml_ids and not self.update:
                 raise Exception('Duplicate id: "%s".' % (self.xml_id,))
             res = self.mh.import_record(
                 self.model._name, self.values, self.xml_id)
