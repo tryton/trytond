@@ -1567,8 +1567,9 @@ class ORM(object):
         if len(default):
             defaults = self.default_get(cursor, user, default, context)
             for field in defaults.keys():
-                if field in self._columns \
-                        and self._columns[field]._type == 'many2one':
+                fld_def = (field in self._columns) and self._columns[field] \
+                        or self._inherit_fields[field][2]
+                if fld_def._type in ('many2one', 'one2one'):
                     if isinstance(defaults[field], (list, tuple)):
                         vals[field] = defaults[field][0]
                     else:
