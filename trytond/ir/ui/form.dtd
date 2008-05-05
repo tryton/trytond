@@ -49,6 +49,7 @@
 <!ATTLIST field sum CDATA #IMPLIED>
 <!ATTLIST field key CDATA #IMPLIED>
 <!ATTLIST field domain CDATA #IMPLIED>
+<!ATTLIST field color CDATA #IMPLIED>
 <!ELEMENT image EMPTY>
 <!ATTLIST image name CDATA #REQUIRED>
 <!ATTLIST image colspan CDATA "1">
