@@ -48,6 +48,7 @@ class Translation(OSV, Cacheable):
             ('translation_uniq', 'UNIQUE (name, res_id, lang, type, src)',
                 'Translation must be unique'),
         ]
+        self.max_len = 10240
 
     def _auto_init(self, cursor, module_name):
         super(Translation, self)._auto_init(cursor, module_name)
@@ -98,8 +99,16 @@ class Translation(OSV, Cacheable):
                 ttype = 'field'
             else:
                 ttype = 'help'
-            for field in model_fields_obj.read(cursor, 0, ids,
-                    ['model', 'name']):
+            fields = model_fields_obj.read(cursor, 0, ids,
+                    ['model', 'name'])
+
+            trans_args = []
+            for field in fields:
+                name = field['model'][1] + ',' + field['name']
+                trans_args.append((name, ttype, lang, None))
+            self._get_sources(cursor, trans_args)
+
+            for field in fields:
                 name = field['model'][1] + ',' + field['name']
                 translations[field['id']] = self._get_source(cursor,
                         name, ttype, lang)
