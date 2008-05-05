@@ -56,6 +56,7 @@
 <!ATTLIST image expand (0|1) "0">
 <!ATTLIST image fill (0|1) "0">
 <!ATTLIST image help CDATA #IMPLIED>
+<!ATTLIST image states CDATA #IMPLIED>
 <!ELEMENT separator EMPTY>
 <!ATTLIST separator string CDATA "">
 <!ATTLIST separator name CDATA #IMPLIED>
