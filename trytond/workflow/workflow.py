@@ -180,8 +180,18 @@ class InstanceGraph(Report):
 
     def execute(self, cursor, user, ids, datas, context=None):
         import pydot
+        lang_obj = self.pool.get('ir.lang')
         workflow_obj = self.pool.get('workflow')
         instance_obj = self.pool.get('workflow.instance')
+
+        if context is None:
+            context = {}
+
+        lang_id = lang_obj.search(cursor, user, [
+            ('code', '=', context.get('language', 'en_US')),
+            ], limit=1, context=context)[0]
+        lang = lang_obj.browse(cursor, user, lang_id, context=context)
+
         workflow_id = workflow_obj.search(cursor, user, [
             ('osv', '=', datas['model']),
             ], limit=1, context=context)
@@ -201,26 +211,16 @@ class InstanceGraph(Report):
         graph = pydot.Dot(fontsize=16,
                 label="\\n\\nWorkflow: %s\\n OSV: %s" % \
                         (workflow.name, workflow.osv))
-        graph.set('size', '10.7,7.3')
         graph.set('center', '1')
         graph.set('ratio', 'auto')
-        graph.set('rotate', '90')
-        graph.set('rankdir', 'LR') #TODO depend of the language
+        if lang.direction == 'ltr':
+            graph.set('rankdir', 'LR')
+        else:
+            graph.set('rankdir', 'RL')
         self.graph_instance_get(cursor, user, graph, instance_id,
                 datas.get('nested', False), context=context)
-        ps_string = graph.create(prog='dot', format='ps')
-
-        if os.name == 'nt':
-            prog = 'ps2pdf.bat'
-        else:
-            prog = 'ps2pdf'
-        args = (prog, '-', '-')
-        inpt, outpt = exec_command_pipe(*args)
-        inpt.write(ps_string)
-        inpt.close()
-        data = outpt.read()
-        outpt.close()
-        return ('pdf', base64.encodestring(data), False)
+        data = graph.create(prog='dot', format='png')
+        return ('png', base64.encodestring(data), False)
 
     def graph_instance_get(self, cursor, user, graph, instance_id, nested=False,
             context=None):
