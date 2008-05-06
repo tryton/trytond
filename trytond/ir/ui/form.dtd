@@ -7,7 +7,7 @@
 <!ATTLIST tree on_write CDATA #IMPLIED>
 <!ATTLIST tree editable (top|bottom) #IMPLIED>
 <!ATTLIST tree sequence CDATA #IMPLIED>
-<!ATTLIST tree color CDATA #IMPLIED>
+<!ATTLIST tree colors CDATA #IMPLIED>
 <!ELEMENT graph (x, y)>
 <!ATTLIST graph type (vbar|hbar|line|pie) "vbar">
 <!ATTLIST graph string CDATA "Unknown">
