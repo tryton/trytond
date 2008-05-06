@@ -1268,6 +1268,10 @@ class ORM(object):
                     args = {}
                     for arg in self._columns[field].on_change:
                         args[arg] = value.get(arg, False)
+                        if arg in self._columns \
+                                and self._columns[arg]._type == 'many2one':
+                            if isinstance(args[arg], (list, tuple)):
+                                args[arg] = args[arg][0]
                     val.update(getattr(self, 'on_change_' + field)(cursor, user,
                         [], args, context=context))
                 if self._columns[field]._type in ('one2many',):
@@ -1528,6 +1532,28 @@ class ORM(object):
             wf_service.trg_write(user, self._name, obj_id, cursor)
         return True
 
+    def __clean_defaults(self, defaults):
+        vals = {}
+        for field in defaults.keys():
+            fld_def = (field in self._columns) and self._columns[field] \
+                    or self._inherit_fields[field][2]
+            if fld_def._type in ('many2one', 'one2one'):
+                if isinstance(defaults[field], (list, tuple)):
+                    vals[field] = defaults[field][0]
+                else:
+                    vals[field] = defaults[field]
+            elif fld_def._type in ('one2many',):
+                obj = self.pool.get(self._columns[field]._obj)
+                vals[field] = []
+                for defaults2 in defaults[field]:
+                    vals2 = obj.__clean_defaults(defaults2)
+                    vals[field].append(('create', vals2))
+            elif fld_def._type in ('many2many',):
+                vals[field] = [('set', defaults[field])]
+            else:
+                vals[field] = defaults[field]
+        return vals
+
     def create(self, cursor, user, vals, context=None):
         """
         cursor = database cursor
@@ -1566,16 +1592,7 @@ class ORM(object):
 
         if len(default):
             defaults = self.default_get(cursor, user, default, context)
-            for field in defaults.keys():
-                fld_def = (field in self._columns) and self._columns[field] \
-                        or self._inherit_fields[field][2]
-                if fld_def._type in ('many2one', 'one2one'):
-                    if isinstance(defaults[field], (list, tuple)):
-                        vals[field] = defaults[field][0]
-                    else:
-                        vals[field] = defaults[field]
-                else:
-                    vals[field] = defaults[field]
+            vals.update(self.__clean_defaults(defaults))
 
         tocreate = {}
         for i in self._inherits:
