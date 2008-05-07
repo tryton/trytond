@@ -32,8 +32,6 @@ class OSVService(Service):
     def __init__(self):
         self.object_name_pool = {}
         self.module_obj_list = {}
-        self.created = []
-        self._sql_error = {}
         Service.__init__(self, 'object_proxy')
         Service.join_group(self, 'web-services')
         Service.export_method(self, self.object_name_list)
@@ -59,10 +57,11 @@ class OSVService(Service):
         except ExceptOSV, inst:
             self.abort_response(inst.name, inst.exc_type, inst.value)
         except IntegrityError, inst:
-            for key in self._sql_error.keys():
-                if key in inst[0]:
-                    self.abort_response('Constraint Error', 'warning',
-                            self._sql_error[key])
+            for obj_name in self.object_name_list():
+                obj = pooler.get_pool(cursor.dbname).get(obj_name)
+                for (key, con, msg) in obj._sql_constraints:
+                    if obj._table + '_' + key in inst[0]:
+                        self.abort_response('Constraint Error', 'warning', msg)
             self.abort_response('Integrity Error', 'warning', inst[0])
         except:
             tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
@@ -97,10 +96,11 @@ class OSVService(Service):
         except ExceptOSV, inst:
             self.abort_response(inst.name, inst.exc_type, inst.value)
         except IntegrityError, inst:
-            for key in self._sql_error.keys():
-                if key in inst[0]:
-                    self.abort_response('Constraint Error', 'warning',
-                            self._sql_error[key])
+            for obj_name in self.object_name_list():
+                obj = pooler.get_pool(cursor.dbname).get(obj_name)
+                for (key, con, msg) in obj._sql_constraints:
+                    if obj._table + '_' + key in inst[0]:
+                        self.abort_response('Constraint Error', 'warning', msg)
             self.abort_response('Integrity Error', 'warning', inst[0])
 
         except:
