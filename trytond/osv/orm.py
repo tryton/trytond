@@ -687,9 +687,6 @@ class ORM(object):
             create = not bool(cursor.fetchone())
 
         for (key, con, msg) in self._sql_constraints:
-
-            self.pool._sql_error[self._table + '_' + key] = msg
-
             cursor.execute("SELECT conname FROM pg_constraint " \
                     "WHERE conname = %s", ((self._table + '_' + key),))
             if not cursor.dictfetchall():
