@@ -323,8 +323,23 @@ class Report(object):
             if hasattr(res, '__str__'):
                 res = res.__str__()
             if isinstance(res, basestring):
-                node.nodeValue = res.decode('utf-8')
-                node.parentNode.parentNode.replaceChild(node, node.parentNode)
+                if '\n' in res:
+                    parent = node.parentNode.parentNode
+                    for val in res.decode('utf-8').split('\n'):
+                        newnode = node.cloneNode(1)
+                        newnode.nodeValue = val
+                        node.parentNode.parentNode.appendChild(newnode)
+                        newnode = node.parentNode.cloneNode(1)
+                        newnode.nodeType = newnode.ELEMENT_NODE
+                        newnode.tagName = 'text:line-break'
+                        newnode.firstChild.nodeValue = ''
+                        newnode.removeAttribute('text:description')
+                        node.parentNode.parentNode.appendChild(newnode)
+                    parent.removeChild(parent.firstChild)
+                    parent.removeChild(parent.lastChild)
+                else:
+                    node.nodeValue = res.decode('utf-8')
+                    node.parentNode.parentNode.replaceChild(node, node.parentNode)
             return res
         if 'language' in localcontext:
             lang = localcontext['language']
