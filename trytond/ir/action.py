@@ -339,15 +339,11 @@ class ActionURL(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    url = fields.text('Action Url',required=True)
-    target = fields.selection([
-       ('new', 'New Window'),
-       ('self', 'This Window'),
-       ], 'Action Target', required=True)
+    url = fields.Char('Action Url', size=None, required=True)
     action = fields.many2one('ir.action', 'Action', required=True)
 
     def default_type(self, cursor, user, context=None):
-        return 'ir.action.act_url'
+        return 'ir.action.url'
 
     def default_target(self, cursor, user, context=None):
         return 'new'

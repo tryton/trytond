@@ -278,5 +278,53 @@
         </record>
         <menuitem parent="menu_action"
             action="act_action_wizard_form" id="menu_action_wizard"/>
+
+        <record model="ir.ui.view" id="action_url_view_form">
+            <field name="model">ir.action.url</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="URL">
+                    <label name="name"/>
+                    <field name="name"/>
+                    <label name="url"/>
+                    <field name="url"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="action_url_view_tree">
+            <field name="model">ir.action.url</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <tree string="URL">
+                    <field name="name" select="1"/>
+                    <field name="type"/>
+                    <field name="url" select="1"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_action_url_form">
+            <field name="name">URLs</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.action.url</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_action_url_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view" ref="action_url_view_tree"/>
+            <field name="act_window" ref="act_action_url_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_action_url_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view" ref="action_url_view_form"/>
+            <field name="act_window" ref="act_action_url_form"/>
+        </record>
+        <menuitem parent="menu_action"
+            action="act_action_url_form" id="menu_action_url"/>
     </data>
 </tryton>
