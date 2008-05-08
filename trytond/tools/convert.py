@@ -97,6 +97,8 @@ class MenuitemTagHandler:
                     values['icon'] = 'terp-graph'
                 elif view_mode and view_mode.startswith('calendar'):
                     values['icon'] = 'terp-calendar'
+            elif action_type == 'ir.action.url':
+                values['icon'] = 'STOCK_JUMP_TO'
             else:
                 values['icon'] = 'STOCK_NEW'
 
