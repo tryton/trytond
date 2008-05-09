@@ -324,19 +324,28 @@ class Report(object):
                 res = res.__str__()
             if isinstance(res, basestring):
                 if '\n' in res:
-                    parent = node.parentNode.parentNode
+                    parent2 = node.parentNode.parentNode
+                    parent = node.parentNode
+                    first = True
+                    newnode = None
                     for val in res.decode('utf-8').split('\n'):
-                        newnode = node.cloneNode(1)
+                        if first:
+                            newnode = node
+                            first = False
+                        else:
+                            newnode = node.cloneNode(1)
                         newnode.nodeValue = val
-                        node.parentNode.parentNode.appendChild(newnode)
+                        parent2.insertBefore(newnode, parent)
                         newnode = node.parentNode.cloneNode(1)
                         newnode.nodeType = newnode.ELEMENT_NODE
                         newnode.tagName = 'text:line-break'
                         newnode.firstChild.nodeValue = ''
-                        newnode.removeAttribute('text:description')
-                        node.parentNode.parentNode.appendChild(newnode)
-                    parent.removeChild(parent.firstChild)
-                    parent.removeChild(parent.lastChild)
+                        if newnode.getAttribute('text:style-name'):
+                            newnode.removeAttribute('text:style-name')
+                        parent2.insertBefore(newnode, parent)
+                    parent2.removeChild(parent)
+                    if newnode:
+                        parent2.removeChild(newnode)
                 else:
                     node.nodeValue = res.decode('utf-8')
                     node.parentNode.parentNode.replaceChild(node, node.parentNode)
