@@ -1,10 +1,1 @@
-
-== Howto activate SSL on trytond ==
-
-- You need to have OpenSSL and pyOpenSSL installed on your system.
-- Generate a self-signed certificate with this command:
-\\
-    openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes
-- Start the trytond server with those options:
-\\
-    trytond.py -S --privatekey server.pem --certificate server.pem
+http://wiki.tryton.org/SSLHowto
