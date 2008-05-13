@@ -24,14 +24,13 @@ class Env(dict):
         self.model = model
         self.obj_id = obj_id
         self.obj = pooler.get_pool(cursor.dbname).get(model)
+        self.browse = self.obj.browse(cursor, user, obj_id)
         self.columns = self.obj._columns.keys() + \
                 self.obj._inherit_fields.keys()
 
     def __getitem__(self, key):
-        if (key in self.columns) and (not super(Env, self).__contains__(key)):
-            res = self.obj.read(self.cursor, self.user, self.obj_id,
-                    [key])[key]
-            super(Env, self).__setitem__(key, res)
+        if key in self.columns:
+            res = self.browse[key]
             return res
         elif key in dir(self.obj):
             return EnvCall(self.obj, self.cursor, self.user, key, self.obj_id)
