@@ -320,6 +320,8 @@ class Report(object):
                             localcontext=localcontext)
             localcontext['time'] = time
             res = eval(node.nodeValue, localcontext)
+            if isinstance(res, bool):
+                res = ''
             if hasattr(res, '__str__'):
                 res = res.__str__()
             if isinstance(res, basestring):
