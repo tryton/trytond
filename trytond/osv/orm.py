@@ -433,13 +433,13 @@ class ORM(object):
                                 "WHERE c.relname = %s " \
                                     "AND a.attname = %s " \
                                     "AND c.oid = a.attrelid",
-                                    (field._obj, field._fields_id))
+                                    (field._obj, field._field))
                         (res,) = cursor.fetchone()
                         if not res:
                             cursor.execute("ALTER TABLE \"%s\" " \
                                     "ADD FOREIGN KEY (%s) " \
                                     "REFERENCES \"%s\" ON DELETE SET NULL" % \
-                                    (self._obj, field._fields_id, field._table))
+                                    (self._obj, field._field, field._table))
                 elif isinstance(field, fields.Many2Many):
                     cursor.execute("SELECT relname FROM pg_class " \
                             "WHERE relkind in ('r','v') AND relname=%s",
@@ -2129,11 +2129,11 @@ class ORM(object):
                     if field_obj._table_query:
                         table_query = '(' + field_obj._table_query + ') AS '
                     if len(ids2) < ID_MAX:
-                        query1 = 'SELECT "' + field._fields_id + '" ' \
+                        query1 = 'SELECT "' + field._field + '" ' \
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
-                                    ','.join(['%s' for x in sub_ids2]) + ')'
-                        query2 = [str(x) for x in sub_ids2]
+                                    ','.join(['%s' for x in ids2]) + ')'
+                        query2 = [str(x) for x in ids2]
                         args[i] = ('id', 'inselect', (query1, query2))
                     else:
                         ids3 = []
@@ -2141,7 +2141,7 @@ class ORM(object):
                                 (len(ids2) % ID_MAX)):
                             sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
                             cursor.execute(
-                                'SELECT "' + field._fields_id + \
+                                'SELECT "' + field._field + \
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')',
