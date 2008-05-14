@@ -73,7 +73,7 @@
 <!ATTLIST button string CDATA "Unknown">
 <!ATTLIST button icon CDATA #IMPLIED>
 <!ATTLIST button type (workflow|object|action) "workflow">
-<!ATTLIST button confirm (0|1) "0">
+<!ATTLIST button confirm CDATA #IMPLIED>
 <!ATTLIST button name CDATA #REQUIRED>
 <!ATTLIST button states CDATA #IMPLIED>
 <!ELEMENT notebook (page*)>
