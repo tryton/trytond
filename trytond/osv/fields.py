@@ -120,7 +120,7 @@ reference = Reference
 class Char(Column):
     _type = 'char'
 
-    def __init__(self, string, size, **args):
+    def __init__(self, string, size=None, **args):
         Column.__init__(self, string=string, size=size, **args)
         self._symbol_set = (self._symbol_c, self._symbol_set_char)
 
