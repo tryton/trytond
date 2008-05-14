@@ -97,13 +97,34 @@
             <field name="view" ref="module_view_form"/>
             <field name="act_window" ref="act_module_form"/>
         </record>
+        <menuitem parent="menu_modules"
+            action="act_module_form" id="menu_module_form"/>
+
+        <record model="ir.action.act_window" id="act_module_form2">
+            <field name="name">Modules</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.module.module</field>
+            <field name="view_type">form</field>
+            <field name="domain">[('category', 'child_of', [active_id])]</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_module_form2_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view" ref="module_view_tree"/>
+            <field name="act_window" ref="act_module_form2"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_module_form2_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view" ref="module_view_form"/>
+            <field name="act_window" ref="act_module_form2"/>
+        </record>
         <record model="ir.action.keyword" id="act_category_keyword1">
-            <field name="action" ref="act_module_form"/>
+            <field name="action" ref="act_module_form2"/>
             <field name="keyword">tree_open</field>
             <field name="model">ir.module.category,0</field>
         </record>
-        <menuitem parent="menu_modules"
-            action="act_module_form" id="menu_module_form"/>
+
         <record model="ir.ui.view" id="config_wizard_item_view_tree">
             <field name="model">ir.module.module.config_wizard.item</field>
             <field name="type">tree</field>
