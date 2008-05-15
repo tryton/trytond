@@ -175,6 +175,8 @@ class GenericXMLRPCRequestHandler:
         except Exception, exp:
             tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
                 sys.exc_type, sys.exc_value, sys.exc_traceback))
+            for path in sys.path:
+                tb_s = tb_s.replace(path, '')
             if CONFIG['debug_mode']:
                 import pdb
                 traceb = sys.exc_info()[2]
@@ -349,6 +351,8 @@ class TinySocketClientThread(threading.Thread):
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(sys.exc_type,
                             sys.exc_value, sys.exc_traceback))
+                for path in sys.path:
+                    tb_s = tb_s.replace(path, '')
                 if CONFIG['debug_mode']:
                     import pdb
                     tback = sys.exc_info()[2]
