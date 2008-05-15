@@ -460,7 +460,15 @@ class Report(object):
                             (self._name,
                                 localcontext.get('language', False) or 'en_US'))
         if date:
-            date = time.strptime(str(value), '%Y-%m-%d')
-            return time.strftime(locale.nl_langinfo(locale.D_FMT).\
-                    replace('%y', '%Y'), date)
+            # length of date like 2001-01-01 is ten:
+            if len(str(value)) == 10:
+                locale_format = locale.D_FMT
+                string_pattern = '%Y-%m-%d'
+            else:
+                locale_format = locale.D_T_FMT
+                string_pattern = '%Y-%m-%d %H:%M:%S'
+            date = time.strptime(str(value), string_pattern)
+            return time.strftime(locale.nl_langinfo(locale_format).\
+                                     replace('%y', '%Y'), date)
+
         return locale.format('%.' + str(digits) + 'f', value, True)
