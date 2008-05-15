@@ -371,7 +371,7 @@ class Report(object):
         pnode.removeChild(node)
         tnode.parentNode.parentNode.removeChild(tnode.parentNode)
 
-        if not len(lst):
+        if not lst:
             return pnode
         for i in range(len(lst)):
             newnode = node.cloneNode(1)
