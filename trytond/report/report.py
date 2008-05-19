@@ -228,6 +228,8 @@ class Report(object):
                 browse(cursor, user, user)
         localcontext['_language_cache'] = {}
         localcontext.update(context)
+        if not report.report_content:
+            raise ExceptOSV('Error', 'Missing report file!')
         content_io = StringIO.StringIO(report.report_content)
         content_z = zipfile.ZipFile(content_io, mode='r')
         content_xml = content_z.read('content.xml')
