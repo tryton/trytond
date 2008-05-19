@@ -25,11 +25,11 @@
                     <field name="number_next"/>
                     <separator string="Legend (for prefix, suffix)" colspan="4"/>
                     <label string="Year:"/>
-                    <label string="%%(year)s" colspan="3" align="0.0"/>
+                    <label string="${year}" colspan="3" align="0.0"/>
                     <label string="Month:"/>
-                    <label string="%%(month)s" colspan="3" align="0.0"/>
+                    <label string="${month}" colspan="3" align="0.0"/>
                     <label string="Day:"/>
-                    <label string="%%(day)s" colspan="3" align="0.0"/>
+                    <label string="${day}" colspan="3" align="0.0"/>
                 </form>
                 ]]>
             </field>
