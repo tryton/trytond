@@ -393,12 +393,6 @@
             <field name="operand">False</field>
             <field name="rule_group" ref="rule_group_action"/>
         </record>
-        <record model="ir.action.wizard" id="ir.act_module_update_list">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
-        </record>
-        <record model="ir.ui.menu" id="ir.menu_module_update_list">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
-        </record>
         <record model="ir.action.wizard" id="ir.act_module_install_upgrade">
             <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
         </record>

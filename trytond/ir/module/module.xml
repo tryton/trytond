@@ -175,39 +175,7 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.action.wizard" id="act_module_update_list">
-            <field name="name">Update Module List</field>
-            <field name="wiz_name">ir.module.module.update_list</field>
-        </record>
-        <record model="ir.ui.view" id="module_update_list_init_view_form">
-            <field name="model">ir.module.module.update_list.init</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Update Module List" col="1">
-                    <label string="This function will check for new modules in the 'modules' path."
-                        align="0.0"/>
-                </form>
-                ]]>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="module_update_list_update_view_form">
-            <field name="model">ir.module.module.update_list.update</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="New modules">
-                    <label name="add"/>
-                    <field name="add" colspan="3"/>
-                </form>
-                ]]>
-            </field>
-        </record>
 
-        <menuitem name="Update Module List" parent="menu_modules"
-            action="act_module_update_list"
-            type="wizard"
-            id="menu_module_update_list"/>
         <record model="ir.action.wizard" id="act_module_install_upgrade">
             <field name="name">Install / Upgrade Modules</field>
             <field name="wiz_name">ir.module.module.install_upgrade</field>
@@ -217,6 +185,7 @@
             <field name="keyword">form_action</field>
             <field name="model">ir.module.module,0</field>
         </record>
+
         <record model="ir.ui.view" id="module_install_upgrade_init_view_form">
             <field name="model">ir.module.module.install_upgrade.init</field>
             <field name="type">form</field>
@@ -238,6 +207,7 @@
                 ]]>
             </field>
         </record>
+
         <record model="ir.ui.view" id="module_install_upgrade_start_view_form">
             <field name="model">ir.module.module.install_upgrade.start</field>
             <field name="type">form</field>
@@ -255,6 +225,7 @@
                 ]]>
             </field>
         </record>
+
         <menuitem name="Install \ Upgrade Modules"
             parent="menu_modules"
             action="act_module_install_upgrade"

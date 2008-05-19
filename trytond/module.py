@@ -333,4 +333,9 @@ def load_modules(database, update_module=False, lang=None):
                 "WHERE state IN ('to remove')", ('uninstalled',))
         cursor.commit()
         pooler.restart_pool(cursor.dbname)
+
+    pool = pooler.get_pool(cursor.dbname)
+    module_obj = pool.get('ir.module.module')
+    module_obj.update_list(cursor, 1)
+    cursor.commit()
     cursor.close()

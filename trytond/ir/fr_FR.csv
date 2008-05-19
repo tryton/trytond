@@ -1,5 +1,6 @@
 type,name,res_id,src,value,fuzzy
 field,"ir.action.act_window,action",0,Action,Action,0
+field,"ir.action.act_window,act_window_views",0,Views,Vues,0
 field,"ir.action.act_window,auto_refresh",0,Auto-Refresh,Auto-rafraîchissement,0
 field,"ir.action.act_window,context",0,Context Value,Valeur contextuelle,0
 field,"ir.action.act_window,domain",0,Domain Value,Valeur du domain,0
@@ -8,7 +9,6 @@ field,"ir.action.act_window,res_model",0,Model,Modèle,0
 field,"ir.action.act_window,src_model",0,Source model,Modèle source,0
 field,"ir.action.act_window,usage",0,Action Usage,Utilisation,0
 field,"ir.action.act_window.view,act_window",0,Action,Action,0
-field,"ir.action.act_window,act_window_views",0,Views,Vues,0
 field,"ir.action.act_window.view,multi",0,On multiple doc.,Sur plusieurs doc.,0
 field,"ir.action.act_window,views",0,Views,Vues,0
 field,"ir.action.act_window.view,sequence",0,Sequence,Séquence,0
@@ -27,12 +27,11 @@ field,"ir.action.report,report_content_data",0,Content,Contenu,0
 field,"ir.action.report,report_name",0,Internal Name,Nom interne,0
 field,"ir.action,type",0,Type,Type,0
 field,"ir.action.url,action",0,Action,Action,0
-field,"ir.action.url,target",0,Action Target,Cible,0
 field,"ir.action.url,url",0,Action Url,Url,0
 field,"ir.action,usage",0,Usage,Utilisation,0
 field,"ir.action.wizard,action",0,Action,Action,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Nom du wizard,0
-field,"ir.attachment,datas",0,Data,Donnée,0
+field,"ir.attachment,datas",0,Datas,Donnée,0
 field,"ir.attachment,description",0,Description,Description,0
 field,"ir.attachment,link",0,Link,Lien,0
 field,"ir.attachment,name",0,Attachment Name,Nom de l'attachement,0
@@ -67,7 +66,6 @@ field,"ir.lang,name",0,Name,Nom,0
 field,"ir.lang,translatable",0,Translatable,Traduisible,0
 field,"ir.model.access,group",0,Group,Groupe,0
 field,"ir.model.access,model",0,Model,Modèle,0
-field,"ir.model.access,name",0,Name,Nom,0
 field,"ir.model.access,perm_create",0,Create Access,Accès à la creation,0
 field,"ir.model.access,perm_read",0,Read Access,Accès à la lecture,0
 field,"ir.model.access,perm_unlink",0,Delete Permission,Permission de suppression,0
@@ -79,7 +77,6 @@ field,"ir.model.data,fs_id",0,Identifier on File System,Identifiant sur le syst�
 field,"ir.model.data,model",0,Model,Modèle,0
 field,"ir.model.data,module",0,Module,Module,0
 field,"ir.model.data,values",0,Values,Valeurs,0
-field,"ir.model,field",0,Fields,Champs,0
 field,"ir.model.field,field_description",0,Field Description,Champ de description,0
 field,"ir.model.field,group_name",0,Group Name,Nom du groupe,0
 field,"ir.model.field,groups",0,Groups,Groupes,0
@@ -98,31 +95,22 @@ field,"ir.module.category,name",0,Name,Nom,0
 field,"ir.module.category,parent",0,Parent Category,Catégorie parente,0
 field,"ir.module.module,author",0,Author,Auteur,0
 field,"ir.module.module,category",0,Category,Catégorie,0
-field,"ir.module.module,demo",0,Demo data,Donnée de démonstration,0
 field,"ir.module.module,dependencies",0,Dependencies,Dépendances,0
 field,"ir.module.module.dependency,module",0,Module,Module,0
 field,"ir.module.module.dependency,name",0,Name,Nom,0
 field,"ir.module.module.dependency,state",0,State,État,0
 field,"ir.module.module,description",0,Description,Description,0
-field,"ir.module.module,installed_version",0,Installed version,Version installée,0
-field,"ir.module.module,latest_version",0,Latest version,Dernière version,0
 field,"ir.module.module,license",0,License,Licence,0
 field,"ir.module.module,name",0,Name,Nom,0
 field,"ir.module.module,shortdesc",0,Short description,Description courte,0
 field,"ir.module.module,state",0,State,État,0
 field,"ir.module.module,url",0,URL,URL,0
 field,"ir.module.module,website",0,Website,Site web,0
-field,"ir.module.repository,active",0,Active,Actif,0
-field,"ir.module.repository,filter",0,Filter,Filtre,0
-field,"ir.module.repository,name",0,Name,Nom,0
-field,"ir.module.repository,sequence",0,Sequence,Séquence,0
-field,"ir.module.repository,url",0,Url,Url,0
 field,"ir.property,field",0,Field,Champ,0
 field,"ir.property,name",0,Name,Nom,0
 field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Valeur,0
 field,"ir.rule,field",0,Field,Champ,0
-field,"ir.rule.group,global",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Groupes,0
 field,"ir.rule.group,model",0,Model,Modèle,0
 field,"ir.rule.group,name",0,Name,Nom,0
@@ -152,7 +140,6 @@ field,"ir.translation,value",0,Translation Value,Valeur de traduction,0
 field,"ir.ui.menu,action",0,Action,Action,0
 field,"ir.ui.menu,childs",0,Childs,Enfants,0
 field,"ir.ui.menu,complete_name",0,Complete Name,Nom complet,0
-field,"ir.ui.menu,groups_id",0,Groups,Groupes,0
 field,"ir.ui.menu,icon",0,Icon,Icône,0
 field,"ir.ui.menu,name",0,Menu,Menu,0
 field,"ir.ui.menu,parent",0,Parent Menu,Menu parent,0
@@ -182,16 +169,6 @@ help,"ir.cron,priority",0,"0=Very Urgent
 10 = Pas urgent",0
 help,"ir.model.data,db_id",0,The id of the record in the database.,L'id de l'enregistrement dans la base de données,0
 help,"ir.model.data,fs_id",0,The id of the record as known on the file system.,L'id de l'enregistrement comme connue sur le système de fichier,0
-help,"ir.module.repository,filter",0,"Regexp to search module on the repository webpage:
-- The first parenthesis must match the name of the module.
-- The second parenthesis must match all the version number.
-- The last parenthesis must match the extension of the module.","Expression réguliaire pour la recherche de module sur le dépot de la page web:
-- La premiere parenthèse doit correspondre au nom du module.
-- La seconde doit correspondre au numéro de version complet.
-- La dernière doir correspondre à l'extension du module.",0
-help,"ir.rule.group,global",0,"Make the rule global 
-or it needs to be put on a group or user","Rend la règle globale
-ou elle doit être mise sur un group ou un utilisateur",0
 help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
 model,"ir.ui.menu,name",menu_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_act_action,Actions,Actions,0
@@ -214,13 +191,11 @@ model,"ir.ui.menu,name",menu_module_form,Modules,Modules,0
 model,"ir.ui.menu,name",menu_property_form,Properties,Propriétés,0
 model,"ir.ui.menu,name",menu_rule_group_form,Record Rules,Règles d'enregistrement,0
 model,"ir.ui.menu,name",menu_action_report_form,Reports,Rapports,0
-model,"ir.ui.menu,name",menu_repository_form,Repositories,Dépots,0
 model,"ir.ui.menu,name",menu_cron_form,Scheduled Actions,Actions planifiées,0
 model,"ir.ui.menu,name",menu_sequence_form,Sequences,Séquences,0
 model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de la séquence,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traductions,0
 model,"ir.ui.menu,name",menu_ui,UI,UI,0
-model,"ir.ui.menu,name",menu_module_update_list,Update Module List,Mettre à jour la liste des modules,0
 model,"ir.ui.menu,name",menu_translation_update,Update Translations,Mettre à jour les traductions,0
 model,"ir.ui.menu,name",menu_view,Views,Vues,0
 model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Raccourcis de la vue,0
@@ -233,8 +208,6 @@ selection,"ir.action.keyword,keyword",0,Action tree,Arbre,0
 selection,"ir.action.keyword,keyword",0,Form relate,Formulaire relié,0
 selection,"ir.action.keyword,keyword",0,Open tree,Ouvre l'arbre,0
 selection,"ir.action.keyword,keyword",0,Print form,Imprimer le formulaire,0
-selection,"ir.action.url,target",0,New Window,Nouvelle fenêtre,0
-selection,"ir.action.url,target",0,This Window,Cette fenêtre,0
 selection,"ir.cron,interval_type",0,Days,Jours,0
 selection,"ir.cron,interval_type",0,Hours,Heures,0
 selection,"ir.cron,interval_type",0,Minutes,Minutes,0
@@ -364,21 +337,6 @@ selection,"ir.ui.menu,icon",0,STOCK_ZOOM_100,,0
 selection,"ir.ui.menu,icon",0,STOCK_ZOOM_FIT,,0
 selection,"ir.ui.menu,icon",0,STOCK_ZOOM_IN,,0
 selection,"ir.ui.menu,icon",0,STOCK_ZOOM_OUT,,0
-selection,"ir.ui.menu,icon",0,terp-account,,0
-selection,"ir.ui.menu,icon",0,terp-administration,,0
-selection,"ir.ui.menu,icon",0,terp-calendar,,0
-selection,"ir.ui.menu,icon",0,terp-crm,,0
-selection,"ir.ui.menu,icon",0,terp-graph,,0
-selection,"ir.ui.menu,icon",0,terp-hr,,0
-selection,"ir.ui.menu,icon",0,terp-mrp,,0
-selection,"ir.ui.menu,icon",0,terp-partner,,0
-selection,"ir.ui.menu,icon",0,terp-product,,0
-selection,"ir.ui.menu,icon",0,terp-project,,0
-selection,"ir.ui.menu,icon",0,terp-purchase,,0
-selection,"ir.ui.menu,icon",0,terp-report,,0
-selection,"ir.ui.menu,icon",0,terp-sale,,0
-selection,"ir.ui.menu,icon",0,terp-stock,,0
-selection,"ir.ui.menu,icon",0,terp-tools,,0
 selection,"ir.ui.view,type",0,Calendar,Calendrier,0
 selection,"ir.ui.view,type",0,Form,Formulaire,0
 selection,"ir.ui.view,type",0,Graph,Graphique,0
@@ -428,11 +386,8 @@ view,ir.module.module.install_upgrade.start,0,System upgrade done,Mis à jour du
 view,ir.module.module.install_upgrade.start,0,The modules have been upgraded / installed !,Les modules ont été mis à jour / installés !,0
 view,ir.module.module.install_upgrade.start,0,We suggest you to reload the menu tab (Ctrl+t Ctrl+r).,Nous vous suggérons de recharger l'onglet du menu (Ctrl+t Ctrl+r),0
 view,ir.module.module.install_upgrade.start,0,You may have to reinstall some language pack.,Vous devriez réinstaller quelque langue.,0
-view,ir.module.module.update_list.init,0,This function will check for new modules in the 'modules' path and on module repositories:,Cette fonction recherchera de nouveaux modules dans le chemin 'modules' et sur les dépots de module:,0
 view,ir.module.module.update_list.init,0,Update Module List,Mettre à jour la liste des modules,0
 view,ir.module.module.update_list.update,0,New modules,Nouveau modules,0
-view,ir.module.repository,0,Repositories,Dépots,0
-view,ir.module.repository,0,Repository,Dépot,0
 view,ir.property,0,Properties,Propriétés,0
 view,ir.property,0,Property,Propriété,0
 view,ir.rule,0,Test,Test,0
@@ -440,13 +395,10 @@ view,ir.rule.group,0,"If there is no test defined, the rule is always satified i
 view,ir.rule.group,0,Record rules,Règles d'enregistrement,0
 view,ir.rule.group,0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
 view,ir.sequence,0,Day:,Jour:,0
-view,ir.sequence,0,%%(day)s,,0
 view,ir.sequence,0,"Legend (for prefix, suffix)","Légende (pour préfixe, suffixe)",0
 view,ir.sequence,0,Month:,Mois :,0
-view,ir.sequence,0,%%(month)s,,0
 view,ir.sequence,0,Sequences,Séquences,0
 view,ir.sequence,0,Year:,Année :,0
-view,ir.sequence,0,%%(year)s,,0
 view,ir.sequence.type,0,Sequence Type,Type de la séquence,0
 view,ir.translation,0,Translations,Traductions,0
 view,ir.ui.menu,0,Menu,Menu,0
@@ -454,7 +406,6 @@ view,ir.ui.view,0,View,Vue,0
 view,ir.ui.view_sc,0,Shortcut,Raccourcis,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Démarrer la mis à jour,0
-wizard_button,"ir.module.module.install_upgrade,start,end",0,Close,Fermer,0
 wizard_button,"ir.module.module.update_list,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.module.module.update_list,init,update",0,Check new modules,Chercher de nouveaux modules,0
 wizard_button,"ir.module.module.update_list,update,open_window",0,Ok,Ok,0
