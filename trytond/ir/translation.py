@@ -421,6 +421,8 @@ class Translation(OSV, Cacheable):
                         if model in db_id2fs_id:
                             res_id = db_id2fs_id[model].get(res_id, res_id)
                     row.append(res_id)
+                elif field == 'fuzzy':
+                    row.append(int(translation[field]))
                 else:
                     row.append(translation[field])
             writer.writerow(row)
