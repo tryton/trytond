@@ -227,13 +227,14 @@ class Module(OSV):
             def get_parents(name, graph):
                 parents = []
                 for node in graph:
-                    if node.depth == graph[name].depth - 1 \
-                            and graph[name] in node.childs:
-                        parents.append(node.name)
-                parents2 = []
+                    if graph[name] in node.childs:
+                        if node.name not in parents:
+                            parents.append(node.name)
                 for parent in parents:
-                    parents2 += get_parents(parent, graph)
-                return parents + parents2
+                    for parent2 in get_parents(parent, graph):
+                        if parent2 not in parents:
+                            parents.append(parent2)
+                return parents
             dependencies = get_parents(module.name, graph)
             module_install_ids = self.search(cursor, user, [
                 ('name', 'in', dependencies),
