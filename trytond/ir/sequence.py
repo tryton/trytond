@@ -1,5 +1,6 @@
 import time
 from trytond.osv import fields, OSV, ExceptORM
+from string import Template
 
 
 class SequenceType(OSV):
@@ -26,6 +27,13 @@ class Sequence(OSV):
     number_increment = fields.Integer('Increment Number', required=True)
     padding = fields.Integer('Number padding', required=True)
 
+    def __init__(self):
+        super(Sequence, self).__init__()
+        self._constraints += [
+            ('check_prefix_suffix', 'Invalid prefix/suffix',
+                ['prefix', 'suffix']),
+        ]
+
     def default_active(self, cursor, user, context=None):
         return 1
 
@@ -42,12 +50,23 @@ class Sequence(OSV):
         cursor.execute('select code, name from ir_sequence_type')
         return cursor.fetchall()
 
+    def check_prefix_suffix(self, cursor, user, ids):
+        "Check prefix and suffix"
+
+        for sequence in self.browse(cursor, user, ids):
+            try:
+                self._process(sequence.prefix)
+                self._process(sequence.suffix)
+            except:
+                return False
+        return True
+
     def _process(self, string):
-        return (string or '') % {
-                'year':time.strftime('%Y'),
-                'month': time.strftime('%m'),
-                'day':time.strftime('%d'),
-                }
+        return Template(string or '').substitute(
+                year=time.strftime('%Y'),
+                month=time.strftime('%m'),
+                day=time.strftime('%d'),
+                )
 
     def get_id(self, cursor, user, sequence_id, test='id=%s'):
         cursor.execute('lock table ir_sequence')
