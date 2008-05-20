@@ -308,20 +308,27 @@ class Report(object):
     def _parse_text(self, cursor, user, node, localcontext, context,
             node_context):
         if node.parentNode.tagName == 'text:text-input':
-            localcontext['RepeatIn'] = lambda lst, name, parents=False: \
+            ctx = localcontext.copy()
+            ctx.update(context)
+            ctx['RepeatIn'] = lambda lst, name, parents=False: \
                     self.repeat_in(lst, name, parents=parents,
                             tnode=node, node_context=node_context)
-            localcontext['setTag'] = lambda oldtag, newtag, attrs=None: \
+            ctx['setTag'] = lambda oldtag, newtag, attrs=None: \
                     self.set_tag(oldtag, newtag, attrs=attrs, tnode=node)
-            localcontext['removeParentNode'] = lambda tag='p': \
+            ctx['removeParentNode'] = lambda tag='p': \
                     self.remove_parent_node(tag, tnode=node)
-            localcontext['setLang'] = lambda lang: \
+            ctx['setLang'] = lambda lang: \
                     self.set_lang(lang, localcontext)
-            localcontext['formatLang'] = lambda value, digits=2, date=False: \
+            ctx['formatLang'] = lambda value, digits=2, date=False: \
                     self.format_lang(value, digits=digits, date=date,
                             localcontext=localcontext)
-            localcontext['time'] = time
-            res = eval(node.nodeValue, localcontext)
+            ctx['time'] = time
+            try:
+                res = eval(node.nodeValue, ctx)
+            except:
+                Logger().notify_channel('report', LOG_ERROR,
+                        'Error on eval "%s"' % node.nodeValue)
+                raise
             if isinstance(res, bool):
                 res = ''
             if hasattr(res, '__str__'):
