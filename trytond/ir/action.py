@@ -256,18 +256,19 @@ class ActionActWindow(OSV):
         ('tree','Tree'),
         ('form','Form'),
         ('board', 'Board'),
-        ],
-       string='Type of view')
+        ], string='Type of view')
     usage = fields.Char('Action Usage', size=32)
     act_window_views = fields.One2Many('ir.action.act_window.view',
-       'act_window', 'Views')
+            'act_window', 'Views')
     views = fields.Function('views_get_fnc', type='binary',
-       string='Views')
+            string='Views')
     limit = fields.Integer('Limit',
-       help='Default limit for the list view')
+            help='Default limit for the list view')
     auto_refresh = fields.Integer('Auto-Refresh',
-       help='Add an auto-refresh on the view')
+            help='Add an auto-refresh on the view')
     action = fields.Many2One('ir.action', 'Action', required=True)
+    window_name = fields.Boolean('Window Name', required=True,
+            help='Use the action name as window name')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.act_window'
@@ -283,6 +284,9 @@ class ActionActWindow(OSV):
 
     def default_auto_refresh(self, cursor, user, context=None):
         return 0
+
+    def default_window_name(self, cursor, user, context=None):
+        return True
 
     def views_get_fnc(self, cursor, user, ids, name, arg, context=None):
         res = {}
