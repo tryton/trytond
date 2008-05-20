@@ -667,8 +667,7 @@ def post_import(cursor, module, to_delete):
                     "WHERE act_to = %s", (db_id, db_id))
             # ... and force the record to follow them:
             for wkf_model,wkf_model_id in wkf_todo:
-                wf_service = netsvc.LocalService("workflow")
-                wf_service.trg_write(uid, model, id, cr)
+                wf_service.trg_write(user, wkf_model, wkf_model_id, cursor)
 
             # Collect the ids of these transition in model_data
             cursor.execute(
