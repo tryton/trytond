@@ -178,7 +178,7 @@ class GenericXMLRPCRequestHandler:
             meth = getattr(service, method)
             res = meth(*params)
             return res
-        except Exception, exp:
+        except:
             tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
                 sys.exc_type, sys.exc_value, sys.exc_traceback))
             for path in sys.path:
@@ -187,7 +187,7 @@ class GenericXMLRPCRequestHandler:
                 import pdb
                 traceb = sys.exc_info()[2]
                 pdb.post_mortem(traceb)
-            raise xmlrpclib.Fault(str(exp), tb_s)
+            raise xmlrpclib.Fault(str(sys.exc_value), tb_s)
 
 
 class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
@@ -353,7 +353,7 @@ class TinySocketClientThread(threading.Thread):
                 method = getattr(service, msg[1])
                 res = method(*msg[2:])
                 pysocket.send(res)
-            except Exception, exp:
+            except:
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(sys.exc_type,
                             sys.exc_value, sys.exc_traceback))
@@ -363,7 +363,7 @@ class TinySocketClientThread(threading.Thread):
                     import pdb
                     tback = sys.exc_info()[2]
                     pdb.post_mortem(tback)
-                pysocket.send(str(exp), exception=True, traceback=tb_s)
+                pysocket.send(str(sys.exc_value), exception=True, traceback=tb_s)
         pysocket.disconnect()
         self.threads.remove(self)
         return True
@@ -412,7 +412,7 @@ class TinySocketServerThread(threading.Thread):
                     self.threads.append(c_thread)
                     c_thread.start()
             self.socket.close()
-        except Exception, exp:
+        except:
             self.socket.close()
             return False
 
