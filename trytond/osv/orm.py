@@ -75,13 +75,9 @@ class BrowseRecord(object):
             elif hasattr(self._table, name):
                 return getattr(self._table, name)
             else:
-                logger = Logger()
-                stack = ''.join(traceback.format_stack())
-                logger.notify_channel('orm', LOG_ERROR,
-                        "Programming error: field '%s' " \
-                                "does not exist in object '%s'!\n%s" % \
-                                (name, self._table._name, stack))
-                return False
+                raise ExceptORM('Error', 'Programming error: field "%s" ' \
+                        'does not exist in object "%s"!' \
+                        % (name, self._table._name))
 
             # if the field is a classic one or a many2one,
             # we'll fetch all classic and many2one fields
