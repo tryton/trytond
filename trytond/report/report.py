@@ -12,6 +12,7 @@ import zipfile
 import locale
 import time
 import os
+import datetime
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -323,6 +324,7 @@ class Report(object):
                     self.format_lang(value, digits=digits, date=date,
                             localcontext=localcontext)
             ctx['time'] = time
+            ctx['datetime'] = datetime
             try:
                 res = eval(node.nodeValue, ctx)
             except:
