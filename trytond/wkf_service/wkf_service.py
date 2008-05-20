@@ -1,5 +1,6 @@
 "Workflow service"
 from trytond.netsvc import Service
+from trytond.osv import ExceptOSV
 import instance
 
 
@@ -58,6 +59,15 @@ class WorkflowService(Service):
             wkf_ids = cursor.fetchall()
             self.wkf_on_create_cache[cursor.dbname][res_type] = wkf_ids
         for (wkf_id,) in wkf_ids:
+            cursor.execute(
+                "SELECT id FROM wkf_instance " \
+                    "WHERE res_type = %s AND res_id = %s "\
+                    "AND workflow = %s AND state = 'active'",
+                (res_type, res_id, wkf_id,))
+            if cursor.rowcount:
+                raise ExceptOSV("Error", "Another active workflow already "\
+                                    "exist for this record: %s@%s."% \
+                                    (res_id, res_type))
             instance.create(cursor, ident, wkf_id)
 
     def trg_validate(self, user, res_type, res_id, signal, cursor):
