@@ -163,9 +163,11 @@
                     <label name="context"/>
                     <field name="context" colspan="5"/>
                     <label name="limit"/>
-                    <field name="limit" colspan="2"/>
+                    <field name="limit"/>
                     <label name="auto_refresh"/>
-                    <field name="auto_refresh" colspan="2"/>
+                    <field name="auto_refresh"/>
+                    <label name="window_name"/>
+                    <field name="window_name"/>
                     <field name="keywords" colspan="6">
                         <tree string="Keywords">
                             <field name="keyword"/>
