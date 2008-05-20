@@ -1764,7 +1764,7 @@ class ORM(object):
                     del res[i]
         return res
 
-    def view_header_get(self, cursor, user, view_id=None, view_type='form',
+    def view_header_get(self, cursor, user, value, view_type='form',
             context=None):
         """
         Overload this method if you need a window title
@@ -1809,7 +1809,10 @@ class ORM(object):
 
         elif node.nodeType == node.ELEMENT_NODE \
                 and node.localName in ('form', 'tree', 'graph'):
-            result = self.view_header_get(cursor, user, False, node.localName,
+            value = ''
+            if node.hasAttribute('string'):
+                value = node.getAttribute('string').encode('utf8')
+            result = self.view_header_get(cursor, user, value, node.localName,
                     context)
             if result:
                 node.setAttribute('string', result.decode('utf8'))
