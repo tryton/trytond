@@ -100,6 +100,7 @@ class Directory(OSV):
                 else:
                     object_name = None
                     object_id = False
+                return object_name, object_id
             else:
                 object_id = int(name.rsplit('-', 1)[1].strip())
         if uri:
