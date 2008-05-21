@@ -116,6 +116,8 @@ class Directory(OSV):
                 ], context=context)
             for directory in self.browse(cursor, user, directory_ids,
                     context=context):
+                if '/' in directory.name:
+                    continue
                 res.append(directory.name)
             return res
         object_name, object_id = self._uri2object(cursor, user, uri,
@@ -128,10 +130,14 @@ class Directory(OSV):
                         eval(directory.domain or "[]"), context=context)
                 for child_id, child_name in model_obj.name_get(cursor, user,
                         model_ids, context=context):
+                    if '/' in child_name:
+                        continue
                     res.append(child_name + '-' + str(child_id))
                 return res
             else:
                 for child in directory.childs:
+                    if '/' in child.name:
+                        continue
                     res.append(child.name)
         if object_name not in ('ir.attachment', 'ir.action.report'):
             attachment_obj = self.pool.get('ir.attachment')
@@ -142,6 +148,8 @@ class Directory(OSV):
             for attachment in attachment_obj.browse(cursor, user, attachment_ids,
                     context=context):
                 if attachment.name and not attachment.link:
+                    if '/' in attachment.name:
+                        continue
                     res.append(attachment.name)
         return res
 
