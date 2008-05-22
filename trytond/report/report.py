@@ -476,6 +476,8 @@ class Report(object):
                 locale_format = locale.D_FMT
                 string_pattern = '%Y-%m-%d'
             else:
+                if len(str(value)) > 19:
+                    value = str(value)[:19]
                 locale_format = locale.D_T_FMT
                 string_pattern = '%Y-%m-%d %H:%M:%S'
             date = time.strptime(str(value), string_pattern)
