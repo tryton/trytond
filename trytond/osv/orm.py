@@ -8,6 +8,7 @@ from trytond.tools import Cache
 import md5
 import time
 import traceback
+import datetime
 
 ID_MAX = 1000
 
@@ -787,7 +788,7 @@ class ORM(object):
         return user
 
     def default_create_date(self, cursor, user, context=None):
-        return time.strftime("%Y-%m-%d %H:%M:%S")
+        return datetime.datetime.today()
 
     def browse(self, cursor, user, select, context=None, list_class=None):
         list_class = list_class or BrowseRecordList
