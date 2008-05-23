@@ -179,8 +179,12 @@ class Module(OSV):
     def get_module_info(name):
         "Return the content of the __tryton__.py"
         try:
-            file_p = tools.file_open(os.path.join(MODULES_PATH, name,
-                '__tryton__.py'))
+            if name in ['ir', 'workflow', 'res', 'webdav']:
+                file_p = tools.file_open(os.path.join(
+                    os.path.dirname(MODULES_PATH), name, '__tryton__.py'))
+            else:
+                file_p = tools.file_open(os.path.join(MODULES_PATH, name,
+                    '__tryton__.py'))
             data = file_p.read()
             info = eval(data)
             file_p.close()
@@ -327,7 +331,8 @@ class Module(OSV):
         res = 0
 
         # iterate through installed modules and mark them as being so
-        for name in os.listdir(MODULES_PATH):
+        for name in os.listdir(MODULES_PATH) + ['ir', 'workflow',
+                'res', 'webdav']:
             mod_name = name
             if name[-4:] == '.zip':
                 mod_name = name[:-4]
@@ -353,7 +358,11 @@ class Module(OSV):
                 self._update_category(cursor, user, module_id,
                         tryton.get('category', 'None'))
                 continue
-            mod_path = os.path.join(MODULES_PATH, name)
+            if name in ['ir', 'workflow', 'res', 'webdav']:
+                mod_path = os.path.join(
+                        os.path.dirname(MODULES_PATH), name)
+            else:
+                mod_path = os.path.join(MODULES_PATH, name)
             if os.path.isdir(mod_path) \
                     or os.path.islink(mod_path) \
                     or zipfile.is_zipfile(mod_path):
