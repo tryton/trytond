@@ -1,5 +1,6 @@
 {
     'name': 'Res',
+    'category': 'Generic',
     'active': True,
     'depends': ['ir'],
     'xml': [

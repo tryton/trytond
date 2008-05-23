@@ -1,5 +1,6 @@
 {
     'name': 'IR',
+    'category': 'Generic',
     'active': True,
     'xml': [
         'ir.xml',
