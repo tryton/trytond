@@ -2166,7 +2166,8 @@ class ORM(object):
                         if not ids:
                             return []
                         ids2 = table.search(cursor, user,
-                                [(parent, 'in', ids)], context=context)
+                                [(parent, 'in', ids), (parent, '!=', False)],
+                                context=context)
                         return ids + _rec_get(ids2, table, parent)
 
                     def _rec_convert(ids):
@@ -2229,7 +2230,8 @@ class ORM(object):
                         if not ids:
                             return []
                         ids2 = table.search(cursor, user,
-                                [(parent, 'in', ids)], context=context)
+                                [(parent, 'in', ids), (parent, '!=', False)],
+                                context=context)
                         return ids + _rec_get(ids2, table, parent)
 
                     if field._obj != table._name:
