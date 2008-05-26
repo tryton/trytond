@@ -2159,6 +2159,8 @@ class ORM(object):
                         ids2 = [x[0] for x in self.pool.get(
                         field._obj).name_search(cursor, user, args[i][2], [],
                             'like', context=context)]
+                    elif isinstance(args[i][2], (int, long)):
+                        ids2 = [args[i][2]]
                     else:
                         ids2 = args[i][2]
 
