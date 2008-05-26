@@ -2,6 +2,7 @@
 <!ATTLIST form string CDATA "Unknown">
 <!ATTLIST form on_write CDATA #IMPLIED>
 <!ATTLIST form col CDATA "4">
+<!ATTLIST form cursor CDATA #IMPLIED>
 <!ELEMENT tree (field+)>
 <!ATTLIST tree string CDATA "Unknown">
 <!ATTLIST tree on_write CDATA #IMPLIED>
