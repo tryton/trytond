@@ -126,6 +126,8 @@ class Directory(OSV):
             directory = self.browse(cursor, user, object_id, context=context)
             if directory.model:
                 model_obj = self.pool.get(directory.model.model)
+                if not model_obj:
+                    return res
                 model_ids = model_obj.search(cursor, user,
                         eval(directory.domain or "[]"), context=context)
                 for child_id, child_name in model_obj.name_get(cursor, user,
