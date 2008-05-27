@@ -85,10 +85,12 @@ class Directory(OSV):
                     object_name = None
                     object_id = False
         else:
+            object_id = int(name.rsplit('-', 1)[1].strip())
             if uri:
                 if '/' in uri:
                     return None, 0
                 #TODO add report
+                name = uri
                 attachment_ids = attachment_obj.search(cursor, user, [
                     ('res_model', '=', object_name),
                     ('res_id', '=', object_id),
@@ -101,8 +103,6 @@ class Directory(OSV):
                     object_name = None
                     object_id = False
                 return object_name, object_id
-            else:
-                object_id = int(name.rsplit('-', 1)[1].strip())
         if uri:
             return self._uri2object(cursor, user, uri, object_name,
                     object_id, context)
