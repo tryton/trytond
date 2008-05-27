@@ -63,8 +63,8 @@ class DB(Service):
                 logger.notify_channel("web-service", LOG_ERROR,
                     'CREATE DB: %s failed' % (db_name,))
                 import traceback, sys
-                tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
-                    sys.exc_type, sys.exc_value, sys.exc_traceback))
+                tb_s = reduce(lambda x, y: x+y,
+                        traceback.format_exception(*sys.exc_info()))
                 logger.notify_channel("web-service", LOG_ERROR,
                         'Exception in call: \n' + tb_s)
                 raise
@@ -91,8 +91,8 @@ class DB(Service):
                 logger.notify_channel("web-service", LOG_ERROR,
                     'DROP DB: %s failed' % (db_name,))
                 import traceback, sys
-                tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
-                    sys.exc_type, sys.exc_value, sys.exc_traceback))
+                tb_s = reduce(lambda x, y: x+y,
+                        traceback.format_exception(*sys.exc_info()))
                 logger.notify_channel("web-service", LOG_ERROR,
                         'Exception in call: \n' + tb_s)
                 raise

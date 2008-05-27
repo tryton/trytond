@@ -46,8 +46,8 @@ class WizardService(Service):
             self.abort_response(inst.name, 'warning', inst.value)
         except:
             import traceback
-            tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
-                sys.exc_type, sys.exc_value, sys.exc_traceback))
+            tb_s = reduce(lambda x, y: x+y,
+                    traceback.format_exception(*sys.exc_info()))
             Logger().notify_channel("web-services", LOG_ERROR,
                     'Exception in call: ' + tb_s)
             raise
