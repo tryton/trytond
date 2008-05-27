@@ -286,7 +286,7 @@ class TrytonDAVInterface(iface.dav_interface):
 class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         WebDAVServer.DAVRequestHandler):
 
-    def get_userinfo(self, user, password):
+    def get_userinfo(self, user, password, command=''):
         global USER_ID
         dbname = self.path.split('/', 2)[1]
         if not dbname:
