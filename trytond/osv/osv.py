@@ -64,8 +64,8 @@ class OSVService(Service):
                         self.abort_response('Constraint Error', 'warning', msg)
             self.abort_response('Integrity Error', 'warning', inst[0])
         except:
-            tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
-                sys.exc_type, sys.exc_value, sys.exc_traceback))
+            tb_s = reduce(lambda x, y: x+y,
+                    traceback.format_exception(*sys.exc_info()))
             logger = Logger()
             logger.notify_channel("web-services", LOG_ERROR,
                     'Exception in call: \n' + tb_s)
@@ -104,8 +104,8 @@ class OSVService(Service):
             self.abort_response('Integrity Error', 'warning', inst[0])
 
         except:
-            tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
-                sys.exc_type, sys.exc_value, sys.exc_traceback))
+            tb_s = reduce(lambda x, y: x+y,
+                    traceback.format_exception(*sys.exc_info()))
             logger = Logger()
             logger.notify_channel("web-services", LOG_ERROR,
                     'Exception in call: \n' + tb_s)

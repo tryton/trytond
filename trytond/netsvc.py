@@ -47,8 +47,8 @@ class Service(object):
 
     def abort_response(self, description, origin, details):
         if CONFIG['verbose']:
-            tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
-                sys.exc_type, sys.exc_value, sys.exc_traceback))
+            tb_s = reduce(lambda x, y: x+y,
+                    traceback.format_exception(*sys.exc_info()))
             logger = Logger()
             logger.notify_channel("web-services", LOG_ERROR,
                     'Exception in call: \n' + tb_s)
@@ -179,8 +179,8 @@ class GenericXMLRPCRequestHandler:
             res = meth(*params)
             return res
         except:
-            tb_s = reduce(lambda x, y: x+y, traceback.format_exception(
-                sys.exc_type, sys.exc_value, sys.exc_traceback))
+            tb_s = reduce(lambda x, y: x+y,
+                    traceback.format_exception(*sys.exc_info()))
             for path in sys.path:
                 tb_s = tb_s.replace(path, '')
             if CONFIG['debug_mode']:
@@ -355,8 +355,7 @@ class TinySocketClientThread(threading.Thread):
                 pysocket.send(res)
             except:
                 tb_s = reduce(lambda x, y: x+y,
-                        traceback.format_exception(sys.exc_type,
-                            sys.exc_value, sys.exc_traceback))
+                        traceback.format_exception(*sys.exc_info()))
                 for path in sys.path:
                     tb_s = tb_s.replace(path, '')
                 if CONFIG['debug_mode']:
