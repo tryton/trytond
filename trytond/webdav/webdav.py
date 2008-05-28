@@ -6,31 +6,31 @@ from trytond.osv import fields, OSV
 from trytond.version import PACKAGE, VERSION, WEBSITE
 
 
-class Directory(OSV):
-    "Directory"
-    _name = "webdav.directory"
+class Collection(OSV):
+    "Collection"
+    _name = "webdav.collection"
     _description = __doc__
     name = fields.Char('Name', size=128, required=True, select=1)
-    parent = fields.Many2One('webdav.directory', 'Parent',
+    parent = fields.Many2One('webdav.collection', 'Parent',
        ondelete='restrict')
-    childs = fields.One2Many('webdav.directory', 'parent', 'Childs')
+    childs = fields.One2Many('webdav.collection', 'parent', 'Childs')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain', size=250)
     _parent_name = 'parent'
 
     def __init__(self):
-        super(Directory, self).__init__()
+        super(Collection, self).__init__()
         self._sql_constraints += [
             ('name_parent_uniq', 'UNIQUE (name, parent)',
-                'The directory name must be unique inside a directory!'),
+                'The collection name must be unique inside a collection!'),
         ]
         self._constraints += [
             ('check_recursion',
-                'Error! You can not create recursive directories.', ['parent']),
+                'Error! You can not create recursive collections.', ['parent']),
             ('check_attachment',
-                'Error! You can not create a directory \n' \
+                'Error! You can not create a collection \n' \
                         'with the same name of an existing file \n' \
-                        'inside the same directory.', ['name']),
+                        'inside the same collection.', ['name']),
         ]
         self.ext2mime = {
             '.png': 'image/png',
@@ -41,15 +41,15 @@ class Directory(OSV):
 
     def check_attachment(self, cursor, user, ids):
         attachment_obj = self.pool.get('ir.attachment')
-        for directory in self.browse(cursor, user, ids):
-            if directory.parent:
+        for collection in self.browse(cursor, user, ids):
+            if collection.parent:
                 attachment_ids = attachment_obj.search(cursor, user, [
                     ('res_model', '=', self._name),
-                    ('res_id', '=', directory.parent.id),
+                    ('res_id', '=', collection.parent.id),
                     ])
                 for attachment in attachment_obj.browse(cursor, user,
                         attachment_ids):
-                    if attachment.name == directory.name:
+                    if attachment.name == collection.name:
                         return False
         return True
 
@@ -60,16 +60,16 @@ class Directory(OSV):
             return self._name, False
         name, uri = (uri.split('/', 1) + [None])[0:2]
         if object_name == self._name:
-            directory_ids = self.search(cursor, user, [
+            collection_ids = self.search(cursor, user, [
                 ('name', '=', name),
                 ('parent', '=', object_id),
                 ], limit=1, context=context)
-            if directory_ids:
-                object_id = directory_ids[0]
-                directory = self.browse(cursor, user, object_id,
+            if collection_ids:
+                object_id = collection_ids[0]
+                collection = self.browse(cursor, user, object_id,
                         context=context)
-                if directory.model and uri:
-                    object_name = directory.model.model
+                if collection.model and uri:
+                    object_name = collection.model.model
             else:
                 if uri:
                     return None, 0
@@ -111,25 +111,25 @@ class Directory(OSV):
     def get_childs(self, cursor, user, uri, context=None):
         res = []
         if not uri:
-            directory_ids = self.search(cursor, user, [
+            collection_ids = self.search(cursor, user, [
                 ('parent', '=', False),
                 ], context=context)
-            for directory in self.browse(cursor, user, directory_ids,
+            for collection in self.browse(cursor, user, collection_ids,
                     context=context):
-                if '/' in directory.name:
+                if '/' in collection.name:
                     continue
-                res.append(directory.name)
+                res.append(collection.name)
             return res
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
         if object_name == self._name and object_id:
-            directory = self.browse(cursor, user, object_id, context=context)
-            if directory.model:
-                model_obj = self.pool.get(directory.model.model)
+            collection = self.browse(cursor, user, object_id, context=context)
+            if collection.model:
+                model_obj = self.pool.get(collection.model.model)
                 if not model_obj:
                     return res
                 model_ids = model_obj.search(cursor, user,
-                        eval(directory.domain or "[]"), context=context)
+                        eval(collection.domain or "[]"), context=context)
                 for child_id, child_name in model_obj.name_get(cursor, user,
                         model_ids, context=context):
                     if '/' in child_name:
@@ -137,7 +137,7 @@ class Directory(OSV):
                     res.append(child_name + '-' + str(child_id))
                 return res
             else:
-                for child in directory.childs:
+                for child in collection.childs:
                     if '/' in child.name:
                         continue
                     res.append(child.name)
@@ -259,7 +259,7 @@ class Directory(OSV):
             uri = uri[:-1]
         object_name, object_id = self._uri2object(cursor, user,
                 get_uriparentpath(uri), context=context)
-        if object_name != 'webdav.directory':
+        if object_name != 'webdav.collection':
             raise DAV_Forbidden
         name = get_urifilename(uri)
         try:
@@ -275,7 +275,7 @@ class Directory(OSV):
         from DAV.errors import DAV_Forbidden
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
-        if object_name != 'webdav.directory' \
+        if object_name != 'webdav.collection' \
                 or not object_id:
             raise DAV_Forbidden
         try:
@@ -305,7 +305,7 @@ class Directory(OSV):
             return 1
         return None
 
-Directory()
+Collection()
 
 
 class Attachment(OSV):
@@ -314,19 +314,19 @@ class Attachment(OSV):
     def __init__(self):
         super(Attachment, self).__init__()
         self._constraints += [
-            ('check_directory',
+            ('check_collection',
                 'Error! You can not create a attachment \n' \
-                        'on a directory that have the same name \n' \
-                        'than a child directory.', ['name']),
+                        'on a collection that have the same name \n' \
+                        'than a child collection.', ['name']),
         ]
 
-    def check_directory(self, cursor, user, ids):
-        directory_obj = self.pool.get('webdav.directory')
+    def check_collection(self, cursor, user, ids):
+        collection_obj = self.pool.get('webdav.collection')
         for attachment in self.browse(cursor, user, ids):
-            if attachment.res_model == 'webdav.directory':
-                directory = directory_obj.browse(cursor, user,
+            if attachment.res_model == 'webdav.collection':
+                collection = collection_obj.browse(cursor, user,
                         attachment.res_id)
-                for child in directory.childs:
+                for child in collection.childs:
                     if child.name == attachment.name:
                         return False
         return True
