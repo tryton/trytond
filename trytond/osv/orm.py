@@ -2000,9 +2000,12 @@ class ORM(object):
                             xml += "<newline/>"
                 xml += "</form>"
             elif view_type == 'tree':
+                field = 'id'
+                if self._rec_name in self._columns:
+                    field = self._rec_name
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
                 '''<tree string="%s"><field name="%s"/></tree>''' \
-                % (self._description, self._rec_name)
+                % (self._description, field)
             elif view_type == 'calendar':
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
                 '''<calendar string="%s" date_start="%s">''' \
