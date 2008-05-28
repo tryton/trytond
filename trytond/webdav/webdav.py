@@ -85,7 +85,10 @@ class Directory(OSV):
                     object_name = None
                     object_id = False
         else:
-            object_id = int(name.rsplit('-', 1)[1].strip())
+            splitted_name = name.rsplit('-', 1)
+            if len(splitted_name) != 2:
+                return object_name, 0
+            object_id = int(splitted_name[1].strip())
             if uri:
                 if '/' in uri:
                     return None, 0
