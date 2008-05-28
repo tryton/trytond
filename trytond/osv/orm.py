@@ -749,6 +749,8 @@ class ORM(object):
             self.write_date = fields.DateTime(
                     'Last modification date', readonly=True)
         self.id = fields.Integer('ID', readonly=True)
+        # reinit the cache on _columns
+        self.__columns = None
 
         for name in self._columns:
             if isinstance(self._columns[name], (fields.Selection, fields.Reference)) \
