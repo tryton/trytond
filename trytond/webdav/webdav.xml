@@ -3,25 +3,25 @@
     <data>
         <menuitem name="WebDAV" id="menu_webdav"
             parent="ir.menu_administration"/>
-        <record model="ir.ui.view" id="directory_view_tree">
-            <field name="model">webdav.directory</field>
+        <record model="ir.ui.view" id="collection_view_tree">
+            <field name="model">webdav.collection</field>
             <field name="type">tree</field>
             <field name="field_childs">childs</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                    <tree string="Directories">
+                    <tree string="Collections">
                         <field name="name"/>
                         <field name="model"/>
                     </tree>
                 ]]>
             </field>
         </record>
-        <record model="ir.ui.view" id="directory_view_form">
-            <field name="model">webdav.directory</field>
+        <record model="ir.ui.view" id="collection_view_form">
+            <field name="model">webdav.collection</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                    <form string="Directory">
+                    <form string="Collection">
                         <label name="name"/>
                         <field name="name"/>
                         <label name="parent"/>
@@ -34,40 +34,40 @@
                 ]]>
             </field>
         </record>
-        <record model="ir.action.act_window" id="act_directory_tree">
-            <field name="name">Directories</field>
+        <record model="ir.action.act_window" id="act_collection_tree">
+            <field name="name">Collections</field>
             <field name="type">ir.action.act_window</field>
-            <field name="res_model">webdav.directory</field>
+            <field name="res_model">webdav.collection</field>
             <field name="view_type">tree</field>
             <field name="domain">[('parent', '=', False)]</field>
         </record>
         <record model="ir.action.act_window.view"
-            id="act_directory_tree_view1">
+            id="act_collection_tree_view1">
             <field name="sequence" eval="1"/>
-            <field name="view" ref="directory_view_tree"/>
-            <field name="act_window" ref="act_directory_tree"/>
+            <field name="view" ref="collection_view_tree"/>
+            <field name="act_window" ref="act_collection_tree"/>
         </record>
         <menuitem parent="menu_webdav"
-            action="act_directory_tree" id="menu_directory_tree"/>
-        <record model="ir.action.act_window" id="act_directory_form">
-            <field name="name">Directory</field>
+            action="act_collection_tree" id="menu_collection_tree"/>
+        <record model="ir.action.act_window" id="act_collection_form">
+            <field name="name">Collection</field>
             <field name="type">ir.action.act_window</field>
-            <field name="res_model">webdav.directory</field>
+            <field name="res_model">webdav.collection</field>
             <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
-            id="act_directory_form_view1">
+            id="act_collection_form_view1">
             <field name="sequence" eval="1"/>
-            <field name="view" ref="directory_view_form"/>
-            <field name="act_window" ref="act_directory_form"/>
+            <field name="view" ref="collection_view_form"/>
+            <field name="act_window" ref="act_collection_form"/>
         </record>
         <record model="ir.action.act_window.view"
-            id="act_directory_form_view2">
+            id="act_collection_form_view2">
             <field name="sequence" eval="2"/>
-            <field name="view" ref="directory_view_tree"/>
-            <field name="act_window" ref="act_directory_form"/>
+            <field name="view" ref="collection_view_tree"/>
+            <field name="act_window" ref="act_collection_form"/>
         </record>
-        <menuitem name="New Directory" parent="menu_directory_tree"
-            action="act_directory_form" id="menu_directory_form"/>
+        <menuitem name="New Collection" parent="menu_collection_tree"
+            action="act_collection_form" id="menu_collection_form"/>
     </data>
 </tryton>
