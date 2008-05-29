@@ -169,6 +169,9 @@ class XmlRpc(object):
 class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
+        host, port = self.client_address[:2]
+        Logger().notify_channel('web-service', LOG_INFO,
+                'connection from %s:%d' % (host, port))
         try:
             name = self.path.split("/")[-1]
             service = LocalService(name)
