@@ -14,6 +14,8 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
         Logger().notify_channel('pooler', LOG_INFO,
                 'Connecting to %s' % (db_name))
         database = db_connect(db_name)
+        cursor = database.cursor()
+        cursor.close()
         _DB[db_name] = database
 
     if db_name in _POOL:
