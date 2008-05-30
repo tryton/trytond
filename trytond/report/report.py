@@ -199,6 +199,8 @@ class Report(object):
         super(Report, self).__init__()
 
     def execute(self, cursor, user, ids, datas, context=None):
+        if context is None:
+            context = {}
         action_report_obj = self.pool.get('ir.action.report')
         action_report_ids = action_report_obj.search(cursor, user, [
             ('report_name', '=', self._name)
