@@ -82,6 +82,7 @@ class ConfigManager(object):
             self.options['data_path'] = False
 
         for arg in (
+                'db_name',
                 'verbose',
                 'debug_mode',
                 'stop_after_init',
