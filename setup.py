@@ -49,7 +49,7 @@ setup(name=PACKAGE,
         'trytond.webdav': ['*.xml'],
         'trytond.workflow': ['*.xml'],
     },
-    scripts=['trytond.py'],
+    scripts=['bin/trytond'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: No Input/Output (Daemon)',
