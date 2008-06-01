@@ -330,9 +330,12 @@ class Module(OSV):
     def update_list(self, cursor, user, context=None):
         res = 0
 
+        module_names = ['ir', 'workflow', 'res', 'webdav']
+        if os.path.isdir(MODULES_PATH):
+            module_names += os.listdir(MODULES_PATH)
+
         # iterate through installed modules and mark them as being so
-        for name in os.listdir(MODULES_PATH) + ['ir', 'workflow',
-                'res', 'webdav']:
+        for name in module_names:
             mod_name = name
             if name[-4:] == '.zip':
                 mod_name = name[:-4]
