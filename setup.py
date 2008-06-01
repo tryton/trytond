@@ -49,6 +49,9 @@ setup(name=PACKAGE,
         'trytond.webdav': ['*.xml'],
         'trytond.workflow': ['*.xml'],
     },
+    data_files=[
+        ('/etc', ['etc/trytond.conf']),
+    ],
     scripts=['bin/trytond'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
