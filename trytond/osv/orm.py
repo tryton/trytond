@@ -482,6 +482,10 @@ class ORM(object):
                             cursor.execute("ALTER TABLE \"%s\" " \
                                     "ADD COLUMN \"%s\" %s" % \
                                     (self._table, k, field.sql_type()[1]))
+                            if isinstance(field, (fields.Integer, fields.Float)):
+                                cursor.execute('ALTER TABLE "%s" ' \
+                                        'ALTER COLUMN "%s" SET DEFAULT 0' % \
+                                        (self._table, k))
                             # initialize it
                             if not create and k in self._defaults:
                                 default = self._defaults[k](cursor, 1, {})
