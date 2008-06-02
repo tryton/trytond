@@ -10,7 +10,7 @@ class Report(Service):
         Service.join_group(self, 'web-services')
         Service.export_method(self, self.execute)
 
-    def execute(self, database, user, passwd, report_name, ids, datas=None,
+    def execute(self, database, user, passwd, report_name, ids, datas,
             context=None):
         security.check(database, user, passwd)
         Cache.clean(database)
