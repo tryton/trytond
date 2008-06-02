@@ -58,6 +58,11 @@ class ConfigManager(object):
         parser.add_option("-u", "--update", dest="update",
                 help="update a module (use \"all\" for all modules)")
 
+        parser.add_option("--pidfile", dest="pidfile",
+                help="file where the server pid will be stored")
+        parser.add_option("--logfile", dest="logfile",
+                help="file where the server log will be stored")
+
         (opt, args) = parser.parse_args()
 
         if opt.config:
@@ -86,6 +91,8 @@ class ConfigManager(object):
                 'verbose',
                 'debug_mode',
                 'stop_after_init',
+                'pidfile',
+                'logfile',
                 ):
             if getattr(opt, arg) != None:
                 self.options[arg] = getattr(opt, arg)
