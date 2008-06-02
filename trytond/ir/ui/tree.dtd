@@ -14,6 +14,7 @@
 <!ATTLIST field tree_invisible (0|1) "0">
 <!ATTLIST field icon CDATA #IMPLIED>
 <!ATTLIST field sum CDATA #IMPLIED>
+<!ATTLIST field width CDATA #IMPLIED>
 <!ELEMENT data (xpath+)>
 <!ELEMENT xpath ANY>
 <!ATTLIST xpath expr CDATA #REQUIRED>
