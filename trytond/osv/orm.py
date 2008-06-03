@@ -596,7 +596,10 @@ class ORM(object):
                                 if self._defaults.has_key(k):
                                     default = self._defaults[k](cursor,
                                             1, {})
-                                    if not (default is False):
+                                    if default:
+                                        if isinstance(field, fields.Many2One) \
+                                            and isinstance(default, (list, tuple)):
+                                            default = default[0]
                                         cursor.execute("UPDATE \"%s\" " \
                                         "SET \"%s\" = '%s' WHERE %s is NULL" % \
                                             (self._table, k, default, k))
