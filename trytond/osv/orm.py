@@ -790,9 +790,11 @@ class ORM(object):
         self._inherits_reload_src()
 
     def default_create_uid(self, cursor, user, context=None):
+        "Default value for uid field"
         return user
 
     def default_create_date(self, cursor, user, context=None):
+        "Default value for create_date field"
         return datetime.datetime.today()
 
     def table_query(self, context=None):
@@ -803,6 +805,10 @@ class ORM(object):
         return None
 
     def browse(self, cursor, user, select, context=None, list_class=None):
+        '''
+        Return a browse a BrowseRecordList for the select ids
+            or BrowseRecord if select is a integer.
+        '''
         list_class = list_class or BrowseRecordList
         cache = {}
         # need to accepts ints and longs because ids coming from a method
@@ -852,6 +858,11 @@ class ORM(object):
         return [data] + lines
 
     def export_data(self, cursor, user, ids, fields_names, context=None):
+        '''
+        Return list of list of values for each ids.
+        The list of values follow the fields_names.
+        Relational fields are defined with '/' at any deep.
+        '''
         fields_names = [x.split('/') for x in fields_names]
         datas = []
         for row in self.browse(cursor, user, ids, context):
@@ -861,6 +872,10 @@ class ORM(object):
     # TODO: Send a request with the result and multi-thread !
     def import_data(self, cursor, user, fields_names, datas, mode='init',
             current_module=None, noupdate=False, context=None):
+        '''
+        Create record for each values in datas.
+        The fields name of values must be defined in fields_names.
+        '''
         if context is None:
             context = {}
         fields_names = [x.split('/') for x in fields_names]
