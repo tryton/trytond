@@ -14,6 +14,7 @@
 <!ATTLIST field fill (0|1) #IMPLIED>
 <!ATTLIST field empty (0|1) #IMPLIED>
 <!ATTLIST field color CDATA #IMPLIED>
+<!ATTLIST field widget (float_time) #IMPLIED>
 <!ELEMENT data (xpath+)>
 <!ELEMENT xpath ANY>
 <!ATTLIST xpath expr CDATA #REQUIRED>
