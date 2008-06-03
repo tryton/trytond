@@ -800,20 +800,19 @@ class ORM(object):
         '''
         return None
 
-    def browse(self, cursor, user, select, context=None):
+    def browse(self, cursor, user, ids, context=None):
         '''
-        Return a browse a BrowseRecordList for the select ids
-            or BrowseRecord if select is a integer.
+        Return a browse a BrowseRecordList for the ids
+            or BrowseRecord if ids is a integer.
         '''
         cache = {}
         # need to accepts ints and longs because ids coming from a method
         # launched by button in the interface have a type long...
-        if isinstance(select, (int, long)):
-            return BrowseRecord(cursor, user, select, self, cache,
+        if isinstance(ids, (int, long)):
+            return BrowseRecord(cursor, user, ids, self, cache,
                     context=context)
         return BrowseRecordList([BrowseRecord(cursor, user, x, self, cache,
-            context=context) for x in select],
-            context)
+            context=context) for x in ids], context)
 
     def __export_row(self, cursor, user, row, fields_names, context=None):
         lines = []
