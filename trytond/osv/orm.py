@@ -42,13 +42,11 @@ browse_record_list = BrowseRecordList
 
 class BrowseRecord(object):
 
-    def __init__(self, cursor, user, object_id, table, cache, context=None,
-            list_class=None):
+    def __init__(self, cursor, user, object_id, table, cache, context=None):
         '''
         table : the object (inherited from orm)
         context : a dictionnary with an optionnal context
         '''
-        self._list_class = list_class or BrowseRecordList
         self._cursor = cursor
         self._user = user
         self._id = object_id
@@ -116,13 +114,11 @@ class BrowseRecord(object):
                             ids2 = data[i]
                         data[i] = BrowseRecord(self._cursor, self._user,
                                 ids2, obj, self._cache,
-                                context=self._context,
-                                list_class=self._list_class)
+                                context=self._context)
                     elif j._type in ('one2many', 'many2many') and len(data[i]):
-                        data[i] = self._list_class([BrowseRecord(self._cursor,
+                        data[i] = BrowseRecordList([BrowseRecord(self._cursor,
                             self._user, x, obj,
-                            self._cache, context=self._context,
-                            list_class=self._list_class) for x in data[i]],
+                            self._cache, context=self._context) for x in data[i]],
                             self._context)
                 self._data[data['id']].update(data)
         return self._data[self._id][name]
@@ -804,20 +800,19 @@ class ORM(object):
         '''
         return None
 
-    def browse(self, cursor, user, select, context=None, list_class=None):
+    def browse(self, cursor, user, select, context=None):
         '''
         Return a browse a BrowseRecordList for the select ids
             or BrowseRecord if select is a integer.
         '''
-        list_class = list_class or BrowseRecordList
         cache = {}
         # need to accepts ints and longs because ids coming from a method
         # launched by button in the interface have a type long...
         if isinstance(select, (int, long)):
             return BrowseRecord(cursor, user, select, self, cache,
-                    context=context, list_class=list_class)
-        return list_class([BrowseRecord(cursor, user, x, self, cache,
-            context=context, list_class=list_class) for x in select],
+                    context=context)
+        return BrowseRecordList([BrowseRecord(cursor, user, x, self, cache,
+            context=context) for x in select],
             context)
 
     def __export_row(self, cursor, user, row, fields_names, context=None):
