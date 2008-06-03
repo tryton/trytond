@@ -94,9 +94,11 @@ class MenuitemTagHandler:
                 elif view_mode and view_mode.startswith('form'):
                     values['icon'] = 'STOCK_NEW'
                 elif view_mode and view_mode.startswith('graph'):
-                    values['icon'] = 'terp-graph'
+                    #TODO better icon
+                    values['icon'] = 'STOCK_JUSTIFY_FILL'
                 elif view_mode and view_mode.startswith('calendar'):
-                    values['icon'] = 'terp-calendar'
+                    #TODO better icon
+                    values['icon'] = 'STOCK_JUSTIFY_FILL'
             elif action_type == 'ir.action.url':
                 values['icon'] = 'STOCK_JUMP_TO'
             else:
