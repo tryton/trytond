@@ -870,8 +870,7 @@ class ORM(object):
         return datas
 
     # TODO: Send a request with the result and multi-thread !
-    def import_data(self, cursor, user, fields_names, datas, mode='init',
-            current_module=None, noupdate=False, context=None):
+    def import_data(self, cursor, user, fields_names, datas, context=None):
         '''
         Create record for each values in datas.
         The fields name of values must be defined in fields_names.
@@ -887,7 +886,6 @@ class ORM(object):
             translate = {}
             todo = []
             warning = ''
-            data_id = False
 
             # Import normal fields_names
             for i in range(len(fields_names)):
@@ -896,9 +894,6 @@ class ORM(object):
                             'Please check that all your lines have %d cols.' % \
                             (len(fields_names),)
                 field = fields_names[i]
-                if field == ["id"]:
-                    data_id = line[i]
-                    continue
                 if (len(field) == len(prefix) + 1) \
                         and field[len(prefix)].endswith(':id'):
                     res_id = False
@@ -907,10 +902,7 @@ class ORM(object):
                                 == 'many2many':
                             res_id = []
                             for word in line[i].split(','):
-                                if '.' in word:
-                                    module, xml_id = word.rsplit('.', 1)
-                                else:
-                                    module, xml_id = current_module, word
+                                module, xml_id = word.rsplit('.', 1)
                                 ir_model_data_obj = \
                                         self.pool.get('ir.model.data')
                                 new_id = ir_model_data_obj._get_id(cursor,
@@ -922,10 +914,7 @@ class ORM(object):
                             if len(res_id):
                                 res_id = [('set', res_id)]
                         else:
-                            if '.' in line[i]:
-                                module, xml_id = line[i].rsplit('.', 1)
-                            else:
-                                module, xml_id = current_module, line[i]
+                            module, xml_id = line[i].rsplit('.', 1)
                             ir_model_data_obj = self.pool.get('ir.model.data')
                             new_id = ir_model_data_obj._get_id(cursor, user,
                                     module, xml_id)
@@ -1010,7 +999,7 @@ class ORM(object):
                         cursor, user, context=context)
                 res = process_liness(self, datas, prefix + [field], newfd,
                         position)
-                (newrow, max2, warning2, translate2, data_id2) = res
+                (newrow, max2, warning2, translate2) = res
                 nbrmax = max(nbrmax, max2)
                 warning = warning + warning2
                 reduce(lambda x, y: x and y, newrow)
@@ -1027,7 +1016,7 @@ class ORM(object):
                     if not test:
                         break
 
-                    (newrow, max2, warning2, translate2, data_id2) = \
+                    (newrow, max2, warning2, translate2) = \
                             process_liness(self, datas, prefix+[field], newfd,
                                     position + i)
                     warning = warning + warning2
@@ -1039,7 +1028,7 @@ class ORM(object):
             if len(prefix) == 0:
                 for i in range(max(nbrmax, 1)):
                     datas.pop(0)
-            result = (row, nbrmax, warning, translate, data_id)
+            result = (row, nbrmax, warning, translate)
             return result
 
         fields_def = self.fields_get(cursor, user, context=context)
@@ -1048,18 +1037,16 @@ class ORM(object):
         while len(datas):
             res = {}
             try:
-                (res, other, warning, translate, data_id) = \
+                (res, other, warning, translate) = \
                         process_liness(self, datas, [], fields_def)
                 if warning:
                     cursor.rollback()
                     return (-1, res, warning, '')
-                new_id = self.pool.get('ir.model.data')._update(cursor, user,
-                        self._name, current_module, res, xml_id=data_id,
-                        mode=mode, noupdate=noupdate)
+                new_id = self.create(cursor, user, res, context=context)
                 for lang in translate:
                     context2 = context.copy()
                     context2['language'] = lang
-                    self.write(cursor, user, [new_id], translate[lang],
+                    self.write(cursor, user, new_id, translate[lang],
                             context=context2)
             except Exception, exp:
                 logger.notify_channel("import", LOG_ERROR, exp)
