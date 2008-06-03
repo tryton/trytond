@@ -7,8 +7,8 @@ class SequenceType(OSV):
     "Sequence type"
     _name = 'ir.sequence.type'
     _description = __doc__
-    name = fields.Char('Sequence Name',size=64, required=True)
-    code = fields.Char('Sequence Code',size=32, required=True)
+    name = fields.Char('Sequence Name', required=True)
+    code = fields.Char('Sequence Code', required=True)
 
 SequenceType()
 
@@ -17,15 +17,14 @@ class Sequence(OSV):
     "Sequence"
     _name = 'ir.sequence'
     _description = __doc__
-    name = fields.Char('Sequence Name',size=64, required=True)
-    code = fields.Selection('code_get', 'Sequence Code',size=64,
-       required=True)
+    name = fields.Char('Sequence Name', required=True)
+    code = fields.Selection('code_get', 'Sequence Code', required=True)
     active = fields.Boolean('Active')
-    prefix = fields.Char('Prefix',size=64)
-    suffix = fields.Char('Suffix',size=64)
-    number_next = fields.Integer('Next Number', required=True)
-    number_increment = fields.Integer('Increment Number', required=True)
-    padding = fields.Integer('Number padding', required=True)
+    prefix = fields.Char('Prefix')
+    suffix = fields.Char('Suffix')
+    number_next = fields.Integer('Next Number')
+    number_increment = fields.Integer('Increment Number')
+    padding = fields.Integer('Number padding')
 
     def __init__(self):
         super(Sequence, self).__init__()
