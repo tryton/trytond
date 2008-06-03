@@ -168,6 +168,17 @@ class ActionKeyword(OSV):
 ActionKeyword()
 
 
+class ActionReportOutputFormat(OSV):
+    "Output formats for reports"
+    _name = 'ir.action.report.outputformat'
+    _description = "Report Output Format"
+    format = fields.char('Internal Format Name', required=True,
+            readonly=True, help="Used as file extension, too.")
+    name = fields.char('Name', required=True, translate=True)
+
+ActionReportOutputFormat()
+
+
 class ActionReport(OSV):
     "Action report"
     _name = 'ir.action.report'
@@ -187,6 +198,8 @@ class ActionReport(OSV):
     style_content = fields.Function('get_style_content',
             type='binary', string='Style')
     direct_print = fields.Boolean('Direct Print')
+    output_format = fields.Many2One('ir.action.report.outputformat',
+            'Output format', required=True)
 
     def __init__(self):
         super(ActionReport, self).__init__()
@@ -202,6 +215,16 @@ class ActionReport(OSV):
         return False
 
     def default_direct_print(self, cursor, user, context=None):
+        return False
+
+    def default_output_format(self, cursor, user, context=None):
+        format_obj = self.pool.get(ActionReportOutputFormat._name)
+        formats = format_obj.search(cursor, user, [
+            ('format', '=', 'odt'),
+            ], limit=1, context=context)
+        if formats:
+            return format_obj.name_get(cursor, user, formats[0],
+                    context=context)[0]
         return False
 
     def get_report_content(self, cursor, user, ids, name, arg, context=None):

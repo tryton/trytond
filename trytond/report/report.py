@@ -282,7 +282,62 @@ class Report(object):
         content_z.close()
         data = content_io.getvalue()
         content_io.close()
-        return ('odt', data)
+        output_format = report.output_format.format
+        if output_format == 'pdf':
+            data = self.convert_pdf(data)
+        return (output_format, data)
+
+
+    def convert_pdf(self, data):
+        """
+        Convert report to PDF using OpenOffice.org.
+        This requires OpenOffice.org, pyuno and openoffice-python to
+        be installed.
+        """
+        import tempfile
+        try:
+            import unohelper # installs import-hook
+            import openoffice.interact
+            import openoffice.officehelper as officehelper
+            from openoffice.streams import OutputStream
+            from com.sun.star.beans import PropertyValue
+        except ImportError, exception:
+            raise ExceptOSV('ImportError', str(exception))
+        try:
+            # connect to OOo
+            desktop = openoffice.interact.Desktop()
+        except officehelper.BootstrapException:
+            raise ExceptOSV('Error', "Can't connect to (bootstrap) OpenOffice.org")
+
+        res_data = None
+        # Create temporary file (with name) and write data there.
+        # We can not use NamedTemporaryFile here, since this would be
+        # deleted as soon as we close it to allow OOo reading.
+        #TODO use an input stream here
+        fd_odt, odt_name = tempfile.mkstemp()
+        fh_odt = os.fdopen(fd_odt, 'wb+')
+        try:
+            fh_odt.write(data)
+            del data # save memory
+            fh_odt.close()
+            doc = desktop.openFile(odt_name, hidden=False)
+            # Export as PDF
+            buffer = StringIO.StringIO()
+            out_props = (
+                PropertyValue("FilterName", 0, "writer_pdf_Export", 0),
+                PropertyValue("Overwrite", 0, True, 0),
+                PropertyValue("OutputStream", 0, OutputStream(buffer), 0),
+                )
+            doc.storeToURL("private:stream", out_props)
+            res_data = buffer.getvalue()
+            del buffer
+            doc.dispose()
+        finally:
+            fh_odt.close()
+            os.remove(odt_name)
+        if not res_data:
+            ExceptOSV('Error', 'Error converting to PDF')
+        return res_data
 
     def _parse_node(self, cursor, user, node, localcontext, context,
             node_context = None):
