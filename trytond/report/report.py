@@ -220,7 +220,6 @@ class Report(object):
         context = context.copy()
         if 'language' in context:
             del context['language']
-        #TODO change list_class
         return model_obj.browse(cursor, user, ids, context=context)
 
     def parse(self, cursor, user, report, objects, datas, context):

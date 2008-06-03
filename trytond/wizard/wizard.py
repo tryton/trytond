@@ -239,7 +239,7 @@ class WizardOSV(OSV):
     def init(self, cursor):
         pass
 
-    def browse(self, cursor, user, select, context=None, list_class=None):
+    def browse(self, cursor, user, select, context=None):
         pass
 
     def export_data(self, cursor, user, ids, fields_name, context=None):
