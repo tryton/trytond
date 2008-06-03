@@ -187,7 +187,6 @@ class ORM(object):
     """
     _log_access = True
     _table = None
-    _table_query = ''
     _name = None
     _rec_name = 'name'
     _parent_name = 'parent'
@@ -354,7 +353,7 @@ class ORM(object):
         create = False
 
         self._field_create(cursor, module_name)
-        if self._auto and not self._table_query:
+        if self._auto and not self.table_query():
             cursor.execute("SELECT relname FROM pg_class " \
                     "WHERE relkind in ('r', 'v') AND relname = %s",
                     (self._table,))
@@ -796,6 +795,13 @@ class ORM(object):
     def default_create_date(self, cursor, user, context=None):
         return datetime.datetime.today()
 
+    def table_query(self, context=None):
+        '''
+        Return None if the table object is a real table in the database
+        or return a tuple wiht the query for the table object and the arguments
+        '''
+        return None
+
     def browse(self, cursor, user, select, context=None, list_class=None):
         list_class = list_class or BrowseRecordList
         cache = {}
@@ -1088,8 +1094,10 @@ class ORM(object):
 
         res = []
         table_query = ''
-        if self._table_query:
-            table_query = '(' + self._table_query + ') AS '
+        table_args = []
+        if self.table_query(context):
+            table_query, table_args = self.table_query(context)
+            table_query = '(' + table_query + ') AS '
         if len(fields_pre) :
             fields_pre2 = [(x in ('create_date', 'write_date')) \
                     and ('date_trunc(\'second\', ' + x + ') as ' + x) \
@@ -1105,7 +1113,7 @@ class ORM(object):
                             ' AND ' + domain1 + ' ORDER BY ' + \
                             ','.join([self._table + '.' + x[0] + ' ' + x[1] \
                             for x in self._order])),
-                            domain2)
+                            table_args + domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
                         raise ExceptORM('AccessError',
                                 'You try to bypass an access rule ' \
@@ -1119,7 +1127,7 @@ class ORM(object):
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
                             ' ORDER BY ' + \
                             ','.join([self._table + '.' + x[0] + ' ' + x[1] \
-                            for x in self._order]))
+                            for x in self._order]), table_args)
                 res.extend(cursor.dictfetchall())
         else:
             res = [{'id': x} for x in ids]
@@ -1289,7 +1297,7 @@ class ORM(object):
             return True
         if isinstance(ids, (int, long)):
             ids = [ids]
-        if self._table_query:
+        if self.table_query(context):
             return True
         delta = context.get('read_delta', False)
         if delta and self._log_access:
@@ -1367,7 +1375,7 @@ class ORM(object):
             context = {}
         if not ids:
             return True
-        if self._table_query:
+        if self.table_query(context):
             return True
 
         vals = vals.copy()
@@ -1560,7 +1568,7 @@ class ORM(object):
         user = user id
         vals = dictionary of the form {'field_name': field_value, ...}
         """
-        if self._table_query:
+        if self.table_query(context):
             return False
 
         vals = vals.copy()
@@ -1682,7 +1690,7 @@ class ORM(object):
                 fields_names, context))
         write_access = model_access_obj.check(cursor, user, self._name, 'write',
                 raise_exception=False)
-        if self._table_query:
+        if self.table_query(context):
             write_access = False
 
         #Add translation to cache
@@ -2066,9 +2074,12 @@ class ORM(object):
 
         i = 0
         table_query = ''
-        if self._table_query:
-            table_query = '(' + self._table_query + ') AS '
+        table_args = []
+        if self.table_query(context):
+            table_query, table_args = self.table_query(context)
+            table_query = '(' + table_query + ') AS '
         tables = [table_query + '"' + self._table + '"']
+        tables_args = table_args
         joins = []
         while i < len(args):
             if args[i][1] not in (
@@ -2089,10 +2100,13 @@ class ORM(object):
             if args[i][0] in self._inherit_fields:
                 itable = self.pool.get(self._inherit_fields[args[i][0]][0])
                 table_query = ''
-                if itable._table_query:
-                    table_query = '(' + self._table_query + ') AS '
+                table_arg = []
+                if itable.table_query(context):
+                    table_query, table_args = self.table_query(context)
+                    table_query = '(' + table_query + ') AS '
                 if (table_query + '"' + itable._table + '"' not in tables):
                     tables.append(table_query + '"' + itable._table + '"')
+                    tables_args += table_arg
                     joins.append(('id', 'join', '%s.%s' % \
                             (self._table, self._inherits[itable._name]), itable))
             fargs = args[i][0].split('.', 1)
@@ -2136,14 +2150,16 @@ class ORM(object):
                     args[i] = ('id', '=', '0')
                 else:
                     table_query = ''
-                    if field_obj._table_query:
-                        table_query = '(' + field_obj._table_query + ') AS '
+                    table_args = []
+                    if field_obj.table_query(context):
+                        table_query, table_args = field_obj.table_query(context)
+                        table_query = '(' + table_query + ') AS '
                     if len(ids2) < ID_MAX:
                         query1 = 'SELECT "' + field._field + '" ' \
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in ids2]) + ')'
-                        query2 = [str(x) for x in ids2]
+                        query2 = table_args + [str(x) for x in ids2]
                         args[i] = ('id', 'inselect', (query1, query2))
                     else:
                         ids3 = []
@@ -2155,7 +2171,7 @@ class ORM(object):
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')',
-                                [str(x) for x in sub_ids2])
+                                table_args + [str(x) for x in sub_ids2])
 
                             ids3.extend([x[0] for x in cursor.fetchall()])
 
@@ -2276,12 +2292,15 @@ class ORM(object):
                                 'model', args[i][2]]
                         query1 += ' UNION '
                         table_query = ''
-                        if table._table_query:
-                            table_query = '(' + table._table_query + ') AS '
-                        query1 += '(SELECT id FROM ' + table_query + '"' + table._table + '" ' \
+                        table_args = []
+                        if table.table_query(context):
+                            table_query, table_args = table.table_query(context)
+                            table_query = '(' + table_query  + ') AS '
+                        query1 += '(SELECT id FROM ' + table_query + \
+                                '"' + table._table + '" ' \
                                 'WHERE "' + args[i][0] + '" ' + \
                                 args[i][1] + ' %s)'
-                        query2 += [args[i][2]]
+                        query2 += table_args + [args[i][2]]
                         args[i] = ('id', 'inselect', (query1, query2), table)
                 else:
                     args[i] += (table,)
@@ -2374,7 +2393,7 @@ class ORM(object):
                         if add_null:
                             qu1[-1] = '('+qu1[-1]+' or '+arg[0]+' is null)'
 
-        return (qu1, qu2, tables)
+        return (qu1, qu2, tables, tables_args)
 
     def search_count(self, cursor, user, args, context=None):
         res = self.search(cursor, user, args, context=context, count=True)
@@ -2385,7 +2404,7 @@ class ORM(object):
     def search(self, cursor, user, args, offset=0, limit=None, order=None,
             context=None, count=False, query_string=False):
         # compute the where, order by, limit and offset clauses
-        (qu1, qu2, tables) = self._where_calc(cursor, user, args,
+        (qu1, qu2, tables, tables_args) = self._where_calc(cursor, user, args,
                 context=context)
 
         if len(qu1):
@@ -2433,7 +2452,8 @@ class ORM(object):
 
         if count:
             cursor.execute('SELECT COUNT(%s.id) FROM ' % self._table +
-                    ','.join(tables) + qu1 + limit_str + offset_str, qu2)
+                    ','.join(tables) + qu1 + limit_str + offset_str,
+                    tables_args + qu2)
             res = cursor.fetchall()
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
@@ -2441,8 +2461,8 @@ class ORM(object):
                 ','.join(tables) + qu1 + ' order by ' + order_by + \
                 limit_str + offset_str
         if query_string:
-            return (query_str, qu2)
-        cursor.execute(query_str, qu2)
+            return (query_str, tables_args + qu2)
+        cursor.execute(query_str, tables_args + qu2)
         res = cursor.fetchall()
         return [x[0] for x in res]
 
