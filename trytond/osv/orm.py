@@ -32,6 +32,9 @@ except_orm = ExceptORM
 
 # TODO: execute an object method on BrowseRecordList
 class BrowseRecordList(list):
+    '''
+    A list of BrowseRecord
+    '''
 
     def __init__(self, lst, context=None):
         super(BrowseRecordList, self).__init__(lst)
@@ -41,6 +44,9 @@ browse_record_list = BrowseRecordList
 
 
 class BrowseRecord(object):
+    '''
+    A object that represents record defined by a ORM object.
+    '''
 
     def __init__(self, cursor, user, object_id, table, cache, context=None):
         '''
@@ -1051,6 +1057,10 @@ class ORM(object):
 
     def read(self, cursor, user, ids, fields_names=None, context=None,
             load='_classic_read'):
+        '''
+        Return list of a dict for each ids or just a dict if ids is an integer.
+        The dict have fields_names as keys.
+        '''
         self.pool.get('ir.model.access').check(cursor, user, self._name, 'read')
         if not fields_names:
             fields_names = self._columns.keys() + \
@@ -1194,6 +1204,9 @@ class ORM(object):
                     ('\n'.join(field_err_str), ','.join(field_error)))
 
     def default_get(self, cursor, user, fields_names, context=None):
+        '''
+        Return a dict with the default values for each fields_names.
+        '''
         value = {}
         # get the default values for the inherited fields
         for i in self._inherits.keys():
@@ -1287,6 +1300,9 @@ class ORM(object):
         return res
 
     def unlink(self, cursor, user, ids, context=None):
+        '''
+        Remove the ids.
+        '''
         if context is None:
             context = {}
         if not ids:
@@ -1367,6 +1383,10 @@ class ORM(object):
 
     # TODO: Validate
     def write(self, cursor, user, ids, vals, context=None):
+        '''
+        Update ids with the content of vals.
+        vals is a dict with fields name as keys.
+        '''
         if context is None:
             context = {}
         if not ids:
@@ -1560,9 +1580,8 @@ class ORM(object):
 
     def create(self, cursor, user, vals, context=None):
         """
-        cursor = database cursor
-        user = user id
-        vals = dictionary of the form {'field_name': field_value, ...}
+        Create a record with the content of vals.
+        vals is a dict with fields name as key.
         """
         if self.table_query(context):
             return False
@@ -1673,7 +1692,7 @@ class ORM(object):
 
     def fields_get(self, cursor, user, fields_names=None, context=None):
         """
-        returns the definition of each field in the object
+        Returns the definition of each field in the object
         the optional fields_names parameter can limit the result to some fields
         """
         if context is None:
@@ -1890,6 +1909,19 @@ class ORM(object):
 
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
             context=None, toolbar=False, hexmd5=None):
+        '''
+        Return a dict with keys:
+            - arch: the xml description of the view.
+            - fields: a dict with the definition of each fields.
+            - toolbar: if toolbar is True, a dict with 'print', 'action', 'relate'
+                keyword action defintion for the view.
+            - md5: the check sum of the above dict that will be used for caching.
+        view_id can specify the id of the view, if empty the system
+            will select the first view
+        view_type specify the type of the view if view_id is empty
+        If hexmd5 is fill, the function will return True if the view have the same
+            md5 or the dict.
+        '''
 
         def _inherit_apply(src, inherit):
 
@@ -2392,6 +2424,10 @@ class ORM(object):
         return (qu1, qu2, tables, tables_args)
 
     def search_count(self, cursor, user, args, context=None):
+        '''
+        Return the number of record that match the clause defined in args.
+        see function search
+        '''
         res = self.search(cursor, user, args, context=context, count=True)
         if isinstance(res, list):
             return len(res)
@@ -2399,6 +2435,32 @@ class ORM(object):
 
     def search(self, cursor, user, args, offset=0, limit=None, order=None,
             context=None, count=False, query_string=False):
+        '''
+        Return a list of id that match the clause defined in args.
+        args is a list of tuple that are construct like this:
+            ('field name', 'operator', value)
+            field name: is the name of a field of the object
+                or a relational field by using '.' as separator.
+            operator can be:
+                child_of  (all the child of a relation field)
+                =
+                like
+                ilike (case insensitive)
+                !=
+                in
+                <=
+                >=
+                <
+                >
+        offset can be used to specify a offset in the result
+        limit can be used to limit the number of ids return
+        order is a list of tupe that are construct like this:
+            ('field name', 'DESC|ASC')
+            it allow to specify the order of the ids in the return list
+        count can be used to return just the len of the list
+        if query_string is True, the function will return a tuple with
+            the SQL query string and the arguments.
+        '''
         # compute the where, order by, limit and offset clauses
         (qu1, qu2, tables, tables_args) = self._where_calc(cursor, user, args,
                 context=context)
@@ -2463,6 +2525,10 @@ class ORM(object):
         return [x[0] for x in res]
 
     def name_get(self, cursor, user, ids, context=None):
+        '''
+        Return a list of tuple for each ids.
+        The tuple contains the id and the name of the record.
+        '''
         if not ids:
             return []
         if isinstance(ids, (int, long)):
@@ -2472,6 +2538,12 @@ class ORM(object):
 
     def name_search(self, cursor, user, name='', args=None, operator='ilike',
             context=None, limit=None):
+        '''
+        Return a list of ids where the name and the args clause matches.
+        args is a clause like in the function search.
+        operator is the operator used to compare the name.
+        limit can be used to limit the number of id.
+        '''
         if args is None:
             args = []
         args = args[:]
@@ -2482,6 +2554,11 @@ class ORM(object):
         return res
 
     def copy(self, cursor, user, object_id, default=None, context=None):
+        '''
+        Duplicate the object_id record.
+        default can be a dict with field name as keys,
+        it will replace the value of the record.
+        '''
         if default is None:
             default = {}
         if 'state' not in default:
@@ -2529,6 +2606,10 @@ class ORM(object):
         return self.create(cursor, user, data)
 
     def check_recursion(self, cursor, user, ids, parent=None):
+        '''
+        Function that check if there is no recursion in the tree
+        composed with parent as parent field name.
+        '''
         if parent is None:
             parent = self._parent_name
         ids_parent = ids[:]
@@ -2550,6 +2631,9 @@ class ORM(object):
         return True
 
     def default_sequence(self, cursor, user, context=None):
+        '''
+        Return the default value for sequence field.
+        '''
         cursor.execute('SELECT MAX(sequence) ' \
                 'FROM "' + self._table + '"')
         res = cursor.fetchone()
