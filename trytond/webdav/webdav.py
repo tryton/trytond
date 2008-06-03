@@ -4,6 +4,9 @@ import base64
 import time
 from trytond.osv import fields, OSV
 from trytond.version import PACKAGE, VERSION, WEBSITE
+from trytond import pooler
+from trytond.pooler import get_pool_report
+from trytond.report import Report
 
 
 class Collection(OSV):
@@ -56,6 +59,8 @@ class Collection(OSV):
     def _uri2object(self, cursor, user, uri, object_name=_name, object_id=False,
             context=None):
         attachment_obj = self.pool.get('ir.attachment')
+        keyword_obj = self.pool.get('ir.action.keyword')
+        report_obj = self.pool.get('ir.action.report')
         if not uri:
             return self._name, False
         name, uri = (uri.split('/', 1) + [None])[0:2]
@@ -92,7 +97,26 @@ class Collection(OSV):
             if uri:
                 if '/' in uri:
                     return None, 0
-                #TODO add report
+                keyword_ids = keyword_obj.search(cursor, user, [
+                    ('keyword', '=', 'form_print'),
+                    ('model', '=', object_name + ',0'),
+                    ], context=context)
+                keywords =  keyword_obj.browse(cursor, user, keyword_ids,
+                        context=context)
+                action_ids = []
+                for keyword in keywords:
+                    if keyword.action.type == 'ir.action.report':
+                        action_ids.append(keyword.action.id)
+                report_ids = report_obj.search(cursor, user, [
+                    ('action.id', 'in', action_ids),
+                    ], context=context)
+                reports = report_obj.browse(cursor, user, report_ids,
+                    context=context)
+                for report in reports:
+                    report_name = report.name + '-' + str(report.id) \
+                            + '.' + report.output_format.format
+                    if uri == report_name:
+                        return 'ir.action.report', object_id
                 name = uri
                 attachment_ids = attachment_obj.search(cursor, user, [
                     ('res_model', '=', object_name),
@@ -112,6 +136,8 @@ class Collection(OSV):
         return object_name, object_id
 
     def get_childs(self, cursor, user, uri, context=None):
+        keyword_obj = self.pool.get('ir.action.keyword')
+        report_obj = self.pool.get('ir.action.report')
         res = []
         if not uri:
             collection_ids = self.search(cursor, user, [
@@ -145,6 +171,28 @@ class Collection(OSV):
                         continue
                     res.append(child.name)
         if object_name not in ('ir.attachment', 'ir.action.report'):
+            keyword_ids = keyword_obj.search(cursor, user, [
+                ('keyword', '=', 'form_print'),
+                ('model', '=', object_name + ',0'),
+                ], context=context)
+            keywords =  keyword_obj.browse(cursor, user, keyword_ids,
+                    context=context)
+            action_ids = []
+            for keyword in keywords:
+                if keyword.action.type == 'ir.action.report':
+                    action_ids.append(keyword.action.id)
+            report_ids = report_obj.search(cursor, user, [
+                ('action.id', 'in', action_ids),
+                ], context=context)
+            reports = report_obj.browse(cursor, user, report_ids,
+                context=context)
+            for report in reports:
+                report_name = report.name + '-' + str(report.id) \
+                        + '.' + report.output_format.format
+                if '/' in report_name:
+                    continue
+                res.append(report_name)
+
             attachment_obj = self.pool.get('ir.attachment')
             attachment_ids = attachment_obj.search(cursor, user, [
                 ('res_model', '=', object_name),
@@ -180,7 +228,7 @@ class Collection(OSV):
     def get_contenttype(self, cursor, user, uri, context=None):
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
-        if object_name == 'ir.attachment':
+        if object_name in ('ir.attachment', 'ir.action.report'):
             ext = os.path.splitext(uri)[1]
             if not ext:
                 return "application/octet-stream"
@@ -220,6 +268,23 @@ class Collection(OSV):
                         context=context)
                 if attachment.datas:
                     return base64.decodestring(attachment.datas)
+            if object_name == 'ir.action.report' and object_id:
+                report_obj = self.pool.get('ir.action.report')
+                report_id = int(uri.rsplit('/', 1)[-1].rsplit('-',
+                    1)[-1].rsplit('.', 1)[0])
+                report = report_obj.browse(cursor, user, report_id,
+                        context=context)
+                if report.report_name:
+                    reportsvc = get_pool_report(cursor.dbname)
+                    report_svc = reportsvc.get(report.report_name)
+                    if not report_svc:
+                        report_svc = Report.create_instance(reportsvc,
+                                'report', pooler.get_pool(cursor.dbname))
+                        report_svc._name = report.report_name
+                    val = report_svc.execute(cursor, user, [object_id],
+                            {'id': object_id, 'ids': [object_id]},
+                            context=context)
+                    return base64.decodestring(val[1])
         raise DAV_NotFound
 
     def put(self, cursor, user, uri, data, content_type, context=None):
