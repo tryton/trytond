@@ -1441,7 +1441,7 @@ class ORM(object):
             if field in self._columns:
                 if self._columns[field]._classic_write:
                     if (not self._columns[field].translate) \
-                            or context.get('lang', 'en_US') == 'en_US':
+                            or context.get('language', 'en_US') == 'en_US':
                         upd0.append('"' + field + '"=' + \
                                 self._columns[field]._symbol_set[0])
                         upd1.append(self._columns[field]._symbol_set[1](
