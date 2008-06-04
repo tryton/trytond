@@ -173,7 +173,7 @@ class User(OSV):
         for field in values:
             if field not in fields or field == 'groups':
                 del values_clean[field]
-        self.write(cursor, 1, user, values_clean, context=context)
+        self.write(cursor, 0, user, values_clean, context=context)
 
     def get_preferences_fields_view(self, cursor, user, context=None):
         res = {}
