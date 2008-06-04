@@ -336,6 +336,6 @@ def load_modules(database, update_module=False, lang=None):
 
     pool = pooler.get_pool(cursor.dbname)
     module_obj = pool.get('ir.module.module')
-    module_obj.update_list(cursor, 1)
+    module_obj.update_list(cursor, 0)
     cursor.commit()
     cursor.close()
