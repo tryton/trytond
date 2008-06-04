@@ -68,13 +68,13 @@ class ConfigManager(object):
         if opt.config:
             self.configfile = opt.config
         else:
-            configdir = os.path.abspath(os.path.normpath(os.path.join(
-                os.path.dirname(__file__), '..')))
             prefixdir = os.path.abspath(os.path.normpath(os.path.join(
                 os.path.dirname(sys.prefix), '..')))
-            self.configfile = os.path.join(configdir, 'etc', 'trytond.conf')
+            self.configfile = os.path.join(prefixdir, 'etc', 'trytond.conf')
             if not os.path.isfile(self.configfile):
-                self.configfile = os.path.join(prefixdir, 'etc', 'trytond.conf')
+                configdir = os.path.abspath(os.path.normpath(os.path.join(
+                    os.path.dirname(__file__), '..')))
+                self.configfile = os.path.join(configdir, 'etc', 'trytond.conf')
         self.load()
 
         # Verify that we want to log or not, if not the output will go to stdout
