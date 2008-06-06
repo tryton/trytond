@@ -538,8 +538,8 @@ class TranslationUpdate(Wizard):
                 'type': 'form',
                 'object': 'ir.translation.update.init',
                 'state': [
-                    ('end', 'Cancel', 'gtk-cancel'),
-                    ('start', 'Start Upgrade','gtk-ok', True),
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('start', 'Start Upgrade','tryton-ok', True),
                 ],
             },
         },
@@ -611,8 +611,8 @@ class TranslationExport(Wizard):
                 'type': 'form',
                 'object': 'ir.translation.export.init',
                 'state': [
-                    ('end', 'Cancel', 'gtk-cancel'),
-                    ('start', 'Start Export', 'gtk-ok', True),
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('start', 'Start Export', 'tryton-ok', True),
                 ],
             },
         },
@@ -622,7 +622,7 @@ class TranslationExport(Wizard):
                 'type': 'form',
                 'object': 'ir.translation.export.start',
                 'state': [
-                    ('end', 'Close', 'gtk-close'),
+                    ('end', 'Close', 'tryton-close'),
                 ],
             },
         },

@@ -509,8 +509,8 @@ class ModuleConfigWizard(Wizard):
                 'type': 'form',
                 'object': 'ir.module.module.config_wizard.first',
                 'state': [
-                    ('end', 'Cancel', 'gtk-cancel'),
-                    ('wizard', 'Ok', 'gtk-ok', True),
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('wizard', 'Ok', 'tryton-ok', True),
                 ],
             },
         },
@@ -617,8 +617,8 @@ class ModuleInstallUpgrade(Wizard):
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.init',
                 'state': [
-                    ('end', 'Cancel', 'gtk-cancel'),
-                    ('start', 'Start Upgrade', 'gtk-ok', True),
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('start', 'Start Upgrade', 'tryton-ok', True),
                 ],
             },
         },
@@ -628,7 +628,7 @@ class ModuleInstallUpgrade(Wizard):
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.start',
                 'state': [
-                    ('config', 'Ok', 'gtk-ok', True),
+                    ('config', 'Ok', 'tryton-ok', True),
                 ],
             },
         },

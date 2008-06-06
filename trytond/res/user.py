@@ -255,8 +255,8 @@ class UserConfig(Wizard):
                 'type': 'form',
                 'object': 'res.user.config.init',
                 'state': [
-                    ('end', 'Cancel', 'gtk-cancel'),
-                    ('user', 'Ok', 'gtk-ok', True),
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('user', 'Ok', 'tryton-ok', True),
                 ],
             },
         },
@@ -266,8 +266,8 @@ class UserConfig(Wizard):
                 'type': 'form',
                 'object': 'res.user',
                 'state': [
-                    ('end', 'End', 'gtk-cancel'),
-                    ('add', 'Add', 'gtk-ok', True),
+                    ('end', 'End', 'tryton-cancel'),
+                    ('add', 'Add', 'tryton-ok', True),
                 ],
             },
         },
