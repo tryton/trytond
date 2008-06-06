@@ -40,8 +40,6 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
         from module import load_modules
         load_modules(database, update_module, lang)
 
-        if not update_module:
-            pool.get('ir.cron').pool_jobs(database.dbname)
     if wizard:
         return database, pool_wizard
     if report:
@@ -73,6 +71,9 @@ def get_db_only(db_name):
 
 def get_db(db_name):
     return get_db_and_pool(db_name)[0]
+
+def get_db_list():
+    return _DB.keys()
 
 def get_pool(db_name, update_module=False, lang=None):
     pool = get_db_and_pool(db_name, update_module, lang=lang)[1]
