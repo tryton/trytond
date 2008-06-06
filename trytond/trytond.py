@@ -206,8 +206,16 @@ class TrytonServer(object):
         if CONFIG['webdav']:
             webdavd.start()
         #DISPATCHER.run()
+        count = 0
         while True:
             time.sleep(1)
+            count += 1
+            if count == 60:
+                #TODO check if we don't need to run pool_jobs in a thread
+                for dbname in pooler.get_db_list():
+                    pool = pooler.get_pool(dbname)
+                    pool.get('ir.cron').pool_jobs(dbname)
+                count = 0
 
 if __name__ == "__main__":
     SERVER = TrytonServer()

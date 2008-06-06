@@ -12,8 +12,6 @@ from trytond import pooler
 from trytond.osv import fields, OSV
 from trytond.netsvc import Agent
 
-NEXT_WAIT = 60
-
 _INTERVALTYPES = {
     'work_days': lambda interval: DateTime.RelativeDateTime(days=interval),
     'days': lambda interval: DateTime.RelativeDateTime(days=interval),
@@ -81,7 +79,7 @@ class Cron(OSV, Agent):
             fct = getattr(obj, func)
             fct(cursor, user, *args)
 
-    def pool_jobs(self, db_name, check=False):
+    def pool_jobs(self, db_name):
         #TODO Error treatment: exception, request, ... -> send request to user
         now = DateTime.now()
         try:
@@ -121,9 +119,5 @@ class Cron(OSV, Agent):
                 cursor.commit()
         finally:
             cursor.close()
-        #TODO improved to do at the min(min(nextcalls), time() + NEWT_WAIT)
-        if not check:
-            self.set_alarm(self.pool_jobs, int(time.time()) + NEXT_WAIT,
-                    [db_name])
 
 Cron()
