@@ -111,7 +111,7 @@
                 <![CDATA[
                 <form string="Add Users" col="2">
                     <separator string="Add Users" align="0.0" colspan="2"/>
-                    <image name="gtk-info"/>
+                    <image name="tryton-dialog-information"/>
                     <group col="1">
                         <label string="You can now add some users into the system."
                             align="0.0"/>

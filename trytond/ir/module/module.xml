@@ -164,7 +164,7 @@
                 <form string="Module Configuration Wizard" col="2">
                     <separator string="Welcome to the module configuration wizard!"
                         align="0.0" colspan="2"/>
-                    <image name="gtk-info"/>
+                    <image name="tryton-dialog-information"/>
                     <group col="1">
                         <label string="You will be able to configure your installation"
                             align="0.0"/>
@@ -192,7 +192,7 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="System Upgrade" col="2">
-                    <image name="gtk-dialog-info"/>
+                    <image name="tryton-dialog-information"/>
                     <group col="4">
                         <label align="0.0"
                             string="Your system will be upgraded."
