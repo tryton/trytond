@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <tryton>
     <data>
-        <menuitem name="Administration" id="menu_administration"/>
+        <menuitem name="Administration" id="menu_administration"
+            icon="tryton-system"/>
         <menuitem name="IR" id="menu_ir" parent="menu_administration"/>
 
         <record model="ir.action.url" id="action_tryton">
