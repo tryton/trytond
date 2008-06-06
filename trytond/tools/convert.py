@@ -83,26 +83,24 @@ class MenuitemTagHandler:
             if icon:
                 values['icon'] = icon
             elif action_type == 'ir.action.wizard':
-                values['icon'] = 'STOCK_EXECUTE'
+                values['icon'] = 'tryton-executable'
             elif action_type == 'ir.action.report':
-                values['icon'] = 'STOCK_PRINT'
+                values['icon'] = 'tryton-print'
             elif action_type == 'ir.action.act_window':
                 if view_type == 'tree':
-                    values['icon'] = 'STOCK_INDENT'
+                    values['icon'] = 'tryton-tree'
                 elif view_mode and view_mode.startswith('tree'):
-                    values['icon'] = 'STOCK_JUSTIFY_FILL'
+                    values['icon'] = 'tryton-spreadsheet'
                 elif view_mode and view_mode.startswith('form'):
-                    values['icon'] = 'STOCK_NEW'
+                    values['icon'] = 'tryton-new'
                 elif view_mode and view_mode.startswith('graph'):
-                    #TODO better icon
-                    values['icon'] = 'STOCK_JUSTIFY_FILL'
+                    values['icon'] = 'tryton-presentation'
                 elif view_mode and view_mode.startswith('calendar'):
-                    #TODO better icon
-                    values['icon'] = 'STOCK_JUSTIFY_FILL'
+                    values['icon'] = 'tryton-calendar'
             elif action_type == 'ir.action.url':
-                values['icon'] = 'STOCK_JUMP_TO'
+                values['icon'] = 'tryton-web-browser'
             else:
-                values['icon'] = 'STOCK_NEW'
+                values['icon'] = 'tryton-new'
 
         if values.get('groups'):
             g_names = values['groups'].split(',')
