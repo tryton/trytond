@@ -123,6 +123,19 @@ class User(OSV):
                             '(updates, module installation, ...)')
         return super(User, self).unlink(cursor, user, ids, context=context)
 
+    def read(self, cursor, user, ids, fields_names=None, context=None,
+            load='_classic_write'):
+        res = super(User, self).read(cursor, user, ids, fields_names=fields_names,
+                context=context, load=load)
+        if isinstance(ids, (int, long)):
+            if 'password' in res:
+                res['password'] = 'x' * 10
+        else:
+            for val in res:
+                if 'password' in val:
+                    val['password'] = 'x' * 10
+        return res
+
     def name_search(self, cursor, user, name='', args=None, operator='ilike',
             context=None, limit=80):
         if args is None:
