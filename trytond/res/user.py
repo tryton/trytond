@@ -99,6 +99,8 @@ class User(OSV):
         if 'menu' in vals:
             vals['menu'] = action_obj.get_action_id(cursor, user,
                     vals['menu'], context=context)
+        if 'password' in vals and vals['password'] == 'x' * 10:
+            del vals['password']
         return vals
 
     def create(self, cursor, user, vals, context=None):
