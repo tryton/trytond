@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from trytond.netsvc import Service, Logger, LOG_ERROR, LOG_INFO, LOG_WARNING
 import threading
 from trytond import security
