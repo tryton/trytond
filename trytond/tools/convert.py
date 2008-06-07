@@ -98,7 +98,7 @@ class MenuitemTagHandler:
                 elif view_mode and view_mode.startswith('form'):
                     values['icon'] = 'tryton-new'
                 elif view_mode and view_mode.startswith('graph'):
-                    values['icon'] = 'tryton-presentation'
+                    values['icon'] = 'tryton-graph'
                 elif view_mode and view_mode.startswith('calendar'):
                     values['icon'] = 'tryton-calendar'
             elif action_type == 'ir.action.url':

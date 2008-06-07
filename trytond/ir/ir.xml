@@ -2,7 +2,7 @@
 <tryton>
     <data>
         <menuitem name="Administration" id="menu_administration"
-            icon="tryton-system"/>
+            icon="tryton-preference-system"/>
         <menuitem name="IR" id="menu_ir" parent="menu_administration"/>
 
         <record model="ir.action.url" id="action_tryton">
