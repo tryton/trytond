@@ -115,7 +115,10 @@ class BrowseRecord(object):
                         continue
                     if j._type in ('many2one', 'one2one'):
                         if not j._classic_write and data[i]:
-                            ids2 = data[i][0]
+                            if isinstance(data[i][0], (list, tuple)):
+                                ids2 = data[i][0][0]
+                            else:
+                                ids2 = data[i][0]
                         else:
                             ids2 = data[i]
                         data[i] = BrowseRecord(self._cursor, self._user,
