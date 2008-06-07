@@ -42,7 +42,11 @@ class Default(OSV):
         ctx['Decimal'] = Decimal
         for default in self.browse(cursor, user, default_ids, context=context):
             if default.field.name not in res:
-                res[default.field.name] = eval(default.value)
+                if default.field.ttype in ('reference', 'char', 'sha', 'text',
+                        'date', 'datetime', 'time', 'selection'):
+                    res[default.field.name] = default.value
+                else:
+                    res[default.field.name] = eval(default.value)
         return res
 
     def set_default(self, cursor, user, model, field, clause, value,
