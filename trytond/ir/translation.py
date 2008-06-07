@@ -1,6 +1,9 @@
 "Translation"
 import base64
-from StringIO import StringIO
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 import csv
 from trytond.osv import fields, OSV, Cacheable
 from trytond.wizard import Wizard, WizardOSV
@@ -397,7 +400,7 @@ class Translation(OSV, Cacheable):
             db_id2fs_id.setdefault(model_data.model, {})
             db_id2fs_id[model_data.model][model_data.db_id] = model_data.fs_id
 
-        buf = StringIO()
+        buf = StringIO.StringIO()
         writer = csv.writer(buf, 'TRYTON')
         writer.writerow(HEADER)
 

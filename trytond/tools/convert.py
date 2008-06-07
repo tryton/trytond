@@ -1,6 +1,10 @@
 "Convert"
 import re
-import StringIO, xml.dom.minidom
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
+import xml.dom.minidom
 from trytond import pooler
 from trytond.osv.fields import Integer
 import csv

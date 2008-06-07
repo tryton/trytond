@@ -7,7 +7,10 @@ from xml import dom
 from trytond.osv import ExceptORM, ExceptOSV, OSV
 import sys
 import base64
-import StringIO
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 import zipfile
 import locale
 import time

@@ -9,6 +9,10 @@ import socket
 import zipfile
 from trytond import pooler
 from threading import Semaphore
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 
 if sys.version_info[:2] < (2, 4):
     from threadinglocal import local
@@ -89,7 +93,6 @@ def file_open(name, mode="r", subdir='modules'):
         else:
             zipname = tail
         if zipfile.is_zipfile(head+'.zip'):
-            import StringIO
             zfile = zipfile.ZipFile(head+'.zip')
             try:
                 return StringIO.StringIO(zfile.read(os.path.join(
