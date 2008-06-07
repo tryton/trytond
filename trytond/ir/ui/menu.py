@@ -89,7 +89,7 @@ class UIMenu(OSV):
         self._order.insert(0, ('sequence', 'ASC'))
 
     def default_icon(self, cursor, user, context=None):
-        return 'STOCK_OPEN'
+        return 'tryton-open'
 
     def default_sequence(self, cursor, user, context=None):
         return 10
