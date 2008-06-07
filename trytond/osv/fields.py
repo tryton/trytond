@@ -106,10 +106,44 @@ integer = Integer
 
 class Reference(Column):
     _type = 'reference'
+    _classic_read = False
 
     def __init__(self, string, selection, size, **args):
         Column.__init__(self, string=string, size=size, selection=selection,
                 **args)
+
+    def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
+            values=None):
+        if values is None:
+            values = {}
+        res = {}
+        for i in values:
+            res[i['id']] = i[name]
+        for i in ids:
+            if not (i in res):
+                res[i] = False
+                continue
+            if not res[i]:
+                continue
+            ref_model, ref_id = res[i].split(',', 1)
+            ref_obj = obj.pool.get(ref_model)
+            if not ref_obj:
+                continue
+            try:
+                ref_id = eval(ref_id)
+            except:
+                pass
+            if ref_id:
+                ref_name = ref_obj.name_get(cursor, user, ref_id,
+                        context=context)
+                if ref_name:
+                    ref_name = ref_name[0][1]
+                else:
+                    ref_name = ''
+            else:
+                ref_name = ''
+            res[i] = ref_model + ',(' + str(ref_id) + ',"' + ref_name + '")'
+        return res
 
     def sql_type(self):
         return ('varchar', 'varchar(%d)' % (self.size,))

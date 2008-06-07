@@ -131,10 +131,13 @@ class UIMenu(OSV):
                 ], context=context)
             if action_id:
                 action_id = action_id[0]
+                action_name = action_obj.name_get(cursor, user, action_id,
+                        context=context)[0][1]
             else:
                 action_id = 0
+                action_name = ''
             res[model_id] = action_keyword.action.type + \
-                    ',' + str(action_id)
+                    ',(' + str(action_id) + ',"' + action_name + '")'
         return res
 
     def action_inv(self, cursor, user, menu_id, name, value, arg,
