@@ -10,6 +10,7 @@ def one_in(i, j):
     return False
 
 ICONS = [(x, x) for x in [
+    'tryton-accessories',
     'tryton-attachment',
     'tryton-clear',
     'tryton-close',
@@ -18,6 +19,7 @@ ICONS = [(x, x) for x in [
     'tryton-connect',
     'tryton-copy',
     'tryton-delete',
+    'tryton-development',
     'tryton-dialog-error',
     'tryton-dialog-information',
     'tryton-dialog-warning',
@@ -28,6 +30,7 @@ ICONS = [(x, x) for x in [
     'tryton-folder-new',
     'tryton-folder-saved-search',
     'tryton-fullscreen',
+    'tryton-graph',
     'tryton-go-home',
     'tryton-go-jump',
     'tryton-go-next',
@@ -45,6 +48,7 @@ ICONS = [(x, x) for x in [
     'tryton-open',
     'tryton-package',
     'tryton-preferences',
+    'tryton-preferences-system',
     'tryton-preferences-system-session',
     'tryton-presentation',
     'tryton-print',
