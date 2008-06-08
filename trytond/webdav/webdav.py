@@ -59,7 +59,6 @@ class Collection(OSV):
     def _uri2object(self, cursor, user, uri, object_name=_name, object_id=False,
             context=None):
         attachment_obj = self.pool.get('ir.attachment')
-        keyword_obj = self.pool.get('ir.action.keyword')
         report_obj = self.pool.get('ir.action.report')
         if not uri:
             return self._name, False
@@ -97,18 +96,8 @@ class Collection(OSV):
             if uri:
                 if '/' in uri:
                     return None, 0
-                keyword_ids = keyword_obj.search(cursor, user, [
-                    ('keyword', '=', 'form_print'),
-                    ('model', '=', object_name + ',0'),
-                    ], context=context)
-                keywords =  keyword_obj.browse(cursor, user, keyword_ids,
-                        context=context)
-                action_ids = []
-                for keyword in keywords:
-                    if keyword.action.type == 'ir.action.report':
-                        action_ids.append(keyword.action.id)
                 report_ids = report_obj.search(cursor, user, [
-                    ('action.id', 'in', action_ids),
+                    ('model', '=', object_name),
                     ], context=context)
                 reports = report_obj.browse(cursor, user, report_ids,
                     context=context)
@@ -136,7 +125,6 @@ class Collection(OSV):
         return object_name, object_id
 
     def get_childs(self, cursor, user, uri, context=None):
-        keyword_obj = self.pool.get('ir.action.keyword')
         report_obj = self.pool.get('ir.action.report')
         res = []
         if not uri:
@@ -171,18 +159,8 @@ class Collection(OSV):
                         continue
                     res.append(child.name)
         if object_name not in ('ir.attachment', 'ir.action.report'):
-            keyword_ids = keyword_obj.search(cursor, user, [
-                ('keyword', '=', 'form_print'),
-                ('model', '=', object_name + ',0'),
-                ], context=context)
-            keywords =  keyword_obj.browse(cursor, user, keyword_ids,
-                    context=context)
-            action_ids = []
-            for keyword in keywords:
-                if keyword.action.type == 'ir.action.report':
-                    action_ids.append(keyword.action.id)
             report_ids = report_obj.search(cursor, user, [
-                ('action.id', 'in', action_ids),
+                ('model', '=', object_name),
                 ], context=context)
             reports = report_obj.browse(cursor, user, report_ids,
                 context=context)
