@@ -7,8 +7,9 @@ class Lang(OSV):
     _name = "ir.lang"
     _log_access = False
     _description = __doc__
-    name = fields.Char('Name', size=64, required=True)
-    code = fields.Char('Code', size=5, required=True)
+    name = fields.Char('Name', required=True)
+    code = fields.Char('Code', required=True,
+            help="RFC 4646 tag: http://tools.ietf.org/html/rfc4646")
     translatable = fields.Boolean('Translatable')
     active = fields.Boolean('Active')
     direction = fields.Selection([
