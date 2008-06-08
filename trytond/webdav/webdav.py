@@ -224,7 +224,8 @@ class Collection(OSV):
             cursor.execute('SELECT EXTRACT(epoch FROM create_date) ' \
                     'FROM "' + model_obj._table +'" ' \
                     'WHERE id = %s', (object_id,))
-            return cursor.fetchone()[0]
+            if cursor.rowcount:
+                return cursor.fetchone()[0]
         return time.time()
 
     def get_lastmodified(self, cursor, user, uri, context=None):
@@ -235,7 +236,8 @@ class Collection(OSV):
             cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
                     'FROM "' + model_obj._table +'" ' \
                     'WHERE id = %s', (object_id,))
-            return cursor.fetchone()[0]
+            if cursor.rowcount:
+                return cursor.fetchone()[0]
         return time.time()
 
     def get_data(self, cursor, user, uri, context=None):
