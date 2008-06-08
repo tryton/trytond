@@ -249,8 +249,11 @@ class Collection(OSV):
                 attachment_obj = self.pool.get('ir.attachment')
                 attachment = attachment_obj.browse(cursor, user, object_id,
                         context=context)
-                if attachment.datas:
-                    return base64.decodestring(attachment.datas)
+                try:
+                    if attachment.datas:
+                        return base64.decodestring(attachment.datas)
+                except:
+                    raise DAV_NotFound
             if object_name == 'ir.action.report' and object_id:
                 report_obj = self.pool.get('ir.action.report')
                 report_id = int(uri.rsplit('/', 1)[-1].rsplit('-',
