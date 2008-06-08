@@ -235,7 +235,10 @@ class Report(object):
         localcontext.update(context)
         if not report.report_content:
             raise ExceptOSV('Error', 'Missing report file!')
-        content_io = StringIO.StringIO(report.report_content)
+        #cStringIO difference:
+        #calling StringIO() with a string parameter creates a read-only object
+        content_io = StringIO.StringIO()
+        content_io.write(report.report_content)
         content_z = zipfile.ZipFile(content_io, mode='r')
         content_xml = content_z.read('content.xml')
         dom = xml.dom.minidom.parseString(content_xml)
@@ -252,7 +255,10 @@ class Report(object):
 
         pictures = []
         if report.style_content:
-            style2_io = StringIO.StringIO(report.style_content)
+            #cStringIO difference:
+            #calling StringIO() with a string parameter creates a read-only object
+            style2_io = StringIO.StringIO()
+            style2_io.write(report.style_content)
             style2_z = zipfile.ZipFile(style2_io, mode='r')
             style2_xml = style2_z.read('styles.xml')
             for file in style2_z.namelist():
