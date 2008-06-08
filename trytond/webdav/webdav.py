@@ -199,8 +199,11 @@ class Collection(OSV):
             attachment_obj = self.pool.get('ir.attachment')
             attachment = attachment_obj.browse(cursor, user, object_id,
                     context=context)
-            if attachment.datas_size:
-                return str(attachment.datas_size)
+            try:
+                if attachment.datas_size:
+                    return str(attachment.datas_size)
+            except:
+                return '0'
         return '0'
 
     def get_contenttype(self, cursor, user, uri, context=None):
