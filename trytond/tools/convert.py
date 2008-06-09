@@ -702,10 +702,11 @@ def post_import(cursor, module, to_delete):
                 'Deleting %s@%s' % (db_id, model))
         try:
             # Deletion of the record
-            pool.get(model).unlink(cursor, user, db_id)
+            model_obj = pool.get(model)
+            model_obj.unlink(cursor, user, db_id)
             mdata_unlink.append(mdata_id)
             cursor.commit()
-        except:
+        except Exception, exception:
             cursor.rollback()
             logger.notify_channel('init', LOG_ERROR,
                     'Could not delete id: %d of model %s\n' \
