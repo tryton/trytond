@@ -58,8 +58,10 @@ class ModelAccess(OSV):
     _name = 'ir.model.access'
     _description = __doc__
     _rec_name = 'model'
-    model = fields.Many2One('ir.model', 'Model', required=True)
-    group = fields.Many2One('res.group', 'Group')
+    model = fields.Many2One('ir.model', 'Model', required=True,
+            ondelete="CASCADE")
+    group = fields.Many2One('res.group', 'Group',
+            ondelete="CASCADE")
     perm_read = fields.Boolean('Read Access')
     perm_write = fields.Boolean('Write Access')
     perm_create = fields.Boolean('Create Access')
