@@ -39,6 +39,7 @@ ICONS = [(x, x) for x in [
     'tryton-help',
     'tryton-image-missing',
     'tryton-information',
+    'tryton-lock',
     'tryton-list',
     'tryton-list-add',
     'tryton-list-remove',
