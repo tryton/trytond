@@ -94,7 +94,7 @@ class MenuitemTagHandler:
                 if view_type == 'tree':
                     values['icon'] = 'tryton-tree'
                 elif view_mode and view_mode.startswith('tree'):
-                    values['icon'] = 'tryton-spreadsheet'
+                    values['icon'] = 'tryton-list'
                 elif view_mode and view_mode.startswith('form'):
                     values['icon'] = 'tryton-new'
                 elif view_mode and view_mode.startswith('graph'):
