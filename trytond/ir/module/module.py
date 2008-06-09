@@ -156,15 +156,6 @@ class Module(OSV):
                 'The name of the module must be unique!'),
         ]
         self._order.insert(0, ('name', 'ASC'))
-
-    def default_state(self, cursor, user, context=None):
-        return 'uninstalled'
-
-    def default_license(self, cursor, user, context=None):
-        return 'GPL-2'
-
-    def __init__(self):
-        super(Module, self).__init__()
         self._rpc_allowed += [
             'button_install',
             'button_install_cancel',
@@ -174,6 +165,12 @@ class Module(OSV):
             'button_upgrade_cancel',
             'button_update_translations',
         ]
+
+    def default_state(self, cursor, user, context=None):
+        return 'uninstalled'
+
+    def default_license(self, cursor, user, context=None):
+        return 'GPL-2'
 
     @staticmethod
     def get_module_info(name):
