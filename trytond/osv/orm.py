@@ -207,6 +207,9 @@ class ORM(object):
     __columns = None
     __defaults = None
 
+    def _reset_columns(self):
+        self.__columns = None
+
     def _getcolumns(self):
         if self.__columns:
             return self.__columns
@@ -220,6 +223,9 @@ class ORM(object):
         return res
 
     _columns = property(fget=_getcolumns)
+
+    def _reset_defaults(self):
+        self.__defaults = None
 
     def _getdefaults(self):
         if self.__defaults:
