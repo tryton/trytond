@@ -14,6 +14,7 @@ ICONS = [(x, x) for x in [
     'tryton-attachment',
     'tryton-clear',
     'tryton-close',
+    'tryton-calculator',
     'tryton-calendar',
     'tryton-clock',
     'tryton-connect',
