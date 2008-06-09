@@ -143,7 +143,7 @@ class ModelAccess(OSV):
     def unlink(self, cursor, user, ids, context=None):
         res = super(ModelAccess, self).unlink(cursor, user, ids,
                 context=context)
-        self.check.cursor()
+        self.check(cursor.dbname)
         return res
 
 ModelAccess()
