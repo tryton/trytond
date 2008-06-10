@@ -72,7 +72,8 @@ class DB(Service):
                 logger.notify_channel("web-service", LOG_INFO,
                     'CREATE DB: %s' % (db_name,))
         finally:
-            cursor.close()
+            if cursor:
+                cursor.close()
         return res
 
     def drop(self, password, db_name):
