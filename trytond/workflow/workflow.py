@@ -208,15 +208,24 @@ class InstanceGraph(Report):
             raise ExceptOSV('UserError', 'No workflow instance defined!')
         instance_id = instance_id[0]
 
-        graph = pydot.Dot(fontsize=16,
-                label="\\n\\nWorkflow: %s\\n OSV: %s" % \
-                        (workflow.name, workflow.osv))
+        title = "Workflow: %s OSV: %s" % (workflow.name, workflow.osv)
+        if pydot.__version__ == '1.0.2':
+            # version 1.0.2 doesn't quote correctly label on Dot object
+            title = '"' + title + '"'
+        graph = pydot.Dot(fontsize='16',
+                label=title)
         graph.set('center', '1')
         graph.set('ratio', 'auto')
         if lang.direction == 'ltr':
-            graph.set('rankdir', 'LR')
+            if hasattr(graph, 'set_rankdir'):
+                graph.set_rankdir('LR')
+            else:
+                graph.set('rankdir', 'LR')
         else:
-            graph.set('rankdir', 'RL')
+            if hasattr(graph, 'set_rankdir'):
+                graph.set_rankdir('RL')
+            else:
+                graph.set('rankdir', 'RL')
         self.graph_instance_get(cursor, user, graph, instance_id,
                 datas.get('nested', False), context=context)
         data = graph.create(prog='dot', format='png')
@@ -275,7 +284,7 @@ class InstanceGraph(Report):
                 workflow = workflow_obj.browse(cursor, user,
                         activity.subflow.id, context=context)
                 subgraph = pydot.Cluster('subflow' + str(workflow.id),
-                        fontsize=12, label="Subflow: " + activity.name + \
+                        fontsize='12', label="Subflow: " + activity.name + \
                                 '\\nOSV: ' + workflow.osv)
                 (substart, substop) = self.graph_get(cursor, user,
                         subgraph, workflow.id, nested, workitem,
@@ -320,8 +329,8 @@ class InstanceGraph(Report):
                     transition.signal, actfrom[transition.act_from.id][0])
             activity_to = actto[transition.act_to.id][1].get(
                     transition.signal, actto[transition.act_to.id][0])
-            graph.add_edge(pydot.Edge(activity_from, activity_to,
-                fontsize=10, **args))
+            graph.add_edge(pydot.Edge(str(activity_from), str(activity_to),
+                fontsize='10', **args))
         return ((start, {}), (stop.values()[0], stop))
 
 InstanceGraph()
