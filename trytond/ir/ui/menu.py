@@ -80,7 +80,7 @@ class UIMenu(OSV):
     groups = fields.Many2Many('res.group', 'ir_ui_menu_group_rel',
        'menu_id', 'gid', 'Groups')
     complete_name = fields.Function('get_full_name',
-       string='Complete Name', type='char', size=128)
+       string='Complete Name', type='char', size=128, order_field='name')
     icon = fields.selection(ICONS, 'Icon', size=64)
     action = fields.Function('get_action', fnct_inv='action_inv',
        type='reference', string='Action',
