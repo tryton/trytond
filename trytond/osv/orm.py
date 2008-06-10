@@ -2581,7 +2581,9 @@ class ORM(object):
             order_by2, tables2, clause = self._order_calc(cursor, user,
                     field, otype, context=context)
             order_by += order_by2
-            tables += tables2
+            for table in tables2:
+                if table not in tables:
+                    tables.append(table)
             if clause:
                 if qu1:
                     qu1 += ' AND ' + clause
