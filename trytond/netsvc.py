@@ -192,13 +192,8 @@ class GenericXMLRPCRequestHandler:
 
 class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
-    SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.rpc_paths = (
-            '/xmlrpc/db',
-            '/xmlrpc/common',
-            '/xmlrpc/object',
-            '/xmlrpc/report',
-            '/xmlrpc/wizard',
-            )
+    SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.rpc_paths = \
+            map(lambda s: '/xmlrpc/%s' % s, _SERVICE)
 
 
 class SecureXMLRPCRequestHandler(SimpleXMLRPCRequestHandler):
