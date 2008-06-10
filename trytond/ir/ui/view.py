@@ -11,7 +11,7 @@ class View(OSV):
     _name = 'ir.ui.view'
     _description = __doc__
     _rec_name = 'model'
-    model = fields.Char('Model', size=None, required=True, select=1)
+    model = fields.Char('Model', required=True, select=1)
     priority = fields.Integer('Priority', required=True, select=1)
     type = fields.Selection([
        ('tree','Tree'),
@@ -22,8 +22,8 @@ class View(OSV):
        ], 'View Type', required=True, select=1)
     arch = fields.Text('View Architecture', required=True)
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1)
-    field_childs = fields.Char('Childs Field',size=64)
-    module = fields.Char('Module', size=128, readonly=True)
+    field_childs = fields.Char('Childs Field')
+    module = fields.Char('Module', readonly=True)
 
     def __init__(self):
         super(View, self).__init__()
@@ -54,11 +54,6 @@ class View(OSV):
         for trans in cursor.dictfetchall():
             trans_views.setdefault(trans['name'], {})
             trans_views[trans['name']][trans['src']] = trans
-        model_data_obj = self.pool.get('ir.model.data')
-        model_data_ids = model_data_obj.search(cursor, user, [
-            ('model', '=', self._name),
-            ('db_id', 'in', ids),
-            ])
         for view in views:
             logger = Logger()
             try:
@@ -121,12 +116,13 @@ class View(OSV):
                         'VALUES (%s, %s, %s, %s, %s, %s)',
                         (view.model, 'en_US', 'view', string, '',
                             view.module))
-            cursor.execute('DELETE FROM ir_translation ' \
-                    'WHERE name = %s ' \
-                        'AND type = %s ' \
-                        'AND src NOT IN ' \
-                            '(' + ','.join(['%s' for x in strings]) + ')',
-                    (view.model, 'view') + tuple(strings))
+            if strings:
+                cursor.execute('DELETE FROM ir_translation ' \
+                        'WHERE name = %s ' \
+                            'AND type = %s ' \
+                            'AND src NOT IN ' \
+                                '(' + ','.join(['%s' for x in strings]) + ')',
+                        (view.model, 'view') + tuple(strings))
         return True
 
     def unlink(self, cursor, user, ids, context=None):
@@ -197,12 +193,12 @@ class ViewShortcut(OSV):
     "View shortcut"
     _name = 'ir.ui.view_sc'
     _description = __doc__
-    name = fields.Char('Shortcut Name', size=64, required=True)
+    name = fields.Char('Shortcut Name', required=True)
     res_id = fields.Integer('Resource Ref.', required=True)
     sequence = fields.Integer('Sequence')
     user_id = fields.Many2One('res.user', 'User Ref.', required=True,
        ondelete='cascade')
-    resource = fields.Char('Resource Name', size=64, required=True)
+    resource = fields.Char('Resource Name', required=True)
 
     def __init__(self):
         super(ViewShortcut, self).__init__()

@@ -434,9 +434,9 @@ class Report(object):
             if lang and text and not text.isspace():
                 translation_obj = self.pool.get('ir.translation')
                 new_text = translation_obj._get_source(cursor,
-                        self._name, 'rml', lang, text)
+                        self._name, 'odt', lang, text)
                 if new_text:
-                    node.nodeValue = new_text
+                    node.nodeValue = new_text.decode('utf-8')
         return None
 
     def repeat_in(self, lst, name, parents=False, tnode=None, node_context=None):

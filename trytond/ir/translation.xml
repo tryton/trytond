@@ -66,6 +66,43 @@
         </record>
         <menuitem name="Translations" parent="ir.menu_ir"
             action="act_translation_form" id="menu_translation_form"/>
+
+        <record model="ir.ui.view" id="act_translation_update_report_init_view_form">
+            <field name="model">ir.translation.update_report.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Update Report Translations">
+                    <label string="Update Report Translations?"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.action.wizard" id="act_translation_update_report">
+            <field name="name">Update Report Translations</field>
+            <field name="wiz_name">ir.translation.update_report</field>
+        </record>
+        <menuitem name="Update Report Translations"
+            parent="menu_translation_form"
+            action="act_translation_update_report"
+            type="wizard"
+            id="menu_translation_update_report"
+            sequence="10"/>
+
+        <record model="ir.ui.view" id="act_translation_update_init_view_form">
+            <field name="model">ir.translation.update.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Update Translations">
+                    <label name="lang"/>
+                    <field name="lang"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
         <record model="ir.action.wizard" id="act_translation_update">
             <field name="name">Update Translations</field>
             <field name="wiz_name">ir.translation.update</field>
@@ -74,7 +111,9 @@
             parent="menu_translation_form"
             action="act_translation_update"
             type="wizard"
-            id="menu_translation_update"/>
+            id="menu_translation_update"
+            sequence="20"/>
+
         <record model="ir.action.wizard" id="act_translation_export">
             <field name="name">Export Translations</field>
             <field name="wiz_name">ir.translation.export</field>
@@ -83,6 +122,7 @@
             parent="menu_translation_form"
             action="act_translation_export"
             type="wizard"
-            id="menu_translation_export"/>
+            id="menu_translation_export"
+            sequence="30"/>
     </data>
 </tryton>
