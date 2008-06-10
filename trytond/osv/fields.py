@@ -65,6 +65,7 @@ class Column(object):
         self.view_load = 0
         self.select = select
         self.on_change = on_change
+        self.order_field = None
         for i in args:
             if args[i]:
                 setattr(self, i, args[i])

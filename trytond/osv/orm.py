@@ -194,6 +194,7 @@ class ORM(object):
     _table = None
     _name = None
     _rec_name = 'name'
+    _order_name = None # Use to force order field when sorting on Many2One
     _parent_name = 'parent'
     _date_name = 'date'
     _order = None
@@ -2445,6 +2446,97 @@ class ORM(object):
             return len(res)
         return res
 
+    def _order_calc(self, cursor, user, field, otype, context=None):
+        order_by = []
+        tables = []
+        field_name = None
+        table_name = None
+        link_field = None
+        clause = ''
+
+        if field in self._columns:
+            table_name = self._table
+
+            if self._columns[field]._classic_write:
+                field_name = field
+
+            if self._columns[field].order_field:
+                field_name = self._columns[field].order_field
+
+            if isinstance(self._columns[field], fields.Many2One):
+                obj = self.pool.get(self._columns[field]._obj)
+                table_name = obj._table
+                link_field = field
+                field_name = None
+
+                if obj._rec_name in obj._columns:
+                    field_name = obj._rec_name
+
+                if obj._order_name in obj._columns:
+                    field_name = obj._order_name
+
+                if field_name:
+                    order_by, tables, clause = obj._order_calc(cursor, user,
+                            field_name, otype, context=context)
+                    if '"' + table_name + '"' not in tables:
+                        tables.append('"' + table_name + '"')
+                        if clause:
+                            clause += ' AND '
+                        clause += ' %s.%s = %s.id' % (self._table, link_field,
+                                table_name)
+                    return order_by, tables, clause
+
+                obj2 = None
+                if obj._rec_name in obj._inherit_fields.keys():
+                    obj2 = self.pool.get(obj._inherit_fields[obj._rec_name][0])
+                    field_name = obj._rec_name
+
+                if obj._order_name in obj._inherit_fields.keys():
+                    obj2 = self.pool.get(obj._inherit_fields[obj._order_name][0])
+                    field_name = obj._order_name
+
+                if obj2 and field_name:
+                    table_name2 = obj2._table
+                    link_field2 = obj._inherits[obj2._name]
+                    order_by, tables, clause = obj2._order_calc(cursor, user,
+                            field_name, otype, context=context)
+
+                    if '"' + table_name + '"' not in tables:
+                        tables.append('"' + table_name + '"')
+                        if clause:
+                            clause += ' AND '
+                        clause += ' %s.%s = %s.id' % (self._table, link_field,
+                                table_name)
+
+                    if '"' + table_name2 + '"' not in tables:
+                        tables.append('"' + table_name2 + '"')
+                        if clause:
+                            clause += ' AND '
+                        clause += ' %s.%s = %s.id' % (obj._table, link_field2,
+                                table_name2)
+                    return order_by, tables, clause
+
+            if field_name:
+                order_by.append(table_name + '.' + field_name + ' ' + otype)
+                return order_by, tables, clause
+
+        if field in self._inherit_fields.keys():
+            obj = self.pool.get(self._inherit_fields[field][0])
+            table_name = obj._table
+            link_field = self._inherits[obj._name]
+            order_by, tables, clause = obj._order_calc(cursor, user, field,
+                    otype, context=context)
+            if '"' + table_name + '"' not in tables:
+                tables.append('"' + table_name + '"')
+                if clause:
+                    clause += ' AND '
+                clause += ' %s.%s = %s.id' % (self._table, link_field,
+                        table_name)
+            return order_by, tables, clause
+
+        raise ExceptORM('Error', 'Wrong field name (%s) in order!' \
+                % field)
+
     def search(self, cursor, user, args, offset=0, limit=None, order=None,
             context=None, count=False, query_string=False):
         '''
@@ -2486,25 +2578,16 @@ class ORM(object):
         for field, otype in (order or self._order):
             if otype.upper() not in ('DESC', 'ASC'):
                 raise ExceptORM('Error', 'Wrong order type (%s)!' % otype)
-            if (field not in self._columns \
-                    or not self._columns[field]._classic_write) \
-                    and (field not in self._inherit_fields.keys() \
-                    or not self._inherit_fields[field][2]._classic_write):
-                raise ExceptORM('Error', 'Wrong field name (%s) in order!' \
-                        % field)
-            if field in self._inherit_fields.keys():
-                obj = self.pool.get(self._inherit_fields[field][0])
-                order_by.append(obj._table + '.' + field + ' ' + otype)
-                if '"' + obj._table + '"' not in tables:
-                    tables.append('"' + obj._table + '"')
-                    if len(qu1):
-                        qu1 += ' AND '
-                    else:
-                        qu1 = ' WHERE '
-                    qu1 += ' %s.%s = %s.id' % (self._table,
-                            self._inherits[obj._name], obj._table)
-            else:
-                order_by.append(self._table + '.' + field + ' ' + otype)
+            order_by2, tables2, clause = self._order_calc(cursor, user,
+                    field, otype, context=context)
+            order_by += order_by2
+            tables += tables2
+            if clause:
+                if qu1:
+                    qu1 += ' AND ' + clause
+                else:
+                    qu1 += 'WHERE ' + clause
+
         order_by = ','.join(order_by)
 
         limit_str = limit and (type(limit) in (float, int, long))\
