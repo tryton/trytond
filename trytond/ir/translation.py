@@ -4,6 +4,9 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
+import zipfile
+from xml import dom
+from difflib import SequenceMatcher
 import csv
 from trytond.osv import fields, OSV, Cacheable
 from trytond.wizard import Wizard, WizardOSV
@@ -437,6 +440,144 @@ class Translation(OSV, Cacheable):
 Translation()
 
 
+class ReportTranslationUpdateInit(WizardOSV):
+    "Update Report Translation"
+    _name = 'ir.translation.update_report.init'
+    _description = __doc__
+
+ReportTranslationUpdateInit()
+
+
+class ReportTranslationUpdate(Wizard):
+    "Update report translation"
+    _name = "ir.translation.update_report"
+
+    states = {
+        'init': {
+            'actions': [],
+            'result': {
+                'type': 'form',
+                'object': 'ir.translation.update_report.init',
+                'state': [
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('start', 'Start Update', 'tryton-ok', True),
+                ],
+            },
+        },
+        'start': {
+            'actions': ['_update_report_translation'],
+            'result': {
+                'type': 'action',
+                'action': '_action_translation_open',
+                'state': 'end',
+            },
+        },
+    }
+
+    def _translate_report(self, node):
+        strings = []
+
+        if node.nodeType in (node.CDATA_SECTION_NODE, node.TEXT_NODE):
+            if node.parentNode \
+                    and node.parentNode.tagName == 'text:text-input':
+                return strings
+
+            if node.nodeValue:
+                txt = node.nodeValue.encode('utf-8').strip()
+                if txt:
+                    strings.append(txt)
+
+        for child in [x for x in node.childNodes]:
+            strings.extend(self._translate_report(child))
+        return strings
+
+    def _update_report_translation(self, cursor, user, data, context):
+        report_obj = self.pool.get('ir.action.report')
+        report_ids = report_obj.search(cursor, user, [], context=context)
+        reports = report_obj.browse(cursor, user, report_ids, context=context)
+
+        cursor.execute('SELECT id, name, src FROM ir_translation ' \
+                'WHERE lang = %s ' \
+                    'AND type = %s ' \
+                    'AND name IN ' \
+                        '(' + ','.join(['%s' for x in reports]) + ')',
+                ('en_US', 'odt') + tuple([x.report_name for x in reports]))
+        trans_reports = {}
+        for trans in cursor.dictfetchall():
+            trans_reports.setdefault(trans['name'], {})
+            trans_reports[trans['name']][trans['src']] = trans
+
+        for report in reports:
+            try:
+                content = report.report_content
+            except:
+                continue
+            if not content:
+                continue
+
+            content_io = StringIO.StringIO(report.report_content)
+            content_z = zipfile.ZipFile(content_io, mode='r')
+            content_xml = content_z.read('content.xml')
+
+            document = dom.minidom.parseString(content_xml)
+
+            strings = self._translate_report(document.documentElement)
+
+            for string in {}.fromkeys(strings).keys():
+                done = False
+                if string in trans_reports.get(report.report_name, {}):
+                    del trans_reports[report.report_name][string]
+                    continue
+                for string_trans in trans_reports.get(report.report_name, {}):
+                    seqmatch = SequenceMatcher(lambda x: x == ' ',
+                            string, string_trans)
+                    if seqmatch.ratio() == 1.0:
+                        del trans_reports[report.report_name][string_trans]
+                        done = True
+                        break
+                    if seqmatch.ratio() > 0.6:
+                        cursor.execute('UPDATE ir_translation ' \
+                                'SET src = %s, ' \
+                                    'fuzzy = True ' \
+                                'WHERE name = %s ' \
+                                    'AND type = %s ' \
+                                    'AND src = %s',
+                                (string, report.report_name, 'odt', string_trans))
+                        del trans_reports[report.report_name][string_trans]
+                        done = True
+                        break
+                if not done:
+                    cursor.execute('INSERT INTO ir_translation ' \
+                            '(name, lang, type, src, value, module)' \
+                            'VALUES (%s, %s, %s, %s, %s, %s)',
+                            (report.report_name, 'en_US', 'odt', string, '',
+                                report.module))
+            if strings:
+                cursor.execute('DELETE FROM ir_translation ' \
+                        'WHERE name = %s ' \
+                            'AND type = %s ' \
+                            'AND src NOT IN ' \
+                                '(' + ','.join(['%s' for x in strings]) + ')',
+                        (report.report_name, 'odt') + tuple(strings))
+        return {}
+
+    def _action_translation_open(self, cursor, user, data, context):
+        model_data_obj = self.pool.get('ir.model.data')
+        act_window_obj = self.pool.get('ir.action.act_window')
+
+        model_data_ids = model_data_obj.search(cursor, user, [
+            ('fs_id', '=', 'act_translation_form'),
+            ('module', '=', 'ir'),
+            ], limit=1, context=context)
+        model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
+                context=context)
+        res = act_window_obj.read(cursor, user, model_data.db_id, context=context)
+        res['domain'] = str([('type', '=', 'odt')])
+        return res
+
+ReportTranslationUpdate()
+
+
 class TranslationUpdateInit(WizardOSV):
     "Update translation - language"
     _name = 'ir.translation.update.init'
@@ -524,15 +665,18 @@ class TranslationUpdate(Wizard):
         return {}
 
     def _action_translation_open(self, cursor, user, data, context):
-        return {
-            'domain': str([('lang', '=', data['form']['lang'])]),
-            'name': 'Translations',
-            'view_type': 'form',
-            'view_mode': 'tree,form',
-            'res_model': 'ir.translation',
-            'view_id': False,
-            'type': 'ir.action.act_window',
-        }
+        model_data_obj = self.pool.get('ir.model.data')
+        act_window_obj = self.pool.get('ir.action.act_window')
+
+        model_data_ids = model_data_obj.search(cursor, user, [
+            ('fs_id', '=', 'act_translation_form'),
+            ('module', '=', 'ir'),
+            ], limit=1, context=context)
+        model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
+                context=context)
+        res = act_window_obj.read(cursor, user, model_data.db_id, context=context)
+        res['domain'] = str([('lang', '=', data['form']['lang'])])
+        return res
 
     states = {
         'init': {
@@ -542,7 +686,7 @@ class TranslationUpdate(Wizard):
                 'object': 'ir.translation.update.init',
                 'state': [
                     ('end', 'Cancel', 'tryton-cancel'),
-                    ('start', 'Start Upgrade','tryton-ok', True),
+                    ('start', 'Start Update','tryton-ok', True),
                 ],
             },
         },

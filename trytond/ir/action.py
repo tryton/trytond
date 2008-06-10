@@ -200,6 +200,7 @@ class ActionReport(OSV):
     direct_print = fields.Boolean('Direct Print')
     output_format = fields.Many2One('ir.action.report.outputformat',
             'Output format', required=True)
+    module = fields.Char('Module', readonly=True)
 
     def __init__(self):
         super(ActionReport, self).__init__()
@@ -226,6 +227,9 @@ class ActionReport(OSV):
             return format_obj.name_get(cursor, user, formats[0],
                     context=context)[0]
         return False
+
+    def default_module(self, cursor, user, context=None):
+        return context and context.get('module', '') or ''
 
     def get_report_content(self, cursor, user, ids, name, arg, context=None):
         res = {}
@@ -262,6 +266,17 @@ class ActionReport(OSV):
         default['report_name'] = report.report_name + '.copy'
         return super(ActionReport, self).copy(cursor, user, object_id,
                 default=default, context=context)
+
+    def write(self, cursor, user, ids, vals, context=None):
+        if context is None:
+            context = {}
+
+        if 'module' in context:
+            vals = vals.copy()
+            vals['module'] = context['module']
+
+        return super(ActionReport, self).write(cursor, user, ids, vals,
+                context=context)
 
 ActionReport()
 
