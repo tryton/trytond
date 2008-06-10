@@ -508,9 +508,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # this record is already in the db:
             # XXX maybe use only one call to get()
             db_id, db_model, mdata_id, old_values = \
-                [self.fs2db.get(module, fs_id)[x] for x in \
-                     ["db_id","model","id","values"]
-                 ]
+                    [self.fs2db.get(module, fs_id)[x] for x in \
+                    ["db_id","model","id","values"]]
 
             if old_values == None:
                 old_values = {}
@@ -523,8 +522,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # Check if values for this record has been modified in the
             # db, if not it's ok to overwrite them.
             if model != db_model:
-                raise Exception("This record try to overwrite"
-                "data with the wrong model: %s (module: %s)"% (fs_id, module))
+                raise Exception("This record try to overwrite " \
+                "data with the wrong model: %s (module: %s)" % (fs_id, module))
 
             #Re-create object if it was deleted
             if not object_ref.search(cursor, user, [('id', '=', db_id)]):
@@ -558,7 +557,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     continue
 
                 # we cannot update a field if it was changed by a user...
-                if key not in  old_values:
+                if key not in old_values:
                     expected_value = object_ref._defaults.get(
                         key, lambda *a:None)(cursor, user)
                 else:
@@ -568,7 +567,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # expected value differs from the actual value, _and_
                 # if they are not false in a boolean context (ie None,
                 # False, {} or [])
-                if db_field != expected_value and (db_field or expected_value) :
+                if db_field != expected_value and (db_field or expected_value):
                     logger = Logger()
                     logger.notify_channel('init', LOG_WARNING,
                         "Field %s of %s@%s not updated (id: %s), because "\
@@ -593,6 +592,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             key, db_val, object_ref)
                     except Unhandled_field:
                         continue
+
+            if module != self.module:
+                temp_values = old_values.copy()
+                temp_values.update(values)
+                values = temp_values
 
             if values != old_values:
                 self.modeldata_obj.write(cursor, user, mdata_id, {
@@ -648,7 +652,7 @@ def post_import(cursor, module, to_delete):
     transition_unlink = []
 
     mdata_ids = modeldata_obj.search(
-            cursor, user, [('fs_id','in',to_delete)],
+            cursor, user, [('fs_id', 'in', to_delete)],
             order=[('id', 'DESC')],
             )
 
