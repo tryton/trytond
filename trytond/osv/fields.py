@@ -28,7 +28,7 @@ import __builtin__
 import sha
 
 def _symbol_f(symb):
-    if symb == None or symb == False:
+    if symb is None or symb == False:
         return None
     elif isinstance(symb, unicode):
         return symb.encode('utf-8')
@@ -166,8 +166,8 @@ class Char(Column):
         """
         #TODO we need to remove the "symb==False" from the next line BUT
         #TODO for now too many things rely on this broken behavior
-        #TODO the symb==None test should be common to all data types
-        if symb == None or symb == False:
+        #TODO the 'symb is None' test should be common to all data types
+        if symb is None or symb == False:
             return None
 
         # we need to convert the string to a unicode object to be able

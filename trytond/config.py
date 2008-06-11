@@ -94,7 +94,7 @@ class ConfigManager(object):
                 'pidfile',
                 'logfile',
                 ):
-            if getattr(opt, arg) != None:
+            if getattr(opt, arg) is not None:
                 self.options[arg] = getattr(opt, arg)
 
         init = {}

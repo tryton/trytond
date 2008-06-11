@@ -574,7 +574,7 @@ class ORM(object):
                             if f_pg_type == 'varchar' \
                                     and field._type == 'char' \
                                     and (f_pg_size != field.size \
-                                    and not (f_pg_size == -5 and field.size == None)):
+                                    and not (f_pg_size == -5 and field.size is None)):
                                 # columns with the name 'type' cannot be changed
                                 # for an unknown reason?!
                                 if k != 'type':
@@ -1085,7 +1085,7 @@ class ORM(object):
                 load)
         for i in result:
             for key, j in i.items():
-                if j == None:
+                if j is None:
                     i[key] = False
         if isinstance(ids, (int, long)):
             return result[0]
@@ -1098,7 +1098,7 @@ class ORM(object):
         if not ids:
             return []
 
-        if fields_names == None:
+        if fields_names is None:
             fields_names = self._columns.keys()
 
         # construct a clause for the rules :

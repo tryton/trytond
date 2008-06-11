@@ -89,7 +89,7 @@ class ModelAccess(OSV):
                     'ON (gu.gid = a.group) '
             'WHERE m.model = %s AND gu.uid = %s', (model_name, user,))
         row = cursor.fetchall()
-        if row[0][0] == None:
+        if row[0][0] is None:
             cursor.execute('SELECT ' \
                         'MAX(CASE WHEN perm_' + mode + ' THEN 1 else 0 END) ' \
                     'FROM ir_model_access a ' \
@@ -97,7 +97,7 @@ class ModelAccess(OSV):
                         'ON (a.model = m.id) ' \
                     'WHERE a.group IS NULL AND m.model = %s', (model_name,))
             row = cursor.fetchall()
-            if row[0][0] == None:
+            if row[0][0] is None:
                 return True
 
         if not row[0][0]:
