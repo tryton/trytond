@@ -244,26 +244,24 @@ class HttpDaemon(threading.Thread):
         threading.Thread.__init__(self)
         self.secure = secure
         self.running = False
+        ipv6 = False
+        if socket.has_ipv6:
+            try:
+                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                ipv6 = True
+            except:
+                pass
         if secure:
+            handler_class = SecureXMLRPCRequestHandler
             server_class = SecureThreadedXMLRPCServer
-            if socket.has_ipv6:
-                try:
-                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                    server_class = SecureThreadedXMLRPCServer6
-                except:
-                    pass
-            self.server = server_class((interface, port),
-                    SecureXMLRPCRequestHandler, 0)
+            if ipv6: 
+                server_class = SecureThreadedXMLRPCServer6
         else:
+            handler_class = SimpleXMLRPCRequestHandler
             server_class = SimpleThreadedXMLRPCServer
-            if socket.has_ipv6:
-                try:
-                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                    server_class = SimpleThreadedXMLRPCServer6
-                except:
-                    pass
-            self.server = server_class((interface, port),
-                    SimpleXMLRPCRequestHandler, 0)
+            if ipv6:
+                server_class = SimpleThreadedXMLRPCServer6
+        self.server = server_class((interface, port), handler_class, 0)
 
     def attach(self, path, gateway):
         pass
@@ -453,28 +451,25 @@ class WebDAVServerThread(threading.Thread):
         threading.Thread.__init__(self)
         self.secure = secure
         self.running = False
+        ipv6 = False
+        if socket.has_ipv6:
+            try:
+                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                ipv6 = True
+            except:
+                pass
         if secure:
-            handler = SecureWebDAVAuthRequestHandler
-            handler.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
+            handler_class = SecureWebDAVAuthRequestHandler
             server_class = SecureThreadedHTTPServer
-            if socket.has_ipv6:
-                try:
-                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                    server_class = SecureThreadedHTTPServer6
-                except:
-                    pass
-            self.server = server_class((interface, port), handler)
+            if ipv6:
+                server_class = SecureThreadedHTTPServer6
         else:
-            handler = WebDAVAuthRequestHandler
-            handler.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
+            handler_class = WebDAVAuthRequestHandler
             server_class = BaseThreadedHTTPServer
-            if socket.has_ipv6:
-                try:
-                    socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                    server_class = BaseThreadedHTTPServer6
-                except:
-                    pass
-            self.server = server_class((interface, port), handler)
+            if ipv6:
+                server_class = BaseThreadedHTTPServer6
+        handler_class.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
+        self.server = server_class((interface, port), handler_class)
 
     def stop(self):
         self.running = False
