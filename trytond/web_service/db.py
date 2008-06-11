@@ -243,4 +243,5 @@ class DB(Service):
         return [
             ('fr_FR', 'Français'),
             ('en_US', 'English'),
+            ('de_DE', 'Deutsch'),
         ]
