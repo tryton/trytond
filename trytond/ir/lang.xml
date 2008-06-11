@@ -9,6 +9,10 @@
             <field name="code">fr_FR</field>
             <field name="name">Français</field>
         </record>
+        <record model="ir.lang" id="lang_de">
+            <field name="code">de_DE</field>
+            <field name="name">Deutsch</field>
+        </record>
         <record model="ir.ui.view" id="lang_view_tree">
             <field name="model">ir.lang</field>
             <field name="type">tree</field>
