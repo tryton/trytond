@@ -250,12 +250,8 @@ class HttpDaemon(threading.Thread):
                 try:
                     socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                     server_class = SecureThreadedXMLRPCServer6
-                    if not interface:
-                        interface = '::'
                 except:
                     pass
-            if not interface:
-                interface = '0.0.0.0'
             self.server = server_class((interface, port),
                     SecureXMLRPCRequestHandler, 0)
         else:
@@ -264,12 +260,8 @@ class HttpDaemon(threading.Thread):
                 try:
                     socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                     server_class = SimpleThreadedXMLRPCServer6
-                    if not interface:
-                        interface = '::'
                 except:
                     pass
-            if not interface:
-                interface = '0.0.0.0'
             self.server = server_class((interface, port),
                     SimpleXMLRPCRequestHandler, 0)
 
@@ -376,12 +368,8 @@ class TinySocketServerThread(threading.Thread):
             try:
                 socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                 familly = socket.AF_INET6
-                if not interface:
-                    interface = '::'
             except:
                 pass
-        if not interface:
-            interface = '0.0.0.0'
         self.socket = socket.socket(familly, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if secure:
@@ -473,12 +461,8 @@ class WebDAVServerThread(threading.Thread):
                 try:
                     socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                     server_class = SecureThreadedHTTPServer6
-                    if not interface:
-                        interface = '::'
                 except:
                     pass
-            if not interface:
-                interface = '0.0.0.0'
             self.server = server_class((interface, port), handler)
         else:
             handler = WebDAVAuthRequestHandler
@@ -488,12 +472,8 @@ class WebDAVServerThread(threading.Thread):
                 try:
                     socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                     server_class = BaseThreadedHTTPServer6
-                    if not interface:
-                        interface = '::'
                 except:
                     pass
-            if not interface:
-                interface = '0.0.0.0'
             self.server = server_class((interface, port), handler)
 
     def stop(self):
