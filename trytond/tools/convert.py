@@ -432,7 +432,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         else:
             module = self.module
 
-        if self.fs2db.get(module, xml_id) == None:
+        if self.fs2db.get(module, xml_id) is None:
             raise Exception("Reference to %s not found"% \
                                 ".".join([module,xml_id]))
         return self.fs2db.get(module, xml_id)["db_id"]
@@ -511,7 +511,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     [self.fs2db.get(module, fs_id)[x] for x in \
                     ["db_id","model","id","values"]]
 
-            if old_values == None:
+            if old_values is None:
                 old_values = {}
             else:
                 old_values = eval(old_values, {
