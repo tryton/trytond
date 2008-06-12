@@ -31,6 +31,8 @@ class User(OSV):
             string='Language Direction')
     timezone = fields.Selection('timezones', 'Timezone')
     email = fields.Char('Email', size=320)
+    status_bar = fields.Function('get_status_bar', type='char',
+            string="Status Bar")
 
     def __init__(self):
         super(User, self).__init__()
@@ -50,6 +52,7 @@ class User(OSV):
             'signature',
             'menu',
             'action',
+            'status_bar',
         ]
         self._context_fields = [
             'language',
@@ -88,6 +91,12 @@ class User(OSV):
                 res[user.id] = user.language.direction
             else:
                 res[user.id] = default_direction
+        return res
+
+    def get_status_bar(self, cursor, user_id, ids, name, arg, context=None):
+        res = {}
+        for user in self.browse(cursor, user_id, ids, context=context):
+            res[user.id] = user.name
         return res
 
     def _convert_vals(self, cursor, user, vals, context=None):
@@ -193,6 +202,7 @@ class User(OSV):
     def get_preferences_fields_view(self, cursor, user, context=None):
         res = {}
         fields_names = self._preferences_fields + self._context_fields
+        fields_names.pop(fields_names.index('status_bar'))
         fields = self.fields_get(cursor, user,
                 fields_names=fields_names, context=context)
 
