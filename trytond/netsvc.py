@@ -173,6 +173,8 @@ class XmlRpc(object):
             self.name = name
 
 
+#-- XMLRPC Handler
+
 class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
@@ -209,6 +211,7 @@ class SecureXMLRPCRequestHandler(SimpleXMLRPCRequestHandler):
         self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
         self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
 
+#-- XMLRPC Server
 
 class SimpleThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
         SimpleXMLRPCServer.SimpleXMLRPCServer):
@@ -217,10 +220,6 @@ class SimpleThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
         self.socket.setsockopt(socket.SOL_SOCKET,
                 socket.SO_REUSEADDR, 1)
         SimpleXMLRPCServer.SimpleXMLRPCServer.server_bind(self)
-
-
-class SimpleThreadedXMLRPCServer6(SimpleThreadedXMLRPCServer):
-    address_family = socket.AF_INET6
 
 
 class SecureThreadedXMLRPCServer(SimpleThreadedXMLRPCServer):
@@ -234,9 +233,7 @@ class SecureThreadedXMLRPCServer(SimpleThreadedXMLRPCServer):
         self.server_activate()
 
 
-class SecureThreadedXMLRPCServer6(SecureThreadedXMLRPCServer):
-    address_family = socket.AF_INET6
-
+#-- HTPP Daemon
 
 class HttpDaemon(threading.Thread):
 
@@ -413,6 +410,7 @@ class TinySocketServerThread(threading.Thread):
         except:
             return False
 
+#-- WebDAV server
 
 class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
         BaseHTTPServer.HTTPServer):
@@ -425,10 +423,6 @@ class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
         BaseHTTPServer.HTTPServer.server_bind(self)
 
 
-class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
-    address_family = socket.AF_INET6
-
-
 class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
 
     def __init__(self, server_address, HandlerClass):
@@ -437,10 +431,6 @@ class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
                                               self.socket_type))
         self.server_bind()
         self.server_activate()
-
-
-class SecureThreadedHTTPServer6(SecureThreadedHTTPServer):
-    address_family = socket.AF_INET6
 
 
 class WebDAVServerThread(threading.Thread):
@@ -491,3 +481,24 @@ class WebDAVServerThread(threading.Thread):
         while self.running:
             self.server.handle_request()
         return True
+
+#-- MixIn classes --
+
+class IPv6MixIn(object):
+    address_family = socket.AF_INET6
+
+#--- IPv6 Servers
+
+class BaseThreadedHTTPServer6(BaseThreadedHTTPServer, IPv6MixIn):
+    pass
+class SecureThreadedHTTPServer6(SecureThreadedHTTPServer, IPv6MixIn):
+    pass
+class SimpleThreadedXMLRPCServer6(SimpleThreadedXMLRPCServer, IPv6MixIn):
+    pass
+
+#--- Secure IPv6 Servers
+
+class SecureThreadedXMLRPCServer6(SecureThreadedXMLRPCServer, IPv6MixIn):
+    pass
+class SecureThreadedHTTPServer6(SecureThreadedHTTPServer, IPv6MixIn):
+    pass
