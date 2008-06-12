@@ -1755,7 +1755,9 @@ class ORM(object):
                     res[field][arg] = getattr(self._columns[field], arg)
             if not write_access:
                 res[field]['readonly'] = True
-                res[field]['states'] = {}
+                if 'readonly' in res[field]['states']:
+                    res[field]['states'] = res[field]['states'].copy()
+                    del res[field]['states']['readonly']
             for arg in ('digits', 'invisible'):
                 if hasattr(self._columns[field], arg) \
                         and getattr(self._columns[field], arg):
