@@ -22,6 +22,13 @@ LOG_CRITICAL = 'critical'
 
 from config import CONFIG
 
+def start_SSL(socket):
+    from OpenSSL import SSL
+    ctx = SSL.Context(SSL.SSLv23_METHOD)
+    ctx.use_privatekey_file(CONFIG['privatekey'])
+    ctx.use_certificate_file(CONFIG['certificate'])
+    return SSL.Connection(ctx, socket)
+
 
 class Service(object):
     _serviceEndPointID = 0
@@ -219,14 +226,10 @@ class SimpleThreadedXMLRPCServer6(SimpleThreadedXMLRPCServer):
 class SecureThreadedXMLRPCServer(SimpleThreadedXMLRPCServer):
 
     def __init__(self, server_address, HandlerClass, logRequests=1):
-        from OpenSSL import SSL
         SimpleThreadedXMLRPCServer.__init__(self, server_address, HandlerClass,
                 logRequests)
-        ctx = SSL.Context(SSL.SSLv23_METHOD)
-        ctx.use_privatekey_file(CONFIG['privatekey'])
-        ctx.use_certificate_file(CONFIG['certificate'])
-        self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
-            self.socket_type))
+        self.socket = start_SSL(socket.socket(self.address_family,
+                                              self.socket_type))
         self.server_bind()
         self.server_activate()
 
@@ -382,11 +385,7 @@ class TinySocketServerThread(threading.Thread):
         self.socket = socket.socket(familly, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if secure:
-            from OpenSSL import SSL
-            ctx = SSL.Context(SSL.SSLv23_METHOD)
-            ctx.use_privatekey_file(CONFIG['privatekey'])
-            ctx.use_certificate_file(CONFIG['certificate'])
-            self.socket = SSL.Connection(ctx, self.socket)
+            self.socket = start_SSL(self.socket)
         self.socket.bind((interface, port))
         self.socket.listen(5)
         self.threads = []
@@ -447,13 +446,9 @@ class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
 class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
 
     def __init__(self, server_address, HandlerClass):
-        from OpenSSL import SSL
         BaseThreadedHTTPServer.__init__(self, server_address, HandlerClass)
-        ctx = SSL.Context(SSL.SSLv23_METHOD)
-        ctx.use_privatekey_file(CONFIG['privatekey'])
-        ctx.use_certificate_file(CONFIG['certificate'])
-        self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
-            self.socket_type))
+        self.socket = start_SSL(socket.socket(self.address_family,
+                                              self.socket_type))
         self.server_bind()
         self.server_activate()
 
