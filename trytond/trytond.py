@@ -41,6 +41,7 @@ import web_service
 import wkf_service
 from module import register_classes
 import osv, security, tools, version
+import mx.DateTime
 
 #Fix for pyxml for ubuntu
 sys.path.append('/usr/lib/python%s/site-packages/oldxml' % sys.version[:3])
@@ -51,11 +52,16 @@ class TrytonServer(object):
         netsvc.init_logger()
         self.logger = netsvc.Logger()
 
+        if not hasattr(mx.DateTime, 'strptime'):
+            mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
+                    time.strptime(x, y))
+
         self.logger.notify_channel("objects", netsvc.LOG_INFO,
                 'initialising distributed objects services')
 
         self.dispatcher = netsvc.Dispatcher()
         self.dispatcher.monitor(signal.SIGINT)
+
 
         web_service.DB()
         web_service.Common()

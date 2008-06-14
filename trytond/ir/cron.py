@@ -94,8 +94,8 @@ class Cron(OSV, Agent):
                         'AND nextcall <= now() ' \
                         'ORDER BY priority')
             for job in cursor.dictfetchall():
-                nextcall = DateTime.mktime(time.strptime(str(job['nextcall']),
-                    '%Y-%m-%d %H:%M:%S'))
+                nextcall = DateTime.strptime(str(job['nextcall']),
+                        '%Y-%m-%d %H:%M:%S')
                 numbercall = job['numbercall']
                 done = False
                 while nextcall < now and numbercall:
@@ -114,7 +114,8 @@ class Cron(OSV, Agent):
                 cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
                             "numbercall = %s" + addsql + " " \
                             "WHERE id = %s",
-                            (nextcall, numbercall, job['id']))
+                            (nextcall.strftime('%Y-%m-%d %H:%M:%S'),
+                                numbercall, job['id']))
                 cursor.commit()
         finally:
             cursor.close()
