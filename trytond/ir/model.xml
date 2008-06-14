@@ -93,6 +93,7 @@
               <![CDATA[
                 <tree string="Fields">
                     <field name="name" select="1"/>
+                    <field name="model" select="1"/>
                     <field name="ttype" select="2"/>
                     <field name="relation" select="2"/>
                     <field name="field_description" select="2"/>
