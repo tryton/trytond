@@ -51,17 +51,11 @@ class TrytonServer(object):
         netsvc.init_logger()
         self.logger = netsvc.Logger()
 
-        if sys.platform == 'win32':
-            import mx.DateTime
-            mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
-                    time.strptime(x, y))
-
         self.logger.notify_channel("objects", netsvc.LOG_INFO,
                 'initialising distributed objects services')
 
         self.dispatcher = netsvc.Dispatcher()
         self.dispatcher.monitor(signal.SIGINT)
-
 
         web_service.DB()
         web_service.Common()
