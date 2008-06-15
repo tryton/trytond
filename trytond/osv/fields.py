@@ -109,7 +109,7 @@ class Reference(Column):
     _type = 'reference'
     _classic_read = False
 
-    def __init__(self, string, selection, size, **args):
+    def __init__(self, string, selection, size=None, **args):
         Column.__init__(self, string=string, size=size, selection=selection,
                 **args)
 
@@ -147,7 +147,10 @@ class Reference(Column):
         return res
 
     def sql_type(self):
-        return ('varchar', 'varchar(%d)' % (self.size,))
+        if self.size:
+            return ('varchar', 'varchar(%d)' % (self.size,))
+        else:
+            return ('varchar', 'varchar')
 
 reference = Reference
 
