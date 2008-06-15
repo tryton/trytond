@@ -8,9 +8,9 @@ class Action(OSV):
     "Action"
     _name = 'ir.action'
     _description = __doc__
-    name = fields.char('Name', required=True, size=64, translate=True)
-    type = fields.char('Type', required=True, size=32, readonly=True)
-    usage = fields.char('Usage', size=32)
+    name = fields.char('Name', required=True, translate=True)
+    type = fields.char('Type', required=True, readonly=True)
+    usage = fields.char('Usage')
     keywords = fields.one2many('ir.action.keyword', 'action',
             'Keywords')
     groups = fields.Many2Many('res.group', 'ir_action_group_rel',
@@ -61,7 +61,7 @@ class ActionKeyword(OSV):
             ('form_relate', 'Form relate'),
             ('graph_open', 'Open Graph'),
             ], string='Keyword', required=True)
-    model = fields.Reference('Model', selection='models_get', size=128)
+    model = fields.Reference('Model', selection='models_get')
     action = fields.many2one('ir.action', 'Action',
             ondelete='CASCADE')
 
@@ -185,9 +185,9 @@ class ActionReport(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    model = fields.Char('Model', size=None, required=True)
-    report_name = fields.Char('Internal Name', size=None, required=True)
-    report = fields.Char('Path', size=None)
+    model = fields.Char('Model', required=True)
+    report_name = fields.Char('Internal Name', required=True)
+    report = fields.Char('Path')
     report_content_data = fields.Binary('Content')
     report_content = fields.Function('get_report_content',
             fnct_inv='report_content_inv', type='binary',
@@ -287,16 +287,16 @@ class ActionActWindow(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    domain = fields.Char('Domain Value', size=250)
-    context = fields.Char('Context Value', size=250)
-    res_model = fields.Char('Model', size=64)
-    src_model = fields.Char('Source model', size=64)
+    domain = fields.Char('Domain Value')
+    context = fields.Char('Context Value')
+    res_model = fields.Char('Model')
+    src_model = fields.Char('Source model')
     view_type = fields.Selection([
         ('tree','Tree'),
         ('form','Form'),
         ('board', 'Board'),
         ], string='Type of view')
-    usage = fields.Char('Action Usage', size=32)
+    usage = fields.Char('Action Usage')
     act_window_views = fields.One2Many('ir.action.act_window.view',
             'act_window', 'Views')
     views = fields.Function('views_get_fnc', type='binary',
@@ -367,7 +367,7 @@ class ActionWizard(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    wiz_name = fields.char('Wizard name', size=64, required=True)
+    wiz_name = fields.char('Wizard name', required=True)
     action = fields.many2one('ir.action', 'Action', required=True)
 
     def default_type(self, cursor, user, context=None):
@@ -382,7 +382,7 @@ class ActionURL(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    url = fields.Char('Action Url', size=None, required=True)
+    url = fields.Char('Action Url', required=True)
     action = fields.many2one('ir.action', 'Action', required=True)
 
     def default_type(self, cursor, user, context=None):
