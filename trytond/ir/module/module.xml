@@ -229,7 +229,6 @@
         <menuitem name="Install \ Upgrade Modules"
             parent="menu_modules"
             action="act_module_install_upgrade"
-            type="wizard"
             id="menu_module_install_upgrade"/>
 
         <record model="ir.module.module.config_wizard.item"
