@@ -10,24 +10,34 @@ class RuleGroup(OSV):
     _description = __doc__
     name = fields.Char('Name', size=128, select=1)
     model = fields.Many2One('ir.model', 'Model', select=1,
-       required=True)
-    global_p = fields.Boolean('Global', select=1,
-       help="Make the rule global \n" \
-               "or it needs to be put on a group or user")
+            required=True)
+    global_p = fields.Boolean('Global', select=1, required=True,
+            help="Make the rule global \n" \
+                    "so every users must follow this rule")
+    default_p = fields.Boolean('Default', select=1, required=True,
+            help="Add this rule to all users by default")
     rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
-       help="The rule is satisfied if at least one test is True")
+            help="The rule is satisfied if at least one test is True")
     groups = fields.Many2Many('res.group', 'group_rule_group_rel',
-       'rule_group_id', 'group_id', 'Groups')
+            'rule_group_id', 'group_id', 'Groups')
     users = fields.Many2Many('res.user', 'user_rule_group_rel',
-       'rule_group_id', 'user_id', 'Users')
+            'rule_group_id', 'user_id', 'Users')
 
     def __init__(self):
         super(RuleGroup, self).__init__()
         self._order.insert(0, ('model', 'ASC'))
-        self._order.insert(1, ('global_p', 'DESC'))
+        self._order.insert(1, ('global_p', 'ASC'))
+        self._order.insert(2, ('default_p', 'ASC'))
+        self._sql_constraints += [
+            ('global_default_exclusive', 'CHECK(NOT(global_p AND default_p))',
+                'Global and Default are mutually exclusive!'),
+        ]
 
     def default_global_p(self, cursor, user, context=None):
-        return 1
+        return True
+
+    def default_default_p(self, cursor, user, context=None):
+        return False
 
     def unlink(self, cursor, user, ids, context=None):
         res = super(RuleGroup, self).unlink(cursor, user, ids,
@@ -129,8 +139,9 @@ class Rule(OSV):
                                 "FROM group_rule_group_rel g_rel " \
                                 "JOIN res_group_user_rel u_rel " \
                                     "ON (g_rel.group_id = u_rel.gid) " \
-                                "WHERE u_rel.uid = %s) "
-                    "OR g.global_p)", (model_name, user, user))
+                                "WHERE u_rel.uid = %s) " \
+                        "OR default_p " \
+                        "OR g.global_p)", (model_name, user, user))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
             return '', []
@@ -197,8 +208,10 @@ class Rule(OSV):
                         JOIN res_group_user_rel u_rel
                             ON g_rel.group_id = u_rel.gid
                         WHERE u_rel.uid = %s))""", (model_name, user, user))
-        if not cursor.fetchall():
-            query, val = _query(clause, 'OR')
+        if cursor.rowcount:
+            group_id = cursor.fetchone()[0]
+            clause[group_id] = [(['(True)'], '', '', '')]
+        query, val = _query(clause, 'OR')
 
         query_global, val_global = _query(clause_global, 'AND')
         if query_global:
@@ -210,6 +223,7 @@ class Rule(OSV):
                 val = val_global
 
         return query, val
+
     domain_get = Cache('ir_rule.domain_get')(domain_get)
 
     def unlink(self, cursor, user, ids, context=None):
