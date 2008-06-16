@@ -1,9 +1,9 @@
 "View"
 from trytond.osv import fields, OSV
-from xml import dom
 from difflib import SequenceMatcher
 import os
 from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING
+from lxml import etree
 
 
 class View(OSV):
@@ -55,36 +55,28 @@ class View(OSV):
             trans_views.setdefault(trans['name'], {})
             trans_views[trans['name']][trans['src']] = trans
         for view in views:
-            logger = Logger()
-            try:
-                from Ft.Xml.Domlette import ValidatingReader
-                xml = '<?xml version="1.0"?>\n<!DOCTYPE %s SYSTEM "file://%s/%s.dtd">\n'\
-                        % (view.inherit and 'data' or view.type,
-                                os.path.dirname(__file__),
-                                view.inherit and view.inherit.type or view.type)
-                xml += view.arch.strip()
-                try:
-                    ValidatingReader.parseString(xml)
-                except Exception, exception:
-                    logger.notify_channel('ir', LOG_ERROR,
-                            'Invalid xml view: %s' % (str(exception) + '\n' + xml))
-                    return False
-            except:
-                logger.notify_channel('ir', LOG_WARNING,
-                'Could not import Ft.Xml.Domlette, please install 4Suite ' \
-                        'to have xml validation')
-            try:
-                document = dom.minidom.parseString(view.arch)
-            except:
+            xml = view.arch.strip()
+            dtd_name = os.path.join(os.path.dirname(__file__),
+                    (view.inherit and view.inherit.type or view.type) + '.dtd')
+            dtd = etree.DTD(file(dtd_name))
+            tree = etree.fromstring(xml)
+            if not dtd.validate(tree):
+                logger = Logger()
+                error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
+                        dtd.error_log.filter_from_errors())
+                logger.notify_channel('ir', LOG_ERROR,
+                        'Invalid xml view:\n%s' %  (error_log + '\n' + xml))
                 return False
-            strings = self._translate_view(document.documentElement)
+            root_element = tree.getroottree().getroot()
+            strings = self._translate_view(root_element)
             view_ids = self.search(cursor, 0, [
                 ('model', '=', view.model),
                 ('id', '!=', view.id),
                 ])
             for view2 in self.browse(cursor, 0, view_ids):
-                document = dom.minidom.parseString(view2.arch)
-                strings += self._translate_view(document.documentElement)
+                tree2 = etree.fromstring(view2.arch)
+                root2_element = tree2.getroottree().getroot()
+                strings += self._translate_view(root2_element)
             if not strings:
                 continue
             for string in {}.fromkeys(strings).keys():
@@ -171,18 +163,17 @@ class View(OSV):
                 pass
         return res
 
-    def _translate_view(self, document):
+    def _translate_view(self, element):
         strings = []
-        if document.hasAttribute('string'):
-            string = document.getAttribute('string')
+        if element.get('string'):
+            string = element.get('string')
             if string:
                 strings.append(string.encode('utf-8'))
-        if document.hasAttribute('sum'):
-            string = document.getAttribute('sum')
+        if element.get('sum'):
+            string = element.get('sum')
             if string:
                 strings.append(string.encode('utf-8'))
-        for child in [x for x in document.childNodes \
-                if (x.nodeType == x.ELEMENT_NODE)]:
+        for child in element:
             strings.extend(self._translate_view(child))
         return strings
 
