@@ -6,18 +6,20 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Record rules">
+                <form string="Record rules" col="6">
                     <label name="model"/>
                     <field name="model"/>
                     <label name="global_p"/>
                     <field name="global_p"/>
+                    <label name="default_p"/>
+                    <field name="default_p"/>
                     <label name="name"/>
-                    <field name="name" colspan="3"/>
-                    <field name="rules" colspan="4"/>
+                    <field name="name" colspan="5"/>
+                    <field name="rules" colspan="6"/>
                     <label string="The rule is satisfied if at least one test is True"
-                        colspan="4" align="0.0"/>
+                        colspan="6" align="0.0"/>
                     <label string="If there is no test defined, the rule is always satified if not global"
-                        colspan="4" align="0.0"/>
+                        colspan="6" align="0.0"/>
                 </form>
                 ]]>
             </field>
@@ -31,6 +33,7 @@
                     <field name="model"/>
                     <field name="name"/>
                     <field name="global_p"/>
+                    <field name="default_p"/>
                 </tree>
               ]]>
             </field>
