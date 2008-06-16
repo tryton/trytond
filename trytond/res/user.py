@@ -1,11 +1,9 @@
 "User"
 import time
 import copy
-from xml import dom
-from xml.dom import minidom
 from trytond.osv import fields, OSV, ExceptOSV
-#from trytond.tools import Cache
 from trytond.wizard import Wizard, WizardOSV
+from lxml import etree
 
 
 class User(OSV):
@@ -16,7 +14,6 @@ class User(OSV):
     login = fields.Char('Login', size=64, required=True)
     password = fields.Sha('Password')
     signature = fields.Text('Signature', size=64)
-    #address_id = fields.Many2One('res.partner.address', 'Address')
     active = fields.Boolean('Active')
     action = fields.Many2One('ir.action', 'Home Action')
     menu = fields.Many2One('ir.action', 'Menu Action',
@@ -219,9 +216,9 @@ class User(OSV):
             else:
                 xml += '<label name="%s"/><field name="%s"/>' % (field, field)
         xml += '</form>'
-        doc = dom.minidom.parseString(xml)
+        tree = etree.fromstring(xml)
         arch, fields = self._view_look_dom_arch(cursor,
-                user, doc, context=context)
+                user, tree, context=context)
         for field in fields:
             if field not in ('groups', 'language_direction'):
                 fields[field]['readonly'] = False

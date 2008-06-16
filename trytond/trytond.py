@@ -43,8 +43,6 @@ from module import register_classes
 import osv, security, tools, version
 import mx.DateTime
 
-#Fix for pyxml for ubuntu
-sys.path.append('/usr/lib/python%s/site-packages/oldxml' % sys.version[:3])
 
 class TrytonServer(object):
 

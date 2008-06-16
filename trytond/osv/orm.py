@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from xml import dom
-from xml.dom import minidom
-from xml import xpath
 from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING, LocalService
 import fields
 from trytond.tools import Cache
@@ -9,6 +6,8 @@ import md5
 import time
 import traceback
 import datetime
+from lxml import etree
+import copy
 
 ID_MAX = 1000
 
@@ -1818,71 +1817,67 @@ class ORM(object):
         """
         return False
 
-    def __view_look_dom(self, cursor, user, node, context=None):
+    def __view_look_dom(self, cursor, user, element, context=None):
         if context is None:
             context = {}
         result = False
         fields_attrs = {}
         childs = True
-        if node.nodeType == node.ELEMENT_NODE \
-                and node.localName in ('field', 'label', 'separator'):
-            if node.hasAttribute('name'):
+        if element.tag in ('field', 'label', 'separator'):
+            if element.get('name'):
                 attrs = {}
                 try:
-                    if node.getAttribute('name') in self._columns:
-                        relation = self._columns[node.getAttribute('name')]._obj
+                    if element.get('name') in self._columns:
+                        relation = self._columns[element.get('name')]._obj
                     else:
-                        relation = self._inherit_fields[node.getAttribute(
-                            'name')][2]._obj
+                        relation = self._inherit_fields[element.get('name')][2]._obj
                 except:
                     relation = False
                 if relation:
                     childs = False
                     views = {}
-                    for field in node.childNodes:
-                        if field.nodeType == field.ELEMENT_NODE \
-                                and field.localName in ('form', 'tree', 'graph'):
-                            node.removeChild(field)
+                    for field in element:
+                        if field.tag in ('form', 'tree', 'graph'):
+                            field2 = copy.copy(field)
                             xarch, xfields = self.pool.get(relation
-                                    )._view_look_dom_arch(cursor, user, field,
+                                    )._view_look_dom_arch(cursor, user, field2,
                                             context)
-                            views[str(field.localName)] = {
+                            views[field.tag] = {
                                 'arch': xarch,
                                 'fields': xfields
                             }
+                            element.remove(field)
                     attrs = {'views': views}
-                fields_attrs[node.getAttribute('name')] = attrs
+                fields_attrs[element.get('name')] = attrs
 
-        elif node.nodeType == node.ELEMENT_NODE \
-                and node.localName in ('form', 'tree', 'graph'):
+        if element.tag in ('form', 'tree', 'graph'):
             value = ''
-            if node.hasAttribute('string'):
-                value = node.getAttribute('string').encode('utf8')
-            result = self.view_header_get(cursor, user, value, node.localName,
+            if element.get('string'):
+                value = element.get('string').encode('utf8')
+            result = self.view_header_get(cursor, user, value, element.tag,
                     context)
             if result:
-                node.setAttribute('string', result.decode('utf8'))
+                element.set('string', result.decode('utf8'))
 
-        if node.nodeType == node.ELEMENT_NODE:
+        if True:
             # translate view
             translation_obj = self.pool.get('ir.translation')
             if ('language' in context) and not result:
-                if node.hasAttribute('string') and node.getAttribute('string'):
+                if element.get('string'):
                     trans = translation_obj._get_source(cursor,
                             self._name, 'view', context['language'],
-                            node.getAttribute('string').encode('utf8'))
+                            element.get('string').encode('utf-8'))
                     if trans:
-                        node.setAttribute('string', trans.decode('utf8'))
-                if node.hasAttribute('sum') and node.getAttribute('sum'):
+                        element.set('string', trans.decode('utf-8'))
+                if element.get('sum'):
                     trans = translation_obj._get_source(cursor,
                             self._name, 'view', context['language'],
-                            node.getAttribute('sum').encode('utf8'))
+                            element.get('sum').encode('utf-8'))
                     if trans:
-                        node.setAttribute('sum', trans.decode('utf8'))
+                        element.set('sum', trans.decode('utf-8'))
             # Add view for properties !
-            if node.localName == 'properties':
-                parent = node.parentNode
-                doc = node.ownerDocument
+            if element.tag == 'properties':
+                parent = element.getparent()
                 models = ["'" + x + "'" for x in  [self._name] + \
                         self._inherits.keys()]
                 cursor.execute('SELECT f.name AS name, ' \
@@ -1894,29 +1889,31 @@ class ORM(object):
                 oldgroup = None
                 for fname, gname in cursor.fetchall():
                     if oldgroup != gname:
-                        child = doc.createElement('separator')
-                        child.setAttribute('string', gname.decode('utf8'))
-                        child.setAttribute('colspan', "4")
+                        child = etree.Element('separator')
+                        child.set('string', gname.decode('utf-8'))
+                        child.set('colspan', '4')
                         oldgroup = gname
-                        parent.insertBefore(child, node)
+                        parent.insert(parent.index(element), child)
 
-                    child = doc.createElement('label')
-                    child.setAttribute('name', fname.decode('utf8'))
-                    parent.insertBefore(child, node)
-                    child = doc.createElement('field')
-                    child.setAttribute('name', fname.decode('utf8'))
-                    parent.insertBefore(child, node)
-                parent.removeChild(node)
+                    child = etree.Element('label')
+                    child.set('name', fname.decode('utf-8'))
+                    parent.insert(parent.index(element), child)
+                    child = etree.Element('field')
+                    child.set('name', fname.decode('utf-8'))
+                    parent.insert(parent.index(element), child)
+                parent.remove(element)
+                element = parent
 
         if childs:
-            for field in node.childNodes:
+            for field in element:
                 fields_attrs.update(self.__view_look_dom(cursor, user, field,
                     context))
         return fields_attrs
 
-    def _view_look_dom_arch(self, cursor, user, node, context=None):
-        fields_def = self.__view_look_dom(cursor, user, node, context=context)
-        arch = node.toxml(encoding="utf-8").replace('\t', '')
+    def _view_look_dom_arch(self, cursor, user, tree, context=None):
+        tree_root = tree.getroottree().getroot()
+        fields_def = self.__view_look_dom(cursor, user, tree_root, context=context)
+        arch = etree.tostring(tree, encoding='utf-8')
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
         for field in fields_def:
             if field in fields2:
@@ -1941,57 +1938,46 @@ class ORM(object):
 
         def _inherit_apply(src, inherit):
 
-            def _find(node, node2):
-                if node2.nodeType == node2.ELEMENT_NODE \
-                        and node2.localName == 'xpath':
-                    res = xpath.Evaluate(node2.getAttribute('expr'), node)
-                    return res and res[0] or None
+            def _find(tree, element):
+                if element.tag == 'xpath':
+                    res = tree.xpath(element.get('expr'))
+                    if res:
+                        return res[0]
                 return None
 
-            doc_src = dom.minidom.parseString(src)
-            doc_dest = dom.minidom.parseString(inherit)
-            parent_node = doc_dest.firstChild
-            for node2 in parent_node.childNodes:
-                if not node2.nodeType == node2.ELEMENT_NODE:
-                    continue
-                node = _find(doc_src, node2)
-                if node:
-                    pos = 'inside'
-                    if node2.hasAttribute('position'):
-                        pos = node2.getAttribute('position')
+            tree_src = etree.fromstring(src)
+            tree_inherit = etree.fromstring(inherit)
+            root_inherit = tree_inherit.getroottree().getroot()
+            for element2 in root_inherit:
+                element = _find(tree_src, element2)
+                if element is not None:
+                    pos = element2.get('position', 'inside')
                     if pos == 'replace':
-                        parent = node.parentNode
-                        for child in node2.childNodes:
-                            if child.nodeType == child.ELEMENT_NODE:
-                                parent.insertBefore(child, node)
-                        parent.removeChild(node)
+                        parent = element.getparent()
+                        parent.remove(element)
+                        parent.extend(element2.getchildren())
+                    elif pos == 'inside':
+                        element.extend(element2.getchildren())
+                    elif pos == 'after':
+                        parent = element.getparent()
+                        next = element.getnext()
+                        if next:
+                            for child in element2:
+                                index = parent.index(next)
+                                parent.insert(index - 1, child)
+                        else:
+                            parent.extend(element2.getchildren())
+                    elif pos == 'before':
+                        parent = element.getparent()
+                        for child in element2:
+                            index = parent.index(element)
+                            parent.insert(index, child)
                     else:
-                        sib = node.nextSibling
-                        for child in node2.childNodes:
-                            if child.nodeType == child.ELEMENT_NODE:
-                                if pos == 'inside':
-                                    node.appendChild(child)
-                                elif pos == 'after':
-                                    if sib:
-                                        node.parentNode.insertBefore(child, sib)
-                                    else:
-                                        node.parentNode.appendChild(child)
-                                elif pos == 'before':
-                                    node.parentNode.insertBefore(child, node)
-                                else:
-                                    raise AttributeError, \
-                                            'Unknown position ' \
-                                            'in inherited view %s!' % pos
+                        raise AttributeError('Unknown position ' \
+                                'in inherited view %s!' % pos)
                 else:
-                    attrs = ''.join([
-                        ' %s="%s"' % (attr, node2.getAttribute(attr))
-                        for attr in node2.attributes.keys()
-                        if attr != 'position'
-                    ])
-                    tag = "<%s%s>" % (node2.localName, attrs)
-                    raise AttributeError, \
-                            "Couldn't find tag '%s' in parent view !" % tag
-            return doc_src.toxml(encoding="utf-8").replace('\t', '')
+                    raise AttributeError('Couldn\'t find tag in parent view!')
+            return etree.tostring(tree_src, encoding='utf-8')
 
         result = {'type': view_type, 'model': self._name}
 
@@ -2074,8 +2060,8 @@ class ORM(object):
             result['field_childs'] = False
             result['view_id'] = 0
 
-        doc = dom.minidom.parseString(result['arch'])
-        xarch, xfields = self._view_look_dom_arch(cursor, user, doc,
+        tree = etree.fromstring(result['arch'])
+        xarch, xfields = self._view_look_dom_arch(cursor, user, tree,
                 context=context)
         result['arch'] = xarch
         result['fields'] = xfields
