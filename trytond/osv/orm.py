@@ -371,7 +371,7 @@ class ORM(object):
             if not cursor.rowcount:
                 cursor.execute("CREATE TABLE \"%s\" " \
                         "(id SERIAL NOT NULL, " \
-                            "PRIMARY KEY(id)) WITH OIDS" % self._table)
+                            "PRIMARY KEY(id))" % self._table)
                 create = True
             if self._log_access:
                 logs = {
@@ -461,7 +461,7 @@ class ORM(object):
                                 "(\"%s\" INTEGER NOT NULL REFERENCES \"%s\" " \
                                     "ON DELETE CASCADE, " \
                                 "\"%s\" INTEGER NOT NULL REFERENCES \"%s\" " \
-                                    "ON DELETE CASCADE) WITH OIDS" % \
+                                    "ON DELETE CASCADE)" % \
                                     (field._rel, field._id1, self._table,
                                         field._id2, ref))
                         cursor.execute("CREATE INDEX \"%s_%s_index\" " \
