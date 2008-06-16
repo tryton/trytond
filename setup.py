@@ -65,7 +65,7 @@ setup(name=PACKAGE,
     license=LICENSE,
     #requires=[
     #    'psycopg (<2.0)',
-    #    'xml',
+    #    'lxml',
     #    'egenix-mx-base',
     #],
     cmdclass={
