@@ -4,6 +4,7 @@ from trytond import pooler
 import copy
 import xml
 from xml import dom
+from xml.dom import minidom
 from trytond.osv import ExceptORM, ExceptOSV, OSV
 import sys
 import base64

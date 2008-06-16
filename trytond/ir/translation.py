@@ -6,6 +6,7 @@ except ImportError:
     import StringIO
 import zipfile
 from xml import dom
+from xml.dom import minidom
 from difflib import SequenceMatcher
 import csv
 from trytond.osv import fields, OSV, Cacheable
