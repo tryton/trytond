@@ -241,7 +241,7 @@ class DB(Service):
 
     def list_lang(self):
         return [
-            ('fr_FR', 'Français'),
-            ('en_US', 'English'),
             ('de_DE', 'Deutsch'),
+            ('en_US', 'English'),
+            ('fr_FR', 'Français'),
         ]
