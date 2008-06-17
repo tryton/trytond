@@ -58,14 +58,15 @@ class View(OSV):
             xml = view.arch.strip()
             tree = etree.fromstring(xml)
 
-            dtd_name = os.path.join(os.path.dirname(__file__),
-                    (view.inherit and view.inherit.type or view.type) + '.dtd')
-            if hasattr(etree, 'DTD'):
-                dtd = etree.DTD(file(dtd_name))
-                if not dtd.validate(tree):
+            # validate the tree using RelaxNG
+            rng_name = os.path.join(os.path.dirname(__file__),
+                    (view.inherit and view.inherit.type or view.type) + '.rng')
+            if hasattr(etree, 'RelaxNG'):
+                validator = etree.RelaxNG(file=rng_name)
+                if not validator.validate(tree):
                     logger = Logger()
                     error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
-                            dtd.error_log.filter_from_errors())
+                            validator.error_log.filter_from_errors())
                     logger.notify_channel('ir', LOG_ERROR,
                             'Invalid xml view:\n%s' %  (error_log + '\n' + xml))
                     return False
