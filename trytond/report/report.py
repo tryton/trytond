@@ -537,16 +537,22 @@ class Report(object):
                             (self._name,
                                 localcontext.get('language', False) or 'en_US'))
         if date:
-            # length of date like 2001-01-01 is ten:
-            if len(str(value)) == 10:
+            if isinstance(value, time.struct_time):
                 locale_format = locale.D_FMT
-                string_pattern = '%Y-%m-%d'
+                date = value
             else:
-                if len(str(value)) > 19:
+                # assume string, parse it
+                if len(str(value)) == 10:
+                    # length of date like 2001-01-01 is ten
+                    # assume format '%Y-%m-%d'
+                    locale_format = locale.D_FMT
+                    string_pattern = '%Y-%m-%d'
+                else:
+                    # assume format '%Y-%m-%d %H:%M:%S'
                     value = str(value)[:19]
-                locale_format = locale.D_T_FMT
-                string_pattern = '%Y-%m-%d %H:%M:%S'
-            date = time.strptime(str(value), string_pattern)
+                    locale_format = locale.D_T_FMT
+                    string_pattern = '%Y-%m-%d %H:%M:%S'
+                date = time.strptime(str(value), string_pattern)
             return time.strftime(locale.nl_langinfo(locale_format).\
                                      replace('%y', '%Y'), date)
 
