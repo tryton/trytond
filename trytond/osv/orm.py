@@ -1128,7 +1128,7 @@ class ORM(object):
                             ' FROM ' + table_query + '\"' + self._table +'\" ' \
                             'WHERE id IN ' \
                                 '(' + ','.join([str(x) for x in sub_ids]) + ')'\
-                            ' AND ' + domain1 + ' ORDER BY ' + \
+                            ' AND (' + domain1 + ') ORDER BY ' + \
                             ','.join([self._table + '.' + x[0] + ' ' + x[1] \
                             for x in self._order])),
                             table_args + domain2)
@@ -1365,7 +1365,7 @@ class ORM(object):
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
                 self._name)
         if domain1:
-            domain1 = ' AND ' + domain1
+            domain1 = ' AND (' + domain1 + ') '
         for i in range((len(ids) / ID_MAX) + \
                 ((len(ids) % ID_MAX) and 1 or 0)):
             sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
@@ -1491,7 +1491,7 @@ class ORM(object):
             domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor,
                     user, self._name)
             if domain1:
-                domain1 = ' and ' + domain1
+                domain1 = ' AND (' + domain1 + ') '
             for i in range((len(ids) / ID_MAX) + \
                     ((len(ids) % ID_MAX) and 1 or 0)):
                 sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
