@@ -86,7 +86,6 @@
         <menuitem name="Update Report Translations"
             parent="menu_translation_form"
             action="act_translation_update_report"
-            type="wizard"
             id="menu_translation_update_report"
             sequence="10"/>
 
@@ -110,7 +109,6 @@
         <menuitem name="Update Translations"
             parent="menu_translation_form"
             action="act_translation_update"
-            type="wizard"
             id="menu_translation_update"
             sequence="20"/>
 
@@ -121,7 +119,6 @@
         <menuitem name="Export Translations"
             parent="menu_translation_form"
             action="act_translation_export"
-            type="wizard"
             id="menu_translation_export"
             sequence="30"/>
     </data>
