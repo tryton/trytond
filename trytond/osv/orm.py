@@ -1961,7 +1961,7 @@ class ORM(object):
                     elif pos == 'after':
                         parent = element.getparent()
                         next = element.getnext()
-                        if next:
+                        if next is not None:
                             for child in element2:
                                 index = parent.index(next)
                                 parent.insert(index - 1, child)
