@@ -13,7 +13,6 @@ status = sys.stdout
 confoverrides = {}
 freshenv = True
 buildername = 'html'
-log = open('build_err.log', 'w')
 if not path.isdir(outdir):
     os.mkdir(outdir)
 if not path.isdir(static_dir):
@@ -21,7 +20,6 @@ if not path.isdir(static_dir):
 nocolor()
 
 app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
-             confoverrides, status, log, freshenv)
+             confoverrides, status, sys.stderr, freshenv)
 app.builder.build_all()
 
-log.close()
