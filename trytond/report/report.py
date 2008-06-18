@@ -18,6 +18,12 @@ import time
 import os
 import datetime
 
+if not hasattr(locale, 'nl_langinfo'):
+    locale.nl_langinfo = lambda *a: '%x'
+
+if not hasattr(locale, 'D_FMT'):
+    locale.D_FMT = None
+
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
 CLASS_POOL = {}
@@ -538,22 +544,24 @@ class Report(object):
                                 localcontext.get('language', False) or 'en_US'))
         if date:
             if isinstance(value, time.struct_time):
-                locale_format = locale.D_FMT
+                locale_format = locale.nl_langinfo(locale.D_FMT)\
+                        .replace('%y', '%Y')
                 date = value
             else:
                 # assume string, parse it
                 if len(str(value)) == 10:
                     # length of date like 2001-01-01 is ten
                     # assume format '%Y-%m-%d'
-                    locale_format = locale.D_FMT
+                    locale_format = locale.nl_langinfo(locale.D_FMT)\
+                            .replace('%y', '%Y')
                     string_pattern = '%Y-%m-%d'
                 else:
                     # assume format '%Y-%m-%d %H:%M:%S'
                     value = str(value)[:19]
-                    locale_format = locale.D_T_FMT
+                    locale_format = locale.nl_langinfo(locale.D_FMT)\
+                            .replace('%y', '%Y') + ' %H:%M:%S'
                     string_pattern = '%Y-%m-%d %H:%M:%S'
                 date = time.strptime(str(value), string_pattern)
-            return time.strftime(locale.nl_langinfo(locale_format).\
-                                     replace('%y', '%Y'), date)
+            return time.strftime(locale_format, date)
 
         return locale.format('%.' + str(digits) + 'f', value, True)
