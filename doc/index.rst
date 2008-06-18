@@ -3,7 +3,7 @@
    `toctree` directive.
 
 Welcome to Tryton's documentation!
-================================
+##################################
 
 Contents:
 
@@ -23,7 +23,7 @@ Contents:
    xml-rpc
 
 Indices and tables
-==================
+##################
 
 * :ref:`genindex`
 * :ref:`modindex`
