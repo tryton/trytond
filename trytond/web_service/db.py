@@ -21,6 +21,7 @@ class DB(Service):
         self.export_method(self.restore)
         self.export_method(self.list)
         self.export_method(self.list_lang)
+        self.export_method(self.db_exist)
         self.export_method(self.change_admin_password)
 
     def create(self, password, db_name, lang):
