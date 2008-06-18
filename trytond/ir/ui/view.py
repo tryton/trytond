@@ -56,17 +56,20 @@ class View(OSV):
             trans_views[trans['name']][trans['src']] = trans
         for view in views:
             xml = view.arch.strip()
-            dtd_name = os.path.join(os.path.dirname(__file__),
-                    (view.inherit and view.inherit.type or view.type) + '.dtd')
-            dtd = etree.DTD(file(dtd_name))
             tree = etree.fromstring(xml)
-            if not dtd.validate(tree):
-                logger = Logger()
-                error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
-                        dtd.error_log.filter_from_errors())
-                logger.notify_channel('ir', LOG_ERROR,
-                        'Invalid xml view:\n%s' %  (error_log + '\n' + xml))
-                return False
+
+            # validate the tree using RelaxNG
+            rng_name = os.path.join(os.path.dirname(__file__),
+                    (view.inherit and view.inherit.type or view.type) + '.rng')
+            if hasattr(etree, 'RelaxNG'):
+                validator = etree.RelaxNG(file=rng_name)
+                if not validator.validate(tree):
+                    logger = Logger()
+                    error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
+                            validator.error_log.filter_from_errors())
+                    logger.notify_channel('ir', LOG_ERROR,
+                            'Invalid xml view:\n%s' %  (error_log + '\n' + xml))
+                    return False
             root_element = tree.getroottree().getroot()
             strings = self._translate_view(root_element)
             view_ids = self.search(cursor, 0, [

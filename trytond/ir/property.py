@@ -7,38 +7,16 @@ class Property(OSV):
     "Property"
     _name = 'ir.property'
     _description = __doc__
-    name = fields.Char('Name', size=128)
+    name = fields.Char('Name')
     #TODO add function field for other type than many2one
-    value = fields.Reference('Value', selection='models_get2', size=128)
-    res = fields.Reference('Resource', selection='models_get', size=128)
+    value = fields.Reference('Value', selection='models_get')
+    res = fields.Reference('Resource', selection='models_get')
     field = fields.Many2One('ir.model.field', 'Field',
-       ondelete='cascade', required=True)
-
-    def models_get2(self, cursor, user, context=None):
-        model_field_obj = self.pool.get('ir.model.field')
-        #TODO add domain for only reference fields
-        ids = model_field_obj.search(cursor, user, [])
-        res = []
-        done = {}
-        for model_field in model_field_obj.browse(cursor, user, ids,
-                context=context):
-            if model_field.relation not in done:
-                res.append([model_field.relation, model_field.relation])
-                done[model_field.relation] = True
-        return res
+        ondelete='CASCADE', required=True)
 
     def models_get(self, cursor, user, context=None):
-        model_field_obj = self.pool.get('ir.model.field')
-        #TODO add domain for only reference fields
-        ids = model_field_obj.search(cursor, user, [])
-        res = []
-        done = {}
-        for model_field in model_field_obj.browse(cursor, user, ids,
-                context=context):
-            if model_field.model.id not in done:
-                res.append([model_field.model.model,
-                    model_field.model.name])
-                done[model_field.model.id] = True
+        cursor.execute('SELECT model, name FROM ir_model ORDER BY name ASC')
+        res = cursor.fetchall() + [('', '')]
         return res
 
     def get(self, cursor, user, name, model, res_ids=None, context=None):
