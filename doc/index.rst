@@ -12,15 +12,13 @@ Contents:
 
    installation
    models
-   modules
-   net-rpc
-   reports
-   unittest
    views
-   webdav
+   modules
    wizards
+   reports
    workflows
-   xml-rpc
+   unittest
+   protocols
 
 Indices and tables
 ##################
