@@ -5,7 +5,7 @@ from os import path
 from sphinx.util.console import nocolor
 from sphinx.application import Sphinx
 
-srcdir = confdir = path.abspath('.')
+srcdir = confdir = path.abspath(path.normpath(path.dirname(__file__)))
 outdir = os.path.join(srcdir, 'html')
 static_dir = os.path.join(srcdir, 'static')
 doctreedir = path.join(outdir, '.doctrees')
