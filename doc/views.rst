@@ -1,12 +1,15 @@
+Views
+#####
+
 Graph view
-##########
+**********
 
 The dtd that describe the xml for a graph view is stored in
 trytond/ir/ui/graph.dtd.
 
 
 XML description
-***************
++++++++++++++++
 
 * tag "graph":
 
