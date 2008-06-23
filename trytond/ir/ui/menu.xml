@@ -36,6 +36,7 @@
                     <field name="complete_name" icon="icon"/>
                     <field name="name" tree_invisible="1" select="1"/>
                     <field name="parent" tree_invisible="1" select="1"/>
+                    <field name="active" tree_invisible="1" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -47,7 +48,9 @@
                 <![CDATA[
                 <form string="Menu">
                     <label name="name"/>
-                    <field name="name" colspan="3"/>
+                    <field name="name"/>
+                    <label name="active"/>
+                    <field name="active"/>
                     <label name="parent"/>
                     <field name="parent"/>
                     <label name="icon"/>

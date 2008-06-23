@@ -91,6 +91,7 @@ class UIMenu(OSV):
            ('ir.action.wizard', 'ir.action.wizard'),
            ('ir.action.url', 'ir.action.url'),
            ])
+    active = fields.Boolean('Active')
 
     def __init__(self):
         super(UIMenu, self).__init__()
@@ -101,6 +102,9 @@ class UIMenu(OSV):
 
     def default_sequence(self, cursor, user, context=None):
         return 10
+
+    def default_active(self, cursor, user, context=None):
+        return True
 
     def get_full_name(self, cursor, user, ids, name, args, context):
         res = {}
