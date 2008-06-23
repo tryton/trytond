@@ -465,7 +465,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             if isinstance(ref_id, (list, tuple)):
                 ref_id = ref_id[0]
             return ref_mode + ',' + str(ref_id)
-        elif field_type in ['one2one', 'one2many', "many2many"]:
+        elif field_type in ['one2many', 'many2many']:
             raise Unhandled_field()
         else:
             return browse_record[key]
