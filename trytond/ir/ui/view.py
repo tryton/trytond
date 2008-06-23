@@ -68,7 +68,7 @@ class View(OSV):
                     error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
                             validator.error_log.filter_from_errors())
                     logger.notify_channel('ir', LOG_ERROR,
-                            'Invalid xml view:\n%s' %  (error_log + '\n' + xml))
+                            'Invalid xml view:\n%s' %  (str(error_log) + '\n' + xml))
                     return False
             root_element = tree.getroottree().getroot()
             strings = self._translate_view(root_element)
