@@ -1,3 +1,4 @@
+#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 # -*- coding: utf-8 -*-
 from trytond.netsvc import Service, Logger, LOG_ERROR, LOG_INFO, LOG_WARNING
 import threading

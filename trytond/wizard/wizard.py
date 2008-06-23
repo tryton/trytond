@@ -1,3 +1,4 @@
+#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Wizard"
 from trytond.netsvc import Service, service_exist, Logger, LOG_ERROR
 from trytond import pooler
