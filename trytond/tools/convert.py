@@ -200,7 +200,8 @@ class RecordTagHandler:
                 f_obj = self.mh.pool.get(search_model)
                 answer = f_obj.browse(
                     self.mh.cursor, self.mh.user,
-                    f_obj.search(self.mh.cursor, self.mh.user, eval(search_attr)))
+                    f_obj.search(self.mh.cursor, self.mh.user, eval(search_attr),
+                        context={'active_test': False}))
 
                 if not answer: return
 
@@ -525,7 +526,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 "data with the wrong model: %s (module: %s)" % (fs_id, module))
 
             #Re-create object if it was deleted
-            if not object_ref.search(cursor, user, [('id', '=', db_id)]):
+            if not object_ref.search(cursor, user, [('id', '=', db_id)],
+                    context={'active_test': False}):
                 db_id = object_ref.create(cursor, user, values,
                         context={'module': module})
                 data_id = self.modeldata_obj.search(cursor, user, [
@@ -650,10 +652,8 @@ def post_import(cursor, module, to_delete):
     modeldata_obj = pool.get("ir.model.data")
     transition_unlink = []
 
-    mdata_ids = modeldata_obj.search(
-            cursor, user, [('fs_id', 'in', to_delete)],
-            order=[('id', 'DESC')],
-            )
+    mdata_ids = modeldata_obj.search(cursor, user, [('fs_id', 'in', to_delete)],
+            order=[('id', 'DESC')], context={'active_test': False})
 
     for mrec in modeldata_obj.browse(cursor, user, mdata_ids):
         mdata_id, model, db_id = mrec.id, mrec.model, mrec.db_id
