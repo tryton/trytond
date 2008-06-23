@@ -19,7 +19,7 @@ ICONS = [(x, x) for x in [
     'tryton-clock',
     'tryton-connect',
     'tryton-copy',
-    'tryton-dollars',
+    'tryton-currency',
     'tryton-delete',
     'tryton-development',
     'tryton-dialog-error',
