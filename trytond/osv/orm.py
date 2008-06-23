@@ -112,7 +112,7 @@ class BrowseRecord(object):
                     obj = self._table.pool.get(j._obj)
                     if not obj:
                         continue
-                    if j._type in ('many2one', 'one2one'):
+                    if j._type in ('many2one',):
                         if not j._classic_write and data[i]:
                             if isinstance(data[i][0], (list, tuple)):
                                 ids2 = data[i][0][0]
@@ -1244,7 +1244,7 @@ class ORM(object):
             if field in fields_names:
                 fld_def = (field in self._columns) and self._columns[field] \
                         or self._inherit_fields[field][2]
-                if fld_def._type in ('many2one', 'one2one'):
+                if fld_def._type in ('many2one',):
                     obj = self.pool.get(fld_def._obj)
                     if not obj.search(cursor, user, [('id', '=', field_value)]):
                         continue
@@ -1267,7 +1267,7 @@ class ORM(object):
                         field_value2.append({})
                         for field2 in field_value[i]:
                             if obj._columns[field2]._type \
-                                    in ('many2one', 'one2one'):
+                                    in ('many2one',):
                                 obj2 = self.pool.get(obj._columns[field2]._obj)
                                 if not obj2.search(cursor, user,
                                         [('id', '=', field_value[i][field2])]):
@@ -1573,7 +1573,7 @@ class ORM(object):
         for field in defaults.keys():
             fld_def = (field in self._columns) and self._columns[field] \
                     or self._inherit_fields[field][2]
-            if fld_def._type in ('many2one', 'one2one'):
+            if fld_def._type in ('many2one',):
                 if isinstance(defaults[field], (list, tuple)):
                     vals[field] = defaults[field][0]
                 else:
@@ -1794,7 +1794,6 @@ class ORM(object):
                     'one2many',
                     'many2many',
                     'many2one',
-                    'one2one',
                     ):
                 res[field]['relation'] = self._columns[field]._obj
                 res[field]['domain'] = self._columns[field]._domain
@@ -2674,7 +2673,7 @@ class ORM(object):
                     data[field] = data[field] and data[field][0]
                 except:
                     pass
-            elif ftype in ('one2many', 'one2one'):
+            elif ftype in ('one2many',):
                 res = []
                 rel = self.pool.get(fields2[field]['relation'])
                 for rel_id in data[field]:

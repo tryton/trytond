@@ -300,34 +300,6 @@ class Selection(Column):
 selection = Selection
 
 
-class One2One(Column):
-    _classic_read = False
-    _classic_write = True
-    _type = 'one2one'
-
-    def __init__(self, obj, string='unknown', **args):
-        warnings.warn("The one2one field doesn't work anymore",
-                DeprecationWarning)
-        Column.__init__(self, string=string, **args)
-        self._obj = obj
-
-    def set(self, cursor, obj_src, src_id, field, act, user=None, context=None):
-        obj = obj_src.pool.get(self._obj)
-        if act[0] == 0:
-            id_new = obj.create(cursor, user, act[1])
-            cursor.execute('UPDATE "' + obj_src._table + '" ' \
-                    'SET "' + field + '" = %s ' \
-                    'WHERE id = %s', (id_new, src_id))
-        else:
-            cursor.execute('SELECT "' + field + '" ' \
-                    'FROM "' + obj_src._table + '" ' \
-                    'WHERE id = %s', (act[0],))
-            (obj_id,) = cursor.fetchone()
-            obj.write(cursor, user, [obj_id] , act[1], context=context)
-
-one2one = One2One
-
-
 class Many2One(Column):
     _classic_read = False
     _classic_write = True

@@ -174,7 +174,7 @@ class User(OSV):
         else:
             fields = self._preferences_fields + self._context_fields
         for field in fields:
-            if self._columns[field]._type in ('many2one', 'one2one'):
+            if self._columns[field]._type in ('many2one',):
                 if field == 'language':
                     if user.language:
                         res['language'] = user.language.code
