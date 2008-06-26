@@ -108,5 +108,57 @@
         </record>
         <menuitem parent="menu_ui"
             action="act_view_sc_form" id="menu_view_sc"/>
+
+        <record model="ir.ui.view" id="view_tree_width_view_form">
+            <field name="model">ir.ui.view_tree_width</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="View Tree Width">
+                    <label name="model"/>
+                    <field name="model"/>
+                    <label name="field"/>
+                    <field name="field"/>
+                    <label name="user"/>
+                    <field name="user"/>
+                    <label name="width"/>
+                    <field name="width"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_tree_width_view_tree">
+            <field name="model">ir.ui.view_tree_width</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Views Tree Width">
+                    <field name="model"/>
+                    <field name="field"/>
+                    <field name="user"/>
+                    <field name="width"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_view_tree_width_form">
+            <field name="name">View Tree Width</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.ui.view_tree_width</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_tree_width_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view" ref="view_tree_width_view_tree"/>
+            <field name="act_window" ref="act_view_tree_width_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_tree_width_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view" ref="view_tree_width_view_form"/>
+            <field name="act_window" ref="act_view_tree_width_form"/>
+        </record>
+        <menuitem parent="menu_ui"
+            action="act_view_tree_width_form" id="menu_view_tree_width"/>
     </data>
 </tryton>

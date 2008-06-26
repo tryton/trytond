@@ -219,7 +219,7 @@ class User(OSV):
         xml += '</form>'
         tree = etree.fromstring(xml)
         arch, fields = self._view_look_dom_arch(cursor,
-                user, tree, context=context)
+                user, tree, 'form', context=context)
         for field in fields:
             if field not in ('groups', 'language_direction'):
                 fields[field]['readonly'] = False

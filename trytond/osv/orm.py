@@ -1818,12 +1818,22 @@ class ORM(object):
         """
         return False
 
-    def __view_look_dom(self, cursor, user, element, context=None):
+    def __view_look_dom(self, cursor, user, element, type, context=None):
         if context is None:
             context = {}
         result = False
         fields_attrs = {}
         childs = True
+        fields_width = {}
+        if type == 'tree':
+            viewtreewidth_obj = self.pool.get('ir.ui.view_tree_width')
+            viewtreewidth_ids = viewtreewidth_obj.search(cursor, user, [
+                ('model', '=', self._name),
+                ('user', '=', user),
+                ], context=context)
+            for viewtreewidth in viewtreewidth_obj.browse(cursor, user,
+                    viewtreewidth_ids, context=context):
+                fields_width[viewtreewidth.field] = viewtreewidth.width
         if element.tag in ('field', 'label', 'separator'):
             for attr in ('name', 'icon'):
                 if element.get(attr):
@@ -1843,7 +1853,7 @@ class ORM(object):
                                 field2 = copy.copy(field)
                                 xarch, xfields = self.pool.get(relation
                                         )._view_look_dom_arch(cursor, user, field2,
-                                                context)
+                                                field.tag, context)
                                 views[field.tag] = {
                                     'arch': xarch,
                                     'fields': xfields
@@ -1851,6 +1861,8 @@ class ORM(object):
                                 element.remove(field)
                         attrs = {'views': views}
                     fields_attrs[element.get(attr)] = attrs
+            if element.get('name') in fields_width:
+                element.set('width', str(fields_width[element.get('name')]))
 
         if element.tag in ('form', 'tree', 'graph'):
             value = ''
@@ -1908,12 +1920,13 @@ class ORM(object):
         if childs:
             for field in element:
                 fields_attrs.update(self.__view_look_dom(cursor, user, field,
-                    context))
+                    type, context))
         return fields_attrs
 
-    def _view_look_dom_arch(self, cursor, user, tree, context=None):
+    def _view_look_dom_arch(self, cursor, user, tree, type, context=None):
         tree_root = tree.getroottree().getroot()
-        fields_def = self.__view_look_dom(cursor, user, tree_root, context=context)
+        fields_def = self.__view_look_dom(cursor, user, tree_root, type,
+                context=context)
         arch = etree.tostring(tree, encoding='utf-8')
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
         for field in fields_def:
@@ -2056,6 +2069,7 @@ class ORM(object):
                 % (self._description, self._date_name, self._rec_name)
             else:
                 xml = ''
+            result['type'] = view_type
             result['arch'] = xml
             result['name'] = 'default'
             result['field_childs'] = False
@@ -2063,7 +2077,7 @@ class ORM(object):
 
         tree = etree.fromstring(result['arch'])
         xarch, xfields = self._view_look_dom_arch(cursor, user, tree,
-                context=context)
+                result['type'], context=context)
         result['arch'] = xarch
         result['fields'] = xfields
         if toolbar:
