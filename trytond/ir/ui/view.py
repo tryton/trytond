@@ -212,3 +212,87 @@ class ViewShortcut(OSV):
         return 'ir.ui.menu'
 
 ViewShortcut()
+
+
+class ViewTreeWidth(OSV):
+    "View Tree Width"
+    _name = 'ir.ui.view_tree_width'
+    _description = __doc__
+    _rec_name = 'model'
+    model = fields.Char('Model', required=True, select=1)
+    field = fields.Char('Field', required=True, select=1)
+    user = fields.Many2One('res.user', 'User', required=True,
+            ondelete='CASCADE', select=1)
+    width = fields.Integer('Width')
+
+    def __init__(self):
+        super(ViewTreeWidth, self).__init__()
+        self._rpc_allowed += [
+            'set_width',
+        ]
+
+    def unlink(self, cursor, user, ids, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        views = self.browse(cursor, user, ids, context=context)
+        for view in views:
+            # Restart the cache
+            try:
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
+            except:
+                pass
+        res = super(ViewTreeWidth, self).unlink(cursor, user, ids, context=context)
+        return res
+
+    def create(self, cursor, user, vals, context=None):
+        res = super(ViewTreeWidth, self).create(cursor, user, vals, context=context)
+        if 'model' in vals:
+            model = vals['model']
+            # Restart the cache
+            try:
+                self.pool.get(model).fields_view_get(cursor.dbname)
+            except:
+                pass
+        return res
+
+    def write(self, cursor, user, ids, vals, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        views = self.browse(cursor, user, ids)
+        for view in views:
+            # Restart the cache
+            try:
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
+            except:
+                pass
+        res = super(ViewTreeWidth, self).write(cursor, user, ids, vals, context=context)
+        views = self.browse(cursor, user, ids)
+        for view in views:
+            # Restart the cache
+            try:
+                self.pool.get(view.model).fields_view_get(cursor.dbname)
+            except:
+                pass
+        return res
+
+    def set_width(self, cursor, user, model, fields, context=None):
+        '''
+        Set width for the current user on the model.
+        fields is a dictionary with key: field name and value: width.
+        '''
+        ids = self.search(cursor, user, [
+            ('user', '=', user),
+            ('model', '=', model),
+            ('field', 'in', fields.keys()),
+            ], context=context)
+        self.unlink(cursor, user, ids, context=context)
+
+        for field in fields.keys():
+            self.create(cursor, user, {
+                'model': model,
+                'field': field,
+                'user': user,
+                'width': fields[field],
+                }, context=context)
+
+ViewTreeWidth()
