@@ -1859,50 +1859,49 @@ class ORM(object):
             if result:
                 element.set('string', result.decode('utf8'))
 
-        if True:
-            # translate view
-            translation_obj = self.pool.get('ir.translation')
-            if ('language' in context) and not result:
-                if element.get('string'):
-                    trans = translation_obj._get_source(cursor,
-                            self._name, 'view', context['language'],
-                            element.get('string').encode('utf-8'))
-                    if trans:
-                        element.set('string', trans.decode('utf-8'))
-                if element.get('sum'):
-                    trans = translation_obj._get_source(cursor,
-                            self._name, 'view', context['language'],
-                            element.get('sum').encode('utf-8'))
-                    if trans:
-                        element.set('sum', trans.decode('utf-8'))
-            # Add view for properties !
-            if element.tag == 'properties':
-                parent = element.getparent()
-                models = ["'" + x + "'" for x in  [self._name] + \
-                        self._inherits.keys()]
-                cursor.execute('SELECT f.name AS name, ' \
-                            'f.group_name AS group_name ' \
-                        'FROM ir_model_field AS f, ir_model AS m ' \
-                        'WHERE f.model = m.id ' \
-                            'AND m.model in (' + ','.join(models) + ') ' \
-                            'AND f.view_load ORDER BY f.group_name, f.id')
-                oldgroup = None
-                for fname, gname in cursor.fetchall():
-                    if oldgroup != gname:
-                        child = etree.Element('separator')
-                        child.set('string', gname.decode('utf-8'))
-                        child.set('colspan', '4')
-                        oldgroup = gname
-                        parent.insert(parent.index(element), child)
+        # translate view
+        translation_obj = self.pool.get('ir.translation')
+        if ('language' in context) and not result:
+            if element.get('string'):
+                trans = translation_obj._get_source(cursor,
+                        self._name, 'view', context['language'],
+                        element.get('string').encode('utf-8'))
+                if trans:
+                    element.set('string', trans.decode('utf-8'))
+            if element.get('sum'):
+                trans = translation_obj._get_source(cursor,
+                        self._name, 'view', context['language'],
+                        element.get('sum').encode('utf-8'))
+                if trans:
+                    element.set('sum', trans.decode('utf-8'))
+        # Add view for properties !
+        if element.tag == 'properties':
+            parent = element.getparent()
+            models = ["'" + x + "'" for x in  [self._name] + \
+                    self._inherits.keys()]
+            cursor.execute('SELECT f.name AS name, ' \
+                        'f.group_name AS group_name ' \
+                    'FROM ir_model_field AS f, ir_model AS m ' \
+                    'WHERE f.model = m.id ' \
+                        'AND m.model in (' + ','.join(models) + ') ' \
+                        'AND f.view_load ORDER BY f.group_name, f.id')
+            oldgroup = None
+            for fname, gname in cursor.fetchall():
+                if oldgroup != gname:
+                    child = etree.Element('separator')
+                    child.set('string', gname.decode('utf-8'))
+                    child.set('colspan', '4')
+                    oldgroup = gname
+                    parent.insert(parent.index(element), child)
 
-                    child = etree.Element('label')
-                    child.set('name', fname.decode('utf-8'))
-                    parent.insert(parent.index(element), child)
-                    child = etree.Element('field')
-                    child.set('name', fname.decode('utf-8'))
-                    parent.insert(parent.index(element), child)
-                parent.remove(element)
-                element = parent
+                child = etree.Element('label')
+                child.set('name', fname.decode('utf-8'))
+                parent.insert(parent.index(element), child)
+                child = etree.Element('field')
+                child.set('name', fname.decode('utf-8'))
+                parent.insert(parent.index(element), child)
+            parent.remove(element)
+            element = parent
 
         if childs:
             for field in element:
