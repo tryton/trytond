@@ -739,6 +739,7 @@ class ORM(object):
                 'import_data',
                 'export_data',
                 'search_count',
+                'search_read',
                 ]
         self._sql_constraints = []
         self._constraints = []
@@ -2690,6 +2691,19 @@ class ORM(object):
         for i in self._inherits:
             del data[self._inherits[i]]
         return self.create(cursor, user, data)
+
+    def search_read(self, cursor, user, args, offset=0, limit=None, order=None,
+            context=None, fields_names=None, load='_classic_read'):
+        '''
+        Call search function and read in once.
+        Usefull for the client to reduce the number of calls.
+        '''
+        ids = self.search(cursor, user, args, offset=offset, limit=limit,
+                order=order, context=context)
+        if limit == 1:
+            ids = ids[0]
+        return self.read(cursor, user, ids, fields_names=fields_names,
+                context=context, load=load)
 
     def check_recursion(self, cursor, user, ids, parent=None):
         '''
