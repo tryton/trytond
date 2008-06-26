@@ -25,7 +25,8 @@ def login(dbname, loginname, password, cache=True):
             _USER_CACHE.setdefault(dbname, {})
             timestamp = time.time()
             session = str(random.random())
-            _USER_CACHE[dbname][user_id] = (timestamp, session)
+            _USER_CACHE[dbname].setdefault(user_id, [])
+            _USER_CACHE[dbname][user_id].append((timestamp, session))
             return (user_id, session)
         else:
             return user_id
@@ -41,10 +42,17 @@ def check_super(passwd):
 def check(dbname, user, session, reset_timeout=True):
     session = session.encode('utf-8')
     if _USER_CACHE.get(dbname, {}).has_key(user):
-        timestamp, real_session = _USER_CACHE[dbname][user]
-        if real_session == session \
-                and abs(timestamp - time.time()) < SESSION_TIMEOUT:
-            if reset_timeout:
-                _USER_CACHE[dbname][user] = (time.time(), real_session)
-            return True
+        to_del = []
+        for i in range(len(_USER_CACHE[dbname][user])):
+            timestamp, real_session = _USER_CACHE[dbname][user][i]
+            if abs(timestamp - time.time()) < SESSION_TIMEOUT:
+                if real_session == session:
+                    if reset_timeout:
+                        _USER_CACHE[dbname][user][i] = (time.time(), real_session)
+                    return True
+                else:
+                    to_del.append(i)
+        to_del.reverse()
+        for i in to_del:
+            del USER_CACHE[dbname][user][i]
     raise Exception('NotLogged')
