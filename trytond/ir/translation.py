@@ -266,7 +266,6 @@ class Translation(OSV, Cacheable):
                     'WHERE ' + clause, value)
             for lang, ttype, name, src, value in cursor.fetchall():
                 res[(name, ttype, lang, source)] = value
-            for name, ttype, lang, source in args:
                 self.add(cursor, (lang, ttype, name, source),
                         res[(name, ttype, lang, source)])
         return res
