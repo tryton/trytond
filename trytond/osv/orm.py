@@ -1824,31 +1824,32 @@ class ORM(object):
         fields_attrs = {}
         childs = True
         if element.tag in ('field', 'label', 'separator'):
-            if element.get('name'):
-                attrs = {}
-                try:
-                    if element.get('name') in self._columns:
-                        relation = self._columns[element.get('name')]._obj
-                    else:
-                        relation = self._inherit_fields[element.get('name')][2]._obj
-                except:
-                    relation = False
-                if relation:
-                    childs = False
-                    views = {}
-                    for field in element:
-                        if field.tag in ('form', 'tree', 'graph'):
-                            field2 = copy.copy(field)
-                            xarch, xfields = self.pool.get(relation
-                                    )._view_look_dom_arch(cursor, user, field2,
-                                            context)
-                            views[field.tag] = {
-                                'arch': xarch,
-                                'fields': xfields
-                            }
-                            element.remove(field)
-                    attrs = {'views': views}
-                fields_attrs[element.get('name')] = attrs
+            for attr in ('name', 'icon'):
+                if element.get(attr):
+                    attrs = {}
+                    try:
+                        if element.get(attr) in self._columns:
+                            relation = self._columns[element.get(attr)]._obj
+                        else:
+                            relation = self._inherit_fields[element.get(attr)][2]._obj
+                    except:
+                        relation = False
+                    if relation:
+                        childs = False
+                        views = {}
+                        for field in element:
+                            if field.tag in ('form', 'tree', 'graph'):
+                                field2 = copy.copy(field)
+                                xarch, xfields = self.pool.get(relation
+                                        )._view_look_dom_arch(cursor, user, field2,
+                                                context)
+                                views[field.tag] = {
+                                    'arch': xarch,
+                                    'fields': xfields
+                                }
+                                element.remove(field)
+                        attrs = {'views': views}
+                    fields_attrs[element.get(attr)] = attrs
 
         if element.tag in ('form', 'tree', 'graph'):
             value = ''
