@@ -33,6 +33,7 @@ class Cron(OSV, Agent):
     interval_type = fields.Selection( [
        ('minutes', 'Minutes'),
        ('hours', 'Hours'),
+       ('work_days', 'Work Days'),
        ('days', 'Days'),
        ('weeks', 'Weeks'),
        ('months', 'Months'),
