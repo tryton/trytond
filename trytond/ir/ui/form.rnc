@@ -28,6 +28,8 @@ attlist.tree &= attribute on_write { text }?
 attlist.tree &= attribute editable { "top" | "bottom" }?
 attlist.tree &= attribute sequence { text }?
 attlist.tree &= attribute colors { text }?
+attlist.tree &=
+  [ a:defaultValue = "0" ] attribute fill { "0" | "1" }?
 
 graph = element graph { attlist.graph, x, y }
 attlist.graph &=
