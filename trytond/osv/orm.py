@@ -1648,7 +1648,8 @@ class ORM(object):
         cursor.execute("SELECT NEXTVAL('" + self._sequence + "')")
         (id_new,) = cursor.fetchone()
         for table in tocreate:
-            new_id = self.pool.get(table).create(cursor, user, tocreate[table])
+            new_id = self.pool.get(table).create(cursor, user, tocreate[table],
+                    context=context)
             upd0 += ',' + self._inherits[table]
             upd1 += ',%s'
             upd2.append(new_id)
@@ -1696,7 +1697,7 @@ class ORM(object):
                 self._columns[y].priority)
         for field in upd_todo:
             self._columns[field].set(cursor, self, id_new, field, vals[field],
-                    user, context)
+                    user=user, context=context)
 
         self._validate(cursor, user, [id_new])
 
