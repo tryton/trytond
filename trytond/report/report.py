@@ -19,12 +19,7 @@ import time
 import os
 import datetime
 import md5
-
-if not hasattr(locale, 'nl_langinfo'):
-    locale.nl_langinfo = lambda *a: '%x'
-
-if not hasattr(locale, 'D_FMT'):
-    locale.D_FMT = None
+from _strptime import LocaleTime
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -562,33 +557,28 @@ class Report(object):
         lang = localcontext.get('language', False) or 'en_US'
         try:
             if os.name == 'nt':
-                locale.setlocale(locale.LC_ALL,
-                        _LOCALE2WIN32.get(lang, lang) + '.' + encoding)
-            else:
-                locale.setlocale(locale.LC_ALL, lang + '.' + encoding)
+                lang = _LOCALE2WIN32.get(lang, lang)
+            locale.setlocale(locale.LC_ALL, lang + '.' + encoding)
         except Exception:
             Logger().notify_channel('web-service', LOG_ERROR,
                     'Report %s: unable to set locale "%s"' % \
-                            (self._name,
-                                localcontext.get('language', False) or 'en_US'))
+                            (self._name, lang + '.' + encoding))
         if date:
             if isinstance(value, time.struct_time):
-                locale_format = locale.nl_langinfo(locale.D_FMT)\
-                        .replace('%y', '%Y')
+                locale_format = LocaleTime().LC_date.replace('%y', '%Y')
                 date = value
             else:
                 # assume string, parse it
                 if len(str(value)) == 10:
                     # length of date like 2001-01-01 is ten
                     # assume format '%Y-%m-%d'
-                    locale_format = locale.nl_langinfo(locale.D_FMT)\
-                            .replace('%y', '%Y')
+                    locale_format = LocaleTime().LC_date.replace('%y', '%Y')
                     string_pattern = '%Y-%m-%d'
                 else:
                     # assume format '%Y-%m-%d %H:%M:%S'
                     value = str(value)[:19]
-                    locale_format = locale.nl_langinfo(locale.D_FMT)\
-                            .replace('%y', '%Y') + ' %H:%M:%S'
+                    locale_format = LocaleTime().LC_date.replace('%y', '%Y') \
+                            + ' %H:%M:%S'
                     string_pattern = '%Y-%m-%d %H:%M:%S'
                 date = time.strptime(str(value), string_pattern)
             return time.strftime(locale_format, date)

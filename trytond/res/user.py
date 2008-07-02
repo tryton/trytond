@@ -190,14 +190,24 @@ class User(OSV):
         return res
 
     def set_preferences(self, cursor, user, values, context=None):
+        lang_obj = self.pool.get('ir.lang')
         values_clean = values.copy()
         fields = self._preferences_fields + self._context_fields
         for field in values:
             if field not in fields or field == 'groups':
                 del values_clean[field]
+            if field == 'language':
+                lang_ids = lang_obj.search(cursor, user, [
+                    ('code', '=', values['language']),
+                    ], context=context)
+                if lang_ids:
+                    values_clean['language'] = lang_ids[0]
+                else:
+                    del values_clean['language']
         self.write(cursor, 0, user, values_clean, context=context)
 
     def get_preferences_fields_view(self, cursor, user, context=None):
+        lang_obj = self.pool.get('ir.lang')
         res = {}
         fields_names = self._preferences_fields + self._context_fields
         fields_names.pop(fields_names.index('status_bar'))
@@ -226,6 +236,12 @@ class User(OSV):
             else:
                 fields[field]['readonly'] = True
         res['arch'] = arch
+        if 'language' in fields:
+            del fields['language']['relation']
+            fields['language']['selection'] = []
+            lang_ids = lang_obj.search(cursor, user, [], context=None)
+            for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
+                fields['language']['selection'].append((lang.code, lang.name))
         res['fields'] = fields
         return res
 
