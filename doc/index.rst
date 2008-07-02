@@ -3,7 +3,7 @@
    `toctree` directive.
 
 Welcome to Trytond's documentation!
-##################################
+###################################
 
 Contents:
 
