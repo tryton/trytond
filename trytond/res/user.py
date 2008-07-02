@@ -198,18 +198,20 @@ class User(OSV):
         fields = self.fields_get(cursor, user,
                 fields_names=fields_names, context=context)
 
-        xml = '<?xml version="1.0" encoding="utf-8"?>' \
-                '<form string="%s" col="2">' % (self._description,)
+        xml = '<?xml version="1.0"?>' \
+                '<form string="%s" col="2">' % \
+                (self._description.decode('utf-8'),)
         fields_keys = fields.keys()
         fields_keys.sort(lambda x, y: cmp(fields_names.index(x), fields_names.index(y)))
         for field in fields_keys:
             if field == 'language':
                 xml += '<label name="%s"/><field name="%s" widget="selection"/>' % \
-                        (field, field)
+                        (field.decode('utf-8'), field.decode('utf-8'))
             elif field == 'language_direction':
                 pass
             else:
-                xml += '<label name="%s"/><field name="%s"/>' % (field, field)
+                xml += '<label name="%s"/><field name="%s"/>' % \
+                        (field.decode('utf-8'), field.decode('utf-8'))
         xml += '</form>'
         tree = etree.fromstring(xml)
         arch, fields = self._view_look_dom_arch(cursor,
