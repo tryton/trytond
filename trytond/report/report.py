@@ -534,7 +534,7 @@ class Report(object):
         except Exception:
             Logger().notify_channel('web-service', LOG_ERROR,
                     'Report %s: unable to set locale "%s"' % \
-                            (self._name, lang + '.' + encoding)
+                            (self._name, lang + '.' + encoding))
         if date:
             if isinstance(value, time.struct_time):
                 locale_format = LocaleTime().LC_date.replace('%y', '%Y')
