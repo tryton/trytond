@@ -529,15 +529,12 @@ class Report(object):
         lang = localcontext.get('language', False) or 'en_US'
         try:
             if os.name == 'nt':
-                locale.setlocale(locale.LC_ALL,
-                        _LOCALE2WIN32.get(lang, lang) + '.' + encoding)
-            else:
-                locale.setlocale(locale.LC_ALL, lang + '.' + encoding)
+                lang = _LOCALE2WIN32.get(lang, lang)
+            locale.setlocale(locale.LC_ALL, lang + '.' + encoding)
         except Exception:
             Logger().notify_channel('web-service', LOG_ERROR,
                     'Report %s: unable to set locale "%s"' % \
-                            (self._name,
-                                localcontext.get('language', False) or 'en_US'))
+                            (self._name, lang + '.' + encoding)
         if date:
             if isinstance(value, time.struct_time):
                 locale_format = LocaleTime().LC_date.replace('%y', '%Y')
