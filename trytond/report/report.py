@@ -18,6 +18,7 @@ import locale
 import time
 import os
 import datetime
+import md5
 
 if not hasattr(locale, 'nl_langinfo'):
     locale.nl_langinfo = lambda *a: '%x'
@@ -247,13 +248,14 @@ class Report(object):
         #calling StringIO() with a string parameter creates a read-only object
         content_io = StringIO.StringIO()
         content_io.write(report.report_content)
-        content_z = zipfile.ZipFile(content_io, mode='r')
+        content_z = zipfile.ZipFile(content_io, mode='a')
+        localcontext['content_z'] = content_z
         content_xml = content_z.read('content.xml')
         dom = xml.dom.minidom.parseString(content_xml)
         node = dom.documentElement
         self._parse_node(cursor, user, node, localcontext, context)
 
-        style_z = zipfile.ZipFile(content_io, mode='r')
+        style_z = zipfile.ZipFile(content_io, mode='a')
         style_xml = content_z.read('styles.xml')
         style_z.close()
         dom_style = xml.dom.minidom.parseString(style_xml)
@@ -378,6 +380,32 @@ class Report(object):
                         node_context)
                 if isinstance(res, dom.Node):
                     node = res
+            if node.nodeType == node.ELEMENT_NODE:
+                if node.nodeName == "draw:frame":
+                    self._parse_draw_frame(cursor, user, node, localcontext, context,)
+
+    def _parse_draw_frame(self, cursor, user, node, localcontext, context):
+        if "replaceWith" not in node.attributes["draw:name"].nodeValue:
+            return
+        ctx = localcontext.copy()
+        ctx.update(context)
+        ctx["replaceWith"] = lambda x,y: (x,y)
+        try:
+            res = eval(node.attributes["draw:name"].nodeValue, ctx)
+        except:
+            Logger().notify_channel('report', LOG_ERROR,
+                                    'Error on eval "%s"' % node.nodeValue)
+            raise
+
+        if isinstance(res, tuple) and  hasattr(res[0], 'getvalue'):
+            content_z = localcontext['content_z']
+            data = res[0].getvalue()
+            filename = 'Pictures/%s.%s'% (md5.new(data).hexdigest(), res[1])
+            content_z.writestr(filename, data)
+        for child_node in node.childNodes:
+            if child_node.nodeName == "draw:image":
+                child_node.attributes["xlink:href"].nodeValue = filename
+                continue
 
     def _parse_text(self, cursor, user, node, localcontext, context,
             node_context):
