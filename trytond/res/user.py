@@ -176,7 +176,13 @@ class User(OSV):
             fields = self._preferences_fields + self._context_fields
         for field in fields:
             if self._columns[field]._type in ('many2one',):
-                res[field] = user[field].id
+                if field == 'language':
+                    if user.language:
+                        res['language'] = user.language.code
+                    else:
+                        res['language'] = 'en_US'
+                else:
+                    res[field] = user[field].id
             elif self._columns[field]._type in ('one2many', 'many2many'):
                 res[field] = [x.id for x in user[field]]
             else:
@@ -184,34 +190,42 @@ class User(OSV):
         return res
 
     def set_preferences(self, cursor, user, values, context=None):
+        lang_obj = self.pool.get('ir.lang')
         values_clean = values.copy()
         fields = self._preferences_fields + self._context_fields
         for field in values:
             if field not in fields or field == 'groups':
                 del values_clean[field]
+            if field == 'language':
+                lang_ids = lang_obj.search(cursor, user, [
+                    ('code', '=', values['language']),
+                    ], context=context)
+                if lang_ids:
+                    values_clean['language'] = lang_ids[0]
+                else:
+                    del values_clean['language']
         self.write(cursor, 0, user, values_clean, context=context)
 
     def get_preferences_fields_view(self, cursor, user, context=None):
+        lang_obj = self.pool.get('ir.lang')
         res = {}
         fields_names = self._preferences_fields + self._context_fields
         fields_names.pop(fields_names.index('status_bar'))
         fields = self.fields_get(cursor, user,
                 fields_names=fields_names, context=context)
 
-        xml = '<?xml version="1.0"?>' \
-                '<form string="%s" col="2">' % \
-                (self._description.decode('utf-8'),)
+        xml = '<?xml version="1.0" encoding="utf-8"?>' \
+                '<form string="%s" col="2">' % (self._description,)
         fields_keys = fields.keys()
         fields_keys.sort(lambda x, y: cmp(fields_names.index(x), fields_names.index(y)))
         for field in fields_keys:
             if field == 'language':
                 xml += '<label name="%s"/><field name="%s" widget="selection"/>' % \
-                        (field.decode('utf-8'), field.decode('utf-8'))
+                        (field, field)
             elif field == 'language_direction':
                 pass
             else:
-                xml += '<label name="%s"/><field name="%s"/>' % \
-                        (field.decode('utf-8'), field.decode('utf-8'))
+                xml += '<label name="%s"/><field name="%s"/>' % (field, field)
         xml += '</form>'
         tree = etree.fromstring(xml)
         arch, fields = self._view_look_dom_arch(cursor,
@@ -222,6 +236,12 @@ class User(OSV):
             else:
                 fields[field]['readonly'] = True
         res['arch'] = arch
+        if 'language' in fields:
+            del fields['language']['relation']
+            fields['language']['selection'] = []
+            lang_ids = lang_obj.search(cursor, user, [], context=None)
+            for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
+                fields['language']['selection'].append((lang.code, lang.name))
         res['fields'] = fields
         return res
 
