@@ -250,7 +250,7 @@ class User(OSV):
     def timezones(self, cursor, user, context=None):
         try:
             import pytz
-            res = [[x, x] for x in pytz.all_timezones]
+            res = [[x, x] for x in pytz.common_timezones]
         except ImportError:
             res = [[time.tzname[0], time.tzname[0]]]
         return res
