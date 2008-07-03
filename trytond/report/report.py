@@ -243,14 +243,14 @@ class Report(object):
         #calling StringIO() with a string parameter creates a read-only object
         content_io = StringIO.StringIO()
         content_io.write(report.report_content)
-        content_z = zipfile.ZipFile(content_io, mode='a')
+        content_z = zipfile.ZipFile(content_io, mode='r')
         localcontext['content_z'] = content_z
         content_xml = content_z.read('content.xml')
         dom = xml.dom.minidom.parseString(content_xml)
         node = dom.documentElement
         self._parse_node(cursor, user, node, localcontext, context)
 
-        style_z = zipfile.ZipFile(content_io, mode='a')
+        style_z = zipfile.ZipFile(content_io, mode='r')
         style_xml = content_z.read('styles.xml')
         style_z.close()
         dom_style = xml.dom.minidom.parseString(style_xml)
@@ -291,6 +291,9 @@ class Report(object):
         content_z.writestr('styles.xml',
                 '<?xml version="1.0" encoding="UTF-8"?>' + \
                         dom_style.documentElement.toxml('utf-8'))
+
+        if localcontext.get('pictures'):
+            pictures.extend(localcontext['pictures'])
         for file, picture in pictures:
             content_z.writestr(file, picture)
         content_z.close()
@@ -380,8 +383,14 @@ class Report(object):
                     self._parse_draw_frame(cursor, user, node, localcontext, context,)
 
     def _parse_draw_frame(self, cursor, user, node, localcontext, context):
+        """When a picture name in the template document contain
+        "replaceWith(content, extension)", this piture is replaced
+        with the content, a file name is generated automatically with
+        the given extension
+        """
         if "replaceWith" not in node.attributes["draw:name"].nodeValue:
             return
+        localcontext.setdefault('pictures', [])
         ctx = localcontext.copy()
         ctx.update(context)
         ctx["replaceWith"] = lambda x,y: (x,y)
@@ -393,14 +402,13 @@ class Report(object):
             raise
 
         if isinstance(res, tuple) and  hasattr(res[0], 'getvalue'):
-            content_z = localcontext['content_z']
             data = res[0].getvalue()
             filename = 'Pictures/%s.%s'% (md5.new(data).hexdigest(), res[1])
-            content_z.writestr(filename, data)
-        for child_node in node.childNodes:
-            if child_node.nodeName == "draw:image":
-                child_node.attributes["xlink:href"].nodeValue = filename
-                continue
+            localcontext['pictures'].append((filename,data))
+            for child_node in node.childNodes:
+                if child_node.nodeName == "draw:image":
+                    child_node.attributes["xlink:href"].nodeValue = filename
+                    continue
 
     def _parse_text(self, cursor, user, node, localcontext, context,
             node_context):
