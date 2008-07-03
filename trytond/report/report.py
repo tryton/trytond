@@ -20,6 +20,7 @@ import os
 import datetime
 import md5
 from _strptime import LocaleTime
+from base64 import decodestring
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -401,8 +402,8 @@ class Report(object):
                                     'Error on eval "%s"' % node.nodeValue)
             raise
 
-        if isinstance(res, tuple) and  hasattr(res[0], 'getvalue'):
-            data = res[0].getvalue()
+        if isinstance(res, tuple):
+            data = decodestring(res[0])
             filename = 'Pictures/%s.%s'% (md5.new(data).hexdigest(), res[1])
             localcontext['pictures'].append((filename,data))
             for child_node in node.childNodes:
