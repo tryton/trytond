@@ -7,6 +7,24 @@ In tryton, objects can have several views, it is the action, that opens the wind
 
 The views are built from XML that is stored in the databases with the object ir.ui.view.
 
+So generally, they are defined in xml files with this kind of xml:
+
+.. highlight:: xml
+
+::
+
+  <record model="ir.ui.view" id="view_id">
+      <field name="model">model name</field>
+      <field name="type">type name</field>
+      <!--field name="inherit" ref="inherit_view_id"/-->
+      <field name="arch" type="xml">
+          <![CDATA[
+          View XML ...
+          ]]>
+      </field>
+  </record>
+
+
 There is three types of views:
 
     * Form
@@ -62,9 +80,9 @@ form
 
 Each form view must start with this tag.
 
-    * "string": The test that will be used as default title for the tab or the window.
+    * "string": The text that will be used as default title for the tab or the window.
 
-    * "on_write": The name of a function that will be call when the record is saved.  The function must have this form "on_write(self, cursor, user, ids, context=None)".
+    * "on_write": The name of a function that will be called when the record is saved.  The function must have this form "on_write(self, cursor, user, ids, context=None)".
 
     * "col": The number of column for the view.
 
@@ -240,6 +258,72 @@ Example
 Tree view
 *********
 
+The RNG that describes the xml for a tree view is stored in
+trytond/ir/ui/tree.rng. There is also a RNC in trytond/ir/ui/tree.rnc.
+
+Tree view is used to display records inside a list or a tree.
+
+The columns of the view are put on the screen from left to right.
+
+
+XML description
++++++++++++++++
+
+tree
+^^^^
+
+Each tree view must start with this tag.
+
+    * "string": The text that will be used as default title for the tab or the window.
+
+    * "on_write": The name of a function that will be called when a record is saved.  The function must have this form "on_write(self, cursor, user, ids, context=None)".
+
+    * "editable": If it is set to "top" or "bottom", the list become editable and the new record will be add on "top" or "bottom" of the list.
+
+    * "sequence": The name of the field that is used for sorting.  So this field must be an interger and it will be updated to match the new sort when the user use the "Drag and Drop" between rows of the list.
+
+    * "colors": A string that is a list of color specification separated by ';'.  The specifications have this form: "color name:test".  The tests is evaluated on each rows and when one return True, than the color is used to highlight the row.
+
+    * "fill": A boolean to specify if the last column must fill the remain free space in the view.
+
+    * "toolbar": A boolean to specify on tree if there is a toolbar on the left that take the first elements of the tree (like for the menu).
+
+field
+^^^^^
+
+    * "name": The name of the field.
+
+    * "readonly": Boolean to set the field readonly.
+
+    * "required": Boolean to set the field required.
+
+    * "widget": The widget that must be used instead of the default one.
+
+    * "select": A number between 0 and 2. If set to 1, the field will be used as main search criteria; if set to 2, the field will be used as second search criteria; if set to 0, the field will not be used as search criteria.
+
+    * "tree_invisible": Boolean to display or not the column.
+
+    * "icon": The name of the field that contains the name of the icon to display in the column.
+
+    * "sum": A text for the sum widget that will be added on the bottom of list with the sum of all the field in the column.
+
+    * "width": Set the width of the column.
+
+Example
++++++++
+
+.. highlight:: xml
+
+::
+
+  <tree string="Taxes" sequence="sequence">
+      <field name="name" select="1"/>
+      <field name="group" select="1"/>
+      <field name="type" select="1"/>
+      <field name="active" select="2"/>
+      <field name="sequence" tree_invisible="1"/>
+  </tree>
+
 
 Graph view
 **********
@@ -310,3 +394,50 @@ Example
         <field name="total_amount"/>
     </y>
   </graph>
+
+
+Inherit view
+************
+
+Inherited a view means that the original view will be modified by a set of rules that are defined with XML.
+
+For this purpose, the inheritance engine use some xpath expressions.
+
+The inherited view is defined with the field "inherit" of the ir.ui.view.
+
+
+XML description
++++++++++++++++
+
+data
+^^^^
+
+Each inherit view must start with this tag.
+
+xpath
+^^^^^
+
+    * "expr": the xpath expression to find a node in the inherited view.
+
+    * "position": Define the position from the finded node, it can be "before", "after", "replace", "inside".
+
+Example
++++++++
+
+.. highlight:: xml
+
+::
+
+  <data>
+      <xpath
+          expr="/form/notebook/page/separator[@name=&quot;signature&quot;]"
+          position="before">
+          <label name="main_company"/>
+          <field name="main_company"/>
+          <label name="company"/>
+          <field name="company"/>
+          <label name="employee"/>
+          <field name="employee"/>
+      </xpath>
+  </data>
+
