@@ -11,7 +11,7 @@ class Request(OSV):
     create_date = fields.DateTime('Created date', readonly=True)
     name = fields.Char('Subject', states={
        'readonly': "state in ('waiting', 'active', 'closed')",
-       }, required=True, size=128)
+       }, required=True)
     active = fields.Boolean('Active')
     priority = fields.Selection([
        ('0', 'Low'),
@@ -41,19 +41,19 @@ class Request(OSV):
 #           })
 #    TODO: use one2many instead limit number of reference
     ref_doc1 = fields.Reference('Document Ref 1', selection='links_get',
-       size=128, states={
-           'readonly': "state == 'closed'",
-           })
+            states={
+                'readonly': "state == 'closed'",
+            })
     ref_doc2 = fields.Reference('Document Ref 2', selection='links_get',
-       size=128, states={
-           'readonly': "state == 'closed'",
-           })
+            states={
+                'readonly': "state == 'closed'",
+            })
     state = fields.Selection([
-       ('draft', 'draft'),
-       ('waiting', 'waiting'),
-       ('active', 'active'),
-       ('closed', 'closed'),
-       ], 'State', required=True, readonly=True)
+        ('draft', 'draft'),
+        ('waiting', 'waiting'),
+        ('active', 'active'),
+        ('closed', 'closed'),
+        ], 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
 
@@ -144,8 +144,8 @@ class RequestLink(OSV):
     "Request link"
     _name = 'res.request.link'
     _description = __doc__
-    name = fields.Char('Name', size=64, required=True, translate=True)
-    object = fields.Char('Object', size=64, required=True)
+    name = fields.Char('Name', required=True, translate=True)
+    object = fields.Char('Object', required=True)
     priority = fields.Integer('Priority')
 
     def __init__(self):
@@ -162,7 +162,7 @@ class RequestHistory(OSV):
     "Request history"
     _name = 'res.request.history'
     _description = __doc__
-    name = fields.Char('Summary', size=128, required=True)
+    name = fields.Char('Summary', required=True)
     request = fields.Many2One('res.request', 'Request', required=True,
        ondelete='cascade', select=True)
     act_from = fields.Many2One('res.user', 'From', required=True,
