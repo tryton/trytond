@@ -1,0 +1,62 @@
+type,name,res_id,src,value,fuzzy
+field,"workflow,activities",0,Activities,Activités,0
+field,"workflow.activity,action",0,Action,Action,0
+field,"workflow.activity,flow_start",0,Flow Start,Flux de Départ,0
+field,"workflow.activity,flow_stop",0,Flow Stop,Flux d'Arrêt,0
+field,"workflow.activity,in_transitions",0,Incoming transitions,Transitions d'Entrées,0
+field,"workflow.activity,join_mode",0,Join Mode,Mode de jonction,0
+field,"workflow.activity,kind",0,Kind,Type,0
+field,"workflow.activity,name",0,Name,Nom,0
+field,"workflow.activity,out_transitions",0,Outgoing transitions,Transitions de Sortie,0
+field,"workflow.activity,signal_send",0,Signal (subflow.*),Signal (subflow.*),0
+field,"workflow.activity,split_mode",0,Split Mode,Mode de division,0
+field,"workflow.activity,subflow",0,Subflow,Sous-flux,0
+field,"workflow.activity,workflow",0,Workflow,Flux de Travail,0
+field,"workflow.instance,res_id",0,Resource ID,Identifiant de la Ressource,0
+field,"workflow.instance,res_type",0,Resource Model,Modèle de la Ressource,0
+field,"workflow.instance,state",0,State,État,0
+field,"workflow.instance,uid",0,User ID,Identifiant de l'Utilisateur,0
+field,"workflow.instance,workflow",0,Workflow,Flux de Travail,0
+field,"workflow,name",0,Name,Nom,0
+field,"workflow,on_create",0,On Create,À la Creation,0
+field,"workflow,osv",0,Resource Model,Modèle de la Ressource,0
+field,"workflow.transition,act_from",0,Source Activity,Source de l'Activité,0
+field,"workflow.transition,act_to",0,Destination Activity,Destination de l'Activité,0
+field,"workflow.transition,condition",0,Condition,Condition,0
+field,"workflow.transition,group",0,Group Required,Groupe Requis,0
+field,"workflow.transition,signal",0,Signal (button Name),Signal (Nom du Bouton),0
+field,"workflow.transition,trigger_expr_id",0,Trigger Expr ID,Identifiant de l'Expression de Déclenchement,0
+field,"workflow.transition,trigger_model",0,Trigger Type,Type de Déclenchement,0
+field,"workflow.trigger,instance",0,Destination Instance,Destination de l'Instance,0
+field,"workflow.trigger,model",0,Model,Modèle,0
+field,"workflow.trigger,res_id",0,Resource ID,Identifiant de la Ressource,0
+field,"workflow.trigger,workitem",0,Workitem,Èlement,0
+field,"workflow.workitem,activity",0,Activity,Activité,0
+field,"workflow.workitem,instance",0,Instance,Instance,0
+field,"workflow.workitem,state",0,State,État,0
+field,"workflow.workitem,subflow",0,Subflow,Sous-flux,0
+model,"ir.ui.menu,name",menu_activity_form,Activities,Activités,0
+model,"ir.ui.menu,name",menu_instance_form,Instances,Instances,0
+model,"ir.ui.menu,name",menu_transition_form,Transitions,Transitions,0
+model,"ir.ui.menu,name",menu_workflow,Workflow,Flux de Travail,0
+model,"ir.ui.menu,name",menu_workflow_form,Workflows,Flux de Travail,0
+model,"ir.ui.menu,name",menu_workitem_form,Workitems,Éléments,0
+selection,"workflow.activity,join_mode",0,And,Et,0
+selection,"workflow.activity,join_mode",0,Xor,Ou exclusif,0
+selection,"workflow.activity,kind",0,Dummy,,0
+selection,"workflow.activity,kind",0,Function,Fonction,0
+selection,"workflow.activity,kind",0,Stop All,Arrêt Tout,0
+selection,"workflow.activity,kind",0,Subflow,Sous-flux,0
+selection,"workflow.activity,split_mode",0,And,Et,0
+selection,"workflow.activity,split_mode",0,Or,Ou,0
+selection,"workflow.activity,split_mode",0,Xor,Ou exclusif,0
+view,workflow,0,Workflow,Flux de Travail,0
+view,workflow.activity,0,Activity,Activité,0
+view,workflow.activity,0,Transition,Transition,0
+view,workflow.activity,0,Transitions,Transitions,0
+view,workflow.instance,0,Instance,Instance,0
+view,workflow.instance,0,Instances,Instances,0
+view,workflow.transition,0,Transition,Transition,0
+view,workflow.transition,0,Transitions,Transitions,0
+view,workflow.workitem,0,Workitem,Élément,0
+view,workflow.workitem,0,Workitems,Éléments,0
