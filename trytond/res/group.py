@@ -7,9 +7,9 @@ class Group(OSV):
     "Group"
     _name = "res.group"
     _description = __doc__
-    name = fields.Char('Group Name', size=64, required=True)
+    name = fields.Char('Name', required=True)
     model_access = fields.One2Many('ir.model.access', 'group',
-       'Access Controls')
+       'Access Model')
     rule_groups = fields.Many2Many('ir.rule.group', 'group_rule_group_rel',
        'group_id', 'rule_group_id', 'Rules',
        domain="[('global_p', '!=', True), ('default_p', '!=', True)]")
