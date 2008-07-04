@@ -7,4 +7,7 @@
     'xml': [
         'workflow.xml',
         ],
+    'translation': [
+        'fr_FR.csv',
+    ]
 }
