@@ -38,14 +38,14 @@ class Translation(OSV, Cacheable):
     "Translation"
     _name = "ir.translation"
     _description = __doc__
-    name = fields.Char('Field Name', size=128, required=True)
+    name = fields.Char('Field Name', required=True)
     res_id = fields.Integer('Resource ID', select=1)
-    lang = fields.Selection('get_language', string='Language', size=5)
-    type = fields.Selection(TRANSLATION_TYPE, string='Type', size=16,
+    lang = fields.Selection('get_language', string='Language')
+    type = fields.Selection(TRANSLATION_TYPE, string='Type',
        required=True)
     src = fields.Text('Source')
     value = fields.Text('Translation Value')
-    module = fields.Char('Module', size=128, readonly=True)
+    module = fields.Char('Module', readonly=True)
     fuzzy = fields.Boolean('Fuzzy')
     model = fields.Function('get_model', fnct_search='model_search',
        type='char', string='Model')
@@ -369,6 +369,7 @@ class Translation(OSV, Cacheable):
                     'src': src,
                     'value': value,
                     'fuzzy': fuzzy,
+                    'module': module,
                     }, context=ctx))
             else:
                 cursor.execute('SELECT id FROM ir_translation ' \
@@ -431,7 +432,7 @@ class Translation(OSV, Cacheable):
                 elif field == 'fuzzy':
                     row.append(int(translation[field]))
                 else:
-                    row.append(translation[field])
+                    row.append(translation[field] or '')
             writer.writerow(row)
 
         file_data = buf.getvalue()
@@ -583,7 +584,7 @@ class TranslationUpdateInit(WizardOSV):
     "Update translation - language"
     _name = 'ir.translation.update.init'
     _description = __doc__
-    lang = fields.Selection('get_language', string='Language', size=5,
+    lang = fields.Selection('get_language', string='Language',
         required=True)
 
     def get_language(self, cursor, user, context):
@@ -603,12 +604,12 @@ class TranslationUpdate(Wizard):
 
     def _update_translation(self, cursor, user, data, context):
         translation_obj = self.pool.get('ir.translation')
-        cursor.execute('SELECT name, res_id, type, src ' \
+        cursor.execute('SELECT name, res_id, type, src, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
                     'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
                     ' \'selection\') ' \
-                'EXCEPT SELECT name, res_id, type, src ' \
+                'EXCEPT SELECT name, res_id, type, src, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=%s ' \
                     'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
@@ -621,12 +622,13 @@ class TranslationUpdate(Wizard):
                 'lang': data['form']['lang'],
                 'type': row['type'],
                 'src': row['src'],
+                'module': row['module'],
                 })
-        cursor.execute('SELECT name, res_id, type ' \
+        cursor.execute('SELECT name, res_id, type, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
                     'AND type in (\'field\', \'model\', \'help\') ' \
-                'EXCEPT SELECT name, res_id, type ' \
+                'EXCEPT SELECT name, res_id, type, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=%s ' \
                     'AND type in (\'field\', \'model\', \'help\')',
@@ -708,9 +710,9 @@ class TranslationExportInit(WizardOSV):
     "Export translation - language and module"
     _name = 'ir.translation.export.init'
     _description = __doc__
-    lang = fields.Selection('get_language', string='Language', size=5,
+    lang = fields.Selection('get_language', string='Language',
        required=True)
-    module = fields.Selection('get_module', string='Module', size=128,
+    module = fields.Selection('get_module', string='Module',
        required=True)
 
     def get_language(self, cursor, user, context):
