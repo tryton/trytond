@@ -498,6 +498,9 @@ class ReportTranslationUpdate(Wizard):
         report_ids = report_obj.search(cursor, user, [], context=context)
         reports = report_obj.browse(cursor, user, report_ids, context=context)
 
+        if not reports:
+            return {}
+
         cursor.execute('SELECT id, name, src FROM ir_translation ' \
                 'WHERE lang = %s ' \
                     'AND type = %s ' \
