@@ -10,5 +10,8 @@
         'user.xml',
         'request.xml',
         'ir.xml',
-        ]
+        ],
+    'translation': [
+        'fr_FR.csv',
+    ],
 }
