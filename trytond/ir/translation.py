@@ -496,10 +496,11 @@ class ReportTranslationUpdate(Wizard):
     def _update_report_translation(self, cursor, user, data, context):
         report_obj = self.pool.get('ir.action.report')
         report_ids = report_obj.search(cursor, user, [], context=context)
-        reports = report_obj.browse(cursor, user, report_ids, context=context)
 
-        if not reports:
+        if not report_ids:
             return {}
+
+        reports = report_obj.browse(cursor, user, report_ids, context=context)
 
         cursor.execute('SELECT id, name, src FROM ir_translation ' \
                 'WHERE lang = %s ' \
