@@ -14,25 +14,37 @@ field,"ir.action.act_window,views",0,Views,Vues,0
 field,"ir.action.act_window.view,sequence",0,Sequence,Séquence,0
 field,"ir.action.act_window,view_type",0,Type of view,Type de vue,0
 field,"ir.action.act_window.view,view",0,View,Vue,0
+field,"ir.action.act_window,window_name",0,Window Name,Nom de la fenêtre,0
+field,"ir.action,groups",0,Groups,Groupes,0
 field,"ir.action.keyword,action",0,Action,Action,0
 field,"ir.action.keyword,keyword",0,Keyword,Mot-clè,0
 field,"ir.action.keyword,model",0,Model,Modèle,0
 field,"ir.action,keywords",0,Keywords,Mots-clès,0
 field,"ir.action,name",0,Name,Nom,0
 field,"ir.action.report,action",0,Action,Action,0
+field,"ir.action.report,direct_print",0,Direct Print,Imprimer directement,0
 field,"ir.action.report,model",0,Model,Modèle,0
+field,"ir.action.report,module",0,Module,Module,0
+field,"ir.action.report,output_format",0,Output format,Format de sortie,0
+field,"ir.action.report.outputformat,format",0,Internal Format Name,Nom du format interne,0
+field,"ir.action.report.outputformat,name",0,Name,Nom,0
 field,"ir.action.report,report",0,Path,Chemin,0
 field,"ir.action.report,report_content",0,Content,Contenu,0
 field,"ir.action.report,report_content_data",0,Content,Contenu,0
 field,"ir.action.report,report_name",0,Internal Name,Nom interne,0
+field,"ir.action.report,style",0,Style,Style,0
+field,"ir.action.report,style_content",0,Style,Style,0
 field,"ir.action,type",0,Type,Type,0
 field,"ir.action.url,action",0,Action,Action,0
 field,"ir.action.url,url",0,Action Url,Url,0
 field,"ir.action,usage",0,Usage,Utilisation,0
 field,"ir.action.wizard,action",0,Action,Action,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Nom du wizard,0
+field,"ir.attachment,collision",0,Collision,Collision,0
 field,"ir.attachment,datas",0,Datas,Donnée,0
+field,"ir.attachment,datas_size",0,Datas size,Taille des données,0
 field,"ir.attachment,description",0,Description,Description,0
+field,"ir.attachment,digest",0,Digest,Digest,0
 field,"ir.attachment,link",0,Link,Lien,0
 field,"ir.attachment,name",0,Attachment Name,Nom de l'attachement,0
 field,"ir.attachment,res_id",0,Resource ID,ID de la ressource,0
@@ -64,6 +76,7 @@ field,"ir.lang,code",0,Code,Code,0
 field,"ir.lang,direction",0,Direction,Direction,0
 field,"ir.lang,name",0,Name,Nom,0
 field,"ir.lang,translatable",0,Translatable,Traduisible,0
+field,"ir.model.access,description",0,Description,Description,0
 field,"ir.model.access,group",0,Group,Groupe,0
 field,"ir.model.access,model",0,Model,Modèle,0
 field,"ir.model.access,perm_create",0,Create Access,Accès à la creation,0
@@ -85,6 +98,7 @@ field,"ir.model.field,model",0,Model,Modèle,0
 field,"ir.model.field,name",0,Name,Nom,0
 field,"ir.model.field,relate",0,Click and Relate,Clicker et relier,0
 field,"ir.model.field,relation",0,Model Relation,Relation du modèle,0
+field,"ir.model,fields",0,Fields,Champs,0
 field,"ir.model.field,ttype",0,Field Type,Champ du type,0
 field,"ir.model.field,view_load",0,View Auto-Load,Vue auto-chargée,0
 field,"ir.model,info",0,Information,Information,0
@@ -95,6 +109,9 @@ field,"ir.module.category,name",0,Name,Nom,0
 field,"ir.module.category,parent",0,Parent Category,Catégorie parente,0
 field,"ir.module.module,author",0,Author,Auteur,0
 field,"ir.module.module,category",0,Category,Catégorie,0
+field,"ir.module.module.config_wizard.item,name",0,Name,Nom,0
+field,"ir.module.module.config_wizard.item,sequence",0,Sequence,Séquence,0
+field,"ir.module.module.config_wizard.item,state",0,State,État,0
 field,"ir.module.module,dependencies",0,Dependencies,Dépendances,0
 field,"ir.module.module.dependency,module",0,Module,Module,0
 field,"ir.module.module.dependency,name",0,Name,Nom,0
@@ -105,12 +122,15 @@ field,"ir.module.module,name",0,Name,Nom,0
 field,"ir.module.module,shortdesc",0,Short description,Description courte,0
 field,"ir.module.module,state",0,State,État,0
 field,"ir.module.module,url",0,URL,URL,0
+field,"ir.module.module,version",0,Version,Version,0
 field,"ir.module.module,website",0,Website,Site web,0
 field,"ir.property,field",0,Field,Champ,0
 field,"ir.property,name",0,Name,Nom,0
 field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Valeur,0
 field,"ir.rule,field",0,Field,Champ,0
+field,"ir.rule.group,default_p",0,Default,Défault,0
+field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Groupes,0
 field,"ir.rule.group,model",0,Model,Modèle,0
 field,"ir.rule.group,name",0,Name,Nom,0
@@ -131,6 +151,7 @@ field,"ir.sequence.type,code",0,Sequence Code,Code de la séquence,0
 field,"ir.sequence.type,name",0,Sequence Name,Nom de la séquence,0
 field,"ir.translation,fuzzy",0,Fuzzy,Floue,0
 field,"ir.translation,lang",0,Language,Langue,0
+field,"ir.translation,model",0,Model,Modèle,0
 field,"ir.translation,module",0,Module,Module,0
 field,"ir.translation,name",0,Field Name,Champ du nom,0
 field,"ir.translation,res_id",0,Resource ID,ID de la ressource,0
@@ -138,8 +159,10 @@ field,"ir.translation,src",0,Source,Source,0
 field,"ir.translation,type",0,Type,Type,0
 field,"ir.translation,value",0,Translation Value,Valeur de traduction,0
 field,"ir.ui.menu,action",0,Action,Action,0
+field,"ir.ui.menu,active",0,Active,Actif,0
 field,"ir.ui.menu,childs",0,Childs,Enfants,0
 field,"ir.ui.menu,complete_name",0,Complete Name,Nom complet,0
+field,"ir.ui.menu,groups",0,Groups,Groupes,0
 field,"ir.ui.menu,icon",0,Icon,Icône,0
 field,"ir.ui.menu,name",0,Menu,Menu,0
 field,"ir.ui.menu,parent",0,Parent Menu,Menu parent,0
@@ -155,26 +178,38 @@ field,"ir.ui.view_sc,res_id",0,Resource Ref.,Réf. de la ressource,0
 field,"ir.ui.view_sc,resource",0,Resource Name,Nom de la ressource,0
 field,"ir.ui.view_sc,sequence",0,Sequence,Séquence,0
 field,"ir.ui.view_sc,user_id",0,User Ref.,Réf. utilisateur,0
+field,"ir.ui.view_tree_width,field",0,Field,Champ,0
+field,"ir.ui.view_tree_width,model",0,Model,Modèle,0
+field,"ir.ui.view_tree_width,user",0,User,Utilisateur,0
+field,"ir.ui.view_tree_width,width",0,Width,Largeur,0
 field,"ir.ui.view,type",0,View Type,Type de vue,0
 help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Ajoute un auto-rafraîchissement sur la vue,0
 help,"ir.action.act_window,limit",0,Default limit for the list view,Limit par défault pour la vue liste,0
 help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
 on the right toolbar of a form views.","Si positionné sur vrai, l'action ne sera pas affichée
 sur la bar de droite des vues formulaires",0
+help,"ir.action.act_window,window_name",0,Use the action name as window name,Utiliser le nom de l'action comme nom de la fenêtre,0
+help,"ir.action.report.outputformat,format",0,"Used as file extension, too.","Utiliser comme extension de fichier, aussi.",0
+help,"ir.action.report,style",0,Define the style to apply on the report.,Définit le style à appliquer sur le rapport.,0
 help,"ir.cron,numbercall",0,"Number of time the function is called,
 a negative number indicates that the function will always be called","Nombre de foix que la fonction est appelée,
 une valeur négative indique que la fonction sera toujours appelée.",0
 help,"ir.cron,priority",0,"0=Very Urgent
 10=Not urgent","0 = Très urgent
 10 = Pas urgent",0
+help,"ir.lang,code",0,RFC 4646 tag: http://tools.ietf.org/html/rfc4646,,0
 help,"ir.model.data,db_id",0,The id of the record in the database.,L'id de l'enregistrement dans la base de données,0
 help,"ir.model.data,fs_id",0,The id of the record as known on the file system.,L'id de l'enregistrement comme connue sur le système de fichier,0
+help,"ir.rule.group,default_p",0,Add this rule to all users by default,Ajout cette règle à tout les utilisateurs par defaut,0
+help,"ir.rule.group,global_p",0,"Make the rule global 
+so every users must follow this rule",Rend la règle globale,0
 help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
 model,"ir.ui.menu,name",menu_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_act_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_administration,Administration,Administration,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Attachements,0
 model,"ir.ui.menu,name",menu_category_tree,Categories,Catégories,0
+model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Élements du Wizard de Configuration,0
 model,"ir.ui.menu,name",menu_property_form_default,Default properties,Propriétés par default,0
 model,"ir.ui.menu,name",menu_default_form,Defaults,Défaults,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exportations,0
@@ -195,17 +230,23 @@ model,"ir.ui.menu,name",menu_cron_form,Scheduled Actions,Actions planifiées,0
 model,"ir.ui.menu,name",menu_sequence_form,Sequences,Séquences,0
 model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de la séquence,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traductions,0
+model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
 model,"ir.ui.menu,name",menu_ui,UI,UI,0
+model,"ir.ui.menu,name",menu_translation_update_report,Update Report Translations,Mettre à Jour les Traductions des Rapports,0
 model,"ir.ui.menu,name",menu_translation_update,Update Translations,Mettre à jour les traductions,0
+model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_view,Views,Vues,0
 model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Raccourcis de la vue,0
+model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Largeur de Vues Arbres,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Actions de la fenêtre,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Wizards,0
+selection,"ir.action.act_window,view_type",0,Board,Tableau,0
 selection,"ir.action.act_window,view_type",0,Form,Formulaire,0
 selection,"ir.action.act_window,view_type",0,Tree,Arbre,0
 selection,"ir.action.keyword,keyword",0,Action form,Formulaire,0
 selection,"ir.action.keyword,keyword",0,Action tree,Arbre,0
 selection,"ir.action.keyword,keyword",0,Form relate,Formulaire relié,0
+selection,"ir.action.keyword,keyword",0,Open Graph,Ouvrir le Graphique,0
 selection,"ir.action.keyword,keyword",0,Open tree,Ouvre l'arbre,0
 selection,"ir.action.keyword,keyword",0,Print form,Imprimer le formulaire,0
 selection,"ir.cron,interval_type",0,Days,Jours,0
@@ -213,8 +254,11 @@ selection,"ir.cron,interval_type",0,Hours,Heures,0
 selection,"ir.cron,interval_type",0,Minutes,Minutes,0
 selection,"ir.cron,interval_type",0,Months,Mois,0
 selection,"ir.cron,interval_type",0,Weeks,Semaines,0
+selection,"ir.cron,interval_type",0,Work Days,Jours de Travail,0
 selection,"ir.lang,direction",0,Left-to-right,Gauche-à-droite,0
 selection,"ir.lang,direction",0,Right-to-left,Droite-à-gauche,0
+selection,"ir.module.module.config_wizard.item,state",0,Done,Fait,0
+selection,"ir.module.module.config_wizard.item,state",0,Open,Ouvert,0
 selection,"ir.module.module.dependency,state",0,Installed,Installé,0
 selection,"ir.module.module.dependency,state",0,Not Installed,Pas installé,0
 selection,"ir.module.module.dependency,state",0,To be installed,À être installé,0
@@ -247,6 +291,64 @@ selection,"ir.ui.menu,action",0,ir.action.act_window,,0
 selection,"ir.ui.menu,action",0,ir.action.report,,0
 selection,"ir.ui.menu,action",0,ir.action.url,,0
 selection,"ir.ui.menu,action",0,ir.action.wizard,,0
+selection,"ir.ui.menu,icon",0,tryton-accessories,,0
+selection,"ir.ui.menu,icon",0,tryton-attachment,,0
+selection,"ir.ui.menu,icon",0,tryton-calculator,,0
+selection,"ir.ui.menu,icon",0,tryton-calendar,,0
+selection,"ir.ui.menu,icon",0,tryton-clear,,0
+selection,"ir.ui.menu,icon",0,tryton-clock,,0
+selection,"ir.ui.menu,icon",0,tryton-close,,0
+selection,"ir.ui.menu,icon",0,tryton-connect,,0
+selection,"ir.ui.menu,icon",0,tryton-copy,,0
+selection,"ir.ui.menu,icon",0,tryton-currency,,0
+selection,"ir.ui.menu,icon",0,tryton-delete,,0
+selection,"ir.ui.menu,icon",0,tryton-development,,0
+selection,"ir.ui.menu,icon",0,tryton-dialog-error,,0
+selection,"ir.ui.menu,icon",0,tryton-dialog-information,,0
+selection,"ir.ui.menu,icon",0,tryton-dialog-warning,,0
+selection,"ir.ui.menu,icon",0,tryton-disconnect,,0
+selection,"ir.ui.menu,icon",0,tryton-executable,,0
+selection,"ir.ui.menu,icon",0,tryton-find,,0
+selection,"ir.ui.menu,icon",0,tryton-find-replace,,0
+selection,"ir.ui.menu,icon",0,tryton-folder-new,,0
+selection,"ir.ui.menu,icon",0,tryton-folder-saved-search,,0
+selection,"ir.ui.menu,icon",0,tryton-fullscreen,,0
+selection,"ir.ui.menu,icon",0,tryton-go-home,,0
+selection,"ir.ui.menu,icon",0,tryton-go-jump,,0
+selection,"ir.ui.menu,icon",0,tryton-go-next,,0
+selection,"ir.ui.menu,icon",0,tryton-go-previous,,0
+selection,"ir.ui.menu,icon",0,tryton-graph,,0
+selection,"ir.ui.menu,icon",0,tryton-help,,0
+selection,"ir.ui.menu,icon",0,tryton-image-missing,,0
+selection,"ir.ui.menu,icon",0,tryton-information,,0
+selection,"ir.ui.menu,icon",0,tryton-list,,0
+selection,"ir.ui.menu,icon",0,tryton-list-add,,0
+selection,"ir.ui.menu,icon",0,tryton-list-remove,,0
+selection,"ir.ui.menu,icon",0,tryton-locale,,0
+selection,"ir.ui.menu,icon",0,tryton-lock,,0
+selection,"ir.ui.menu,icon",0,tryton-log-out,,0
+selection,"ir.ui.menu,icon",0,tryton-mail-message-new,,0
+selection,"ir.ui.menu,icon",0,tryton-new,,0
+selection,"ir.ui.menu,icon",0,tryton-noimage,,0
+selection,"ir.ui.menu,icon",0,tryton-open,,0
+selection,"ir.ui.menu,icon",0,tryton-package,,0
+selection,"ir.ui.menu,icon",0,tryton-preferences,,0
+selection,"ir.ui.menu,icon",0,tryton-preferences-system,,0
+selection,"ir.ui.menu,icon",0,tryton-preferences-system-session,,0
+selection,"ir.ui.menu,icon",0,tryton-presentation,,0
+selection,"ir.ui.menu,icon",0,tryton-print,,0
+selection,"ir.ui.menu,icon",0,tryton-readonly,,0
+selection,"ir.ui.menu,icon",0,tryton-refresh,,0
+selection,"ir.ui.menu,icon",0,tryton-save,,0
+selection,"ir.ui.menu,icon",0,tryton-save-as,,0
+selection,"ir.ui.menu,icon",0,tryton-spreadsheet,,0
+selection,"ir.ui.menu,icon",0,tryton-start-here,,0
+selection,"ir.ui.menu,icon",0,tryton-system,,0
+selection,"ir.ui.menu,icon",0,tryton-system-file-manager,,0
+selection,"ir.ui.menu,icon",0,tryton-tree,,0
+selection,"ir.ui.menu,icon",0,tryton-users,,0
+selection,"ir.ui.menu,icon",0,tryton-web-browser,,0
+selection,"ir.ui.view,type",0,Board,Tableau,0
 selection,"ir.ui.view,type",0,Calendar,Calendrier,0
 selection,"ir.ui.view,type",0,Form,Formulaire,0
 selection,"ir.ui.view,type",0,Graph,Graphique,0
@@ -263,6 +365,7 @@ view,ir.action.report,0,Keyword,Mot-clè,0
 view,ir.action.report,0,Keywords,Mots-clès,0
 view,ir.action.report,0,Report,Rapport,0
 view,ir.action.report,0,Report xml,Rapport xml,0
+view,ir.action.url,0,URL,URL,0
 view,ir.action.wizard,0,Keyword,Mot-clè,0
 view,ir.action.wizard,0,Keywords,Mots-clès,0
 view,ir.action.wizard,0,Wizard,Wizard,0
@@ -289,6 +392,11 @@ view,ir.module.module,0,Module,Module,0
 view,ir.module.module,0,Modules,Modules,0
 view,ir.module.module,0,Uninstall (beta),Désinstaller (béta),0
 view,ir.module.module,0,Upgrade,Mettre à jour,0
+view,ir.module.module.config_wizard.first,0,depending on the modules you have installed.,dépendant des modules installé.,0
+view,ir.module.module.config_wizard.first,0,Module Configuration Wizard,Wizard de Configuration de Module,0
+view,ir.module.module.config_wizard.first,0,Welcome to the module configuration wizard!,Bienvenu dans le Wizard de Configuration de Module !,0
+view,ir.module.module.config_wizard.first,0,You will be able to configure your installation,Vous pourrez configurer votre installation,0
+view,ir.module.module.config_wizard.item,0,Config Wizard Items,Élements du Wizard de Configuration,0
 view,ir.module.module.install_upgrade.init,0,Note that this operation my take a few minutes.,"Attention, cette opération peut prendre plusieurs minutes.",0
 view,ir.module.module.install_upgrade.init,0,System Upgrade,Mis à jour du système,0
 view,ir.module.module.install_upgrade.init,0,Your system will be upgraded.,Votre système sera mis à jour.,0
@@ -304,18 +412,29 @@ view,ir.rule,0,Test,Test,0
 view,ir.rule.group,0,"If there is no test defined, the rule is always satified if not global","Si il n'y a pas de test définit, la règle est toujours satisfaite s'il est n'est pas globale",0
 view,ir.rule.group,0,Record rules,Règles d'enregistrement,0
 view,ir.rule.group,0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
+view,ir.sequence,0,${day},,0
 view,ir.sequence,0,Day:,Jour:,0
 view,ir.sequence,0,"Legend (for prefix, suffix)","Légende (pour préfixe, suffixe)",0
+view,ir.sequence,0,${month},,0
 view,ir.sequence,0,Month:,Mois :,0
 view,ir.sequence,0,Sequences,Séquences,0
+view,ir.sequence,0,${year},,0
 view,ir.sequence,0,Year:,Année :,0
 view,ir.sequence.type,0,Sequence Type,Type de la séquence,0
 view,ir.translation,0,Translations,Traductions,0
+view,ir.translation.update.init,0,Update Translations,Mettre à Jour les Traductions,0
+view,ir.translation.update_report.init,0,Update Report Translations,Mettre à Jour les Traductions des Rapports,0
+view,ir.translation.update_report.init,0,Update Report Translations?,Mettre à Jour les Traductions des Rapports ?,0
 view,ir.ui.menu,0,Menu,Menu,0
 view,ir.ui.view,0,View,Vue,0
 view,ir.ui.view_sc,0,Shortcut,Raccourcis,0
+view,ir.ui.view_tree_width,0,Views Tree Width,Largeurs des Vues Arbres,0
+view,ir.ui.view_tree_width,0,View Tree Width,Largeur de Vue Arbre,0
+wizard_button,"ir.module.module.config_wizard,first,end",0,Cancel,Annuler,0
+wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,Valider,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Démarrer la mis à jour,0
+wizard_button,"ir.module.module.install_upgrade,start,config",0,Ok,Valider,0
 wizard_button,"ir.module.module.update_list,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.module.module.update_list,init,update",0,Check new modules,Chercher de nouveaux modules,0
 wizard_button,"ir.module.module.update_list,update,open_window",0,Ok,Ok,0
@@ -323,4 +442,7 @@ wizard_button,"ir.translation.export,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.translation.export,init,start",0,Start Export,Demarrer l'expartation,0
 wizard_button,"ir.translation.export,start,end",0,Close,Fermer,0
 wizard_button,"ir.translation.update,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.translation.update,init,start",0,Start Update,Démarrer la Mise-à-Jour,0
 wizard_button,"ir.translation.update,init,start",0,Start Upgrade,Démarrer la mis à jour,0
+wizard_button,"ir.translation.update_report,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.translation.update_report,init,start",0,Start Update,Démarrer la Mise-à-Jour,0
