@@ -7,4 +7,7 @@
     'xml': [
         'webdav.xml',
     ],
+    'translation': [
+        'fr_FR.csv',
+    ],
 }
