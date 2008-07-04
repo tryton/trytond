@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "User"
-import time
 import copy
 from trytond.osv import fields, OSV, ExceptOSV
 from trytond.wizard import Wizard, WizardOSV
@@ -64,9 +63,6 @@ class User(OSV):
 
     def default_active(self, cursor, user, context=None):
         return 1
-
-    def default_timezone(self, cursor, user, context=None):
-        return time.tzname[0]
 
     def default_menu(self, cursor, user, context=None):
         action_obj = self.pool.get('ir.action')
