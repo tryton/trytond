@@ -319,11 +319,13 @@ class ORM(object):
                             field.help, columns[k]['id']))
             trans_name = self._name + ',' + k
             if trans_name not in trans_columns:
-                cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s)',
-                        (trans_name, 'en_US', 'field',
-                            field.string, '', module_name))
+                if k not in ('create_uid', 'create_date',
+                            'write_uid', 'write_date', 'id'):
+                    cursor.execute('INSERT INTO ir_translation ' \
+                            '(name, lang, type, src, value, module) ' \
+                            'VALUES (%s, %s, %s, %s, %s, %s)',
+                            (trans_name, 'en_US', 'field',
+                                field.string, '', module_name))
             elif trans_columns[trans_name]['src'] != field.string:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
@@ -760,13 +762,13 @@ class ORM(object):
 
         if self._log_access:
             self.create_uid = fields.Many2One('res.user',
-                    'Creation user', required=True, readonly=True)
-            self.create_date = fields.DateTime('Creation date',
+                    'Create User', required=True, readonly=True)
+            self.create_date = fields.DateTime('Create Date',
                     required=True, readonly=True)
             self.write_uid = fields.Many2One('res.user',
-                       'Last modification by', readonly=True)
+                       'Write User', readonly=True)
             self.write_date = fields.DateTime(
-                    'Last modification date', readonly=True)
+                    'Write Date', readonly=True)
         self.id = fields.Integer('ID', readonly=True)
         # reinit the cache on _columns
         self.__columns = None
