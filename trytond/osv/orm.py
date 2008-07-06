@@ -1238,6 +1238,12 @@ class ORM(object):
                     property_obj = self.pool.get('ir.property')
                     value[field] = property_obj.get(cursor, user, field,
                             self._name)
+                    if self._columns[field]._type in ('many2one',) \
+                            and value[field]:
+                        obj = self.pool.get(self._columns[field]._obj)
+                        if isinstance(value[field], (int, long)):
+                            value[field] = obj.name_get(cursor, user,
+                                    value[field], context=context)[0]
 
         # get the default values set by the user and override the default
         # values defined in the object
