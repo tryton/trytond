@@ -57,6 +57,11 @@ class Property(OSV):
             default_val = val
 
         if not res_ids:
+            if field.ttype == 'many2one':
+                obj = self.pool.get(field.relation)
+                if not obj.search(cursor, user, [('id', '=', default_val)],
+                        context=context):
+                    return False
             return default_val
 
         for obj_id in res_ids:
@@ -81,6 +86,13 @@ class Property(OSV):
                         raise Exception('Not implemented')
             res[int(prop.res.split(',')[1])] = val
 
+        if field.ttype == 'many2one':
+            obj = self.pool.get(field.relation)
+            obj_ids = obj.search(cursor, user, [('id', 'in', res.values())],
+                    context=context)
+            for res_id in res:
+                if res[res_id] not in obj_ids:
+                    res[res_id] = False
         return res
 
     def set(self, cursor, user, name, model, res_id, val, context=None):
