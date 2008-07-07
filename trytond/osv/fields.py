@@ -258,7 +258,7 @@ class DateTime(Column):
     _type = 'datetime'
 
     def sql_type(self):
-        return ('timestamp', 'timestamp')
+        return ('timestamp', 'timestamp(0)')
 
 datetime = DateTime
 
