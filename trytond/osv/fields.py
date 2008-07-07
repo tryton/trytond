@@ -426,13 +426,15 @@ class One2Many(Column):
                 act[1][self._field] = obj_id
                 obj.create(cursor, user, act[1], context=context)
             elif act[0] == 'write':
+                act[2][self._field] = obj_id
                 obj.write(cursor, user, [act[1]] , act[2], context=context)
             elif act[0] == 'unlink':
                 obj.unlink(cursor, user, [act[1]], context=context)
             elif act[0] == 'remove':
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
-                        'WHERE id = %s', (act[1],))
+                        'WHERE id = %s '\
+                            'AND "' + self._field + '" = %s', (act[1], obj_id))
             elif act[0] == 'add':
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = %s ' \

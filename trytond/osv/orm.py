@@ -1760,6 +1760,7 @@ class ORM(object):
                     'help',
                     'select',
                     'on_change',
+                    'add_remove',
                     ):
                 if getattr(self._columns[field], arg, False):
                     res[field][arg] = getattr(self._columns[field], arg)
