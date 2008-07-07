@@ -114,6 +114,8 @@ attlist.field &= attribute sum { text }?
 attlist.field &= attribute key { text }?
 attlist.field &= attribute domain { text }?
 attlist.field &= attribute color { text }?
+attlist.field &=
+  [ a:defaultValue = "0" ] attribute select { "0" | "1" | "2" }?
 image = element image { attlist.image, empty }
 attlist.image &= attribute name { text }
 attlist.image &= [ a:defaultValue = "1" ] attribute colspan { text }?
