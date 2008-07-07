@@ -8,10 +8,10 @@ SPEC: Execute "model.function(*eval(args))" periodically
 """
 
 from mx import DateTime
-import time
 from trytond import pooler
 from trytond.osv import fields, OSV
 from trytond.netsvc import Agent
+import datetime
 
 _INTERVALTYPES = {
     'work_days': lambda interval: DateTime.RelativeDateTime(days=interval),
@@ -51,7 +51,7 @@ class Cron(OSV, Agent):
        help='0=Very Urgent\n10=Not urgent')
 
     def default_nextcall(self, cursor, user, context=None):
-        return time.strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.now()
 
     def default_priority(self, cursor, user, context=None):
         return 5
@@ -69,10 +69,10 @@ class Cron(OSV, Agent):
         return 1
 
     def default_active(self, cursor, user, context=None):
-        return 1
+        return True
 
     def default_doall(self, cursor, user, context=None):
-        return 1
+        return True
 
     def _callback(self, cursor, user, model, func, args):
         args = (args or []) and eval(args)
