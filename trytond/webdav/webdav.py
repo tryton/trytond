@@ -20,7 +20,6 @@ class Collection(OSV):
     childs = fields.One2Many('webdav.collection', 'parent', 'Childs')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain', size=250)
-    _parent_name = 'parent'
 
     def __init__(self):
         super(Collection, self).__init__()

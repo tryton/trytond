@@ -309,9 +309,11 @@ class Many2One(Column):
     _symbol_f = lambda x: x and int(x) or None
     _symbol_set = (_symbol_c, _symbol_f)
 
-    def __init__(self, obj, string='unknown', **args):
+    def __init__(self, obj, string='unknown', left=None, right=None, **args):
         Column.__init__(self, string=string, **args)
         self._obj = obj
+        self.left = left
+        self.right = right
 
     # TODO: speed improvement
     # name is the name of the relation field
