@@ -730,8 +730,10 @@ class ORM(object):
                     and field._obj == self._name \
                     and field.left and field.right:
                 cursor.execute('SELECT id FROM "%s" ' \
-                        'WHERE "%s" IS NULL OR "%s" IS NULL' % \
-                        (self._table, field.left, field.right))
+                        'WHERE "%s" IS NULL OR "%s" IS NULL '\
+                            'OR "%s" = 0 OR "%s" = 0'% \
+                        (self._table, field.left, field.right,
+                            field.left, field.right))
                 if cursor.rowcount:
                     self._rebuild_tree(cursor, 0, k, False, 0)
 
@@ -2823,17 +2825,24 @@ class ORM(object):
         '''
         right = left + 1
 
-        child_ids = self.search(cursor, 0, [
-            (parent, '=', parent_id),
-            ])
+        if not parent_id:
+            cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                    'WHERE "' + parent + '" IS NULL')
+        else:
+            cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                    'WHERE "' + parent + '" = %s', (parent_id,))
+        child_ids = [x[0] for x in cursor.fetchall()]
 
-        for child in self.browse(cursor, 0, child_ids):
-            right = self._rebuild_tree(cursor, user, parent, child.id, right)
+        for child_id in child_ids:
+            right = self._rebuild_tree(cursor, user, parent, child_id, right)
 
-        self.write(cursor, 0, parent_id, {
-            'left': left,
-            'right': right,
-            })
+        field = self._columns[parent]
+
+        if parent_id:
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET "' + field.left + '" = %s, ' \
+                        '"' + field.right + '" = %s ' \
+                    'WHERE id = %s', (left, right, parent_id))
         return right + 1
 
     def _update_tree(self, cursor, user, object_id, field_name, left, right):
