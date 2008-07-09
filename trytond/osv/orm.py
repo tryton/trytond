@@ -195,7 +195,6 @@ class ORM(object):
     _name = None
     _rec_name = 'name'
     _order_name = None # Use to force order field when sorting on Many2One
-    _parent_name = 'parent'
     _date_name = 'date'
     _order = None
     _inherits = {} #XXX remove from class instance
@@ -724,6 +723,17 @@ class ORM(object):
                     line2 = line.replace('\n', '').strip()
                     if line2:
                         cursor.execute(line2)
+
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                cursor.execute('SELECT id FROM "%s" ' \
+                        'WHERE "%s" IS NULL OR "%s" IS NULL' % \
+                        (self._table, field.left, field.right))
+                if cursor.rowcount:
+                    self._rebuild_tree(cursor, 0, k, False, 0)
 
     def __init__(self):
         self._rpc_allowed = [
@@ -1567,6 +1577,20 @@ class ORM(object):
 
         self._validate(cursor, user, ids)
 
+        # Check for Modified Preorder Tree Traversal
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                if field.left in vals or field.right in vals:
+                    raise ExceptORM('Error', 'You can not update fields: ' \
+                            '"%s", "%s"' % (field.left, field.right))
+                if k in vals:
+                    for object_id in ids:
+                        self._update_tree(cursor, user, object_id, k,
+                                field.left, field.right)
+
         # Restart rule cache
         if self.pool.get('ir.rule.group').search(cursor, 0, [
             ('model.model', '=', self._name),
@@ -1708,6 +1732,14 @@ class ORM(object):
                     user=user, context=context)
 
         self._validate(cursor, user, [id_new])
+
+        # Check for Modified Preorder Tree Traversal
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                self._update_tree(cursor, user, id_new, k, field.left, field.right)
 
         wf_service = LocalService("workflow")
         wf_service.trg_create(user, self._name, id_new, cursor)
@@ -2252,24 +2284,26 @@ class ORM(object):
                                 context=context)
                         return ids + _rec_get(ids2, table, parent)
 
-                    def _rec_convert(ids):
-                        if self.pool.get(field._obj)==self:
-                            return ids
-                        if not len(ids):
-                            return []
-                        cursor.execute(
-                            'SELECT "' + field._id1 + '" ' \
-                            'FROM "' + field._rel + '" ' \
-                            'WHERE "' + field._id2 + '" IN (' + \
-                                ','.join(['%s' for x in ids]) + ')',
-                            [str(x) for x in ids])
+                    if field._obj != table._name:
+                        raise ExceptORM('Error', 'Programming error: ' \
+                                'child_of on field "%s" is not allowed!' % \
+                                (args[i][0],))
 
-                        ids = [x[0] for x in cursor.fetchall()]
-                        return ids
-
-                    args[i] = ('id', 'in', _rec_convert(ids2 + _rec_get(ids2,
-                        self.pool.get(field._obj),
-                        self.pool.get(field._obj)._parent_name)))
+                    parent = None
+                    for k in table._columns:
+                        field2 = table._columns[k]
+                        if field2._type == 'many2many' \
+                                and field._rel == field2._rel \
+                                and field._id1 == field2._id2 \
+                                and field._id2 == field2._id1:
+                            parent = k
+                            break
+                    if not parent:
+                        raise ExceptORM('Error', 'Programming error: ' \
+                                'child_of on field "%s" is not allowed!' % \
+                                (args[i][0],))
+                    args[i] = ('id', 'in', ids2 + _rec_get(ids2,
+                        table, parent))
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = [x[0] for x in self.pool.get(field._obj
@@ -2317,12 +2351,32 @@ class ORM(object):
                         return ids + _rec_get(ids2, table, parent)
 
                     if field._obj != table._name:
-                        args[i] = (args[i][0], 'in', ids2 + _rec_get(ids2,
-                            self.pool.get(field._obj), table._parent_name),
-                            table)
+                        raise ExceptORM('Error', 'Programming error: ' \
+                                'child_of on field "%s" is not allowed!' % \
+                                (args[i][0],))
                     else:
-                        args[i] = ('id', 'in', ids2 + _rec_get(ids2, table,
-                            args[i][0]), table)
+                        if field.left and field.right:
+                            cursor.execute('SELECT "' + field.left + '", ' \
+                                        '"' + field.right + '" ' + \
+                                    'FROM "' + self._table + '" ' + \
+                                    'WHERE id IN ' + \
+                                        '(' + ','.join(['%s' for x in ids2]) + ')',
+                                        ids2)
+                            clause = ''
+                            for left, right in cursor.fetchall():
+                                if clause:
+                                    clause += 'OR '
+                                clause += '( "' + field.left + '" >= ' + \
+                                        str(left) + ' ' + \
+                                        'AND "' + field.right + '" <= ' + \
+                                        str(right) + ')'
+
+                            query = 'SELECT id FROM "' + self._table + '" ' + \
+                                    'WHERE ' + clause
+                            args[i] = ('id', 'inselect', (query, []))
+                        else:
+                            args[i] = ('id', 'in', ids2 + _rec_get(ids2, table,
+                                args[i][0]), table)
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = self.pool.get(field._obj).name_search(cursor,
@@ -2729,13 +2783,11 @@ class ORM(object):
         return self.read(cursor, user, ids, fields_names=fields_names,
                 context=context, load=load)
 
-    def check_recursion(self, cursor, user, ids, parent=None):
+    def check_recursion(self, cursor, user, ids, parent='parent'):
         '''
         Function that check if there is no recursion in the tree
         composed with parent as parent field name.
         '''
-        if parent is None:
-            parent = self._parent_name
         ids_parent = ids[:]
         while len(ids_parent):
             ids_parent2 = []
@@ -2764,5 +2816,58 @@ class ORM(object):
         if res:
             return res[0]
         return 0
+
+    def _rebuild_tree(self, cursor, user, parent, parent_id, left):
+        '''
+        Rebuild left, right value for the tree.
+        '''
+        right = left + 1
+
+        child_ids = self.search(cursor, 0, [
+            (parent, '=', parent_id),
+            ])
+
+        for child in self.browse(cursor, 0, child_ids):
+            right = self._rebuild_tree(cursor, user, parent, child.id, right)
+
+        self.write(cursor, 0, parent_id, {
+            'left': left,
+            'right': right,
+            })
+        return right + 1
+
+    def _update_tree(self, cursor, user, object_id, field_name, left, right):
+        '''
+        Update left, right values for the tree.
+        '''
+        cursor.execute('SELECT "' + right + '" ' \
+                'FROM "' + self._table + '" ' \
+                'WHERE id IN (' \
+                    'SELECT "' + field_name + '" FROM "' + self._table + '" ' \
+                    'WHERE id = %s)', (object_id,))
+        if cursor.rowcount:
+            parent_right = cursor.fetchone()[0]
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET "' + left + '" = "' + left + '" + 2 ' \
+                    'WHERE "' + left + '" >= %s', (parent_right,))
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET "' + right + '" = "' + right + '" + 2 ' \
+                    'WHERE "' + right + '" >= %s', (parent_right,))
+            cursor.execute('UPDATE "' +  self._table + '" ' \
+                    'SET "' + left + '" = %s, ' \
+                        '"' + right + '" = %s ' \
+                    'WHERE id = %s', (parent_right, parent_right + 1, object_id))
+        else:
+            max_right = 0
+            cursor.execute('SELECT MAX("' + right + '") ' \
+                    'FROM "' + self._table + '" ' \
+                    'WHERE "' + field_name + '" IS NULL')
+            if cursor.rowcount:
+                max_right = cursor.fetchone()[0]
+
+            cursor.execute('UPDATE "' +  self._table + '" ' \
+                    'SET "' + left + '" = %s, ' \
+                        '"' + right + '" = %s ' \
+                    'WHERE id = %s', (max_right + 1, max_right + 2, object_id))
 
 orm = ORM
