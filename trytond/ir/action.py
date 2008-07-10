@@ -309,6 +309,8 @@ class ActionActWindow(OSV):
     action = fields.Many2One('ir.action', 'Action', required=True)
     window_name = fields.Boolean('Window Name', required=True,
             help='Use the action name as window name')
+    search_value = fields.Char('Search Criteria',
+            help='Default search criteria for the list view')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.act_window'
@@ -327,6 +329,9 @@ class ActionActWindow(OSV):
 
     def default_window_name(self, cursor, user, context=None):
         return True
+
+    def default_search_value(self, cursor, user, context=None):
+        return '{}'
 
     def views_get_fnc(self, cursor, user, ids, name, arg, context=None):
         res = {}
