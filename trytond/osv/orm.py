@@ -2149,7 +2149,8 @@ class ORM(object):
                     '>=',
                     '<',
                     '>'):
-                raise ExceptORM("Argument '%s' not supported"% args[i][1],"")
+                raise ExceptORM('ValidateError', 'Argument "%s" not supported' \
+                        % args[i][1])
 
             table = self
             if args[i][0] in self._inherit_fields:
