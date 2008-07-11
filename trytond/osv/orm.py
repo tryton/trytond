@@ -2168,9 +2168,11 @@ class ORM(object):
             fargs = args[i][0].split('.', 1)
             field = table._columns.get(fargs[0], False)
             if not field:
-                if fargs[0] in self._inherit_fields:
-                    table = self.pool.get(self._inherit_fields[args[i][0]][0])
-                    field = table._columns.get(fargs[0], False)
+                if not fargs[0] in self._inherit_fields:
+                    raise ExceptORM('ValidateError', 'Field "%s" doesn\'t ' \
+                            'exist' % fargs[0])
+                table = self.pool.get(self._inherit_fields[args[i][0]][0])
+                field = table._columns.get(fargs[0], False)
             if len(fargs) > 1:
                 if field._type == 'many2one':
                     args[i] = (fargs[0], 'inselect',
