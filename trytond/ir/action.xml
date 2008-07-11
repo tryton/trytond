@@ -179,6 +179,8 @@
                     <field name="domain" colspan="5"/>
                     <label name="context"/>
                     <field name="context" colspan="5"/>
+                    <label name="search_value"/>
+                    <field name="search_value" colspan="5"/>
                     <label name="limit"/>
                     <field name="limit"/>
                     <label name="auto_refresh"/>
