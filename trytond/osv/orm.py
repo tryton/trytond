@@ -1420,11 +1420,6 @@ class ORM(object):
                             'You try to bypass an access rule ' \
                                 '(Document type: %s).' % self._description)
 
-            cursor.execute('DELETE FROM inherit ' \
-                    'WHERE (obj_type = %s AND obj_id IN ('+str_d+')) ' \
-                        'OR (inst_type = %s AND inst_id IN ('+str_d+'))',
-                        ((self._name,) + tuple(sub_ids) + \
-                                (self._name,) + tuple(sub_ids)))
             if domain1:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ') ' + domain1,
@@ -1706,10 +1701,6 @@ class ORM(object):
             upd0 += ',' + self._inherits[table]
             upd1 += ',%s'
             upd2.append(new_id)
-            cursor.execute('INSERT INTO inherit ' \
-                    '(obj_type, obj_id, inst_type, inst_id) ' \
-                    'values (%s, %s, %s, %s)',
-                    (table, new_id, self._name, id_new))
 
         for field in vals:
             if self._columns[field]._classic_write:
