@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE, cursor
+import psycopg2
 import re
 import os
 from mx import DateTime as mdt
@@ -60,18 +61,10 @@ class FakeCursor(object):
         if not params:
             params = ()
 
-        def base_string(string):
-            if isinstance(string, unicode):
-                return string.encode('utf-8')
-            return string
-
-        para = [base_string(string) for string in params]
-        if isinstance(sql, unicode):
-            sql = sql.encode('utf-8')
         if self.sql_log:
             now = mdt.now()
-        if para:
-            res = self.cursor.execute(sql, para)
+        if params:
+            res = self.cursor.execute(sql, params)
         else:
             res = self.cursor.execute(sql)
         if self.sql_log:
@@ -229,3 +222,5 @@ def init_db(cursor):
                 cursor.execute('INSERT INTO ir_module_module_dependency ' \
                         '(module, name) VALUES (%s, %s)',
                         (module_id, dependency))
+
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
