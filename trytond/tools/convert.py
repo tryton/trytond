@@ -555,7 +555,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     continue
 
                 # if the fs value is the same has in the db, whe ignore it
-                if db_field == values[key]:
+                val = values[key]
+                if isinstance(values[key], str):
+                    # Fix for migration to unicode
+                    val = values[key].decode('utf-8')
+                if db_field == val:
                     continue
 
                 # we cannot update a field if it was changed by a user...
