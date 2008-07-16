@@ -59,6 +59,7 @@ class BrowseRecord(object):
         self._table = table
         self._table_name = self._table._name
         self._context = context
+        self._language_cache = {}
 
         cache.setdefault(table._name, {})
         self._data = cache[table._name]
@@ -69,6 +70,8 @@ class BrowseRecord(object):
     def __getitem__(self, name):
         if name == 'id':
             return self._id
+        if name == 'setLang':
+            return self.setLang
         if not self._data[self._id].has_key(name) and self._id:
             # build the list of fields we will fetch
 
@@ -168,6 +171,22 @@ class BrowseRecord(object):
         return bool(self._id)
 
     __repr__ = __str__
+
+    def setLang(self, lang):
+        self._context = self._context.copy()
+        self._context['language'] = lang
+        for table in self._cache:
+            for obj_id in self._cache[table]:
+                self._language_cache.setdefault(self._context['language'],
+                        {}).setdefault(table, {}).update(
+                                self._cache[table][obj_id])
+                if lang in self._language_cache \
+                        and table in self._language_cache[lang] \
+                        and obj_id in self._language_cache[lang][table]:
+                    self._cache[table][obj_id] = \
+                            self._language_cache[lang][table][obj_id]
+                else:
+                    self._cache[table][obj_id] = {'id': obj_id}
 
 browse_record = BrowseRecord
 
