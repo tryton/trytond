@@ -4,22 +4,14 @@ from trytond.netsvc import Service, service_exist, Logger, LOG_ERROR
 from trytond import pooler
 import copy
 from xml import dom
-from trytond.osv import ExceptORM, ExceptOSV, OSV
+from trytond.osv import OSV
+from trytond.config import CONFIG
 import sys
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
 CLASS_POOL = {}
 
-
-class ExceptWizard(Exception):
-    def __init__(self, name, value):
-        Exception.__init__(self)
-        self.name = name
-        self.value = value
-        self.args = (name, value)
-
-except_wizard = ExceptWizard
 
 class WizardService(Service):
 
@@ -39,13 +31,12 @@ class WizardService(Service):
                         'Wizard %s doesn\'t exist' % str(wizard_name))
             res = wizard.execute(cursor, user, data, state, context)
             return res
-        except ExceptORM, inst:
-            self.abort_response(inst.name, 'warning', inst.value)
-        except ExceptOSV, inst:
-            self.abort_response(inst.name, inst.exc_type, inst.value)
-        except ExceptWizard, inst:
-            self.abort_response(inst.name, 'warning', inst.value)
-        except:
+        except Exception, exception:
+            if exception.args \
+                    and exception.args[0] in ('UserError',
+                            'ConcurrencyException') \
+                    and not CONFIG['verbose']:
+                raise
             import traceback
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
@@ -120,15 +111,16 @@ class Wizard(object):
             cls = type(cls._name, (cls, parent_class), {})
 
         obj = object.__new__(cls)
-        obj.__init__(pool, pool_obj)
+        pool.add(obj._name, obj)
+        obj.pool = pool_obj
+        obj.__init__()
         return obj
 
     create_instance = classmethod(create_instance)
 
-    def __init__(self, pool, pool_obj):
-        pool.add(self._name, self)
-        self.pool = pool_obj
+    def __init__(self):
         super(Wizard, self).__init__()
+        self._error_messages = {}
 
     def auto_init(self, cursor, module_name):
         for state in self.states.keys():
@@ -158,6 +150,54 @@ class Wizard(object):
                                 'SET src = %s, ' \
                                     'fuzzy = True '
                                 'WHERE id = %s', (button_value, res[0]['id']))
+
+        cursor.execute('SELECT id, src FROM ir_translation ' \
+                'WHERE lang = %s ' \
+                    'AND type = %s ' \
+                    'AND name = %s',
+                ('en_US', 'error', self._name))
+        trans_error = {}
+        for trans in cursor.dictfetchall():
+            trans_error[trans['src']] = trans
+
+        for error in self._error_messages.values():
+            if error not in trans_error:
+                cursor.execute('INSERT INTO ir_translation ' \
+                        '(name, lang, type, src, value, module) ' \
+                        'VALUES (%s, %s, %s, %s, %s, %s)',
+                        (self._name, 'en_US', 'error', error, '', module_name))
+
+    def raise_user_error(self, cursor, error, error_args=None,
+            error_description='', error_description_args=None, context=None):
+        translation_obj = self.pool.get('ir.translation')
+
+        if context is None:
+            context = {}
+
+        error = self._error_messages.get(error, error)
+
+        res = translation_obj._get_source(cursor, self._name, 'error',
+                context.get('language', 'en_US'), error)
+        if res:
+            error = res
+
+        if error_args:
+            error = error % error_args
+
+        if error_description:
+            error_description = self._error_messages.get(error_description,
+                    error_description)
+
+            res = translation_obj._get_source(cursor, self._name, 'error',
+                    context.get('language', 'en_US'), error_description)
+            if res:
+                error_description = res
+
+            if error_description_args:
+                error_description = error_description % error_description_args
+
+            raise Exception('UserError', error, error_description)
+        raise Exception('UserError', error)
 
     def execute(self, cursor, user, data, state='init', context=None):
         if context is None:

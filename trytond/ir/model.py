@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "model"
 from trytond.osv import fields, OSV
-from trytond.osv.orm import ExceptORM
 from trytond.tools import Cache
 import time
 
@@ -75,9 +74,15 @@ class ModelAccess(OSV):
             ('model_group_uniq', 'UNIQUE("model", "group")',
                 'Only on record by model and group is allowed!'),
         ]
+        self._error_messages.update({
+            'read': 'You can not read this document! (%s)',
+            'write': 'You can not write in this document! (%s)',
+            'create': 'You can not create this kind of document! (%s)',
+            'unlink': 'You can not delete this document! (%s)',
+            })
 
     def check(self, cursor, user, model_name, mode='read',
-            raise_exception=True):
+            raise_exception=True, context=None):
         assert mode in ['read', 'write', 'create', 'unlink'], \
                 'Invalid access mode for security'
         if user == 0:
@@ -103,25 +108,8 @@ class ModelAccess(OSV):
 
         if not row[0][0]:
             if raise_exception:
-                if mode == 'read':
-                    raise ExceptORM('AccessError',
-                            'You can not read this document! (%s)' \
-                                    % model_name)
-                elif mode == 'write':
-                    raise ExceptORM('AccessError',
-                            'You can not write in this document! (%s)' \
-                                    % model_name)
-                elif mode == 'create':
-                    raise ExceptORM('AccessError',
-                            'You can not create this kind of document! (%s)' \
-                                    % model_name)
-                elif mode == 'unlink':
-                    raise ExceptORM('AccessError',
-                            'You can not delete this document! (%s)' \
-                                    % model_name)
-                raise ExceptORM('AccessError',
-                        'You do not have access to this document! (%s)' \
-                                % model_name)
+                self.raise_user_error(cursor, mode, model_name,
+                        context=context)
             else:
                 return False
         return True

@@ -6,7 +6,6 @@ import copy
 import xml
 from xml import dom
 from xml.dom import minidom
-from trytond.osv import ExceptORM, ExceptOSV, OSV
 import sys
 import base64
 try:
@@ -188,12 +187,12 @@ class ReportService(Service):
                 self.add(report._name, report)
             res = report.execute(cursor, user, ids, datas, context)
             return res
-        except ExceptORM, inst:
-            self.abort_response(inst.name, 'warning', inst.value)
-        except ExceptOSV, inst:
-            self.abort_response(inst.name, inst.exc_type, inst.value)
-        except:
-            import traceback
+        except Exception, exception:
+            if exception.args \
+                    and exception.args[0] in ('UserError',
+                            'ConcurrencyException') \
+                    and not CONFIG['verbose']:
+                raise
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             Logger().notify_channel("web-services", LOG_ERROR,
@@ -318,7 +317,7 @@ class Report(object):
             ('report_name', '=', self._name)
             ], context=context)
         if not action_report_ids:
-            raise ExceptOSV('Error', 'Report (%s) not find!' % self._name)
+            raise Exception('Error', 'Report (%s) not find!' % self._name)
         action_report = action_report_obj.browse(cursor, user,
                 action_report_ids[0], context=context)
         objects = self._get_objects(cursor, user, ids, action_report.model,
@@ -423,12 +422,12 @@ class Report(object):
             from openoffice.streams import OutputStream
             from com.sun.star.beans import PropertyValue
         except ImportError, exception:
-            raise ExceptOSV('ImportError', str(exception))
+            raise Exception('ImportError', str(exception))
         try:
             # connect to OOo
             desktop = openoffice.interact.Desktop()
         except officehelper.BootstrapException:
-            raise ExceptOSV('Error', "Can't connect to (bootstrap) OpenOffice.org")
+            raise Exception('Error', "Can't connect to (bootstrap) OpenOffice.org")
 
         res_data = None
         # Create temporary file (with name) and write data there.
@@ -457,7 +456,7 @@ class Report(object):
             fh_odt.close()
             os.remove(odt_name)
         if not res_data:
-            ExceptOSV('Error', 'Error converting to PDF')
+            Exception('Error', 'Error converting to PDF')
         return res_data
 
     def find(self, tnode, tag):

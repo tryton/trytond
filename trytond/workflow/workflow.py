@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Workflow"
 import os
-from trytond.osv import fields, OSV, ExceptOSV
+from trytond.osv import fields, OSV
 from trytond.netsvc import LocalService
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
@@ -197,7 +197,7 @@ class InstanceGraph(Report):
             ('osv', '=', datas['model']),
             ], limit=1, context=context)
         if not workflow_id:
-            raise ExceptOSV('UserError', 'No workflow defined!')
+            raise Exception('Error', 'No workflow defined!')
         workflow_id = workflow_id[0]
         workflow = workflow_obj.browse(cursor, user, workflow_id,
                 context=context)
@@ -206,7 +206,7 @@ class InstanceGraph(Report):
             ('workflow', '=', workflow.id),
             ], order=[('id', 'DESC')], limit=1, context=context)
         if not instance_id:
-            raise ExceptOSV('UserError', 'No workflow instance defined!')
+            raise Exception('Error', 'No workflow instance defined!')
         instance_id = instance_id[0]
 
         title = "Workflow: %s OSV: %s" % (workflow.name, workflow.osv)

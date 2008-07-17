@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 import time
-from trytond.osv import fields, OSV, ExceptORM
+from trytond.osv import fields, OSV
 from string import Template
 
 
@@ -33,6 +33,9 @@ class Sequence(OSV):
             ('check_prefix_suffix', 'Invalid prefix/suffix',
                 ['prefix', 'suffix']),
         ]
+        self._error_messages.update({
+            'missing': 'Missing sequence!',
+            })
 
     def default_active(self, cursor, user, context=None):
         return 1
@@ -68,7 +71,7 @@ class Sequence(OSV):
                 day=time.strftime('%d'),
                 )
 
-    def get_id(self, cursor, user, sequence_id, test='id=%s'):
+    def get_id(self, cursor, user, sequence_id, test='id=%s', context=None):
         cursor.execute('lock table ir_sequence')
         cursor.execute('SELECT id, number_next, number_increment, prefix, ' \
                     'suffix, padding ' \
@@ -86,9 +89,9 @@ class Sequence(OSV):
             else:
                 return self._process(res['prefix']) + \
                         self._process(res['suffix'])
-        raise ExceptORM('UserError', 'Missing sequence!')
+        self.raise_user_error(cursor, 'missing', context=context)
 
-    def get(self, cursor, user, code):
-        return self.get_id(cursor, user, code, test='code=%s')
+    def get(self, cursor, user, code, context=None):
+        return self.get_id(cursor, user, code, test='code=%s', context=context)
 
 Sequence()

@@ -23,6 +23,7 @@ TRANSLATION_TYPE = [
     ('view', 'View'),
     ('wizard_button', 'Wizard Button'),
     ('help', 'Help'),
+    ('error', 'Error'),
 ]
 
 HEADER = ['type', 'name', 'res_id', 'src', 'value', 'fuzzy']
@@ -280,7 +281,7 @@ class Translation(OSV, Cacheable):
         self.clear(cursor)
         self.fields_view_get(cursor.dbname)
         if vals.get('type', '') in ('odt', 'view', 'wizard_button',
-                'selection'):
+                'selection', 'error'):
             cursor.execute('SELECT module FROM ir_translation ' \
                     'WHERE name = %s ' \
                         'AND res_id = %s ' \
@@ -612,12 +613,12 @@ class TranslationUpdate(Wizard):
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
                     'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
-                    ' \'selection\') ' \
+                    ' \'selection\', \'error\') ' \
                 'EXCEPT SELECT name, res_id, type, src, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=%s ' \
                     'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
-                    ' \'selection\')',
+                    ' \'selection\', \'error\')',
                 (data['form']['lang'],))
         for row in cursor.dictfetchall():
             translation_obj.create(cursor, user, {

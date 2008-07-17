@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "User"
 import copy
-from trytond.osv import fields, OSV, ExceptOSV
+from trytond.osv import fields, OSV
 from trytond.wizard import Wizard, WizardOSV
 from lxml import etree
 
@@ -57,6 +57,12 @@ class User(OSV):
             'timezone',
             'groups',
         ]
+        self._error_messages.update({
+            'rm_root': 'You can not remove the root user\n' \
+                            'as it is used internally for resources\n' \
+                            'created by the system ' \
+                            '(updates, module installation, ...)',
+            })
 
     def default_password(self, cursor, user, context=None):
         return ''
@@ -121,11 +127,7 @@ class User(OSV):
         if isinstance(ids, (int, long)):
             ids = [ids]
         if 0 in ids:
-            raise ExceptOSV('UserError',
-                    'You can not remove the root user\n' \
-                            'as it is used internally for resources\n' \
-                            'created by the system ' \
-                            '(updates, module installation, ...)')
+            self.raise_user_error(cursor, 'rm_root', context=context)
         return super(User, self).unlink(cursor, user, ids, context=context)
 
     def read(self, cursor, user, ids, fields_names=None, context=None,

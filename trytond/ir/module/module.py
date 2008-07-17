@@ -8,7 +8,6 @@ import zipimport
 from trytond.osv import fields, OSV
 import trytond.tools as tools
 from trytond.module import MODULES_PATH, create_graph, get_module_list
-from trytond.osv.orm import ExceptORM
 from trytond.wizard import Wizard, WizardOSV
 from trytond.pooler import get_db, restart_pool
 
@@ -166,6 +165,13 @@ class Module(OSV):
             'button_upgrade_cancel',
             'button_update_translations',
         ]
+        self._error_messages.update({
+            'unlink_state': 'You can not remove a module that is installed ' \
+                    'or will be installed',
+            'missing_dep': 'Missing dependencies %s for module "%s"',
+            'uninstall_dep': 'The modules you are trying to uninstall ' \
+                    'depends on installed modules:',
+            })
 
     def default_state(self, cursor, user, context=None):
         return 'uninstalled'
@@ -210,9 +216,7 @@ class Module(OSV):
                     'to remove',
                     'to install',
                     ):
-                raise ExceptORM('Error',
-                        'You try to remove a module that is installed ' \
-                                'or will be installed')
+                self.raise_user_error(cursor, 'unlink_state', context=context)
         return super(Module, self).unlink(cursor, user, ids, context=context)
 
     def state_install(self, cursor, user, ids, context=None):
@@ -223,9 +227,8 @@ class Module(OSV):
                 for package, deps, datas in packages:
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
-                raise ExceptORM('Error',
-                        'Missing dependencies %s for module "%s"' % \
-                        (missings, module.name))
+                self.raise_user_error(cursor, user, 'missing_dep',
+                        (missings, module.name), context=context)
             def get_parents(name, graph):
                 parents = []
                 for node in graph:
@@ -254,9 +257,8 @@ class Module(OSV):
                 for package, deps, datas in packages:
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
-                raise ExceptORM('Error',
-                        'Missing dependencies %s for module "%s"' % \
-                        (missings, module.name))
+                self.raise_user_error(cursor, user, 'missing_dep',
+                        (missings, module.name), context=context)
             def get_childs(name, graph):
                 childs = [x.name for x in graph[name].childs]
                 childs2 = []
@@ -292,10 +294,10 @@ class Module(OSV):
                             (module.name,))
             res = cursor.fetchall()
             if res:
-                raise ExceptORM('Error',
-                        'The modules you are trying to remove ' \
-                        'depends on installed modules :\n' + \
-                        '\n'.join(['\t%s: %s' % (x[0], x[1]) for x in res]))
+                self.raise_user_error(cursor, 'uninstall_dep',
+                        error_description='\n'.join(
+                            ['\t%s: %s' % (x[0], x[1]) for x in res]),
+                        context=context)
         self.write(cursor, user, ids, {'state': 'to remove'})
         return True
 
