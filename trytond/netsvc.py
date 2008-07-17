@@ -338,7 +338,7 @@ class TinySocketClientThread(threading.Thread):
                 method = getattr(service, msg[1])
                 res = method(*msg[2:])
                 pysocket.send(res)
-            except:
+            except Exception, exception:
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(*sys.exc_info()))
                 for path in sys.path:
@@ -347,7 +347,7 @@ class TinySocketClientThread(threading.Thread):
                     import pdb
                     tback = sys.exc_info()[2]
                     pdb.post_mortem(tback)
-                pysocket.send(str(sys.exc_value), exception=True, traceback=tb_s)
+                pysocket.send(exception.args, exception=True, traceback=tb_s)
         pysocket.disconnect()
         self.threads.remove(self)
         return True

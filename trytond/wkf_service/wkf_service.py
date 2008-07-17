@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Workflow service"
 from trytond.netsvc import Service
-from trytond.osv import ExceptOSV
 import instance
 
 
@@ -66,7 +65,7 @@ class WorkflowService(Service):
                     "AND workflow = %s AND state = 'active'",
                 (res_type, res_id, wkf_id,))
             if cursor.rowcount:
-                raise ExceptOSV("Error", "Another active workflow already "\
+                raise Exception("Error", "Another active workflow already "\
                                     "exist for this record: %s@%s."% \
                                     (res_id, res_type))
             instance.create(cursor, ident, wkf_id)

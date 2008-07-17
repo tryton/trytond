@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Objects Services"
 
-from orm import ORM, ExceptORM
+from orm import ORM
 from trytond.netsvc import Service, LocalService, Logger, LOG_ERROR
 from trytond import pooler
 import copy
@@ -12,21 +12,12 @@ import traceback
 from trytond.tools import Cache
 import time
 from threading import Semaphore
+from trytond.config import CONFIG
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
 CLASS_POOL = {}
 
-class ExceptOSV(Exception):
-
-    def __init__(self, name, value, exc_type='warning'):
-        Exception.__init__(self)
-        self.name = name
-        self.exc_type = exc_type
-        self.value = value
-        self.args = (name, value)
-
-except_osv = ExceptOSV
 
 class OSVService(Service):
 
@@ -53,18 +44,12 @@ class OSVService(Service):
                                 % (method, object_name))
             res = getattr(obj, method)(cursor, user, *args, **kargs)
             return res
-        except ExceptORM, inst:
-            self.abort_response(inst.name, 'warning', inst.value)
-        except ExceptOSV, inst:
-            self.abort_response(inst.name, inst.exc_type, inst.value)
-        except IntegrityError, inst:
-            for obj_name in self.object_name_list():
-                obj = pooler.get_pool(cursor.dbname).get(obj_name)
-                for (key, con, msg) in obj._sql_constraints:
-                    if obj._table + '_' + key in inst[0]:
-                        self.abort_response('Constraint Error', 'warning', msg)
-            self.abort_response('Integrity Error', 'warning', inst[0])
-        except:
+        except Exception, exception:
+            if exception.args \
+                    and exception.args[0] in ('UserError',
+                            'ConcurrencyException') \
+                    and not CONFIG['verbose']:
+                raise
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger = Logger()
@@ -92,19 +77,12 @@ class OSVService(Service):
         wf_service = LocalService("workflow")
         try:
             wf_service.trg_validate(user, object_name, args[0], method, cursor)
-        except ExceptORM, inst:
-            self.abort_response(inst.name, 'warning', inst.value)
-        except ExceptOSV, inst:
-            self.abort_response(inst.name, inst.exc_type, inst.value)
-        except IntegrityError, inst:
-            for obj_name in self.object_name_list():
-                obj = pooler.get_pool(cursor.dbname).get(obj_name)
-                for (key, con, msg) in obj._sql_constraints:
-                    if obj._table + '_' + key in inst[0]:
-                        self.abort_response('Constraint Error', 'warning', msg)
-            self.abort_response('Integrity Error', 'warning', inst[0])
-
-        except:
+        except Exception, exception:
+            if exception.args \
+                    and exception.args[0] in ('UserError',
+                            'ConcurrencyException') \
+                    and not CONFIG['verbose']:
+                raise
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger = Logger()

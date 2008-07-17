@@ -19,17 +19,6 @@ def exclude(i, j):
     return [x for x in i if x not in j]
 
 
-class ExceptORM(Exception):
-
-    def __init__(self, name, value):
-        Exception.__init__(self)
-        self.name = name
-        self.value = value
-        self.args = (name, value)
-
-except_orm = ExceptORM
-
-
 # TODO: execute an object method on BrowseRecordList
 class BrowseRecordList(list):
     '''
@@ -83,7 +72,7 @@ class BrowseRecord(object):
             elif hasattr(self._table, name):
                 return getattr(self._table, name)
             else:
-                raise ExceptORM('Error', 'Programming error: field "%s" ' \
+                raise Exception('Error', 'Programming error: field "%s" ' \
                         'does not exist in object "%s"!' \
                         % (name, self._table._name))
 
@@ -378,7 +367,21 @@ class ORM(object):
         self._auto_init(cursor, module_name)
 
     def init(self, cursor, module_name):
-        pass
+        cursor.execute('SELECT id, src FROM ir_translation ' \
+                'WHERE lang = %s ' \
+                    'AND type = %s ' \
+                    'AND name = %s',
+                ('en_US', 'error', self._name))
+        trans_error = {}
+        for trans in cursor.dictfetchall():
+            trans_error[trans['src']] = trans
+
+        for error in self._error_messages.values():
+            if error not in trans_error:
+                cursor.execute('INSERT INTO ir_translation ' \
+                        '(name, lang, type, src, value, module) ' \
+                        'VALUES (%s, %s, %s, %s, %s, %s)',
+                        (self._name, 'en_US', 'error', error, '', module_name))
 
     def _auto_init(self, cursor, module_name):
         logger = Logger()
@@ -778,6 +781,7 @@ class ORM(object):
         self._constraints = []
         self._inherit_fields = []
         self._order = [('id', 'ASC')]
+        self._error_messages = {}
         # reinit the cache on _columns and _defaults
         self.__columns = None
         self.__defaults = None
@@ -852,6 +856,38 @@ class ORM(object):
         or return a tuple wiht the query for the table object and the arguments
         '''
         return None
+
+    def raise_user_error(self, cursor, error, error_args=None,
+            error_description='', error_description_args=None, context=None):
+        translation_obj = self.pool.get('ir.translation')
+
+        if context is None:
+            context = {}
+
+        error = self._error_messages.get(error, error)
+
+        res = translation_obj._get_source(cursor, self._name, 'error',
+                context.get('language', 'en_US'), error)
+        if res:
+            error = res
+
+        if error_args:
+            error = error % error_args
+
+        if error_description:
+            error_description = self._error_messages.get(error_description,
+                    error_description)
+
+            res = translation_obj._get_source(cursor, self._name, 'error',
+                    context.get('language', 'en_US'), error_description)
+            if res:
+                error_description = res
+
+            if error_description_args:
+                error_description = error_description % error_description_args
+
+            raise Exception('UserError', error, error_description)
+        raise Exception('UserError', error)
 
     def browse(self, cursor, user, ids, context=None):
         '''
@@ -937,9 +973,9 @@ class ORM(object):
             # Import normal fields_names
             for i in range(len(fields_names)):
                 if i >= len(line):
-                    raise Exception, \
+                    raise Exception('ImportError',
                             'Please check that all your lines have %d cols.' % \
-                            (len(fields_names),)
+                            (len(fields_names),))
                 field = fields_names[i]
                 if (len(field) == len(prefix) + 1) \
                         and field[len(prefix)].endswith(':id'):
@@ -1168,7 +1204,7 @@ class ORM(object):
                             for x in self._order])),
                             table_args + domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                        raise ExceptORM('AccessError',
+                        raise Exception('ValidateError',
                                 'You try to bypass an access rule ' \
                                         '(Document type: %s).' % \
                                         self._description)
@@ -1247,7 +1283,7 @@ class ORM(object):
                     field_error += field[2]
                 field_err_str.append(field[1])
         if len(field_err_str):
-            raise ExceptORM('ValidateError',
+            raise Exception('UserError',
                     ('\n'.join(field_err_str), ','.join(field_error)))
 
     def default_get(self, cursor, user, fields_names, context=None):
@@ -1376,7 +1412,7 @@ class ORM(object):
                             ",".join([str(x) for x in sub_ids])))
                 res = cursor.fetchone()
                 if res and res[0]:
-                    raise ExceptORM('ConcurrencyException',
+                    raise Exception('ConcurrencyException',
                             'This record was modified in the meanwhile')
             del context['read_delta']
 
@@ -1389,8 +1425,8 @@ class ORM(object):
                 "AND res_type = %s AND state != 'complete'",
             ids + [self._name])
         if cursor.rowcount != 0:
-            raise ExceptORM(
-                'UserError','You cannot delete a record with a running workflow.')
+            raise Exception('UserError',
+                    'You cannot delete a record with a running workflow.')
 
         wf_service = LocalService("workflow")
         for obj_id in ids:
@@ -1416,7 +1452,7 @@ class ORM(object):
                         'WHERE id IN (' + str_d + ') ' + domain1,
                         sub_ids + domain2)
                 if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                    raise ExceptORM('AccessError',
+                    raise Exception('AccessError',
                             'You try to bypass an access rule ' \
                                 '(Document type: %s).' % self._description)
 
@@ -1461,7 +1497,7 @@ class ORM(object):
                     for field in vals:
                         if field in self._columns \
                                 and self._columns[field]._classic_write:
-                            raise ExceptORM('ConcurrencyException',
+                            raise Exception('ConcurrencyException',
                                     'This record was modified in the meanwhile')
             del context['read_delta']
 
@@ -1505,7 +1541,7 @@ class ORM(object):
                     val = vals[field]
                 if isinstance(self._columns[field].selection, (tuple, list)):
                     if val not in dict(self._columns[field].selection):
-                        raise ExceptORM('ValidateError',
+                        raise Exception('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
                                 (val, field))
@@ -1513,7 +1549,7 @@ class ORM(object):
                     if val not in dict(getattr(self,
                         self._columns[field].selection)(
                         cursor, user, context=context)):
-                        raise ExceptORM('ValidateError',
+                        raise Exception('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
                                 (val, field))
@@ -1536,7 +1572,7 @@ class ORM(object):
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
                             'WHERE id IN (' + ids_str + ') ' + domain1, domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                        raise ExceptORM('AccessError',
+                        raise Exception('AccessError',
                                 'You try to bypass an access rule ' \
                                         '(Document type: %s).' % \
                                         self._description)
@@ -1544,7 +1580,7 @@ class ORM(object):
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
                             'WHERE id IN (' + ids_str + ')')
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                        raise ExceptORM('AccessError',
+                        raise Exception('AccessError',
                                 'You try to bypass an access rule ' \
                                         '(Document type: %s).' % \
                                         self._description)
@@ -1600,7 +1636,7 @@ class ORM(object):
                     and field._obj == self._name \
                     and field.left and field.right:
                 if field.left in vals or field.right in vals:
-                    raise ExceptORM('Error', 'You can not update fields: ' \
+                    raise Exception('ValidateError', 'You can not update fields: ' \
                             '"%s", "%s"' % (field.left, field.right))
                 if k in vals:
                     for object_id in ids:
@@ -1718,7 +1754,7 @@ class ORM(object):
                     val = vals[field]
                 if isinstance(self._columns[field].selection, (tuple, list)):
                     if val not in dict(self._columns[field].selection):
-                        raise ExceptORM('ValidateError',
+                        raise Exception('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
                                 (val, field))
@@ -1726,7 +1762,7 @@ class ORM(object):
                     if val not in dict(getattr(self,
                         self._columns[field].selection)(
                         cursor, user, context=context)):
-                        raise ExceptORM('ValidateError',
+                        raise Exception('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
                                 (val, field))
@@ -1921,11 +1957,11 @@ class ORM(object):
         if element.tag in ('form', 'tree', 'graph'):
             value = ''
             if element.get('string'):
-                value = element.get('string').encode('utf8')
+                value = element.get('string')
             result = self.view_header_get(cursor, user, value, element.tag,
                     context)
             if result:
-                element.set('string', result.decode('utf8'))
+                element.set('string', result)
 
         # translate view
         translation_obj = self.pool.get('ir.translation')
@@ -1933,15 +1969,15 @@ class ORM(object):
             if element.get('string'):
                 trans = translation_obj._get_source(cursor,
                         self._name, 'view', context['language'],
-                        element.get('string').encode('utf-8'))
+                        element.get('string'))
                 if trans:
-                    element.set('string', trans.decode('utf-8'))
+                    element.set('string', trans)
             if element.get('sum'):
                 trans = translation_obj._get_source(cursor,
                         self._name, 'view', context['language'],
-                        element.get('sum').encode('utf-8'))
+                        element.get('sum'))
                 if trans:
-                    element.set('sum', trans.decode('utf-8'))
+                    element.set('sum', trans)
         # Add view for properties !
         if element.tag == 'properties':
             parent = element.getparent()
@@ -1957,16 +1993,16 @@ class ORM(object):
             for fname, gname in cursor.fetchall():
                 if oldgroup != gname:
                     child = etree.Element('separator')
-                    child.set('string', gname.decode('utf-8'))
+                    child.set('string', gname)
                     child.set('colspan', '4')
                     oldgroup = gname
                     parent.insert(parent.index(element), child)
 
                 child = etree.Element('label')
-                child.set('name', fname.decode('utf-8'))
+                child.set('name', fname)
                 parent.insert(parent.index(element), child)
                 child = etree.Element('field')
-                child.set('name', fname.decode('utf-8'))
+                child.set('name', fname)
                 parent.insert(parent.index(element), child)
             parent.remove(element)
             element = parent
@@ -2193,7 +2229,7 @@ class ORM(object):
                     '>=',
                     '<',
                     '>'):
-                raise ExceptORM('ValidateError', 'Argument "%s" not supported' \
+                raise Exception('ValidateError', 'Argument "%s" not supported' \
                         % args[i][1])
 
             table = self
@@ -2213,7 +2249,7 @@ class ORM(object):
             field = table._columns.get(fargs[0], False)
             if not field:
                 if not fargs[0] in self._inherit_fields:
-                    raise ExceptORM('ValidateError', 'Field "%s" doesn\'t ' \
+                    raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
                             'exist' % fargs[0])
                 table = self.pool.get(self._inherit_fields[args[i][0]][0])
                 field = table._columns.get(fargs[0], False)
@@ -2300,7 +2336,7 @@ class ORM(object):
                         return ids + _rec_get(ids2, table, parent)
 
                     if field._obj != table._name:
-                        raise ExceptORM('Error', 'Programming error: ' \
+                        raise Exception('Error', 'Programming error: ' \
                                 'child_of on field "%s" is not allowed!' % \
                                 (args[i][0],))
 
@@ -2314,7 +2350,7 @@ class ORM(object):
                             parent = k
                             break
                     if not parent:
-                        raise ExceptORM('Error', 'Programming error: ' \
+                        raise Exception('Error', 'Programming error: ' \
                                 'child_of on field "%s" is not allowed!' % \
                                 (args[i][0],))
                     args[i] = ('id', 'in', ids2 + _rec_get(ids2,
@@ -2366,7 +2402,7 @@ class ORM(object):
                         return ids + _rec_get(ids2, table, parent)
 
                     if field._obj != table._name:
-                        raise ExceptORM('Error', 'Programming error: ' \
+                        raise Exception('Error', 'Programming error: ' \
                                 'child_of on field "%s" is not allowed!' % \
                                 (args[i][0],))
                     else:
@@ -2617,7 +2653,7 @@ class ORM(object):
                         table_name)
             return order_by, tables, clause
 
-        raise ExceptORM('Error', 'Wrong field name (%s) in order!' \
+        raise Exception('Error', 'Wrong field name (%s) in order!' \
                 % field)
 
     def search(self, cursor, user, args, offset=0, limit=None, order=None,
@@ -2660,7 +2696,7 @@ class ORM(object):
         order_by = []
         for field, otype in (order or self._order):
             if otype.upper() not in ('DESC', 'ASC'):
-                raise ExceptORM('Error', 'Wrong order type (%s)!' % otype)
+                raise Exception('Error', 'Wrong order type (%s)!' % otype)
             order_by2, tables2, clause = self._order_calc(cursor, user,
                     field, otype, context=context)
             order_by += order_by2

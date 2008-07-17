@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Action"
 from trytond.osv import fields, OSV
-from trytond.osv.orm import ExceptORM
 from trytond.tools import file_open
 
 
@@ -151,8 +150,9 @@ class ActionKeyword(OSV):
                 context=context):
             try:
                 action_obj = self.pool.get(action_keyword.action.type)
-            except ExceptORM, exception:
-                if exception.name == 'AccessError':
+            except Exception, exception:
+                if exception.args \
+                        and exception.args[0] == 'AccessError':
                     continue
                 raise
             action_id = action_obj.search(cursor, user, [

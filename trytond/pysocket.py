@@ -1,5 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 import socket
+# can't use/fall-back pickle due to different interface :-(
 import cPickle
 try:
     import cStringIO as StringIO
@@ -17,14 +18,6 @@ def checkfunction(module, klass):
         return _class
     raise ValueError('Not supported: %s/%s' % (module, klass))
 
-
-class PySocketException(Exception):
-
-    def __init__(self, code, string):
-        Exception.__init__(self)
-        self.faultCode = code.decode('utf8')
-        self.faultString = string.decode('utf8')
-        self.args = (self.faultCode, self.faultString)
 
 class PySocket:
 
@@ -167,9 +160,10 @@ class PySocket:
             msg = msg + chunk
         msgio = StringIO.StringIO(msg)
         unpickler = cPickle.Unpickler(msgio)
+        # cPickle mechanism to import instances (pickle differs here)
         unpickler.find_global = checkfunction
         res = unpickler.load()
         if exception:
-            raise PySocketException(str(res[0]), str(res[1]))
+            raise Exception(*(list(res[0]) + [res[1]]))
         else:
             return res[0]
