@@ -65,9 +65,10 @@ setup(name=PACKAGE,
     ],
     license=LICENSE,
     #requires=[
-    #    'psycopg (<2.0)',
+    #    'psycopg (>=2.0)',
     #    'lxml',
     #    'egenix-mx-base',
+    #    'relatorio (>=0.2.0),
     #],
     cmdclass={
         'sdist': mysdist,
