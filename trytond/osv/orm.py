@@ -781,7 +781,10 @@ class ORM(object):
         self._constraints = []
         self._inherit_fields = []
         self._order = [('id', 'ASC')]
-        self._error_messages = {}
+        self._error_messages = {
+            'delete_xml_record': 'You are not allowed to delete this record.',
+            'xml_record_desc': "This record is part of the base configuration.",
+            'write_xml_record': 'You are not allowed to modify this record.'}
         # reinit the cache on _columns and _defaults
         self.__columns = None
         self.__defaults = None
@@ -1432,6 +1435,11 @@ class ORM(object):
         for obj_id in ids:
             wf_service.trg_delete(user, self._name, obj_id, cursor)
 
+        if not self.check_xml_record(cursor, user, ids, None, context=context):
+            self.raise_user_error(cursor, 'delete_xml_record',
+                                  error_description='xml_record_desc',
+                                  context=context)
+
         #cursor.execute('select * from ' + self._table + \
         #       ' where id in ('+str_d+')', ids)
         #res = cursor.dictfetchall()
@@ -1463,6 +1471,36 @@ class ORM(object):
             else:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ')', sub_ids)
+        return True
+
+    def check_xml_record(self, cursor, user, ids, values, context=None):
+        """
+        Check if a list of records and their corresponding fields are
+        originating from xml data. This is used by write and delete
+        functions: if the return value is True the records can be
+        written/deleted, False otherwise. The default behaviour is to
+        forbid all modification on records/fields originating from
+        xml. Values is the dictionary of written values. If values is
+        equal to None, no field by field check is performed, False is
+        return has soon has one of the record comes from the xml.
+        """
+        # Allow root user to update/delete
+        if user == 0:
+            return True
+        cursor.execute('SELECT values '\
+                         'FROM ir_model_data '\
+                         'WHERE model = %s '\
+                         'AND db_id in (' + ','.join('%s' for x in ids)+ ') ',
+                       [self._name]+ids)
+        if cursor.rowcount == 0:
+            return True
+        if values == None:
+            return False
+        for line in cursor.fetchall():
+            xml_values = eval(line[0])
+            for key, val in values.iteritems():
+                if key in xml_values and val != xml_values[key]:
+                    return False
         return True
 
     # TODO: Validate
@@ -1553,6 +1591,11 @@ class ORM(object):
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
                                 (val, field))
+
+        if not self.check_xml_record(cursor, user, ids, vals, context=context):
+            self.raise_user_error(cursor, 'write_xml_record',
+                                  error_description='xml_record_desc',
+                                  context=context)
 
         if self._log_access:
             upd0.append('write_uid = %s')
