@@ -39,20 +39,22 @@ def check_super(passwd):
     else:
         raise Exception('AccessDenied')
 
-def check(dbname, user, session, reset_timeout=True):
+def check(dbname, user, session, outdate_timeout=True):
     session = session.encode('utf-8')
+    result = False
     if _USER_CACHE.get(dbname, {}).has_key(user):
         to_del = []
-        for i in range(len(_USER_CACHE[dbname][user])):
-            timestamp, real_session = _USER_CACHE[dbname][user][i]
-            if abs(timestamp - time.time()) < SESSION_TIMEOUT:
-                if real_session == session:
-                    if reset_timeout:
-                        _USER_CACHE[dbname][user][i] = (time.time(), real_session)
-                    return True
-                else:
-                    to_del.append(i)
-        to_del.reverse()
+        for i, (timestamp, real_session) \
+                in enumerate(_USER_CACHE[dbname][user]):
+            if abs(timestamp - time.time()) < SESSION_TIMEOUT \
+                    and real_session == session:
+                if outdate_timeout:
+                    _USER_CACHE[dbname][user][i] = (time.time(), real_session)
+                result = True
+            else:
+                to_del.insert(0, i)
         for i in to_del:
-            del USER_CACHE[dbname][user][i]
+            del _USER_CACHE[dbname][user][i]
+    if result:
+        return True
     raise Exception('NotLogged')
