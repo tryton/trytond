@@ -549,7 +549,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     db_field = self._clean_value(key, db_val, object_ref)
                 except Unhandled_field:
                     logger = Logger()
-                    logger.notify_channel('init', LOG_WARNING,
+                    logger.notify_channel('init', LOG_INFO,
                         'Field %s on %s : integrity not tested.'%(key, model))
                     to_update[key] = values[key]
                     continue
