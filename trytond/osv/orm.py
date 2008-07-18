@@ -2819,7 +2819,7 @@ class ORM(object):
         del data['id']
         for i in self._inherits:
             del data[self._inherits[i]]
-        return self.create(cursor, user, data)
+        return self.create(cursor, user, data, context=context)
 
     def search_read(self, cursor, user, args, offset=0, limit=None, order=None,
             context=None, fields_names=None, load='_classic_read'):
