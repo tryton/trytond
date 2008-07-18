@@ -1967,7 +1967,7 @@ class ORM(object):
             for viewtreewidth in viewtreewidth_obj.browse(cursor, user,
                     viewtreewidth_ids, context=context):
                 fields_width[viewtreewidth.field] = viewtreewidth.width
-        if element.tag in ('field', 'label', 'separator'):
+        if element.tag in ('field', 'label', 'separator', 'group'):
             for attr in ('name', 'icon'):
                 if element.get(attr):
                     attrs = {}
@@ -1978,7 +1978,7 @@ class ORM(object):
                             relation = self._inherit_fields[element.get(attr)][2]._obj
                     except:
                         relation = False
-                    if relation:
+                    if relation and element.tag == 'field':
                         childs = False
                         views = {}
                         for field in element:
