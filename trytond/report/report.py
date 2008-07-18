@@ -478,7 +478,7 @@ class Report(object):
         try:
             if os.name == 'nt':
                 language = _LOCALE2WIN32.get(language, language)
-            locale.setlocale(locale.LC_ALL, language + '.' + encoding)
+            locale.setlocale(locale.LC_ALL, str(language + '.' + encoding))
         except Exception:
             Logger().notify_channel('web-service', LOG_ERROR,
                     'Report %s: unable to set locale "%s"' % \
