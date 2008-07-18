@@ -38,6 +38,20 @@ if DAV_VERSION == '0.6':
     from xml.dom.Document import Document
     Document.Document = Document
 
+# Fix for unset _config in DAVRequestHandler
+if DAV_VERSION == '0.8':
+
+
+    class DAV:
+        lockemulation = False
+
+
+    class _Config:
+        DAV = DAV()
+
+    WebDAVServer.DAVRequestHandler._config = _Config()
+
+
 class TrytonDAVInterface(iface.dav_interface):
 
     def __init__(self, interface, port, secure=False):
@@ -46,6 +60,7 @@ class TrytonDAVInterface(iface.dav_interface):
         else:
             protocol = 'http'
         self.baseuri = '%s://%s:%s/' % (protocol, interface or socket.gethostname(), port)
+        self.verbose = False
 
     def _get_dburi(self, uri):
         uri = urlparse.urlsplit(uri)[2]
