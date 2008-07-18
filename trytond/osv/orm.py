@@ -862,6 +862,22 @@ class ORM(object):
 
     def raise_user_error(self, cursor, error, error_args=None,
             error_description='', error_description_args=None, context=None):
+        '''
+        Raise an exception that will be display as an error message
+        in the client.
+
+        :param cursor: the database cursor
+        :param error: the key of the dictionary _error_messages used
+            for error message
+        :param error_args: the arguments that will be used
+            for "%"-based substitution
+        :param error_description: the key of the dictionary
+            _error_messages used for error description
+        :param error_description_args: the arguments that will be used
+            for "%"-based substitution
+        :param context: the context in which the language key will
+            be used for translation
+        '''
         translation_obj = self.pool.get('ir.translation')
 
         if context is None:
