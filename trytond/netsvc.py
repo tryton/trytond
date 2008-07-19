@@ -53,15 +53,6 @@ class Service(object):
         if callable(method):
             self.method[method.__name__] = method
 
-    def abort_response(self, description, origin, details):
-        if CONFIG['verbose']:
-            tb_s = reduce(lambda x, y: x+y,
-                    traceback.format_exception(*sys.exc_info()))
-            logger = Logger()
-            logger.notify_channel("web-services", LOG_ERROR,
-                    'Exception in call: \n' + tb_s)
-        raise Exception("%s -- %s\n\n%s" % (origin, description, details))
-
 
 class LocalService(Service):
 
