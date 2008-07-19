@@ -180,8 +180,13 @@ class GenericXMLRPCRequestHandler:
             res = meth(*params)
             return res
         except:
-            tb_s = reduce(lambda x, y: x+y,
-                    traceback.format_exception(*sys.exc_info()))
+            tb_s = ''
+            for line in traceback.format_exception(*sys.exc_info()):
+                try:
+                    line = line.encode('utf-8', 'ignore')
+                except:
+                    continue
+                tb_s += line
             for path in sys.path:
                 tb_s = tb_s.replace(path, '')
             if CONFIG['debug_mode']:
@@ -330,8 +335,13 @@ class TinySocketClientThread(threading.Thread):
                 res = method(*msg[2:])
                 pysocket.send(res)
             except Exception, exception:
-                tb_s = reduce(lambda x, y: x+y,
-                        traceback.format_exception(*sys.exc_info()))
+                tb_s = ''
+                for line in traceback.format_exception(*sys.exc_info()):
+                    try:
+                        line = line.encode('utf-8', 'ignore')
+                    except:
+                        continue
+                    tb_s += line
                 for path in sys.path:
                     tb_s = tb_s.replace(path, '')
                 if CONFIG['debug_mode']:
