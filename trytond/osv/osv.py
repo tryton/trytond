@@ -36,10 +36,10 @@ class OSVService(Service):
         try:
             obj = pooler.get_pool(cursor.dbname).get(object_name)
             if not obj:
-                self.abort_response('Object Error', 'warning',
-                'Object %s doesn\'t exist' % str(object_name))
+                raise Exception('Error',
+                        'Object %s doesn\'t exist' % str(object_name))
             if method not in obj._rpc_allowed:
-                self.abort_response('Object Error', 'warning',
+                raise Exception('Error',
                         'Calling method %s on object %s is not allowed' \
                                 % (method, object_name))
             res = getattr(obj, method)(cursor, user, *args, **kargs)

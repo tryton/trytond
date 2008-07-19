@@ -27,7 +27,7 @@ class WizardService(Service):
         try:
             wizard = pooler.get_pool_wizard(cursor.dbname).get(wizard_name)
             if not wizard:
-                self.abort_response('Wizard Error', 'warning',
+                raise Exception('Error',
                         'Wizard %s doesn\'t exist' % str(wizard_name))
             res = wizard.execute(cursor, user, data, state, context)
             return res
