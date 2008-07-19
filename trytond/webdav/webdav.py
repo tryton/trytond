@@ -16,7 +16,7 @@ class Collection(OSV):
     _description = __doc__
     name = fields.Char('Name', size=128, required=True, select=1)
     parent = fields.Many2One('webdav.collection', 'Parent',
-       ondelete='restrict')
+       ondelete='restrict', domain=[('model', '=', False)])
     childs = fields.One2Many('webdav.collection', 'parent', 'Childs')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain', size=250)
