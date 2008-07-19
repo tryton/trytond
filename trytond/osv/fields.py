@@ -49,7 +49,7 @@ class Column(object):
     def __init__(self, string='unknown', required=False, readonly=False,
             domain=None, context='', states=None, priority=0,
             change_default=False, size=None, ondelete="set null",
-            translate=False, select=False, on_change=None, **args):
+            translate=False, select=0, on_change=None, **args):
         self.states = states or {}
         self.string = string
         self.readonly = readonly
@@ -64,6 +64,8 @@ class Column(object):
         self._context = context
         self.group_name = False
         self.view_load = 0
+        if select not in (0, 1, 2):
+            raise Exception('Error', 'Select must be one of 0, 1, 2')
         self.select = select
         self.on_change = on_change
         self.order_field = None
