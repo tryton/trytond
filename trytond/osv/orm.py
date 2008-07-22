@@ -476,10 +476,9 @@ class ORM(object):
                             "WHERE relkind in ('r','v') AND relname=%s",
                             (field._rel,))
                     if not cursor.dictfetchall():
-                        #FIXME: Remove this try/except
-                        try:
+                        if field._obj in self.pool.object_name_list():
                             ref = self.pool.get(field._obj)._table
-                        except AttributeError:
+                        else:
                             ref = field._obj.replace('.','_')
                         cursor.execute("CREATE TABLE \"%s\" " \
                                 "(\"%s\" INTEGER NOT NULL REFERENCES \"%s\" " \
