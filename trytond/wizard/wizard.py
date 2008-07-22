@@ -255,7 +255,7 @@ class Wizard(object):
             res['fields'] = fields
             res['arch'] = arch
             res['state'] = button_list
-        if result_def['type'] == 'choice':
+        elif result_def['type'] == 'choice':
             next_state = getattr(self, result_def['next_state'])(cursor, user,
                     data, context)
             if next_state == 'end':
