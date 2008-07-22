@@ -124,7 +124,7 @@ class OSVService(Service):
         self.module_obj_list.setdefault(module, []).append(object_name_inst)
 
     def get(self, name):
-        return self.object_name_pool.get(name, None)
+        return self.object_name_pool[name]
 
     def instanciate(self, module):
         res = []
