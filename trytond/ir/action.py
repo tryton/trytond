@@ -186,7 +186,7 @@ class ActionReport(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    model = fields.Char('Model', required=True)
+    model = fields.Char('Model')
     report_name = fields.Char('Internal Name', required=True)
     report = fields.Char('Path')
     report_content_data = fields.Binary('Content')
