@@ -320,8 +320,10 @@ class Report(object):
             raise Exception('Error', 'Report (%s) not find!' % self._name)
         action_report = action_report_obj.browse(cursor, user,
                 action_report_ids[0], context=context)
-        objects = self._get_objects(cursor, user, ids, action_report.model,
-                datas, context)
+        objects = None
+        if action_report.model:
+            objects = self._get_objects(cursor, user, ids, action_report.model,
+                    datas, context)
         type, data = self.parse(cursor, user, action_report,
                 objects, datas, context)
         return (type, base64.encodestring(data), action_report.direct_print)
