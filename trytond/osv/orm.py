@@ -1913,6 +1913,9 @@ class ORM(object):
                 if hasattr(self._columns[field], arg) \
                         and getattr(self._columns[field], arg):
                     res[field][arg] = getattr(self._columns[field], arg)
+            if isinstance(self._columns[field], fields.Function) \
+                    and not self._columns[field].order_field:
+                res[field]['sortable'] = False
 
             # translate the field label
             res_trans = translation_obj._get_source(cursor,
