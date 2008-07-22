@@ -476,10 +476,12 @@ class ORM(object):
                             "WHERE relkind in ('r','v') AND relname=%s",
                             (field._rel,))
                     if not cursor.dictfetchall():
-                        if field._obj in self.pool.object_name_list():
-                            ref = self.pool.get(field._obj)._table
-                        else:
+                        # for some fields in ir are linked to res objects
+                        # that are not yet in the pooler
+                        if field._obj in ('res.user', 'res.group'):
                             ref = field._obj.replace('.','_')
+                        else:
+                            ref = self.pool.get(field._obj)._table
                         cursor.execute("CREATE TABLE \"%s\" " \
                                 "(\"%s\" INTEGER NOT NULL REFERENCES \"%s\" " \
                                     "ON DELETE CASCADE, " \
