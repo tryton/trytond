@@ -37,6 +37,8 @@ class Collection(OSV):
         ]
         self.ext2mime = {
             '.png': 'image/png',
+            '.odt': 'application/vnd.oasis.opendocument.text',
+            '.pdf': 'application/pdf',
         }
 
     def default_domain(self, cursor, user, context=None):
