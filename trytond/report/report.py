@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Report"
-from trytond.netsvc import Service, service_exist, Logger, LOG_ERROR
+from trytond.netsvc import Service, service_exist, Logger, LOG_WARNING
 from trytond import pooler
 import copy
 import xml
@@ -483,7 +483,7 @@ class Report(object):
                 language = _LOCALE2WIN32.get(language, language)
             locale.setlocale(locale.LC_ALL, str(language + '.' + encoding))
         except Exception:
-            Logger().notify_channel('web-service', LOG_ERROR,
+            Logger().notify_channel('web-service', LOG_WARNING,
                     'Report %s: unable to set locale "%s"' % \
                             (self._name, language + '.' + encoding))
         if date:
