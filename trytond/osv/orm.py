@@ -1520,7 +1520,6 @@ class ORM(object):
                     return False
         return True
 
-    # TODO: Validate
     def write(self, cursor, user, ids, vals, context=None):
         '''
         Update ids with the content of vals.
