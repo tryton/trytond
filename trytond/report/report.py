@@ -342,6 +342,7 @@ class Report(object):
                 browse(cursor, user, user)
         localcontext['formatLang'] = self.format_lang
         localcontext['decodestring'] = decodestring
+        localcontext['StringIO'] = StringIO.StringIO
         localcontext['time'] = time
         localcontext['datetime'] = datetime
         localcontext.update(context)
