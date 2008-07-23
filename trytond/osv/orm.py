@@ -1504,11 +1504,11 @@ class ORM(object):
         # Allow root user to update/delete
         if user == 0:
             return True
-        cursor.execute('SELECT values '\
-                         'FROM ir_model_data '\
-                         'WHERE model = %s '\
-                         'AND db_id in (' + ','.join('%s' for x in ids)+ ') ',
-                       [self._name]+ids)
+        cursor.execute('SELECT values ' \
+                'FROM ir_model_data ' \
+                'WHERE model = %s ' \
+                    'AND db_id in (' + ','.join('%s' for x in ids)+ ') ',
+                [self._name] + ids)
         if cursor.rowcount == 0:
             return True
         if values == None:
