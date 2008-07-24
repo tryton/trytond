@@ -172,11 +172,11 @@ class View(OSV):
         if element.get('string'):
             string = element.get('string')
             if string:
-                strings.append(string.encode('utf-8'))
+                strings.append(string)
         if element.get('sum'):
             string = element.get('sum')
             if string:
-                strings.append(string.encode('utf-8'))
+                strings.append(string)
         for child in element:
             strings.extend(self._translate_view(child))
         return strings

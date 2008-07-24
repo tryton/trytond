@@ -31,9 +31,11 @@ import sha
 def _symbol_f(symb):
     if symb is None or symb == False:
         return None
+    elif isinstance(symb, str):
+        return unicode(symb, 'utf-8')
     elif isinstance(symb, unicode):
-        return symb.encode('utf-8')
-    return str(symb)
+        return symb
+    return unicode(symb)
 
 class Column(object):
     _classic_read = True
@@ -163,28 +165,6 @@ class Char(Column):
 
     def __init__(self, string, size=None, **args):
         Column.__init__(self, string=string, size=size, **args)
-        self._symbol_set = (self._symbol_c, self._symbol_set_char)
-
-    def _symbol_set_char(self, symb):
-        """
-        takes a string (encoded in utf8)
-        and returns a string (encoded in utf8)
-        """
-        #TODO we need to remove the "symb==False" from the next line BUT
-        #TODO for now too many things rely on this broken behavior
-        #TODO the 'symb is None' test should be common to all data types
-        if symb is None or symb == False:
-            return None
-
-        # we need to convert the string to a unicode object to be able
-        # to evaluate its length (and possibly truncate it) reliably
-        if isinstance(symb, str):
-            u_symb = unicode(symb, 'utf8')
-        elif isinstance(symb, unicode):
-            u_symb = symb
-        else:
-            u_symb = unicode(symb)
-        return u_symb.encode('utf8')
 
     def sql_type(self):
         if self.size:
