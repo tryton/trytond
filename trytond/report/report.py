@@ -25,6 +25,7 @@ import tempfile
 from genshi.filters import Translator
 import traceback
 from trytond.config import CONFIG
+from trytond.sql_db import IntegrityError
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -193,10 +194,16 @@ class ReportService(Service):
                             'ConcurrencyException') \
                     and not CONFIG['verbose']:
                 raise
+            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             Logger().notify_channel("web-services", LOG_ERROR,
                     'Exception in call: ' + tb_s)
+            if isinstance(exception, IntegrityError):
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             raise
 
     def execute(self, dbname, user, report_name, ids, datas, context=None):
