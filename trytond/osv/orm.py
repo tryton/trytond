@@ -2587,13 +2587,7 @@ class ORM(object):
                     else:
                         add_null = False
                         if arg[1] in ('like', 'ilike'):
-                            if isinstance(arg[2], str):
-                                str_utf8 = arg[2]
-                            elif isinstance(arg[2], unicode):
-                                str_utf8 = arg[2].encode('utf-8')
-                            else:
-                                str_utf8 = str(arg[2])
-                            qu2.append('%%%s%%' % str_utf8)
+                            qu2.append('%%%s%%' % arg[2])
                             if not str_utf8:
                                 add_null = True
                         else:

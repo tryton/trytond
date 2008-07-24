@@ -10,8 +10,6 @@ SESSION_TIMEOUT = 600 #seconds
 _USER_CACHE = {}
 
 def login(dbname, loginname, password, cache=True):
-    loginname = loginname.encode('utf-8')
-    password = password.encode('utf-8')
     cursor = pooler.get_db(dbname).cursor()
     password_sha = sha.new(password).hexdigest()
     cursor.execute('SELECT id FROM res_user '
@@ -40,7 +38,6 @@ def check_super(passwd):
         raise Exception('AccessDenied')
 
 def check(dbname, user, session, outdate_timeout=True):
-    session = session.encode('utf-8')
     result = False
     if _USER_CACHE.get(dbname, {}).has_key(user):
         to_del = []
