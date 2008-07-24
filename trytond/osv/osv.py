@@ -6,7 +6,7 @@ from trytond.netsvc import Service, LocalService, Logger, LOG_ERROR
 from trytond import pooler
 import copy
 import sys
-from psycopg2 import IntegrityError
+from trytond.sql_db import IntegrityError
 from trytond.tools import UpdateableDict
 import traceback
 from trytond.tools import Cache
@@ -50,11 +50,17 @@ class OSVService(Service):
                             'ConcurrencyException') \
                     and not CONFIG['verbose']:
                 raise
+            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger = Logger()
             logger.notify_channel("web-services", LOG_ERROR,
                     'Exception in call: \n' + tb_s)
+            if isinstance(exception, IntegrityError):
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             raise
 
     def execute(self, dbname, user, object_name, method, *args, **kargs):
@@ -83,11 +89,17 @@ class OSVService(Service):
                             'ConcurrencyException') \
                     and not CONFIG['verbose']:
                 raise
+            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger = Logger()
             logger.notify_channel("web-services", LOG_ERROR,
                     'Exception in call: \n' + tb_s)
+            if isinstance(exception, IntegrityError):
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             raise
         return True
 
