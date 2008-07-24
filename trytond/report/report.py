@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Report"
-from trytond.netsvc import Service, service_exist, Logger, LOG_WARNING
+from trytond.netsvc import Service, service_exist, Logger, LOG_WARNING, LOG_ERROR
 from trytond import pooler
 import copy
 import xml
