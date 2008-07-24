@@ -2588,7 +2588,7 @@ class ORM(object):
                         add_null = False
                         if arg[1] in ('like', 'ilike'):
                             qu2.append('%%%s%%' % arg[2])
-                            if not str_utf8:
+                            if not arg[2]:
                                 add_null = True
                         else:
                             if arg[0] in table._columns:
