@@ -520,6 +520,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'datetime': datetime,
                     })
 
+            for key in old_values:
+                if isinstance(old_values[key], str):
+                    # Fix for migration to unicode
+                    old_values[key] = old_values[key].decode('utf-8')
+
             # Check if values for this record has been modified in the
             # db, if not it's ok to overwrite them.
             if model != db_model:
@@ -610,7 +615,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'model': model,
                     'module': module,
                     'db_id': db_id,
-                    'values': str(values),
+                    'values': values,
                     'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                     })
 
