@@ -16,10 +16,10 @@
 
  Values: ('create', { fields })         create
          ('write', ids, { fields })     modification
-         ('unlink', ids)                remove (delete)
-         ('remove', ids)                unlink one (target id or target of relation)
+         ('delete', ids)                remove (delete)
+         ('unlink', ids)                unlink one (target id or target of relation)
          ('add', ids)                   link
-         ('remove_all')                 unlink all
+         ('unlink_all')                 unlink all
          ('set', ids)                   set a list of links
 """
 
@@ -335,11 +335,11 @@ class Many2One(Column):
                             'WHERE id = %s', (id_new, obj_id))
                 elif act[0] == 'write':
                     obj.write(cursor, act[1], act[2], context=context)
-                elif act[0] == 'unlink':
-                    obj.unlink(cursor, user, act[1], context=context)
+                elif act[0] == 'delete':
+                    obj.delete(cursor, user, act[1], context=context)
                     cursor.execute('DELETE FROM "' + table + '" ' \
                             'WHERE id = %s', (act[1],))
-                elif act[0] == 'remove' or act[0] == 'remove_all':
+                elif act[0] == 'unlink' or act[0] == 'unlink_all':
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
                             'SET "' + field + '" = NULL ' \
                             'WHERE id = %s', (obj_id,))
@@ -413,9 +413,9 @@ class One2Many(Column):
             elif act[0] == 'write':
                 act[2][self._field] = obj_id
                 obj.write(cursor, user, act[1] , act[2], context=context)
+            elif act[0] == 'delete':
+                obj.delete(cursor, user, act[1], context=context)
             elif act[0] == 'unlink':
-                obj.unlink(cursor, user, act[1], context=context)
-            elif act[0] == 'remove':
                 if isinstance(act[1], (int, long)):
                     ids = [act[1]]
                 else:
@@ -438,7 +438,7 @@ class One2Many(Column):
                         'WHERE id IN (' \
                             + ','.join(['%s' for x in ids]) + ')',
                         [obj_id] + ids)
-            elif act[0] == 'remove_all':
+            elif act[0] == 'unlink_all':
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
                         'WHERE "' + self._field + '" = %s', (obj_id,))
@@ -526,9 +526,9 @@ class Many2Many(Column):
                         'VALUES (%s, %s)', (obj_id, idnew))
             elif act[0] == 'write':
                 obj.write(cursor, user, act[1] , act[2], context=context)
+            elif act[0] == 'delete':
+                obj.delete(cursor, user, act[1], context=context)
             elif act[0] == 'unlink':
-                obj.unlink(cursor, user, act[1], context=context)
-            elif act[0] == 'remove':
                 if isinstance(act[1], (int, long)):
                     ids = [act[1]]
                 else:
@@ -559,7 +559,7 @@ class Many2Many(Column):
                     cursor.execute('INSERT INTO "' + self._rel + '" ' \
                             '("' + self._id1 + '", "' + self._id2 + '") ' \
                             'VALUES (%s, %s)', (obj_id, new_id))
-            elif act[0] == 'remove_all':
+            elif act[0] == 'unlink_all':
                 cursor.execute('UPDATE "' + self._rel + '" ' \
                         'SET "' + self._id2 + '" = NULL ' \
                         'WHERE "' + self._id2 + '" = %s', (obj_id,))

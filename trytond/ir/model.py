@@ -65,7 +65,7 @@ class ModelAccess(OSV):
     perm_read = fields.Boolean('Read Access')
     perm_write = fields.Boolean('Write Access')
     perm_create = fields.Boolean('Create Access')
-    perm_unlink = fields.Boolean('Delete Permission')
+    perm_delete = fields.Boolean('Delete Permission')
     description = fields.Text('Description')
 
     def __init__(self):
@@ -78,12 +78,12 @@ class ModelAccess(OSV):
             'read': 'You can not read this document! (%s)',
             'write': 'You can not write in this document! (%s)',
             'create': 'You can not create this kind of document! (%s)',
-            'unlink': 'You can not delete this document! (%s)',
+            'delete': 'You can not delete this document! (%s)',
             })
 
     def check(self, cursor, user, model_name, mode='read',
             raise_exception=True, context=None):
-        assert mode in ['read', 'write', 'create', 'unlink'], \
+        assert mode in ['read', 'write', 'create', 'delete'], \
                 'Invalid access mode for security'
         if user == 0:
             return True
@@ -129,8 +129,8 @@ class ModelAccess(OSV):
         self.check(cursor.dbname)
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
-        res = super(ModelAccess, self).unlink(cursor, user, ids,
+    def delete(self, cursor, user, ids, context=None):
+        res = super(ModelAccess, self).delete(cursor, user, ids,
                 context=context)
         self.check(cursor.dbname)
         return res

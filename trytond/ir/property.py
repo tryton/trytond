@@ -109,7 +109,7 @@ class Property(OSV):
             ('field', '=', field_id),
             ('res', '=', model + ',' + str(res_id)),
             ], context=context)
-        self.unlink(cursor, user, property_ids, context=context)
+        self.delete(cursor, user, property_ids, context=context)
 
         default_id = self.search(cursor, user, [
             ('field', '=', field_id),
