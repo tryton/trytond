@@ -301,7 +301,7 @@ class WizardOSV(OSV):
             load='_classic_read'):
         pass
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         pass
 
     def write(self, cursor, user, ids, vals, context=None):

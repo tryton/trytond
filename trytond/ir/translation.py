@@ -269,10 +269,10 @@ class Translation(OSV, Cacheable):
                         res[(name, ttype, lang, source)])
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         self.clear(cursor)
         self.fields_view_get(cursor.dbname)
-        return super(Translation, self).unlink(cursor, user, ids,
+        return super(Translation, self).delete(cursor, user, ids,
                 context=context)
 
     def create(self, cursor, user, vals, context=None):

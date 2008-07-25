@@ -130,7 +130,7 @@
                     <field name="perm_read" select="2"/>
                     <field name="perm_write" select="2"/>
                     <field name="perm_create" select="2"/>
-                    <field name="perm_unlink" select="2"/>
+                    <field name="perm_delete" select="2"/>
                     <field name="model" select="1"/>
                     <field name="group" select="1"/>
                 </tree>
@@ -154,8 +154,8 @@
                     <field name="perm_write"/>
                     <label name="perm_create"/>
                     <field name="perm_create"/>
-                    <label name="perm_unlink"/>
-                    <field name="perm_unlink"/>
+                    <label name="perm_delete"/>
+                    <field name="perm_delete"/>
                     <separator name="description" colspan="4"/>
                     <field name="description" colspan="4"/>
                 </form>

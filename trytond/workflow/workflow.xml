@@ -58,7 +58,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_workflow_admin">
             <field name="model" search="[('model', '=', 'workflow')]"/>
@@ -66,7 +66,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.ui.view" id="activity_view_form">
             <field name="model">workflow.activity</field>
@@ -191,7 +191,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_workflow_activity_admin">
             <field name="model" search="[('model', '=', 'workflow.activity')]"/>
@@ -199,7 +199,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.ui.view" id="transition_view_form">
             <field name="model">workflow.transition</field>
@@ -266,7 +266,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_workflow_transition_admin">
             <field name="model" search="[('model', '=', 'workflow.transition')]"/>
@@ -274,7 +274,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.ui.view" id="instance_view_form">
             <field name="model">workflow.instance</field>
@@ -335,7 +335,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_workflow_instance_admin">
             <field name="model" search="[('model', '=', 'workflow.instance')]"/>
@@ -343,7 +343,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.ui.view" id="workitem_view_form">
             <field name="model">workflow.workitem</field>
@@ -401,7 +401,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_workflow_workitem_admin">
             <field name="model" search="[('model', '=', 'workflow.workitem')]"/>
@@ -409,14 +409,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_workflow_trigger">
             <field name="model" search="[('model', '=', 'workflow.trigger')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_workflow_trigger_admin">
             <field name="model" search="[('model', '=', 'workflow.trigger')]"/>
@@ -424,7 +424,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
     </data>
 </tryton>

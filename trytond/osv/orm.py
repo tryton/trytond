@@ -766,7 +766,7 @@ class ORM(object):
                 'write',
                 'create',
                 'default_get',
-                'unlink',
+                'delete',
                 'fields_get',
                 'fields_view_get',
                 'search',
@@ -1408,7 +1408,7 @@ class ORM(object):
         res.update(val)
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         '''
         Remove the ids.
         '''
@@ -1437,7 +1437,7 @@ class ORM(object):
             del context['read_delta']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'unlink')
+                'delete')
 
         cursor.execute(
             "SELECT id FROM wkf_instance "\
@@ -1456,13 +1456,6 @@ class ORM(object):
             self.raise_user_error(cursor, 'delete_xml_record',
                                   error_description='xml_record_desc',
                                   context=context)
-
-        #cursor.execute('select * from ' + self._table + \
-        #       ' where id in ('+str_d+')', ids)
-        #res = cursor.dictfetchall()
-        #for key in self._inherits:
-        #    ids2 = [x[self._inherits[key]] for x in res]
-        #    self.pool.get(key).unlink(cursor, user, ids2)
 
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
                 self._name)

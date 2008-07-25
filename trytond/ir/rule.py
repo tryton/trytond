@@ -40,8 +40,8 @@ class RuleGroup(OSV):
     def default_default_p(self, cursor, user, context=None):
         return False
 
-    def unlink(self, cursor, user, ids, context=None):
-        res = super(RuleGroup, self).unlink(cursor, user, ids,
+    def delete(self, cursor, user, ids, context=None):
+        res = super(RuleGroup, self).delete(cursor, user, ids,
                 context=context)
         # Restart the cache on the domain_get method of ir.rule
         self.pool.get('ir.rule').domain_get(cursor.dbname)
@@ -227,8 +227,8 @@ class Rule(OSV):
 
     domain_get = Cache('ir_rule.domain_get')(domain_get)
 
-    def unlink(self, cursor, user, ids, context=None):
-        res = super(Rule, self).unlink(cursor, user, ids, context=context)
+    def delete(self, cursor, user, ids, context=None):
+        res = super(Rule, self).delete(cursor, user, ids, context=context)
         # Restart the cache on the domain_get method of ir.rule
         self.domain_get(cursor.dbname)
         return res

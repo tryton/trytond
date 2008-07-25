@@ -337,7 +337,7 @@ class Collection(OSV):
                 or not object_id:
             raise DAV_Forbidden
         try:
-            self.unlink(cursor, user, object_id, context=context)
+            self.delete(cursor, user, object_id, context=context)
         except:
             raise DAV_Forbidden
         return 200
@@ -353,7 +353,7 @@ class Collection(OSV):
             raise DAV_Forbidden
         model_obj = self.pool.get(object_name)
         try:
-            model_obj.unlink(cursor, user, object_id, context=context)
+            model_obj.delete(cursor, user, object_id, context=context)
         except:
             raise DAV_Forbidden
         return 200

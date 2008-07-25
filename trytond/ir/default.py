@@ -67,7 +67,7 @@ class Default(OSV):
             ('user', '=', user_default),
             ], context=context)
         if default_ids:
-            self.unlink(cursor, user, default_ids, context=context)
+            self.delete(cursor, user, default_ids, context=context)
         self.create(cursor, user, {
             'model': model_id,
             'field': field_id,

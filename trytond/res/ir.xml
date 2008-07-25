@@ -7,7 +7,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_sequence_type_admin">
             <field name="model" search="[('model', '=', 'ir.sequence.type')]"/>
@@ -15,14 +15,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_sequence">
             <field name="model" search="[('model', '=', 'ir.sequence')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_sequence_admin">
             <field name="model" search="[('model', '=', 'ir.sequence')]"/>
@@ -30,14 +30,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_ui_menu">
             <field name="model" search="[('model', '=', 'ir.ui.menu')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_ui_menu_admin">
             <field name="model" search="[('model', '=', 'ir.ui.menu')]"/>
@@ -45,14 +45,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_ui_view">
             <field name="model" search="[('model', '=', 'ir.ui.view')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_ui_view_admin">
             <field name="model" search="[('model', '=', 'ir.ui.view')]"/>
@@ -60,14 +60,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_action">
             <field name="model" search="[('model', '=', 'ir.action')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_admin">
             <field name="model" search="[('model', '=', 'ir.action')]"/>
@@ -75,14 +75,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_keyword">
             <field name="model" search="[('model', '=', 'ir.action.keyword')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_keyword_admin">
             <field name="model" search="[('model', '=', 'ir.action.keyword')]"/>
@@ -90,14 +90,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_report">
             <field name="model" search="[('model', '=', 'ir.action.report')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_report_admin">
             <field name="model" search="[('model', '=', 'ir.action.report')]"/>
@@ -105,14 +105,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_act_window">
             <field name="model" search="[('model', '=', 'ir.action.act_window')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_act_window_admin">
             <field name="model" search="[('model', '=', 'ir.action.act_window')]"/>
@@ -120,14 +120,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_act_window_view">
             <field name="model" search="[('model', '=', 'ir.action.act_window.view')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_act_window_view_admin">
             <field name="model" search="[('model', '=', 'ir.action.act_window.view')]"/>
@@ -135,14 +135,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_wizard">
             <field name="model" search="[('model', '=', 'ir.action.wizard')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_wizard_admin">
             <field name="model" search="[('model', '=', 'ir.action.wizard')]"/>
@@ -150,14 +150,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_url">
             <field name="model" search="[('model', '=', 'ir.action.url')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_action_url_admin">
             <field name="model" search="[('model', '=', 'ir.action.url')]"/>
@@ -165,14 +165,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_model">
             <field name="model" search="[('model', '=', 'ir.model')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_model_admin">
             <field name="model" search="[('model', '=', 'ir.model')]"/>
@@ -180,14 +180,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_model_field">
             <field name="model" search="[('model', '=', 'ir.model.field')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_model_field_admin">
             <field name="model" search="[('model', '=', 'ir.model.field')]"/>
@@ -195,14 +195,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_model_access">
             <field name="model" search="[('model', '=', 'ir.model.access')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_model_access_ir_admin">
             <field name="model" search="[('model', '=', 'ir.model.access')]"/>
@@ -210,14 +210,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_model_data">
             <field name="model" search="[('model', '=', 'ir.model.data')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_model_data_admin">
             <field name="model" search="[('model', '=', 'ir.model.data')]"/>
@@ -225,14 +225,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_cron">
             <field name="model" search="[('model', '=', 'ir.cron')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_cron_admin">
             <field name="model" search="[('model', '=', 'ir.cron')]"/>
@@ -240,14 +240,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_lang">
             <field name="model" search="[('model', '=', 'ir.lang')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_lang_admin">
             <field name="model" search="[('model', '=', 'ir.lang')]"/>
@@ -255,14 +255,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_translation">
             <field name="model" search="[('model', '=', 'ir.translation')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_translation_admin">
             <field name="model" search="[('model', '=', 'ir.translation')]"/>
@@ -270,14 +270,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_rule_group">
             <field name="model" search="[('model', '=', 'ir.rule.group')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_rule_group_admin">
             <field name="model" search="[('model', '=', 'ir.rule.group')]"/>
@@ -285,14 +285,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_rule">
             <field name="model" search="[('model', '=', 'ir.rule')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_rule_admin">
             <field name="model" search="[('model', '=', 'ir.rule')]"/>
@@ -300,14 +300,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_property">
             <field name="model" search="[('model', '=', 'ir.property')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_property_admin">
             <field name="model" search="[('model', '=', 'ir.property')]"/>
@@ -315,14 +315,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_module_category">
             <field name="model" search="[('model', '=', 'ir.module.category')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_module_category_admin">
             <field name="model" search="[('model', '=', 'ir.module.category')]"/>
@@ -330,14 +330,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_module_module">
             <field name="model" search="[('model', '=', 'ir.module.module')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_module_module_admin">
             <field name="model" search="[('model', '=', 'ir.module.module')]"/>
@@ -345,14 +345,14 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.model.access" id="access_ir_module_module_dependency">
             <field name="model" search="[('model', '=', 'ir.module.module.dependency')]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_ir_module_module_dependency_admin">
             <field name="model" search="[('model', '=', 'ir.module.module.dependency')]"/>
@@ -360,7 +360,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.rule.group" id="rule_group_menu">
             <field name="model" search="[('model', '=', 'ir.ui.menu')]"/>
