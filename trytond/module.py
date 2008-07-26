@@ -7,6 +7,7 @@ import tools
 import pooler
 from netsvc import Logger, LOG_ERROR, LOG_INFO
 import zipfile
+import zipimport
 
 OPJ = os.path.join
 MODULES_PATH = OPJ(os.path.dirname(__file__), 'modules')
@@ -277,17 +278,22 @@ def register_classes():
             continue
 
         if not os.path.isfile(OPJ(MODULES_PATH, module+'.zip')):
-            # XXX must restrict to only modules paths
-            imp.load_module(module, *imp.find_module(module))
+            try:
+                imp.load_module(module, *imp.find_module(module,
+                    [MODULES_PATH]))
+            except ImportError:
+                Logger().notify_channel('init', LOG_ERROR,
+                        'Couldn\'t import module %s' % module)
+                break
         else:
-            import zipimport
             mod_path = OPJ(MODULES_PATH, module+'.zip')
             try:
                 zimp = zipimport.zipimporter(mod_path)
                 zimp.load_module(module)
             except zipimport.ZipImportError:
                 Logger().notify_channel('init', LOG_ERROR,
-                        'Couldn\'t find module %s' % module)
+                        'Couldn\'t import module %s' % module)
+                break
 
 def load_modules(database, update_module=False, lang=None):
     cursor = database.cursor()
