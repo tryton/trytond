@@ -51,7 +51,8 @@ class Column(object):
     def __init__(self, string='unknown', required=False, readonly=False,
             domain=None, context='', states=None, priority=0,
             change_default=False, size=None, ondelete="set null",
-            translate=False, select=0, on_change=None, **args):
+            translate=False, select=0, on_change=None, on_change_with=None,
+            **args):
         self.states = states or {}
         self.string = string
         self.readonly = readonly
@@ -70,6 +71,7 @@ class Column(object):
             raise Exception('Error', 'Select must be one of 0, 1, 2')
         self.select = select
         self.on_change = on_change
+        self.on_change_with = on_change_with
         self.order_field = None
         for i in args:
             if args[i]:

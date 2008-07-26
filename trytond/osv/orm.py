@@ -821,6 +821,10 @@ class ORM(object):
                 on_change = 'on_change_' + name
                 if on_change not in self._rpc_allowed:
                     self._rpc_allowed.append(on_change)
+            if self._columns[name].on_change_with:
+                on_change_with = 'on_change_with_' + name
+                if on_change_with not in self._rpc_allowed:
+                    self._rpc_allowed.append(on_change_with)
 
         for k in self._defaults:
             assert (k in self._columns) or (k in self._inherit_fields), \
@@ -1893,6 +1897,7 @@ class ORM(object):
                     'select',
                     'on_change',
                     'add_remove',
+                    'on_change_with',
                     ):
                 if getattr(self._columns[field], arg, False):
                     res[field][arg] = getattr(self._columns[field], arg)
