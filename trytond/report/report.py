@@ -485,6 +485,8 @@ class Report(object):
             encoding = 'UTF-8'
         if encoding == 'cp1252':
             encoding = '1252'
+        if not encoding:
+            encoding = 'UTF-8'
         try:
             if os.name == 'nt':
                 language = _LOCALE2WIN32.get(language, language)
