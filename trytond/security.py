@@ -43,11 +43,12 @@ def check(dbname, user, session, outdate_timeout=True):
         to_del = []
         for i, (timestamp, real_session) \
                 in enumerate(_USER_CACHE[dbname][user]):
-            if abs(timestamp - time.time()) < SESSION_TIMEOUT \
-                    and real_session == session:
-                if outdate_timeout:
-                    _USER_CACHE[dbname][user][i] = (time.time(), real_session)
-                result = True
+            if abs(timestamp - time.time()) < SESSION_TIMEOUT:
+                if real_session == session:
+                    if outdate_timeout:
+                        _USER_CACHE[dbname][user][i] = \
+                                (time.time(), real_session)
+                    result = True
             else:
                 to_del.insert(0, i)
         for i in to_del:
