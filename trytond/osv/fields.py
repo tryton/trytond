@@ -298,7 +298,10 @@ class Selection(Column):
         Column.__init__(self, string=string, selection=selections, **args)
 
     def sql_type(self):
-        return ('varchar', 'varchar')
+        if self.size:
+            return ('varchar', 'varchar(%d)' % (self.size,))
+        else:
+            return ('varchar', 'varchar')
 
 selection = Selection
 
