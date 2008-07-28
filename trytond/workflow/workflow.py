@@ -51,17 +51,17 @@ class WorkflowActivity(OSV):
        ('XOR', 'Xor'),
        ('OR', 'Or'),
        ('AND', 'And'),
-       ], 'Split Mode', size=3, required=True)
+       ], 'Split Mode', required=True)
     join_mode = fields.Selection([
        ('XOR', 'Xor'),
        ('AND', 'And'),
-       ], 'Join Mode', size=3, required=True)
+       ], 'Join Mode', required=True)
     kind = fields.Selection([
        ('dummy', 'Dummy'),
        ('function', 'Function'),
        ('subflow', 'Subflow'),
        ('stopall', 'Stop All'),
-       ], 'Kind', size=64, required=True)
+       ], 'Kind', required=True)
     action = fields.Char('Action', size=None)
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
