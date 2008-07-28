@@ -24,7 +24,7 @@ class ModelField(OSV):
     "Model field"
     _name = 'ir.model.field'
     _description = __doc__
-    name = fields.Char('Name', size=None)
+    name = fields.Char('Name', size=None, required=True)
     relation = fields.Char('Model Relation', size=None)
     model = fields.Many2One('ir.model', 'Model', required=True,
        select=True, ondelete='cascade')
