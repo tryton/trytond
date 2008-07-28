@@ -9,6 +9,7 @@ from trytond import tools
 import base64
 import os
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+import sha
 
 
 class DB(Service):
@@ -25,7 +26,7 @@ class DB(Service):
         self.export_method(self.db_exist)
         self.export_method(self.change_admin_password)
 
-    def create(self, password, db_name, lang):
+    def create(self, password, db_name, lang, admin_password):
         security.check_super(password)
         res = False
 
@@ -56,11 +57,12 @@ class DB(Service):
                         'SET language = ' \
                             '(SELECT id FROM ir_lang WHERE code = %s LIMIT 1) '\
                         'WHERE login <> \'root\'', (lang,))
+                cursor.execute('UPDATE res_user ' \
+                        'SET password = %s' \
+                        'WHERE login = \'admin\'',
+                        (sha.new(admin_password).hexdigest(),))
                 cursor.commit()
-                cursor.execute('SELECT login, login as password, name ' \
-                        'FROM res_user ' \
-                        'WHERE login <> \'root\' ORDER BY login')
-                res = cursor.dictfetchall()
+                res = True
             except:
                 logger.notify_channel("web-service", LOG_ERROR,
                     'CREATE DB: %s failed' % (db_name,))
