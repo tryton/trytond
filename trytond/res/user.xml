@@ -4,7 +4,6 @@
     <data>
         <record model="res.user" id="user_admin">
             <field name="login">admin</field>
-            <field name="password">admin</field>
             <field name="name">Administrator</field>
             <field name="signature">Administrator</field>
             <field name="action" ref="ir.act_module_config_wizard"/>
