@@ -4,8 +4,8 @@
 
 CREATE TABLE ir_model (
   id serial,
-  model varchar(64) DEFAULT ''::varchar NOT NULL,
-  name varchar(64),
+  model varchar DEFAULT ''::varchar NOT NULL,
+  name varchar,
   info text,
   primary key(id)
 );
@@ -21,6 +21,7 @@ CREATE TABLE ir_model_field (
   view_load boolean,
   relate boolean default False,
   help text,
+  module varchar(128),
   primary key(id)
 );
 
