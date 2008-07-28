@@ -217,12 +217,6 @@ float = Float
 class Numeric(Float):
     _type = 'numeric'
 
-    def __init__(self, string='unknown', digits=None, **args):
-        Float.__init__(self, string=string, digits=digits, **args)
-        if self.digits:
-            self._symbol_f = lambda x: round(x, self.digits[1])
-            self._symbol_set = (self._symbol_c, self._symbol_f)
-
     def sql_type(self):
         return ('numeric', 'numeric')
 
