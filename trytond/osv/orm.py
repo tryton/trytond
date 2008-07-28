@@ -9,6 +9,7 @@ import traceback
 import datetime
 from lxml import etree
 import copy
+from decimal import Decimal
 
 ID_MAX = 1000
 
@@ -1511,7 +1512,10 @@ class ORM(object):
         if values == None:
             return False
         for line in cursor.fetchall():
-            xml_values = eval(line[0])
+            xml_values = eval(line[0], {
+                'Decimal': Decimal,
+                'datetime': datetime,
+                })
             for key, val in values.iteritems():
                 if key in xml_values and val != xml_values[key]:
                     return False
