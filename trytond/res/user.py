@@ -123,12 +123,12 @@ class User(OSV):
         self.pool.get('ir.rule').domain_get(cursor.dbname)
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         if isinstance(ids, (int, long)):
             ids = [ids]
         if 0 in ids:
             self.raise_user_error(cursor, 'rm_root', context=context)
-        return super(User, self).unlink(cursor, user, ids, context=context)
+        return super(User, self).delete(cursor, user, ids, context=context)
 
     def read(self, cursor, user, ids, fields_names=None, context=None,
             load='_classic_write'):

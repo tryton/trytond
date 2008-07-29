@@ -204,8 +204,6 @@ class Translation(OSV, Cacheable):
 
         if source:
             source = source.strip().replace('\n',' ')
-            if isinstance(source, unicode):
-                source = source.encode('utf8')
             cursor.execute('SELECT value ' \
                     'FROM ir_translation ' \
                     'WHERE lang=%s ' \
@@ -271,10 +269,10 @@ class Translation(OSV, Cacheable):
                         res[(name, ttype, lang, source)])
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         self.clear(cursor)
         self.fields_view_get(cursor.dbname)
-        return super(Translation, self).unlink(cursor, user, ids,
+        return super(Translation, self).delete(cursor, user, ids,
                 context=context)
 
     def create(self, cursor, user, vals, context=None):
@@ -486,7 +484,7 @@ class ReportTranslationUpdate(Wizard):
                 return strings
 
             if node.nodeValue:
-                txt = node.nodeValue.encode('utf-8').strip()
+                txt = node.nodeValue.strip()
                 if txt:
                     strings.append(txt)
 

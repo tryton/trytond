@@ -32,7 +32,7 @@ class DBTestCase(unittest.TestCase):
         '''
         Create database.
         '''
-        SOCK.send(('db', 'create', ADMIN_PASSWORD, DB_NAME, 'en_US'))
+        SOCK.send(('db', 'create', ADMIN_PASSWORD, DB_NAME, 'en_US', PASSWORD))
         res = SOCK.receive()
         self.assert_(res)
 

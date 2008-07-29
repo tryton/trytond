@@ -14,13 +14,13 @@
 
  Relationals fields
 
- Values: ('create', { fields })    create
-         ('write', ID, { fields })    modification
-         ('unlink', ID)                remove (delete)
-         ('remove', ID)                unlink one (target id or target of relation)
-         ('add', ID)                link
-         ('remove_all')                unlink all
-         ('set', ids)            set a list of links
+ Values: ('create', { fields })         create
+         ('write', ids, { fields })     modification
+         ('delete', ids)                remove (delete)
+         ('unlink', ids)                unlink one (target id or target of relation)
+         ('add', ids)                   link
+         ('unlink_all')                 unlink all
+         ('set', ids)                   set a list of links
 """
 
 import psycopg2
@@ -31,9 +31,11 @@ import sha
 def _symbol_f(symb):
     if symb is None or symb == False:
         return None
+    elif isinstance(symb, str):
+        return unicode(symb, 'utf-8')
     elif isinstance(symb, unicode):
-        return symb.encode('utf-8')
-    return str(symb)
+        return symb
+    return unicode(symb)
 
 class Column(object):
     _classic_read = True
@@ -49,7 +51,8 @@ class Column(object):
     def __init__(self, string='unknown', required=False, readonly=False,
             domain=None, context='', states=None, priority=0,
             change_default=False, size=None, ondelete="set null",
-            translate=False, select=0, on_change=None, **args):
+            translate=False, select=0, on_change=None, on_change_with=None,
+            **args):
         self.states = states or {}
         self.string = string
         self.readonly = readonly
@@ -68,6 +71,7 @@ class Column(object):
             raise Exception('Error', 'Select must be one of 0, 1, 2')
         self.select = select
         self.on_change = on_change
+        self.on_change_with = on_change_with
         self.order_field = None
         for i in args:
             if args[i]:
@@ -163,28 +167,6 @@ class Char(Column):
 
     def __init__(self, string, size=None, **args):
         Column.__init__(self, string=string, size=size, **args)
-        self._symbol_set = (self._symbol_c, self._symbol_set_char)
-
-    def _symbol_set_char(self, symb):
-        """
-        takes a string (encoded in utf8)
-        and returns a string (encoded in utf8)
-        """
-        #TODO we need to remove the "symb==False" from the next line BUT
-        #TODO for now too many things rely on this broken behavior
-        #TODO the 'symb is None' test should be common to all data types
-        if symb is None or symb == False:
-            return None
-
-        # we need to convert the string to a unicode object to be able
-        # to evaluate its length (and possibly truncate it) reliably
-        if isinstance(symb, str):
-            u_symb = unicode(symb, 'utf8')
-        elif isinstance(symb, unicode):
-            u_symb = symb
-        else:
-            u_symb = unicode(symb)
-        return u_symb.encode('utf8')
 
     def sql_type(self):
         if self.size:
@@ -234,12 +216,6 @@ float = Float
 
 class Numeric(Float):
     _type = 'numeric'
-
-    def __init__(self, string='unknown', digits=None, **args):
-        Float.__init__(self, string=string, digits=digits, **args)
-        if self.digits:
-            self._symbol_f = lambda x: round(x, self.digits[1])
-            self._symbol_set = (self._symbol_c, self._symbol_f)
 
     def sql_type(self):
         return ('numeric', 'numeric')
@@ -351,21 +327,22 @@ class Many2One(Column):
         table = obj_src.pool.get(self._obj)._table
         if type(values) == type([]):
             for act in values:
-                if act[0] == 0:
-                    id_new = obj.create(cursor, act[2])
+                if act[0] == 'create':
+                    id_new = obj.create(cursor, user, act[2], context=context)
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
                             'SET "' + field + '" = %s ' \
                             'WHERE id = %s', (id_new, obj_id))
-                elif act[0] == 1:
-                    obj.write(cursor, [act[1]], act[2], context=context)
-                elif act[0] == 2:
+                elif act[0] == 'write':
+                    obj.write(cursor, act[1], act[2], context=context)
+                elif act[0] == 'delete':
+                    obj.delete(cursor, user, act[1], context=context)
                     cursor.execute('DELETE FROM "' + table + '" ' \
                             'WHERE id = %s', (act[1],))
-                elif act[0] == 3 or act[0] == 5:
+                elif act[0] == 'unlink' or act[0] == 'unlink_all':
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
                             'SET "' + field + '" = NULL ' \
                             'WHERE id = %s', (obj_id,))
-                elif act[0] == 4:
+                elif act[0] == 'add':
                     cursor.execute('UPDATE "' + obj_src._table + '" ' \
                             'SET "' + field + '" = %s ' \
                             'WHERE id = %s', (act[1], obj_id))
@@ -434,39 +411,53 @@ class One2Many(Column):
                 obj.create(cursor, user, act[1], context=context)
             elif act[0] == 'write':
                 act[2][self._field] = obj_id
-                obj.write(cursor, user, [act[1]] , act[2], context=context)
+                obj.write(cursor, user, act[1] , act[2], context=context)
+            elif act[0] == 'delete':
+                obj.delete(cursor, user, act[1], context=context)
             elif act[0] == 'unlink':
-                obj.unlink(cursor, user, [act[1]], context=context)
-            elif act[0] == 'remove':
+                if isinstance(act[1], (int, long)):
+                    ids = [act[1]]
+                else:
+                    ids = list(act[1])
+                if not ids:
+                    continue
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
-                        'WHERE id = %s '\
-                            'AND "' + self._field + '" = %s', (act[1], obj_id))
+                        'WHERE id IN (' \
+                            + ','.join(['%s' for x in ids]) + ') ' \
+                            'AND "' + self._field + '" = %s',
+                        ids + [obj_id])
             elif act[0] == 'add':
+                if isinstance(act[1], (int, long)):
+                    ids = [act[1]]
+                else:
+                    ids = list(act[1])
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = %s ' \
-                        'WHERE id = %s', (obj_id, act[1]))
-            elif act[0] == 'remove_all':
+                        'WHERE id IN (' \
+                            + ','.join(['%s' for x in ids]) + ')',
+                        [obj_id] + ids)
+            elif act[0] == 'unlink_all':
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
                         'WHERE "' + self._field + '" = %s', (obj_id,))
             elif act[0] == 'set':
                 if not act[1]:
-                    ids2 = [0]
+                    ids = [0]
                 else:
-                    ids2 = act[1]
+                    ids = list(act[1])
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = NULL ' \
                         'WHERE "' + self._field + '" = %s ' \
                             'AND id not IN (' + \
-                                ','.join([str(x) for x in ids2]) + ')',
-                                (obj_id,))
+                                ','.join(['%s' for x in ids]) + ')',
+                                [obj_id] + ids)
                 if act[1]:
                     cursor.execute('UPDATE "' + _table + '" ' \
                             'SET "' + self._field + '" = %s ' \
                             'WHERE id IN (' + \
-                                ','.join([str(x) for x in act[1]]) + ')',
-                                (obj_id,))
+                                ','.join(['%s' for x in ids]) + ')',
+                                [obj_id] + ids)
             else:
                 raise Exception('Bad arguments')
 
@@ -528,33 +519,54 @@ class Many2Many(Column):
         obj = obj.pool.get(self._obj)
         for act in values:
             if act[0] == 'create':
-                idnew = obj.create(cursor, user, act[1])
+                idnew = obj.create(cursor, user, act[1], context=context)
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
                         '(' + self._id1 + ', ' + self._id2 + ') ' \
                         'VALUES (%s, %s)', (obj_id, idnew))
             elif act[0] == 'write':
-                obj.write(cursor, user, [act[1]] , act[2], context=context)
+                obj.write(cursor, user, act[1] , act[2], context=context)
+            elif act[0] == 'delete':
+                obj.delete(cursor, user, act[1], context=context)
             elif act[0] == 'unlink':
-                obj.unlink(cursor, user, [act[1]], context=context)
-            elif act[0] == 'remove':
+                if isinstance(act[1], (int, long)):
+                    ids = [act[1]]
+                else:
+                    ids = list(act[1])
+                if not ids:
+                    continue
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
                         'WHERE "' + self._id1 + '" = %s ' \
-                            'AND "'+ self._id2 + '" = %s', (obj_id, act[1]))
+                            'AND "'+ self._id2 + '" IN (' \
+                                + ','.join(['%s' for x in ids]) + ')',
+                        [obj_id] + ids)
             elif act[0] == 'add':
-                cursor.execute('SELECT * FROM "' + self._rel + '" ' \
+                if isinstance(act[1], (int, long)):
+                    ids = [act[1]]
+                else:
+                    ids = list(act[1])
+                cursor.execute('SELECT "' + self._id2 + '" ' \
+                        'FROM "' + self._rel + '" ' \
                         'WHERE ' + self._id1 + ' = %s ' \
-                            'AND ' + self._id2 + ' = %s ',
-                            (obj_id, act[1]))
-                if cursor.rowcount:
-                    continue
-                cursor.execute('INSERT INTO "' + self._rel + '" ' \
-                        '(' + self._id1 + ', ' + self._id2 + ') ' \
-                        'VALUES (%s, %s)', (obj_id, act[1]))
-            elif act[0] == 'remove_all':
+                            'AND ' + self._id2 + ' IN (' + \
+                                ','.join(['%s' for x in ids]) + ')',
+                        [obj_id] + ids)
+                existing_ids = []
+                for row in cursor.fetchall():
+                    existing_ids.append(row[0])
+                new_ids = [x for x in ids if x not in existing_ids]
+                for new_id in new_ids:
+                    cursor.execute('INSERT INTO "' + self._rel + '" ' \
+                            '("' + self._id1 + '", "' + self._id2 + '") ' \
+                            'VALUES (%s, %s)', (obj_id, new_id))
+            elif act[0] == 'unlink_all':
                 cursor.execute('UPDATE "' + self._rel + '" ' \
                         'SET "' + self._id2 + '" = NULL ' \
                         'WHERE "' + self._id2 + '" = %s', (obj_id,))
             elif act[0] == 'set':
+                if not act[1]:
+                    ids = []
+                else:
+                    ids = list(act[1])
                 domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
                         user, obj._name)
                 if domain1:
@@ -569,10 +581,10 @@ class Many2Many(Column):
                                 obj._table + '.id ' + domain1 + ')',
                                 [obj_id, obj_id] + domain2)
 
-                for act_nbr in act[1]:
+                for new_id in ids:
                     cursor.execute('INSERT INTO "' + self._rel + '" ' \
-                            '(' + self._id1 + ', ' + self._id2 + ') ' \
-                            'VALUES (%s, %s)', (obj_id, act_nbr))
+                            '("' + self._id1 + '", "' + self._id2 + '") ' \
+                            'VALUES (%s, %s)', (obj_id, new_id))
             else:
                 raise Exception('Bad arguments')
 

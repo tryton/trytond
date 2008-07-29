@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Report"
-from trytond.netsvc import Service, service_exist, Logger, LOG_ERROR
+from trytond.netsvc import Service, service_exist, Logger, LOG_WARNING, LOG_ERROR
 from trytond import pooler
 import copy
 import xml
@@ -25,6 +25,7 @@ import tempfile
 from genshi.filters import Translator
 import traceback
 from trytond.config import CONFIG
+from trytond.sql_db import IntegrityError
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -193,10 +194,16 @@ class ReportService(Service):
                             'ConcurrencyException') \
                     and not CONFIG['verbose']:
                 raise
+            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             Logger().notify_channel("web-services", LOG_ERROR,
                     'Exception in call: ' + tb_s)
+            if isinstance(exception, IntegrityError):
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             raise
 
     def execute(self, dbname, user, report_name, ids, datas, context=None):
@@ -342,6 +349,7 @@ class Report(object):
                 browse(cursor, user, user)
         localcontext['formatLang'] = self.format_lang
         localcontext['decodestring'] = decodestring
+        localcontext['StringIO'] = StringIO.StringIO
         localcontext['time'] = time
         localcontext['datetime'] = datetime
         localcontext.update(context)
@@ -477,12 +485,14 @@ class Report(object):
             encoding = 'UTF-8'
         if encoding == 'cp1252':
             encoding = '1252'
+        if not encoding:
+            encoding = 'UTF-8'
         try:
             if os.name == 'nt':
                 language = _LOCALE2WIN32.get(language, language)
             locale.setlocale(locale.LC_ALL, str(language + '.' + encoding))
         except Exception:
-            Logger().notify_channel('web-service', LOG_ERROR,
+            Logger().notify_channel('web-service', LOG_WARNING,
                     'Report %s: unable to set locale "%s"' % \
                             (self._name, language + '.' + encoding))
         if date:

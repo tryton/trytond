@@ -7,6 +7,8 @@ from xml import dom
 from trytond.osv import OSV
 from trytond.config import CONFIG
 import sys
+from trytond.sql_db import IntegrityError
+import traceback
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -37,11 +39,16 @@ class WizardService(Service):
                             'ConcurrencyException') \
                     and not CONFIG['verbose']:
                 raise
-            import traceback
+            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             Logger().notify_channel("web-services", LOG_ERROR,
                     'Exception in call: ' + tb_s)
+            if isinstance(exception, IntegrityError):
+                raise Exception('UserError', 'Constraint Error',
+                        *exception.args)
             raise
 
     def execute(self, dbname, user, wizard_name, data, state='init',
@@ -294,7 +301,7 @@ class WizardOSV(OSV):
             load='_classic_read'):
         pass
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         pass
 
     def write(self, cursor, user, ids, vals, context=None):

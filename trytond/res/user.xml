@@ -4,7 +4,6 @@
     <data>
         <record model="res.user" id="user_admin">
             <field name="login">admin</field>
-            <field name="password">admin</field>
             <field name="name">Administrator</field>
             <field name="signature">Administrator</field>
             <field name="action" ref="ir.act_module_config_wizard"/>
@@ -95,7 +94,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_user_admin">
             <field name="model" search="[('model', '=', 'res.user')]"/>
@@ -103,7 +102,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.ui.view" id="user_config_init_view_form">
             <field name="model">res.user.config.init</field>
