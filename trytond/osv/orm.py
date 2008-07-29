@@ -448,7 +448,7 @@ class ORM(object):
                     table.db_default(field_name, 0)
 
                 if isinstance(field, fields.Boolean):
-                    table.db_default(field_name, False)
+                    table.not_null_action(field_name, 'add')
 
                 if isinstance(field, fields.Many2One):
                     if field._obj in ('res.user', 'res.group'):
