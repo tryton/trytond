@@ -368,6 +368,8 @@ class table_handler:
                      self.table[column_name]['size'] > 0 and \
                          self.table[column_name]['size'] or "",
                      field_size))
+            return
+
         column_type = column_type[1]
         self.cursor.execute("ALTER TABLE %s ADD COLUMN \"%s\" %s"%
                        (self.table_name, column_name, column_type))
