@@ -446,6 +446,7 @@ class ORM(object):
 
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
+                    table.not_null_action(field_name, 'add')
 
                 if isinstance(field, fields.Boolean):
                     table.not_null_action(field_name, 'add')
