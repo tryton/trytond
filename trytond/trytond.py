@@ -74,7 +74,6 @@ class TrytonServer(object):
                     "'wkf_instance', "
                     "'wkf_workitem', "
                     "'wkf_witm_trans', "
-                    "'wkf_logs', "
                     "'ir_module_category', "
                     "'ir_module_module', "
                     "'ir_module_module_dependency, '"

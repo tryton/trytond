@@ -211,11 +211,10 @@ def init_db(cursor):
             cursor.execute('SELECT NEXTVAL(\'ir_module_module_id_seq\')')
             module_id = cursor.fetchone()[0]
             cursor.execute('INSERT INTO ir_module_module ' \
-                    '(id, author, latest_version, website, name, shortdesc, ' \
+                    '(id, author, website, name, shortdesc, ' \
                     'description, category, state) ' \
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
                     (module_id, info.get('author', ''),
-                version.VERSION.rsplit('.', 1)[0] + '.' + info.get('version', ''),
                 info.get('website', ''), i, info.get('name', False),
                 info.get('description', ''), p_id, state))
             dependencies = info.get('depends', [])
