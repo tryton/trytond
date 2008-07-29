@@ -166,7 +166,7 @@ class Module(OSV):
             'button_update_translations',
         ]
         self._error_messages.update({
-            'unlink_state': 'You can not remove a module that is installed ' \
+            'delete_state': 'You can not remove a module that is installed ' \
                     'or will be installed',
             'missing_dep': 'Missing dependencies %s for module "%s"',
             'uninstall_dep': 'The modules you are trying to uninstall ' \
@@ -204,7 +204,7 @@ class Module(OSV):
                     module.name).get('version', '')
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         if not ids:
             return True
         if isinstance(ids, (int, long)):
@@ -216,8 +216,8 @@ class Module(OSV):
                     'to remove',
                     'to install',
                     ):
-                self.raise_user_error(cursor, 'unlink_state', context=context)
-        return super(Module, self).unlink(cursor, user, ids, context=context)
+                self.raise_user_error(cursor, 'delete_state', context=context)
+        return super(Module, self).delete(cursor, user, ids, context=context)
 
     def state_install(self, cursor, user, ids, context=None):
         graph, packages, later = create_graph(get_module_list())
@@ -393,7 +393,7 @@ class Module(OSV):
         dependency_ids = dependency_obj.search(cursor, user, [
             ('module', '=', module_id),
             ])
-        dependency_obj.unlink(cursor, user, dependency_ids)
+        dependency_obj.delete(cursor, user, dependency_ids)
         if depends is None:
             depends = []
         for depend in depends:

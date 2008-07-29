@@ -162,7 +162,7 @@ class UIMenu(OSV):
             ('model', '=', self._name + ',' + str(menu_id)),
             ], context=context)
         if action_keyword_ids:
-            action_keyword_obj.unlink(cursor, user, action_keyword_ids,
+            action_keyword_obj.delete(cursor, user, action_keyword_ids,
                     context=ctx)
         action_type, action_id = value.split(',')
         action_obj = self.pool.get(action_type)

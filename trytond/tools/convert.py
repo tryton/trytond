@@ -48,11 +48,11 @@ class MenuitemTagHandler:
 
         values = {}
 
-        self.xml_id = attributes['id'].encode('utf8')
+        self.xml_id = attributes['id']
 
         for attr in ('name', 'icon', 'sequence', 'parent', 'action', 'groups'):
             if attributes.get(attr):
-                values[attr] = attributes.get(attr).encode('utf8')
+                values[attr] = attributes.get(attr)
 
 
         if values.get('parent'):
@@ -83,7 +83,7 @@ class MenuitemTagHandler:
 
             values['action'] = '%s,%s' % (action_type, action_id)
 
-            icon = attributes.get('icon', '').encode('utf8')
+            icon = attributes.get('icon', '')
             if icon:
                 values['icon'] = icon
             elif action_type == 'ir.action.wizard':
@@ -160,12 +160,12 @@ class RecordTagHandler:
 
         # Manage the top level tag
         if name == "record":
-            self.model = self.mh.pool.get(attributes["model"].encode('utf8'))
+            self.model = self.mh.pool.get(attributes["model"])
             assert self.model, "The model %s does not exist !" % \
-                    (attributes["model"].encode('utf8'),)
+                    (attributes["model"],)
 
-            self.xml_id = attributes["id"].encode('utf8')
-            self.update = bool(int(attributes.get('update', '0').encode('utf8')))
+            self.xml_id = attributes["id"]
+            self.update = bool(int(attributes.get('update', '0')))
 
             # create/update a dict containing fields values
             self.values = {}
@@ -178,8 +178,8 @@ class RecordTagHandler:
         # Manage included tags:
         elif name == "field":
 
-            field_name = attributes['name'].encode('utf8')
-            field_type = attributes.get('type', '').encode('utf8')
+            field_name = attributes['name']
+            field_type = attributes.get('type', '')
             # Create a new entry in the values
             self.values[field_name] = ""
             # Remind the current name (see characters)
@@ -189,13 +189,13 @@ class RecordTagHandler:
                 self.cdata = "start"
 
             # Catch the known attributes
-            search_attr = attributes.get('search','').encode('utf8')
-            ref_attr = attributes.get('ref', '').encode('utf8')
-            eval_attr = attributes.get('eval', '').encode('utf8')
+            search_attr = attributes.get('search','')
+            ref_attr = attributes.get('ref', '')
+            eval_attr = attributes.get('eval', '')
 
             if search_attr:
                 if attributes.get('model', ''):
-                    search_model = attributes['model'].encode('utf8')
+                    search_model = attributes['model']
                 else:
                     search_model = self.model._columns[field_name]._obj
                 f_obj = self.mh.pool.get(search_model)
@@ -237,7 +237,7 @@ class RecordTagHandler:
             data = CDATA_START.sub('', data)
             self.start_cdata = "inside"
 
-        self.values[self.current_field] += data.encode('utf8')
+        self.values[self.current_field] += data
 
 
     def endElement(self, name):
@@ -520,6 +520,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'datetime': datetime,
                     })
 
+            for key in old_values:
+                if isinstance(old_values[key], str):
+                    # Fix for migration to unicode
+                    old_values[key] = old_values[key].decode('utf-8')
+
             # Check if values for this record has been modified in the
             # db, if not it's ok to overwrite them.
             if model != db_model:
@@ -610,7 +615,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'model': model,
                     'module': module,
                     'db_id': db_id,
-                    'values': str(values),
+                    'values': values,
                     'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                     })
 
@@ -652,10 +657,10 @@ def post_import(cursor, module, to_delete):
 
     user = 0
     wf_service = LocalService("workflow")
-    mdata_unlink = []
+    mdata_delete = []
     pool = pooler.get_pool(cursor.dbname)
     modeldata_obj = pool.get("ir.model.data")
-    transition_unlink = []
+    transition_delete = []
 
     mdata_ids = modeldata_obj.search(cursor, user, [('fs_id', 'in', to_delete)],
             order=[('id', 'DESC')], context={'active_test': False})
@@ -666,7 +671,7 @@ def post_import(cursor, module, to_delete):
         # Whe skip transitions, they will be deleted with the
         # corresponding activity:
         if model == 'workflow.transition':
-            transition_unlink.append((mdata_id, db_id))
+            transition_delete.append((mdata_id, db_id))
             continue
 
         if model == 'workflow.activity':
@@ -696,7 +701,7 @@ def post_import(cursor, module, to_delete):
                     "JOIN wkf_transition t ON "\
                     "(md.model='workflow.transition' and md.db_id=t.id)" \
                     "WHERE t.act_to = %s", (db_id,))
-            mdata_unlink.extend([x[0] for x in cursor.fetchall()])
+            mdata_delete.extend([x[0] for x in cursor.fetchall()])
 
             # And finally delete the transitions
             cursor.execute("DELETE FROM wkf_transition " \
@@ -711,8 +716,8 @@ def post_import(cursor, module, to_delete):
         try:
             # Deletion of the record
             model_obj = pool.get(model)
-            model_obj.unlink(cursor, user, db_id)
-            mdata_unlink.append(mdata_id)
+            model_obj.delete(cursor, user, db_id)
+            mdata_delete.append(mdata_id)
             cursor.commit()
         except Exception, exception:
             cursor.rollback()
@@ -725,13 +730,13 @@ def post_import(cursor, module, to_delete):
                             (db_id, model))
 
     transition_obj = pool.get('workflow.transition')
-    for mdata_id, db_id in transition_unlink:
+    for mdata_id, db_id in transition_delete:
         logger = Logger()
         logger.notify_channel('init', LOG_INFO,
                 'Deleting %s@workflow.transition' % (db_id,))
         try:
-            transition_obj.unlink(cursor, user, db_id)
-            mdata_unlink.append(mdata_id)
+            transition_obj.delete(cursor, user, db_id)
+            mdata_delete.append(mdata_id)
             cursor.commit()
         except:
             cursor.rollback()
@@ -740,8 +745,8 @@ def post_import(cursor, module, to_delete):
                             (db_id,))
 
     # Clean model_data:
-    if mdata_unlink:
-        modeldata_obj.unlink(cursor, user, mdata_unlink)
+    if mdata_delete:
+        modeldata_obj.delete(cursor, user, mdata_delete)
         cursor.commit()
 
     return True

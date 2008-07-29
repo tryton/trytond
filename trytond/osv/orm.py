@@ -10,6 +10,7 @@ import datetime
 from lxml import etree
 import copy
 from trytond.sql_db import table_handler
+from decimal import Decimal
 
 ID_MAX = 1000
 
@@ -499,7 +500,7 @@ class ORM(object):
                 'write',
                 'create',
                 'default_get',
-                'unlink',
+                'delete',
                 'fields_get',
                 'fields_view_get',
                 'search',
@@ -554,6 +555,10 @@ class ORM(object):
                 on_change = 'on_change_' + name
                 if on_change not in self._rpc_allowed:
                     self._rpc_allowed.append(on_change)
+            if self._columns[name].on_change_with:
+                on_change_with = 'on_change_with_' + name
+                if on_change_with not in self._rpc_allowed:
+                    self._rpc_allowed.append(on_change_with)
 
         for k in self._defaults:
             assert (k in self._columns) or (k in self._inherit_fields), \
@@ -1141,7 +1146,7 @@ class ORM(object):
         res.update(val)
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         '''
         Remove the ids.
         '''
@@ -1170,7 +1175,7 @@ class ORM(object):
             del context['read_delta']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'unlink')
+                'delete')
 
         cursor.execute(
             "SELECT id FROM wkf_instance "\
@@ -1189,13 +1194,6 @@ class ORM(object):
             self.raise_user_error(cursor, 'delete_xml_record',
                                   error_description='xml_record_desc',
                                   context=context)
-
-        #cursor.execute('select * from ' + self._table + \
-        #       ' where id in ('+str_d+')', ids)
-        #res = cursor.dictfetchall()
-        #for key in self._inherits:
-        #    ids2 = [x[self._inherits[key]] for x in res]
-        #    self.pool.get(key).unlink(cursor, user, ids2)
 
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
                 self._name)
@@ -1237,23 +1235,25 @@ class ORM(object):
         # Allow root user to update/delete
         if user == 0:
             return True
-        cursor.execute('SELECT values '\
-                         'FROM ir_model_data '\
-                         'WHERE model = %s '\
-                         'AND db_id in (' + ','.join('%s' for x in ids)+ ') ',
-                       [self._name]+ids)
+        cursor.execute('SELECT values ' \
+                'FROM ir_model_data ' \
+                'WHERE model = %s ' \
+                    'AND db_id in (' + ','.join('%s' for x in ids)+ ') ',
+                [self._name] + ids)
         if cursor.rowcount == 0:
             return True
         if values == None:
             return False
         for line in cursor.fetchall():
-            xml_values = eval(line[0])
+            xml_values = eval(line[0], {
+                'Decimal': Decimal,
+                'datetime': datetime,
+                })
             for key, val in values.iteritems():
                 if key in xml_values and val != xml_values[key]:
                     return False
         return True
 
-    # TODO: Validate
     def write(self, cursor, user, ids, vals, context=None):
         '''
         Update ids with the content of vals.
@@ -1636,6 +1636,7 @@ class ORM(object):
                     'select',
                     'on_change',
                     'add_remove',
+                    'on_change_with',
                     ):
                 if getattr(self._columns[field], arg, False):
                     res[field][arg] = getattr(self._columns[field], arg)
@@ -1903,7 +1904,7 @@ class ORM(object):
             if not sql_res:
                 break
             test = sql_res[4]
-            view_id = test or sql_res[3]
+            view_id = test or sql_res[2]
             model = False
 
         # if a view was found
@@ -1924,7 +1925,8 @@ class ORM(object):
                 return result
 
             result['arch'] = _inherit_apply_rec(result['arch'], sql_res[2])
-            result['field_childs'] = sql_res[2] or False
+
+            result['field_childs'] = sql_res[1] or False
         # otherwise, build some kind of default view
         else:
             if view_type == 'form':
@@ -2320,14 +2322,8 @@ class ORM(object):
                     else:
                         add_null = False
                         if arg[1] in ('like', 'ilike'):
-                            if isinstance(arg[2], str):
-                                str_utf8 = arg[2]
-                            elif isinstance(arg[2], unicode):
-                                str_utf8 = arg[2].encode('utf-8')
-                            else:
-                                str_utf8 = str(arg[2])
-                            qu2.append('%%%s%%' % str_utf8)
-                            if not str_utf8:
+                            qu2.append('%%%s%%' % arg[2])
+                            if not arg[2]:
                                 add_null = True
                         else:
                             if arg[0] in table._columns:

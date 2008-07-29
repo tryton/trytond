@@ -178,6 +178,13 @@ class TrytonServer(object):
         if CONFIG['webdav']:
             webdavd.start()
         #DISPATCHER.run()
+
+        try:
+            import psyco
+            psyco.full()
+        except ImportError:
+            pass
+
         count = 0
         while True:
             time.sleep(1)

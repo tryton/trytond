@@ -44,6 +44,7 @@ if DAV_VERSION == '0.8':
 
     class DAV:
         lockemulation = False
+        verbose = False
 
 
     class _Config:

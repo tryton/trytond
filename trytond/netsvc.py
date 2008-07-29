@@ -360,14 +360,15 @@ class TinySocketClientThread(threading.Thread):
 class TinySocketServerThread(threading.Thread):
     def __init__(self, interface, port, secure=False):
         threading.Thread.__init__(self)
-        familly = socket.AF_INET
+        self.socket = None
         if socket.has_ipv6:
             try:
                 socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                familly = socket.AF_INET6
+                self.socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
             except:
                 pass
-        self.socket = socket.socket(familly, socket.SOCK_STREAM)
+        if self.socket is None:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if secure:
             self.socket = start_SSL(self.socket)

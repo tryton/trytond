@@ -121,7 +121,7 @@ class View(OSV):
                         (view.model, 'view') + tuple(strings))
         return True
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -132,7 +132,7 @@ class View(OSV):
                 self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
-        res = super(View, self).unlink(cursor, user, ids, context=context)
+        res = super(View, self).delete(cursor, user, ids, context=context)
         return res
 
     def create(self, cursor, user, vals, context=None):
@@ -172,11 +172,11 @@ class View(OSV):
         if element.get('string'):
             string = element.get('string')
             if string:
-                strings.append(string.encode('utf-8'))
+                strings.append(string)
         if element.get('sum'):
             string = element.get('sum')
             if string:
-                strings.append(string.encode('utf-8'))
+                strings.append(string)
         for child in element:
             strings.extend(self._translate_view(child))
         return strings
@@ -231,7 +231,7 @@ class ViewTreeWidth(OSV):
             'set_width',
         ]
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         if isinstance(ids, (int, long)):
             ids = [ids]
         views = self.browse(cursor, user, ids, context=context)
@@ -241,7 +241,7 @@ class ViewTreeWidth(OSV):
                 self.pool.get(view.model).fields_view_get(cursor.dbname)
             except:
                 pass
-        res = super(ViewTreeWidth, self).unlink(cursor, user, ids, context=context)
+        res = super(ViewTreeWidth, self).delete(cursor, user, ids, context=context)
         return res
 
     def create(self, cursor, user, vals, context=None):
@@ -285,7 +285,7 @@ class ViewTreeWidth(OSV):
             ('model', '=', model),
             ('field', 'in', fields.keys()),
             ], context=context)
-        self.unlink(cursor, user, ids, context=context)
+        self.delete(cursor, user, ids, context=context)
 
         for field in fields.keys():
             self.create(cursor, user, {

@@ -85,7 +85,7 @@ class ActionKeyword(OSV):
             res.append([model.model, model.name])
         return res
 
-    def unlink(self, cursor, user, ids, context=None):
+    def delete(self, cursor, user, ids, context=None):
         if isinstance(ids, (int, long)):
             ids = [ids]
         for keyword in self.browse(cursor, user, ids, context=context):
@@ -95,7 +95,7 @@ class ActionKeyword(OSV):
                         .fields_view_get(cursor.dbname)
             except:
                 pass
-        return super(ActionKeyword, self).unlink(cursor, user, ids,
+        return super(ActionKeyword, self).delete(cursor, user, ids,
                 context=context)
 
     def create(self, cursor, user, vals, context=None):

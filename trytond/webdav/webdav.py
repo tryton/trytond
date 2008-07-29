@@ -37,6 +37,8 @@ class Collection(OSV):
         ]
         self.ext2mime = {
             '.png': 'image/png',
+            '.odt': 'application/vnd.oasis.opendocument.text',
+            '.pdf': 'application/pdf',
         }
 
     def default_domain(self, cursor, user, context=None):
@@ -219,25 +221,27 @@ class Collection(OSV):
     def get_creationdate(self, cursor, user, uri, context=None):
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
-        model_obj = self.pool.get(object_name)
-        if model_obj._log_access:
-            cursor.execute('SELECT EXTRACT(epoch FROM create_date) ' \
-                    'FROM "' + model_obj._table +'" ' \
-                    'WHERE id = %s', (object_id,))
-            if cursor.rowcount:
-                return cursor.fetchone()[0]
+        if object_name:
+            model_obj = self.pool.get(object_name)
+            if model_obj._log_access:
+                cursor.execute('SELECT EXTRACT(epoch FROM create_date) ' \
+                        'FROM "' + model_obj._table +'" ' \
+                        'WHERE id = %s', (object_id,))
+                if cursor.rowcount:
+                    return cursor.fetchone()[0]
         return time.time()
 
     def get_lastmodified(self, cursor, user, uri, context=None):
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
-        model_obj = self.pool.get(object_name)
-        if model_obj._log_access and object_id:
-            cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
-                    'FROM "' + model_obj._table +'" ' \
-                    'WHERE id = %s', (object_id,))
-            if cursor.rowcount:
-                return cursor.fetchone()[0]
+        if object_name:
+            model_obj = self.pool.get(object_name)
+            if model_obj._log_access and object_id:
+                cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
+                        'FROM "' + model_obj._table +'" ' \
+                        'WHERE id = %s', (object_id,))
+                if cursor.rowcount:
+                    return cursor.fetchone()[0]
         return time.time()
 
     def get_data(self, cursor, user, uri, context=None):
@@ -333,7 +337,7 @@ class Collection(OSV):
                 or not object_id:
             raise DAV_Forbidden
         try:
-            self.unlink(cursor, user, object_id, context=context)
+            self.delete(cursor, user, object_id, context=context)
         except:
             raise DAV_Forbidden
         return 200
@@ -342,12 +346,14 @@ class Collection(OSV):
         from DAV.errors import DAV_Forbidden
         object_name, object_id = self._uri2object(cursor, user, uri,
                 context=context)
+        if not object_name:
+            raise DAV_Forbidden
         if object_name != 'ir.attachment' \
                 or not object_id:
             raise DAV_Forbidden
         model_obj = self.pool.get(object_name)
         try:
-            model_obj.unlink(cursor, user, object_id, context=context)
+            model_obj.delete(cursor, user, object_id, context=context)
         except:
             raise DAV_Forbidden
         return 200
