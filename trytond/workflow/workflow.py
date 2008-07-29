@@ -14,8 +14,8 @@ class Workflow(OSV):
     _table = "wkf"
     _log_access = False
     _description = __doc__
-    name = fields.Char('Name', size=64, required=True)
-    osv = fields.Char('Resource Model', size=64, required=True)
+    name = fields.Char('Name', required=True)
+    osv = fields.Char('Resource Model', required=True)
     on_create = fields.Boolean('On Create')
     activities = fields.One2Many('workflow.activity', 'workflow',
        'Activities')
@@ -44,7 +44,7 @@ class WorkflowActivity(OSV):
     _table = "wkf_activity"
     _log_access = False
     _description = __doc__
-    name = fields.Char('Name', size=64, required=True)
+    name = fields.Char('Name', required=True)
     workflow = fields.Many2One('workflow', 'Workflow', required=True,
        select=1, ondelete='cascade')
     split_mode = fields.Selection([
@@ -61,12 +61,12 @@ class WorkflowActivity(OSV):
        ('function', 'Function'),
        ('subflow', 'Subflow'),
        ('stopall', 'Stop All'),
-       ], 'Kind', size=64, required=True)
-    action = fields.Char('Action', size=None)
+       ], 'Kind', required=True)
+    action = fields.Char('Action')
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
     subflow =  fields.Many2One('workflow', 'Subflow')
-    signal_send = fields.Char('Signal (subflow.*)', size=32)
+    signal_send = fields.Char('Signal (subflow.*)')
     out_transitions = fields.One2Many('workflow.transition', 'act_from',
        'Outgoing transitions')
     in_transitions = fields.One2Many('workflow.transition', 'act_to',
@@ -91,11 +91,11 @@ class WorkflowTransition(OSV):
     _log_access = False
     _rec_name = 'signal'
     _description = __doc__
-    trigger_model = fields.Char('Trigger Type', size=128)
-    trigger_expr_id = fields.Char('Trigger Expr ID', size=128)
-    signal = fields.Char('Signal (button Name)', size=64)
+    trigger_model = fields.Char('Trigger Type')
+    trigger_expr_id = fields.Char('Trigger Expr ID')
+    signal = fields.Char('Signal (button Name)')
     group = fields.Many2One('res.group', 'Group Required')
-    condition = fields.Char('Condition', required=True, size=128)
+    condition = fields.Char('Condition', required=True)
     act_from = fields.Many2One('workflow.activity', 'Source Activity',
        required=True, select=1, ondelete='cascade')
     act_to = fields.Many2One('workflow.activity', 'Destination Activity',
@@ -117,8 +117,8 @@ class WorkflowInstance(OSV):
     workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict")
     uid = fields.Integer('User ID')
     res_id = fields.Integer('Resource ID')
-    res_type = fields.Char('Resource Model', size=64)
-    state = fields.Char('State', size=32)
+    res_type = fields.Char('Resource Model')
+    state = fields.Char('State')
 
     def _auto_init(self, cursor, module_name):
         super(WorkflowInstance, self)._auto_init(cursor, module_name)
@@ -146,7 +146,7 @@ class WorkflowWorkitem(OSV):
        ondelete="cascade")
     instance = fields.Many2One('workflow.instance', 'Instance',
        required=True, ondelete="cascade", select=1)
-    state = fields.Char('State', size=64)
+    state = fields.Char('State')
 
 WorkflowWorkitem()
 
