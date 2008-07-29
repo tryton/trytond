@@ -356,9 +356,11 @@ class table_handler:
             else:
                 raise Exception(
                     'Unable to migrate column %s from varchar(%s) to varchar(%s).' % \
-                    (column_name, self.table[column_name]['size'], field_size))
+                    (column_name,
+                     self.table[column_name]['size'] > 0 and \
+                         self.table[column_name]['size'] or "",
+                     field_size))
         column_type = column_type[1]
-        if column_name == 'operand': print column_type
         self.cursor.execute("ALTER TABLE %s ADD COLUMN \"%s\" %s"%
                        (self.table_name, column_name, column_type))
         if default_fun is not None:
