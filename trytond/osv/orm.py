@@ -441,8 +441,6 @@ class ORM(object):
                         return unpack_result
                     default_fun = unpack_wrapper(default_fun)
 
-                print field.sql_type()
-
                 table.add_raw_column(
                     field_name, field.sql_type(), default_fun, field.size)
 

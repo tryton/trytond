@@ -337,8 +337,6 @@ class table_handler:
                        field_size=None, migrate = True):
         if column_name in self.table:
 
-            #print ">>>",self.table_name, column_name, self.table[column_name]['typname'], self.table[column_name]['size'], column_type, field_size, "\n\n"
-
             if not migrate:
                 return
             base_type = column_type[0].lower()
