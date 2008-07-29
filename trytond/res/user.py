@@ -10,10 +10,10 @@ class User(OSV):
     "User"
     _name = "res.user"
     _description = __doc__
-    name = fields.Char('Name', size=64, required=True, select=1)
-    login = fields.Char('Login', size=64, required=True)
+    name = fields.Char('Name', required=True, select=1)
+    login = fields.Char('Login', required=True)
     password = fields.Sha('Password')
-    signature = fields.Text('Signature', size=64)
+    signature = fields.Text('Signature')
     active = fields.Boolean('Active')
     action = fields.Many2One('ir.action', 'Home Action')
     menu = fields.Many2One('ir.action', 'Menu Action',
@@ -27,7 +27,7 @@ class User(OSV):
     language_direction = fields.Function('get_language_direction', type='char',
             string='Language Direction')
     timezone = fields.Selection('timezones', 'Timezone')
-    email = fields.Char('Email', size=320)
+    email = fields.Char('Email')
     status_bar = fields.Function('get_status_bar', type='char',
             string="Status Bar")
 

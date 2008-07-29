@@ -126,15 +126,15 @@ class Module(OSV):
     "Module"
     _name = "ir.module.module"
     _description = __doc__
-    name = fields.Char("Name", size=128, readonly=True, required=True)
+    name = fields.Char("Name", readonly=True, required=True)
     category = fields.Many2One('ir.module.category', 'Category',
         readonly=True)
-    shortdesc = fields.Char('Short description', size=256, readonly=True)
+    shortdesc = fields.Char('Short description', readonly=True)
     description = fields.Text("Description", readonly=True)
-    author = fields.Char("Author", size=128, readonly=True)
-    website = fields.Char("Website", size=256, readonly=True)
+    author = fields.Char("Author", readonly=True)
+    website = fields.Char("Website", readonly=True)
     version = fields.Function('get_version', string='Version', type='char')
-    url = fields.Char('URL', size=128)
+    url = fields.Char('URL')
     dependencies = fields.One2Many('ir.module.module.dependency',
         'module', 'Dependencies', readonly=True)
     state = fields.Selection([
@@ -433,7 +433,7 @@ class ModuleDependency(OSV):
     "Module dependency"
     _name = "ir.module.module.dependency"
     _description = __doc__
-    name = fields.Char('Name',  size=128)
+    name = fields.Char('Name')
     module = fields.Many2One('ir.module.module', 'Module', select=1,
        ondelete='cascade')
     state = fields.Function('get_state', type='selection',
@@ -468,7 +468,7 @@ class ModuleConfigWizardItem(OSV):
     "Config wizard to run after installing module"
     _name = 'ir.module.module.config_wizard.item'
     _description = __doc__
-    name = fields.Char('Name', size=64, required=True, readonly=True)
+    name = fields.Char('Name', required=True, readonly=True)
     sequence= fields.Integer('Sequence')
     state = fields.Selection([
         ('open', 'Open'),
