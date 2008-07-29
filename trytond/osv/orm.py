@@ -2431,7 +2431,10 @@ class ORM(object):
                     return order_by, tables, clause
 
             if field_name:
-                order_by.append(table_name + '.' + field_name + ' ' + otype)
+                if '%s' in field_name:
+                    order_by.append(field_name % table_name + ' ' + otype)
+                else:
+                    order_by.append(table_name + '.' + field_name + ' ' + otype)
                 return order_by, tables, clause
 
         if field in self._inherit_fields.keys():
