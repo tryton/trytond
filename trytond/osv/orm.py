@@ -2155,11 +2155,11 @@ class ORM(object):
         while test:
             if view_id:
                 where = (model and (" and model='%s'" % (self._name,))) or ''
-                cursor.execute('SELECT arch, name, field_childs, id, type, ' \
+                cursor.execute('SELECT arch, field_childs, id, type, ' \
                             'inherit ' \
                         'FROM ir_ui_view WHERE id = %s ' + where, (view_id,))
             else:
-                cursor.execute('SELECT arch, name, field_childs, id, type, ' \
+                cursor.execute('SELECT arch, field_childs, id, type, ' \
                         'inherit ' \
                         'FROM ir_ui_view ' \
                         'WHERE model = %s AND type = %s AND inherit IS NULL ' \
@@ -2168,14 +2168,14 @@ class ORM(object):
             sql_res = cursor.fetchone()
             if not sql_res:
                 break
-            test = sql_res[5]
-            view_id = test or sql_res[3]
+            test = sql_res[4]
+            view_id = test or sql_res[2]
             model = False
 
         # if a view was found
         if sql_res:
-            result['type'] = sql_res[4]
-            result['view_id'] = sql_res[3]
+            result['type'] = sql_res[3]
+            result['view_id'] = sql_res[2]
             result['arch'] = sql_res[0]
 
             def _inherit_apply_rec(result, inherit_id):
@@ -2189,10 +2189,9 @@ class ORM(object):
                     result = _inherit_apply_rec(result, view_id)
                 return result
 
-            result['arch'] = _inherit_apply_rec(result['arch'], sql_res[3])
+            result['arch'] = _inherit_apply_rec(result['arch'], sql_res[2])
 
-            result['name'] = sql_res[1]
-            result['field_childs'] = sql_res[2] or False
+            result['field_childs'] = sql_res[1] or False
         # otherwise, build some kind of default view
         else:
             if view_type == 'form':
@@ -2225,7 +2224,6 @@ class ORM(object):
                 xml = ''
             result['type'] = view_type
             result['arch'] = xml
-            result['name'] = 'default'
             result['field_childs'] = False
             result['view_id'] = 0
 
