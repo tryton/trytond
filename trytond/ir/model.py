@@ -37,6 +37,8 @@ class ModelField(OSV):
     group_name = fields.Char('Group Name', size=None)
     view_load = fields.Boolean('View Auto-Load')
     help = fields.Text('Help', translate=True)
+    module = fields.Char('Module', size=None,
+       help="Module in which this field is defined")
 
     def default_relate(self, cursor, user, context=None):
         return 0

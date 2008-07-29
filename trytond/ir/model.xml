@@ -83,6 +83,8 @@
                     <field name="field_description" colspan="3"/>
                     <label name="help"/>
                     <field name="help" colspan="3"/>
+                    <label name="module"/>
+                    <field name="module"/>
                 </form>
                 ]]>
             </field>
@@ -98,6 +100,7 @@
                     <field name="ttype" select="2"/>
                     <field name="relation" select="2"/>
                     <field name="field_description" select="2"/>
+                    <field name="module"/>
                 </tree>
                 ]]>
             </field>

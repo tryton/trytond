@@ -9,6 +9,7 @@ import traceback
 import datetime
 from lxml import etree
 import copy
+from trytond.sql_db import table_handler
 
 ID_MAX = 1000
 
@@ -265,13 +266,13 @@ class ORM(object):
         cursor.execute('SELECT f.id AS id, f.name AS name, ' \
                     'f.field_description AS field_description, ' \
                     'f.ttype AS ttype, f.relation AS relation, ' \
-                    'f.group_name AS group_name, f.view_load AS view_load ' \
+                    'f.group_name AS group_name, f.view_load AS view_load, ' \
+                    'f.module as module '\
                 'FROM ir_model_field AS f, ir_model AS m ' \
                 'WHERE f.model = m.id ' \
                     'AND m.model = %s ' \
-                    'AND f.name in ' \
-                        '(' + ','.join(['%s' for x in self._columns]) + ')',
-                        (self._name,) + tuple(self._columns))
+                    'AND f.module = %s ',
+                        (self._name, module_name))
         columns = {}
         for column in cursor.dictfetchall():
             columns[column['name']] = column
@@ -299,12 +300,12 @@ class ORM(object):
             if k not in columns:
                 cursor.execute("INSERT INTO ir_model_field " \
                         "(model, name, field_description, ttype, " \
-                            "relation, group_name, view_load, help) " \
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                            "relation, group_name, view_load, help, module) " \
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                         (model_id, k, field.string, field._type,
                             field._obj or '', field.group_name or '',
                             (field.view_load and 'True') or 'False',
-                            field.help))
+                            field.help, module_name))
             elif columns[k]['field_description'] != field.string \
                     or columns[k]['ttype'] != field._type \
                     or columns[k]['relation'] != (field._obj or '') \
@@ -361,6 +362,13 @@ class ORM(object):
                                 'VALUES (%s, %s, %s, %s, %s, %s)',
                                 (trans_name, 'en_US', 'selection', val, '',
                                     module_name))
+        # Clean ir_model_field from field that are no more existing.
+        for k in columns:
+            if columns[k]['module'] == module_name and k not in self._columns:
+                # XXX This delete field even when it is defined later in the module
+                cursor.execute('DELETE FROM ir_model_field '\
+                                   'WHERE id = %s',
+                               (columns[k]['id'],))
 
     def auto_init(self, cursor, module_name):
         self.init(cursor, module_name)
@@ -383,372 +391,92 @@ class ORM(object):
                         'VALUES (%s, %s, %s, %s, %s, %s)',
                         (self._name, 'en_US', 'error', error, '', module_name))
 
+
+
     def _auto_init(self, cursor, module_name):
         logger = Logger()
-        create = False
-
         self._field_create(cursor, module_name)
-        if self._auto and not self.table_query():
-            cursor.execute("SELECT relname FROM pg_class " \
-                    "WHERE relkind in ('r', 'v') AND relname = %s",
-                    (self._table,))
-            if not cursor.rowcount:
-                cursor.execute("CREATE TABLE \"%s\" " \
-                        "(id SERIAL NOT NULL, " \
-                            "PRIMARY KEY(id))" % self._table)
-                create = True
-            if self._log_access:
-                logs = {
-                    'create_uid': 'INTEGER REFERENCES res_user ' \
-                            'ON DELETE SET NULL',
-                    'create_date': 'TIMESTAMP',
-                    'write_uid': 'INTEGER REFERENCES res_user ' \
-                            'ON DELETE SET NULL',
-                    'write_date': 'TIMESTAMP'
-                }
-                for k in logs:
-                    cursor.execute("SELECT c.relname " \
-                        "FROM pg_class c, pg_attribute a " \
-                        "WHERE c.relname = %s " \
-                            "AND a.attname = %s " \
-                            "AND c.oid = a.attrelid",
-                            (self._table, k))
-                    if not cursor.rowcount:
-                        cursor.execute("ALTER TABLE \"%s\" " \
-                                "ADD COLUMN \"%s\" %s" %
-                            (self._table, k, logs[k]))
+        if not self._auto or self.table_query():
+            # No db table for this object.
+            return
 
-            # iterate on the database columns to drop the NOT NULL constraints
-            # of fields which were required but have been removed
-            cursor.execute(
-                "SELECT a.attname, a.attnotnull "\
-                "FROM pg_class c, pg_attribute a "\
-                "WHERE c.oid=a.attrelid AND c.relname='%s'" % self._table)
-            db_columns = cursor.dictfetchall()
-            for column in db_columns:
-                if column['attname'] not in (
-                        'id',
-                        'oid',
-                        'tableoid',
-                        'ctid',
-                        'xmin',
-                        'xmax',
-                        'cmin',
-                        'cmax',
-                        ):
-                    if column['attnotnull'] \
-                            and (column['attname'] not in self._columns):
-                        cursor.execute("ALTER TABLE \"%s\" " \
-                                "ALTER COLUMN \"%s\" DROP NOT NULL" % \
-                                (self._table, column['attname']))
+        table = table_handler(cursor, self._table, self._name, module_name)
+        if self._log_access:
+            logs = (
+                ('create_date', 'timestamp', 'TIMESTAMP'),
+                ('write_date', 'timestamp', 'TIMESTAMP'),
+                ('create_uid', 'int4',
+                 'INTEGER REFERENCES res_user ON DELETE SET NULL'),
+                ('write_uid', 'int4',
+                 'INTEGER REFERENCES res_user ON DELETE SET NULL'),
+                )
+            for log in logs:
+                table.add_raw_column(log[0], (log[1], log[2]), migrate=False)
+        for field_name, field in self._columns.iteritems():
+            default_fun = None
+            if field_name in (
+                    'id',
+                    'write_uid',
+                    'write_date',
+                    'create_uid',
+                    'create_date',
+                    ):
+                continue
 
-            # iterate on the "object columns"
-            for k in self._columns:
-                if k in (
-                        'id',
-                        'write_uid',
-                        'write_date',
-                        'create_uid',
-                        'create_date',
-                        ):
-                    continue
+            if field._classic_write:
+                if isinstance(field, (fields.Integer, fields.Float)):
+                    default = 0  #XXX why ?
 
-                field = self._columns[k]
-                if isinstance(field, fields.One2Many):
-                    cursor.execute("SELECT relname FROM pg_class " \
-                            "WHERE relkind = 'r' AND relname = %s",
-                            (field._obj,))
-                    if cursor.fetchone():
-                        cursor.execute("SELECT count(*) as c " \
-                                "FROM pg_class c, pg_attribute a " \
-                                "WHERE c.relname = %s " \
-                                    "AND a.attname = %s " \
-                                    "AND c.oid = a.attrelid",
-                                    (field._obj, field._field))
-                        (res,) = cursor.fetchone()
-                        if not res:
-                            cursor.execute("ALTER TABLE \"%s\" " \
-                                    "ADD FOREIGN KEY (%s) " \
-                                    "REFERENCES \"%s\" ON DELETE SET NULL" % \
-                                    (self._obj, field._field, field._table))
-                elif isinstance(field, fields.Many2Many):
-                    cursor.execute("SELECT relname FROM pg_class " \
-                            "WHERE relkind in ('r','v') AND relname=%s",
-                            (field._rel,))
-                    if not cursor.dictfetchall():
-                        # for some fields in ir are linked to res objects
-                        # that are not yet in the pooler
-                        if field._obj in ('res.user', 'res.group'):
-                            ref = field._obj.replace('.','_')
-                        else:
-                            ref = self.pool.get(field._obj)._table
-                        cursor.execute("CREATE TABLE \"%s\" " \
-                                "(\"%s\" INTEGER NOT NULL REFERENCES \"%s\" " \
-                                    "ON DELETE CASCADE, " \
-                                "\"%s\" INTEGER NOT NULL REFERENCES \"%s\" " \
-                                    "ON DELETE CASCADE)" % \
-                                    (field._rel, field._id1, self._table,
-                                        field._id2, ref))
-                        cursor.execute("CREATE INDEX \"%s_%s_index\" " \
-                                "ON \"%s\" (\"%s\")" % \
-                                (field._rel, field._id1, field._rel,
-                                    field._id1))
-                        cursor.execute("CREATE INDEX \"%s_%s_index\" " \
-                                "ON \"%s\" (\"%s\")" % \
-                                (field._rel, field._id2, field._rel,
-                                    field._id2))
-                else:
-                    cursor.execute("SELECT c.relname, a.attname, a.attlen, " \
-                                "a.atttypmod, a.attnotnull, a.atthasdef, " \
-                                "t.typname, " \
-                                    "CASE WHEN a.attlen = -1 " \
-                                    "THEN a.atttypmod-4 " \
-                                    "ELSE a.attlen END as size " \
-                            "FROM pg_class c, pg_attribute a, pg_type t " \
-                            "WHERE c.relname = %s " \
-                                "AND a.attname = %s " \
-                                "AND c.oid = a.attrelid " \
-                                "AND a.atttypid = t.oid",
-                                (self._table, k))
-                    res = cursor.dictfetchall()
-                    if not res:
-                        if not isinstance(field, fields.Function):
-                            # add the missing field
-                            cursor.execute("ALTER TABLE \"%s\" " \
-                                    "ADD COLUMN \"%s\" %s" % \
-                                    (self._table, k, field.sql_type()[1]))
-                            if isinstance(field, (fields.Integer, fields.Float)):
-                                cursor.execute('ALTER TABLE "%s" ' \
-                                        'ALTER COLUMN "%s" SET DEFAULT 0' % \
-                                        (self._table, k))
-                            # initialize it
-                            if not create and k in self._defaults:
-                                default = self._defaults[k](cursor, 1, {})
-                                if not default:
-                                    cursor.execute("UPDATE \"%s\" " \
-                                            "SET \"%s\" = NULL" % \
-                                            (self._table, k))
-                                else:
-                                    if isinstance(field, fields.Many2One) \
-                                        and isinstance(default, (list, tuple)):
-                                        default = default[0]
-                                    cursor.execute("UPDATE \"%s\" " \
-                                            "SET \"%s\" = '%s'" % \
-                                            (self._table, k, default))
-                            # and add constraints if needed
-                            if isinstance(field, fields.Many2One):
-                                # res.user and res.group are not present when ir initialize
-                                if field._obj == 'res.user':
-                                    ref = 'res_user'
-                                elif field._obj == 'res.group':
-                                    ref = 'res_group'
-                                else:
-                                    ref = self.pool.get(field._obj)._table
-                                cursor.execute("ALTER TABLE \"%s\" " \
-                                        "ADD FOREIGN KEY (\"%s\") " \
-                                            "REFERENCES \"%s\" " \
-                                            "ON DELETE %s" % \
-                                        (self._table, k, ref,
-                                            field.ondelete))
-                            if field.select:
-                                cursor.execute("CREATE INDEX \"%s_%s_index\" " \
-                                        "ON \"%s\" (\"%s\")" % \
-                                        (self._table, k, self._table, k))
-                            if field.required:
-                                cursor.execute('SELECT id FROM "%s" ' \
-                                        'WHERE "%s" IS NULL' % \
-                                        (self._table, k))
-                                if not cursor.rowcount:
-                                    cursor.execute("ALTER TABLE \"%s\" " \
-                                            "ALTER COLUMN \"%s\" " \
-                                                "SET NOT NULL" % \
-                                                (self._table, k))
-                                else:
-                                    logger.notify_channel('init',
-                                            LOG_WARNING,
-                                            'Unable to set column %s ' \
-                                                    'of table %s not null !\n'\
-                                            'Try to re-run: ' \
-                                        'trytond.py --update=module\n' \
-                'If it doesn\'t work, update records and execute manually:\n' \
-                'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
-                                        (k, self._table, self._table, k))
-                    elif len(res)==1:
-                        f_pg_def = res[0]
-                        f_pg_type = f_pg_def['typname']
-                        f_pg_size = f_pg_def['size']
-                        f_pg_notnull = f_pg_def['attnotnull']
-                        if isinstance(field, fields.Function):
-                            logger.notify_channel('init', LOG_WARNING,
-                                    'column %s (%s) in table %s was converted '\
-                                            'to a function !\n' \
-                        'You should remove this column from your database.' % \
-                                (k, field.string, self._table))
-                            f_obj_type = None
-                        else:
-                            f_obj_type = field.sql_type() \
-                                    and field.sql_type()[0]
-                        if f_obj_type:
-                            if f_pg_type != f_obj_type:
-                                logger.notify_channel('init',
-                                        LOG_WARNING,
-                                        "column '%s' in table '%s' must " \
-                                        "change type %s -> %s!" % \
-                                        (k, self._table, f_pg_type, f_obj_type,))
-                            if f_pg_type == 'varchar' \
-                                    and field._type == 'char' \
-                                    and (f_pg_size != field.size \
-                                    and not (f_pg_size == -5 and field.size is None)):
-                                # columns with the name 'type' cannot be changed
-                                # for an unknown reason?!
-                                if k != 'type':
-                                    if field.size and f_pg_size > field.size:
-                                        logger.notify_channel('init',
-                                                LOG_WARNING,
-                                                "column '%s' in table '%s' " \
-        "has changed size (DB = %d, def = %d), strings will be truncated !" % \
-                                        (k, self._table, f_pg_size, field.size))
-#TODO: check si y a des donnees qui vont poser probleme (select char_length())
-#TODO: issue a log message even if f_pg_size < field.size
-                                    cursor.execute("ALTER TABLE \"%s\" " \
-                                            "RENAME COLUMN \"%s\" " \
-                                            "TO temp_change_size" % \
-                                            (self._table,k))
-                                    cursor.execute("ALTER TABLE \"%s\" " \
-                                            "ADD COLUMN \"%s\" %s" % \
-                                            (self._table, k, field.sql_type()[1]))
-                                    cursor.execute("UPDATE \"%s\" " \
-                                "SET \"%s\" = temp_change_size::%s" % \
-                                        (self._table, k, field.sql_type()[1]))
-                                    cursor.execute("ALTER TABLE \"%s\" " \
-                                            "DROP COLUMN temp_change_size" % \
-                                            (self._table,))
-                            # if the field is required
-                            # and hasn't got a NOT NULL constraint
-                            if field.required and f_pg_notnull == 0:
-                                # set the field to the default value if any
-                                if self._defaults.has_key(k):
-                                    default = self._defaults[k](cursor,
-                                            1, {})
-                                    if default:
-                                        if isinstance(field, fields.Many2One) \
-                                            and isinstance(default, (list, tuple)):
-                                            default = default[0]
-                                        cursor.execute("UPDATE \"%s\" " \
-                                        "SET \"%s\" = '%s' WHERE %s is NULL" % \
-                                            (self._table, k, default, k))
-                                cursor.execute('SELECT "%s" FROM "%s" ' \
-                                        'WHERE "%s" IS NULL' % \
-                                        (k, self._table, k))
-                                if not cursor.rowcount:
-                                    # add the NOT NULL constraint
-                                    cursor.execute("ALTER TABLE \"%s\" " \
-                                        "ALTER COLUMN \"%s\" SET NOT NULL" % \
-                                        (self._table, k))
-                                else:
-                                    logger.notify_channel('init',
-                                            LOG_WARNING,
-                                            'unable to set ' \
-                    'a NOT NULL constraint on column %s of the %s table !\n' \
-'If you want to have it, you should update the records and execute manually:\n'\
-                            'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
-                                        (k, self._table, self._table, k))
-                            elif not field.required and f_pg_notnull == 1:
-                                cursor.execute("ALTER TABLE \"%s\" " \
-                                        "ALTER COLUMN \"%s\" DROP NOT NULL" % \
-                                        (self._table, k))
-                            cursor.execute("SELECT indexname FROM pg_indexes " \
-                    "WHERE indexname = '%s_%s_index' AND tablename = '%s'" % \
-                                    (self._table, k, self._table))
-                            res = cursor.dictfetchall()
-                            if not res and field.select:
-                                cursor.execute("CREATE INDEX \"%s_%s_index\" " \
-                                        "ON \"%s\" (\"%s\")" % \
-                                        (self._table, k, self._table, k))
-                            if res and not field.select:
-                                cursor.execute("DROP INDEX \"%s_%s_index\"" % \
-                                        (self._table, k))
-                            if isinstance(field, fields.Many2One):
-                                # for some fields in ir are linked to res objects
-                                # that are not yet in the pooler
-                                if field._obj in ('res.user', 'res.group'):
-                                    ref = field._obj.replace('.','_')
-                                else:
-                                    ref = self.pool.get(field._obj)._table
-                                cursor.execute('SELECT confdeltype, conname ' \
-                                        'FROM pg_constraint as con, ' \
-                                            'pg_class as cl1, pg_class as cl2, ' \
-                                        'pg_attribute as att1, pg_attribute as att2 ' \
-                                        'WHERE con.conrelid = cl1.oid ' \
-                                            'AND cl1.relname = %s ' \
-                                            'AND con.confrelid = cl2.oid ' \
-                                            'AND cl2.relname = %s ' \
-                                            'AND array_lower(con.conkey, 1) = 1 ' \
-                                            'AND con.conkey[1] = att1.attnum ' \
-                                            'AND att1.attrelid = cl1.oid ' \
-                                            'AND att1.attname = %s ' \
-                                            'AND array_lower(con.confkey, 1) = 1 ' \
-                                            'AND con.confkey[1] = att2.attnum ' \
-                                            'AND att2.attrelid = cl2.oid ' \
-                                            'AND att2.attname = %s ' \
-                                            'AND con.contype = \'f\'',
-                                        (self._table, ref, k, 'id'))
-                                res = cursor.dictfetchall()
-                                if res:
-                                    confdeltype = {
-                                            'RESTRICT': 'r',
-                                            'NO ACTION': 'a',
-                                            'CASCADE': 'c',
-                                            'SET NULL': 'n',
-                                            'SET DEFAULT': 'd',
-                                    }
-                                    if res[0]['confdeltype'] != \
-                                            confdeltype.get(
-                                                    field.ondelete.upper(),
-                                                    'a'):
-                                        cursor.execute('ALTER TABLE "' + \
-                                                self._table + '" ' \
-                                                'DROP CONSTRAINT "' + \
-                                                res[0]['conname'] + '"')
-                                        cursor.execute('ALTER TABLE "' + \
-                                                self._table + '" ' \
-                                                'ADD FOREIGN KEY ' \
-                                                '("' + k + '") ' \
-                                                'REFERENCES "' + ref + \
-                                                '" ON DELETE ' + field.ondelete)
+                if field_name in self._defaults:
+                    default_fun = self._defaults[field_name]
+
+                    def unpack_wrapper(fun):
+                        def unpack_result(*a):
+                            try: # XXX ugly hack
+                                result = fun(*a)
+                            except:
+                                return None
+                            clean_results = self.__clean_defaults(
+                                {field_name: result})
+                            return clean_results[field_name]
+                        return unpack_result
+                    default_fun = unpack_wrapper(default_fun)
+
+                print field.sql_type()
+
+                table.add_raw_column(
+                    field_name, field.sql_type(), default_fun, field.size)
+
+                if isinstance(field, fields.Many2One):
+                    if field._obj in ('res.user', 'res.group'):
+                        ref = field._obj.replace('.','_')
                     else:
-                        # TODO add error message
-                        logger.notify_channel('init', LOG_ERROR, '')
-        else:
-            cursor.execute("SELECT relname FROM pg_class " \
-                    "WHERE relkind in ('r', 'v') AND relname = %s",
-                    (self._table,))
-            create = not bool(cursor.fetchone())
+                        ref = self.pool.get(field._obj)._table
+                    table.add_fk(field_name, ref, field.ondelete)
 
-        for (key, con, msg) in self._sql_constraints:
-            cursor.execute("SELECT conname FROM pg_constraint " \
-                    "WHERE conname = %s", ((self._table + '_' + key),))
-            if not cursor.dictfetchall():
-                try:
-                    cursor.execute('ALTER TABLE \"%s\" ' \
-                            'ADD CONSTRAINT \"%s_%s\" %s' % \
-                            (self._table, self._table, key, con,))
-                except:
-                    logger.notify_channel('init', LOG_WARNING,
-                            'unable to add \'%s\' constraint on table %s !\n' \
-'If you want to have it, you should update the records and execute manually:\n'\
-                            'ALTER table %s ADD CONSTRAINT %s_%s %s' % \
-                        (con, self._table, self._table, self._table,key, con,))
+                if not isinstance(field, fields.Many2One):
+                    # Postgres does not allow index on fk
+                    table.index_action(
+                        field_name, action=field.select and 'add' or 'remove')
+                table.not_null_action(
+                    field_name, action=field.required and 'add' or 'remove')
 
-        if create:
-            if hasattr(self, "_sql"):
-                for line in self._sql.split(';'):
-                    line2 = line.replace('\n', '').strip()
-                    if line2:
-                        cursor.execute(line2)
+            elif isinstance(field, fields.Many2Many):
+                if field._obj in ('res.user', 'res.group'):
+                    ref = field._obj.replace('.','_')
+                else:
+                    ref = self.pool.get(field._obj)._table
+                table.add_m2m(field_name, ref, field._rel, field._id1, field._id2)
 
-        for k in self._columns:
-            field = self._columns[k]
+            elif not isinstance(field, (fields.One2Many, fields.Function)):
+                raise Exception('Unknow field type !')
+
+
+            if "type has changed":
+                pass #try_to_migrate
+
+
+        for field_name, field in self._columns.iteritems():
             if isinstance(field, fields.Many2One) \
                     and field._obj == self._name \
                     and field.left and field.right:
@@ -758,7 +486,12 @@ class ORM(object):
                         (self._table, field.left, field.right,
                             field.left, field.right))
                 if cursor.rowcount:
-                    self._rebuild_tree(cursor, 0, k, False, 0)
+                    self._rebuild_tree(cursor, 0, field, False, 0)
+
+
+        for ident, constraint, msg in self._sql_constraints:
+            table.add_constraint( ident, constraint)
+
 
     def __init__(self):
         self._rpc_allowed = [
@@ -1732,6 +1465,8 @@ class ORM(object):
                     vals[field].append(('create', vals2))
             elif fld_def._type in ('many2many',):
                 vals[field] = [('set', defaults[field])]
+            elif fld_def._type in ('boolean',):
+                vals[field] = bool(defaults[field])
             else:
                 vals[field] = defaults[field]
         return vals
@@ -2154,11 +1889,11 @@ class ORM(object):
         while test:
             if view_id:
                 where = (model and (" and model='%s'" % (self._name,))) or ''
-                cursor.execute('SELECT arch, name, field_childs, id, type, ' \
+                cursor.execute('SELECT arch, field_childs, id, type, ' \
                             'inherit ' \
                         'FROM ir_ui_view WHERE id = %s ' + where, (view_id,))
             else:
-                cursor.execute('SELECT arch, name, field_childs, id, type, ' \
+                cursor.execute('SELECT arch, field_childs, id, type, ' \
                         'inherit ' \
                         'FROM ir_ui_view ' \
                         'WHERE model = %s AND type = %s AND inherit IS NULL ' \
@@ -2167,14 +1902,14 @@ class ORM(object):
             sql_res = cursor.fetchone()
             if not sql_res:
                 break
-            test = sql_res[5]
+            test = sql_res[4]
             view_id = test or sql_res[3]
             model = False
 
         # if a view was found
         if sql_res:
-            result['type'] = sql_res[4]
-            result['view_id'] = sql_res[3]
+            result['type'] = sql_res[3]
+            result['view_id'] = sql_res[2]
             result['arch'] = sql_res[0]
 
             def _inherit_apply_rec(result, inherit_id):
@@ -2188,9 +1923,7 @@ class ORM(object):
                     result = _inherit_apply_rec(result, view_id)
                 return result
 
-            result['arch'] = _inherit_apply_rec(result['arch'], sql_res[3])
-
-            result['name'] = sql_res[1]
+            result['arch'] = _inherit_apply_rec(result['arch'], sql_res[2])
             result['field_childs'] = sql_res[2] or False
         # otherwise, build some kind of default view
         else:
@@ -2224,7 +1957,6 @@ class ORM(object):
                 xml = ''
             result['type'] = view_type
             result['arch'] = xml
-            result['name'] = 'default'
             result['field_childs'] = False
             result['view_id'] = 0
 
