@@ -9,7 +9,7 @@ class RuleGroup(OSV):
     "Rule group"
     _name = 'ir.rule.group'
     _description = __doc__
-    name = fields.Char('Name', size=128, select=1)
+    name = fields.Char('Name', select=1)
     model = fields.Many2One('ir.model', 'Model', select=1,
             required=True)
     global_p = fields.Boolean('Global', select=1, required=True,
@@ -80,7 +80,7 @@ class Rule(OSV):
        ('in', 'in'),
        ('child_of', 'child_of'),
        ], 'Operator', required=True)
-    operand = fields.Selection('get_operand','Operand', size=64, required=True)
+    operand = fields.Selection('get_operand','Operand', required=True)
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=2,
        required=True, ondelete="cascade")
 
