@@ -343,9 +343,11 @@ class table_handler:
                 return
             base_type = column_type[0].lower()
             if not base_type == self.table[column_name]['typname']:
-                raise Exception(
-                    'Unable to migrate column % s from %s to %s.' % \
-                    (column_name, self.table[column_name]['typname'], base_type))
+                logger = Logger()
+                logger.notify_channel(
+                    'init', LOG_WARNING,
+                    'Unable to migrate column % s on table %s from %s to %s.' % \
+                    (column_name, self.table_name, self.table[column_name]['typname'], base_type))
             if not base_type == 'varchar':
                 return
             if field_size == None:
@@ -358,9 +360,11 @@ class table_handler:
                     self.table[column_name]['size'] < field_size:
                 self.migrate_column(column_name, base_type)
             else:
-                raise Exception(
-                    'Unable to migrate column %s from varchar(%s) to varchar(%s).' % \
-                    (column_name,
+                logger = Logger()
+                logger.notify_channel(
+                    'init', LOG_WARNING,
+                    'Unable to migrate column %s on table %s from varchar(%s)  to varchar(%s).' % \
+                    (column_name, self.table_name,
                      self.table[column_name]['size'] > 0 and \
                          self.table[column_name]['size'] or "",
                      field_size))
