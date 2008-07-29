@@ -425,15 +425,13 @@ class ORM(object):
                 continue
 
             if field._classic_write:
-                if isinstance(field, (fields.Integer, fields.Float)):
-                    default = 0  #XXX why ?
-
                 if field_name in self._defaults:
                     default_fun = self._defaults[field_name]
 
                     def unpack_wrapper(fun):
                         def unpack_result(*a):
-                            try: # XXX ugly hack
+                            try: # XXX ugly hack: some default fct try
+                                 # to access the non-existing table
                                 result = fun(*a)
                             except:
                                 return None
@@ -447,6 +445,12 @@ class ORM(object):
 
                 table.add_raw_column(
                     field_name, field.sql_type(), default_fun, field.size)
+
+                if isinstance(field, (fields.Integer, fields.Float)):
+                    table.db_default(field_name, 0)
+
+                if isinstance(field, fields.Boolean):
+                    table.db_default(field_name, False)
 
                 if isinstance(field, fields.Many2One):
                     if field._obj in ('res.user', 'res.group'):
