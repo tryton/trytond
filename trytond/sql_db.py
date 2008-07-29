@@ -8,6 +8,7 @@ from mx import DateTime as mdt
 import zipfile
 import version
 from config import CONFIG
+from netsvc import Logger, LOG_ERROR, LOG_WARNING
 
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
@@ -224,3 +225,259 @@ def init_db(cursor):
                         (module_id, dependency))
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+
+
+
+def table_exist(cursor, table_name):
+    cursor.execute("SELECT relname FROM pg_class " \
+                       "WHERE relkind = 'r' AND relname = %s",
+                   (table_name,))
+    return bool(cursor.rowcount)
+
+
+class table_handler:
+
+    def __init__(self, cursor, table_name, object_name=None, module_name=None):
+        self.table_name = table_name
+        self.table = {}
+        self.constraint = []
+        self.fk_deltype = {}
+        self.index = {}
+        self.field2module = {}
+        self.module_name = module_name
+        self.cursor = cursor
+
+        # Create new table if necessary
+        if not table_exist(self.cursor, self.table_name):
+            self.cursor.execute("CREATE TABLE %s " \
+                             "(id SERIAL NOT NULL, " \
+                             "PRIMARY KEY(id))"% self.table_name)
+
+        # Fetch columns definitions from the table
+        self.cursor.execute("SELECT at.attname, at.attlen, "\
+                         "at.atttypmod, at.attnotnull, at.atthasdef, "\
+                         "ty.typname, "\
+                         "CASE WHEN at.attlen = -1 "\
+                           "THEN at.atttypmod-4 "\
+                           "ELSE at.attlen END as size "\
+                       "FROM pg_class cl "\
+                         "JOIN pg_attribute at on (cl.oid = at.attrelid) "\
+                         "JOIN pg_type ty on (at.atttypid = ty.oid) "\
+                       "WHERE cl.relname = %s AND at.attnum > 0",
+                       (table_name,))
+        for line in self.cursor.fetchall():
+            column, length, typmod, notnull, hasdef, typname, size = line
+            self.table[column] = {
+                "length": length,
+                "typmod": typmod,
+                "notnull": notnull ,
+                "hasdef": hasdef,
+                "size": size,
+                "typname": typname}
+
+        # fetch constrains for the table
+        self.cursor.execute("SELECT co.contype, co.confdeltype, at.attname, "\
+                         "cl2.relname, co.conname "\
+                       "FROM pg_constraint co "\
+                         "LEFT JOIN pg_class cl on (co.conrelid = cl.oid) "\
+                         "LEFT JOIN pg_class cl2 on (co.confrelid = cl2.oid) "\
+                         "LEFT JOIN pg_attribute at on (co.conkey[1] = at.attnum) "\
+                       "WHERE cl.relname = %s",
+                       (table_name,))
+        for line in self.cursor.fetchall():
+            contype, confdeltype, column, ref, conname = line
+            if contype == 'f':
+                self.fk_deltype[column] = confdeltype
+            else:
+                if conname not in self.constraint:
+                    self.constraint.append(conname)
+
+        # Fetch indexes defined for the table
+        self.cursor.execute("SELECT cl2.relname "\
+                       "FROM pg_index ind "\
+                         "JOIN pg_class cl on (cl.oid = ind.indrelid) "\
+                         "JOIN pg_class cl2 on (cl2.oid = ind.indexrelid) "\
+                       "WHERE cl.relname = %s",
+                       (table_name,))
+        self.index = [l[0] for l in self.cursor.fetchall()]
+
+        # Keep track of which module created each field
+        if object_name is not None:
+            self.cursor.execute('SELECT f.name, f.module '\
+                           'FROM ir_model_field f '\
+                             'JOIN ir_model m on (f.model=m.id) '\
+                           'WHERE m.model = %s',
+                           (object_name,)
+                           )
+            for line in self.cursor.fetchall():
+                self.field2module[line[0]] = line[1]
+
+    def migrate_column(self, column_name, column_type):
+
+        self.cursor.execute("ALTER TABLE \"%s\" " \
+                       "RENAME COLUMN \"%s\" " \
+                       "TO temp_change_size" % \
+                       (self.table_name, column_name))
+        self.cursor.execute("ALTER TABLE \"%s\" " \
+                       "ADD COLUMN \"%s\" %s" % \
+                       (self.table_name, column_name, column_type))
+        self.cursor.execute("UPDATE \"%s\" " \
+                       "SET \"%s\" = temp_change_size::%s" % \
+                       (self.table_name, column_name, column_type))
+        self.cursor.execute("ALTER TABLE \"%s\" " \
+                       "DROP COLUMN temp_change_size" % \
+                       (self.table_name,))
+
+
+    def add_raw_column(self, column_name, column_type, default_fun=None,
+                       field_size=None, migrate = True):
+        if column_name in self.table:
+
+            #print ">>>",self.table_name, column_name, self.table[column_name]['typname'], self.table[column_name]['size'], column_type, field_size, "\n\n"
+
+            if not migrate:
+                return
+            base_type = column_type[0].lower()
+            if not base_type == self.table[column_name]['typname']:
+                raise Exception(
+                    'Unable to migrate column % s from %s to %s.' % \
+                    (column_name, self.table[column_name]['typname'], base_type))
+            if not base_type == 'varchar':
+                return
+            if field_size == None:
+                if self.table[column_name]['size'] > 0:
+                    self.migrate_column(column_name, base_type)
+                return
+            elif self.table[column_name]['size'] == field_size:
+                return
+            elif self.table[column_name]['size'] > 0 and \
+                    self.table[column_name]['size'] < field_size:
+                self.migrate_column(column_name, base_type)
+            else:
+                raise Exception(
+                    'Unable to migrate column %s from varchar(%s) to varchar(%s).' % \
+                    (column_name, self.table[column_name]['size'], field_size))
+        column_type = column_type[1]
+        if column_name == 'operand': print column_type
+        self.cursor.execute("ALTER TABLE %s ADD COLUMN \"%s\" %s"%
+                       (self.table_name, column_name, column_type))
+        if default_fun is not None:
+            default = default_fun(self.cursor, 0, {})
+            if default: # XXX What about a boolean who's default false
+                        # or an default integer of 0 ..  all default
+                        # fun should return None instead of false when
+                        # there is no default to put. (see action.py l.230)
+                self.cursor.execute("UPDATE " + self.table_name + " "\
+                                    "SET \"" + column_name + "\" = %s",
+                                    (default,))
+
+    def add_m2m(self, column_name, other_table, relation_table, rtable_from, rtable_to):
+        if not table_exist(self.cursor, other_table):
+            raise Exception("table %s not found"%other_table)
+        rtable = table_handler(
+            self.cursor, relation_table, object_name=None,
+            module_name= self.module_name)
+        rtable.add_raw_column(rtable_from, ('int4', 'int4'))
+        rtable.add_raw_column(rtable_to, ('int4', 'int4'))
+        rtable.add_fk(rtable_from, self.table_name)
+        rtable.add_fk(rtable_to, other_table)
+        rtable.index_action(rtable_from, 'add')
+        rtable.index_action(rtable_to, 'add')
+
+    def add_fk(self, column_name, reference, on_delete=None):
+        on_delete_code = {
+            'RESTRICT': 'r',
+            'NO ACTION': 'a',
+            'CASCADE': 'c',
+            'SET NULL': 'n',
+            'SET DEFAULT': 'd',
+            }
+        if on_delete is not None :
+            on_delete = on_delete.upper()
+            if on_delete not in on_delete_code:
+                raise Exception('On delete action not supported !')
+        else:
+            on_delete = 'SET NULL'
+        code = on_delete_code[on_delete]
+
+        if self.fk_deltype.get(column_name) == code:
+            # The fk exist and the delete action is ok
+            return
+        self.cursor.execute("ALTER TABLE " + self.table_name + " " \
+                              "ADD FOREIGN KEY (\"" + column_name + "\")  " \
+                              "REFERENCES " + reference + " " \
+                              "ON DELETE " + on_delete)
+
+    def index_action(self, column_name, action='add'):
+        index_name = "%s_%s_index" % (self.table_name, column_name)
+
+        if action == 'add':
+            if index_name in self.index:
+                return
+            self.cursor.execute("CREATE INDEX " + index_name + " " \
+                               "ON " + self.table_name + " (" + column_name + ")")
+        elif action == 'remove':
+            if self.field2module.get(column_name) != self.module_name:
+                return
+
+            self.cursor.execute("SELECT * FROM pg_indexes " \
+                                "WHERE indexname = '%s'" %
+                           (index_name,))
+            if self.cursor.rowcount:
+                self.cursor.execute("DROP INDEX %s " % (index_name,))
+
+
+    def not_null_action(self, column_name, action='add'):
+        if column_name not in self.table:
+            return
+
+        if action == 'add':
+            if self.table[column_name]['notnull']:
+                return
+            self.cursor.execute('SELECT id FROM "%s" ' \
+                               'WHERE "%s" IS NULL' % \
+                               (self.table_name, column_name))
+            if not self.cursor.rowcount:
+                self.cursor.execute("ALTER TABLE " + self.table_name + " " \
+                                   "ALTER COLUMN \"" + column_name +"\" " \
+                                   "SET NOT NULL")
+            else:
+                logger = Logger()
+                logger.notify_channel(
+                    'init',
+                    LOG_WARNING,
+                    'Unable to set column %s ' \
+                        'of table %s not null !\n'\
+                        'Try to re-run: ' \
+                        'trytond.py --update=module\n' \
+                        'If it doesn\'t work, update records and execute manually:\n' \
+                        'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
+                        (column_name, self.table_name, self.table_name, column_name))
+        elif action == 'remove':
+            if not self.table[column_name]['notnull']:
+                return
+            if self.field2module.get(column_name) != self.module_name:
+                return
+            self.cursor.execute("ALTER TABLE %s " \
+                               "ALTER COLUMN %s DROP NOT NULL"%
+                           (self.table_name, column_name))
+
+    def add_constraint(self, ident, constraint):
+        ident = self.table_name + "_" + ident
+        if ident in self.constraint:
+            # This constrain already exist
+            return
+        try:
+            self.cursor.execute('ALTER TABLE \"%s\" ' \
+                           'ADD CONSTRAINT \"%s\" %s' % \
+                           (self.table_name, ident, constraint,))
+        except:
+            raise
+            logger = Logger()
+            logger.notify_channel(
+                'init', LOG_WARNING,
+                'unable to add \'%s\' constraint on table %s !\n' \
+                'If you want to have it, you should update the records and execute manually:\n'\
+                'ALTER table %s ADD CONSTRAINT %s %s' % \
+                (constraint, self.table_name, self.table_name,
+                 ident, constraint,))
