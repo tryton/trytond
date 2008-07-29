@@ -31,8 +31,7 @@ CREATE TABLE ir_model_field (
 -------------------------------------------------------------------------
 CREATE TABLE ir_ui_view (
 	id serial NOT NULL,
-	name varchar(64) DEFAULT ''::varchar NOT NULL,
-	model varchar(64) DEFAULT ''::varchar NOT NULL,
+	model varchar DEFAULT ''::varchar NOT NULL,
 	"type" varchar DEFAULT 'form'::varchar NOT NULL,
 	arch text NOT NULL,
 	field_childs varchar,
