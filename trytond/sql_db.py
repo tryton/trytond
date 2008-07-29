@@ -328,6 +328,10 @@ class table_handler:
                        "DROP COLUMN temp_change_size" % \
                        (self.table_name,))
 
+    def db_default(self, column_name, value):
+        self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
+                           'ALTER COLUMN "' + column_name + '" SET DEFAULT %s',
+                       (value,))
 
     def add_raw_column(self, column_name, column_type, default_fun=None,
                        field_size=None, migrate = True):
@@ -365,13 +369,13 @@ class table_handler:
                        (self.table_name, column_name, column_type))
         if default_fun is not None:
             default = default_fun(self.cursor, 0, {})
-            if default: # XXX What about a boolean who's default false
-                        # or an default integer of 0 ..  all default
-                        # fun should return None instead of false when
-                        # there is no default to put. (see action.py l.230)
+            if (default is not False)  and (default is not False):
                 self.cursor.execute("UPDATE " + self.table_name + " "\
                                     "SET \"" + column_name + "\" = %s",
                                     (default,))
+            else:
+                self.cursor.execute("UPDATE " + self.table_name + " "\
+                                    "SET \"" + column_name + "\" = NULL")
 
     def add_m2m(self, column_name, other_table, relation_table, rtable_from, rtable_to):
         if not table_exist(self.cursor, other_table):
