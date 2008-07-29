@@ -20,7 +20,7 @@ class View(OSV):
        ('graph', 'Graph'),
        ('calendar', 'Calendar'),
        ('board', 'Board'),
-       ], 'View Type', required=True, select=1)
+       ], 'View Type', select=1)
     arch = fields.Text('View Architecture', required=True)
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1)
     field_childs = fields.Char('Childs Field')
