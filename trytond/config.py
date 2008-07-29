@@ -42,11 +42,11 @@ class ConfigManager(object):
         parser = optparse.OptionParser(version=VERSION)
 
         parser.add_option("-c", "--config", dest="config",
-                help="specify alternate config file")
+                help="specify config file")
         parser.add_option('--debug', dest='debug_mode', action='store_true',
                 help='enable debug mode')
         parser.add_option("-v", "--verbose", action="store_true",
-                dest="verbose", help="enable debugging")
+                dest="verbose", help="enable verbose mode")
 
         parser.add_option("--stop-after-init", action="store_true",
                 dest="stop_after_init",
