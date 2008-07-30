@@ -93,13 +93,13 @@ class ConfigManager(object):
                 self.options[arg] = getattr(opt, arg)
 
         init = {}
-        if opt.init:
+        if opt.init and self.options.get('db_name'):
             for i in opt.init.split(','):
                 init[i] = 1
         self.options['init'] = init
 
         update = {}
-        if opt.update:
+        if opt.update and self.options.get('db_name'):
             for i in opt.update.split(','):
                 update[i] = 1
         self.options['update'] = update
