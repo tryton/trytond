@@ -258,8 +258,9 @@ class ORM(object):
             # reference model in order to have a description
             # of its fonctionnality in custom_report
             cursor.execute("INSERT INTO ir_model " \
-                    "(model, name, info) VALUES (%s, %s, %s)",
-                    (self._name, self._description, self.__doc__))
+                    "(model, name, info, module) VALUES (%s, %s, %s, %s)",
+                    (self._name, self._description, self.__doc__,
+                        module_name))
             cursor.execute("SELECT id FROM ir_model WHERE model = %s",
                     (self._name,))
         (model_id,) = cursor.fetchone()
