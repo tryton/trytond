@@ -91,6 +91,7 @@ class TrytonServer(object):
 
         register_classes()
 
+        update_module = False
         if db_name:
             lang = None
             if cursor:
