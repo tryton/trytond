@@ -58,7 +58,7 @@ class DB(Service):
                             '(SELECT id FROM ir_lang WHERE code = %s LIMIT 1) '\
                         'WHERE login <> \'root\'', (lang,))
                 cursor.execute('UPDATE res_user ' \
-                        'SET password = %s' \
+                        'SET password = %s ' \
                         'WHERE login = \'admin\'',
                         (sha.new(admin_password).hexdigest(),))
                 cursor.commit()
