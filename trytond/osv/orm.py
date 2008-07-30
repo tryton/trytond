@@ -2241,15 +2241,15 @@ class ORM(object):
             else:
                 if field.translate:
                     if args[i][1] in ('like', 'ilike'):
-                        args[i] = (args[i][0], args[i][1],
-                                '%%%s%%' % args[i][2])
                         query1 = '(SELECT res_id FROM ir_translation ' \
                                 'WHERE name = %s AND lang = %s ' \
                                     'AND type = %s ' \
-                                    'AND VALUE ' + args[i][1] + ' %s)'
+                                    'AND (value ' + args[i][1] + ' %s ' \
+                                        'OR value ' + args[i][1] + ' %s))'
                         query2 = [table._name + ',' + args[i][0],
                                 context.get('language', False) or 'en_US',
-                                'model', args[i][2]]
+                                'model', '%% %s%%' % args[i][2],
+                                '%s%%' % args[i][2]]
                         query1 += ' UNION '
                         table_query = ''
                         table_args = []
@@ -2258,9 +2258,11 @@ class ORM(object):
                             table_query = '(' + table_query  + ') AS '
                         query1 += '(SELECT id FROM ' + table_query + \
                                 '"' + table._table + '" ' \
-                                'WHERE "' + args[i][0] + '" ' + \
-                                args[i][1] + ' %s)'
-                        query2 += table_args + [args[i][2]]
+                                'WHERE ("' + args[i][0] + '" ' + \
+                                args[i][1] + ' %s OR "' + args[i][0] + '" ' + \
+                                args[i][1] + ' %s))'
+                        query2 += table_args + ['%% %s%%' % args[i][2],
+                                '%s%%' % args[i][2]]
                         args[i] = ('id', 'inselect', (query1, query2), table)
                 else:
                     args[i] += (table,)
@@ -2325,7 +2327,8 @@ class ORM(object):
                     else:
                         add_null = False
                         if arg[1] in ('like', 'ilike'):
-                            qu2.append('%%%s%%' % arg[2])
+                            qu2.append('%% %s%%' % arg[2])
+                            qu2.append('%s%%' % arg[2])
                             if not arg[2]:
                                 add_null = True
                         else:
@@ -2334,15 +2337,21 @@ class ORM(object):
                                         _symbol_set[1](arg[2]))
                         if arg[0] in table._columns:
                             if arg[1] in ('like', 'ilike'):
-                                qu1.append('(%s.%s %s %s)' % (table._table,
-                                    arg[0], arg[1], '%s'))
+                                qu1.append('(%s.%s %s %s or %s.%s %s %s)' % \
+                                        (table._table, arg[0], arg[1], '%s',
+                                            table._table, arg[0], arg[1], '%s'))
                             else:
                                 qu1.append('(%s.%s %s %s)' % (table._table,
                                     arg[0], arg[1],
                                     table._columns[arg[0]]._symbol_set[0]))
                         else:
-                            qu1.append('(%s.%s %s \'%s\')' % \
-                                    (table._table, arg[0], arg[1], arg[2]))
+                            if arg[1] in ('like', 'ilike'):
+                                qu1.append('(%s.%s %s \'%s\' or %s.%s %s \'%s\')' % \
+                                        (table._table, arg[0], arg[1], arg[2],
+                                            table._table, arg[0], arg[1], arg[2]))
+                            else:
+                                qu1.append('(%s.%s %s \'%s\')' % \
+                                        (table._table, arg[0], arg[1], arg[2]))
 
                         if add_null:
                             qu1[-1] = '('+qu1[-1]+' or '+arg[0]+' is null)'
