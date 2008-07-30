@@ -331,8 +331,8 @@ class ORM(object):
                 if k not in ('create_uid', 'create_date',
                             'write_uid', 'write_date', 'id'):
                     cursor.execute('INSERT INTO ir_translation ' \
-                            '(name, lang, type, src, value, module) ' \
-                            'VALUES (%s, %s, %s, %s, %s, %s)',
+                            '(name, lang, type, src, value, module, fuzzy) ' \
+                            'VALUES (%s, %s, %s, %s, %s, %s, false)',
                             (trans_name, 'en_US', 'field',
                                 field.string, '', module_name))
             elif trans_columns[trans_name]['src'] != field.string:
@@ -343,8 +343,8 @@ class ORM(object):
             if trans_name not in trans_help:
                 if field.help:
                     cursor.execute('INSERT INTO ir_translation ' \
-                            '(name, lang, type, src, value, module) ' \
-                            'VALUES (%s, %s, %s, %s, %s, %s)',
+                            '(name, lang, type, src, value, module, fuzzy) ' \
+                            'VALUES (%s, %s, %s, %s, %s, %s, false)',
                             (trans_name, 'en_US', 'help',
                                 field.help, '', module_name))
             elif trans_help[trans_name]['src'] != field.help:
@@ -359,8 +359,8 @@ class ORM(object):
                             or val not in trans_selection[trans_name]:
                         cursor.execute('INSERT INTO ir_translation ' \
                                 '(name, lang, type, src, value, ' \
-                                    'module) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s)',
+                                    'module, fuzzy) ' \
+                                'VALUES (%s, %s, %s, %s, %s, %s, false)',
                                 (trans_name, 'en_US', 'selection', val, '',
                                     module_name))
         # Clean ir_model_field from field that are no more existing.
@@ -388,8 +388,8 @@ class ORM(object):
         for error in self._error_messages.values():
             if error not in trans_error:
                 cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s)',
+                        '(name, lang, type, src, value, module, fuzzy) ' \
+                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
                         (self._name, 'en_US', 'error', error, '', module_name))
 
 

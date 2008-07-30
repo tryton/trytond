@@ -81,6 +81,12 @@ class WorkflowActivity(OSV):
     def default_split_mode(self, cursor, user, context=None):
         return 'XOR'
 
+    def default_flow_start(self, cursor, user, context=None):
+        return False
+
+    def default_flow_stop(self, cursor, user, context=None):
+        return False
+
 WorkflowActivity()
 
 

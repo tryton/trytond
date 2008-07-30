@@ -147,8 +147,8 @@ class Wizard(object):
                     res = cursor.dictfetchall()
                     if not res:
                         cursor.execute('INSERT INTO ir_translation ' \
-                                '(name, lang, type, src, value, module) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s)',
+                                '(name, lang, type, src, value, module, fuzzy) ' \
+                                'VALUES (%s, %s, %s, %s, %s, %s, false)',
                                 (self._name + ',' + state + ',' + button_name,
                                     'en_US', 'wizard_button', button_value,
                                     '', module_name))
@@ -170,8 +170,8 @@ class Wizard(object):
         for error in self._error_messages.values():
             if error not in trans_error:
                 cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s)',
+                        '(name, lang, type, src, value, module, fuzzy) ' \
+                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
                         (self._name, 'en_US', 'error', error, '', module_name))
 
     def raise_user_error(self, cursor, error, error_args=None,

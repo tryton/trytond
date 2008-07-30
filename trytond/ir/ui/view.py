@@ -108,8 +108,8 @@ class View(OSV):
                         break
                 if not done:
                     cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module)' \
-                        'VALUES (%s, %s, %s, %s, %s, %s)',
+                        '(name, lang, type, src, value, module, fuzzy)' \
+                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
                         (view.model, 'en_US', 'view', string, '',
                             view.module))
             if strings:
