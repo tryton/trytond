@@ -249,7 +249,7 @@ class table_handler:
 
         # Create new table if necessary
         if not table_exist(self.cursor, self.table_name):
-            self.cursor.execute("CREATE TABLE %s " \
+            self.cursor.execute('CREATE TABLE "%s" ' \
                              "(id SERIAL NOT NULL, " \
                              "PRIMARY KEY(id))"% self.table_name)
 
@@ -330,8 +330,8 @@ class table_handler:
 
     def db_default(self, column_name, value):
         self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
-                           'ALTER COLUMN "' + column_name + '" SET DEFAULT %s',
-                       (value,))
+                'ALTER COLUMN "' + column_name + '" SET DEFAULT %s',
+                (value,))
 
     def add_raw_column(self, column_name, column_type, default_fun=None,
                        field_size=None, migrate = True):
@@ -345,7 +345,8 @@ class table_handler:
                 logger.notify_channel(
                     'init', LOG_WARNING,
                     'Unable to migrate column % s on table %s from %s to %s.' % \
-                    (column_name, self.table_name, self.table[column_name]['typname'], base_type))
+                    (column_name, self.table_name,
+                        self.table[column_name]['typname'], base_type))
             if not base_type == 'varchar':
                 return
             if field_size == None:
@@ -361,7 +362,8 @@ class table_handler:
                 logger = Logger()
                 logger.notify_channel(
                     'init', LOG_WARNING,
-                    'Unable to migrate column %s on table %s from varchar(%s)  to varchar(%s).' % \
+                    'Unable to migrate column %s on table %s ' \
+                            'from varchar(%s) to varchar(%s).' % \
                     (column_name, self.table_name,
                      self.table[column_name]['size'] > 0 and \
                          self.table[column_name]['size'] or "",
@@ -369,17 +371,17 @@ class table_handler:
             return
 
         column_type = column_type[1]
-        self.cursor.execute("ALTER TABLE %s ADD COLUMN \"%s\" %s"%
+        self.cursor.execute('ALTER TABLE "%s" ADD COLUMN "%s" %s' %
                        (self.table_name, column_name, column_type))
         if default_fun is not None:
             default = default_fun(self.cursor, 0, {})
             if (default is not False)  and (default is not False):
-                self.cursor.execute("UPDATE " + self.table_name + " "\
-                                    "SET \"" + column_name + "\" = %s",
+                self.cursor.execute('UPDATE "' + self.table_name + '" '\
+                                    'SET "' + column_name + '" = %s',
                                     (default,))
             else:
-                self.cursor.execute("UPDATE " + self.table_name + " "\
-                                    "SET \"" + column_name + "\" = NULL")
+                self.cursor.execute('UPDATE "' + self.table_name + '" '\
+                                    'SET "' + column_name + '" = NULL')
 
     def add_m2m(self, column_name, other_table, relation_table, rtable_from, rtable_to):
         if not table_exist(self.cursor, other_table):
@@ -413,10 +415,10 @@ class table_handler:
         if self.fk_deltype.get(column_name) == code:
             # The fk exist and the delete action is ok
             return
-        self.cursor.execute("ALTER TABLE " + self.table_name + " " \
-                              "ADD FOREIGN KEY (\"" + column_name + "\")  " \
-                              "REFERENCES " + reference + " " \
-                              "ON DELETE " + on_delete)
+        self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
+                'ADD FOREIGN KEY ("' + column_name + '") ' \
+                    'REFERENCES "' + reference + '" ' \
+                    'ON DELETE ' + on_delete)
 
     def index_action(self, column_name, action='add'):
         index_name = "%s_%s_index" % (self.table_name, column_name)
@@ -424,8 +426,8 @@ class table_handler:
         if action == 'add':
             if index_name in self.index:
                 return
-            self.cursor.execute("CREATE INDEX " + index_name + " " \
-                               "ON " + self.table_name + " (" + column_name + ")")
+            self.cursor.execute('CREATE INDEX "' + index_name + '" ' \
+                               'ON "' + self.table_name + '" ("' + column_name + '")')
         elif action == 'remove':
             if self.field2module.get(column_name) != self.module_name:
                 return
@@ -434,7 +436,7 @@ class table_handler:
                                 "WHERE indexname = '%s'" %
                            (index_name,))
             if self.cursor.rowcount:
-                self.cursor.execute("DROP INDEX %s " % (index_name,))
+                self.cursor.execute('DROP INDEX "%s" ' % (index_name,))
 
 
     def not_null_action(self, column_name, action='add'):
@@ -448,8 +450,8 @@ class table_handler:
                                'WHERE "%s" IS NULL' % \
                                (self.table_name, column_name))
             if not self.cursor.rowcount:
-                self.cursor.execute("ALTER TABLE " + self.table_name + " " \
-                                   "ALTER COLUMN \"" + column_name +"\" " \
+                self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
+                                   'ALTER COLUMN "' + column_name + '" ' \
                                    "SET NOT NULL")
             else:
                 logger = Logger()
@@ -461,15 +463,15 @@ class table_handler:
                         'Try to re-run: ' \
                         'trytond.py --update=module\n' \
                         'If it doesn\'t work, update records and execute manually:\n' \
-                        'ALTER TABLE %s ALTER COLUMN %s SET NOT NULL' % \
+                        'ALTER TABLE "%s" ALTER COLUMN "%s" SET NOT NULL' % \
                         (column_name, self.table_name, self.table_name, column_name))
         elif action == 'remove':
             if not self.table[column_name]['notnull']:
                 return
             if self.field2module.get(column_name) != self.module_name:
                 return
-            self.cursor.execute("ALTER TABLE %s " \
-                               "ALTER COLUMN %s DROP NOT NULL"%
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                               'ALTER COLUMN "%s" DROP NOT NULL' %
                            (self.table_name, column_name))
 
     def add_constraint(self, ident, constraint):
@@ -478,8 +480,8 @@ class table_handler:
             # This constrain already exist
             return
         try:
-            self.cursor.execute('ALTER TABLE \"%s\" ' \
-                           'ADD CONSTRAINT \"%s\" %s' % \
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                           'ADD CONSTRAINT "%s" %s' % \
                            (self.table_name, ident, constraint,))
         except:
             raise
@@ -487,7 +489,8 @@ class table_handler:
             logger.notify_channel(
                 'init', LOG_WARNING,
                 'unable to add \'%s\' constraint on table %s !\n' \
-                'If you want to have it, you should update the records and execute manually:\n'\
-                'ALTER table %s ADD CONSTRAINT %s %s' % \
+                'If you want to have it, you should update the records ' \
+                'and execute manually:\n'\
+                'ALTER table "%s" ADD CONSTRAINT "%s" %s' % \
                 (constraint, self.table_name, self.table_name,
                  ident, constraint,))
