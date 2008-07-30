@@ -6,8 +6,9 @@ def create(cursor, ident, wkf_id):
     cursor.execute("SELECT NEXTVAL('wkf_instance_id_seq')")
     (id_new,) = cursor.fetchone()
     cursor.execute('INSERT INTO wkf_instance ' \
-            '(id, res_type, res_id, uid, workflow) VALUES (%s,%s,%s,%s,%s)',
-            (id_new, res_type, res_id, user, wkf_id))
+            '(id, res_type, res_id, uid, workflow, state) ' \
+                'VALUES (%s, %s, %s, %s, %s, %s)',
+            (id_new, res_type, res_id, user, wkf_id, 'active'))
     cursor.execute('SELECT * FROM wkf_activity ' \
             'WHERE flow_start = True and workflow = %s', (wkf_id,))
     res = cursor.dictfetchall()
