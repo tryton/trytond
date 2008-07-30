@@ -9,14 +9,20 @@ class Model(OSV):
     "Model"
     _name = 'ir.model'
     _description = __doc__
-    name = fields.Char('Model name', size=None, translate=True)
-    model = fields.Char('Object name', size=None, required=True)
+    name = fields.Char('Model name', translate=True)
+    model = fields.Char('Object name', required=True)
     info = fields.Text('Information')
+    module = fields.Char('Module',
+       help="Module in which this model is defined")
     fields = fields.One2Many('ir.model.field', 'model', 'Fields',
        required=True)
 
-    def default_name(self, cursor, user, context=None):
-        return 'No Name'
+    def __init__(self):
+        super(Model, self).__init__()
+        self._sql_constraints += [
+            ('name_uniq', 'UNIQUE(name)',
+                'The name of model must be unique!'),
+        ]
 
 Model()
 
@@ -24,19 +30,19 @@ class ModelField(OSV):
     "Model field"
     _name = 'ir.model.field'
     _description = __doc__
-    name = fields.Char('Name', size=None, required=True)
-    relation = fields.Char('Model Relation', size=None)
+    name = fields.Char('Name', required=True)
+    relation = fields.Char('Model Relation')
     model = fields.Many2One('ir.model', 'Model', required=True,
        select=True, ondelete='cascade')
-    field_description = fields.Char('Field Description', size=None,
+    field_description = fields.Char('Field Description',
        translate=True)
-    ttype = fields.Char('Field Type', size=None)
+    ttype = fields.Char('Field Type')
     groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
        'field_id', 'group_id', 'Groups')
-    group_name = fields.Char('Group Name', size=None)
+    group_name = fields.Char('Group Name')
     view_load = fields.Boolean('View Auto-Load')
     help = fields.Text('Help', translate=True)
-    module = fields.Char('Module', size=None,
+    module = fields.Char('Module',
        help="Module in which this field is defined")
 
     def __init__(self):
@@ -160,9 +166,9 @@ class ModelData(OSV):
     _name = 'ir.model.data'
     _description = __doc__
     fs_id = fields.Char('Identifier on File System', required=True,
-       size=None, help="The id of the record as known on the file system.")
-    model = fields.Char('Model', required=True, size=None)
-    module = fields.Char('Module', required=True, size=None)
+            help="The id of the record as known on the file system.")
+    model = fields.Char('Model', required=True)
+    module = fields.Char('Module', required=True)
     db_id = fields.Integer('Resource ID',
        help="The id of the record in the database.")
     date_update = fields.DateTime('Update Date')

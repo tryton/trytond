@@ -7,14 +7,16 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Model Description">
+                <form string="Model Description" col="6">
                     <label name="name"/>
                     <field name="name"/>
                     <label name="model"/>
                     <field name="model"/>
-                    <separator name="info" colspan="4"/>
-                    <field name="info" colspan="4"/>
-                    <field name="fields" colspan="4" readonly="1">
+                    <label name="module"/>
+                    <field name="module"/>
+                    <separator name="info" colspan="6"/>
+                    <field name="info" colspan="6"/>
+                    <field name="fields" colspan="6" readonly="1">
                         <form string="Fields Description">
                             <label name="name"/>
                             <field name="name"/>
@@ -42,6 +44,7 @@
                     <field name="name" select="1"/>
                     <field name="model" select="1"/>
                     <field name="info" select="1"/>
+                    <field name="module" select="1"/>
                 </tree>
                 ]]>
             </field>

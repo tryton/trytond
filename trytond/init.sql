@@ -7,6 +7,7 @@ CREATE TABLE ir_model (
   model varchar NOT NULL,
   name varchar,
   info text,
+  module varchar,
   primary key(id)
 );
 
