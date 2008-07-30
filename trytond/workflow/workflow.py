@@ -123,9 +123,8 @@ class WorkflowInstance(OSV):
     workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict")
     uid = fields.Integer('User ID')
     res_id = fields.Integer('Resource ID', required=True)
-    res_id = fields.Integer('Resource ID')
-    res_type = fields.Char('Resource Model')
-    state = fields.Char('State')
+    res_type = fields.Char('Resource Model', required=True)
+    state = fields.Char('State', required=True)
 
     def _auto_init(self, cursor, module_name):
         super(WorkflowInstance, self)._auto_init(cursor, module_name)
