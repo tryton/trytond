@@ -16,6 +16,8 @@ import wkf_service
 from module import register_classes
 import osv, security, tools, version
 import mx.DateTime
+from getpass import getpass
+import sha
 
 
 class TrytonServer(object):
@@ -56,6 +58,7 @@ class TrytonServer(object):
             self.logger.notify_channel("init", netsvc.LOG_INFO,
                     "could not connect to database '%s'!" % db_name,)
 
+        init = False
         if cursor and CONFIG['init']:
             cursor.execute("SELECT relname " \
                     "FROM pg_class " \
@@ -83,6 +86,7 @@ class TrytonServer(object):
             if len(cursor.fetchall()) == 0:
                 self.logger.notify_channel("init", netsvc.LOG_INFO, "init db")
                 sql_db.init_db(cursor)
+                init = True
             cursor.commit()
 
         register_classes()
@@ -94,11 +98,34 @@ class TrytonServer(object):
                         'WHERE translatable = True')
                 lang = [x[0] for x in cursor.fetchall()]
                 cursor.close()
-            pooler.get_db_and_pool(db_name,
-                    update_module=bool(CONFIG['init'] or CONFIG['update']),
+            update_module = bool(CONFIG['init'] or CONFIG['update'])
+            pooler.get_db_and_pool(db_name, update_module=update_module,
                     lang=lang)
 
-        if CONFIG["stop_after_init"]:
+        if init and db_name:
+            while True:
+                password = getpass('Admin Password:')
+                password2 = getpass('Admin Password Confirmation:')
+                if password != password2:
+                    sys.stderr.write('Admin Password Confirmation doesn\'t match ' \
+                            'Admin Password!\n')
+                    continue
+                if not password:
+                    sys.stderr.write('Admin Password is required!\n')
+                    continue
+                break
+
+            cursor = pooler.get_db_only(db_name).cursor()
+            cursor.execute('UPDATE res_user ' \
+                    'SET password = %s ' \
+                    'WHERE login = \'admin\'',
+                    (sha.new(password).hexdigest(),))
+            cursor.commit()
+            cursor.close()
+
+        if update_module:
+            self.logger.notify_channel('init', netsvc.LOG_INFO,
+                    'Update/Init succeed!')
             sys.exit(0)
 
         # Launch Server
