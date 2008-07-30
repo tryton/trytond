@@ -31,7 +31,6 @@ class ModelField(OSV):
     field_description = fields.Char('Field Description', size=None,
        translate=True)
     ttype = fields.Char('Field Type', size=None)
-    relate = fields.Boolean('Click and Relate')
     groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
        'field_id', 'group_id', 'Groups')
     group_name = fields.Char('Group Name', size=None)
@@ -40,11 +39,8 @@ class ModelField(OSV):
     module = fields.Char('Module', size=None,
        help="Module in which this field is defined")
 
-    def default_relate(self, cursor, user, context=None):
-        return 0
-
     def default_view_load(self, cursor, user, context=None):
-        return 0
+        return False
 
     def default_name(self, cursor, user, context=None):
         return 'No Name'
@@ -82,6 +78,18 @@ class ModelAccess(OSV):
             'create': 'You can not create this kind of document! (%s)',
             'delete': 'You can not delete this document! (%s)',
             })
+
+    def default_perm_read(self, cursor, user, context=None):
+        return False
+
+    def default_perm_write(self, cursor, user, context=None):
+        return False
+
+    def default_perm_create(self, cursor, user, context=None):
+        return False
+
+    def default_perm_delete(self, cursor, user, context=None):
+        return False
 
     def check(self, cursor, user, model_name, mode='read',
             raise_exception=True, context=None):

@@ -74,7 +74,7 @@ class Translation(OSV, Cacheable):
                     '\'ir_translation_res_id\'')
 
     def default_fuzzy(self, cursor, user, context=None):
-        return 0
+        return False
 
     def get_model(self, cursor, user, ids, name, arg, context=None):
         res = {}

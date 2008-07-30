@@ -19,7 +19,6 @@ CREATE TABLE ir_model_field (
   ttype varchar,
   group_name varchar,
   view_load boolean,
-  relate boolean,
   help text,
   module varchar,
   primary key(id)
@@ -35,7 +34,7 @@ CREATE TABLE ir_ui_view (
 	"type" varchar,
 	arch text NOT NULL,
 	field_childs varchar,
-	priority integer NOT NULL,
+	priority integer NOT NULL default 0,
 	primary key(id)
 );
 
@@ -58,7 +57,7 @@ CREATE TABLE ir_translation (
     lang varchar,
     src text,
     name varchar NOT NULL,
-    res_id integer,
+    res_id integer not null default 0,
     value text,
     "type" varchar,
     module varchar,
