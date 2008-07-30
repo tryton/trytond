@@ -34,7 +34,6 @@ class ConfigManager(object):
             'smtp_server': 'localhost',
             'smtp_user': False,
             'smtp_password': False,
-            'stop_after_init': False,
             'data_path': '/var/lib/trytond',
             'max_thread': 40,
         }
@@ -47,10 +46,6 @@ class ConfigManager(object):
                 help='enable debug mode')
         parser.add_option("-v", "--verbose", action="store_true",
                 dest="verbose", help="enable verbose mode")
-
-        parser.add_option("--stop-after-init", action="store_true",
-                dest="stop_after_init",
-                help="stop the server after it initializes")
 
         parser.add_option("-d", "--database", dest="db_name",
                 help="specify the database name")
@@ -91,7 +86,6 @@ class ConfigManager(object):
                 'db_name',
                 'verbose',
                 'debug_mode',
-                'stop_after_init',
                 'pidfile',
                 'logfile',
                 ):
