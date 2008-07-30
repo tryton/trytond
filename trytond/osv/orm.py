@@ -271,9 +271,8 @@ class ORM(object):
                     'f.module as module '\
                 'FROM ir_model_field AS f, ir_model AS m ' \
                 'WHERE f.model = m.id ' \
-                    'AND m.model = %s ' \
-                    'AND f.module = %s ',
-                        (self._name, module_name))
+                    'AND m.model = %s ',
+                        (self._name,))
         columns = {}
         for column in cursor.dictfetchall():
             columns[column['name']] = column

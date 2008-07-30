@@ -39,6 +39,13 @@ class ModelField(OSV):
     module = fields.Char('Module', size=None,
        help="Module in which this field is defined")
 
+    def __init__(self):
+        super(ModelField, self).__init__()
+        self._sql_constraints += [
+            ('name_model_uniq', 'UNIQUE(name, model)',
+                'The field name in model must be unique!'),
+        ]
+
     def default_view_load(self, cursor, user, context=None):
         return False
 
