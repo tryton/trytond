@@ -64,14 +64,18 @@ class Translation(OSV, Cacheable):
         super(Translation, self)._auto_init(cursor, module_name)
         cursor.execute('SELECT indexname FROM pg_indexes ' \
                 'WHERE indexname = ' \
-                    '\'ir_translation_ltn\'')
+                    '\'ir_translation_lang_type_name_index\'')
         if not cursor.rowcount:
             cursor.execute('CREATE INDEX ' \
-                    'ir_translation_ltn ' \
+                    'ir_translation_lang_type_name_index ' \
                     'ON ir_translation (lang, type, name)')
         cursor.execute('SELECT indexname FROM pg_indexes ' \
                 'WHERE indexname = ' \
-                    '\'ir_translation_res_id\'')
+                    '\'ir_translation_lang_type_name_src_index\'')
+        if not cursor.rowcount:
+            cursor.execute('CREATE INDEX ' \
+                    'ir_translation_lang_type_name_src_index ' \
+                    'ON ir_translation (lang, type, name, src)')
 
     def default_fuzzy(self, cursor, user, context=None):
         return False
