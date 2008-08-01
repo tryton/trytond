@@ -15,8 +15,8 @@ class Workflow(OSV):
     _log_access = False
     _description = __doc__
     name = fields.Char('Name', required=True)
-    osv = fields.Char('Resource Model', required=True)
-    on_create = fields.Boolean('On Create')
+    osv = fields.Char('Resource Model', required=True, select=1)
+    on_create = fields.Boolean('On Create', select=2)
     activities = fields.One2Many('workflow.activity', 'workflow',
        'Activities')
 
@@ -120,11 +120,12 @@ class WorkflowInstance(OSV):
     _rec_name = 'res_type'
     _log_access = False
     _description = __doc__
-    workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict")
+    workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict",
+            select=1)
     uid = fields.Integer('User ID')
-    res_id = fields.Integer('Resource ID', required=True)
-    res_type = fields.Char('Resource Model', required=True)
-    state = fields.Char('State', required=True)
+    res_id = fields.Integer('Resource ID', required=True, select=1)
+    res_type = fields.Char('Resource Model', required=True, select=1)
+    state = fields.Char('State', required=True, select=1)
 
     def _auto_init(self, cursor, module_name):
         super(WorkflowInstance, self)._auto_init(cursor, module_name)
@@ -135,6 +136,13 @@ class WorkflowInstance(OSV):
             cursor.execute('CREATE INDEX ' \
                         'wkf_instance_res_id_res_type_state_index ' \
                     'ON wkf_instance (res_id, res_type, state)')
+        cursor.execute('SELECT indexname FROM pg_indexes ' \
+                'WHERE indexname = ' \
+                    '\'wkf_instance_res_id_workflow_index\'')
+        if not cursor.fetchone():
+            cursor.execute('CREATE INDEX ' \
+                        'wkf_instance_res_id_workflow_index ' \
+                    'ON wkf_instance (res_id, workflow)')
 
 WorkflowInstance()
 
@@ -147,12 +155,12 @@ class WorkflowWorkitem(OSV):
     _rec_name = 'state'
     _description = __doc__
     activity = fields.Many2One('workflow.activity', 'Activity',
-       required=True, ondelete="cascade")
+       required=True, ondelete="cascade", select=1)
     subflow = fields.Many2One('workflow.instance', 'Subflow',
-       ondelete="cascade")
+       ondelete="cascade", select=1)
     instance = fields.Many2One('workflow.instance', 'Instance',
        required=True, ondelete="cascade", select=1)
-    state = fields.Char('State')
+    state = fields.Char('State', select=1)
 
 WorkflowWorkitem()
 
@@ -163,8 +171,8 @@ class WorkflowTrigger(OSV):
     _name = "workflow.trigger"
     _log_access = False
     _description = __doc__
-    res_id = fields.Integer('Resource ID', size=128)
-    model = fields.Char('Model', size=128)
+    res_id = fields.Integer('Resource ID')
+    model = fields.Char('Model')
     instance = fields.Many2One('workflow.instance',
        'Destination Instance', ondelete="cascade")
     workitem = fields.Many2One('workflow.workitem', 'Workitem',
