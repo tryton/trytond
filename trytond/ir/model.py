@@ -20,8 +20,8 @@ class Model(OSV):
     def __init__(self):
         super(Model, self).__init__()
         self._sql_constraints += [
-            ('name_uniq', 'UNIQUE(name)',
-                'The name of model must be unique!'),
+            ('model_uniq', 'UNIQUE(model)',
+                'The model must be unique!'),
         ]
 
 Model()
