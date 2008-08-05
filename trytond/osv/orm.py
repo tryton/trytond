@@ -519,10 +519,7 @@ class ORM(object):
         self._constraints = []
         self._inherit_fields = []
         self._order = [('id', 'ASC')]
-        self._error_messages = {
-            'delete_xml_record': 'You are not allowed to delete this record.',
-            'xml_record_desc': "This record is part of the base configuration.",
-            'write_xml_record': 'You are not allowed to modify this record.'}
+        self._error_messages = {}
         # reinit the cache on _columns and _defaults
         self.__columns = None
         self.__defaults = None
