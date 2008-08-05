@@ -28,13 +28,16 @@ class Collection(OSV):
                 'The collection name must be unique inside a collection!'),
         ]
         self._constraints += [
-            ('check_recursion',
-                'Error! You can not create recursive collections.', ['parent']),
-            ('check_attachment',
-                'Error! You can not create a collection \n' \
-                        'with the same name of an existing file \n' \
-                        'inside the same collection.', ['name']),
+            ('check_recursion', 'recursive_collections'),
+            ('check_attachment', 'collection_file_name'),
         ]
+        self._error_messages.update({
+            'recursive_collections': 'You can not create recursive ' \
+                    'collections!',
+            'collection_file_name': 'You can not create a collection\n' \
+                    'with the same name of an existing file\n'
+                    'inside the same collection!',
+        })
         self.ext2mime = {
             '.png': 'image/png',
             '.odt': 'application/vnd.oasis.opendocument.text',
@@ -374,11 +377,13 @@ class Attachment(OSV):
     def __init__(self):
         super(Attachment, self).__init__()
         self._constraints += [
-            ('check_collection',
-                'Error! You can not create a attachment \n' \
-                        'on a collection that have the same name \n' \
-                        'than a child collection.', ['name']),
+            ('check_collection', 'collection_attachment_name'),
         ]
+        self._error_messages.update({
+            'collection_attachment_name': 'You can not create a attachment\n' \
+                    'on a collection that have the same name\n' \
+                    'than a child collection!',
+        })
 
     def check_collection(self, cursor, user, ids):
         collection_obj = self.pool.get('webdav.collection')
