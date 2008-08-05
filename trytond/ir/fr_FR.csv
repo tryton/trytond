@@ -1,4 +1,17 @@
 type,name,res_id,src,value,fuzzy
+error,ir.model.access,0,You can not create this kind of document! (%s),Vous ne pouvez pas créer ce document ! (%s),0
+error,ir.model.access,0,You can not delete this document! (%s),Vous ne pouvez pas supprimer ce document ! (%s),0
+error,ir.model.access,0,You can not read this document! (%s),Vous ne pouvez pas lire ce document ! (%s),0
+error,ir.model.access,0,You can not write in this document! (%s),Vous ne pouvez pas écrire dans ce document ! (%s),0
+error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Manque des dépendences %s pour le module ""%s""",0
+error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,"Les modules que vous essayez de déinstaller, dépendent de modules installés :",0
+error,ir.module.module,0,You can not remove a module that is installed or will be installed,Vous ne pouvez pas supprimer un module qui est installé ou qui le sera,0
+error,ir.sequence,0,Invalid prefix/suffix!,Prefix/suffix non-valide !,0
+error,ir.sequence,0,Missing sequence!,Séquence manquante !,0
+error,ir.ui.view,0,Invalid XML for View Architecture!,XML non-valide pour l'architecture de vue !,0
+error,None,0,This record is part of the base configuration.,Cet enregistrement fait partie de la configuration de base.,0
+error,None,0,You are not allowed to delete this record.,Vous n'êtes pas autorisé à supprimer cet enregistrement.,0
+error,None,0,You are not allowed to modify this record.,Vous n'êtes pas autorisé à modifier cet enregistrement.,0
 field,"ir.action.act_window,action",0,Action,Action,0
 field,"ir.action.act_window,act_window_views",0,Views,Vues,0
 field,"ir.action.act_window,auto_refresh",0,Auto-Refresh,Auto-rafraîchissement,0
@@ -6,6 +19,7 @@ field,"ir.action.act_window,context",0,Context Value,Valeur contextuelle,0
 field,"ir.action.act_window,domain",0,Domain Value,Valeur du domain,0
 field,"ir.action.act_window,limit",0,Limit,Limite,0
 field,"ir.action.act_window,res_model",0,Model,Modèle,0
+field,"ir.action.act_window,search_value",0,Search Criteria,Critères de Recherche,0
 field,"ir.action.act_window,src_model",0,Source model,Modèle source,0
 field,"ir.action.act_window,usage",0,Action Usage,Utilisation,0
 field,"ir.action.act_window.view,act_window",0,Action,Action,0
@@ -80,6 +94,7 @@ field,"ir.model.access,description",0,Description,Description,0
 field,"ir.model.access,group",0,Group,Groupe,0
 field,"ir.model.access,model",0,Model,Modèle,0
 field,"ir.model.access,perm_create",0,Create Access,Accès à la creation,0
+field,"ir.model.access,perm_delete",0,Delete Permission,Permission de Suppression,0
 field,"ir.model.access,perm_read",0,Read Access,Accès à la lecture,0
 field,"ir.model.access,perm_unlink",0,Delete Permission,Permission de suppression,0
 field,"ir.model.access,perm_write",0,Write Access,Accès en écriture,0
@@ -95,6 +110,7 @@ field,"ir.model.field,group_name",0,Group Name,Nom du groupe,0
 field,"ir.model.field,groups",0,Groups,Groupes,0
 field,"ir.model.field,help",0,Help,Aide,0
 field,"ir.model.field,model",0,Model,Modèle,0
+field,"ir.model.field,module",0,Module,Module,0
 field,"ir.model.field,name",0,Name,Nom,0
 field,"ir.model.field,relate",0,Click and Relate,Clicker et relier,0
 field,"ir.model.field,relation",0,Model Relation,Relation du modèle,0
@@ -103,6 +119,7 @@ field,"ir.model.field,ttype",0,Field Type,Champ du type,0
 field,"ir.model.field,view_load",0,View Auto-Load,Vue auto-chargée,0
 field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Object name,Nom de l'objet,0
+field,"ir.model,module",0,Module,Module,0
 field,"ir.model,name",0,Model name,Nom du modèle,0
 field,"ir.module.category,childs",0,Parent Category,Catégorie parente,0
 field,"ir.module.category,name",0,Name,Nom,0
@@ -185,6 +202,7 @@ field,"ir.ui.view_tree_width,width",0,Width,Largeur,0
 field,"ir.ui.view,type",0,View Type,Type de vue,0
 help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Ajoute un auto-rafraîchissement sur la vue,0
 help,"ir.action.act_window,limit",0,Default limit for the list view,Limit par défault pour la vue liste,0
+help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Critères de recherche par défaut pour la vue liste,0
 help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
 on the right toolbar of a form views.","Si positionné sur vrai, l'action ne sera pas affichée
 sur la bar de droite des vues formulaires",0
@@ -200,6 +218,8 @@ help,"ir.cron,priority",0,"0=Very Urgent
 help,"ir.lang,code",0,RFC 4646 tag: http://tools.ietf.org/html/rfc4646,,0
 help,"ir.model.data,db_id",0,The id of the record in the database.,L'id de l'enregistrement dans la base de données,0
 help,"ir.model.data,fs_id",0,The id of the record as known on the file system.,L'id de l'enregistrement comme connue sur le système de fichier,0
+help,"ir.model.field,module",0,Module in which this field is defined,Le module dans lequel ce champ est défini,0
+help,"ir.model,module",0,Module in which this model is defined,Le module dans lequel ce modèle est défini,0
 help,"ir.rule.group,default_p",0,Add this rule to all users by default,Ajout cette règle à tout les utilisateurs par defaut,0
 help,"ir.rule.group,global_p",0,"Make the rule global 
 so every users must follow this rule",Rend la règle globale,0
@@ -280,10 +300,11 @@ selection,"ir.rule,operator",0,=,,0
 selection,"ir.rule,operator",0,>=,,0
 selection,"ir.rule,operator",0,child_of,,0
 selection,"ir.rule,operator",0,in,,0
+selection,"ir.translation,type",0,Error,Erreur,0
 selection,"ir.translation,type",0,Field,Champ,0
 selection,"ir.translation,type",0,Help,Aide,0
 selection,"ir.translation,type",0,Model,Modèle,0
-selection,"ir.translation,type",0,ODT,False,0
+selection,"ir.translation,type",0,ODT,ODT,0
 selection,"ir.translation,type",0,Selection,Sélection,0
 selection,"ir.translation,type",0,View,Vue,0
 selection,"ir.translation,type",0,Wizard Button,Button de wizard,0
