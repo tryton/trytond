@@ -1,4 +1,9 @@
 type,name,res_id,src,value,fuzzy
+error,res.user,0,"You can not remove the root user
+as it is used internally for resources
+created by the system (updates, module installation, ...)","Vous ne pouvez pas supprimer l'utilisateur racine
+puisqu'il est utilisé en interne pour créer
+des ressources par le système (mise-à-jour, installation de module, ...)",0
 field,"res.group,menu_access",0,Access Menu,Accès au Menu,0
 field,"res.group,model_access",0,Access Model,Accès au Modèle,0
 field,"res.group,name",0,Name,Nom,0
@@ -41,7 +46,7 @@ field,"res.user,status_bar",0,Status Bar,Bar d'État,0
 field,"res.user,timezone",0,Timezone,Fuseau Horaire,0
 model,"ir.ui.menu,name",menu_group_form,Groups,Groupes,0
 model,"ir.ui.menu,name",menu_request_form,Requests,Demandes,0
-model,"ir.ui.menu,name",menu_res,Res,,0
+model,"ir.ui.menu,name",menu_res,Res,Res,0
 model,"ir.ui.menu,name",menu_user_form,Users,Utilisateurs,0
 selection,"res.request,priority",0,High,Élevé,0
 selection,"res.request,priority",0,Low,Faible,0
