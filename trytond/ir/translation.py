@@ -557,8 +557,8 @@ class ReportTranslationUpdate(Wizard):
                         break
                 if not done:
                     cursor.execute('INSERT INTO ir_translation ' \
-                            '(name, lang, type, src, value, module)' \
-                            'VALUES (%s, %s, %s, %s, %s, %s)',
+                            '(name, lang, type, src, value, module, fuzzy)' \
+                            'VALUES (%s, %s, %s, %s, %s, %s, False)',
                             (report.report_name, 'en_US', 'odt', string, '',
                                 report.module))
             if strings:
