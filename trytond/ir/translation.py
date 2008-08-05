@@ -435,7 +435,9 @@ class Translation(OSV, Cacheable):
                 elif field == 'fuzzy':
                     row.append(int(translation[field]))
                 else:
-                    row.append(translation[field] or '')
+                    value = translation[field] or ''
+                    value = value.encode('utf-8')
+                    row.append(value)
             writer.writerow(row)
 
         file_data = buf.getvalue()
