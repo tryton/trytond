@@ -484,7 +484,7 @@ class ReportTranslationUpdate(Wizard):
 
         if node.nodeType in (node.CDATA_SECTION_NODE, node.TEXT_NODE):
             if node.parentNode \
-                    and node.parentNode.tagName == 'text:text-input':
+                    and node.parentNode.tagName == 'text:placeholder':
                 return strings
 
             if node.nodeValue:
