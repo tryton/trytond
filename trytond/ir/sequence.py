@@ -30,11 +30,11 @@ class Sequence(OSV):
     def __init__(self):
         super(Sequence, self).__init__()
         self._constraints += [
-            ('check_prefix_suffix', 'Invalid prefix/suffix',
-                ['prefix', 'suffix']),
+            ('check_prefix_suffix', 'invalid_prefix_suffix'),
         ]
         self._error_messages.update({
             'missing': 'Missing sequence!',
+            'invalid_prefix_suffix': 'Invalid prefix/suffix!',
             })
 
     def default_active(self, cursor, user, context=None):

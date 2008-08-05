@@ -1035,17 +1035,12 @@ class ORM(object):
                 record[field] = res2[record['id']]
         return res
 
-    def _validate(self, cursor, user, ids):
+    def _validate(self, cursor, user, ids, context=None):
         field_error = []
         field_err_str = []
         for field in self._constraints:
             if not getattr(self, field[0])(cursor, user, ids):
-                if len(field) > 1:
-                    field_error += field[2]
-                field_err_str.append(field[1])
-        if len(field_err_str):
-            raise Exception('UserError',
-                    ('\n'.join(field_err_str), ','.join(field_error)))
+                self.raise_user_error(cursor, field[1], context=context)
 
     def default_get(self, cursor, user, fields_names, context=None):
         '''
@@ -1423,7 +1418,7 @@ class ORM(object):
             self.pool.get(table).write(cursor, user, nids, vals2,
                     context=context)
 
-        self._validate(cursor, user, ids)
+        self._validate(cursor, user, ids, context=context)
 
         # Check for Modified Preorder Tree Traversal
         for k in self._columns:
@@ -1577,7 +1572,7 @@ class ORM(object):
             self._columns[field].set(cursor, self, id_new, field, vals[field],
                     user=user, context=context)
 
-        self._validate(cursor, user, [id_new])
+        self._validate(cursor, user, [id_new], context=context)
 
         # Check for Modified Preorder Tree Traversal
         for k in self._columns:

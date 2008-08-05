@@ -29,8 +29,11 @@ class View(OSV):
     def __init__(self):
         super(View, self).__init__()
         self._constraints += [
-            ('check_xml', 'Invalid XML for View Architecture!', ['arch'])
+            ('check_xml', 'invalid_xml'),
         ]
+        self._error_messages.update({
+            'invalid_xml': 'Invalid XML for View Architecture!',
+        })
         self._order.insert(0, ('priority', 'ASC'))
 
     def default_arch(self, cursor, user, context=None):
