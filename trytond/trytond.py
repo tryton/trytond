@@ -30,6 +30,8 @@ class TrytonServer(object):
             mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
                     time.strptime(x, y))
 
+        self.logger.notify_channel("config", netsvc.LOG_INFO,
+                'using %s as configuration file' % CONFIG.configfile)
         self.logger.notify_channel("objects", netsvc.LOG_INFO,
                 'initialising distributed objects services')
 
