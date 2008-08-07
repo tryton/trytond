@@ -134,6 +134,8 @@ class Reference(Column):
             if not res[i]:
                 continue
             ref_model, ref_id = res[i].split(',', 1)
+            if not ref_model:
+                continue
             ref_obj = obj.pool.get(ref_model)
             if not ref_obj:
                 continue
@@ -141,6 +143,11 @@ class Reference(Column):
                 ref_id = eval(ref_id)
             except:
                 pass
+            if ref_id \
+                and not ref_obj.search(cursor, user, [
+                    ('id', '=', ref_id),
+                    ], context=context):
+                ref_id = False
             if ref_id:
                 ref_name = ref_obj.name_get(cursor, user, ref_id,
                         context=context)
