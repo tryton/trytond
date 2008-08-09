@@ -1999,14 +1999,61 @@ class ORM(object):
             if not active_found:
                 args.append(('active', '=', 1))
 
-        i = 0
         table_query = ''
         table_args = []
         if self.table_query(context):
             table_query, table_args = self.table_query(context)
             table_query = '(' + table_query + ') AS '
+
         tables = [table_query + '"' + self._table + '"']
         tables_args = table_args
+
+        qu1, qu2 = self.__where_calc_oper(cursor, user, args, tables,
+                tables_args, context=context)
+        return qu1, qu2, tables, tables_args
+
+
+    def __where_calc_oper(self, cursor, user, args, tables, tables_args,
+            context=None):
+        operator = 'AND'
+        if len(args) and isinstance(args[0], basestring):
+            if args[0] not in ('AND', 'OR'):
+                raise Exception('ValidateError', 'Operator "%s" not supported' \
+                        % args[0])
+            operator = args[0]
+            args = args[1:]
+        tuple_args = []
+        list_args = []
+        for arg in args:
+            if isinstance(arg, list):
+                list_args.append(arg)
+            elif isinstance(arg, tuple):
+                tuple_args.append(arg)
+
+        qu1, qu2 = self.__where_calc(cursor, user,
+                tuple_args, tables, tables_args, context=context)
+        if len(qu1):
+            qu1 = (' ' + operator + ' ').join(qu1)
+        else:
+            qu1 = ''
+
+        for args2 in list_args:
+            qu1b, qu2b = self.__where_calc_oper(cursor,
+                    user, args2, tables, tables_args, context=context)
+            if qu1 and qu1b:
+                qu1 += ' ' + operator + ' ' + qu1b
+            elif qu1b:
+                qu1 = qu1b
+            qu2 += qu2b
+        if qu1:
+            qu1 = '(' + qu1 + ')'
+        return qu1, qu2
+
+    def __where_calc(self, cursor, user, args, tables, tables_args,
+            context=None):
+        if context is None:
+            context = {}
+        i = 0
         joins = []
         while i < len(args):
             if args[i][1] not in (
@@ -2348,7 +2395,7 @@ class ORM(object):
                         if add_null:
                             qu1[-1] = '('+qu1[-1]+' or '+arg[0]+' is null)'
 
-        return (qu1, qu2, tables, tables_args)
+        return qu1, qu2
 
     def search_count(self, cursor, user, args, context=None):
         '''
@@ -2458,21 +2505,26 @@ class ORM(object):
             context=None, count=False, query_string=False):
         '''
         Return a list of id that match the clause defined in args.
-        args is a list of tuple that are construct like this:
-            ('field name', 'operator', value)
-            field name: is the name of a field of the object
-                or a relational field by using '.' as separator.
-            operator can be:
-                child_of  (all the child of a relation field)
-                =
-                like
-                ilike (case insensitive)
-                !=
-                in
-                <=
-                >=
-                <
-                >
+        args is a list of tuples or lists
+            lists are construct like this:
+                ['operator', args, args, ...]
+                operator can be 'AND' or 'OR', if it is missing the
+                default value will be 'AND'
+            tuples are construct like this:
+                ('field name', 'operator', value)
+                field name: is the name of a field of the object
+                    or a relational field by using '.' as separator.
+                operator can be:
+                    child_of  (all the childs of a relation field)
+                    =
+                    like
+                    ilike (case insensitive)
+                    !=
+                    in
+                    <=
+                    >=
+                    <
+                    >
         offset can be used to specify a offset in the result
         limit can be used to limit the number of ids return
         order is a list of tupe that are construct like this:
@@ -2482,14 +2534,8 @@ class ORM(object):
         if query_string is True, the function will return a tuple with
             the SQL query string and the arguments.
         '''
-        # compute the where, order by, limit and offset clauses
         (qu1, qu2, tables, tables_args) = self._where_calc(cursor, user, args,
                 context=context)
-
-        if len(qu1):
-            qu1 = ' WHERE ' + ' AND '.join(qu1)
-        else:
-            qu1 = ''
 
         order_by = []
         for field, otype in (order or self._order):
@@ -2505,7 +2551,7 @@ class ORM(object):
                 if qu1:
                     qu1 += ' AND ' + clause
                 else:
-                    qu1 += 'WHERE ' + clause
+                    qu1 = clause
 
         order_by = ','.join(order_by)
 
@@ -2519,19 +2565,22 @@ class ORM(object):
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
                 self._name)
         if domain1:
-            qu1 = qu1 and qu1 + ' AND ' + domain1 or ' WHERE ' + domain1
+            if qu1:
+                qu1 += ' AND ' + domain1
+            else:
+                qu1 = domain1
             qu2 += domain2
 
         if count:
             cursor.execute('SELECT COUNT(%s.id) FROM ' % self._table +
-                    ','.join(tables) + qu1 + limit_str + offset_str,
-                    tables_args + qu2)
+                    ','.join(tables) + ' WHERE ' + (qu1 or 'True') +
+                    limit_str + offset_str, tables_args + qu2)
             res = cursor.fetchall()
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
         query_str = 'SELECT %s.id FROM ' % self._table + \
-                ','.join(tables) + qu1 + ' order by ' + order_by + \
-                limit_str + offset_str
+                ','.join(tables) + ' WHERE ' + (qu1 or 'True') + \
+                ' ORDER BY ' + order_by + limit_str + offset_str
         if query_string:
             return (query_str, tables_args + qu2)
         cursor.execute(query_str, tables_args + qu2)
