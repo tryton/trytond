@@ -38,7 +38,7 @@ class DB(Service):
         try:
             try:
                 cursor.execute('CREATE DATABASE "' + db_name + '" '\
-                        'ENCODING \'unicode\'')
+                        'TEMPLATE template0 ENCODING \'unicode\'')
                 cursor.commit()
                 cursor.close()
 
