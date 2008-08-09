@@ -626,6 +626,10 @@ class ORM(object):
 
         res = translation_obj._get_source(cursor, self._name, 'error',
                 context.get('language', 'en_US'), error)
+        if not res:
+            res = translation_obj._get_source(cursor, error, 'error',
+                    context.get('language', 'en_US'))
+
         if res:
             error = res
 
@@ -638,6 +642,10 @@ class ORM(object):
 
             res = translation_obj._get_source(cursor, self._name, 'error',
                     context.get('language', 'en_US'), error_description)
+            if not res:
+                res = translation_obj._get_source(cursor, error_description,
+                        'error', context.get('language', 'en_US'))
+
             if res:
                 error_description = res
 

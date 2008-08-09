@@ -69,26 +69,29 @@
             action="act_translation_form" id="menu_translation_form"/>
 
         <record model="ir.translation" id="translation_delete_xml_record">
-            <field name="name">None</field>
+            <field name="name">delete_xml_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
             <field name="src">You are not allowed to delete this record.</field>
+            <field name="value">You are not allowed to delete this record.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
         <record model="ir.translation" id="translation_xml_record_desc">
-            <field name="name">None</field>
+            <field name="name">xml_record_desc</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
             <field name="src">This record is part of the base configuration.</field>
+            <field name="value">This record is part of the base configuration.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
         <record model="ir.translation" id="translation_write_xml_record">
-            <field name="name">None</field>
+            <field name="name">write_xml_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
             <field name="src">You are not allowed to modify this record.</field>
+            <field name="value">You are not allowed to modify this record.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
