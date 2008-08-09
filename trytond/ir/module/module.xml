@@ -106,7 +106,7 @@
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.module.module</field>
             <field name="view_type">form</field>
-            <field name="domain">[('category', 'child_of', [active_id])]</field>
+            <field name="domain">[('category', '=', active_id)]</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_module_form2_view1">
