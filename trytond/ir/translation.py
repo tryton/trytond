@@ -342,6 +342,7 @@ class Translation(OSV, Cacheable):
             src = row[3]
             value = row[4]
             fuzzy = int(row[5])
+            ids = []
 
             model = name.split(',')[0]
             if model in fs_id2db_id:
