@@ -160,39 +160,11 @@ class Rule(OSV):
                         user), 'time': time})
 
             if rule.rule_group['global_p']:
-                clause_global.setdefault(rule.rule_group.id, [])
-                clause_global[rule.rule_group.id].append(
-                        obj._where_calc(cursor, user, dom, active_test=False))
+                clause_global.setdefault(rule.rule_group.id, ['OR'])
+                clause_global[rule.rule_group.id].append(dom)
             else:
-                clause.setdefault(rule.rule_group.id, [])
-                clause[rule.rule_group.id].append(
-                        obj._where_calc(cursor, user, dom, active_test=False))
-
-        def _query(clauses, test):
-            query = ''
-            val = []
-            for groups in clauses.values():
-                if not groups:
-                    continue
-                if len(query):
-                    query += ' '+test+' '
-                query += '('
-                first = True
-                for group in groups:
-                    if not first:
-                        query += ' OR '
-                    first = False
-                    query += '('
-                    first2 = True
-                    for clause in group[0]:
-                        if not first2:
-                            query += ' AND '
-                        first2 = False
-                        query += clause
-                    query += ')'
-                    val += group[1]
-                query += ')'
-            return query, val
+                clause.setdefault(rule.rule_group.id, ['OR'])
+                clause[rule.rule_group.id].append(dom)
 
         query = ''
         val = []
@@ -211,17 +183,15 @@ class Rule(OSV):
                         WHERE u_rel.uid = %s))""", (model_name, user, user))
         if cursor.rowcount:
             group_id = cursor.fetchone()[0]
-            clause[group_id] = [(['(True)'], '', '', '')]
-        query, val = _query(clause, 'OR')
+            clause[group_id] = []
+        clause = clause.values()
+        clause.insert(0, 'OR')
 
-        query_global, val_global = _query(clause_global, 'AND')
-        if query_global:
-            if query:
-                query = '('+query+') AND '+query_global
-                val.extend(val_global)
-            else:
-                query = query_global
-                val = val_global
+        clause_global = clause_global.values()
+        clause_global.insert(0, 'AND')
+
+        query, val, _, _ = obj._where_calc(cursor, user,
+                ['AND', clause_global, clause], active_test=False)
 
         return query, val
 
