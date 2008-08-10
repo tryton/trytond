@@ -33,6 +33,7 @@ class ConfigManager(object):
             'smtp_password': False,
             'data_path': '/var/lib/trytond',
             'max_thread': 40,
+            'multi_server': False,
         }
 
         parser = optparse.OptionParser(version=VERSION)
