@@ -421,26 +421,11 @@ class Cache(object):
         return cached_result
 
     @staticmethod
-    def _create_db(cursor):
-        cursor.execute('SELECT tablename FROM pg_tables ' \
-                'WHERE tablename = \'cache_clean\'')
-        if not cursor.rowcount:
-            cursor.execute('CREATE TABLE cache_clean (' \
-                        '"timestamp" timestamp without time zone, ' \
-                        '"name" varchar NOT NULL, '
-                        'PRIMARY key(name)'
-                        ')')
-            cursor.commit()
-
-    @staticmethod
     def clean(dbname):
+        if not CONFIG['multi_server']:
+            return
         cursor = pooler.get_db(dbname).cursor()
-        try:
-            cursor.execute('SELECT "timestamp", "name" FROM cache_clean')
-        except:
-            cursor.rollback()
-            Cache._create_db(cursor)
-            cursor.execute('SELECT "timestamp", "name" FROM cache_clean')
+        cursor.execute('SELECT "timestamp", "name" FROM ir_cache')
         timestamps = {}
         for timestamp, name in cursor.fetchall():
             timestamps[name] = timestamp
@@ -457,20 +442,16 @@ class Cache(object):
 
     @staticmethod
     def reset(dbname, name):
+        if not CONFIG['multi_server']:
+            return
         cursor = pooler.get_db(dbname).cursor()
-        try:
-            cursor.execute('SELECT name FROM cache_clean WHERE name = %s',
-                    (name,))
-        except:
-            cursor.rollback()
-            Cache._create_db(cursor)
-            cursor.execute('SELECT name FROM cache_clean WHERE name = %s',
+        cursor.execute('SELECT name FROM ir_cache WHERE name = %s',
                     (name,))
         if cursor.rowcount:
-            cursor.execute('UPDATE cache_clean SET "timestamp" = now() '\
+            cursor.execute('UPDATE ir_cache SET "timestamp" = now() '\
                     'WHERE name = %s', (name,))
         else:
-            cursor.execute('INSERT INTO cache_clean ("timestamp", "name") ' \
+            cursor.execute('INSERT INTO ir_cache ("timestamp", "name") ' \
                     'VALUES (now(), %s)', (name,))
         cursor.commit()
         cursor.close()

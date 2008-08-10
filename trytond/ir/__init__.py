@@ -12,3 +12,4 @@ from export import *
 from rule import *
 import module
 from default import *
+from cache import *
