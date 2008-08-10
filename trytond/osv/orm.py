@@ -446,10 +446,6 @@ class ORM(object):
 
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
-                    table.not_null_action(field_name, 'add')
-
-                if isinstance(field, fields.Boolean):
-                    table.not_null_action(field_name, 'add')
 
                 if isinstance(field, fields.Many2One):
                     if field._obj in ('res.user', 'res.group'):
@@ -462,8 +458,13 @@ class ORM(object):
                     # Postgres does not allow index on fk
                     table.index_action(
                         field_name, action=field.select and 'add' or 'remove')
+
+                required = field.required
+                if isinstance(field, (fields.Integer, fields.Float,
+                    fields.Boolean)):
+                    required = True
                 table.not_null_action(
-                    field_name, action=field.required and 'add' or 'remove')
+                    field_name, action=required and 'add' or 'remove')
 
             elif isinstance(field, fields.Many2Many):
                 if field._obj in ('res.user', 'res.group'):

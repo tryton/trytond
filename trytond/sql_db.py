@@ -246,13 +246,16 @@ class table_handler:
         self.field2module = {}
         self.module_name = module_name
         self.cursor = cursor
+        self.object_name = object_name
 
         # Create new table if necessary
         if not table_exist(self.cursor, self.table_name):
             self.cursor.execute('CREATE TABLE "%s" ' \
                              "(id SERIAL NOT NULL, " \
                              "PRIMARY KEY(id))"% self.table_name)
+        self.update_definitions()
 
+    def update_definitions(self):
         # Fetch columns definitions from the table
         self.cursor.execute("SELECT at.attname, at.attlen, "\
                          "at.atttypmod, at.attnotnull, at.atthasdef, "\
@@ -264,7 +267,8 @@ class table_handler:
                          "JOIN pg_attribute at on (cl.oid = at.attrelid) "\
                          "JOIN pg_type ty on (at.atttypid = ty.oid) "\
                        "WHERE cl.relname = %s AND at.attnum > 0",
-                       (table_name,))
+                       (self.table_name,))
+        self.table = {}
         for line in self.cursor.fetchall():
             column, length, typmod, notnull, hasdef, typname, size = line
             self.table[column] = {
@@ -283,7 +287,9 @@ class table_handler:
                          "LEFT JOIN pg_class cl2 on (co.confrelid = cl2.oid) "\
                          "LEFT JOIN pg_attribute at on (co.conkey[1] = at.attnum) "\
                        "WHERE cl.relname = %s",
-                       (table_name,))
+                       (self.table_name,))
+        self.constraint = []
+        self.fk_deltype = {}
         for line in self.cursor.fetchall():
             contype, confdeltype, column, ref, conname = line
             if contype == 'f':
@@ -298,16 +304,17 @@ class table_handler:
                          "JOIN pg_class cl on (cl.oid = ind.indrelid) "\
                          "JOIN pg_class cl2 on (cl2.oid = ind.indexrelid) "\
                        "WHERE cl.relname = %s",
-                       (table_name,))
+                       (self.table_name,))
         self.index = [l[0] for l in self.cursor.fetchall()]
 
         # Keep track of which module created each field
-        if object_name is not None:
+        self.field2module = {}
+        if self.object_name is not None:
             self.cursor.execute('SELECT f.name, f.module '\
                            'FROM ir_model_field f '\
                              'JOIN ir_model m on (f.model=m.id) '\
                            'WHERE m.model = %s',
-                           (object_name,)
+                           (self.object_name,)
                            )
             for line in self.cursor.fetchall():
                 self.field2module[line[0]] = line[1]
@@ -327,6 +334,7 @@ class table_handler:
         self.cursor.execute("ALTER TABLE \"%s\" " \
                        "DROP COLUMN temp_change_size" % \
                        (self.table_name,))
+        self.update_definitions()
 
     def db_default(self, column_name, value):
         self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
@@ -382,6 +390,7 @@ class table_handler:
             else:
                 self.cursor.execute('UPDATE "' + self.table_name + '" '\
                                     'SET "' + column_name + '" = NULL')
+        self.update_definitions()
 
     def add_m2m(self, column_name, other_table, relation_table, rtable_from, rtable_to):
         if not table_exist(self.cursor, other_table):
@@ -419,6 +428,7 @@ class table_handler:
                 'ADD FOREIGN KEY ("' + column_name + '") ' \
                     'REFERENCES "' + reference + '" ' \
                     'ON DELETE ' + on_delete)
+        self.update_definitions()
 
     def index_action(self, column_name, action='add'):
         index_name = "%s_%s_index" % (self.table_name, column_name)
@@ -428,6 +438,7 @@ class table_handler:
                 return
             self.cursor.execute('CREATE INDEX "' + index_name + '" ' \
                                'ON "' + self.table_name + '" ("' + column_name + '")')
+            self.update_definitions()
         elif action == 'remove':
             if self.field2module.get(column_name) != self.module_name:
                 return
@@ -437,7 +448,7 @@ class table_handler:
                            (index_name,))
             if self.cursor.rowcount:
                 self.cursor.execute('DROP INDEX "%s" ' % (index_name,))
-
+                self.update_definitions()
 
     def not_null_action(self, column_name, action='add'):
         if column_name not in self.table:
@@ -453,6 +464,7 @@ class table_handler:
                 self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
                                    'ALTER COLUMN "' + column_name + '" ' \
                                    "SET NOT NULL")
+                self.update_definitions()
             else:
                 logger = Logger()
                 logger.notify_channel(
@@ -473,6 +485,7 @@ class table_handler:
             self.cursor.execute('ALTER TABLE "%s" ' \
                                'ALTER COLUMN "%s" DROP NOT NULL' %
                            (self.table_name, column_name))
+            self.update_definitions()
 
     def add_constraint(self, ident, constraint):
         ident = self.table_name + "_" + ident
@@ -494,3 +507,4 @@ class table_handler:
                 'ALTER table "%s" ADD CONSTRAINT "%s" %s' % \
                 (constraint, self.table_name, self.table_name,
                  ident, constraint,))
+        self.update_definitions()
