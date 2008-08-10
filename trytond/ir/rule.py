@@ -12,10 +12,10 @@ class RuleGroup(OSV):
     name = fields.Char('Name', select=1)
     model = fields.Many2One('ir.model', 'Model', select=1,
             required=True)
-    global_p = fields.Boolean('Global', select=1, required=True,
+    global_p = fields.Boolean('Global', select=1,
             help="Make the rule global \n" \
                     "so every users must follow this rule")
-    default_p = fields.Boolean('Default', select=1, required=True,
+    default_p = fields.Boolean('Default', select=1,
             help="Add this rule to all users by default")
     rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
             help="The rule is satisfied if at least one test is True")
