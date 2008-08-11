@@ -491,7 +491,7 @@ class ORM(object):
                         (self._table, field.left, field.right,
                             field.left, field.right))
                 if cursor.rowcount:
-                    self._rebuild_tree(cursor, 0, field, False, 0)
+                    self._rebuild_tree(cursor, 0, field_name, False, 0)
 
 
         for ident, constraint, msg in self._sql_constraints:
