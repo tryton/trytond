@@ -386,13 +386,12 @@ class One2Many(Column):
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        from trytond.osv.orm import ID_MAX
         res = {}
         for i in ids:
             res[i] = []
         ids2 = []
-        for i in range((len(ids) / ID_MAX) + ((len(ids) % ID_MAX) and 1 or 0)):
-            sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
             ids2 += obj.pool.get(self._obj).search(cursor, user,
                     [(self._field, 'in', sub_ids)], order=self._order,
                     context=context)

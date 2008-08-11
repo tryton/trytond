@@ -13,7 +13,6 @@ import csv
 from trytond.osv import fields, OSV, Cacheable
 from trytond.wizard import Wizard, WizardOSV
 from trytond import tools
-from trytond.osv.orm import ID_MAX
 
 TRANSLATION_TYPE = [
     ('field', 'Field'),
@@ -239,9 +238,9 @@ class Translation(OSV, Cacheable):
         res = {}
         clause = ''
         value = []
-        if len(args) > ID_MAX:
-            for i in range((len(args) / ID_MAX) + ((len(args) % ID_MAX) and 1 or 0)):
-                sub_args = args[ID_MAX * i:ID_MAX * (i + 1)]
+        if len(args) > cursor.IN_MAX:
+            for i in range(0, len(args), cursor.IN_MAX):
+                sub_args = args[i:i + cursor.IN_MAX]
                 res.update(self._get_sources(cursor, sub_args))
             return res
         for name, ttype, lang, source in args:

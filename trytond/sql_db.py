@@ -51,6 +51,7 @@ class FakeCursor(object):
     sql_into_log = {}
     sql_log = False
     count = 0
+    IN_MAX = 1000
 
     def __init__(self, connpool, conn, dbname, cursor_factory):
         self._connpool = connpool
