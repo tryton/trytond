@@ -2143,7 +2143,7 @@ class ORM(object):
                     else:
                         ids3 = []
                         for i in range(0, len(ids2), cursor.IN_MAX):
-                            sub_ids = ids2[i:i + cursor.IN_MAX]
+                            sub_ids2 = ids2[i:i + cursor.IN_MAX]
                             cursor.execute(
                                 'SELECT "' + field._field + \
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
