@@ -12,8 +12,6 @@ import copy
 from trytond.sql_db import table_handler
 from decimal import Decimal
 
-ID_MAX = 1000
-
 def intersect(i, j):
     return [x for x in j if x in i]
 
@@ -958,8 +956,8 @@ class ORM(object):
             fields_pre2 = [(x in ('create_date', 'write_date')) \
                     and ('date_trunc(\'second\', ' + x + ') as ' + x) \
                     or '"' + x + '"' for x in fields_pre]
-            for i in range((len(ids) / ID_MAX) + ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
                 if domain1:
                     cursor.execute(('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
@@ -1164,9 +1162,8 @@ class ORM(object):
             return True
         delta = context.get('read_delta', False)
         if delta and self._log_access:
-            for i in range((len(ids) / ID_MAX) + \
-                    ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
                 cursor.execute(
                         "SELECT (now()  - min(write_date)) <= '%s'::interval " \
                         "FROM \"%s\" WHERE id in (%s)" % \
@@ -1203,9 +1200,8 @@ class ORM(object):
                 self._name)
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
-        for i in range((len(ids) / ID_MAX) + \
-                ((len(ids) % ID_MAX) and 1 or 0)):
-            sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
             str_d = ','.join(('%s',) * len(sub_ids))
             if domain1:
                 cursor.execute('SELECT id FROM "'+self._table+'" ' \
@@ -1276,9 +1272,8 @@ class ORM(object):
             ids = [ids]
         delta = context.get('read_delta', False)
         if delta and self._log_access:
-            for i in range((len(ids) / ID_MAX) + \
-                    ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
                 cursor.execute("SELECT " \
                             "(now() - min(write_date)) <= '%s'::interval"\
                         " FROM %s WHERE id IN (%s)" % \
@@ -1361,9 +1356,8 @@ class ORM(object):
                     user, self._name)
             if domain1:
                 domain1 = ' AND (' + domain1 + ') '
-            for i in range((len(ids) / ID_MAX) + \
-                    ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids = ids[ID_MAX * i:ID_MAX * (i + 1)]
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
                 ids_str = ','.join([str(x) for x in sub_ids])
                 if domain1:
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
@@ -1408,9 +1402,8 @@ class ORM(object):
         for table in self._inherits:
             col = self._inherits[table]
             nids = []
-            for i in range((len(ids) / ID_MAX) + \
-                    ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids = ids[ID_MAX * i:ID_MAX * (i +1)]
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
                 ids_str = ','.join([str(x) for x in sub_ids])
                 cursor.execute('SELECT DISTINCT "' + col + '" ' \
                         'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
@@ -2140,7 +2133,7 @@ class ORM(object):
                     if field_obj.table_query(context):
                         table_query, table_args = field_obj.table_query(context)
                         table_query = '(' + table_query + ') AS '
-                    if len(ids2) < ID_MAX:
+                    if len(ids2) < cursor.IN_MAX:
                         query1 = 'SELECT "' + field._field + '" ' \
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
@@ -2149,9 +2142,8 @@ class ORM(object):
                         args[i] = ('id', 'inselect', (query1, query2))
                     else:
                         ids3 = []
-                        for i in range((len(ids2) / ID_MAX) + \
-                                (len(ids2) % ID_MAX)):
-                            sub_ids = ids2[ID_MAX * i:ID_MAX * (i + 1)]
+                        for i in range(0, len(ids2), cursor.IN_MAX):
+                            sub_ids = ids2[i:i + cursor.IN_MAX]
                             cursor.execute(
                                 'SELECT "' + field._field + \
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
@@ -2698,9 +2690,8 @@ class ORM(object):
         ids_parent = ids[:]
         while len(ids_parent):
             ids_parent2 = []
-            for i in range((len(ids) / ID_MAX) + \
-                    ((len(ids) % ID_MAX) and 1 or 0)):
-                sub_ids_parent = ids_parent[ID_MAX * i:ID_MAX * (i + 1)]
+            for i in range(0, len(ids_parent), cursor.IN_MAX):
+                sub_ids_parent = ids_parent[i:i + cursor.IN_MAX]
                 cursor.execute('SELECT distinct "' + parent + '" ' +
                     'FROM "' + self._table + '" ' +
                     'WHERE id IN ' \
