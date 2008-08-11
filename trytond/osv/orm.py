@@ -963,11 +963,11 @@ class ORM(object):
                             ','.join(fields_pre2 + ['id']) + \
                             ' FROM ' + table_query + '\"' + self._table +'\" ' \
                             'WHERE id IN ' \
-                                '(' + ','.join([str(x) for x in sub_ids]) + ')'\
+                                '(' + ','.join(['%s' for x in sub_ids]) + ')'\
                             ' AND (' + domain1 + ') ORDER BY ' + \
                             ','.join([self._table + '.' + x[0] + ' ' + x[1] \
                             for x in self._order])),
-                            table_args + domain2)
+                            table_args + sub_ids + domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
                         raise Exception('ValidateError',
                                 'You try to bypass an access rule ' \
@@ -978,10 +978,10 @@ class ORM(object):
                             ','.join(fields_pre2 + ['id']) + \
                             ' FROM ' + table_query + '\"' + self._table + '\" ' \
                             'WHERE id IN ' \
-                                '(' + ','.join([str(x) for x in sub_ids]) + ')'\
+                                '(' + ','.join(['%s' for x in sub_ids]) + ')'\
                             ' ORDER BY ' + \
                             ','.join([self._table + '.' + x[0] + ' ' + x[1] \
-                            for x in self._order]), table_args)
+                            for x in self._order]), table_args + sub_ids)
                 res.extend(cursor.dictfetchall())
         else:
             res = [{'id': x} for x in ids]
@@ -1168,7 +1168,7 @@ class ORM(object):
                         "SELECT (now()  - min(write_date)) <= '%s'::interval " \
                         "FROM \"%s\" WHERE id in (%s)" % \
                         (delta, self._table,
-                            ",".join([str(x) for x in sub_ids])))
+                            ",".join(['%s' for x in sub_ids])), sub_ids)
                 res = cursor.fetchone()
                 if res and res[0]:
                     raise Exception('ConcurrencyException',
@@ -1275,10 +1275,10 @@ class ORM(object):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 cursor.execute("SELECT " \
-                            "(now() - min(write_date)) <= '%s'::interval"\
-                        " FROM %s WHERE id IN (%s)" % \
-                        (delta, self._table,
-                            ",".join([str(x) for x in sub_ids])))
+                            "(now() - min(write_date)) <= '%s'::interval " \
+                        "FROM %s " \
+                        "WHERE id IN (" + ['%s' for x in sub_ids] + ")" % \
+                        (delta, self._table), sub_ids)
                 res = cursor.fetchone()
                 if res and res[0]:
                     for field in vals:
@@ -1358,10 +1358,11 @@ class ORM(object):
                 domain1 = ' AND (' + domain1 + ') '
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
-                ids_str = ','.join([str(x) for x in sub_ids])
+                ids_str = ','.join(['%s' for x in sub_ids])
                 if domain1:
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
-                            'WHERE id IN (' + ids_str + ') ' + domain1, domain2)
+                            'WHERE id IN (' + ids_str + ') ' + domain1,
+                            sub_ids + domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
                         raise Exception('AccessError',
                                 'You try to bypass an access rule ' \
@@ -1369,7 +1370,7 @@ class ORM(object):
                                         self._description)
                 else:
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
-                            'WHERE id IN (' + ids_str + ')')
+                            'WHERE id IN (' + ids_str + ')', sub_ids)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
                         raise Exception('AccessError',
                                 'You try to bypass an access rule ' \
@@ -1379,11 +1380,11 @@ class ORM(object):
                     cursor.execute('UPDATE "' + self._table + '" ' \
                             'SET ' + ','.join(upd0) + ' ' \
                             'WHERE id IN (' + ids_str + ') ' + domain1,
-                            upd1 + domain2)
+                            upd1 + sub_ids + domain2)
                 else:
                     cursor.execute('UPDATE "' + self._table + '" ' \
                             'SET ' + ','.join(upd0) + ' ' \
-                            'WHERE id IN (' + ids_str + ') ', upd1)
+                            'WHERE id IN (' + ids_str + ') ', upd1 + sub_ids)
 
             for field in direct:
                 if self._columns[field].translate:
@@ -1404,10 +1405,10 @@ class ORM(object):
             nids = []
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
-                ids_str = ','.join([str(x) for x in sub_ids])
+                ids_str = ','.join(['%s' for x in sub_ids])
                 cursor.execute('SELECT DISTINCT "' + col + '" ' \
                         'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
-                        upd1)
+                        upd1 + sub_ids)
                 nids.extend([x[0] for x in cursor.fetchall()])
 
             vals2 = {}
@@ -2138,7 +2139,7 @@ class ORM(object):
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in ids2]) + ')'
-                        query2 = table_args + [str(x) for x in ids2]
+                        query2 = table_args + ids2
                         args[i] = ('id', 'inselect', (query1, query2))
                     else:
                         ids3 = []
@@ -2149,7 +2150,7 @@ class ORM(object):
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')',
-                                table_args + [str(x) for x in sub_ids2])
+                                table_args + sub_ids2)
 
                             ids3.extend([x[0] for x in cursor.fetchall()])
 
@@ -2695,7 +2696,8 @@ class ORM(object):
                 cursor.execute('SELECT distinct "' + parent + '" ' +
                     'FROM "' + self._table + '" ' +
                     'WHERE id IN ' \
-                        '(' + ','.join([str(x) for x in sub_ids_parent]) + ')')
+                        '(' + ','.join(['%s' for x in sub_ids_parent]) + ')',
+                        sub_ids_parent)
                 ids_parent2.extend(filter(None,
                     [x[0] for x in cursor.fetchall()]))
             ids_parent = ids_parent2
