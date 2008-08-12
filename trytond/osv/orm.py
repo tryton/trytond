@@ -1277,7 +1277,7 @@ class ORM(object):
                 cursor.execute("SELECT " \
                             "(now() - min(write_date)) <= '%s'::interval " \
                         "FROM %s " \
-                        "WHERE id IN (" + ['%s' for x in sub_ids] + ")" % \
+                        "WHERE id IN (" + ','.join('%s' for x in sub_ids) + ")" % \
                         (delta, self._table), sub_ids)
                 res = cursor.fetchone()
                 if res and res[0]:
