@@ -1408,7 +1408,7 @@ class ORM(object):
                 ids_str = ','.join(['%s' for x in sub_ids])
                 cursor.execute('SELECT DISTINCT "' + col + '" ' \
                         'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
-                        upd1 + sub_ids)
+                        sub_ids)
                 nids.extend([x[0] for x in cursor.fetchall()])
 
             vals2 = {}
