@@ -227,7 +227,7 @@ class Module(OSV):
                 for package, deps, datas in packages:
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
-                self.raise_user_error(cursor, user, 'missing_dep',
+                self.raise_user_error(cursor, 'missing_dep',
                         (missings, module.name), context=context)
             def get_parents(name, graph):
                 parents = []
