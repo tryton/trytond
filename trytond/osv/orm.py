@@ -1275,10 +1275,11 @@ class ORM(object):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 cursor.execute("SELECT " \
-                            "(now() - min(write_date)) <= '%s'::interval " \
-                        "FROM %s " \
-                        "WHERE id IN (" + ','.join('%s' for x in sub_ids) + ")" % \
-                        (delta, self._table), sub_ids)
+                            "(now() - min(write_date)) <= " \
+                            "'" + str(delta) + "'::interval " \
+                        'FROM "' + self._table + '" ' \
+                        "WHERE id IN (" + ','.join('%s' for x in sub_ids) + ")",
+                        sub_ids)
                 res = cursor.fetchone()
                 if res and res[0]:
                     for field in vals:
