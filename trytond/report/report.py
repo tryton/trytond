@@ -489,7 +489,10 @@ class Report(object):
             encoding = 'UTF-8'
         try:
             if os.name == 'nt':
+                os.environ['LANG'] = language
                 language = _LOCALE2WIN32.get(language, language)
+            elif os.name == 'mac':
+                encoding = 'UTF-8'
             locale.setlocale(locale.LC_ALL, str(language + '.' + encoding))
         except Exception:
             Logger().notify_channel('web-service', LOG_WARNING,
