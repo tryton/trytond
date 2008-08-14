@@ -382,6 +382,7 @@ class table_handler:
         column_type = column_type[1]
         self.cursor.execute('ALTER TABLE "%s" ADD COLUMN "%s" %s' %
                        (self.table_name, column_name, column_type))
+        # Populate column with default values:
         if default_fun is not None:
             default = default_fun(self.cursor, 0, {})
             if (default is not False)  and (default is not False):
@@ -391,6 +392,13 @@ class table_handler:
             else:
                 self.cursor.execute('UPDATE "' + self.table_name + '" '\
                                     'SET "' + column_name + '" = NULL')
+        elif column_type == 'bool':
+            self.cursor.execute('UPDATE "' + self.table_name + '" '\
+                                'SET "' + column_name + '" = false')
+        elif column_type in ('int4', 'float8'):
+            self.cursor.execute('UPDATE "' + self.table_name + '" '\
+                                'SET "' + column_name + '" = 0')
+
         self.update_definitions()
 
     def add_m2m(self, column_name, other_table, relation_table, rtable_from, rtable_to):
