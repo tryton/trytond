@@ -402,15 +402,19 @@ class ORM(object):
         table = table_handler(cursor, self._table, self._name, module_name)
         if self._log_access:
             logs = (
-                ('create_date', 'timestamp', 'TIMESTAMP'),
-                ('write_date', 'timestamp', 'TIMESTAMP'),
+                ('create_date', 'timestamp', 'TIMESTAMP',
+                    fields.DateTime._symbol_set),
+                ('write_date', 'timestamp', 'TIMESTAMP',
+                    fields.DateTime._symbol_set),
                 ('create_uid', 'int4',
-                 'INTEGER REFERENCES res_user ON DELETE SET NULL'),
+                 'INTEGER REFERENCES res_user ON DELETE SET NULL',
+                 fields.Integer._symbol_set),
                 ('write_uid', 'int4',
-                 'INTEGER REFERENCES res_user ON DELETE SET NULL'),
+                 'INTEGER REFERENCES res_user ON DELETE SET NULL',
+                 fields.Integer._symbol_set),
                 )
             for log in logs:
-                table.add_raw_column(log[0], (log[1], log[2]), migrate=False)
+                table.add_raw_column(log[0], (log[1], log[2]), log[3], migrate=False)
         for field_name, field in self._columns.iteritems():
             default_fun = None
             if field_name in (
@@ -439,8 +443,8 @@ class ORM(object):
                         return unpack_result
                     default_fun = unpack_wrapper(default_fun)
 
-                table.add_raw_column(
-                    field_name, field.sql_type(), default_fun, field.size)
+                table.add_raw_column(field_name, field.sql_type(),
+                        field._symbol_set, default_fun, field.size)
 
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
