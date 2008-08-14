@@ -40,8 +40,6 @@
                         <page string="Security" col="1">
                             <separator name="groups"/>
                             <field name="groups"/>
-                            <separator name="roles_id"/>
-                            <field name="roles_id"/>
                             <separator name="rule_groups"/>
                             <field name="rule_groups"/>
                         </page>
