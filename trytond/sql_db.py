@@ -342,8 +342,8 @@ class table_handler:
                 'ALTER COLUMN "' + column_name + '" SET DEFAULT %s',
                 (value,))
 
-    def add_raw_column(self, column_name, column_type, default_fun=None,
-                       field_size=None, migrate = True):
+    def add_raw_column(self, column_name, column_type, symbol_set,
+            default_fun=None, field_size=None, migrate=True):
         if column_name in self.table:
 
             if not migrate:
@@ -383,21 +383,12 @@ class table_handler:
         self.cursor.execute('ALTER TABLE "%s" ADD COLUMN "%s" %s' %
                        (self.table_name, column_name, column_type))
         # Populate column with default values:
+        default = None
         if default_fun is not None:
             default = default_fun(self.cursor, 0, {})
-            if (default is not False)  and (default is not False):
-                self.cursor.execute('UPDATE "' + self.table_name + '" '\
-                                    'SET "' + column_name + '" = %s',
-                                    (default,))
-            else:
-                self.cursor.execute('UPDATE "' + self.table_name + '" '\
-                                    'SET "' + column_name + '" = NULL')
-        elif column_type == 'bool':
-            self.cursor.execute('UPDATE "' + self.table_name + '" '\
-                                'SET "' + column_name + '" = false')
-        elif column_type in ('int4', 'float8'):
-            self.cursor.execute('UPDATE "' + self.table_name + '" '\
-                                'SET "' + column_name + '" = 0')
+        self.cursor.execute('UPDATE "' + self.table_name + '" '\
+                            'SET "' + column_name + '" = ' + symbol_set[0],
+                            (symbol_set[1](default),))
 
         self.update_definitions()
 
@@ -407,8 +398,9 @@ class table_handler:
         rtable = table_handler(
             self.cursor, relation_table, object_name=None,
             module_name= self.module_name)
-        rtable.add_raw_column(rtable_from, ('int4', 'int4'))
-        rtable.add_raw_column(rtable_to, ('int4', 'int4'))
+        from osv.fields import Integer
+        rtable.add_raw_column(rtable_from, ('int4', 'int4'), Integer._symbol_set)
+        rtable.add_raw_column(rtable_to, ('int4', 'int4'), Integer._symbol_set)
         rtable.add_fk(rtable_from, self.table_name)
         rtable.add_fk(rtable_to, other_table)
         rtable.index_action(rtable_from, 'add')
