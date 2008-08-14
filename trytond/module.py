@@ -8,10 +8,14 @@ import pooler
 from netsvc import Logger, LOG_ERROR, LOG_INFO
 import zipfile
 import zipimport
+import traceback
 
 OPJ = os.path.join
 MODULES_PATH = OPJ(os.path.dirname(__file__), 'modules')
 sys.path.insert(1, MODULES_PATH)
+
+MODULES = []
+
 
 class Graph(dict):
 
@@ -183,6 +187,8 @@ def load_module_graph(cursor, graph, lang=None):
     modules_todo = []
     for package in graph:
         module = package.name
+        if module not in MODULES:
+            continue
         Logger().notify_channel('init', LOG_INFO, 'module:%s' % module)
         sys.stdout.flush()
         pool = pooler.get_pool(cursor.dbname)
@@ -275,6 +281,7 @@ def register_classes():
                 'module:%s:registering classes' % module)
 
         if module in ('ir', 'workflow', 'res', 'webdav'):
+            MODULES.append(module)
             continue
 
         if not os.path.isfile(OPJ(MODULES_PATH, module+'.zip')):
@@ -282,8 +289,21 @@ def register_classes():
                 imp.load_module(module, *imp.find_module(module,
                     [MODULES_PATH]))
             except ImportError:
+                tb_s = ''
+                for line in traceback.format_exception(*sys.exc_info()):
+                    try:
+                        line = line.encode('utf-8', 'ignore')
+                    except:
+                        continue
+                    tb_s += line
+                for path in sys.path:
+                    tb_s = tb_s.replace(path, '')
+                if CONFIG['debug_mode']:
+                    import pdb
+                    traceb = sys.exc_info()[2]
+                    pdb.post_mortem(traceb)
                 Logger().notify_channel('init', LOG_ERROR,
-                        'Couldn\'t import module %s' % module)
+                        'Couldn\'t import module %s:\n%s' % (module, tb_s))
                 break
         else:
             mod_path = OPJ(MODULES_PATH, module+'.zip')
@@ -291,9 +311,23 @@ def register_classes():
                 zimp = zipimport.zipimporter(mod_path)
                 zimp.load_module(module)
             except zipimport.ZipImportError:
+                tb_s = ''
+                for line in traceback.format_exception(*sys.exc_info()):
+                    try:
+                        line = line.encode('utf-8', 'ignore')
+                    except:
+                        continue
+                    tb_s += line
+                for path in sys.path:
+                    tb_s = tb_s.replace(path, '')
+                if CONFIG['debug_mode']:
+                    import pdb
+                    traceb = sys.exc_info()[2]
+                    pdb.post_mortem(traceb)
                 Logger().notify_channel('init', LOG_ERROR,
-                        'Couldn\'t import module %s' % module)
+                        'Couldn\'t import module %s:\n%s' % (module, tb_s))
                 break
+        MODULES.append(module)
 
 def load_modules(database, update_module=False, lang=None):
     cursor = database.cursor()
