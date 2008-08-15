@@ -333,9 +333,13 @@ def load_modules(database, update_module=False, lang=None):
     cursor = database.cursor()
     force = []
     if update_module:
-        cursor.execute("SELECT name FROM ir_module_module " \
-                "WHERE state IN ('installed', 'to install', " \
-                    "'to upgrade', 'to remove')")
+        if 'all' in CONFIG['init']:
+            cursor.execute("SELECT name FROM ir_module_module " \
+                    "WHERE state != 'uninstallable'")
+        else:
+            cursor.execute("SELECT name FROM ir_module_module " \
+                    "WHERE state IN ('installed', 'to install', " \
+                        "'to upgrade', 'to remove')")
     else:
         cursor.execute("SELECT name FROM ir_module_module " \
                 "WHERE state IN ('installed', 'to upgrade', 'to remove')")
