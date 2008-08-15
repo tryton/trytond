@@ -1223,6 +1223,13 @@ class ORM(object):
             else:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ')', sub_ids)
+
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                self._rebuild_tree(cursor, 0, k, False, 0)
         return True
 
     def check_xml_record(self, cursor, user, ids, values, context=None):
