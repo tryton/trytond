@@ -366,7 +366,7 @@ class table_handler:
                 return
             elif self.table[column_name]['size'] > 0 and \
                     self.table[column_name]['size'] < field_size:
-                self.migrate_column(column_name, base_type)
+                self.migrate_column(column_name, column_type[1])
             else:
                 logger = Logger()
                 logger.notify_channel(
