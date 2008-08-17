@@ -530,11 +530,29 @@ class ReportTranslationUpdate(Wizard):
 
             content_io = StringIO.StringIO(report.report_content)
             content_z = zipfile.ZipFile(content_io, mode='r')
+
             content_xml = content_z.read('content.xml')
-
             document = dom.minidom.parseString(content_xml)
-
             strings = self._translate_report(document.documentElement)
+
+            style_xml = content_z.read('styles.xml')
+            document = dom.minidom.parseString(style_xml)
+            strings += self._translate_report(document.documentElement)
+
+            style_content = None
+            try:
+                style_content = report.style_content
+            except:
+                pass
+
+            if style_content:
+                style_io = StringIO.StringIO(style_content)
+                style_z = zipfile.ZipFile(style_io, mode='r')
+                style_xml = style_z.read('styles.xml')
+
+                document = dom.minidom.parseString(style_xml)
+
+                strings += self._translate_report(document.documentElement)
 
             for string in {}.fromkeys(strings).keys():
                 done = False
