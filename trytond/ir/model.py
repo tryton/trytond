@@ -92,6 +92,9 @@ class ModelAccess(OSV):
             'delete': 'You can not delete this document! (%s)',
             })
 
+    def check_xml_record(self, cursor, user, ids, values, context=None):
+        return True
+
     def default_perm_read(self, cursor, user, context=None):
         return False
 
