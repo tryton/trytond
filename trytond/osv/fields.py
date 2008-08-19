@@ -303,8 +303,6 @@ class Many2One(Column):
         self.left = left
         self.right = right
 
-    # TODO: speed improvement
-    # name is the name of the relation field
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
         if values is None:
