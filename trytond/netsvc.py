@@ -23,6 +23,11 @@ LOG_CRITICAL = 'critical'
 
 from config import CONFIG
 
+# convert decimal to float before marshalling:
+from decimal import Decimal
+xmlrpclib.Marshaller.dispatch[Decimal] = \
+    lambda self, value, write: self.dump_long(float(value), write)
+
 def start_SSL(socket):
     from OpenSSL import SSL
     ctx = SSL.Context(SSL.SSLv23_METHOD)
