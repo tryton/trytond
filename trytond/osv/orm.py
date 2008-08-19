@@ -1200,6 +1200,18 @@ class ORM(object):
                                   error_description='xml_record_desc',
                                   context=context)
 
+        tree_ids = {}
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                cursor.execute('SELECT id FROM "' + self._table + '" '\
+                        'WHERE "' + k + '" IN (' \
+                            + ','.join(['%s' for x in ids]) + ')',
+                            ids)
+                tree_ids[k] = [x[0] for x in cursor.fetchall()]
+
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
                 self._name)
         if domain1:
@@ -1224,12 +1236,12 @@ class ORM(object):
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ')', sub_ids)
 
-        for k in self._columns:
+        for k in tree_ids.keys():
             field = self._columns[k]
-            if isinstance(field, fields.Many2One) \
-                    and field._obj == self._name \
-                    and field.left and field.right:
-                self._rebuild_tree(cursor, 0, k, False, 0)
+            for object_id in tree_ids[k]:
+                self._update_tree(cursor, user, object_id, k,
+                        field.left, field.right)
+
         return True
 
     def check_xml_record(self, cursor, user, ids, values, context=None):
@@ -2758,10 +2770,14 @@ class ORM(object):
     def _update_tree(self, cursor, user, object_id, field_name, left, right):
         '''
         Update left, right values for the tree.
+        Remarks: the value (right - left - 1) / 2 will not give
+            the number of children node
         '''
         cursor.execute('SELECT "' + left + '", "' + right + '" ' \
                 'FROM "' + self._table + '" ' \
                 'WHERE id = %s', (object_id,))
+        if not cursor.rowcount:
+            return
         old_left, old_right = cursor.fetchone()
 
         cursor.execute('SELECT "' + right + '" ' \
