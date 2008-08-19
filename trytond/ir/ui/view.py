@@ -22,7 +22,8 @@ class View(OSV):
        ('board', 'Board'),
        ], 'View Type', select=1)
     arch = fields.Text('View Architecture', required=True)
-    inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1)
+    inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
+            ondelete='CASCADE')
     field_childs = fields.Char('Childs Field')
     module = fields.Char('Module', readonly=True)
 
