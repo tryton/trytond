@@ -1037,7 +1037,8 @@ class ORM(object):
                 and not getattr(self._columns[x], load)]
         func_fields = {}
         for field in fields_post:
-            if isinstance(self._columns[field], fields.Function):
+            if isinstance(self._columns[field], fields.Function) \
+                    and not isinstance(self._columns[field], fields.Property):
                 key = (self._columns[field]._fnct, self._columns[field]._arg)
                 func_fields.setdefault(key, [])
                 func_fields[key].append(field)
