@@ -27,6 +27,7 @@ import psycopg2
 import warnings
 import __builtin__
 import sha
+import inspect
 
 def _symbol_f(symb):
     if symb is None or symb == False:
@@ -628,8 +629,23 @@ class Function(Column):
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        return getattr(obj, self._fnct)(cursor, user, ids, name, self._arg,
-                context=context)
+        if isinstance(name, list):
+            names = name
+            # Test is the function works with a list of names
+            if 'names' in inspect.getargspec(getattr(obj, self._fnct))[0]:
+                return getattr(obj, self._fnct)(cursor, user, ids, names,
+                        self._arg, context=context)
+            res = {}
+            for name in names:
+                res[name] = getattr(obj, self._fnct)(cursor, user, ids, name,
+                        self._arg, context=context)
+            return res
+        else:
+            # Test is the function works with a list of names
+            if 'names' in inspect.getargspec(getattr(obj, self._fnct))[0]:
+                name = [name]
+            return getattr(obj, self._fnct)(cursor, user, ids, name, self._arg,
+                    context=context)
 
     def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
         if self._fnct_inv:

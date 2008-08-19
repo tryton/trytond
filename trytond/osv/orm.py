@@ -1035,12 +1035,26 @@ class ORM(object):
         # whose name is in load is False
         fields_post = [x for x in fields_names if x in self._columns \
                 and not getattr(self._columns[x], load)]
+        func_fields = {}
         for field in fields_post:
+            if isinstance(self._columns[field], fields.Function):
+                key = (self._columns[field]._fnct, self._columns[field]._arg)
+                func_fields.setdefault(key, [])
+                func_fields[key].append(field)
+                continue
             # get the value of that field for all records/ids
             res2 = self._columns[field].get(cursor, self, ids, field, user,
                     context=context, values=res)
             for record in res:
                 record[field] = res2[record['id']]
+        for i in func_fields:
+            field_list = func_fields[i]
+            field = field_list[0]
+            res2 = self._columns[field].get(cursor, self, ids, field_list, user,
+                    context=context, values=res)
+            for field in res2:
+                for record in res:
+                    record[field] = res2[field][record['id']]
         return res
 
     def _validate(self, cursor, user, ids, context=None):
