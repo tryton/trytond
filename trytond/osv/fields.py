@@ -686,13 +686,6 @@ class Property(Function):
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
-        if isinstance(name, list):
-            names = name
-            res = {}
-            for name in names:
-                res[name] = self._fnct_read(obj, cursor, user, ids, name,
-                        self._arg, context=context)
-            return res
         return self._fnct_read(obj, cursor, user, ids, name, self._arg,
                 context=context)
 
