@@ -491,7 +491,7 @@ class Report(object):
             if os.name == 'nt':
                 os.environ['LANG'] = language
                 language = _LOCALE2WIN32.get(language, language)
-            elif os.name == 'mac':
+            elif os.name == 'mac' or os.uname()[0] == 'Darwin':
                 encoding = 'UTF-8'
             locale.setlocale(locale.LC_ALL, str(language + '.' + encoding))
         except Exception:
