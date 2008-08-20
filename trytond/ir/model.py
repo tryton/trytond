@@ -169,11 +169,12 @@ class ModelData(OSV):
     _name = 'ir.model.data'
     _description = __doc__
     fs_id = fields.Char('Identifier on File System', required=True,
-            help="The id of the record as known on the file system.")
-    model = fields.Char('Model', required=True)
-    module = fields.Char('Module', required=True)
+            help="The id of the record as known on the file system.",
+            select=1)
+    model = fields.Char('Model', required=True, select=1)
+    module = fields.Char('Module', required=True, select=1)
     db_id = fields.Integer('Resource ID',
-       help="The id of the record in the database.")
+       help="The id of the record in the database.", select=1)
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
@@ -191,14 +192,21 @@ class ModelData(OSV):
     def get_id(self, cursor, user, module, fs_id):
         """
         Return for an fs_id the corresponding db_id.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param module: the module name
+        :param fs_id: the id in the xml file
+
+        :return: the database id
         """
-        ids = self.search(cursor, user,
-                          [('module','=',module),('fs_is','=',fs_id)])
+        ids = self.search(cursor, user, [
+            ('module', '=', module),
+            ('fs_is', '=', fs_id),
+            ])
         if not ids:
-            raise Exception("Reference to %s not found"% \
+            raise Exception("Reference to %s not found" % \
                                 ".".join([module,fs_id]))
-        return self.read(cursor, user, ids[0],['db_id'])['db_id']
-
-
+        return self.read(cursor, user, ids[0], ['db_id'])['db_id']
 
 ModelData()
