@@ -13,6 +13,7 @@ class Common(Service):
         Service.join_group(self, "web-services")
         Service.export_method(self, self.about)
         Service.export_method(self, self.login)
+        Service.export_method(self, self.version)
         Service.export_method(self, self.timezone_get)
 
     def login(self, database, login, password):
@@ -31,6 +32,12 @@ Tryton %s
 The whole source code is distributed under the terms of the
 GNU Public Licence v2.
 ''' % (VERSION,)
+
+    def version(self):
+        '''
+        Return the server version
+        '''
+        return VERSION
 
     def timezone_get(self, database, login, password):
         return time.tzname[0]
