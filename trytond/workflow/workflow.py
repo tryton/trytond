@@ -20,6 +20,12 @@ class Workflow(OSV):
     activities = fields.One2Many('workflow.activity', 'workflow',
        'Activities')
 
+    def __init__(self):
+        super(Workflow, self).__init__()
+        self._error_messages.update({
+            'no_workflow_defined': 'No workflow defined!',
+            })
+
     def default_on_create(self, cursor, user, context=None):
         return 1
 
@@ -127,6 +133,12 @@ class WorkflowInstance(OSV):
     res_type = fields.Char('Resource Model', required=True, select=1)
     state = fields.Char('State', required=True, select=1)
 
+    def __init__(self):
+        super(WorkflowInstance, self).__init__()
+        self._error_messages.update({
+            'no_instance_defined': 'No workflow instance defined!',
+            })
+
     def _auto_init(self, cursor, module_name):
         super(WorkflowInstance, self)._auto_init(cursor, module_name)
         cursor.execute('SELECT indexname FROM pg_indexes ' \
@@ -211,7 +223,8 @@ class InstanceGraph(Report):
             ('osv', '=', datas['model']),
             ], limit=1, context=context)
         if not workflow_id:
-            raise Exception('Error', 'No workflow defined!')
+            workflow_obj.raise_user_error(cursor, 'no_workflow_defined',
+                    context=context)
         workflow_id = workflow_id[0]
         workflow = workflow_obj.browse(cursor, user, workflow_id,
                 context=context)
@@ -220,7 +233,8 @@ class InstanceGraph(Report):
             ('workflow', '=', workflow.id),
             ], order=[('id', 'DESC')], limit=1, context=context)
         if not instance_id:
-            raise Exception('Error', 'No workflow instance defined!')
+            instance_obj.raise_user_error(cursor, 'no_instance_defined',
+                    context=context)
         instance_id = instance_id[0]
 
         title = "Workflow: %s OSV: %s" % (workflow.name, workflow.osv)
