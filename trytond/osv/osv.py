@@ -7,7 +7,6 @@ from trytond import pooler
 import copy
 import sys
 from trytond.sql_db import IntegrityError
-from trytond.tools import UpdateableDict
 import traceback
 from trytond.tools import Cache
 import time

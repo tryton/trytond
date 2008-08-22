@@ -15,11 +15,6 @@ try:
 except ImportError:
     import StringIO
 
-if sys.version_info[:2] < (2, 4):
-    from threadinglocal import local
-else:
-    from threading import local
-
 def find_in_path(name):
     if os.name == "nt":
         sep = ';'
@@ -217,124 +212,6 @@ def sms_send(user, password, api_id, text, to):
     return True
 
 
-class UpdateableStr(local):
-    '''Stores an updateable str to use in wizards'''
-
-    def __init__(self, string=''):
-        super(UpdateableStr, self).__init__()
-        self.string = string
-
-    def __str__(self):
-        return str(self.string)
-
-    def __repr__(self):
-        return str(self.string)
-
-    def __nonzero__(self):
-        return bool(self.string)
-
-
-class UpdateableDict(local):
-    '''Stores an updateable dict to use in wizards'''
-
-    def __init__(self, value=None):
-        super(UpdateableDict, self).__init__()
-        if value is None:
-            value = {}
-        self.dict = value
-
-    def __str__(self):
-        return str(self.dict)
-
-    def __repr__(self):
-        return str(self.dict)
-
-    def clear(self):
-        return self.dict.clear()
-
-    def keys(self):
-        return self.dict.keys()
-
-    def __setitem__(self, i, j):
-        self.dict.__setitem__(i, j)
-
-    def __getitem__(self, i):
-        return self.dict.__getitem__(i)
-
-    def copy(self):
-        return self.dict.copy()
-
-    def iteritems(self):
-        return self.dict.iteritems()
-
-    def iterkeys(self):
-        return self.dict.iterkeys()
-
-    def itervalues(self):
-        return self.dict.itervalues()
-
-    def pop(self, k, d=None):
-        return self.dict.pop(k, d)
-
-    def popitem(self):
-        return self.dict.popitem()
-
-    def setdefault(self, k, d=None):
-        return self.dict.setdefault(k, d)
-
-    def update(self, E, **F):
-        return self.dict.update(E, F)
-
-    def values(self):
-        return self.dict.values()
-
-    def get(self, k, d=None):
-        return self.dict.get(k, d)
-
-    def has_key(self, k):
-        return self.dict.has_key(k)
-
-    def items(self):
-        return self.dict.items()
-
-    def __cmp__(self, y):
-        return self.dict.__cmp__(y)
-
-    def __contains__(self, k):
-        return self.dict.__contains__(k)
-
-    def __delitem__(self, y):
-        return self.dict.__delitem__(y)
-
-    def __eq__(self, y):
-        return self.dict.__eq__(y)
-
-    def __ge__(self, y):
-        return self.dict.__ge__(y)
-
-    def __gt__(self, y):
-        return self.dict.__gt__(y)
-
-    def __hash__(self):
-        return self.dict.__hash__()
-
-    def __iter__(self):
-        return self.dict.__iter__()
-
-    def __le__(self, y):
-        return self.dict.__le__(y)
-
-    def __len__(self):
-        return self.dict.__len__()
-
-    def __lt__(self, y):
-        return self.dict.__lt__(y)
-
-    def __ne__(self, y):
-        return self.dict.__ne__(y)
-
-
-
 class Cache(object):
     """
     Use it as a decorator of the function you plan to cache
@@ -456,28 +333,6 @@ class Cache(object):
         cursor.commit()
         cursor.close()
 
-
-def get_languages():
-    languages = {
-        'zh_CN': 'Chinese (CN)',
-        'zh_TW': 'Chinese (TW)',
-        'cs_CZ': 'Czech',
-        'de_DE': 'Deutsch',
-        'es_AR': 'Español (Argentina)',
-        'es_ES': 'Español (España)',
-        'fr_FR': 'Français',
-        'fr_CH': 'Français (Suisse)',
-        'en_EN': 'English (default)',
-        'hu_HU': 'Hungarian',
-        'it_IT': 'Italiano',
-        'pt_BR': 'Portugese (Brasil)',
-        'pt_PT': 'Portugese (Portugal)',
-        'nl_NL': 'Nederlands',
-        'ro_RO': 'Romanian',
-        'ru_RU': 'Russian',
-        'sv_SE': 'Swedish',
-    }
-    return languages
 
 def mod10r(number):
     """
