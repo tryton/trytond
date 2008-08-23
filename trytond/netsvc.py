@@ -5,6 +5,7 @@ import SimpleXMLRPCServer, signal, sys, xmlrpclib
 import SocketServer
 import socket
 import logging
+import logging.handlers
 import os
 from pysocket import PySocket
 import traceback
