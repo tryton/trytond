@@ -12,7 +12,6 @@ import os.path
 from trytond.netsvc import Logger, LOG_ERROR, LOG_INFO, LocalService, LOG_WARNING
 from trytond.config import CONFIG
 from trytond.version import VERSION
-import logging
 import time
 from xml import sax
 from decimal import Decimal
