@@ -151,9 +151,9 @@ class Translation(OSV, Cacheable):
         return translations
 
     def _set_ids(self, cursor, user, name, ttype, lang, ids, value):
-        if name.split(',')[0] == 'ir.model.field':
+        model_name, field_name = name.split(',')
+        if model_name == 'ir.model.field':
             model_fields_obj = self.pool.get('ir.model.field')
-            field_name = name.split(',')[1]
             if field_name == 'field_description':
                 ttype = 'field'
             else:
@@ -179,24 +179,27 @@ class Translation(OSV, Cacheable):
                         'value': value,
                         })
             return len(ids)
-        for obj_id in ids:
+        model_obj = self.pool.get(model_name)
+        for record in model_obj.browse(cursor, user, ids):
             ids2 = self.search(cursor, user, [
                 ('lang', '=', lang),
                 ('type', '=', ttype),
                 ('name', '=', name),
-                ('res_id', '=', obj_id),
+                ('res_id', '=', record.id),
                 ])
             if not ids2:
                 self.create(cursor, user, {
                     'name': name,
                     'lang': lang,
                     'type': ttype,
-                    'res_id': obj_id,
+                    'res_id': record.id,
                     'value': value,
+                    'src': record[field_name],
                     })
             else:
                 self.write(cursor, user, ids2, {
                     'value': value,
+                    'src': record[field_name],
                     })
         return len(ids)
 
