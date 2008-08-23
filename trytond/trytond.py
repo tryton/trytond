@@ -30,9 +30,9 @@ class TrytonServer(object):
             mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
                     time.strptime(x, y))
 
-        self.logger.notify_channel("config", netsvc.LOG_INFO,
+        self.logger.notify_channel("init", netsvc.LOG_INFO,
                 'using %s as configuration file' % CONFIG.configfile)
-        self.logger.notify_channel("objects", netsvc.LOG_INFO,
+        self.logger.notify_channel("init", netsvc.LOG_INFO,
                 'initialising distributed objects services')
 
         self.dispatcher = netsvc.Dispatcher()
@@ -144,9 +144,9 @@ class TrytonServer(object):
 
             httpd = netsvc.HttpDaemon(interface, port, secure)
 
-            xml_gw = netsvc.XmlRpc.RpcGateway('web-services')
+            xml_gw = netsvc.XmlRpc.RpcGateway('web-service')
             httpd.attach("/xmlrpc", xml_gw )
-            self.logger.notify_channel("web-services", netsvc.LOG_INFO,
+            self.logger.notify_channel("web-service", netsvc.LOG_INFO,
                         "starting XML-RPC" + \
                                 (CONFIG['secure'] and ' Secure' or '') + \
                                 " services, port " + str(port))
@@ -162,7 +162,7 @@ class TrytonServer(object):
 
             tinysocket = netsvc.TinySocketServerThread(interface, port,
                     secure)
-            self.logger.notify_channel("web-services", netsvc.LOG_INFO,
+            self.logger.notify_channel("web-service", netsvc.LOG_INFO,
                     "starting netrpc service, port " + str(port))
 
         if CONFIG['webdav']:
@@ -175,7 +175,7 @@ class TrytonServer(object):
                 sys.exit(1)
 
             webdavd = netsvc.WebDAVServerThread(interface, port, secure)
-            self.logger.notify_channel('web-services', netsvc.LOG_INFO,
+            self.logger.notify_channel('web-service', netsvc.LOG_INFO,
                     'starting webdav service, port ' + str(port))
 
         def handler(signum, frame):
@@ -199,7 +199,7 @@ class TrytonServer(object):
         signal.signal(signal.SIGINT, handler)
         signal.signal(signal.SIGTERM, handler)
 
-        self.logger.notify_channel("web-services", netsvc.LOG_INFO,
+        self.logger.notify_channel("init", netsvc.LOG_INFO,
                 'the server is running, waiting for connections...')
         if CONFIG['netrpc']:
             tinysocket.start()

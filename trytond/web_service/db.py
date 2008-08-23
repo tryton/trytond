@@ -16,7 +16,7 @@ class DB(Service):
 
     def __init__(self, name="db"):
         super(DB, self).__init__(name)
-        self.join_group("web-services")
+        self.join_group("web-service")
         self.export_method(self.create)
         self.export_method(self.drop)
         self.export_method(self.dump)
@@ -102,7 +102,7 @@ class DB(Service):
                         'Exception in call: \n' + tb_s)
                 raise
             else:
-                logger.notify_channel("web-services", LOG_INFO,
+                logger.notify_channel("web-service", LOG_INFO,
                     'DROP DB: %s' % (db_name))
         finally:
             cursor.close()
@@ -134,7 +134,7 @@ class DB(Service):
             logger.notify_channel("web-service", LOG_ERROR,
                     'DUMP DB: %s failed\n%s' % (db_name, data))
             raise Exception, "Couldn't dump database"
-        logger.notify_channel("web-services", LOG_INFO,
+        logger.notify_channel("web-service", LOG_INFO,
                 'DUMP DB: %s' % (db_name))
         return base64.encodestring(data)
 
@@ -183,7 +183,7 @@ class DB(Service):
         res = stdout.close()
         if res:
             raise Exception, "Couldn't restore database"
-        logger.notify_channel("web-services", LOG_INFO,
+        logger.notify_channel("web-service", LOG_INFO,
                 'RESTORE DB: %s' % (db_name))
         return True
 

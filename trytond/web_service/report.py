@@ -8,7 +8,7 @@ class Report(Service):
 
     def __init__(self, name='report'):
         Service.__init__(self, name)
-        Service.join_group(self, 'web-services')
+        Service.join_group(self, 'web-service')
         Service.export_method(self, self.execute)
 
     def execute(self, database, user, passwd, report_name, ids, datas,

@@ -176,7 +176,7 @@ class ReportService(Service):
         self.object_name_pool = {}
         self.module_obj_list = {}
         Service.__init__(self, 'report_proxy')
-        Service.join_group(self, 'web-services')
+        Service.join_group(self, 'web-service')
         Service.export_method(self, self.execute)
 
     def execute_cr(self, cursor, user, report_name, ids, datas, context=None):
@@ -199,7 +199,7 @@ class ReportService(Service):
                         *exception.args)
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
-            Logger().notify_channel("web-services", LOG_ERROR,
+            Logger().notify_channel("web-service", LOG_ERROR,
                     'Exception in call: ' + tb_s)
             if isinstance(exception, IntegrityError):
                 raise Exception('UserError', 'Constraint Error',

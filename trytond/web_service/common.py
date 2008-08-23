@@ -10,7 +10,7 @@ class Common(Service):
 
     def __init__(self, name="common"):
         Service.__init__(self, name)
-        Service.join_group(self, "web-services")
+        Service.join_group(self, "web-service")
         Service.export_method(self, self.about)
         Service.export_method(self, self.login)
         Service.export_method(self, self.version)
