@@ -11,7 +11,7 @@ class Wizard(Service):
 
     def __init__(self, name='wizard'):
         Service.__init__(self, name)
-        Service.join_group(self, 'web-services')
+        Service.join_group(self, 'web-service')
         Service.export_method(self, self.execute)
         Service.export_method(self, self.create)
         Service.export_method(self, self.delete)

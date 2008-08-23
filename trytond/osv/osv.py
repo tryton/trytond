@@ -24,7 +24,7 @@ class OSVService(Service):
         self.object_name_pool = {}
         self.module_obj_list = {}
         Service.__init__(self, 'object_proxy')
-        Service.join_group(self, 'web-services')
+        Service.join_group(self, 'web-service')
         Service.export_method(self, self.object_name_list)
         Service.export_method(self, self.exec_workflow)
         Service.export_method(self, self.execute)
@@ -55,7 +55,7 @@ class OSVService(Service):
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger = Logger()
-            logger.notify_channel("web-services", LOG_ERROR,
+            logger.notify_channel("web-service", LOG_ERROR,
                     'Exception in call: \n' + tb_s)
             if isinstance(exception, IntegrityError):
                 raise Exception('UserError', 'Constraint Error',
@@ -94,7 +94,7 @@ class OSVService(Service):
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger = Logger()
-            logger.notify_channel("web-services", LOG_ERROR,
+            logger.notify_channel("web-service", LOG_ERROR,
                     'Exception in call: \n' + tb_s)
             if isinstance(exception, IntegrityError):
                 raise Exception('UserError', 'Constraint Error',

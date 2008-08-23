@@ -7,7 +7,7 @@ class Object(Service):
 
     def __init__(self, name="object"):
         Service.__init__(self, name)
-        Service.join_group(self, 'web-services')
+        Service.join_group(self, 'web-service')
         Service.export_method(self, self.execute)
         Service.export_method(self, self.exec_workflow)
         Service.export_method(self, self.obj_list)
