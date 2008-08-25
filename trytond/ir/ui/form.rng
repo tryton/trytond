@@ -274,6 +274,7 @@
           <value>binary</value>
           <value>many2many</value>
           <value>image</value>
+          <value>progressbar</value>
         </choice>
       </attribute>
     </optional>
@@ -425,6 +426,18 @@
           <value>0</value>
           <value>1</value>
           <value>2</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="orientation" a:defaultValue="left_to_right">
+        <choice>
+          <value>left_to_right</value>
+          <value>right_to_left</value>
+          <value>bottom_to_top</value>
+          <value>top_to_bottom</value>
         </choice>
       </attribute>
     </optional>
