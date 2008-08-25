@@ -90,6 +90,7 @@ attlist.field &=
     | "binary"
     | "many2many"
     | "image"
+    | "progressbar"
   }?
 attlist.field &= attribute saves { "0" | "1" }?
 attlist.field &= attribute expand { "0" | "1" }?
@@ -116,6 +117,13 @@ attlist.field &= attribute domain { text }?
 attlist.field &= attribute color { text }?
 attlist.field &=
   [ a:defaultValue = "0" ] attribute select { "0" | "1" | "2" }?
+attlist.field &=
+  [ a:defaultValue = "left_to_right" ] attribute orientation {
+    "left_to_right"
+    | "right_to_left"
+    | "bottom_to_top"
+    | "top_to_bottom"
+  }
 image = element image { attlist.image, empty }
 attlist.image &= attribute name { text }
 attlist.image &= [ a:defaultValue = "1" ] attribute colspan { text }?

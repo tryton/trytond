@@ -33,6 +33,7 @@ attlist.field &=
     | "email"
     | "callto"
     | "sip"
+    | "progressbar"
   }?
 attlist.field &=
   [ a:defaultValue = "0" ] attribute select { "0" | "1" | "2" }?
@@ -41,6 +42,13 @@ attlist.field &=
 attlist.field &= attribute icon { text }?
 attlist.field &= attribute sum { text }?
 attlist.field &= attribute width { text }?
+attlist.field &=
+  [ a:defaultValue = "left_to_right" ] attribute orientation {
+    "left_to_right"
+    | "right_to_left"
+    | "bottom_to_top"
+    | "top_to_bottom"
+  }
 data = element data { attlist.data, xpath+ }
 attlist.data &= empty
 xpath = element xpath { attlist.xpath, any }
