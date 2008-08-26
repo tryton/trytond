@@ -4,8 +4,10 @@
     <element name="tree">
       <ref name="attlist.tree"/>
       <zeroOrMore>
-        <ref name="field"/>
-        <ref name="button"/>
+        <choice>
+          <ref name="field"/>
+          <ref name="button"/>
+        </choice>
       </zeroOrMore>
     </element>
   </define>
