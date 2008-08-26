@@ -34,21 +34,17 @@ class WizardService(Service):
             res = wizard.execute(cursor, user, data, state, context)
             return res
         except Exception, exception:
-            if exception.args \
-                    and exception.args[0] in ('UserError',
-                            'ConcurrencyException') \
-                    and not CONFIG['verbose']:
-                raise
-            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
-                raise Exception('UserError', 'Constraint Error',
-                        *exception.args)
-            tb_s = reduce(lambda x, y: x+y,
-                    traceback.format_exception(*sys.exc_info()))
-            Logger().notify_channel("web-service", LOG_ERROR,
-                    'Exception in call: ' + tb_s)
+            if CONFIG['verbose']:
+                tb_s = reduce(lambda x, y: x+y,
+                        traceback.format_exception(*sys.exc_info()))
+                Logger().notify_channel("web-service", LOG_ERROR,
+                        'Exception in call: ' + tb_s)
             if isinstance(exception, IntegrityError):
-                raise Exception('UserError', 'Constraint Error',
-                        *exception.args)
+                pool = pooler.get_pool(cursor.dbname)
+                for key in pool._sql_errors.keys():
+                    if key in exception[0]:
+                        raise Exception('UserError', 'Constraint Error',
+                                pool._sql_errors[key])
             raise
 
     def execute(self, dbname, user, wizard_name, data, state='init',
