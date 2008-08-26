@@ -497,8 +497,7 @@ class ORM(object):
 
 
         for ident, constraint, msg in self._sql_constraints:
-            table.add_constraint( ident, constraint)
-
+            table.add_constraint(ident, constraint)
 
     def __init__(self):
         self._rpc_allowed = [
