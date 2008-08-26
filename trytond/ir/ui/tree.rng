@@ -3,9 +3,10 @@
   <define name="tree">
     <element name="tree">
       <ref name="attlist.tree"/>
-      <oneOrMore>
+      <zeroOrMore>
         <ref name="field"/>
-      </oneOrMore>
+        <ref name="button"/>
+      </zeroOrMore>
     </element>
   </define>
   <define name="attlist.tree" combine="interleave">
@@ -148,6 +149,46 @@
           <value>top_to_bottom</value>
         </choice>
       </attribute>
+    </optional>
+  </define>
+  <define name="button">
+    <element name="button">
+      <ref name="attlist.button"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.button" combine="interleave">
+    <optional>
+      <attribute name="help"/>
+    </optional>
+  </define>
+  <define name="attlist.button" combine="interleave">
+    <optional>
+      <attribute name="string" a:defaultValue="Unknown"/>
+    </optional>
+  </define>
+  <define name="attlist.button" combine="interleave">
+    <optional>
+      <attribute name="type" a:defaultValue="workflow">
+        <choice>
+          <value>workflow</value>
+          <value>object</value>
+          <value>action</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.button" combine="interleave">
+    <optional>
+      <attribute name="confirm"/>
+    </optional>
+  </define>
+  <define name="attlist.button" combine="interleave">
+    <attribute name="name"/>
+  </define>
+  <define name="attlist.button" combine="interleave">
+    <optional>
+      <attribute name="states"/>
     </optional>
   </define>
   <define name="data">
