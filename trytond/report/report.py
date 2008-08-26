@@ -26,6 +26,7 @@ from genshi.filters import Translator
 import traceback
 from trytond.config import CONFIG
 from trytond.sql_db import IntegrityError
+from trytond import LOCALE_SEMAPHORE
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -480,42 +481,50 @@ class Report(object):
         return None
 
     def format_lang(self, value, digits=2, date=False, language='en_US'):
-        encoding = locale.getdefaultlocale()[1]
-        if encoding == 'utf':
-            encoding = 'UTF-8'
-        if encoding == 'cp1252':
-            encoding = '1252'
-        if not encoding:
-            encoding = 'UTF-8'
+        LOCALE_SEMAPHORE.acquire()
         try:
-            if os.name == 'nt':
-                os.environ['LANG'] = language
-                language = _LOCALE2WIN32.get(language, language)
-            elif os.name == 'mac' or os.uname()[0] == 'Darwin':
+            encoding = locale.getdefaultlocale()[1]
+            if encoding == 'utf':
                 encoding = 'UTF-8'
-            locale.setlocale(locale.LC_ALL, str(language + '.' + encoding))
-        except Exception:
-            Logger().notify_channel('web-service', LOG_WARNING,
-                    'Report %s: unable to set locale "%s"' % \
-                            (self._name, language + '.' + encoding))
-        if date:
-            if isinstance(value, time.struct_time):
-                locale_format = LocaleTime().LC_date.replace('%y', '%Y')
-                date = value
-            else:
-                # assume string, parse it
-                if len(str(value)) == 10:
-                    # length of date like 2001-01-01 is ten
-                    # assume format '%Y-%m-%d'
+            if encoding == 'cp1252':
+                encoding = '1252'
+            if not encoding:
+                encoding = 'UTF-8'
+            try:
+                if os.name == 'nt':
+                    os.environ['LANG'] = language
+                    language = _LOCALE2WIN32.get(language, language)
+                elif os.name == 'mac' or os.uname()[0] == 'Darwin':
+                    encoding = 'UTF-8'
+                locale.setlocale(locale.LC_ALL, str(language + '.' + encoding))
+            except Exception:
+                Logger().notify_channel('web-service', LOG_WARNING,
+                        'Report %s: unable to set locale "%s"' % \
+                                (self._name, language + '.' + encoding))
+            if date:
+                if isinstance(value, time.struct_time):
                     locale_format = LocaleTime().LC_date.replace('%y', '%Y')
-                    string_pattern = '%Y-%m-%d'
+                    date = value
                 else:
-                    # assume format '%Y-%m-%d %H:%M:%S'
-                    value = str(value)[:19]
-                    locale_format = LocaleTime().LC_date.replace('%y', '%Y') \
-                            + ' %H:%M:%S'
-                    string_pattern = '%Y-%m-%d %H:%M:%S'
-                date = time.strptime(str(value), string_pattern)
-            return time.strftime(locale_format, date)
+                    # assume string, parse it
+                    if len(str(value)) == 10:
+                        # length of date like 2001-01-01 is ten
+                        # assume format '%Y-%m-%d'
+                        locale_format = LocaleTime().LC_date.replace('%y', '%Y')
+                        string_pattern = '%Y-%m-%d'
+                    else:
+                        # assume format '%Y-%m-%d %H:%M:%S'
+                        value = str(value)[:19]
+                        locale_format = LocaleTime().LC_date.replace('%y', '%Y') \
+                                + ' %H:%M:%S'
+                        string_pattern = '%Y-%m-%d %H:%M:%S'
+                    date = time.strptime(str(value), string_pattern)
+                return time.strftime(locale_format, date)
 
-        return locale.format('%.' + str(digits) + 'f', value, True)
+            res = locale.format('%.' + str(digits) + 'f', value, True)
+            if os.name == 'nt':
+                os.environ['LANG'] = ''
+            locale.setlocale(locale.LC_ALL, '')
+        finally:
+            LOCALE_SEMAPHORE.release()
+        return res
