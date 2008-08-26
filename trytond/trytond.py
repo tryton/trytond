@@ -18,6 +18,9 @@ import osv, security, tools, version
 import mx.DateTime
 from getpass import getpass
 import sha
+from threading import Semaphore
+
+LOCALE_SEMAPHORE = Semaphore()
 
 
 class TrytonServer(object):
