@@ -98,6 +98,9 @@ def install_module(name):
         'start', CONTEXT))
     SOCK.receive()
 
+    SOCK.send(('wizard', 'delete', wiz_id))
+    SOCK.receive()
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(DBTestCase)
 
