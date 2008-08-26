@@ -2,8 +2,6 @@
 import wkf_expr
 import instance
 
-# TODO: remove trigger
-
 def create(cursor, act_datas, inst_id, ident):
     for act in act_datas:
         cursor.execute("SELECT NEXTVAL('wkf_workitem_id_seq')")
