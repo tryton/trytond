@@ -29,6 +29,7 @@ class OSVService(Service):
         Service.export_method(self, self.exec_workflow)
         Service.export_method(self, self.execute)
         Service.export_method(self, self.execute_cr)
+        self._sql_errors = {}
 
     def execute_cr(self, cursor, user, object_name, method, *args, **kargs):
         # TODO: check security level
@@ -44,22 +45,17 @@ class OSVService(Service):
             res = getattr(obj, method)(cursor, user, *args, **kargs)
             return res
         except Exception, exception:
-            if exception.args \
-                    and exception.args[0] in ('UserError',
-                            'ConcurrencyException') \
-                    and not CONFIG['verbose']:
-                raise
-            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
-                raise Exception('UserError', 'Constraint Error',
-                        *exception.args)
-            tb_s = reduce(lambda x, y: x+y,
-                    traceback.format_exception(*sys.exc_info()))
-            logger = Logger()
-            logger.notify_channel("web-service", LOG_ERROR,
-                    'Exception in call: \n' + tb_s)
+            if CONFIG['verbose']:
+                tb_s = reduce(lambda x, y: x+y,
+                        traceback.format_exception(*sys.exc_info()))
+                logger = Logger()
+                logger.notify_channel("web-service", LOG_ERROR,
+                        'Exception in call: \n' + tb_s)
             if isinstance(exception, IntegrityError):
-                raise Exception('UserError', 'Constraint Error',
-                        *exception.args)
+                for key in self._sql_errors.keys():
+                    if key in exception[0]:
+                        raise Exception('UserError', 'Constraint Error',
+                                self._sql_errors[key])
             raise
 
     def execute(self, dbname, user, object_name, method, *args, **kargs):
@@ -83,22 +79,17 @@ class OSVService(Service):
         try:
             wf_service.trg_validate(user, object_name, args[0], method, cursor)
         except Exception, exception:
-            if exception.args \
-                    and exception.args[0] in ('UserError',
-                            'ConcurrencyException') \
-                    and not CONFIG['verbose']:
-                raise
-            if isinstance(exception, IntegrityError) and not CONFIG['verbose']:
-                raise Exception('UserError', 'Constraint Error',
-                        *exception.args)
-            tb_s = reduce(lambda x, y: x+y,
-                    traceback.format_exception(*sys.exc_info()))
-            logger = Logger()
-            logger.notify_channel("web-service", LOG_ERROR,
-                    'Exception in call: \n' + tb_s)
+            if CONFIG['verbose']:
+                tb_s = reduce(lambda x, y: x+y,
+                        traceback.format_exception(*sys.exc_info()))
+                logger = Logger()
+                logger.notify_channel("web-service", LOG_ERROR,
+                        'Exception in call: \n' + tb_s)
             if isinstance(exception, IntegrityError):
-                raise Exception('UserError', 'Constraint Error',
-                        *exception.args)
+                for key in self._sql_errors.keys():
+                    if key in exception[0]:
+                        raise Exception('UserError', 'Constraint Error',
+                                self._sql_errors[key])
             raise
         return True
 
@@ -141,7 +132,10 @@ class OSVService(Service):
         res = []
         class_list = MODULE_CLASS_LIST.get(module, [])
         for klass in class_list:
-            res.append(klass.create_instance(self, module))
+            inst = klass.create_instance(self, module)
+            res.append(inst)
+            for key, _, msg in inst._sql_constraints:
+                self._sql_errors[inst._table + '_' + key] = msg
         return res
 
 osv_pool = OSVService
