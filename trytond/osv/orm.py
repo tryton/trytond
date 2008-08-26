@@ -2830,7 +2830,7 @@ class ORM(object):
                     'SET "' + left + '" = "' + left + '" + ' \
                             + str(parent_right - old_left) + ', ' \
                         '"' + right + '" = "' + right + '" + ' \
-                            + str(parent_right - old_left) + ' ' \
+                            + str(parent_right - (old_left or -1)) + ' ' \
                     'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
                     (old_left, old_right))
         else:
