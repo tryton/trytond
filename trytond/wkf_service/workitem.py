@@ -58,14 +58,13 @@ def _execute(cursor, workitem, activity, ident):
     "send a signal to parent workflow (signal: subflow.signal_name)"
 
     if (workitem['state'] == 'active') and activity['signal_send']:
-        # TODO remove subquery
         cursor.execute("SELECT i.id, w.osv, i.res_id " \
                 "FROM wkf_instance i " \
                 "LEFT JOIN wkf w " \
                     "ON (i.workflow = w.id) " \
-                "WHERE i.id in (" \
-                    "SELECT instance FROM wkf_workitem " \
-                    "WHERE subflow = %s)", (workitem['instance'],))
+                "LEFT JOIN wkf_workitem wi " \
+                    "ON (i.id = wi.instance) " \
+                "WHERE wi.subflow = %s)", (workitem['instance'],))
         for i in cursor.fetchall():
             instance.validate(cursor, i[0], (ident[0], i[1], i[2]),
                     activity['signal_send'], force_running=True)
@@ -153,10 +152,10 @@ def _split_test(cursor, workitem, split_mode, ident, signal=None):
     return False
 
 def _join_test(cursor, trans_id, inst_id, ident):
-    # TODO remove the subquery
-    cursor.execute('SELECT * FROM wkf_activity ' \
-            'WHERE id = (SELECT act_to FROM wkf_transition WHERE id = %s)',
-            (trans_id,))
+    cursor.execute('SELECT a.* FROM wkf_activity a ' \
+                'LEFT JOIN wkf_transition t ' \
+                    'ON (a.id = t.act_to) ' \
+                'WHERE t.id = %s', (trans_id,))
     activity = cursor.dictfetchone()
     if activity['join_mode'] == 'XOR':
         create(cursor, [activity], inst_id, ident)
