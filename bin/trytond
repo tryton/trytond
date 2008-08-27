@@ -26,4 +26,4 @@ if 0:
     os.remove(statfile)
 
 else:
-    trytond.TrytonServer().run()
+    trytond.server.TrytonServer().run()
