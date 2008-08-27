@@ -18,7 +18,7 @@ import os
 import datetime
 import md5
 from base64 import decodestring
-import relatorio
+import relatorio.reporting
 import tempfile
 from genshi.filters import Translator
 import traceback
@@ -264,8 +264,8 @@ class Report(object):
 
         translator = Translator(translate)
 
-        rel_report = relatorio.Report(path, 'application/vnd.oasis.opendocument.text',
-                ReportFactory(), relatorio.MIMETemplateLoader())
+        rel_report = relatorio.reporting.Report(path, 'application/vnd.oasis.opendocument.text',
+                ReportFactory(), relatorio.reporting.MIMETemplateLoader())
         rel_report.filters.insert(0, translator)
         data = rel_report(objects, **localcontext).render().getvalue()
         os.remove(path)
