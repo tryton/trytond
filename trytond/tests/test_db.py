@@ -87,7 +87,14 @@ def login():
 
 def install_module(name):
     module = RPCProxy('ir.module.module')
-    module_ids = module.search([('name', '=', name)])
+    module_ids = module.search([
+        ('name', '=', name),
+        ('state', '!=', 'installed'),
+        ])
+
+    if not module_ids:
+        return
+
     module.button_install(module_ids, CONTEXT)
 
     SOCK.send(('wizard', 'create', DB_NAME, USER, SESSION,
@@ -98,7 +105,7 @@ def install_module(name):
         'start', CONTEXT))
     SOCK.receive()
 
-    SOCK.send(('wizard', 'delete', wiz_id))
+    SOCK.send(('wizard', 'delete', DB_NAME, USER, SESSION, wiz_id))
     SOCK.receive()
 
 def suite():
