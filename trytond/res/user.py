@@ -185,6 +185,14 @@ class User(OSV):
                 res[field] = [x.id for x in user[field]]
             else:
                 res[field] = user[field]
+
+        if user.language:
+            res['locale'] = {
+                'date': user.language.date,
+                'grouping': eval(user.language.grouping),
+                'decimal_point': user.language.decimal_point,
+                'thousands_sep': user.language.decimal_point,
+            }
         return res
 
     def set_preferences(self, cursor, user, values, context=None):
