@@ -422,13 +422,14 @@ class table_handler:
             on_delete = 'SET NULL'
         code = on_delete_code[on_delete]
 
-        if self.fk_deltype.get(column_name) == code:
-            # The fk exist and the delete action is ok
-            return
-        self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
-                'ADD FOREIGN KEY ("' + column_name + '") ' \
-                    'REFERENCES "' + reference + '" ' \
-                    'ON DELETE ' + on_delete)
+        self.cursor.execute('SELECT conname FROM pg_constraint ' \
+                'WHERE conname = %s',
+                (self.table_name + '_' + column_name + '_fkey',))
+        if not self.cursor.rowcount:
+            self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
+                    'ADD FOREIGN KEY ("' + column_name + '") ' \
+                        'REFERENCES "' + reference + '" ' \
+                        'ON DELETE ' + on_delete)
         self.update_definitions()
 
     def index_action(self, column_name, action='add'):
