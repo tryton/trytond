@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Lang"
 from trytond.osv import fields, OSV
+import time
 
 
 class Lang(OSV):
@@ -30,9 +31,11 @@ class Lang(OSV):
         super(Lang, self).__init__()
         self._constraints += [
             ('check_grouping', 'invalid_grouping'),
+            ('check_date', 'invalid_date'),
         ]
         self._error_messages.update({
             'invalid_grouping': 'Invalid Grouping!',
+            'invalid_date': 'The date format is not valid!',
         })
 
     def default_active(self, cursor, user, context=None):
@@ -67,6 +70,26 @@ class Lang(OSV):
                     if not isinstance(i, int):
                         return False
             except:
+                return False
+        return True
+
+    def check_date(self, cursor, user, ids):
+        '''
+        Check the date format
+        '''
+        for lang in self.browse(cursor, user, ids):
+            try:
+                time.strftime(lang.date, time.localtime())
+            except:
+                return False
+            if '%Y' not in lang.date:
+                return False
+            if '%b' not in lang.date \
+                    and '%B' not in lang.date \
+                    and '%m' not in lang.date:
+                return False
+            if '%d' not in lang.date \
+                    and '%j' not in lang.date:
                 return False
         return True
 
