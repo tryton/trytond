@@ -70,6 +70,9 @@ class Lang(OSV):
                 return False
         return True
 
+    def check_xml_record(self, cursor, user, ids, values, context=None):
+        return True
+
     def _group(self, lang, s, monetary=False):
         # Code from _group in locale.py
         if monetary:
