@@ -26,7 +26,7 @@ from genshi.filters import Translator
 import traceback
 from trytond.config import CONFIG
 from trytond.sql_db import IntegrityError
-from trytond import LOCALE_SEMAPHORE
+from trytond.server import LOCALE_SEMAPHORE
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
