@@ -607,7 +607,8 @@ class ModuleInstallUpgrade(Wizard):
             context=context)]
         cursor.commit()
         cursor.close()
-        restart_pool(dbname, update_module=True, lang=lang)
+        if module_ids:
+            restart_pool(dbname, update_module=True, lang=lang)
         return {}
 
     states = {
