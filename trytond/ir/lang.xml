@@ -57,6 +57,9 @@
                     <field name="direction"/>
                     <label name="translatable"/>
                     <field name="translatable"/>
+                    <separator string="Date Formatting" colspan="6"/>
+                    <label name="date"/>
+                    <field name="date"/>
                     <separator string="Numbers Formatting" colspan="6"/>
                     <label name="grouping"/>
                     <field name="grouping"/>
