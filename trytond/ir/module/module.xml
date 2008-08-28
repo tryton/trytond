@@ -36,17 +36,13 @@
                                 <button string="Cancel Install" name="button_install_cancel"
                                     type="object" states="{'invisible': '''state != 'to install' '''}"/>
                                 <button string="Uninstall (beta)" name="button_uninstall"
-                                    type="object" states="{'invisible': '''state != 'installed' '''}"/>
+                                    type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': '''True'''}"/>
                                 <button string="Cancel Uninstall" name="button_uninstall_cancel"
                                     type="object" states="{'invisible': '''state != 'to remove' '''}"/>
                                 <button string="Upgrade" name="button_upgrade"
                                     type="object" states="{'invisible': '''state != 'installed' '''}"/>
                                 <button string="Cancel Upgrade" name="button_upgrade_cancel"
                                     type="object" states="{'invisible': '''state != 'to upgrade' '''}"/>
-                                <!--
-                                <button string="Update translations" name="button_update_translations"
-                                    type="object" states="{'invisible': '''state != 'installed' '''}"/>
-                                -->
                             </group>
                         </page>
                         <page string="Dependencies" col="1">
