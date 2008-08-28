@@ -211,6 +211,13 @@ def sms_send(user, password, api_id, text, to):
     urllib.urlopen("http://196.7.150.220/http/sendmsg", params)
     return True
 
+def find_language_context(args):
+    res = 'en_US'
+    for arg in args:
+        if isinstance(arg, dict):
+            res = arg.get('language', 'en_US')
+    return res
+
 
 class Cache(object):
     """

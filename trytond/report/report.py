@@ -24,6 +24,7 @@ from genshi.filters import Translator
 import traceback
 from trytond.config import CONFIG
 from trytond.sql_db import IntegrityError
+from trytond.tools import find_language_context
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -58,8 +59,24 @@ class ReportService(Service):
                 pool = pooler.get_pool(cursor.dbname)
                 for key in pool._sql_errors.keys():
                     if key in exception[0]:
+                        msg = self._sql_errors[key]
+                        cursor2 = pooler.get_db(cursor.dbname).cursor()
+                        try:
+                            cursor2.execute('SELECT value ' \
+                                    'FROM ir_translation ' \
+                                    'WHERE lang=%s ' \
+                                        'AND type=%s ' \
+                                        'AND src=%s',
+                                    (find_language_context(args), 'error',
+                                        msg))
+                            if cursor2.rowcount:
+                                res = cursor2.fetchone()[0]
+                                if res:
+                                    msg = res
+                        finally:
+                            cursor2.close()
                         raise Exception('UserError', 'Constraint Error',
-                                pool._sql_errors[key])
+                                msg)
             raise
 
     def execute(self, dbname, user, report_name, ids, datas, context=None):

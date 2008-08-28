@@ -8,7 +8,7 @@ import copy
 import sys
 from trytond.sql_db import IntegrityError
 import traceback
-from trytond.tools import Cache
+from trytond.tools import Cache, find_language_context
 import time
 from threading import Semaphore
 from trytond.config import CONFIG
@@ -34,7 +34,7 @@ class OSVService(Service):
     def execute_cr(self, cursor, user, object_name, method, *args, **kargs):
         # TODO: check security level
         try:
-            obj = pooler.get_pool(cursor.dbname).get(object_name)
+            obj =  pooler.get_pool(cursor.dbname).get(object_name)
             if not obj:
                 raise Exception('Error',
                         'Object %s doesn\'t exist' % str(object_name))
@@ -54,8 +54,24 @@ class OSVService(Service):
             if isinstance(exception, IntegrityError):
                 for key in self._sql_errors.keys():
                     if key in exception[0]:
+                        msg = self._sql_errors[key]
+                        cursor2 = pooler.get_db(cursor.dbname).cursor()
+                        try:
+                            cursor2.execute('SELECT value ' \
+                                    'FROM ir_translation ' \
+                                    'WHERE lang=%s ' \
+                                        'AND type=%s ' \
+                                        'AND src=%s',
+                                    (find_language_context(args), 'error',
+                                        msg))
+                            if cursor2.rowcount:
+                                res = cursor2.fetchone()[0]
+                                if res:
+                                    msg = res
+                        finally:
+                            cursor2.close()
                         raise Exception('UserError', 'Constraint Error',
-                                self._sql_errors[key])
+                                msg)
             raise
 
     def execute(self, dbname, user, object_name, method, *args, **kargs):

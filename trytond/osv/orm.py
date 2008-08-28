@@ -383,14 +383,15 @@ class ORM(object):
         for trans in cursor.dictfetchall():
             trans_error[trans['src']] = trans
 
-        for error in self._error_messages.values():
+        errors = self._error_messages.values() + self._sql_error_messages.values()
+        for _, _, error in self._sql_constraints:
+            errors.append(error)
+        for error in set(errors):
             if error not in trans_error:
                 cursor.execute('INSERT INTO ir_translation ' \
                         '(name, lang, type, src, value, module, fuzzy) ' \
                         'VALUES (%s, %s, %s, %s, %s, %s, false)',
                         (self._name, 'en_US', 'error', error, '', module_name))
-
-
 
     def _auto_init(self, cursor, module_name):
         logger = Logger()
