@@ -434,7 +434,7 @@
                             expr="/form/notebook/page/group/button[@name=&quot;button_uninstall&quot;]"
                             position="replace">
                             <button string="Uninstall (beta)" name="button_uninstall"
-                                type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
+                                type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': ''' %(res.group_admin)d not in groups or True'''}"/>
                         </xpath>
                         <xpath
                             expr="/form/notebook/page/group/button[@name=&quot;button_uninstall_cancel&quot;]"
