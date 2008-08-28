@@ -425,7 +425,15 @@ class table_handler:
         self.cursor.execute('SELECT conname FROM pg_constraint ' \
                 'WHERE conname = %s',
                 (self.table_name + '_' + column_name + '_fkey',))
+        add = False
         if not self.cursor.rowcount:
+            add = True
+        elif self.fk_deltype.get(column_name) != code:
+            self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
+                    'DROP CONSTRAINT "' + self.table_name + '_' + \
+                    column_name + '_fkey"')
+            add = True
+        if add:
             self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
                     'ADD FOREIGN KEY ("' + column_name + '") ' \
                         'REFERENCES "' + reference + '" ' \
