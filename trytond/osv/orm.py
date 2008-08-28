@@ -522,6 +522,7 @@ class ORM(object):
         self._inherit_fields = []
         self._order = [('id', 'ASC')]
         self._error_messages = {}
+        self._sql_error_messages = {}
         # reinit the cache on _columns and _defaults
         self.__columns = None
         self.__defaults = None

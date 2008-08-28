@@ -136,6 +136,9 @@ class OSVService(Service):
             res.append(inst)
             for key, _, msg in inst._sql_constraints:
                 self._sql_errors[inst._table + '_' + key] = msg
+            for key in inst._sql_error_messages.keys():
+                self._sql_errors[inst._table + '_' + key] = \
+                        inst._sql_error_messages[key]
         return res
 
 osv_pool = OSVService
