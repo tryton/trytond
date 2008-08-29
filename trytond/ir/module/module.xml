@@ -158,9 +158,7 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Module Configuration Wizard" col="2">
-                    <separator string="Welcome to the module configuration wizard!"
-                        align="0.0" colspan="2"/>
+                <form string="Welcome to the module configuration wizard!" col="2">
                     <image name="tryton-dialog-information"/>
                     <group col="1">
                         <label string="You will be able to configure your installation"
@@ -211,7 +209,6 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="System upgrade done" col="1">
-                    <separator string="System upgrade done"/>
                     <label align="0.0"
                         string="The modules have been upgraded / installed !"/>
                     <label align="0.0"
