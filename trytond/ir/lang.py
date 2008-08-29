@@ -33,6 +33,11 @@ class Lang(OSV):
             ('check_grouping', 'invalid_grouping'),
             ('check_date', 'invalid_date'),
         ]
+        self._sql_constraints += [
+            ('check_decimal_point_thousands_sep',
+                'CHECK(decimal_point != thousands_sep)',
+                'decimal_point and thousands_sep must be different!'),
+        ]
         self._error_messages.update({
             'invalid_grouping': 'Invalid Grouping!',
             'invalid_date': 'The date format is not valid!',
