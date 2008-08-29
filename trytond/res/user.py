@@ -191,7 +191,7 @@ class User(OSV):
                 'date': user.language.date,
                 'grouping': eval(user.language.grouping),
                 'decimal_point': user.language.decimal_point,
-                'thousands_sep': user.language.decimal_point,
+                'thousands_sep': user.language.thousands_sep,
             }
         return res
 
