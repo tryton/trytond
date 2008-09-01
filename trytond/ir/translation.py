@@ -452,24 +452,32 @@ class Translation(OSV, Cacheable):
 Translation()
 
 
-class ReportTranslationUpdateInit(WizardOSV):
+class ReportTranslationSetInit(WizardOSV):
     "Update Report Translation"
-    _name = 'ir.translation.update_report.init'
+    _name = 'ir.translation.set_report.init'
     _description = __doc__
 
-ReportTranslationUpdateInit()
+ReportTranslationSetInit()
 
 
-class ReportTranslationUpdate(Wizard):
+class ReportTranslationSetStart(WizardOSV):
+    "Update Report Translation"
+    _name = 'ir.translation.set_report.start'
+    _description = __doc__
+
+ReportTranslationSetStart()
+
+
+class ReportTranslationSet(Wizard):
     "Update report translation"
-    _name = "ir.translation.update_report"
+    _name = "ir.translation.set_report"
 
     states = {
         'init': {
             'actions': [],
             'result': {
                 'type': 'form',
-                'object': 'ir.translation.update_report.init',
+                'object': 'ir.translation.set_report.init',
                 'state': [
                     ('end', 'Cancel', 'tryton-cancel'),
                     ('start', 'Start Update', 'tryton-ok', True),
@@ -477,11 +485,13 @@ class ReportTranslationUpdate(Wizard):
             },
         },
         'start': {
-            'actions': ['_update_report_translation'],
+            'actions': ['_set_report_translation'],
             'result': {
-                'type': 'action',
-                'action': '_action_translation_open',
-                'state': 'end',
+                'type': 'form',
+                'object': 'ir.translation.set_report.start',
+                'state': [
+                    ('end', 'Ok', 'tryton-ok', True),
+                ],
             },
         },
     }
@@ -503,7 +513,7 @@ class ReportTranslationUpdate(Wizard):
             strings.extend(self._translate_report(child))
         return strings
 
-    def _update_report_translation(self, cursor, user, data, context):
+    def _set_report_translation(self, cursor, user, data, context):
         report_obj = self.pool.get('ir.action.report')
         report_ids = report_obj.search(cursor, user, [], context=context)
 
@@ -595,21 +605,7 @@ class ReportTranslationUpdate(Wizard):
                         (report.report_name, 'odt') + tuple(strings))
         return {}
 
-    def _action_translation_open(self, cursor, user, data, context):
-        model_data_obj = self.pool.get('ir.model.data')
-        act_window_obj = self.pool.get('ir.action.act_window')
-
-        model_data_ids = model_data_obj.search(cursor, user, [
-            ('fs_id', '=', 'act_translation_form'),
-            ('module', '=', 'ir'),
-            ], limit=1, context=context)
-        model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
-                context=context)
-        res = act_window_obj.read(cursor, user, model_data.db_id, context=context)
-        res['domain'] = str([('type', '=', 'odt'), ('lang', '=', 'en_US')])
-        return res
-
-ReportTranslationUpdate()
+ReportTranslationSet()
 
 
 class TranslationUpdateInit(WizardOSV):
