@@ -149,10 +149,18 @@
         <menuitem parent="menu_modules"
             action="act_config_wizard_item_form"
             id="menu_config_wizard_item_form"/>
+
         <record model="ir.action.wizard" id="act_module_config_wizard">
             <field name="name">Module Configuration</field>
             <field name="wiz_name">ir.module.module.config_wizard</field>
         </record>
+        <record model="ir.action.keyword" id="act_module_config_wizard_keyword">
+            <field name="action" ref="act_module_config_wizard"/>
+            <field name="keyword">form_action</field>
+            <field name="model">ir.module.module.config_wizard.item,0</field>
+        </record>
+
+
         <record model="ir.ui.view" id="module_config_wizard_first_view_form">
             <field name="model">ir.module.module.config_wizard.first</field>
             <field name="type">form</field>
