@@ -2,6 +2,9 @@
 <!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
+        <menuitem name="Localization" parent="menu_administration"
+            id="menu_localization"/>
+
         <record model="ir.lang" id="lang_en">
             <field name="code">en_US</field>
             <field name="name">English</field>
@@ -89,7 +92,7 @@
             <field name="view" ref="lang_view_form"/>
             <field name="act_window" ref="act_lang_form"/>
         </record>
-        <menuitem name="Languages" parent="ir.menu_ir"
+        <menuitem name="Languages" parent="ir.menu_localization"
             action="act_lang_form" id="menu_lang_form"/>
     </data>
 </tryton>

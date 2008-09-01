@@ -53,7 +53,7 @@
             <field name="view" ref="attachment_view_form"/>
             <field name="act_window" ref="act_attachment_form"/>
         </record>
-        <menuitem name="Attachments" parent="ir.menu_ir"
+        <menuitem name="Attachments" parent="ir.menu_models"
             action="act_attachment_form" id="menu_attachment_form"/>
     </data>
 </tryton>

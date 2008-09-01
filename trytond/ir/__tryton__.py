@@ -5,12 +5,12 @@
     'active': True,
     'xml': [
         'ir.xml',
-        'sequence.xml',
         'ui/ui.xml',
         'ui/menu.xml',
         'ui/view.xml',
         'action.xml',
         'model.xml',
+        'sequence.xml',
         'attachment.xml',
         'cron.xml',
         'lang.xml',

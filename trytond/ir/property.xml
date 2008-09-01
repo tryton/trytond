@@ -51,7 +51,7 @@
             <field name="view" ref="property_view_form"/>
             <field name="act_window" ref="act_property_form_default"/>
         </record>
-        <menuitem parent="ir.menu_ir"
+        <menuitem parent="ir.menu_models"
             action="act_property_form_default" id="menu_property_form_default"/>
         <record model="ir.action.act_window" id="act_property_form">
             <field name="name">Properties</field>
@@ -71,7 +71,7 @@
             <field name="view" ref="property_view_form"/>
             <field name="act_window" ref="act_property_form"/>
         </record>
-        <menuitem parent="ir.menu_ir"
+        <menuitem parent="ir.menu_models"
             action="act_property_form" id="menu_property_form"/>
     </data>
 </tryton>
