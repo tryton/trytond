@@ -443,9 +443,9 @@ view,ir.sequence,0,${year},,0
 view,ir.sequence,0,Year:,Année :,0
 view,ir.sequence.type,0,Sequence Type,Type de la séquence,0
 view,ir.translation,0,Translations,Traductions,0
+view,ir.translation.set_report.init,0,Update Report Translations,Mettre à Jour les Traductions des Rapports,0
+view,ir.translation.set_report.init,0,Update Report Translations?,Mettre à Jour les Traductions des Rapports ?,0
 view,ir.translation.update.init,0,Update Translations,Mettre à Jour les Traductions,0
-view,ir.translation.update_report.init,0,Update Report Translations,Mettre à Jour les Traductions des Rapports,0
-view,ir.translation.update_report.init,0,Update Report Translations?,Mettre à Jour les Traductions des Rapports ?,0
 view,ir.ui.menu,0,Menu,Menu,0
 view,ir.ui.view,0,View,Vue,0
 view,ir.ui.view_sc,0,Shortcut,Raccourcis,0
@@ -462,8 +462,8 @@ wizard_button,"ir.module.module.update_list,update,open_window",0,Ok,Ok,0
 wizard_button,"ir.translation.export,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.translation.export,init,start",0,Start Export,Demarrer l'expartation,0
 wizard_button,"ir.translation.export,start,end",0,Close,Fermer,0
+wizard_button,"ir.translation.set_report,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.translation.set_report,init,start",0,Start Update,Démarrer la Mise-à-Jour,0
 wizard_button,"ir.translation.update,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.translation.update,init,start",0,Start Update,Démarrer la Mise-à-Jour,0
 wizard_button,"ir.translation.update,init,start",0,Start Upgrade,Démarrer la mis à jour,0
-wizard_button,"ir.translation.update_report,init,end",0,Cancel,Annuler,0
-wizard_button,"ir.translation.update_report,init,start",0,Start Update,Démarrer la Mise-à-Jour,0
