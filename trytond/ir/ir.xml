@@ -4,7 +4,6 @@
     <data>
         <menuitem name="Administration" id="menu_administration"
             icon="tryton-preferences-system"/>
-        <menuitem name="IR" id="menu_ir" parent="menu_administration"/>
 
         <record model="ir.action.url" id="action_tryton">
             <field name="name">Tryton</field>

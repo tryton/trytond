@@ -47,7 +47,7 @@
             <field name="view" ref="export_view_form"/>
             <field name="act_window" ref="act_export_form"/>
         </record>
-        <menuitem parent="ir.menu_ir"
+        <menuitem parent="ir.menu_models"
             action="act_export_form" id="menu_export_form"/>
     </data>
 </tryton>

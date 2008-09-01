@@ -2,7 +2,7 @@
 <!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
-        <menuitem name="Actions" id="menu_action" parent="ir.menu_ir"/>
+        <menuitem name="Actions" id="menu_action" parent="menu_ui"/>
         <record model="ir.ui.view" id="action_view_form">
             <field name="model">ir.action</field>
             <field name="type">form</field>

@@ -2,6 +2,7 @@
 <!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
+        <menuitem name="Models" id="menu_models" parent="menu_administration"/>
         <record model="ir.ui.view" id="model_view_form">
             <field name="model">ir.model</field>
             <field name="type">form</field>
@@ -66,7 +67,7 @@
             <field name="view" ref="model_view_form"/>
             <field name="act_window" ref="act_model_form"/>
         </record>
-        <menuitem parent="ir.menu_ir"
+        <menuitem parent="ir.menu_models"
             action="act_model_form" id="menu_model_form"/>
         <record model="ir.ui.view" id="model_fields_view_form">
             <field name="model">ir.model.field</field>
@@ -125,7 +126,7 @@
             <field name="view" ref="model_fields_view_form"/>
             <field name="act_window" ref="act_model_fields_form"/>
         </record>
-        <menuitem parent="ir.menu_ir"
+        <menuitem parent="ir.menu_models"
             action="act_model_fields_form" id="model_model_fields_form"/>
         <record model="ir.ui.view" id="model_access_view_tree">
             <field name="model">ir.model.access</field>
@@ -185,7 +186,7 @@
             <field name="view" ref="model_access_view_form"/>
             <field name="act_window" ref="act_model_access_form"/>
         </record>
-        <menuitem parent="ir.menu_ir"
+        <menuitem parent="ir.menu_models"
             action="act_model_access_form" id="menu_model_access_form"/>
 
     </data>

@@ -65,7 +65,7 @@
             <field name="view" ref="translation_view_form"/>
             <field name="act_window" ref="act_translation_form"/>
         </record>
-        <menuitem name="Translations" parent="ir.menu_ir"
+        <menuitem name="Translations" parent="menu_localization"
             action="act_translation_form" id="menu_translation_form"/>
 
         <record model="ir.translation" id="translation_delete_xml_record">
@@ -125,7 +125,7 @@
             <field name="wiz_name">ir.translation.set_report</field>
         </record>
         <menuitem name="Set Report Translations"
-            parent="menu_translation_form"
+            parent="menu_localization"
             action="act_translation_set_report"
             id="menu_translation_set_report"
             sequence="10"/>
@@ -148,7 +148,7 @@
             <field name="wiz_name">ir.translation.update</field>
         </record>
         <menuitem name="Update Translations"
-            parent="menu_translation_form"
+            parent="menu_localization"
             action="act_translation_update"
             id="menu_translation_update"
             sequence="20"/>
@@ -158,7 +158,7 @@
             <field name="wiz_name">ir.translation.export</field>
         </record>
         <menuitem name="Export Translations"
-            parent="menu_translation_form"
+            parent="menu_localization"
             action="act_translation_export"
             id="menu_translation_export"
             sequence="30"/>
