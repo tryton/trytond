@@ -96,26 +96,38 @@
             <field name="fuzzy" eval="False"/>
         </record>
 
-        <record model="ir.ui.view" id="act_translation_update_report_init_view_form">
-            <field name="model">ir.translation.update_report.init</field>
+        <record model="ir.ui.view" id="act_translation_set_report_init_view_form">
+            <field name="model">ir.translation.set_report.init</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Update Report Translations">
+                <form string="Set Report Translations">
                     <label string="Update Report Translations?"/>
                 </form>
                 ]]>
             </field>
         </record>
 
-        <record model="ir.action.wizard" id="act_translation_update_report">
-            <field name="name">Update Report Translations</field>
-            <field name="wiz_name">ir.translation.update_report</field>
+        <record model="ir.ui.view" id="act_translation_set_report_start_view_form">
+            <field name="model">ir.translation.set_report.start</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Set Report Translations">
+                    <label string="Set Translations Succeed!"/>
+                </form>
+                ]]>
+            </field>
         </record>
-        <menuitem name="Update Report Translations"
+
+        <record model="ir.action.wizard" id="act_translation_set_report">
+            <field name="name">Set Report Translations</field>
+            <field name="wiz_name">ir.translation.set_report</field>
+        </record>
+        <menuitem name="Set Report Translations"
             parent="menu_translation_form"
-            action="act_translation_update_report"
-            id="menu_translation_update_report"
+            action="act_translation_set_report"
+            id="menu_translation_set_report"
             sequence="10"/>
 
         <record model="ir.ui.view" id="act_translation_update_init_view_form">
