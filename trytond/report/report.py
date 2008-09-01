@@ -357,19 +357,20 @@ class Report(object):
         lang_obj = self.pool.get('ir.lang')
 
         if date:
-            if isinstance(value, time.struct_time):
+            if lang:
                 locale_format = lang.date
             else:
+                locale_format = lang_obj.default_date(None, None)
+            if not isinstance(value, time.struct_time):
                 # assume string, parse it
                 if len(str(value)) == 10:
                     # length of date like 2001-01-01 is ten
                     # assume format '%Y-%m-%d'
-                    locale_format = lang.date
                     string_pattern = '%Y-%m-%d'
                 else:
                     # assume format '%Y-%m-%d %H:%M:%S'
                     value = str(value)[:19]
-                    locale_format = lang.date + ' %H:%M:%S'
+                    locale_format = locale_format + ' %H:%M:%S'
                     string_pattern = '%Y-%m-%d %H:%M:%S'
                 date = time.strptime(str(value), string_pattern)
             return time.strftime(locale_format, date)
