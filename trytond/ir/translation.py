@@ -350,10 +350,15 @@ class Translation(OSV, Cacheable):
             if model in fs_id2db_id:
                 res_id = fs_id2db_id[model].get(res_id, res_id)
 
+            try:
+                res_id = int(res_id)
+            except ValueError:
+                continue
+
             if ttype in ('odt', 'view', 'wizard_button', 'selection', 'error'):
                 ids = self.search(cursor, user, [
                     ('name', '=', name),
-                    ('res_id', '=', int(res_id)),
+                    ('res_id', '=', res_id),
                     ('lang', '=', lang),
                     ('type', '=', ttype),
                     ('src', '=', src),
@@ -361,7 +366,7 @@ class Translation(OSV, Cacheable):
             elif ttype in('field', 'model','help'):
                 ids = self.search(cursor, user, [
                     ('name', '=', name),
-                    ('res_id', '=', int(res_id)),
+                    ('res_id', '=', res_id),
                     ('lang', '=', lang),
                     ('type', '=', ttype),
                     ], context=context)
@@ -371,7 +376,7 @@ class Translation(OSV, Cacheable):
             if not ids:
                 translation_ids.append(self.create(cursor, user, {
                     'name': name,
-                    'res_id': int(res_id),
+                    'res_id': res_id,
                     'lang': lang,
                     'type': ttype,
                     'src': src,
