@@ -2230,7 +2230,12 @@ class ORM(object):
                         ids2 = self.pool.get(field._obj).search(cursor, user,
                                 [(args[i][3], 'child_of', ids2)],
                                 context=context)
-                        args[i] = ('id', 'in', ids2, table)
+                        query1 = 'SELECT "' + field._id1 + '" ' \
+                                'FROM "' + field._rel + '" ' \
+                                'WHERE "' + field._id2 + '" IN (' + \
+                                    ','.join(['%s' for x in ids2]) + ')'
+                        query2 = [str(x) for x in ids2]
+                        args[i] = ('id', 'inselect', (query1, query2))
                     else:
                         args[i] = ('id', 'in', ids2 + _rec_get(ids2,
                             table, args[i][0]))
