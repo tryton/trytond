@@ -2138,7 +2138,7 @@ class ORM(object):
             if not field:
                 if not fargs[0] in self._inherit_fields:
                     raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
-                            'exist' % fargs[0])
+                            'exist on "%s"' % (fargs[0], self._name))
                 table = self.pool.get(self._inherit_fields[args[i][0]][0])
                 field = table._columns.get(fargs[0], False)
             if len(fargs) > 1:
@@ -2223,25 +2223,17 @@ class ORM(object):
                         return ids + _rec_get(ids2, table, parent)
 
                     if field._obj != table._name:
-                        raise Exception('Error', 'Programming error: ' \
-                                'child_of on field "%s" is not allowed!' % \
-                                (args[i][0],))
-
-                    parent = None
-                    for k in table._columns:
-                        field2 = table._columns[k]
-                        if field2._type == 'many2many' \
-                                and field._rel == field2._rel \
-                                and field._id1 == field2._id2 \
-                                and field._id2 == field2._id1:
-                            parent = k
-                            break
-                    if not parent:
-                        raise Exception('Error', 'Programming error: ' \
-                                'child_of on field "%s" is not allowed!' % \
-                                (args[i][0],))
-                    args[i] = ('id', 'in', ids2 + _rec_get(ids2,
-                        table, parent))
+                        if len(args[i]) != 4:
+                            raise Exception('Error', 'Programming error: ' \
+                                    'child_of on field "%s" is not allowed!' % \
+                                    (args[i][0],))
+                        ids2 = self.pool.get(field._obj).search(cursor, user,
+                                [(args[i][3], 'child_of', ids2)],
+                                context=context)
+                        args[i] = ('id', 'in', ids2, table)
+                    else:
+                        args[i] = ('id', 'in', ids2 + _rec_get(ids2,
+                            table, args[i][0]))
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = [x[0] for x in self.pool.get(field._obj
@@ -2289,9 +2281,14 @@ class ORM(object):
                         return ids + _rec_get(ids2, table, parent)
 
                     if field._obj != table._name:
-                        raise Exception('Error', 'Programming error: ' \
-                                'child_of on field "%s" is not allowed!' % \
-                                (args[i][0],))
+                        if len(args[i]) != 4:
+                            raise Exception('Error', 'Programming error: ' \
+                                    'child_of on field "%s" is not allowed!' % \
+                                    (args[i][0],))
+                        ids2 = self.pool.get(field._obj).search(cursor, user,
+                                [(args[i][3], 'child_of', ids2)],
+                                context=context)
+                        args[i] = (args[i][0], 'in', ids2, table)
                     else:
                         if field.left and field.right:
                             cursor.execute('SELECT "' + field.left + '", ' \
