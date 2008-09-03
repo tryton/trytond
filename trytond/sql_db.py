@@ -403,6 +403,8 @@ class table_handler:
         rtable.add_raw_column(rtable_to, ('int4', 'int4'), Integer._symbol_set)
         rtable.add_fk(rtable_from, self.table_name)
         rtable.add_fk(rtable_to, other_table)
+        rtable.not_null_action(rtable_from)
+        rtable.not_null_action(rtable_to)
         rtable.index_action(rtable_from, 'add')
         rtable.index_action(rtable_to, 'add')
 
