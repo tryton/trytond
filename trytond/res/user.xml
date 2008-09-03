@@ -16,7 +16,7 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="User">
-                    <notebook>
+                    <notebook colspan="4">
                         <page string="User">
                             <label name="name"/>
                             <field name="name"/>
