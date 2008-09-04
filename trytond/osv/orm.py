@@ -32,6 +32,23 @@ class BrowseRecordList(list):
 browse_record_list = BrowseRecordList
 
 
+class BrowseRecordNull(object):
+
+    def __init__(self):
+        self.id = False
+
+    def __getitem__(self, name):
+        return False
+
+    def __int__(self):
+        return False
+
+    def __str__(self):
+        return ''
+
+    def __nonzero__(self):
+        return False
+
 class BrowseRecord(object):
     '''
     A object that represents record defined by a ORM object.
@@ -61,7 +78,7 @@ class BrowseRecord(object):
             return self._id
         if name == 'setLang':
             return self.setLang
-        if not self._data[self._id].has_key(name) and self._id:
+        if not self._data[self._id].has_key(name):
             # build the list of fields we will fetch
 
             # fetch the definition of the field which was asked for
@@ -93,7 +110,7 @@ class BrowseRecord(object):
             else:
                 ffields = [(name, col)]
             ids = [x for x in self._data.keys() \
-                    if not self._data[x].has_key(name) and x]
+                    if not self._data[x].has_key(name)]
             # read the data
             datas = self._table.read(self._cursor, self._user, ids,
                     [x[0] for x in ffields], context=self._context,
@@ -113,9 +130,12 @@ class BrowseRecord(object):
                                 ids2 = data[i][0]
                         else:
                             ids2 = data[i]
-                        data[i] = BrowseRecord(self._cursor, self._user,
-                                ids2, obj, self._cache,
-                                context=self._context)
+                        if ids2 is False:
+                            data[i] = BrowseRecordNull()
+                        else:
+                            data[i] = BrowseRecord(self._cursor, self._user,
+                                    ids2, obj, self._cache,
+                                    context=self._context)
                     elif j._type in ('one2many', 'many2many') and len(data[i]):
                         data[i] = BrowseRecordList([BrowseRecord(self._cursor,
                             self._user, x, obj,
