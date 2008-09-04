@@ -12,7 +12,7 @@ class Group(OSV):
        'Access Model')
     rule_groups = fields.Many2Many('ir.rule.group', 'group_rule_group_rel',
        'group_id', 'rule_group_id', 'Rules',
-       domain="[('global_p', '!=', True), ('default_p', '!=', True)]")
+       domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     menu_access = fields.Many2Many('ir.ui.menu', 'ir_ui_menu_group_rel',
        'gid', 'menu_id', 'Access Menu')
 

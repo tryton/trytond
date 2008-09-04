@@ -22,7 +22,7 @@ class User(OSV):
        'uid', 'gid', 'Groups')
     rule_groups = fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
        'user_id', 'rule_group_id', 'Rules',
-       domain="[('global_p', '!=', True), ('default_p', '!=', True)]")
+       domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     language = fields.Many2One('ir.lang', 'Language')
     language_direction = fields.Function('get_language_direction', type='char',
             string='Language Direction')
