@@ -2399,8 +2399,12 @@ class ORM(object):
                     qu1.append(' false')
             else:
                 if (arg[2] is False) and (arg[1] == '='):
-                    qu1.append('(%s.%s IS NULL)' % \
-                            (table._table, arg[0]))
+                    if table._columns[arg[0]]._type == 'boolean':
+                        qu1.append('(%s.%s = false)' % \
+                                (table._table, arg[0]))
+                    else:
+                        qu1.append('(%s.%s IS NULL)' % \
+                                (table._table, arg[0]))
                 elif (arg[2] is False) and (arg[1] == '<>' or arg[1] == '!='):
                     qu1.append('(%s.%s IS NOT NULL)' % \
                             (table._table, arg[0]))
