@@ -263,10 +263,13 @@ def load_module_graph(cursor, graph, lang=None):
     cursor.commit()
 
 def get_module_list():
+    module_list = []
     if os.path.exists(MODULES_PATH) and os.path.isdir(MODULES_PATH):
-        module_list = os.listdir(MODULES_PATH)
-    else:
-        module_list = []
+        for file in os.listdir(MODULES_PATH):
+            if os.path.isdir(OPJ(MODULES_PATH, file)):
+                module_list.append(file)
+            elif file[-4:] == '.zip':
+                module_list.append(file)
     module_list.append('ir')
     module_list.append('workflow')
     module_list.append('res')
