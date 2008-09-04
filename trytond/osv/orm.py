@@ -29,6 +29,16 @@ class BrowseRecordList(list):
         super(BrowseRecordList, self).__init__(lst)
         self.context = context
 
+    def get_eval(self):
+        res = []
+        for record in self:
+            res2 = {}
+            for field_name, field in record._table._columns.iteritems():
+                if not isinstance(record[field_name], BrowseRecordList):
+                    res2[field_name] = record.get_eval(field_name)
+            res.append(res2)
+        return res
+
 browse_record_list = BrowseRecordList
 
 
@@ -197,7 +207,26 @@ class BrowseRecord(object):
                 else:
                     self._cache[table][obj_id] = {'id': obj_id}
 
+    def get_eval(self, name):
+        res = self[name]
+        if isinstance(res, BrowseRecord):
+            res = res.id
+        if isinstance(res, BrowseRecordList):
+            res = res.get_eval()
+        return res
+
 browse_record = BrowseRecord
+
+
+class EvalEnvironment(object):
+
+    def __init__(self, record):
+        self.record = record
+
+    def __getattr__(self, item):
+        if item.startswith('_parent_'):
+            return EvalEnvironment(self.record[item[8:]])
+        return self.record.get_eval(item)
 
 
 class ORM(object):
@@ -1086,11 +1115,75 @@ class ORM(object):
         return res
 
     def _validate(self, cursor, user, ids, context=None):
+        if context is None:
+            context = {}
+        context = context.copy()
         field_error = []
         field_err_str = []
         for field in self._constraints:
             if not getattr(self, field[0])(cursor, user, ids):
                 self.raise_user_error(cursor, field[1], context=context)
+
+        if not 'res.user' in self.pool.object_name_list():
+            ctx_pref = {
+            }
+        else:
+            user_obj = self.pool.get('res.user')
+            ctx_pref = user_obj.get_preferences(cursor, user,
+                context_only=True, context=context)
+
+        context.update(ctx_pref)
+        records = self.browse(cursor, user, ids, context=context)
+        for field_name, field in self._columns.iteritems():
+            if field._type in ('many2one', 'many2many', 'one2many') \
+                    and field._domain:
+                relation_obj = self.pool.get(field._obj)
+                if isinstance(field._domain, basestring):
+                    ctx = context.copy()
+                    ctx.update(ctx_pref)
+                    for record in records:
+                        for field_name2, field2 in self._columns.iteritems():
+                            ctx[field_name2] = record.get_eval(field_name2)
+                            if field2._type in ('many2one',):
+                                ctx['_parent_' + field_name2] = \
+                                        EvalEnvironment(record[field_name2])
+                        ctx['current_date'] = datetime.datetime.today()
+                        ctx['time'] = time
+                        ctx['context'] = context
+                        ctx['active_id'] = record.id
+                        domain = eval(field._domain, ctx)
+                        relation_ids = []
+                        if record[field_name]:
+                            if field._type in ('many2one',):
+                                relation_ids.append(record[field_name].id)
+                            else:
+                                relation_ids.extend(
+                                        [x.id for x in record[field_name]])
+                        if relation_ids and not relation_obj.search(cursor, user, [
+                            'AND',
+                            [('id', 'in', relation_ids)],
+                            domain,
+                            ], context=context):
+                            self.raise_user_error(cursor,
+                                    'domain_' + field_name, context=context)
+                else:
+                    relation_ids = []
+                    for record in records:
+                        if record[field_name]:
+                            if field._type in ('many2one',):
+                                relation_ids.append(record[field_name].id)
+                            else:
+                                relation_ids.extend(
+                                        [x.id for x in record[field_name]])
+                    if relation_ids:
+                        find_ids = relation_obj.search(cursor, user, [
+                            'AND',
+                            [('id', 'in', relation_ids)],
+                            field._domain,
+                            ], context=context)
+                        if not set(relation_ids) == set(find_ids):
+                            self.raise_user_error(cursor, 'domain_' + field_name,
+                                    context=context)
 
     def default_get(self, cursor, user, fields_names, context=None):
         '''
