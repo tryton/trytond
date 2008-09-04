@@ -2150,7 +2150,8 @@ class ORM(object):
         args = args[:]
         # if the object has a field named 'active', filter out all inactive
         # records unless they were explicitely asked for
-        if 'active' in self._columns \
+        if ('active' in self._columns or \
+                'active' in self._inherit_fields.keys()) \
                 and (active_test and context.get('active_test', True)):
             i = 0
             active_found = False
