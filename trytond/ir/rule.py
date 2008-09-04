@@ -70,7 +70,7 @@ class Rule(OSV):
     _rec_name = 'field'
     _description = __doc__
     field = fields.Many2One('ir.model.field', 'Field',
-       domain="[('model', '=', parent.model)]", select=1,
+       domain="[('model', '=', _parent_rule_group.model)]", select=1,
        required=True)
     operator = fields.Selection([
        ('=', '='),
