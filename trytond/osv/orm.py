@@ -310,7 +310,14 @@ class ORM(object):
                         module_name))
             cursor.execute("SELECT id FROM ir_model WHERE model = %s",
                     (self._name,))
-        (model_id,) = cursor.fetchone()
+            (model_id,) = cursor.fetchone()
+        else:
+            (model_id,) = cursor.fetchone()
+            cursor.execute('UPDATE ir_model ' \
+                    'SET name = %s, ' \
+                        'info = %s ' \
+                    'WHERE id = %s',
+                    (self._description, self.__doc__, model_id))
 
         cursor.execute('SELECT f.id AS id, f.name AS name, ' \
                     'f.field_description AS field_description, ' \
