@@ -30,19 +30,19 @@
                             <newline/>
                             <label name="state"/>
                             <field name="state" readonly="1"/>
-                            <group col="6" colspan="2">
+                            <group col="1" colspan="2">
                                 <button string="Mark for Installation" name="button_install"
                                     type="object" states="{'invisible': '''state != 'uninstalled' '''}"/>
-                                <button string="Cancel Installation" name="button_install_cancel"
-                                    type="object" states="{'invisible': '''state != 'to install' '''}"/>
-                                <button string="Mark for Uninstallation (beta)" name="button_uninstall"
-                                    type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': '''True'''}"/>
-                                <button string="Cancel Uninstallation" name="button_uninstall_cancel"
-                                    type="object" states="{'invisible': '''state != 'to remove' '''}"/>
                                 <button string="Mark for Upgrade" name="button_upgrade"
                                     type="object" states="{'invisible': '''state != 'installed' '''}"/>
+                                <button string="Mark for Uninstallation (beta)" name="button_uninstall"
+                                    type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': '''True'''}"/>
+                                <button string="Cancel Installation" name="button_install_cancel"
+                                    type="object" states="{'invisible': '''state != 'to install' '''}"/>
                                 <button string="Cancel Upgrade" name="button_upgrade_cancel"
                                     type="object" states="{'invisible': '''state != 'to upgrade' '''}"/>
+                                <button string="Cancel Uninstallation" name="button_uninstall_cancel"
+                                    type="object" states="{'invisible': '''state != 'to remove' '''}"/>
                             </group>
                         </page>
                         <page string="Dependencies" col="1">
