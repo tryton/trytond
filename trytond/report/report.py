@@ -237,13 +237,23 @@ class Report(object):
             raise Exception('Error', 'Missing report file!')
 
         fd, path = tempfile.mkstemp(suffix='.odt', prefix='trytond')
-        os.write(fd, report.report_content)
-        os.close(fd)
+        outzip = zipfile.ZipFile(path, mode='w')
+
+        content_io = StringIO.StringIO()
+        content_io.write(report.report_content)
+        content_z = zipfile.ZipFile(content_io, mode='r')
+
+        style_info = None
+        style_xml = None
+        for f in content_z.infolist():
+            if f.filename == 'styles.xml' and report.style_content:
+                style_info = f
+                style_xml = content_z.read(f.filename)
+                continue
+            outzip.writestr(f, content_z.read(f.filename))
 
         if report.style_content:
             pictures = []
-            content_z = zipfile.ZipFile(path, mode='r')
-            style_xml = content_z.read('styles.xml')
             dom_style = xml.dom.minidom.parseString(style_xml)
             node_style = dom_style.documentElement
 
@@ -270,15 +280,16 @@ class Report(object):
             style_header_node.parentNode.replaceChild(style_header_node2,
                     style_header_node)
 
-            content_z = zipfile.ZipFile(path, mode='a')
-
-            content_z.writestr('styles.xml',
+            outzip.writestr(style_info,
                     '<?xml version="1.0" encoding="UTF-8"?>' + \
                             dom_style.documentElement.toxml('utf-8'))
 
             for file, picture in pictures:
-                content_z.writestr(file, picture)
-            content_z.close()
+                outzip.writestr(file, picture)
+
+        content_z.close()
+        content_io.close()
+        outzip.close()
 
         translator = Translator(translate)
 
