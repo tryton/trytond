@@ -247,7 +247,6 @@ class ORM(object):
             - relations (one2many, many2one, many2many)
             - functions
     """
-    _log_access = True
     _table = None
     _name = None
     _rec_name = 'name'
@@ -457,21 +456,20 @@ class ORM(object):
             return
 
         table = table_handler(cursor, self._table, self._name, module_name)
-        if self._log_access:
-            logs = (
-                ('create_date', 'timestamp', 'TIMESTAMP',
-                    fields.DateTime._symbol_set),
-                ('write_date', 'timestamp', 'TIMESTAMP',
-                    fields.DateTime._symbol_set),
-                ('create_uid', 'int4',
-                 'INTEGER REFERENCES res_user ON DELETE SET NULL',
-                 fields.Integer._symbol_set),
-                ('write_uid', 'int4',
-                 'INTEGER REFERENCES res_user ON DELETE SET NULL',
-                 fields.Integer._symbol_set),
-                )
-            for log in logs:
-                table.add_raw_column(log[0], (log[1], log[2]), log[3], migrate=False)
+        logs = (
+            ('create_date', 'timestamp', 'TIMESTAMP',
+                fields.DateTime._symbol_set),
+            ('write_date', 'timestamp', 'TIMESTAMP',
+                fields.DateTime._symbol_set),
+            ('create_uid', 'int4',
+             'INTEGER REFERENCES res_user ON DELETE SET NULL',
+             fields.Integer._symbol_set),
+            ('write_uid', 'int4',
+             'INTEGER REFERENCES res_user ON DELETE SET NULL',
+             fields.Integer._symbol_set),
+            )
+        for log in logs:
+            table.add_raw_column(log[0], (log[1], log[2]), log[3], migrate=False)
         for field_name, field in self._columns.iteritems():
             default_fun = None
             if field_name in (
@@ -593,15 +591,14 @@ class ORM(object):
         if not self._sequence:
             self._sequence = self._table+'_id_seq'
 
-        if self._log_access:
-            self.create_uid = fields.Many2One('res.user',
-                    'Create User', required=True, readonly=True)
-            self.create_date = fields.DateTime('Create Date',
-                    required=True, readonly=True)
-            self.write_uid = fields.Many2One('res.user',
-                       'Write User', readonly=True)
-            self.write_date = fields.DateTime(
-                    'Write Date', readonly=True)
+        self.create_uid = fields.Many2One('res.user',
+                'Create User', required=True, readonly=True)
+        self.create_date = fields.DateTime('Create Date',
+                required=True, readonly=True)
+        self.write_uid = fields.Many2One('res.user',
+                   'Write User', readonly=True)
+        self.write_date = fields.DateTime(
+                'Write Date', readonly=True)
         self.id = fields.Integer('ID', readonly=True)
         # reinit the cache on _columns
         self.__columns = None
@@ -1307,7 +1304,7 @@ class ORM(object):
         if self.table_query(context):
             return True
         delta = context.get('read_delta', False)
-        if delta and self._log_access:
+        if delta:
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 cursor.execute(
@@ -1436,7 +1433,7 @@ class ORM(object):
         if isinstance(ids, (int, long)):
             ids = [ids]
         delta = context.get('read_delta', False)
-        if delta and self._log_access:
+        if delta:
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 cursor.execute("SELECT " \
@@ -1512,10 +1509,9 @@ class ORM(object):
                                   error_description='xml_record_desc',
                                   context=context)
 
-        if self._log_access:
-            upd0.append('write_uid = %s')
-            upd0.append('write_date = now()')
-            upd1.append(user)
+        upd0.append('write_uid = %s')
+        upd0.append('write_date = now()')
+        upd1.append(user)
 
         if len(upd0):
             domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor,
@@ -1725,10 +1721,9 @@ class ORM(object):
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
                                 (val, field))
-        if self._log_access:
-            upd0 += ', create_uid, create_date'
-            upd1 += ', %s, now()'
-            upd2.append(user)
+        upd0 += ', create_uid, create_date'
+        upd1 += ', %s, now()'
+        upd2.append(user)
         cursor.execute('INSERT INTO "' + self._table + '" ' \
                 '(id' + upd0 + ') ' \
                 'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
@@ -2811,13 +2806,12 @@ class ORM(object):
         for field in fields2:
             ftype = fields2[field]['type']
 
-            if self._log_access \
-                     and (field in (
-                         'create_date',
-                         'create_uid',
-                         'write_date',
-                         'write_uid',
-                         )):
+            if field in (
+                'create_date',
+                'create_uid',
+                'write_date',
+                'write_uid',
+                ):
                 del data[field]
 
             if field in default:

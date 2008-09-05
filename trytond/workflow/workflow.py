@@ -12,7 +12,6 @@ class Workflow(OSV):
     "Workflow"
     _name = "workflow"
     _table = "wkf"
-    _log_access = False
     _description = __doc__
     name = fields.Char('Name', required=True)
     osv = fields.Char('Resource Model', required=True, select=1)
@@ -48,7 +47,6 @@ class WorkflowActivity(OSV):
     "Workflow activity"
     _name = "workflow.activity"
     _table = "wkf_activity"
-    _log_access = False
     _description = __doc__
     name = fields.Char('Name', required=True)
     workflow = fields.Many2One('workflow', 'Workflow', required=True,
@@ -100,7 +98,6 @@ class WorkflowTransition(OSV):
     "Workflow transition"
     _table = "wkf_transition"
     _name = "workflow.transition"
-    _log_access = False
     _rec_name = 'signal'
     _description = __doc__
     trigger_model = fields.Char('Trigger Type')
@@ -124,7 +121,6 @@ class WorkflowInstance(OSV):
     _table = "wkf_instance"
     _name = "workflow.instance"
     _rec_name = 'res_type'
-    _log_access = False
     _description = __doc__
     workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict",
             select=1)
@@ -163,7 +159,6 @@ class WorkflowWorkitem(OSV):
     "Workflow workitem"
     _table = "wkf_workitem"
     _name = "workflow.workitem"
-    _log_access = False
     _rec_name = 'state'
     _description = __doc__
     activity = fields.Many2One('workflow.activity', 'Activity',
@@ -181,7 +176,6 @@ class WorkflowTrigger(OSV):
     "Workflow trigger"
     _table = "wkf_trigger"
     _name = "workflow.trigger"
-    _log_access = False
     _description = __doc__
     res_id = fields.Integer('Resource ID')
     model = fields.Char('Model')
