@@ -5,8 +5,6 @@ import sha
 import time
 import random
 
-SESSION_TIMEOUT = 600 #seconds
-
 _USER_CACHE = {}
 
 def login(dbname, loginname, password, cache=True):
@@ -43,7 +41,7 @@ def check(dbname, user, session, outdate_timeout=True):
         to_del = []
         for i, (timestamp, real_session) \
                 in enumerate(_USER_CACHE[dbname][user]):
-            if abs(timestamp - time.time()) < SESSION_TIMEOUT:
+            if abs(timestamp - time.time()) < int(CONFIG['session_timeout']):
                 if real_session == session:
                     if outdate_timeout:
                         _USER_CACHE[dbname][user][i] = \
