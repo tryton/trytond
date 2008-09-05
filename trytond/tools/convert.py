@@ -661,8 +661,10 @@ def post_import(cursor, module, to_delete):
     modeldata_obj = pool.get("ir.model.data")
     transition_delete = []
 
-    mdata_ids = modeldata_obj.search(cursor, user, [('fs_id', 'in', to_delete)],
-            order=[('id', 'DESC')], context={'active_test': False})
+    mdata_ids = modeldata_obj.search(cursor, user, [
+        ('fs_id', 'in', to_delete),
+        ('module', '=', module),
+        ], order=[('id', 'DESC')], context={'active_test': False})
 
     for mrec in modeldata_obj.browse(cursor, user, mdata_ids):
         mdata_id, model, db_id = mrec.id, mrec.model, mrec.db_id
