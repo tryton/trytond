@@ -135,7 +135,7 @@ def create_graph(module_list, force=None):
                 raise
             if info.get('installable', True):
                 packages.append((module, info.get('depends', []), info))
-        else:
+        elif module != 'all':
             Logger().notify_channel('init', LOG_ERROR,
                     'module:%s:Module not found!' % (module,))
 
