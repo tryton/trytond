@@ -24,6 +24,7 @@ from genshi.filters import Translator
 import traceback
 from trytond.config import CONFIG
 from trytond.sql_db import IntegrityError
+import inspect
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -296,7 +297,12 @@ class Report(object):
         rel_report = relatorio.reporting.Report(path, 'application/vnd.oasis.opendocument.text',
                 ReportFactory(), relatorio.reporting.MIMETemplateLoader())
         rel_report.filters.insert(0, translator)
-        data = rel_report(objects, **localcontext).render().getvalue()
+        #Test compatibility with old relatorio version <= 0.2.0
+        if len(inspect.getargspec(rel_report.__call__)[0]) == 2:
+            data = rel_report(objects, **localcontext).render().getvalue()
+        else:
+            localcontext['objects'] = objects
+            data = rel_report(**localcontext).render().getvalue()
         os.remove(path)
         output_format = report.output_format.format
         if output_format == 'pdf':
