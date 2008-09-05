@@ -231,6 +231,10 @@ class User(OSV):
                         (field.decode('utf-8'), field.decode('utf-8'))
             elif field == 'language_direction':
                 pass
+            elif self._columns[field]._type == 'many2many':
+                xml += '<separator name="%s" colspan="2"/>' \
+                        '<field name="%s" colspan="2"/>' % \
+                        (field.decode('utf-8'), field.decode('utf-8'))
             else:
                 xml += '<label name="%s"/><field name="%s"/>' % \
                         (field.decode('utf-8'), field.decode('utf-8'))
