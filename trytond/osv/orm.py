@@ -1006,8 +1006,9 @@ class ORM(object):
 
         # all inherited fields + all non inherited fields
         # for which the attribute whose name is in load is True
-        fields_pre = [x for x in fields_names if x in self._columns \
-                and getattr(self._columns[x], '_classic_write')] + \
+        fields_pre = [x for x in fields_names if (x in self._columns \
+                and getattr(self._columns[x], '_classic_write')) or \
+                (x == '_timestamp')] + \
                 self._inherits.values()
 
         res = []
@@ -1019,7 +1020,12 @@ class ORM(object):
         if len(fields_pre) :
             fields_pre2 = [(x in ('create_date', 'write_date')) \
                     and ('date_trunc(\'second\', ' + x + ') as ' + x) \
-                    or '"' + x + '"' for x in fields_pre]
+                    or '"' + x + '"' for x in fields_pre \
+                    if x != '_timestamp']
+            if '_timestamp' in fields_pre:
+                fields_pre2 += ['(CASE WHEN write_date IS NOT NULL ' \
+                        'THEN write_date ELSE create_date END) ' \
+                        'AS _timestamp']
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 if domain1:
@@ -1051,6 +1057,8 @@ class ORM(object):
             res = [{'id': x} for x in ids]
 
         for field in fields_pre:
+            if field == '_timestamp':
+                continue
             if self._columns[field].translate:
                 ids = [x['id'] for x in res]
                 res_trans = self.pool.get('ir.translation')._get_ids(cursor,
@@ -1297,26 +1305,35 @@ class ORM(object):
         '''
         if context is None:
             context = {}
+        context = context.copy()
         if not ids:
             return True
         if isinstance(ids, (int, long)):
             ids = [ids]
         if self.table_query(context):
             return True
-        delta = context.get('read_delta', False)
-        if delta:
+
+        if context.get('_timestamp', False):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
-                cursor.execute(
-                        "SELECT (now()  - min(write_date)) <= '%s'::interval " \
-                        "FROM \"%s\" WHERE id in (%s)" % \
-                        (delta, self._table,
-                            ",".join(['%s' for x in sub_ids])), sub_ids)
-                res = cursor.fetchone()
-                if res and res[0]:
-                    raise Exception('ConcurrencyException',
-                            'This record was modified in the meanwhile')
-            del context['read_delta']
+                clause = '(id = %s AND ' \
+                        '(CASE WHEN write_date IS NOT NULL ' \
+                        'THEN write_date ELSE create_date END) ' \
+                        ' > %s)'
+                args = []
+                for i in sub_ids:
+                    if context['_timestamp'].get(i):
+                        args.append(i)
+                        args.append(context['_timestamp'][i])
+                if args:
+                    cursor.execute("SELECT id " \
+                            'FROM "' + self._table + '" ' \
+                            'WHERE ' + ' OR '.join(
+                                [clause for x in range(len(args)/2)]), args)
+                    if cursor.rowcount:
+                        raise Exception('ConcurrencyException',
+                                'Records were modified in the meanwhile')
+            del context['_timestamp']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'delete')
@@ -1423,6 +1440,7 @@ class ORM(object):
         '''
         if context is None:
             context = {}
+        context = context.copy()
         if not ids:
             return True
         if self.table_query(context):
@@ -1432,24 +1450,28 @@ class ORM(object):
 
         if isinstance(ids, (int, long)):
             ids = [ids]
-        delta = context.get('read_delta', False)
-        if delta:
+
+        if context.get('_timestamp', False):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
-                cursor.execute("SELECT " \
-                            "(now() - min(write_date)) <= " \
-                            "'" + str(delta) + "'::interval " \
-                        'FROM "' + self._table + '" ' \
-                        "WHERE id IN (" + ','.join('%s' for x in sub_ids) + ")",
-                        sub_ids)
-                res = cursor.fetchone()
-                if res and res[0]:
-                    for field in vals:
-                        if field in self._columns \
-                                and self._columns[field]._classic_write:
-                            raise Exception('ConcurrencyException',
-                                    'This record was modified in the meanwhile')
-            del context['read_delta']
+                clause = '(id = %s AND ' \
+                        '(CASE WHEN write_date IS NOT NULL ' \
+                        'THEN write_date ELSE create_date END) ' \
+                        ' > %s)'
+                args = []
+                for i in sub_ids:
+                    if context['_timestamp'].get(i):
+                        args.append(i)
+                        args.append(context['_timestamp'][i])
+                if args:
+                    cursor.execute("SELECT id " \
+                            'FROM "' + self._table + '" ' \
+                            'WHERE ' + ' OR '.join(
+                                [clause for x in range(len(args)/2)]), args)
+                    if cursor.rowcount:
+                        raise Exception('ConcurrencyException',
+                                'Records were modified in the meanwhile')
+            del context['_timestamp']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'write')

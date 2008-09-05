@@ -154,8 +154,8 @@ class UIMenu(OSV):
         if context is None:
             context = {}
         ctx = context.copy()
-        if 'read_delta' in ctx:
-            del ctx['read_delta']
+        if '_timestamp' in ctx:
+            del ctx['_timestamp']
         action_keyword_obj = self.pool.get('ir.action.keyword')
         action_keyword_ids = action_keyword_obj.search(cursor, user, [
             ('keyword', '=', 'tree_open'),
