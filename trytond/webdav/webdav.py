@@ -226,7 +226,7 @@ class Collection(OSV):
                 context=context)
         if object_name:
             model_obj = self.pool.get(object_name)
-            if model_obj._log_access:
+            if object_id:
                 cursor.execute('SELECT EXTRACT(epoch FROM create_date) ' \
                         'FROM "' + model_obj._table +'" ' \
                         'WHERE id = %s', (object_id,))
@@ -239,7 +239,7 @@ class Collection(OSV):
                 context=context)
         if object_name:
             model_obj = self.pool.get(object_name)
-            if model_obj._log_access and object_id:
+            if object_id:
                 cursor.execute('SELECT EXTRACT(epoch FROM write_date) ' \
                         'FROM "' + model_obj._table +'" ' \
                         'WHERE id = %s', (object_id,))

@@ -7,7 +7,6 @@ import time
 class Lang(OSV):
     "Language"
     _name = "ir.lang"
-    _log_access = False
     _description = __doc__
     name = fields.Char('Name', required=True)
     code = fields.Char('Code', required=True,
