@@ -25,6 +25,7 @@ import traceback
 from trytond.config import CONFIG
 from trytond.sql_db import IntegrityError
 import inspect
+import mx.DateTime
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -390,8 +391,10 @@ class Report(object):
                     value = str(value)[:19]
                     locale_format = locale_format + ' %H:%M:%S'
                     string_pattern = '%Y-%m-%d %H:%M:%S'
-                date = time.strptime(str(value), string_pattern)
-            return time.strftime(locale_format, date)
+                date = mx.DateTime.strptime(str(value), string_pattern)
+            else:
+                date = mx.DateTime.DateTime(*(value.timetuple()[:6]))
+            return date.strftime(locale_format)
         if currency:
             return lang_obj.currency(lang, value, currency, grouping=grouping)
         return lang_obj.format(lang, '%.' + str(digits) + 'f', value,
