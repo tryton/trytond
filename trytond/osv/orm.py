@@ -1023,9 +1023,12 @@ class ORM(object):
                     or '"' + x + '"' for x in fields_pre \
                     if x != '_timestamp']
             if '_timestamp' in fields_pre:
-                fields_pre2 += ['(CASE WHEN write_date IS NOT NULL ' \
-                        'THEN write_date ELSE create_date END) ' \
-                        'AS _timestamp']
+                if not self.table_query(context):
+                    fields_pre2 += ['(CASE WHEN write_date IS NOT NULL ' \
+                            'THEN write_date ELSE create_date END) ' \
+                            'AS _timestamp']
+                else:
+                    fields_pre2 += ['now()::timestamp AS _timestamp']
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 if domain1:
