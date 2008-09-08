@@ -100,8 +100,8 @@
                 <form string="Request Link" col="6">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="object"/>
-                    <field name="object"/>
+                    <label name="model"/>
+                    <field name="model"/>
                     <label name="priority"/>
                     <field name="priority"/>
                 </form>
