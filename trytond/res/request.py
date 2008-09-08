@@ -86,7 +86,7 @@ class Request(OSV):
         ids = request_link_obj.search(cursor, user, [])
         request_links = request_link_obj.browse(cursor, user, ids,
                 context=context)
-        return [(x.object, x.name) for x in request_links]
+        return [(x.model, x.name) for x in request_links]
 
     def request_send(self, cursor, user, ids, context=None):
         request_history_obj = self.pool.get('res.request.history')
@@ -145,7 +145,7 @@ class RequestLink(OSV):
     _name = 'res.request.link'
     _description = __doc__
     name = fields.Char('Name', required=True, translate=True)
-    object = fields.Char('Object', required=True)
+    model = fields.Selection('models_get', 'Model', required=True)
     priority = fields.Integer('Priority')
 
     def __init__(self):
@@ -154,6 +154,11 @@ class RequestLink(OSV):
 
     def default_priority(self, cursor, user, context=None):
         return 5
+
+    def models_get(self, cursor, user, context=None):
+        cursor.execute('SELECT model, name FROM ir_model ORDER BY name ASC')
+        res = cursor.fetchall()
+        return res
 
 RequestLink()
 
