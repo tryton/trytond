@@ -42,6 +42,8 @@ class Request(OSV):
             'References', states={
                 'readonly': "state == 'closed' or act_from != _user",
             })
+    number_references = fields.Function('get_number_references', type='integer',
+            string="Number of References", on_change_with=['references'])
     state = fields.Selection([
         ('draft', 'Draft'),
         ('waiting', 'Waiting'),
@@ -74,6 +76,22 @@ class Request(OSV):
         self._order.insert(0, ('priority', 'DESC'))
         self._order.insert(1, ('trigger_date', 'ASC'))
         self._order.insert(2, ('create_date', 'DESC'))
+
+    def on_change_with_number_references(self, cursor, user, ids, vals,
+            context=None):
+        if vals.get('references'):
+            return len(vals['references'])
+        return 0
+
+    def get_number_references(self, cursor, user, ids, name, arg,
+            context=None):
+        res = {}
+        for request in self.browse(cursor, user, ids, context=context):
+            if request.references:
+                res[request.id] = len(request.references)
+            else:
+                res[request.id] = 0
+        return res
 
     def request_send(self, cursor, user, ids, context=None):
         request_history_obj = self.pool.get('res.request.history')
