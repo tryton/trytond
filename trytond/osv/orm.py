@@ -766,7 +766,7 @@ class ORM(object):
                         break
                     i += 1
                 if i == len(field):
-                    data[fpos] = str(row2 or '')
+                    data[fpos] = row2 or ''
         return [data] + lines
 
     def export_data(self, cursor, user, ids, fields_names, context=None):
