@@ -11,7 +11,7 @@ class Request(OSV):
     create_date = fields.DateTime('Created date', readonly=True)
     name = fields.Char('Subject', states={
        'readonly': "(state in ('waiting', 'closed')) or " \
-               "(state == 'active' and act_from != _user)",
+               "(state == 'chatting' and act_from != _user)",
        }, required=True)
     active = fields.Boolean('Active')
     priority = fields.Selection([
@@ -20,23 +20,23 @@ class Request(OSV):
        ('2', 'High'),
        ], 'Priority', states={
            'readonly': "(state in ('waiting', 'closed')) or " \
-                   "(state == 'active' and act_from != _user)",
+                   "(state == 'chatting' and act_from != _user)",
            }, required=True)
     act_from = fields.Many2One('res.user', 'From', required=True,
        readonly=True)
     act_to = fields.Many2One('res.user', 'To', required=True,
        states={
            'readonly': "(state in ('waiting', 'closed')) or " \
-                   "(state == 'active' and act_from != _user)",
+                   "(state == 'chatting' and act_from != _user)",
            })
     body = fields.Text('Body', states={
        'readonly': "(state in ('waiting', 'closed')) or " \
-               "(state == 'active' and act_from != _user)",
+               "(state == 'chatting' and act_from != _user)",
        })
     date_sent = fields.DateTime('Date', readonly=True)
     trigger_date = fields.DateTime('Trigger Date', states={
        'readonly': "(state in ('waiting', 'closed')) or " \
-               "(state == 'active' and act_from != _user)",
+               "(state == 'chatting' and act_from != _user)",
        })
     references = fields.One2Many('res.request.reference', 'request',
             'References', states={
@@ -47,7 +47,7 @@ class Request(OSV):
     state = fields.Selection([
         ('draft', 'Draft'),
         ('waiting', 'Waiting'),
-        ('active', 'Active'),
+        ('chatting', 'Chatting'),
         ('closed', 'Closed'),
         ], 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
@@ -116,7 +116,7 @@ class Request(OSV):
     def request_reply(self, cursor, user, ids, context=None):
         for request in self.browse(cursor, user, ids, context=context):
             self.write(cursor, user, request.id, {
-                'state': 'active',
+                'state': 'chatting',
                 'act_from': user,
                 'act_to': request.act_from.id,
                 'trigger_date': False,
