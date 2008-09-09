@@ -10,15 +10,13 @@ class Attachment(OSV):
     "Attachment"
     _name = 'ir.attachment'
     _description = __doc__
-    name = fields.Char('Attachment Name',size=64, required=True)
+    name = fields.Char('Attachment Name', required=True)
     datas = fields.Function('get_datas', fnct_inv='set_datas',
        type='binary', string='Datas')
     description = fields.Text('Description')
-    res_model = fields.Char('Resource Model',size=64,
-       readonly=True, required=True)
-    res_id = fields.Integer('Resource ID', readonly=True,
-       required=True)
-    link = fields.Char('Link', size=256)
+    res_model = fields.Char('Resource Model', readonly=True)
+    res_id = fields.Integer('Resource ID', readonly=True)
+    link = fields.Char('Link')
     digest = fields.Char('Digest', size=32)
     collision = fields.Integer('Collision')
     datas_size = fields.Function('get_datas', type='integer',
