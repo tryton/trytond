@@ -26,47 +26,42 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Requests">
-                    <notebook>
+                <form string="Requests" col="6">
+                    <label name="act_from"/>
+                    <field name="act_from"/>
+                    <label name="act_to"/>
+                    <field name="act_to"/>
+                    <label name="active"/>
+                    <field name="active" xexpand="0" width="100"/>
+                    <label name="name"/>
+                    <field name="name" colspan="3"/>
+                    <label name="priority"/>
+                    <field name="priority"/>
+                    <notebook colspan="6">
                         <page string="Request">
-                            <separator string="Description" colspan="4"/>
-                            <label name="act_from"/>
-                            <field name="act_from"/>
-                            <label name="act_to"/>
-                            <field name="act_to"/>
-                            <label name="name"/>
-                            <field name="name" colspan="3"/>
-                            <newline/>
                             <separator name="body" colspan="4"/>
                             <field name="body" colspan="4"/>
+                            <field name="history" colspan="4"/>
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
                             <group col="2" colspan="2">
-                                <button name="request_send" states="{'invisible': '''state not in ('draft', 'active')'''}"
+                                <button name="request_send"
+                                    states="{'invisible': '''state not in ('draft', 'active')''', 'readonly': '''act_from != _user'''}"
                                     string="Send" type="object"/>
-                                <button name="request_reply" states="{'invisible': '''state != 'waiting' '''}"
+                                <button name="request_reply"
+                                    states="{'invisible': '''state != 'waiting' ''', 'readonly': '''act_to != _user'''}"
                                     string="Reply" type="object"/>
                             </group>
-                            <separator string="References" colspan="4"/>
-                            <!--field name="ref_partner_id"/-->
-                            <label name="priority"/>
-                            <field name="priority"/>
-                            <newline/>
-                            <label name="ref_doc1"/>
-                            <field name="ref_doc1" colspan="3"/>
-                            <label name="ref_doc2"/>
-                            <field name="ref_doc2" colspan="3"/>
-                            <separator name="state" colspan="4"/>
-                            <field name="state" colspan="2"/>
+                            <label name="state"/>
+                            <field name="state"/>
                             <group col="3" colspan="2">
-                                <label name="active"/>
-                                <field name="active"/>
-                                <button name="request_close" states="{'invisible': '''state not in ('waiting', 'draft', 'active')'''}"
+                                <button name="request_close"
+                                    states="{'invisible': '''state not in ('waiting', 'draft', 'active')'''}"
                                     string="Close" type="object"/>
                             </group>
                         </page>
-                        <page string="History">
-                            <field name="history" colspan="4"/>
+                        <page string="References" col="1">
+                            <field name="references"/>
                         </page>
                     </notebook>
                 </form>
@@ -169,6 +164,33 @@
                     <label name="name"/>
                     <field name="name" colspan="5"/>
                     <field name="body" colspan="6"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="request_reference_view_tree">
+            <field name="model">res.request.reference</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Request References">
+                    <field name="request"/>
+                    <field name="reference"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="request_reference_view_form">
+            <field name="model">res.request.reference</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Request Reference" col="2">
+                    <label name="request"/>
+                    <field name="request"/>
+                    <label name="reference"/>
+                    <field name="reference"/>
                 </form>
                 ]]>
             </field>
