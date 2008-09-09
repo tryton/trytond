@@ -26,7 +26,7 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Requests" col="6">
+                <form string="Requests" col="6" cursor="act_to">
                     <label name="act_from"/>
                     <field name="act_from"/>
                     <label name="act_to"/>
@@ -50,7 +50,7 @@
                             <field name="trigger_date"/>
                             <group col="2" colspan="2">
                                 <button name="request_send"
-                                    states="{'invisible': '''state not in ('draft', 'active')''', 'readonly': '''act_from != _user'''}"
+                                    states="{'invisible': '''state not in ('draft', 'chatting')''', 'readonly': '''act_from != _user'''}"
                                     string="Send" type="object"/>
                                 <button name="request_reply"
                                     states="{'invisible': '''state != 'waiting' ''', 'readonly': '''act_to != _user'''}"
@@ -60,7 +60,7 @@
                             <field name="state"/>
                             <group col="3" colspan="2">
                                 <button name="request_close"
-                                    states="{'invisible': '''state not in ('waiting', 'draft', 'active')'''}"
+                                    states="{'invisible': '''state not in ('waiting', 'draft', 'chatting')'''}"
                                     string="Close" type="object"/>
                             </group>
                         </page>
