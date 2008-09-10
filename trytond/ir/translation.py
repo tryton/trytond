@@ -127,7 +127,7 @@ class Translation(OSV, Cacheable):
                         name, ttype, lang)
             return translations
         for obj_id in ids:
-            trans = self.get(cursor, (lang, name, obj_id))
+            trans = self.get(cursor, (lang, ttype, name, obj_id))
             if trans is not None:
                 translations[obj_id] = trans
             else:
