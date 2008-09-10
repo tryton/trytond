@@ -47,10 +47,7 @@ class tryton_cursor(cursor):
 class FakeCursor(object):
     nbr = 0
     _tables = {}
-    sql_from_log = {}
-    sql_into_log = {}
     sql_log = False
-    count = 0
     IN_MAX = 1000
 
     def __init__(self, connpool, conn, dbname, cursor_factory):
@@ -59,6 +56,9 @@ class FakeCursor(object):
         self.cursor_factory = cursor_factory
         self.cursor = conn.cursor(cursor_factory=self.cursor_factory)
         self.dbname = dbname
+        self.sql_from_log = {}
+        self.sql_into_log = {}
+        self.count = 0
 
     def execute(self, sql, params=None):
         if not params:
