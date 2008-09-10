@@ -72,7 +72,6 @@ class Sequence(OSV):
                 )
 
     def get_id(self, cursor, user, sequence_id, test='id=%s', context=None):
-        cursor.execute('lock table ir_sequence')
         cursor.execute('SELECT id, number_next, number_increment, prefix, ' \
                     'suffix, padding ' \
                 'FROM ir_sequence ' \
@@ -95,3 +94,16 @@ class Sequence(OSV):
         return self.get_id(cursor, user, code, test='code=%s', context=context)
 
 Sequence()
+
+
+class SequenceStrict(Sequence):
+    "Sequence Strict"
+    _name = 'ir.sequence.strict'
+    _description = __doc__
+
+    def get_id(self, cursor, user, sequence_id, test='id=%s', context=None):
+        cursor.execute('LOCK TABLE ir_sequence')
+        return super(SequenceStrict, self).get_id(cursor, user, sequence_id,
+                test=test, context=context)
+
+SequenceStrict()
