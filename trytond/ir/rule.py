@@ -188,10 +188,13 @@ class Rule(OSV):
         clause.insert(0, 'OR')
 
         clause_global = clause_global.values()
-        clause_global.insert(0, 'AND')
+
+        if clause_global:
+            clause_global.insert(0, 'AND')
+            clause = ['AND', clause_global, clause]
 
         query, val, _, _ = obj._where_calc(cursor, user,
-                ['AND', clause_global, clause], active_test=False)
+                clause, active_test=False)
 
         return query, val
 
