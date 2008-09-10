@@ -131,8 +131,8 @@ class Request(OSV):
     def request_get(self, cursor, user):
         cursor.execute('SELECT id FROM res_request ' \
                 'WHERE act_to = %s ' \
-                    'AND (trigger_date <= %s OR trigger_date IS NULL) ' \
-                    'AND active = True', (user, time.strftime('%Y-%m-%d')))
+                    'AND (trigger_date <= now() OR trigger_date IS NULL) ' \
+                    'AND active = True', (user,))
         ids = [x[0] for x in cursor.fetchall()]
         cursor.execute('SELECT id FROM res_request ' \
                 'WHERE act_from = %s AND (act_to <> %s) ' \
