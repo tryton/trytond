@@ -265,7 +265,7 @@ class Wizard(object):
             # translate buttons
             for i, button  in enumerate(button_list):
                 button_name = button[0]
-                res_trans = translation_obj._get_source(cursor, user,
+                res_trans = translation_obj._get_source(cursor,
                         self._name + ',' + state + ',' + button_name,
                         'wizard_button', lang)
                 if res_trans:
