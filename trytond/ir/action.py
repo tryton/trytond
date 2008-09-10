@@ -164,6 +164,7 @@ class ActionKeyword(OSV):
                 if action_keyword.action.type == 'ir.action.report':
                     del res[-1]['report_content_data']
                     del res[-1]['report_content']
+                    del res[-1]['style_content']
         return res
 
 ActionKeyword()
