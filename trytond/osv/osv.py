@@ -240,12 +240,7 @@ class Cacheable(object):
 
     def get(self, cursor, key):
         try:
-            self.semaphore.acquire()
-            try:
-                res = self._cache[cursor.dbname][key][0]
-            finally:
-                self.semaphore.release()
-            return res
+            return self._cache[cursor.dbname][key][0]
         except KeyError:
             return None
 
