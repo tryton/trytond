@@ -1790,21 +1790,21 @@ class ORM(object):
         if self.table_query(context):
             write_access = False
 
-        #Add translation to cache
-        trans_args = []
-        for field in self._columns.keys():
-            trans_args.append((self._name + ',' + field, 'field',
-                context.get('language', 'en_US'), None))
-            trans_args.append((self._name + ',' + field, 'help',
-                context.get('language', 'en_US'), None))
-            if hasattr(self._columns[field], 'selection'):
-                if isinstance(self._columns[field].selection, (tuple, list)):
-                    sel = self._columns[field].selection
-                    for (key, val) in sel:
-                        trans_args.append((self._name + ',' + field,
-                            'selection', context.get('language', 'en_US'),
-                            val))
-        translation_obj._get_sources(cursor, trans_args)
+        if context.get('language'):
+            #Add translation to cache
+            trans_args = []
+            for field in self._columns.keys():
+                trans_args.append((self._name + ',' + field, 'field',
+                    context['language'], None))
+                trans_args.append((self._name + ',' + field, 'help',
+                    context['language'], None))
+                if hasattr(self._columns[field], 'selection'):
+                    if isinstance(self._columns[field].selection, (tuple, list)):
+                        sel = self._columns[field].selection
+                        for (key, val) in sel:
+                            trans_args.append((self._name + ',' + field,
+                                'selection', context['language'], val))
+            translation_obj._get_sources(cursor, trans_args)
 
         for field in self._columns.keys():
             res[field] = {'type': self._columns[field]._type}
@@ -1838,29 +1838,31 @@ class ORM(object):
                     and not self._columns[field].order_field:
                 res[field]['sortable'] = False
 
-            # translate the field label
-            res_trans = translation_obj._get_source(cursor,
-                    self._name + ',' + field, 'field',
-                    context.get('language', 'en_US'))
-            if res_trans:
-                res[field]['string'] = res_trans
-            help_trans = translation_obj._get_source(cursor,
-                    self._name + ',' + field, 'help',
-                    context.get('language', 'en_US'))
-            if help_trans:
-                res[field]['help'] = help_trans
+            if context.get('language'):
+                # translate the field label
+                res_trans = translation_obj._get_source(cursor,
+                        self._name + ',' + field, 'field',
+                        context['language'])
+                if res_trans:
+                    res[field]['string'] = res_trans
+                help_trans = translation_obj._get_source(cursor,
+                        self._name + ',' + field, 'help',
+                        context['language'])
+                if help_trans:
+                    res[field]['help'] = help_trans
 
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)):
                     sel = self._columns[field].selection
-                    # translate each selection option
-                    sel2 = []
-                    for (key, val) in sel:
-                        val2 = translation_obj._get_source(cursor,
-                                self._name + ',' + field, 'selection',
-                                context.get('language', 'en_US'), val)
-                        sel2.append((key, val2 or val))
-                    sel = sel2
+                    if context.get('language'):
+                        # translate each selection option
+                        sel2 = []
+                        for (key, val) in sel:
+                            val2 = translation_obj._get_source(cursor,
+                                    self._name + ',' + field, 'selection',
+                                    context.get('language', 'en_US'), val)
+                            sel2.append((key, val2 or val))
+                        sel = sel2
                     res[field]['selection'] = sel
                 else:
                     # call the 'dynamic selection' function
