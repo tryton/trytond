@@ -2231,6 +2231,8 @@ class ORM(object):
         for args2 in list_args:
             qu1b, qu2b = self.__where_calc_oper(cursor,
                     user, args2, tables, tables_args, context=context)
+            if not qu1b:
+                qu1b = 'true'
             if qu1 and qu1b:
                 qu1 += ' ' + operator + ' ' + qu1b
             elif qu1b:
