@@ -2000,7 +2000,7 @@ class ORM(object):
         tree_root = tree.getroottree().getroot()
         fields_def = self.__view_look_dom(cursor, user, tree_root, type,
                 context=context)
-        arch = etree.tostring(tree, encoding='utf-8')
+        arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
         for field in fields_def:
             if field in fields2:
@@ -2146,7 +2146,8 @@ class ORM(object):
             result['field_childs'] = False
             result['view_id'] = 0
 
-        tree = etree.fromstring(result['arch'])
+        parser = etree.XMLParser(remove_blank_text=True)
+        tree = etree.fromstring(result['arch'], parser)
         xarch, xfields = self._view_look_dom_arch(cursor, user, tree,
                 result['type'], context=context)
         result['arch'] = xarch
