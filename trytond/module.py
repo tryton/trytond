@@ -351,12 +351,13 @@ def load_modules(database, update_module=False, lang=None):
             cursor.execute("SELECT name FROM ir_module_module " \
                     "WHERE state IN ('installed', 'to upgrade', 'to remove')")
         module_list = [name for (name,) in cursor.fetchall()]
-        for module in CONFIG['init'].keys():
-            if CONFIG['init'][module]:
-                module_list.append(module)
-        for module in CONFIG['update'].keys():
-            if CONFIG['update'][module]:
-                module_list.append(module)
+        if update_module:
+            for module in CONFIG['init'].keys():
+                if CONFIG['init'][module]:
+                    module_list.append(module)
+            for module in CONFIG['update'].keys():
+                if CONFIG['update'][module]:
+                    module_list.append(module)
         graph = create_graph(module_list, force)[0]
 
         try:
@@ -365,26 +366,23 @@ def load_modules(database, update_module=False, lang=None):
             cursor.rollback()
             raise
 
-
-        for kind in ('init', 'update'):
-            CONFIG[kind] = {}
-
         if update_module:
             cursor.execute("SELECT name FROM ir_module_module " \
                     "WHERE state IN ('to remove')")
-            for (mod_name,) in cursor.fetchall():
-                pool = pooler.get_pool(cursor.dbname)
-                #TODO check if ressource not updated by the user
-                cursor.execute('SELECT model, db_id FROM ir_model_data ' \
-                        'WHERE module = %s ' \
-                        'ORDER BY id DESC', (mod_name,))
-                for rmod, rid in cursor.fetchall():
-                    pool.get(rmod).delete(cursor, 0, rid)
+            if cursor.rowcount:
+                for (mod_name,) in cursor.fetchall():
+                    pool = pooler.get_pool(cursor.dbname)
+                    #TODO check if ressource not updated by the user
+                    cursor.execute('SELECT model, db_id FROM ir_model_data ' \
+                            'WHERE module = %s ' \
+                            'ORDER BY id DESC', (mod_name,))
+                    for rmod, rid in cursor.fetchall():
+                        pool.get(rmod).delete(cursor, 0, rid)
+                    cursor.commit()
+                cursor.execute("UPDATE ir_module_module SET state = %s " \
+                        "WHERE state IN ('to remove')", ('uninstalled',))
                 cursor.commit()
-            cursor.execute("UPDATE ir_module_module SET state = %s " \
-                    "WHERE state IN ('to remove')", ('uninstalled',))
-            cursor.commit()
-            pooler.restart_pool(cursor.dbname)
+                pooler.restart_pool(cursor.dbname)
 
         pool = pooler.get_pool(cursor.dbname)
         module_obj = pool.get('ir.module.module')
