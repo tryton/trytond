@@ -82,7 +82,6 @@ class ConfigManager(object):
             self.options['data_path'] = False
 
         for arg in (
-                'db_name',
                 'verbose',
                 'debug_mode',
                 'pidfile',
@@ -90,6 +89,12 @@ class ConfigManager(object):
                 ):
             if getattr(opt, arg) is not None:
                 self.options[arg] = getattr(opt, arg)
+
+        db_name = []
+        if opt.db_name:
+            for i in opt.db_name.split(','):
+                db_name.append(i)
+        self.options['db_name'] = db_name
 
         init = {}
         if opt.init and self.options.get('db_name'):
