@@ -104,6 +104,8 @@ class TrytonServer(object):
                 update_module = bool(CONFIG['init'] or CONFIG['update'])
                 pooler.get_db_and_pool(db_name, update_module=update_module,
                         lang=lang)
+        else:
+            register_classes()
 
         for kind in ('init', 'update'):
             CONFIG[kind] = {}
