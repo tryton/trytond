@@ -17,6 +17,7 @@ from module import register_classes
 import mx.DateTime
 from getpass import getpass
 import sha
+import threading
 
 
 class TrytonServer(object):
@@ -190,7 +191,6 @@ class TrytonServer(object):
                 httpd.stop()
             if CONFIG['webdav']:
                 webdavd.stop()
-            netsvc.Agent.quit()
             if CONFIG['pidfile']:
                 os.unlink(CONFIG['pidfile'])
             sys.exit(0)
@@ -220,16 +220,18 @@ class TrytonServer(object):
         except ImportError:
             pass
 
-        count = 0
+        now = time.time()
         while True:
             time.sleep(1)
-            count += 1
-            if count == 60:
-                #TODO check if we don't need to run pool_jobs in a thread
+            if time.time() - now >= 60:
                 for dbname in pooler.get_db_list():
                     pool = pooler.get_pool(dbname)
-                    pool.get('ir.cron').pool_jobs(dbname)
-                count = 0
+                    cron_obj = pool.get('ir.cron')
+                    thread = threading.Thread(
+                            target=cron_obj.pool_jobs,
+                            args=(dbname,), kwargs={})
+                    thread.start()
+                now = time.time()
 
 if __name__ == "__main__":
     SERVER = TrytonServer()
