@@ -2,7 +2,7 @@
 "Objects Services"
 
 from orm import ORM
-from trytond.netsvc import Service, LocalService, Logger, LOG_ERROR
+from trytond.netsvc import Service, LocalService
 from trytond import pooler
 import copy
 import sys
@@ -48,9 +48,8 @@ class OSVService(Service):
             if CONFIG['verbose']:
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(*sys.exc_info()))
-                logger = Logger()
-                logger.notify_channel("web-service", LOG_ERROR,
-                        'Exception in call: \n' + tb_s)
+                logger = logging.getLogger("web-service")
+                logger.error('Exception in call: \n' + tb_s)
             if isinstance(exception, IntegrityError):
                 for key in self._sql_errors.keys():
                     if key in exception[0]:
@@ -98,9 +97,8 @@ class OSVService(Service):
             if CONFIG['verbose']:
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(*sys.exc_info()))
-                logger = Logger()
-                logger.notify_channel("web-service", LOG_ERROR,
-                        'Exception in call: \n' + tb_s)
+                logger = logging.getLogger()
+                logger.error('Exception in call: \n' + tb_s)
             if isinstance(exception, IntegrityError):
                 for key in self._sql_errors.keys():
                     if key in exception[0]:

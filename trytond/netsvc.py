@@ -5,7 +5,6 @@ import SimpleXMLRPCServer, signal, sys, xmlrpclib
 import SocketServer
 import socket
 import logging
-import logging.handlers
 import os
 from pysocket import PySocket
 import traceback
@@ -77,43 +76,9 @@ class ServiceUnavailable(Exception):
 def service_exist(name):
     return (name in _SERVICE) and bool(_SERVICE[name])
 
-def init_logger():
-    if CONFIG['logfile']:
-        logf = CONFIG['logfile']
-        # test if the directories exist, else create them
-        try:
-            handler = logging.handlers.TimedRotatingFileHandler(logf, 'D', 1,
-                    30)
-        except Exception, exception:
-            sys.stderr.write("ERROR: couldn't create the logfile directory:" \
-                    + str(exception))
-            handler = logging.StreamHandler(sys.stdout)
-    else:
-        handler = logging.StreamHandler(sys.stdout)
-
-    # create a format for log messages and dates
-    formatter = logging.Formatter(
-            '[%(asctime)s] %(levelname)s:%(name)s:%(message)s',
-            '%a %b %d %H:%M:%S %Y')
-
-    # tell the handler to use this format
-    handler.setFormatter(formatter)
-
-    # add the handler to the root logger
-    logging.getLogger().addHandler(handler)
-    logging.getLogger().setLevel(logging.INFO)
-
-
-class Logger(object):
-
-    def notify_channel(self, name, level, msg):
-        log = logging.getLogger(name)
-        getattr(log, level)(msg)
-
-
 class Agent(object):
     _timers = []
-    _logger = Logger()
+    _logger = logging.getLogger('timers')
 
     def set_alarm(self, function, time_start, args=None, kwargs=None):
         if not args:
@@ -122,10 +87,10 @@ class Agent(object):
             kwargs = {}
         wait = time_start - time.time()
         if wait > 0:
-            self._logger.notify_channel('timers', LOG_DEBUG,
-                    "Job scheduled in %s seconds for %s.%s" % \
-                            (wait, function.im_class.__name__,
-                                function.func_name))
+            self._logger.debug(
+                "Job scheduled in %s seconds for %s.%s" % \
+                    (wait, function.im_class.__name__,
+                     function.func_name))
             timer = threading.Timer(wait, function, args, kwargs)
             timer.start()
             self._timers.append(timer)
@@ -172,8 +137,8 @@ class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
         host, port = self.client_address[:2]
-        Logger().notify_channel('web-service', LOG_INFO,
-                'connection from %s:%d' % (host, port))
+        logging.getLogger('web-service').info(
+            'connection from %s:%d' % (host, port))
         try:
             name = self.path.split("/")[-1]
             service = LocalService(name)
@@ -327,8 +292,8 @@ class TinySocketClientThread(threading.Thread):
                 return False
             if first:
                 host, port = self.sock.getpeername()[:2]
-                Logger().notify_channel('web-service', LOG_INFO,
-                        'connection from %s:%d' % (host, port))
+                logging.getLogger('web-service').info(
+                    'connection from %s:%d' % (host, port))
                 first = False
             try:
                 service = LocalService(msg[0])

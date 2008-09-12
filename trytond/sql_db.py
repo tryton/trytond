@@ -9,7 +9,7 @@ from mx import DateTime as mdt
 import zipfile
 import version
 from config import CONFIG
-from netsvc import Logger, LOG_ERROR, LOG_WARNING
+import logging
 
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
@@ -350,9 +350,7 @@ class table_handler:
                 return
             base_type = column_type[0].lower()
             if not base_type == self.table[column_name]['typname']:
-                logger = Logger()
-                logger.notify_channel(
-                    'init', LOG_WARNING,
+                logging.getLogger('init').warning(
                     'Unable to migrate column % s on table %s from %s to %s.' % \
                     (column_name, self.table_name,
                         self.table[column_name]['typname'], base_type))
@@ -368,9 +366,7 @@ class table_handler:
                     self.table[column_name]['size'] < field_size:
                 self.migrate_column(column_name, column_type[1])
             else:
-                logger = Logger()
-                logger.notify_channel(
-                    'init', LOG_WARNING,
+                logging.getLogger('init').warning(
                     'Unable to migrate column %s on table %s ' \
                             'from varchar(%s) to varchar(%s).' % \
                     (column_name, self.table_name,
@@ -478,10 +474,7 @@ class table_handler:
                                    "SET NOT NULL")
                 self.update_definitions()
             else:
-                logger = Logger()
-                logger.notify_channel(
-                    'init',
-                    LOG_WARNING,
+                logging.getLogger('init').warning(
                     'Unable to set column %s ' \
                         'of table %s not null !\n'\
                         'Try to re-run: ' \
@@ -509,10 +502,7 @@ class table_handler:
                            'ADD CONSTRAINT "%s" %s' % \
                            (self.table_name, ident, constraint,))
         except:
-            raise
-            logger = Logger()
-            logger.notify_channel(
-                'init', LOG_WARNING,
+            logging.getLogger('init').warning(
                 'unable to add \'%s\' constraint on table %s !\n' \
                 'If you want to have it, you should update the records ' \
                 'and execute manually:\n'\

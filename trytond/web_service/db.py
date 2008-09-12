@@ -1,7 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 # -*- coding: utf-8 -*-
-from trytond.netsvc import Service, Logger, LOG_ERROR, LOG_INFO, LOG_WARNING
+import logging
 import threading
+from trytond.netsvc import Service
 from trytond import security
 from trytond import sql_db
 from trytond import pooler
@@ -29,8 +30,7 @@ class DB(Service):
     def create(self, password, db_name, lang, admin_password):
         security.check_super(password)
         res = False
-
-        logger = Logger()
+        logger = logging.getLogger('web-service')
 
         database = sql_db.db_connect('template1')
         cursor = database.cursor()
@@ -64,17 +64,14 @@ class DB(Service):
                 cursor.commit()
                 res = True
             except:
-                logger.notify_channel("web-service", LOG_ERROR,
-                    'CREATE DB: %s failed' % (db_name,))
+                logger.error('CREATE DB: %s failed' % (db_name,))
                 import traceback, sys
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(*sys.exc_info()))
-                logger.notify_channel("web-service", LOG_ERROR,
-                        'Exception in call: \n' + tb_s)
+                logger.error('Exception in call: \n' + tb_s)
                 raise
             else:
-                logger.notify_channel("web-service", LOG_INFO,
-                    'CREATE DB: %s' % (db_name,))
+                logger.error('CREATE DB: %s' % (db_name,))
         finally:
             if cursor:
                 cursor.close()
@@ -83,7 +80,7 @@ class DB(Service):
     def drop(self, password, db_name):
         security.check_super(password)
         pooler.close_db(db_name)
-        logger = Logger()
+        logger = logging.getLogger('web-service')
 
         database = sql_db.db_connect('template1')
         cursor = database.cursor()
@@ -93,28 +90,24 @@ class DB(Service):
                 cursor.execute('DROP DATABASE "' + db_name + '"')
                 cursor.commit()
             except:
-                logger.notify_channel("web-service", LOG_ERROR,
-                    'DROP DB: %s failed' % (db_name,))
+                logger.error('DROP DB: %s failed' % (db_name,))
                 import traceback, sys
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(*sys.exc_info()))
-                logger.notify_channel("web-service", LOG_ERROR,
-                        'Exception in call: \n' + tb_s)
+                logger.error('Exception in call: \n' + tb_s)
                 raise
             else:
-                logger.notify_channel("web-service", LOG_INFO,
-                    'DROP DB: %s' % (db_name))
+                logger.info('DROP DB: %s' % (db_name))
         finally:
             cursor.close()
         return True
 
     def dump(self, password, db_name):
         security.check_super(password)
-        logger = Logger()
+        logger = logging.getLogger('web-service')
 
         if tools.CONFIG['db_password']:
-            logger.notify_channel("web-service", LOG_ERROR,
-                    'DUMP DB: %s doesn\'t work with password' % (db_name,))
+            logger.error('DUMP DB: %s doesn\'t work with password' % (db_name,))
             raise Exception, "Couldn't dump database with password"
 
         cmd = ['pg_dump', '--format=c']
@@ -131,25 +124,22 @@ class DB(Service):
         data = stdout.read()
         res = stdout.close()
         if res:
-            logger.notify_channel("web-service", LOG_ERROR,
-                    'DUMP DB: %s failed\n%s' % (db_name, data))
+            logger.error('DUMP DB: %s failed\n%s' % (db_name, data))
             raise Exception, "Couldn't dump database"
-        logger.notify_channel("web-service", LOG_INFO,
-                'DUMP DB: %s' % (db_name))
+        logger.info('DUMP DB: %s' % (db_name))
         return base64.encodestring(data)
 
     def restore(self, password, db_name, data):
         security.check_super(password)
-        logger = Logger()
+        logger = logging.getLogger('web-service')
 
         if self.db_exist(db_name):
-            logger.notify_channel("web-service", LOG_WARNING,
-                    'RESTORE DB: %s already exists' % (db_name,))
+            logger.warning('RESTORE DB: %s already exists' % (db_name,))
             raise Exception, "Database already exists"
 
         if tools.CONFIG['db_password']:
-            logger.notify_channel("web-service", LOG_ERROR,
-                    'RESTORE DB: %s doesn\'t work with password' % (db_name,))
+            logger.error(
+                'RESTORE DB: %s doesn\'t work with password' % (db_name,))
             raise Exception, "Couldn't restore database with password"
 
         database = sql_db.db_connect('template1')
@@ -183,8 +173,7 @@ class DB(Service):
         res = stdout.close()
         if res:
             raise Exception, "Couldn't restore database"
-        logger.notify_channel("web-service", LOG_INFO,
-                'RESTORE DB: %s' % (db_name))
+        logger.info('RESTORE DB: %s' % (db_name))
         return True
 
     def db_exist(self, db_name):

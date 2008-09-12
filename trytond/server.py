@@ -2,7 +2,10 @@
 """
 %prog [options]
 """
-
+import logging
+format='[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
+datefmt='%a %b %d %H:%M:%S %Y'
+logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
 import sys, os, signal
 import netsvc
 import time
@@ -17,22 +20,46 @@ from module import register_classes
 import mx.DateTime
 from getpass import getpass
 import sha
-
+import logging
+import logging.handlers
 
 class TrytonServer(object):
 
     def __init__(self):
-        netsvc.init_logger()
-        self.logger = netsvc.Logger()
+
+        if CONFIG['logfile']:
+            logf = CONFIG['logfile']
+            # test if the directories exist, else create them
+            try:
+                handler = logging.handlers.TimedRotatingFileHandler(
+                    logf, 'D', 1, 30)
+            except Exception, exception:
+                sys.stderr.write("ERROR: couldn't create the logfile directory:" \
+                        + str(exception))
+            else:
+                formatter = logging.Formatter(format, datefmt)
+                # tell the handler to use this format
+                handler.setFormatter(formatter)
+
+                # add the handler to the root logger
+                logging.getLogger().addHandler(handler)
+                logging.getLogger().setLevel(logging.INFO)
+        elif os.name != 'nt':
+            reverse = '\x1b[7m'
+            reset = '\x1b[0m'
+            # reverse color for error and critical messages
+            for level in logging.ERROR, logging.CRITICAL:
+                msg = reverse + logging.getLevelName(level) + reset
+                logging.addLevelName(level, msg)
+
+        self.logger = logging.getLogger("init")
 
         if not hasattr(mx.DateTime, 'strptime'):
             mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
                     time.strptime(x, y))
 
-        self.logger.notify_channel("init", netsvc.LOG_INFO,
-                'using %s as configuration file' % CONFIG.configfile)
-        self.logger.notify_channel("init", netsvc.LOG_INFO,
-                'initialising distributed objects services')
+        self.logger.info('using %s as configuration file' % CONFIG.configfile)
+        self.logger.info('initialising distributed objects services')
 
         self.dispatcher = netsvc.Dispatcher()
         self.dispatcher.monitor(signal.SIGINT)
@@ -57,8 +84,7 @@ class TrytonServer(object):
                 if db_name:
                     cursor = pooler.get_db_only(db_name).cursor()
             except psycopg2.OperationalError:
-                self.logger.notify_channel("init", netsvc.LOG_INFO,
-                        "could not connect to database '%s'!" % db_name,)
+                self.logger.info("could not connect to database '%s'!" % db_name,)
 
             init[db_name] = False
             if cursor and CONFIG['init']:
@@ -86,7 +112,7 @@ class TrytonServer(object):
                         "'ir_lang'"
                         ")")
                 if len(cursor.fetchall()) == 0:
-                    self.logger.notify_channel("init", netsvc.LOG_INFO, "init db")
+                    self.logger.info("init db")
                     sql_db.init_db(cursor)
                     init[db_name] = True
                 cursor.commit()
@@ -132,8 +158,7 @@ class TrytonServer(object):
                 cursor.close()
 
         if update_module:
-            self.logger.notify_channel('init', netsvc.LOG_INFO,
-                    'Update/Init succeed!')
+            self.logger.info('Update/Init succeed!')
             sys.exit(0)
 
         # Launch Server
@@ -143,44 +168,40 @@ class TrytonServer(object):
             try:
                 port = int(CONFIG["xmlport"])
             except:
-                self.logger.notify_channel("init", netsvc.LOG_ERROR,
-                        "invalid port '%s'!" % (CONFIG["xmlport"],))
+                self.logger.error("invalid port '%s'!" % (CONFIG["xmlport"],))
                 sys.exit(1)
 
             httpd = netsvc.HttpDaemon(interface, port, secure)
 
             xml_gw = netsvc.XmlRpc.RpcGateway('web-service')
             httpd.attach("/xmlrpc", xml_gw )
-            self.logger.notify_channel("web-service", netsvc.LOG_INFO,
-                        "starting XML-RPC" + \
-                                (CONFIG['secure'] and ' Secure' or '') + \
-                                " services, port " + str(port))
+            logging.getLogger("web-service").info(
+                "starting XML-RPC" + (CONFIG['secure'] and ' Secure' or '') + \
+                    " services, port " + str(port))
 
         if CONFIG['netrpc']:
             interface = CONFIG["interface"]
             try:
                 port = int(CONFIG["netport"])
             except:
-                self.logger.notify_channel("init", netsvc.LOG_ERROR,
-                        "invalid port '%s'!" % (CONFIG["netport"],))
+                self.logger.error("invalid port '%s'!" % (CONFIG["netport"],))
                 sys.exit(1)
 
             tinysocket = netsvc.TinySocketServerThread(interface, port,
                     secure)
-            self.logger.notify_channel("web-service", netsvc.LOG_INFO,
-                    "starting netrpc service, port " + str(port))
+            logging.getLogger("web-service").info(
+                "starting netrpc service, port " + str(port))
 
         if CONFIG['webdav']:
             interface = CONFIG['interface']
             try:
                 port = int(CONFIG['webdavport'])
             except:
-                self.logger.notify_channel('init', netsvc.LOG_ERROR,
-                        "invalid port '%s'!" % (CONFIG['webdavport'],))
+                self.logger.error("invalid port '%s'!" % (CONFIG['webdavport'],))
                 sys.exit(1)
 
             webdavd = netsvc.WebDAVServerThread(interface, port, secure)
-            self.logger.notify_channel('web-service', netsvc.LOG_INFO,
+            logging.getLogger("web-service").info(
                     'starting webdav service, port ' + str(port))
 
         def handler(signum, frame):
@@ -204,8 +225,7 @@ class TrytonServer(object):
         signal.signal(signal.SIGINT, handler)
         signal.signal(signal.SIGTERM, handler)
 
-        self.logger.notify_channel("init", netsvc.LOG_INFO,
-                'the server is running, waiting for connections...')
+        self.logger.info('the server is running, waiting for connections...')
         if CONFIG['netrpc']:
             tinysocket.start()
         if CONFIG['xmlrpc']:
