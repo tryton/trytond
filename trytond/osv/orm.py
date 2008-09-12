@@ -2183,14 +2183,25 @@ class ORM(object):
         if ('active' in self._columns or \
                 'active' in self._inherit_fields.keys()) \
                 and (active_test and context.get('active_test', True)):
-            i = 0
-            active_found = False
-            while i < len(args):
-                if args[i][0] == 'active':
-                    active_found = True
-                i += 1
-            if not active_found:
-                args.append(('active', '=', 1))
+            def process_args(args):
+                i = 0
+                active_found = False
+                while i < len(args):
+                    if isinstance(args[i], list):
+                        args[i] = process_args(args[i])
+                    if isinstance(args[i], tuple):
+                        if args[i][0] == 'active':
+                            active_found = True
+                    i += 1
+                if not active_found:
+                    if args and ((isinstance(args[0], basestring) \
+                            and args[0] == 'AND') \
+                            or (not isinstance(args[0], basestring))):
+                        args.append(('active', '=', 1))
+                    else:
+                        args = ['AND', args, ('active', '=', 1)]
+                return args
+            args = process_args(args)
 
         table_query = ''
         table_args = []
