@@ -81,15 +81,14 @@ class TrytonServer(object):
         update_module = False
         init = {}
         for db_name in CONFIG["db_name"]:
-            cursor = None
             try:
-                if db_name:
-                    cursor = pooler.get_db_only(db_name).cursor()
+                cursor = pooler.get_db_only(db_name).cursor()
             except psycopg2.OperationalError:
                 self.logger.info("could not connect to database '%s'!" % db_name,)
+                continue
 
             init[db_name] = False
-            if cursor and CONFIG['init']:
+            if CONFIG['init']:
                 cursor.execute("SELECT relname " \
                         "FROM pg_class " \
                         "WHERE relkind = 'r' AND relname in (" \
@@ -118,21 +117,23 @@ class TrytonServer(object):
                     sql_db.init_db(cursor)
                     init[db_name] = True
                 cursor.commit()
+                cursor.close()
 
-            register_classes()
+        register_classes()
 
-            if db_name:
-                lang = None
-                if cursor:
-                    cursor.execute('SELECT code FROM ir_lang ' \
-                            'WHERE translatable = True')
-                    lang = [x[0] for x in cursor.fetchall()]
-                    cursor.close()
-                update_module = bool(CONFIG['init'] or CONFIG['update'])
-                pooler.get_db_and_pool(db_name, update_module=update_module,
-                        lang=lang)
-        else:
-            register_classes()
+        for db_name in CONFIG["db_name"]:
+            try:
+                cursor = pooler.get_db_only(db_name).cursor()
+            except psycopg2.OperationalError:
+                self.logger.info("could not connect to database '%s'!" % db_name,)
+                continue
+            cursor.execute('SELECT code FROM ir_lang ' \
+                    'WHERE translatable = True')
+            lang = [x[0] for x in cursor.fetchall()]
+            cursor.close()
+            update_module = bool(CONFIG['init'] or CONFIG['update'])
+            pooler.get_db_and_pool(db_name, update_module=update_module,
+                    lang=lang)
 
         for kind in ('init', 'update'):
             CONFIG[kind] = {}
