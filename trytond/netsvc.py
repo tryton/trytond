@@ -76,33 +76,6 @@ class ServiceUnavailable(Exception):
 def service_exist(name):
     return (name in _SERVICE) and bool(_SERVICE[name])
 
-class Agent(object):
-    _timers = []
-    _logger = logging.getLogger('timers')
-
-    def set_alarm(self, function, time_start, args=None, kwargs=None):
-        if not args:
-            args = []
-        if not kwargs:
-            kwargs = {}
-        wait = time_start - time.time()
-        if wait > 0:
-            self._logger.debug(
-                "Job scheduled in %s seconds for %s.%s" % \
-                    (wait, function.im_class.__name__,
-                     function.func_name))
-            timer = threading.Timer(wait, function, args, kwargs)
-            timer.start()
-            self._timers.append(timer)
-        for timer in self._timers[:]:
-            if not timer.isAlive():
-                self._timers.remove(timer)
-
-    def quit(cls):
-        for timer in cls._timers:
-            timer.cancel()
-    quit = classmethod(quit)
-
 
 class RpcGateway(object):
 
