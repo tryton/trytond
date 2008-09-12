@@ -19,6 +19,7 @@
                     <field name="interval_type"/>
                     <field name="numbercall"/>
                     <field name="active" select="1"/>
+                    <field name="running" select="2"/>
                 </tree>
                 ]]>
             </field>
@@ -53,6 +54,8 @@
                     <field name="model"  readonly="1"/>
                     <label name="function"/>
                     <field name="function" readonly="1"/>
+                    <label name="running"/>
+                    <field name="running"/>
                     <field name="args" colspan="6" readonly="1"/>
                 </form>
                 ]]>
