@@ -14,7 +14,6 @@ from config import CONFIG
 import web_service
 import wkf_service
 from module import register_classes
-import osv, security, tools, version
 import mx.DateTime
 from getpass import getpass
 import sha
