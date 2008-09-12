@@ -10,6 +10,7 @@ import socket
 import zipfile
 from trytond import pooler
 from threading import Semaphore
+import logging
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -138,8 +139,7 @@ def email_send(email_from, email_to, subject, body, email_cc=None,
                 msg.as_string())
         smtp.quit()
     except Exception, exp:
-        from trytond.netsvc import Logger, LOG_ERROR
-        Logger().notify_channel("web-service", LOG_ERROR, str(exp))
+        logging.getLogger("web-service").error(str(exp))
     return True
 
 def email_send_attach(email_from, email_to, subject, body, email_cc=None,
@@ -193,8 +193,8 @@ def email_send_attach(email_from, email_to, subject, body, email_cc=None,
                 msg.as_string())
         smtp.quit()
     except Exception, exp:
-        from trytond.netsvc import Logger, LOG_ERROR
-        Logger().notify_channel("web-service", LOG_ERROR, str(exp))
+        logging.getLogger("web-service").error(str(exp))
+
     return True
 
 def sms_send(user, password, api_id, text, to):

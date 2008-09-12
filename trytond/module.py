@@ -5,10 +5,10 @@ from sets import Set
 from config import CONFIG
 import tools
 import pooler
-from netsvc import Logger, LOG_ERROR, LOG_INFO
 import zipfile
 import zipimport
 import traceback
+import logging
 
 OPJ = os.path.join
 MODULES_PATH = OPJ(os.path.dirname(__file__), 'modules')
@@ -130,14 +130,14 @@ def create_graph(module_list, force=None):
             try:
                 info = eval(tools.file_open(tryton_file).read())
             except:
-                Logger().notify_channel('init', LOG_ERROR,
-                        'module:%s:eval file %s' % (module, tryton_file))
+                logging.getLogger('init').error(
+                    'module:%s:eval file %s' % (module, tryton_file))
                 raise
             if info.get('installable', True):
                 packages.append((module, info.get('depends', []), info))
         elif module != 'all':
-            Logger().notify_channel('init', LOG_ERROR,
-                    'module:%s:Module not found!' % (module,))
+            logging.getLogger('init').error(
+                'module:%s:Module not found!' % (module,))
 
     current, later = Set([x[0] for x in packages]), Set()
     while packages and current > later:
@@ -168,19 +168,19 @@ def create_graph(module_list, force=None):
         if package not in later:
             continue
         missings = [x for x in deps if x not in graph]
-        Logger().notify_channel('init', LOG_ERROR,
-                'module:%s:Unmet dependency %s' % (package, missings))
+        logging.getLogger('init').error(
+            'module:%s:Unmet dependency %s' % (package, missings))
     return graph, packages, later
 
 def init_module_objects(cursor, module_name, obj_list):
-    Logger().notify_channel('init', LOG_INFO,
-            'module:%s:creating or updating database tables' % module_name)
+    logging.getLogger('init').info(
+        'module:%s:creating or updating database tables' % module_name)
     for obj in obj_list:
         obj.auto_init(cursor, module_name)
 
 def init_module_wizards(cursor, module_name, wizard_list):
-    Logger().notify_channel('init', LOG_INFO,
-            'module:%s:creating or updating wizards' % module_name)
+    logging.getLogger('init').info(
+        'module:%s:creating or updating wizards' % module_name)
     for wizard in wizard_list:
         wizard.auto_init(cursor, module_name)
 
@@ -192,7 +192,7 @@ def load_module_graph(cursor, graph, lang=None):
         module = package.name
         if module not in MODULES:
             continue
-        Logger().notify_channel('init', LOG_INFO, 'module:%s' % module)
+        logging.getLogger('init').info('module:%s' % module)
         sys.stdout.flush()
         pool = pooler.get_pool(cursor.dbname)
         modules = pool.instanciate(module)
@@ -221,8 +221,8 @@ def load_module_graph(cursor, graph, lang=None):
                 mode = 'update'
                 if hasattr(package, 'init') or package_state=='to install':
                     mode = 'init'
-                Logger().notify_channel('init', LOG_INFO,
-                        'module:%s:loading %s' % (module, filename))
+                logging.getLogger('init').info(
+                    'module:%s:loading %s' % (module, filename))
                 ext = os.path.splitext(filename)[1]
                 if ext == '.sql':
                     if mode == 'init':
@@ -243,8 +243,8 @@ def load_module_graph(cursor, graph, lang=None):
                 lang2 = os.path.splitext(filename)[0]
                 if lang2 not in lang:
                     continue
-                Logger().notify_channel('init', LOG_INFO,
-                        'module:%s:loading %s' % (module, filename))
+                logging.getLogger('init').info(
+                    'module:%s:loading %s' % (module, filename))
                 translation_obj = pool.get('ir.translation')
                 translation_obj.translation_import(cursor, 0, lang2, module,
                         tools.file_open(OPJ(module, filename)))
@@ -283,8 +283,8 @@ def register_classes():
     import webdav
     for package in create_graph(get_module_list())[0]:
         module = package.name
-        Logger().notify_channel('init', LOG_INFO,
-                'module:%s:registering classes' % module)
+        logging.getLogger('init').info(
+            'module:%s:registering classes' % module)
 
         if module in ('ir', 'workflow', 'res', 'webdav'):
             MODULES.append(module)
@@ -308,8 +308,8 @@ def register_classes():
                     import pdb
                     traceb = sys.exc_info()[2]
                     pdb.post_mortem(traceb)
-                Logger().notify_channel('init', LOG_ERROR,
-                        'Couldn\'t import module %s:\n%s' % (module, tb_s))
+                logging.getLogger('init').error(
+                    'Couldn\'t import module %s:\n%s' % (module, tb_s))
                 break
         else:
             mod_path = OPJ(MODULES_PATH, module+'.zip')
@@ -330,8 +330,8 @@ def register_classes():
                     import pdb
                     traceb = sys.exc_info()[2]
                     pdb.post_mortem(traceb)
-                Logger().notify_channel('init', LOG_ERROR,
-                        'Couldn\'t import module %s:\n%s' % (module, tb_s))
+                logging.getLogger('init').error(
+                    'Couldn\'t import module %s:\n%s' % (module, tb_s))
                 break
         MODULES.append(module)
 

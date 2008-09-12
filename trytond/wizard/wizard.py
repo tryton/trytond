@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Wizard"
-from trytond.netsvc import Service, service_exist, Logger, LOG_ERROR
+from trytond.netsvc import Service
 from trytond import pooler
 import copy
 from xml import dom
@@ -9,6 +9,7 @@ from trytond.config import CONFIG
 import sys
 from trytond.sql_db import IntegrityError
 import traceback
+import logging
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
@@ -37,8 +38,8 @@ class WizardService(Service):
             if CONFIG['verbose']:
                 tb_s = reduce(lambda x, y: x+y,
                         traceback.format_exception(*sys.exc_info()))
-                Logger().notify_channel("web-service", LOG_ERROR,
-                        'Exception in call: ' + tb_s)
+                logging.getLogger("web-service").error(
+                    'Exception in call: ' + tb_s)
             if isinstance(exception, IntegrityError):
                 pool = pooler.get_pool(cursor.dbname)
                 for key in pool._sql_errors.keys():

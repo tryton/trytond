@@ -3,7 +3,7 @@
 from trytond.osv import fields, OSV
 from difflib import SequenceMatcher
 import os
-from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING
+import logging
 from lxml import etree
 
 
@@ -69,11 +69,11 @@ class View(OSV):
             if hasattr(etree, 'RelaxNG'):
                 validator = etree.RelaxNG(file=rng_name)
                 if not validator.validate(tree):
-                    logger = Logger()
+                    logger = logging.getLogger('ir')
                     error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
                             validator.error_log.filter_from_errors())
-                    logger.notify_channel('ir', LOG_ERROR,
-                            'Invalid xml view:\n%s' %  (str(error_log) + '\n' + xml))
+                    logger.error(
+                        'Invalid xml view:\n%s' %  (str(error_log) + '\n' + xml))
                     return False
             root_element = tree.getroottree().getroot()
             strings = self._translate_view(root_element)

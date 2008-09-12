@@ -1,10 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
-from trytond.netsvc import Service, Logger, LOG_INFO
+from trytond.netsvc import Service
 from trytond import security
 from trytond.version import VERSION
 import time
 from trytond.tools import Cache
-
+import logging
 
 class Common(Service):
 
@@ -19,10 +19,9 @@ class Common(Service):
     def login(self, database, login, password):
         res = security.login(database, login, password)
         Cache.clean(database)
-        logger = Logger()
+        logger = logging.getLogger("web-service")
         msg = res and 'successful login' or 'bad login or password'
-        logger.notify_channel("web-service", LOG_INFO,
-                "%s from '%s' using database '%s'" % (msg, login, database))
+        logger.info("%s from '%s' using database '%s'" % (msg, login, database))
         return res or False
 
     def about(self):

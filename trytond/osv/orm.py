@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 # -*- coding: utf-8 -*-
-from trytond.netsvc import Logger, LOG_ERROR, LOG_WARNING, LocalService
+from trytond.netsvc import LocalService
 import fields
 from trytond.tools import Cache
 import md5
@@ -449,7 +449,6 @@ class ORM(object):
                         (self._name, 'en_US', 'error', error, '', module_name))
 
     def _auto_init(self, cursor, module_name):
-        logger = Logger()
         self._field_create(cursor, module_name)
         if not self._auto or self.table_query():
             # No db table for this object.
@@ -790,7 +789,7 @@ class ORM(object):
         if context is None:
             context = {}
         fields_names = [x.split('/') for x in fields_names]
-        logger = Logger()
+        logger = logging.getLogger('import')
 
         def process_liness(self, datas, prefix, fields_def, position=0):
             line = datas[position]
@@ -858,10 +857,9 @@ class ORM(object):
                             if str(key) == line[i]:
                                 res = key
                         if line[i] and not res:
-                            logger.notify_channel("import", LOG_WARNING,
-                                    "key '%s' not found " \
-                                            "in selection field '%s'" % \
-                                            (line[i], field[len(prefix)]))
+                            logger.warning("key '%s' not found " \
+                                               "in selection field '%s'" % \
+                                               (line[i], field[len(prefix)]))
                     elif fields_def[field[len(prefix)]]['type'] == 'many2one':
                         res = False
                         if line[i]:
@@ -873,10 +871,9 @@ class ORM(object):
                             if not res:
                                 warning += ('Relation not found: ' + line[i] + \
                                         ' on ' + relation + ' !\n')
-                                logger.notify_channel("import",
-                                        LOG_WARNING,
-                                        'Relation not found: ' + line[i] + \
-                                                ' on ' + relation + ' !\n')
+                                logger.warning(
+                                    'Relation not found: ' + line[i] + \
+                                        ' on ' + relation + ' !\n')
                     elif fields_def[field[len(prefix)]]['type'] == 'many2many':
                         res = []
                         if line[i]:
@@ -889,9 +886,8 @@ class ORM(object):
                                 if not res3:
                                     warning += ('Relation not found: ' + \
                                             line[i] + ' on '+relation + ' !\n')
-                                    logger.notify_channel("import",
-                                            LOG_WARNING,
-                                            'Relation not found: ' + line[i] + \
+                                    logger.warning(
+                                        'Relation not found: ' + line[i] + \
                                                     ' on '+relation + ' !\n')
                                 else:
                                     res.append(res3)
@@ -961,7 +957,7 @@ class ORM(object):
                     self.write(cursor, user, new_id, translate[lang],
                             context=context2)
             except Exception, exp:
-                logger.notify_channel("import", LOG_ERROR, exp)
+                logger.error(exp)
                 cursor.rollback()
                 return (-1, res, exp[0], warning)
             done += 1

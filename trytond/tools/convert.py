@@ -9,7 +9,7 @@ from trytond import pooler
 from trytond.osv.fields import Integer
 import csv
 import os.path
-from trytond.netsvc import Logger, LOG_ERROR, LOG_INFO, LocalService, LOG_WARNING
+from trytond.netsvc import  LocalService
 from trytond.config import CONFIG
 from trytond.version import VERSION
 import time
@@ -17,6 +17,7 @@ from xml import sax
 from decimal import Decimal
 import datetime
 import time
+import logging
 
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
@@ -376,8 +377,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         try:
             self.sax_parser.parse(source)
         except:
-            Logger().notify_channel(
-                "init", LOG_ERROR,
+            logging.getLogger("init").error(
                 "Error while parsing xml file:\n" +\
                     self.current_state()
                 )
@@ -402,8 +402,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 pass
 
             else:
-                Logger().notify_channel("init", LOG_INFO,
-                            "Tag "+ name + " not supported")
+                logging.getLogger("init").info("Tag "+ name + " not supported")
                 return
         else:
             self.taghandler.startElement(name, attributes)
@@ -552,8 +551,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 try:
                     db_field = self._clean_value(key, db_val, object_ref)
                 except Unhandled_field:
-                    logger = Logger()
-                    logger.notify_channel('init', LOG_INFO,
+                    logging.getLogger("init").info(
                         'Field %s on %s : integrity not tested.'%(key, model))
                     to_update[key] = values[key]
                     continue
@@ -578,8 +576,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # if they are not false in a boolean context (ie None,
                 # False, {} or [])
                 if db_field != expected_value and (db_field or expected_value):
-                    logger = Logger()
-                    logger.notify_channel('init', LOG_WARNING,
+                    logging.getLogger("init").warning(
                         "Field %s of %s@%s not updated (id: %s), because "\
                         "it has changed since the last update"% \
                         (key, db_id, model, fs_id))
@@ -711,8 +708,7 @@ def post_import(cursor, module, to_delete):
             wf_service.trg_write(user, model, db_id, cursor)
 
 
-        logger = Logger()
-        logger.notify_channel('init', LOG_INFO,
+        logging.getLogger("init").info(
                 'Deleting %s@%s' % (db_id, model))
         try:
             # Deletion of the record
@@ -722,28 +718,26 @@ def post_import(cursor, module, to_delete):
             cursor.commit()
         except Exception, exception:
             cursor.rollback()
-            logger.notify_channel('init', LOG_ERROR,
-                    'Could not delete id: %d of model %s\n' \
-                            'There should be some relation ' \
-                            'that points to this resource\n' \
-                            'You should manually fix this ' \
-                            'and restart --update=module' % \
-                            (db_id, model))
+            logging.getLogger("init").error(
+                'Could not delete id: %d of model %s\n' \
+                    'There should be some relation ' \
+                    'that points to this resource\n' \
+                    'You should manually fix this ' \
+                    'and restart --update=module' % \
+                    (db_id, model))
 
     transition_obj = pool.get('workflow.transition')
     for mdata_id, db_id in transition_delete:
-        logger = Logger()
-        logger.notify_channel('init', LOG_INFO,
-                'Deleting %s@workflow.transition' % (db_id,))
+        logging.getLogger("init").info(
+            'Deleting %s@workflow.transition' % (db_id,))
         try:
             transition_obj.delete(cursor, user, db_id)
             mdata_delete.append(mdata_id)
             cursor.commit()
         except:
             cursor.rollback()
-            logger.notify_channel('init', LOG_ERROR,
-                    'Could not delete id: %d of model workflow.transition' % \
-                            (db_id,))
+            logging.getLogger("init").error(
+                'Could not delete id: %d of model workflow.transition'% (db_id,))
 
     # Clean model_data:
     if mdata_delete:

@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 from sql_db import db_connect
-from netsvc import Logger, LOG_INFO
+import logging
 
 _DB = {}
 _POOL = {}
@@ -12,8 +12,8 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
     if db_name in _DB:
         database = _DB[db_name]
     else:
-        Logger().notify_channel('pooler', LOG_INFO,
-                'Connecting to %s' % (db_name))
+        logging.getLogger('pooler').info(
+            'Connecting to %s' % (db_name))
         database = db_connect(db_name)
         cursor = database.cursor()
         cursor.close()
@@ -24,8 +24,8 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
         pool_wizard = _POOL_WIZARD[db_name]
         pool_report = _POOL_REPORT[db_name]
     else:
-        Logger().notify_channel('pooler', LOG_INFO,
-                'Instanciate pooler for %s' % (db_name))
+        logging.getLogger('pooler').info(
+            'Instanciate pooler for %s' % (db_name))
         from osv.osv import OSVService
         pool = OSVService()
         _POOL[db_name] = pool
@@ -64,8 +64,8 @@ def get_db_only(db_name):
     if db_name in _DB:
         database = _DB[db_name]
     else:
-        Logger().notify_channel('pooler', LOG_INFO,
-                'Connecting to %s' % (db_name))
+        logging.getLogger('pooler').info(
+            'Connecting to %s' % (db_name))
         database = db_connect(db_name)
         _DB[db_name] = database
     return database
