@@ -2,6 +2,7 @@
 import time
 from trytond.osv import fields, OSV
 from string import Template
+import datetime
 
 
 class SequenceType(OSV):
@@ -64,30 +65,40 @@ class Sequence(OSV):
                 return False
         return True
 
-    def _process(self, string):
+    def _process(self, string, date=None):
+        if not date:
+            date = datetime.date.today()
+        year = date.strftime('%Y')
+        month = date.strftime('%m')
+        day = date.strftime('%d')
         return Template(string or '').substitute(
-                year=time.strftime('%Y'),
-                month=time.strftime('%m'),
-                day=time.strftime('%d'),
+                year=year,
+                month=month,
+                day=day,
                 )
 
     def get_id(self, cursor, user, sequence_id, test='id=%s', context=None):
+        if context is None:
+            context = {}
         cursor.execute('SELECT id, number_next, number_increment, prefix, ' \
                     'suffix, padding ' \
                 'FROM ir_sequence ' \
                 'WHERE ' + test + ' AND active = True', (sequence_id,))
         res = cursor.dictfetchone()
+        date = context.get('date')
         if res:
             cursor.execute('UPDATE ir_sequence ' \
-                    'SET number_next = number_next + number_increment ' \
-                    'WHERE id = %s AND active = True', (res['id'],))
+                    'SET number_next = number_next + number_increment, ' \
+                        'write_uid = %s, ' \
+                        'write_date = NOW() ' \
+                    'WHERE id = %s AND active = True', (user, res['id'],))
             if res['number_next']:
-                return self._process(res['prefix']) + \
+                return self._process(res['prefix'], date=date) + \
                         '%%0%sd' % res['padding'] % res['number_next'] + \
-                        self._process(res['suffix'])
+                        self._process(res['suffix'], date=date)
             else:
-                return self._process(res['prefix']) + \
-                        self._process(res['suffix'])
+                return self._process(res['prefix'], date=date) + \
+                        self._process(res['suffix'], date=date)
         self.raise_user_error(cursor, 'missing', context=context)
 
     def get(self, cursor, user, code, context=None):
