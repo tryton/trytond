@@ -10,7 +10,6 @@ SPEC: Execute "model.function(*eval(args))" periodically
 from mx import DateTime
 from trytond import pooler
 from trytond.osv import fields, OSV
-from trytond.netsvc import Agent
 import datetime
 
 _INTERVALTYPES = {
@@ -22,13 +21,13 @@ _INTERVALTYPES = {
     'minutes': lambda interval: DateTime.RelativeDateTime(minutes=interval),
 }
 
-class Cron(OSV, Agent):
+class Cron(OSV):
     "Cron"
     _name = "ir.cron"
     _description = __doc__
-    name = fields.Char('Name', size=60, required=True)
+    name = fields.Char('Name', required=True)
     user = fields.Many2One('res.user', 'User', required=True)
-    active = fields.Boolean('Active')
+    active = fields.Boolean('Active', select=1)
     interval_number = fields.Integer('Interval Number')
     interval_type = fields.Selection( [
        ('minutes', 'Minutes'),
@@ -38,17 +37,19 @@ class Cron(OSV, Agent):
        ('weeks', 'Weeks'),
        ('months', 'Months'),
        ], 'Interval Unit')
-    numbercall = fields.Integer('Number of calls',
+    numbercall = fields.Integer('Number of calls', select=1,
        help='Number of time the function is called,\n' \
                'a negative number indicates that the function ' \
                'will always be called')
     doall = fields.Boolean('Repeat missed')
-    nextcall = fields.DateTime('Next call date', required=True)
-    model = fields.Char('Model', size=64)
-    function = fields.Char('Function', size=64)
+    nextcall = fields.DateTime('Next call date', required=True,
+            select=1)
+    model = fields.Char('Model')
+    function = fields.Char('Function')
     args = fields.Text('Arguments')
     priority = fields.Integer('Priority',
        help='0=Very Urgent\n10=Not urgent')
+    running = fields.Boolean('Running', readonly=True, select=1)
 
     def default_nextcall(self, cursor, user, context=None):
         return datetime.datetime.now()
@@ -74,6 +75,9 @@ class Cron(OSV, Agent):
     def default_doall(self, cursor, user, context=None):
         return True
 
+    def default_running(self, cursor, user, context=None):
+        return False
+
     def _callback(self, cursor, user, model, func, args):
         args = (args or []) and eval(args)
         obj = self.pool.get(model)
@@ -94,8 +98,14 @@ class Cron(OSV, Agent):
                     'WHERE numbercall <> 0 ' \
                         'AND active ' \
                         'AND nextcall <= now() ' \
+                        'AND NOT running ' \
                         'ORDER BY priority')
-            for job in cursor.dictfetchall():
+            jobs = cursor.dictfetchall()
+            if jobs:
+                cursor.execute('UPDATE ir_cron SET running = True ' \
+                        'WHERE id in (' ','.join(['%s' for x in jobs]) + ')',
+                        tuple([x['id'] for x in jobs]))
+            for job in jobs:
                 nextcall = DateTime.strptime(str(job['nextcall']),
                         '%Y-%m-%d %H:%M:%S')
                 numbercall = job['numbercall']
@@ -114,7 +124,7 @@ class Cron(OSV, Agent):
                 if not numbercall:
                     addsql = ', active=False'
                 cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
-                            "numbercall = %s" + addsql + " " \
+                            "running = False, numbercall = %s" + addsql + " " \
                             "WHERE id = %s",
                             (nextcall.strftime('%Y-%m-%d %H:%M:%S'),
                                 numbercall, job['id']))
