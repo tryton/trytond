@@ -218,15 +218,24 @@ class BrowseRecord(object):
 browse_record = BrowseRecord
 
 
-class EvalEnvironment(object):
+class EvalEnvironment(dict):
 
-    def __init__(self, record):
+    def __init__(self, record, obj):
+        super(EvalEnvironment, self).__init__()
         self.record = record
+        self.obj = obj
+
+    def __getitem__(self, item):
+        if item.startswith('_parent_'):
+            field = item[8:]
+            obj = self.obj.pool.get(self.obj._columns[field]._obj)
+            return EvalEnvironment(self.record[field], obj)
+        if item in self.obj._columns:
+            return self.record.get_eval(item)
+        return self.__getitem__(item)
 
     def __getattr__(self, item):
-        if item.startswith('_parent_'):
-            return EvalEnvironment(self.record[item[8:]])
-        return self.record.get_eval(item)
+        return self.__getitem__(item)
 
 
 class ORM(object):
@@ -1153,16 +1162,13 @@ class ORM(object):
                     ctx = context.copy()
                     ctx.update(ctx_pref)
                     for record in records:
-                        for field_name2, field2 in self._columns.iteritems():
-                            ctx[field_name2] = record.get_eval(field_name2)
-                            if field2._type in ('many2one',):
-                                ctx['_parent_' + field_name2] = \
-                                        EvalEnvironment(record[field_name2])
-                        ctx['current_date'] = datetime.datetime.today()
-                        ctx['time'] = time
-                        ctx['context'] = context
-                        ctx['active_id'] = record.id
-                        domain = eval(field._domain, ctx)
+                        env = EvalEnvironment(record, self)
+                        env.update(ctx)
+                        env['current_date'] = datetime.datetime.today()
+                        env['time'] = time
+                        env['context'] = context
+                        env['active_id'] = record.id
+                        domain = eval(field._domain, env)
                         relation_ids = []
                         if record[field_name]:
                             if field._type in ('many2one',):
