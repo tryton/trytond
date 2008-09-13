@@ -35,6 +35,7 @@ class ConfigManager(object):
             'max_thread': 40,
             'multi_server': False,
             'session_timeout': 600,
+            'psyco': False,
         }
 
         parser = optparse.OptionParser(version=VERSION)
