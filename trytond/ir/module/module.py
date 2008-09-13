@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Module"
 import os
 import re
@@ -7,7 +8,7 @@ import urllib
 import zipimport
 from trytond.osv import fields, OSV
 import trytond.tools as tools
-from trytond.module import MODULES_PATH, create_graph, get_module_list
+from trytond.modules import MODULES_PATH, create_graph, get_module_list
 from trytond.wizard import Wizard, WizardOSV
 from trytond.pooler import get_db, restart_pool
 
