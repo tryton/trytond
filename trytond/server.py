@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 """
 %prog [options]
 """
@@ -16,7 +17,7 @@ import config
 from config import CONFIG
 import web_service
 import wkf_service
-from module import register_classes
+from trytond.modules import register_classes
 import mx.DateTime
 from getpass import getpass
 import sha

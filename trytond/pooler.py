@@ -1,5 +1,6 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
-from sql_db import db_connect
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
+from trytond.sql_db import db_connect
 import logging
 
 _DB = {}
@@ -26,19 +27,19 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
     else:
         logging.getLogger('pooler').info(
             'Instanciate pooler for %s' % (db_name))
-        from osv.osv import OSVService
+        from trytond.osv import OSVService
         pool = OSVService()
         _POOL[db_name] = pool
 
-        from wizard import WizardService
+        from trytond.wizard import WizardService
         pool_wizard = WizardService()
         _POOL_WIZARD[db_name] = pool_wizard
 
-        from report import ReportService
+        from trytond.report import ReportService
         pool_report = ReportService()
         _POOL_REPORT[db_name] = pool_report
 
-        from module import load_modules
+        from trytond.modules import load_modules
         load_modules(database, update_module, lang)
 
     if wizard:
