@@ -11,7 +11,7 @@ class Category(OSV):
     parent = fields.Many2One('ir.module.category',
        'Parent Category', select=1)
     childs = fields.One2Many('ir.module.category',
-       'parent', 'Parent Category')
+       'parent', 'Child Categories')
 
     def __init__(self):
         super(Category, self).__init__()
