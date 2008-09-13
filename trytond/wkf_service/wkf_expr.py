@@ -40,16 +40,16 @@ class Env(dict):
 
 def eval_expr(cursor, ident, action):
     res = False
+    user = ident[0]
+    model = ident[1]
+    obj_id = ident[2]
+    env = Env(cursor, user, model, obj_id)
     for line in action.split('\n'):
-        user = ident[0]
-        model = ident[1]
-        obj_id = ident[2]
         if line == 'True':
             res = True
         elif line =='False':
             res = False
         else:
-            env = Env(cursor, user, model, obj_id)
             res = eval(line, env)
     return res
 
