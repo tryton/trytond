@@ -236,11 +236,12 @@ class TrytonServer(object):
             webdavd.start()
         #DISPATCHER.run()
 
-        try:
-            import psyco
-            psyco.full()
-        except ImportError:
-            pass
+        #TODO add an option for psyco
+        #try:
+        #    import psyco
+        #    psyco.full()
+        #except ImportError:
+        #    pass
 
         now = time.time()
         while True:
