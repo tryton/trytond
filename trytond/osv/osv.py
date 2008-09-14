@@ -12,6 +12,7 @@ from trytond.tools import Cache, find_language_context
 import time
 from threading import Semaphore
 from trytond.config import CONFIG
+import logging
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
