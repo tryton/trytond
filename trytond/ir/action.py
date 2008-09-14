@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Action"
 from trytond.osv import fields, OSV
 from trytond.tools import file_open
@@ -8,10 +9,10 @@ class Action(OSV):
     "Action"
     _name = 'ir.action'
     _description = __doc__
-    name = fields.char('Name', required=True, translate=True)
-    type = fields.char('Type', required=True, readonly=True)
-    usage = fields.char('Usage')
-    keywords = fields.one2many('ir.action.keyword', 'action',
+    name = fields.Char('Name', required=True, translate=True)
+    type = fields.Char('Type', required=True, readonly=True)
+    usage = fields.Char('Usage')
+    keywords = fields.One2Many('ir.action.keyword', 'action',
             'Keywords')
     groups = fields.Many2Many('res.group', 'ir_action_group_rel',
             'action_id', 'gid', 'Groups')
@@ -62,7 +63,7 @@ class ActionKeyword(OSV):
             ('graph_open', 'Open Graph'),
             ], string='Keyword', required=True)
     model = fields.Reference('Model', selection='models_get')
-    action = fields.many2one('ir.action', 'Action',
+    action = fields.Many2One('ir.action', 'Action',
             ondelete='CASCADE')
 
     def __init__(self):
@@ -174,9 +175,9 @@ class ActionReportOutputFormat(OSV):
     "Output formats for reports"
     _name = 'ir.action.report.outputformat'
     _description = "Report Output Format"
-    format = fields.char('Internal Format Name', required=True,
+    format = fields.Char('Internal Format Name', required=True,
             readonly=True, help="Used as file extension, too.")
-    name = fields.char('Name', required=True, translate=True)
+    name = fields.Char('Name', required=True, translate=True)
 
 ActionReportOutputFormat()
 
@@ -374,8 +375,8 @@ class ActionWizard(OSV):
     _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
-    wiz_name = fields.char('Wizard name', required=True)
-    action = fields.many2one('ir.action', 'Action', required=True)
+    wiz_name = fields.Char('Wizard name', required=True)
+    action = fields.Many2One('ir.action', 'Action', required=True)
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.wizard'
@@ -390,7 +391,7 @@ class ActionURL(OSV):
     _description = __doc__
     _inherits = {'ir.action': 'action'}
     url = fields.Char('Action Url', required=True)
-    action = fields.many2one('ir.action', 'Action', required=True)
+    action = fields.Many2One('ir.action', 'Action', required=True)
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.url'

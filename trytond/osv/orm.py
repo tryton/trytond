@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 # -*- coding: utf-8 -*-
 from trytond.netsvc import LocalService
 import fields
@@ -39,10 +40,11 @@ class BrowseRecordList(list):
             res.append(res2)
         return res
 
-browse_record_list = BrowseRecordList
-
 
 class BrowseRecordNull(object):
+    '''
+    An object that represents an empty record.
+    '''
 
     def __init__(self):
         self.id = False
@@ -59,9 +61,10 @@ class BrowseRecordNull(object):
     def __nonzero__(self):
         return False
 
+
 class BrowseRecord(object):
     '''
-    A object that represents record defined by a ORM object.
+    An object that represents record defined by a ORM object.
     '''
 
     def __init__(self, cursor, user, object_id, table, cache, context=None):
@@ -214,8 +217,6 @@ class BrowseRecord(object):
         if isinstance(res, BrowseRecordList):
             res = res.get_eval()
         return res
-
-browse_record = BrowseRecord
 
 
 class EvalEnvironment(dict):
@@ -3019,5 +3020,3 @@ class ORM(object):
                             + str(max_right + 1 - (old_left or -1)) + ' ' \
                     'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
                     (old_left, old_right))
-
-orm = ORM

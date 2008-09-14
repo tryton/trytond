@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "UI menu"
 from trytond.osv import fields, OSV
 
@@ -83,7 +84,7 @@ class UIMenu(OSV):
        'menu_id', 'gid', 'Groups')
     complete_name = fields.Function('get_full_name',
        string='Complete Name', type='char', order_field='name')
-    icon = fields.selection(ICONS, 'Icon')
+    icon = fields.Selection(ICONS, 'Icon')
     action = fields.Function('get_action', fnct_inv='action_inv',
        type='reference', string='Action',
        selection=[
