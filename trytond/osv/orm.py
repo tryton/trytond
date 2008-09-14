@@ -232,7 +232,7 @@ class EvalEnvironment(dict):
             return EvalEnvironment(self.record[field], obj)
         if item in self.obj._columns:
             return self.record.get_eval(item)
-        return self.__getitem__(item)
+        return super(EvalEnvironment, self).__getitem__(item)
 
     def __getattr__(self, item):
         return self.__getitem__(item)
