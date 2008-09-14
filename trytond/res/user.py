@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "User"
 import copy
 from trytond.osv import fields, OSV
@@ -270,7 +271,7 @@ User()
 
 class Group(OSV):
     _name = 'res.group'
-    users = fields.many2many(
+    users = fields.Many2Many(
         'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
 
 Group()

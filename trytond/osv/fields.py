@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 """
  Fields:
       - simple
@@ -98,8 +99,6 @@ class Boolean(Column):
     def sql_type(self):
         return ('bool', 'bool')
 
-boolean = Boolean
-
 
 class Integer(Column):
     _type = 'integer'
@@ -109,8 +108,6 @@ class Integer(Column):
 
     def sql_type(self):
         return ('int4', 'int4')
-
-integer = Integer
 
 
 class Reference(Column):
@@ -167,8 +164,6 @@ class Reference(Column):
         else:
             return ('varchar', 'varchar')
 
-reference = Reference
-
 
 class Char(Column):
     _type = 'char'
@@ -181,8 +176,6 @@ class Char(Column):
             return ('varchar', 'varchar(%d)' % (self.size,))
         else:
             return ('varchar', 'varchar')
-
-char = Char
 
 
 class Sha(Column):
@@ -203,8 +196,6 @@ class Text(Column):
     def sql_type(self):
         return ('text', 'text')
 
-text = Text
-
 
 class Float(Column):
     _type = 'float'
@@ -219,16 +210,12 @@ class Float(Column):
     def sql_type(self):
         return ('float8', 'float8')
 
-float = Float
-
 
 class Numeric(Float):
     _type = 'numeric'
 
     def sql_type(self):
         return ('numeric', 'numeric')
-
-numeric = Numeric
 
 
 class Date(Column):
@@ -237,8 +224,6 @@ class Date(Column):
     def sql_type(self):
         return ('date', 'date')
 
-date = Date
-
 
 class DateTime(Column):
     _type = 'datetime'
@@ -246,16 +231,12 @@ class DateTime(Column):
     def sql_type(self):
         return ('timestamp', 'timestamp(0)')
 
-datetime = DateTime
-
 
 class Time(Column):
     _type = 'time'
 
     def sql_type(self):
         return ('time', 'time')
-
-time = Time
 
 
 class Binary(Column):
@@ -267,8 +248,6 @@ class Binary(Column):
 
     def sql_type(self):
         return ('bytea', 'bytea')
-
-binary = Binary
 
 
 class Selection(Column):
@@ -286,8 +265,6 @@ class Selection(Column):
             return ('varchar', 'varchar(%d)' % (self.size,))
         else:
             return ('varchar', 'varchar')
-
-selection = Selection
 
 
 class Many2One(Column):
@@ -364,8 +341,6 @@ class Many2One(Column):
 
     def sql_type(self):
         return ('int4', 'int4')
-
-many2one = Many2One
 
 
 class One2Many(Column):
@@ -465,8 +440,6 @@ class One2Many(Column):
                                 [obj_id] + ids)
             else:
                 raise Exception('Bad arguments')
-
-one2many = One2Many
 
 
 class Many2Many(Column):
@@ -593,8 +566,6 @@ class Many2Many(Column):
             else:
                 raise Exception('Bad arguments')
 
-many2many = Many2Many
-
 
 class Function(Column):
     _classic_read = False
@@ -617,8 +588,8 @@ class Function(Column):
             self.readonly = 1
         self._type = type
         self._fnct_search = fnct_search
-        self._symbol_c = eval(self._type)._symbol_c
-        self._symbol_f = eval(self._type)._symbol_f
+        self._symbol_c = _TYPE2CLASS[self._type]._symbol_c
+        self._symbol_f = _TYPE2CLASS[self._type]._symbol_f
         self._symbol_set = (self._symbol_c, self._symbol_f)
 
     def search(self, cursor, user, obj, name, args, context=None):
@@ -652,8 +623,6 @@ class Function(Column):
             getattr(obj, self._fnct_inv)(cursor, user, obj_id, name, value,
                     self._fnct_inv_arg, context=context)
 
-function = Function
-
 
 class Property(Function):
 
@@ -682,7 +651,7 @@ class Property(Function):
         return res
 
     def __init__(self, **args):
-        function.__init__(self, '', None, self._fnct_write, None, **args)
+        super(Property, self).__init__('', None, self._fnct_write, None, **args)
 
     def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
             values=None):
@@ -693,4 +662,9 @@ class Property(Function):
         self._fnct_write(obj, cursor, user, obj_id, name, value,
                     self._obj, context=context)
 
-property = Property
+_TYPE2CLASS = {
+}
+
+for klass in (Boolean, Integer, Reference, Char, Sha, Text, Float, Numeric,
+        Date, DateTime, Time, Binary, Selection, Many2One, One2Many, Many2Many):
+    _TYPE2CLASS[klass._type] = klass

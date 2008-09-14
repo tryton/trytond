@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Objects Services"
 
 from orm import ORM
@@ -156,8 +157,6 @@ class OSVService(Service):
                         inst._sql_error_messages[key]
         return res
 
-osv_pool = OSVService
-
 
 class OSV(ORM):
 
@@ -192,8 +191,6 @@ class OSV(ORM):
 
     def __init__(self):
         super(OSV, self).__init__()
-
-osv = OSV
 
 
 class Cacheable(object):
