@@ -71,7 +71,7 @@ class DB(Service):
                 logger.error('Exception in call: \n' + tb_s)
                 raise
             else:
-                logger.error('CREATE DB: %s' % (db_name,))
+                logger.info('CREATE DB: %s' % (db_name,))
         finally:
             if cursor:
                 cursor.close()
