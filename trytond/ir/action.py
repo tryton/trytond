@@ -26,6 +26,17 @@ class Action(OSV):
     def default_usage(self, cursor, user, context=None):
         return False
 
+    def create(self, cursor, user, vals, context=None):
+        new_id = super(Action, self).create(cursor, user, vals,
+                context=context)
+        if 'module' in context:
+            cursor.execute('INSERT INTO ir_translation ' \
+                    '(name, lang, type, src, res_id, value, module, fuzzy) ' \
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                    ('ir.action,name', 'en_US', 'model', vals['name'],
+                        new_id, '', context.get('module')))
+        return new_id
+
     def get_action_id(self, cursor, user, action_id, context=None):
         if self.search(cursor, user, [
             ('id', '=', action_id),
@@ -178,6 +189,17 @@ class ActionReportOutputFormat(OSV):
     format = fields.Char('Internal Format Name', required=True,
             readonly=True, help="Used as file extension, too.")
     name = fields.Char('Name', required=True, translate=True)
+
+    def create(self, cursor, user, vals, context=None):
+        new_id = super(ActionReportOutputFormat, self).create(cursor, user,
+                vals, context=context)
+        if 'module' in context:
+            cursor.execute('INSERT INTO ir_translation ' \
+                    '(name, lang, type, src, res_id, value, module, fuzzy) ' \
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                    ('ir.action.report.outputformat,name', 'en_US', 'model',
+                        vals['name'], new_id, '', context.get('module')))
+        return new_id
 
 ActionReportOutputFormat()
 
