@@ -534,6 +534,18 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     context={'active_test': False}):
                 db_id = object_ref.create(cursor, user, values,
                         context={'module': module})
+
+                #Add a translation record for field translatable
+                for field_name, field in object_ref._columns.iteritems():
+                    if field.translate and values.get(field_name):
+                        cursor.execute('INSERT INTO ir_translation ' \
+                                '(name, lang, type, src, res_id, ' \
+                                    'value, module, fuzzy) ' \
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                (object_ref._name + ',' + field_name,
+                                    'en_US', 'model', values[field_name],
+                                    db_id, '', module))
+
                 data_id = self.modeldata_obj.search(cursor, user, [
                     ('fs_id', '=', fs_id),
                     ('module', '=', module),
@@ -590,6 +602,31 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             if to_update:
                 # write the values in the db:
                 object_ref.write(cursor, user, db_id, to_update)
+
+                #Update/Create translation record for field translatable
+                for field_name, field in object_ref._columns.iteritems():
+                    if field.translate and to_update.get(field_name):
+                        cursor.execute('SELECT id FROM ir_translation ' \
+                                'WHERE name = %s' \
+                                    'AND lang = %s ' \
+                                    'AND type = %s ' \
+                                    'AND res_id = %s',
+                                (object_ref._name + ',' + field_name,
+                                    'en_US', 'model', db_id))
+                        if cursor.rowcount:
+                            trans_id = cursor.fetchone()[0]
+                            cursor.execute('UPDATE ir_translation ' \
+                                    'SET src = %s, module = %s',
+                                    (to_update[field_name], module))
+                        else:
+                            cursor.execute('INSERT INTO ir_translation ' \
+                                    '(name, lang, type, src, res_id, ' \
+                                        'value, module, fuzzy) ' \
+                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                    (object_ref._name + ',' + field_name,
+                                        'en_US', 'model', values[field_name],
+                                        db_id, '', module))
+
                 # re-read it: this ensure that we store the real value
                 # in the model_data table:
                 db_val = object_ref.browse(cursor, user, db_id)
@@ -623,6 +660,18 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # this record is new, create it in the db:
             db_id = object_ref.create(cursor, user, values,
                     context={'module': module})
+
+            #Add a translation record for field translatable
+            for field_name, field in object_ref._columns.iteritems():
+                if field.translate and values.get(field_name):
+                    cursor.execute('INSERT INTO ir_translation ' \
+                            '(name, lang, type, src, res_id, ' \
+                                'value, module, fuzzy) ' \
+                            'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                            (object_ref._name + ',' + field_name,
+                                'en_US', 'model', values[field_name],
+                                db_id, '', module))
+
             # re-read it: this ensure that we store the real value
             # in the model_data table:
             db_val = object_ref.browse(cursor, user, db_id)
