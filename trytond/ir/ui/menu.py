@@ -175,15 +175,4 @@ class UIMenu(OSV):
             'action': action.action.id,
             }, context=ctx)
 
-    def create(self, cursor, user, vals, context=None):
-        new_id = super(UIMenu, self).create(cursor, user, vals,
-                context=context)
-        if 'module' in context:
-            cursor.execute('INSERT INTO ir_translation ' \
-                    '(name, lang, type, src, res_id, value, module, fuzzy) ' \
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
-                    ('ir.ui.menu,name', 'en_US', 'model', vals['name'],
-                        new_id, '', context.get('module')))
-        return new_id
-
 UIMenu()
