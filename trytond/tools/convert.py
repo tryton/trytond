@@ -616,8 +616,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         if cursor.rowcount:
                             trans_id = cursor.fetchone()[0]
                             cursor.execute('UPDATE ir_translation ' \
-                                    'SET src = %s, module = %s',
-                                    (to_update[field_name], module))
+                                    'SET src = %s, module = %s ' \
+                                    'WHERE id = %s',
+                                    (to_update[field_name], module, trans_id))
                         else:
                             cursor.execute('INSERT INTO ir_translation ' \
                                     '(name, lang, type, src, res_id, ' \
