@@ -1156,6 +1156,7 @@ class ORM(object):
         context.update(ctx_pref)
         records = self.browse(cursor, user, ids, context=context)
         for field_name, field in self._columns.iteritems():
+            # validate domain
             if field._type in ('many2one', 'many2many', 'one2many') \
                     and field._domain:
                 relation_obj = self.pool.get(field._obj)
@@ -1201,8 +1202,31 @@ class ORM(object):
                             field._domain,
                             ], context=context)
                         if not set(relation_ids) == set(find_ids):
-                            self.raise_user_error(cursor, 'domain_' + field_name,
-                                    context=context)
+                            self.raise_user_error(cursor,
+                                    'domain_' + field_name, context=context)
+            # validate states required
+            if field.states and 'required' in field.states:
+                if isinstance(field.states['required'], basestring):
+                    ctx = context.copy()
+                    ctx.update(ctx_pref)
+                    for record in records:
+                        env = EvalEnvironment(record, self)
+                        env.update(ctx)
+                        env['current_date'] = datetime.datetime.today()
+                        env['time'] = time
+                        env['context'] = context
+                        env['active_id'] = record.id
+                        required = eval(field.states['required'], env)
+                        if required and not record[field_name]:
+                            self.raise_user_error(cursor,
+                                    'required_' + field_name, context=context)
+                else:
+                    if field.states['required']:
+                        for record in records:
+                            if not record[field_name]:
+                                self.raise_user_error(cursor,
+                                        'required_' + field_name,
+                                        context=context)
 
     def default_get(self, cursor, user, fields_names, context=None):
         '''
