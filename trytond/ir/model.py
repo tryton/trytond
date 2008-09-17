@@ -9,8 +9,8 @@ class Model(OSV):
     "Model"
     _name = 'ir.model'
     _description = __doc__
-    name = fields.Char('Model name', translate=True)
-    model = fields.Char('Object name', required=True)
+    name = fields.Char('Model Description', translate=True)
+    model = fields.Char('Model Name', required=True)
     info = fields.Text('Information')
     module = fields.Char('Module',
        help="Module in which this model is defined")
