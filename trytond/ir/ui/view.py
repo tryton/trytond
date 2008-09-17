@@ -181,6 +181,10 @@ class View(OSV):
             string = element.get('sum')
             if string:
                 strings.append(string)
+        if element.get('confirm'):
+            string = element.get('confirm')
+            if string:
+                strings.append(string)
         for child in element:
             strings.extend(self._translate_view(child))
         return strings
