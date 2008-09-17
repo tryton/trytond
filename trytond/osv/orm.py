@@ -1177,11 +1177,12 @@ class ORM(object):
                             else:
                                 relation_ids.extend(
                                         [x.id for x in record[field_name]])
-                        if relation_ids and not relation_obj.search(cursor, user, [
-                            'AND',
-                            [('id', 'in', relation_ids)],
-                            domain,
-                            ], context=context):
+                        if relation_ids and not relation_obj.search(cursor,
+                                user, [
+                                    'AND',
+                                    [('id', 'in', relation_ids)],
+                                    domain,
+                                    ], context=context):
                             self.raise_user_error(cursor,
                                     'domain_' + field_name, context=context)
                 else:
