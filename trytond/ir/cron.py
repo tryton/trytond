@@ -78,7 +78,7 @@ class Cron(OSV):
     def default_running(self, cursor, user, context=None):
         return False
 
-    def _callback(self, cursor, user, model, func, args):
+    def _callback(self, cursor, user, job_id, model, func, args):
         args = (args or []) and eval(args)
         obj = self.pool.get(model)
         if obj and hasattr(obj, func):
@@ -114,7 +114,7 @@ class Cron(OSV):
                     if numbercall > 0:
                         numbercall -= 1
                     if not done or job['doall']:
-                        self._callback(cursor, job['user'], job['model'],
+                        self._callback(cursor, job['user'], job['id'], job['model'],
                                 job['function'], job['args'])
                     if numbercall:
                         nextcall += _INTERVALTYPES[job['interval_type']](
