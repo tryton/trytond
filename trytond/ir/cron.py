@@ -103,8 +103,8 @@ class Cron(OSV):
             jobs = cursor.dictfetchall()
             if jobs:
                 cursor.execute('UPDATE ir_cron SET running = True ' \
-                        'WHERE id in (' ','.join(['%s' for x in jobs]) + ')',
-                        tuple([x['id'] for x in jobs]))
+                        'WHERE id in (' + ','.join(['%s' for x in jobs]) + ')',
+                        [x['id'] for x in jobs])
             for job in jobs:
                 nextcall = DateTime.strptime(str(job['nextcall']),
                         '%Y-%m-%d %H:%M:%S')
