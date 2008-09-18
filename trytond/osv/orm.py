@@ -2853,7 +2853,7 @@ class ORM(object):
             args = []
         args = args[:]
         if name:
-            args += [(self._rec_name, operator, name)]
+            args = ['AND', args, (self._rec_name, operator, name)]
         ids = self.search(cursor, user, args, limit=limit, context=context)
         res = self.name_get(cursor, user, ids, context=context)
         return res
