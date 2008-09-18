@@ -82,12 +82,12 @@ class Sequence(OSV):
             context = {}
         cursor.execute('SELECT id, number_next, number_increment, prefix, ' \
                     'suffix, padding ' \
-                'FROM ir_sequence ' \
+                'FROM "' + self._table + '" ' \
                 'WHERE ' + test + ' AND active = True', (sequence_id,))
         res = cursor.dictfetchone()
         date = context.get('date')
         if res:
-            cursor.execute('UPDATE ir_sequence ' \
+            cursor.execute('UPDATE "' + self._table + '" ' \
                     'SET number_next = number_next + number_increment, ' \
                         'write_uid = %s, ' \
                         'write_date = NOW() ' \
@@ -113,7 +113,7 @@ class SequenceStrict(Sequence):
     _description = __doc__
 
     def get_id(self, cursor, user, sequence_id, test='id=%s', context=None):
-        cursor.execute('LOCK TABLE ir_sequence')
+        cursor.execute('LOCK TABLE "' + self._table + '"')
         return super(SequenceStrict, self).get_id(cursor, user, sequence_id,
                 test=test, context=context)
 
