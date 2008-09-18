@@ -1922,12 +1922,15 @@ class ORM(object):
         return False
 
     def __view_look_dom(self, cursor, user, element, type, context=None):
+        translation_obj = self.pool.get('ir.translation')
+
         if context is None:
             context = {}
         result = False
         fields_attrs = {}
         childs = True
         fields_width = {}
+
         if type == 'tree':
             viewtreewidth_obj = self.pool.get('ir.ui.view_tree_width')
             viewtreewidth_ids = viewtreewidth_obj.search(cursor, user, [
@@ -1937,6 +1940,7 @@ class ORM(object):
             for viewtreewidth in viewtreewidth_obj.browse(cursor, user,
                     viewtreewidth_ids, context=context):
                 fields_width[viewtreewidth.field] = viewtreewidth.width
+
         if element.tag in ('field', 'label', 'separator', 'group'):
             for attr in ('name', 'icon'):
                 if element.get(attr):
@@ -1954,9 +1958,18 @@ class ORM(object):
                         for field in element:
                             if field.tag in ('form', 'tree', 'graph'):
                                 field2 = copy.copy(field)
+                                if field2.get('string') \
+                                        and 'language' in context:
+                                    trans = translation_obj._get_source(cursor,
+                                            self._name, 'view',
+                                            context['language'],
+                                            field2.get('string'))
+                                    if trans:
+                                        field2.set('string', trans)
                                 xarch, xfields = self.pool.get(relation
-                                        )._view_look_dom_arch(cursor, user, field2,
-                                                field.tag, context)
+                                        )._view_look_dom_arch(cursor, user,
+                                                field2, field.tag,
+                                                context=context)
                                 views[field.tag] = {
                                     'arch': xarch,
                                     'fields': xfields
@@ -1977,7 +1990,6 @@ class ORM(object):
                 element.set('string', result)
 
         # translate view
-        translation_obj = self.pool.get('ir.translation')
         if ('language' in context) and not result:
             if element.get('string'):
                 trans = translation_obj._get_source(cursor,
