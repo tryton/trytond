@@ -328,8 +328,7 @@ class TinySocketServerThread(threading.Thread):
                             self.secure)
                     self.threads.append(c_thread)
                     c_thread.start()
-            self.socket.close()
-        except:
+        finally:
             self.socket.close()
             return False
 
