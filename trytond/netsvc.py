@@ -28,12 +28,24 @@ from decimal import Decimal
 xmlrpclib.Marshaller.dispatch[Decimal] = \
     lambda self, value, write: self.dump_long(float(value), write)
 
-def start_SSL(socket):
-    from OpenSSL import SSL
-    ctx = SSL.Context(SSL.SSLv23_METHOD)
-    ctx.use_privatekey_file(CONFIG['privatekey'])
-    ctx.use_certificate_file(CONFIG['certificate'])
-    return SSL.Connection(ctx, socket)
+
+class SSLSocket(object):
+
+    def __init__(self, socket):
+        self.socket = socket
+        from OpenSSL import SSL
+        ctx = SSL.Context(SSL.SSLv23_METHOD)
+        ctx.use_privatekey_file(CONFIG['privatekey'])
+        ctx.use_certificate_file(CONFIG['certificate'])
+        self.ssl_socket = SSL.Connection(ctx, socket)
+
+    def shutdown(self, how):
+        return self.ssl_socket.sock_shutdown(how)
+
+    def __getattr__(self, name):
+        if name == 'shutdown':
+            return self.shutdown
+        return getattr(self.ssl_socket, name)
 
 
 class Service(object):
@@ -163,7 +175,7 @@ class SecureThreadedXMLRPCServer(SimpleThreadedXMLRPCServer):
     def __init__(self, server_address, HandlerClass, logRequests=1):
         SimpleThreadedXMLRPCServer.__init__(self, server_address, HandlerClass,
                 logRequests)
-        self.socket = start_SSL(socket.socket(self.address_family,
+        self.socket = SSLSocket(socket.socket(self.address_family,
                                               self.socket_type))
         self.server_bind()
         self.server_activate()
@@ -187,7 +199,7 @@ class HttpDaemon(threading.Thread):
         if secure:
             handler_class = SecureXMLRPCRequestHandler
             server_class = SecureThreadedXMLRPCServer
-            if ipv6: 
+            if ipv6:
                 server_class = SecureThreadedXMLRPCServer6
         else:
             handler_class = SimpleXMLRPCRequestHandler
@@ -203,15 +215,9 @@ class HttpDaemon(threading.Thread):
         self.running = False
         if os.name != 'nt':
             if hasattr(socket, 'SHUT_RDWR'):
-                if self.secure:
-                    self.server.socket.sock_shutdown(socket.SHUT_RDWR)
-                else:
-                    self.server.socket.shutdown(socket.SHUT_RDWR)
+                self.server.socket.shutdown(socket.SHUT_RDWR)
             else:
-                if self.secure:
-                    self.server.socket.sock_shutdown(2)
-                else:
-                    self.server.socket.shutdown(2)
+                self.server.socket.shutdown(2)
         self.server.socket.close()
 
     def run(self):
@@ -310,7 +316,7 @@ class TinySocketServerThread(threading.Thread):
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if secure:
-            self.socket = start_SSL(self.socket)
+            self.socket = SSLSocket(self.socket)
         self.socket.bind((interface, port))
         self.socket.listen(5)
         self.threads = []
@@ -337,16 +343,10 @@ class TinySocketServerThread(threading.Thread):
         for thread in self.threads:
             thread.stop()
         try:
-            if self.secure:
-                if hasattr(socket, 'SHUT_RDWR'):
-                    self.socket.sock_shutdown(socket.SHUT_RDWR)
-                else:
-                    self.socket.sock_shutdown(2)
+            if hasattr(socket, 'SHUT_RDWR'):
+                self.socket.shutdown(socket.SHUT_RDWR)
             else:
-                if hasattr(socket, 'SHUT_RDWR'):
-                    self.socket.shutdown(socket.SHUT_RDWR)
-                else:
-                    self.socket.shutdown(2)
+                self.socket.shutdown(2)
             self.socket.close()
         except:
             return False
@@ -368,7 +368,7 @@ class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
 
     def __init__(self, server_address, HandlerClass):
         BaseThreadedHTTPServer.__init__(self, server_address, HandlerClass)
-        self.socket = start_SSL(socket.socket(self.address_family,
+        self.socket = SSLSocket(socket.socket(self.address_family,
                                               self.socket_type))
         self.server_bind()
         self.server_activate()
@@ -406,15 +406,9 @@ class WebDAVServerThread(threading.Thread):
         self.running = False
         if os.name != 'nt':
             if hasattr(socket, 'SHUT_RDWR'):
-                if self.secure:
-                    self.server.socket.sock_shutdown(socket.SHUT_RDWR)
-                else:
-                    self.server.socket.shutdown(socket.SHUT_RDWR)
+                self.server.socket.shutdown(socket.SHUT_RDWR)
             else:
-                if self.secure:
-                    self.server.socket.sock_shutdown(2)
-                else:
-                    self.server.socket.shutdown(2)
+                self.server.socket.shutdown(2)
         self.server.socket.close()
 
     def run(self):
