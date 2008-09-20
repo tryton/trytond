@@ -166,7 +166,6 @@ class TrytonServer(object):
             sys.exit(0)
 
         # Launch Server
-        secure = CONFIG["secure"]
         if CONFIG['xmlrpc']:
             interface = CONFIG["interface"]
             try:
@@ -175,13 +174,14 @@ class TrytonServer(object):
                 self.logger.error("invalid port '%s'!" % (CONFIG["xmlport"],))
                 sys.exit(1)
 
-            httpd = netsvc.HttpDaemon(interface, port, secure)
+            httpd = netsvc.HttpDaemon(interface, port, CONFIG['secure_xmlrpc'])
 
             xml_gw = netsvc.XmlRpc.RpcGateway('web-service')
             httpd.attach("/xmlrpc", xml_gw )
             logging.getLogger("web-service").info(
-                "starting XML-RPC" + (CONFIG['secure'] and ' Secure' or '') + \
-                    " services, port " + str(port))
+                "starting XML-RPC" + \
+                        (CONFIG['secure_xmlrpc'] and ' Secure' or '') + \
+                        " services, port " + str(port))
 
         if CONFIG['netrpc']:
             interface = CONFIG["interface"]
@@ -192,9 +192,11 @@ class TrytonServer(object):
                 sys.exit(1)
 
             tinysocket = netsvc.TinySocketServerThread(interface, port,
-                    secure)
+                    CONFIG['secure_netrpc'])
             logging.getLogger("web-service").info(
-                "starting netrpc service, port " + str(port))
+                "starting netrpc" + \
+                        (CONFIG['secure_netrpc']  and ' Secure' or '') + \
+                        " service, port " + str(port))
 
         if CONFIG['webdav']:
             interface = CONFIG['interface']
@@ -204,9 +206,12 @@ class TrytonServer(object):
                 self.logger.error("invalid port '%s'!" % (CONFIG['webdavport'],))
                 sys.exit(1)
 
-            webdavd = netsvc.WebDAVServerThread(interface, port, secure)
+            webdavd = netsvc.WebDAVServerThread(interface, port,
+                    CONFIG['secure_webdav'])
             logging.getLogger("web-service").info(
-                    'starting webdav service, port ' + str(port))
+                    'starting webdav' + \
+                            (CONFIG['secure_webdav'] and ' Secure' or '') + \
+                            ' service, port ' + str(port))
 
         def handler(signum, frame):
             if CONFIG['netrpc']:
