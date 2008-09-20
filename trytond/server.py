@@ -214,6 +214,10 @@ class TrytonServer(object):
                             ' service, port ' + str(port))
 
         def handler(signum, frame):
+            if signum == signal.SIGUSR1:
+                for db_name in pooler.get_db_list():
+                    pooler.restart_pool(db_name)
+                return
             if CONFIG['netrpc']:
                 tinysocket.stop()
             if CONFIG['xmlrpc']:
@@ -232,6 +236,7 @@ class TrytonServer(object):
 
         signal.signal(signal.SIGINT, handler)
         signal.signal(signal.SIGTERM, handler)
+        signal.signal(signal.SIGUSR1, handler)
 
         self.logger.info('the server is running, waiting for connections...')
         if CONFIG['netrpc']:
