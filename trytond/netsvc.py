@@ -334,13 +334,14 @@ class TinySocketServerThread(threading.Thread):
                             self.secure)
                     self.threads.append(c_thread)
                     c_thread.start()
-        finally:
+        except:
             self.socket.close()
             return False
 
     def stop(self):
         self.running = False
-        for thread in self.threads:
+        while len(self.threads):
+            thread = self.threads[0]
             thread.stop()
         try:
             if hasattr(socket, 'SHUT_RDWR'):
