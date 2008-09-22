@@ -8,7 +8,7 @@ from DAV.errors import *
 from DAV.constants import COLLECTION, OBJECT
 from DAV.utils import get_uriparentpath, get_urifilename
 from DAV.davcmd import copyone, copytree, moveone, movetree, delone, deltree
-from netsvc import LocalService
+from netsvc import LocalService, SSLSocket
 import security
 import pooler
 from version import PACKAGE, VERSION, WEBSITE
@@ -317,6 +317,6 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
 class SecureWebDAVAuthRequestHandler(WebDAVAuthRequestHandler):
 
     def setup(self):
-        self.connection = self.request
+        self.connection = SSLSocket(self.request)
         self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
         self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)

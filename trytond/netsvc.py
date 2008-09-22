@@ -32,20 +32,22 @@ xmlrpclib.Marshaller.dispatch[Decimal] = \
 class SSLSocket(object):
 
     def __init__(self, socket):
-        self.socket = socket
-        from OpenSSL import SSL
-        ctx = SSL.Context(SSL.SSLv23_METHOD)
-        ctx.use_privatekey_file(CONFIG['privatekey'])
-        ctx.use_certificate_file(CONFIG['certificate'])
-        self.ssl_socket = SSL.Connection(ctx, socket)
+        if not hasattr(socket, 'sock_shutdown'):
+            from OpenSSL import SSL
+            ctx = SSL.Context(SSL.SSLv23_METHOD)
+            ctx.use_privatekey_file(CONFIG['privatekey'])
+            ctx.use_certificate_file(CONFIG['certificate'])
+            self.socket = SSL.Connection(ctx, socket)
+        else:
+            self.socket = socket
 
     def shutdown(self, how):
-        return self.ssl_socket.sock_shutdown(how)
+        return self.socket.sock_shutdown(how)
 
     def __getattr__(self, name):
         if name == 'shutdown':
             return self.shutdown
-        return getattr(self.ssl_socket, name)
+        return getattr(self.socket, name)
 
 
 class Service(object):
@@ -155,7 +157,7 @@ class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
 class SecureXMLRPCRequestHandler(SimpleXMLRPCRequestHandler):
 
     def setup(self):
-        self.connection = self.request
+        self.connection = SSLSocket(self.request)
         self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
         self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
 
