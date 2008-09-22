@@ -153,6 +153,34 @@
             id="menu_translation_update"
             sequence="20"/>
 
+        <record model="ir.ui.view" id="act_translation_export_init_view_form">
+            <field name="model">ir.translation.export.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Export Translation">
+                    <label name="lang"/>
+                    <field name="lang"/>
+                    <label name="module"/>
+                    <field name="module"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="act_translation_export_start_view_form">
+            <field name="model">ir.translation.export.start</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Export Translation">
+                    <label name="file"/>
+                    <field name="file"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
         <record model="ir.action.wizard" id="act_translation_export">
             <field name="name">Export Translations</field>
             <field name="wiz_name">ir.translation.export</field>
