@@ -666,7 +666,8 @@ class ORM(object):
         return None
 
     def raise_user_error(self, cursor, error, error_args=None,
-            error_description='', error_description_args=None, context=None):
+            error_description='', error_description_args=None,
+            raise_exception=True, context=None):
         '''
         Raise an exception that will be display as an error message
         in the client.
@@ -723,9 +724,14 @@ class ORM(object):
 
             if error_description_args:
                 error_description = error_description % error_description_args
-
-            raise Exception('UserError', error, error_description)
-        raise Exception('UserError', error)
+            if raise_exception:
+                raise Exception('UserError', error, error_description)
+            else:
+                return (error, error_description)
+        if raise_exception:
+            raise Exception('UserError', error)
+        else:
+            return error
 
     def browse(self, cursor, user, ids, context=None):
         '''
