@@ -37,11 +37,11 @@ field,"workflow.workitem,activity",0,Activity,Aktivität,0
 field,"workflow.workitem,instance",0,Instance,Instanz,0
 field,"workflow.workitem,state",0,State,Status,0
 field,"workflow.workitem,subflow",0,Subflow,Unterflow,0
-model,"ir.action,name",88,Activities,Aktivitäten,0
-model,"ir.action,name",92,Instances,Instanzen,0
-model,"ir.action,name",90,Transitions,Übergänge,0
-model,"ir.action,name",86,Workflows,Workflows,0
-model,"ir.action,name",94,Workitems,Elemente,0
+model,"ir.action,name",act_activity_form,Activities,Aktivitäten,0
+model,"ir.action,name",act_instance_form,Instances,Instanzen,0
+model,"ir.action,name",act_transition_form,Transitions,Übergänge,0
+model,"ir.action,name",act_workflow_form,Workflows,Workflows,0
+model,"ir.action,name",act_workitem_form,Workitems,Elemente,0
 model,"ir.ui.menu,name",menu_activity_form,Activities,Aktivitäten,0
 model,"ir.ui.menu,name",menu_instance_form,Instances,Instanzen,0
 model,"ir.ui.menu,name",menu_transition_form,Transitions,Übergänge,0
