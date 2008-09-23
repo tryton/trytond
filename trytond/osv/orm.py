@@ -683,6 +683,9 @@ class ORM(object):
             _error_messages used for error description
         :param error_description_args: the arguments that will be used
             for "%"-based substitution
+        :param raise_exception: if set to False return the error string
+            (or tuple if error_description is not empty) instead of raising an
+            exception.
         :param context: the context in which the language key will
             be used for translation
         '''
