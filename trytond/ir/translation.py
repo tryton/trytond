@@ -440,7 +440,13 @@ class Translation(OSV, Cacheable):
                     if res_id:
                         model = translation.name.split(',')[0]
                         if model in db_id2fs_id:
-                            res_id = db_id2fs_id[model].get(res_id, res_id)
+                            res_id = db_id2fs_id[model].get(res_id)
+                    try:
+                        val = int(res_id)
+                        if val != 0:
+                            continue
+                    except ValueError:
+                        pass
                     row.append(res_id)
                 elif field == 'fuzzy':
                     row.append(int(translation[field]))
