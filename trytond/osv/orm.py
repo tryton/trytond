@@ -537,7 +537,9 @@ class ORM(object):
                     ref = field._obj.replace('.','_')
                 else:
                     ref = self.pool.get(field._obj)._table
-                table.add_m2m(field_name, ref, field._rel, field._id1, field._id2)
+                table.add_m2m(field_name, ref, field._rel, field.origin,
+                        field.target, field.ondelete_origin,
+                        field.ondelete_target)
 
             elif not isinstance(field, (fields.One2Many, fields.Function)):
                 raise Exception('Unknow field type !')
@@ -2433,9 +2435,9 @@ class ORM(object):
                         ids2 = self.pool.get(field._obj).search(cursor, user,
                                 [(args[i][3], 'child_of', ids2)],
                                 context=context)
-                        query1 = 'SELECT "' + field._id1 + '" ' \
+                        query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + field._rel + '" ' \
-                                'WHERE "' + field._id2 + '" IN (' + \
+                                'WHERE "' + field.target + '" IN (' + \
                                     ','.join(['%s' for x in ids2]) + ')'
                         query2 = [str(x) for x in ids2]
                         args[i] = ('id', 'inselect', (query1, query2))
@@ -2450,7 +2452,7 @@ class ORM(object):
                     else:
                         res_ids = args[i][2]
                     if res_ids == True or res_ids == False:
-                        query1 = 'SELECT "' + field._id1 + '" ' \
+                        query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + field._rel + '"'
                         query2 = []
                         clause = 'inselect'
@@ -2460,9 +2462,9 @@ class ORM(object):
                     elif not res_ids:
                         args[i] = ('id', '=', '0')
                     else:
-                        query1 = 'SELECT "' + field._id1 + '" ' \
+                        query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + field._rel + '" ' \
-                                'WHERE "' + field._id2 + '" IN (' + \
+                                'WHERE "' + field.target + '" IN (' + \
                                     ','.join(['%s' for x in res_ids]) + ')'
                         query2 = [str(x) for x in res_ids]
                         args[i] = ('id', 'inselect', (query1, query2))

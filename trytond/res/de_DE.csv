@@ -1,11 +1,13 @@
 type,name,res_id,src,value,fuzzy
+error,res.group,0,The name of the group must be unique!,Der Name der Gruppe kann nicht mehrfach vergeben werden!,0
+error,res.user,0,You can not have two users with the same login!,Der Anmeldename eines Benutzers kann nicht mehrfach vergeben werden!,0
 error,res.user,0,"You can not remove the root user
 as it is used internally for resources
-created by the system (updates, module installation, ...)",,0
+created by the system (updates, module installation, ...)","Der Benutzer root kann nicht gelöscht werden, da er intern für Systemverwaltungsaufgaben (Updates, Modulinstallation, ...) verwendet wird",0
 field,"res.group,create_date",0,Creation date,Erstellungsdatum,0
 field,"res.group,create_uid",0,Creation user,Ersteller,0
 field,"res.group,id",0,ID,ID,0
-field,"res.group,menu_access",0,Access Menu,Rechte Menü,0
+field,"res.group,menu_access",0,Access Menu,Menü Berechtigungen,0
 field,"res.group,model_access",0,Access Model,Rechteverwaltung,0
 field,"res.group,name",0,Name,Gruppenname,0
 field,"res.group,rule_groups",0,Rules,Rollen,0
@@ -15,7 +17,7 @@ field,"res.group,write_uid",0,Last modification by,Zuletzt geändert von,0
 field,"res.request,act_from",0,From,Von,0
 field,"res.request,active",0,Active,Aktiv,0
 field,"res.request,act_to",0,To,An,0
-field,"res.request,body",0,Request,Anfrage,0
+field,"res.request,body",0,Body,Anfrage,0
 field,"res.request,create_date",0,Creation date,Erstellungsdatum,0
 field,"res.request,create_uid",0,Creation user,Ersteller,0
 field,"res.request,date_sent",0,Date,Datum,0
@@ -27,7 +29,7 @@ field,"res.request.history,create_date",0,Creation date,Erstellungsdatum,0
 field,"res.request.history,create_uid",0,Creation user,Ersteller,0
 field,"res.request.history,date_sent",0,Date sent,Gesendet am,0
 field,"res.request.history,id",0,ID,ID,0
-field,"res.request.history,name",0,Summary,Gesamt,0
+field,"res.request.history,name",0,Summary,Zusammenfassung,0
 field,"res.request.history,request",0,Request,Anfrage,0
 field,"res.request.history,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.request.history,write_uid",0,Last modification by,Zuletzt geändert von,0
@@ -35,16 +37,21 @@ field,"res.request,id",0,ID,ID,0
 field,"res.request.link,create_date",0,Creation date,Erstellungsdatum,0
 field,"res.request.link,create_uid",0,Creation user,Ersteller,0
 field,"res.request.link,id",0,ID,ID,0
+field,"res.request.link,model",0,Model,Modell,0
 field,"res.request.link,name",0,Name,Name,0
 field,"res.request.link,object",0,Object,Objekt,0
 field,"res.request.link,priority",0,Priority,Dringlichkeit,0
 field,"res.request.link,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.request.link,write_uid",0,Last modification by,Zuletzt geändert von,0
 field,"res.request,name",0,Subject,Betreff,0
+field,"res.request,number_references",0,Number of References,Anzahl Verweise,0
 field,"res.request,priority",0,Priority,Dringlichkeit,0
 field,"res.request,ref_doc1",0,Document Ref 1,Dokumentenverweis 1,0
 field,"res.request,ref_doc2",0,Document Ref 2,Dokumentenverweis 2,0
-field,"res.request,state",0,State,Bundesland,0
+field,"res.request.reference,reference",0,Reference,Verweis,0
+field,"res.request.reference,request",0,unknown,unbekannt,0
+field,"res.request,references",0,References,Verweise,0
+field,"res.request,state",0,State,Status,0
 field,"res.request,trigger_date",0,Trigger Date,Gültig ab,0
 field,"res.request,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.request,write_uid",0,Last modification by,Zuletzt geändert von,0
@@ -67,37 +74,50 @@ field,"res.user,status_bar",0,Status Bar,Status Anzeige,0
 field,"res.user,timezone",0,Timezone,Zeitzone,0
 field,"res.user,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.user,write_uid",0,Last modification by,Zuletzt geändert von,0
+model,"ir.action,name",72,Groups,Gruppen,0
+model,"ir.action,name",78,Request Links,Anfrageverknüpfungen,0
+model,"ir.action,name",76,Requests,Anfragen,0
+model,"ir.action,name",74,Users,Benutzer,0
 model,"ir.ui.menu,name",menu_group_form,Groups,Gruppen,0
+model,"ir.ui.menu,name",menu_request_link_form,Request Links,Anfrageverknüpfungen,0
 model,"ir.ui.menu,name",menu_request_form,Requests,Anfragen,0
-model,"ir.ui.menu,name",menu_res,Res,Res,0
+model,"ir.ui.menu,name",menu_res,Users,Benutzer,0
 model,"ir.ui.menu,name",menu_user_form,Users,Benutzer,0
 selection,"res.request,priority",0,High,Hoch,0
 selection,"res.request,priority",0,Low,Niedrig,0
 selection,"res.request,priority",0,Normal,Normal,0
 selection,"res.request,state",0,active,aktiv,0
+selection,"res.request,state",0,Active,Aktiv,0
+selection,"res.request,state",0,Chatting,Schreibt gerade...,0
 selection,"res.request,state",0,closed,abgeschlossen,0
+selection,"res.request,state",0,Closed,Geschlossen,0
 selection,"res.request,state",0,draft,begonnen,0
+selection,"res.request,state",0,Draft,Entwurf,0
 selection,"res.request,state",0,waiting,unbearbeitet,0
+selection,"res.request,state",0,Waiting,Wartend,0
 view,res.group,0,Group,Gruppe,0
 view,res.group,0,Groups,Gruppen,0
 view,res.group,0,Security,Sicherheit,0
 view,res.request,0,Close,Schließen,0
 view,res.request,0,Description,Beschreibung,0
 view,res.request,0,History,Geschichte,0
-view,res.request,0,References,Einstellungen,0
+view,res.request,0,References,Verweise,0
 view,res.request,0,Reply,Antworten,0
 view,res.request,0,Request,Anfrage,0
 view,res.request,0,Requests,Anfragen,0
 view,res.request,0,Send,Senden,0
 view,res.request.history,0,Request History,bisherige Anfragen,0
-view,res.request.link,0,Request Link,Anfrage-Link,0
+view,res.request.link,0,Request Link,Anfrage Verknüpfung,0
+view,res.request.reference,0,Request Reference,Anfrageverweis,0
+view,res.request.reference,0,Request References,Verweise,0
 view,res.user,0,Preferences,Einstellungen,0
 view,res.user,0,Security,Sicherheit,0
 view,res.user,0,User,Benutzer,0
 view,res.user,0,Users,Benutzer,0
 view,res.user.config.init,0,Add Users,Benutzer hinzufügen,0
-view,res.user.config.init,0,Be careful that the login must be unique!,"WICHTIG - Achten Sie darauf, daß der Anmeldename nicht doppelt vorhanden ist!",0
-view,res.user.config.init,0,You can now add some users into the system.,Sie können nun neue Benutzer der Datenbank hinzufürgen!,0
+view,res.user.config.init,0,Be careful that the login must be unique!,"WICHTIG - Achten Sie darauf, dass ein Anmeldename nicht mehrfach vergeben werden kann.
+(der Anmeldename admin wird automatisch angelegt)",0
+view,res.user.config.init,0,You can now add some users into the system.,Sie können nun neue Benutzer der Datenbank hinzufügen,0
 wizard_button,"res.user.config,init,end",0,Cancel,Abbrechen,0
 wizard_button,"res.user.config,init,user",0,Ok,OK,0
 wizard_button,"res.user.config,user,add",0,Add,Hinzufügen,0

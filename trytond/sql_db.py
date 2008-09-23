@@ -388,7 +388,8 @@ class table_handler:
 
         self.update_definitions()
 
-    def add_m2m(self, column_name, other_table, relation_table, rtable_from, rtable_to):
+    def add_m2m(self, column_name, other_table, relation_table, rtable_from, rtable_to,
+            on_delete_from, on_delete_to):
         if not table_exist(self.cursor, other_table):
             raise Exception("table %s not found"%other_table)
         rtable = table_handler(
@@ -397,8 +398,8 @@ class table_handler:
         from osv.fields import Integer
         rtable.add_raw_column(rtable_from, ('int4', 'int4'), Integer._symbol_set)
         rtable.add_raw_column(rtable_to, ('int4', 'int4'), Integer._symbol_set)
-        rtable.add_fk(rtable_from, self.table_name)
-        rtable.add_fk(rtable_to, other_table)
+        rtable.add_fk(rtable_from, self.table_name, on_delete=on_delete_from)
+        rtable.add_fk(rtable_to, other_table, on_delete=on_delete_to)
         rtable.not_null_action(rtable_from)
         rtable.not_null_action(rtable_to)
         rtable.index_action(rtable_from, 'add')

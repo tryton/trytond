@@ -343,9 +343,10 @@ class Cache(object):
 
 def mod10r(number):
     """
-    Input number : account or invoice number
-    Output return: the same number completed with the recursive mod10
-    key
+    Recursive mod10
+
+    :param number: a number
+    :return: the same number completed with the recursive modulo base 10
     """
     codec = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5]
     report = 0
