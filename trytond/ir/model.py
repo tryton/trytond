@@ -207,6 +207,7 @@ class ModelData(OSV):
         ids = self.search(cursor, user, [
             ('module', '=', module),
             ('fs_is', '=', fs_id),
+            ('inherit', '=', False),
             ])
         if not ids:
             raise Exception("Reference to %s not found" % \
