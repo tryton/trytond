@@ -194,10 +194,7 @@ class RecordTagHandler:
             eval_attr = attributes.get('eval', '')
 
             if search_attr:
-                if attributes.get('model', ''):
-                    search_model = attributes['model']
-                else:
-                    search_model = self.model._columns[field_name]._obj
+                search_model = self.model._columns[field_name]._obj
                 f_obj = self.mh.pool.get(search_model)
                 answer = f_obj.browse(
                     self.mh.cursor, self.mh.user,
