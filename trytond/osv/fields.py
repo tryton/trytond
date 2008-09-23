@@ -52,7 +52,7 @@ class Column(object):
 
     def __init__(self, string='unknown', required=False, readonly=False,
             domain=None, context='', states=None, priority=0,
-            change_default=False, size=None, ondelete="set null",
+            change_default=False, size=None, ondelete="SET NULL",
             translate=False, select=0, on_change=None, on_change_with=None,
             **args):
         self.states = states or {}
@@ -447,13 +447,16 @@ class Many2Many(Column):
     _classic_write = False
     _type = 'many2many'
 
-    def __init__(self, obj, rel, id1, id2, string='unknown', limit=None,
-            order=None, **args):
+    def __init__(self, obj, rel, origin, target, string='unknown', limit=None,
+            order=None, ondelete_origin='CASCADE', ondelete_target='RESTRICT',
+            **args):
         Column.__init__(self, string=string, **args)
         self._obj = obj
         self._rel = rel
-        self._id1 = id1
-        self._id2 = id2
+        self.origin = origin
+        self.ondelete_origin = ondelete_origin
+        self.target = target
+        self.ondelete_target = ondelete_target
         self._limit = limit
         self._order = order
 
@@ -476,12 +479,12 @@ class Many2Many(Column):
             domain1 = ' and '+domain1
 
         #TODO fix order: can have many fields
-        cursor.execute('SELECT ' + self._rel + '.' + self._id2 + ', ' + \
-                    self._rel + '.' + self._id1 + ' ' \
+        cursor.execute('SELECT ' + self._rel + '.' + self.target + ', ' + \
+                    self._rel + '.' + self.origin + ' ' \
                 'FROM "' + self._rel + '" , "' + obj._table + '" ' \
                 'WHERE ' + \
-                    self._rel + '.' + self._id1 + ' IN (' + ids_s + ') ' \
-                    'AND ' + self._rel + '.' + self._id2 + ' = ' + \
+                    self._rel + '.' + self.origin + ' IN (' + ids_s + ') ' \
+                    'AND ' + self._rel + '.' + self.target + ' = ' + \
                         obj._table + '.id ' + domain1 + \
                 limit_str + ' ORDER BY ' + \
                 ','.join([obj._table + '.' + x[0] + ' ' + x[1] \
@@ -499,7 +502,7 @@ class Many2Many(Column):
             if act[0] == 'create':
                 idnew = obj.create(cursor, user, act[1], context=context)
                 cursor.execute('INSERT INTO "' + self._rel + '" ' \
-                        '(' + self._id1 + ', ' + self._id2 + ') ' \
+                        '(' + self.origin + ', ' + self.target + ') ' \
                         'VALUES (%s, %s)', (obj_id, idnew))
             elif act[0] == 'write':
                 obj.write(cursor, user, act[1] , act[2], context=context)
@@ -513,8 +516,8 @@ class Many2Many(Column):
                 if not ids:
                     continue
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
-                        'WHERE "' + self._id1 + '" = %s ' \
-                            'AND "'+ self._id2 + '" IN (' \
+                        'WHERE "' + self.origin + '" = %s ' \
+                            'AND "'+ self.target + '" IN (' \
                                 + ','.join(['%s' for x in ids]) + ')',
                         [obj_id] + ids)
             elif act[0] == 'add':
@@ -522,10 +525,10 @@ class Many2Many(Column):
                     ids = [act[1]]
                 else:
                     ids = list(act[1])
-                cursor.execute('SELECT "' + self._id2 + '" ' \
+                cursor.execute('SELECT "' + self.target + '" ' \
                         'FROM "' + self._rel + '" ' \
-                        'WHERE ' + self._id1 + ' = %s ' \
-                            'AND ' + self._id2 + ' IN (' + \
+                        'WHERE ' + self.origin + ' = %s ' \
+                            'AND ' + self.target + ' IN (' + \
                                 ','.join(['%s' for x in ids]) + ')',
                         [obj_id] + ids)
                 existing_ids = []
@@ -534,12 +537,12 @@ class Many2Many(Column):
                 new_ids = [x for x in ids if x not in existing_ids]
                 for new_id in new_ids:
                     cursor.execute('INSERT INTO "' + self._rel + '" ' \
-                            '("' + self._id1 + '", "' + self._id2 + '") ' \
+                            '("' + self.origin + '", "' + self.target + '") ' \
                             'VALUES (%s, %s)', (obj_id, new_id))
             elif act[0] == 'unlink_all':
                 cursor.execute('UPDATE "' + self._rel + '" ' \
-                        'SET "' + self._id2 + '" = NULL ' \
-                        'WHERE "' + self._id2 + '" = %s', (obj_id,))
+                        'SET "' + self.target + '" = NULL ' \
+                        'WHERE "' + self.target + '" = %s', (obj_id,))
             elif act[0] == 'set':
                 if not act[1]:
                     ids = []
@@ -550,18 +553,18 @@ class Many2Many(Column):
                 if domain1:
                     domain1 = ' AND ' + domain1
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
-                        'WHERE "' + self._id1 + '" = %s ' \
-                            'AND "' + self._id2 + '" IN (' \
-                            'SELECT ' + self._rel + '.' + self._id2 + ' ' \
+                        'WHERE "' + self.origin + '" = %s ' \
+                            'AND "' + self.target + '" IN (' \
+                            'SELECT ' + self._rel + '.' + self.target + ' ' \
                             'FROM "' + self._rel + '", "' + obj._table + '" ' \
-                            'WHERE ' + self._rel + '.' + self._id1 + ' = %s ' \
-                                'AND ' + self._rel + '.' + self._id2 + ' = ' + \
+                            'WHERE ' + self._rel + '.' + self.origin + ' = %s ' \
+                                'AND ' + self._rel + '.' + self.target + ' = ' + \
                                 obj._table + '.id ' + domain1 + ')',
                                 [obj_id, obj_id] + domain2)
 
                 for new_id in ids:
                     cursor.execute('INSERT INTO "' + self._rel + '" ' \
-                            '("' + self._id1 + '", "' + self._id2 + '") ' \
+                            '("' + self.origin + '", "' + self.target + '") ' \
                             'VALUES (%s, %s)', (obj_id, new_id))
             else:
                 raise Exception('Bad arguments')

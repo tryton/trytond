@@ -22,9 +22,9 @@ class Lang(OSV):
     date = fields.Char('Date', required=True)
 
     #number
-    grouping = fields.Char('grouping', required=True)
-    decimal_point = fields.Char('decimal_point', required=True)
-    thousands_sep = fields.Char('thousands_sep')
+    grouping = fields.Char('Grouping', required=True)
+    decimal_point = fields.Char('Decimal Separator', required=True)
+    thousands_sep = fields.Char('Thousands Separator')
 
     def __init__(self):
         super(Lang, self).__init__()
