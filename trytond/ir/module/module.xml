@@ -19,15 +19,12 @@
                             <field name="description" colspan="4"/>
                             <label name="version"/>
                             <field name="version"/>
-                            <label name="license"/>
-                            <field name="license"/>
                             <label name="author"/>
                             <field name="author"/>
-                            <label name="website"/>
-                            <field name="website" widget="url"/>
                             <label name="url"/>
                             <field name="url" widget="url"/>
-                            <newline/>
+                            <label name="website"/>
+                            <field name="website" widget="url"/>
                             <label name="state"/>
                             <field name="state" readonly="1"/>
                             <group col="1" colspan="2">
