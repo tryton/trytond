@@ -174,9 +174,6 @@ class Module(OSV):
     def default_state(self, cursor, user, context=None):
         return 'uninstalled'
 
-    def default_license(self, cursor, user, context=None):
-        return 'GPL-3'
-
     @staticmethod
     def get_module_info(name):
         "Return the content of the __tryton__.py"
