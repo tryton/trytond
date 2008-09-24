@@ -184,7 +184,7 @@ class ModelData(OSV):
         super(ModelData, self).__init__()
         self._sql_constraints = [
             ('fs_id_module_model_uniq', 'UNIQUE("fs_id", "module", "model")',
-                'The couple (fs_id, module, model) must be unique!'),
+                'The triple (fs_id, module, model) must be unique!'),
         ]
 
     def default_date_init(self, cursor, user, context=None):
