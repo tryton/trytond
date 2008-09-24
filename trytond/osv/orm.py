@@ -1950,7 +1950,8 @@ class ORM(object):
                 ], context=context)
             for viewtreewidth in viewtreewidth_obj.browse(cursor, user,
                     viewtreewidth_ids, context=context):
-                fields_width[viewtreewidth.field] = viewtreewidth.width
+                if viewtreewidth.width > 0:
+                    fields_width[viewtreewidth.field] = viewtreewidth.width
 
         if element.tag in ('field', 'label', 'separator', 'group'):
             for attr in ('name', 'icon'):
