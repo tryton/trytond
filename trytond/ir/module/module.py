@@ -146,9 +146,6 @@ class Module(OSV):
         ('to remove', 'To be removed'),
         ('to install', 'To be installed'),
         ], string='State', readonly=True)
-    license = fields.Selection([('GPL-2', 'GPL-2'),
-        ('Other proprietary', 'Other proprietary')], string='License',
-        readonly=True)
 
     def __init__(self):
         super(Module, self).__init__()
@@ -178,7 +175,7 @@ class Module(OSV):
         return 'uninstalled'
 
     def default_license(self, cursor, user, context=None):
-        return 'GPL-2'
+        return 'GPL-3'
 
     @staticmethod
     def get_module_info(name):
@@ -355,7 +352,6 @@ class Module(OSV):
                     'shortdesc': tryton.get('name', ''),
                     'author': tryton.get('author', ''),
                     'website': tryton.get('website', ''),
-                    'license': tryton.get('license', 'GPL-2'),
                     })
                 self._update_dependencies(cursor, user, module_id,
                         tryton.get('depends', []))
@@ -380,7 +376,6 @@ class Module(OSV):
                     'shortdesc': tryton.get('name', ''),
                     'author': tryton.get('author', 'Unknown'),
                     'website': tryton.get('website', ''),
-                    'license': tryton.get('license', 'GPL-2'),
                 })
                 res += 1
                 self._update_dependencies(cursor, user, new_id,
