@@ -255,41 +255,41 @@ help,"ir.rule.group,global_p",0,"Make the rule global
 so every users must follow this rule","Regel global setzen
 (Regel gilt für jeden Benutzer)",0
 help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,"Die Regel wird gültig bewertet, wenn wenigstens ein Test positiv ist (True)",0
-model,"ir.action,name",14,Actions,Aktionen,0
-model,"ir.action,name",36,Attachments,Anhänge,0
-model,"ir.action,name",68,Categories,Kategorien,0
-model,"ir.action,name",62,Config Wizard Items,Wizardelemente konfigurieren,0
-model,"ir.action,name",54,Default properties,Standardeigenschaften,0
-model,"ir.action,name",70,Defaults,Standards,0
-model,"ir.action,name",50,Exports,Exporte,0
-model,"ir.action,name",48,Export Translations,Übersetzungen exportieren,0
-model,"ir.action,name",26,Fields,Felder,0
-model,"ir.action,name",40,Languages,Sprachen,0
-model,"ir.action,name",4,Menu,Menü,0
-model,"ir.action,name",6,Menus,Menüs,0
-model,"ir.action,name",24,Models,Modelle,0
-model,"ir.action,name",28,Models Access,Berechtigungen für Modelle,0
-model,"ir.action,name",64,Module Configuration,Modulkonfiguration,0
-model,"ir.action,name",58,Modules,Module,0
-model,"ir.action,name",60,Modules,Module,0
-model,"ir.action,name",66,Perform Pending Installation/Upgrade,Vorgemerkte Installationen / Aktualisierungen durchführen,0
-model,"ir.action,name",56,Properties,Eigenschaften,0
-model,"ir.action,name",52,Record Rules,Datensatzregeln,0
-model,"ir.action,name",16,Reports,Berichte,0
-model,"ir.action,name",38,Scheduled Actions,Geplante Aktionen,0
-model,"ir.action,name",30,Sequences,Sequenzen,0
-model,"ir.action,name",32,Sequences Strict,Strikte Sequenzen,0
-model,"ir.action,name",34,Sequence Types,Sequenztypen,0
-model,"ir.action,name",44,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
-model,"ir.action,name",42,Translations,Übersetzungen,0
-model,"ir.action,name",2,Tryton,Tryton,0
-model,"ir.action,name",46,Update Translations,Übersetzungen aktualisieren,0
-model,"ir.action,name",22,URLs,URLs,0
-model,"ir.action,name",8,Views,Sichten,0
-model,"ir.action,name",10,View Shortcuts,Schnelltasten anzeigen,0
-model,"ir.action,name",12,View Tree Width,Baumbreite anzeigen,0
-model,"ir.action,name",18,Window Actions,Fensteraktionen,0
-model,"ir.action,name",20,Wizards,Wizards,0
+model,"ir.action,name",act_action_form,Actions,Aktionen,0
+model,"ir.action,name",act_attachment_form,Attachments,Anhänge,0
+model,"ir.action,name",act_category_tree,Categories,Kategorien,0
+model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
+model,"ir.action,name",act_property_form_default,Default properties,Standardeigenschaften,0
+model,"ir.action,name",act_default_form,Defaults,Standards,0
+model,"ir.action,name",act_export_form,Exports,Exporte,0
+model,"ir.action,name",act_translation_export,Export Translations,Übersetzungen exportieren,0
+model,"ir.action,name",act_model_fields_form,Fields,Felder,0
+model,"ir.action,name",act_lang_form,Languages,Sprachen,0
+model,"ir.action,name",act_menu_tree,Menu,Menü,0
+model,"ir.action,name",act_menu_form,Menus,Menüs,0
+model,"ir.action,name",act_model_form,Models,Modelle,0
+model,"ir.action,name",act_model_access_form,Models Access,Berechtigungen für Modelle,0
+model,"ir.action,name",act_module_config_wizard,Module Configuration,Modulkonfiguration,0
+model,"ir.action,name",act_module_form,Modules,Module,0
+model,"ir.action,name",act_module_form2,Modules,Module,0
+model,"ir.action,name",act_module_install_upgrade,Perform Pending Installation/Upgrade,Vorgemerkte Installationen / Aktualisierungen durchführen,0
+model,"ir.action,name",act_property_form,Properties,Eigenschaften,0
+model,"ir.action,name",act_rule_group_form,Record Rules,Datensatzregeln,0
+model,"ir.action,name",act_action_report_form,Reports,Berichte,0
+model,"ir.action,name",act_cron_form,Scheduled Actions,Geplante Aktionen,0
+model,"ir.action,name",act_sequence_form,Sequences,Sequenzen,0
+model,"ir.action,name",sequence_strict_view_form,Sequences Strict,Strikte Sequenzen,0
+model,"ir.action,name",act_sequence_type_form,Sequence Types,Sequenztypen,0
+model,"ir.action,name",act_translation_set_report,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
+model,"ir.action,name",act_translation_form,Translations,Übersetzungen,0
+model,"ir.action,name",action_tryton,Tryton,Tryton,0
+model,"ir.action,name",act_translation_update,Update Translations,Übersetzungen aktualisieren,0
+model,"ir.action,name",act_action_url_form,URLs,URLs,0
+model,"ir.action,name",act_view_form,Views,Sichten,0
+model,"ir.action,name",act_view_sc_form,View Shortcuts,Schnelltasten anzeigen,0
+model,"ir.action,name",act_view_tree_width_form,View Tree Width,Baumbreite anzeigen,0
+model,"ir.action,name",act_action_act_window_form,Window Actions,Fensteraktionen,0
+model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
 model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),ODF Dokumente (.odf),0
 model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,PDF Dokument,0
 model,"ir.ui.menu,name",menu_action,Actions,Aktionen,0

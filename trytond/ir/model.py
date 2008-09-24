@@ -178,16 +178,20 @@ class ModelData(OSV):
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
+    inherit = fields.Boolean('Inherit')
 
     def __init__(self):
         super(ModelData, self).__init__()
         self._sql_constraints = [
-            ('fs_id_module_uniq', 'UNIQUE("fs_id", "module")',
-                'The couple (fs_id, module) must be unique!'),
+            ('fs_id_module_model_uniq', 'UNIQUE("fs_id", "module", "model")',
+                'The triple (fs_id, module, model) must be unique!'),
         ]
 
     def default_date_init(self, cursor, user, context=None):
         return time.strftime('%Y-%m-%d %H:%M:%S')
+
+    def default_inherit(self, cursor, user, context=None):
+        return False
 
     def get_id(self, cursor, user, module, fs_id):
         """
@@ -203,6 +207,7 @@ class ModelData(OSV):
         ids = self.search(cursor, user, [
             ('module', '=', module),
             ('fs_is', '=', fs_id),
+            ('inherit', '=', False),
             ])
         if not ids:
             raise Exception("Reference to %s not found" % \
