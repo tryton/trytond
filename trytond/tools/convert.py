@@ -194,10 +194,7 @@ class RecordTagHandler:
             eval_attr = attributes.get('eval', '')
 
             if search_attr:
-                if attributes.get('model', ''):
-                    search_model = attributes['model']
-                else:
-                    search_model = self.model._columns[field_name]._obj
+                search_model = self.model._columns[field_name]._obj
                 f_obj = self.mh.pool.get(search_model)
                 answer = f_obj.browse(
                     self.mh.cursor, self.mh.user,
@@ -324,11 +321,12 @@ class Fs2bdAccessor:
         if module == "ir.ui.menu": raise
         self.fs2db[module] = {}
         module_data_ids = self.modeldata_obj.search(
-            self.cursor, self.user, [('module','=',module)]
-            )
+            self.cursor, self.user, [
+                ('module', '=', module),
+                ('inherit', '=', False),
+                ])
         for rec in self.modeldata_obj.browse(
-            self.cursor, self.user, module_data_ids):
-
+                self.cursor, self.user, module_data_ids):
             self.fs2db[rec.module][rec.fs_id] = {
                 "db_id": rec.db_id, "model": rec.model,
                 "id": rec.id, "values": rec.values
@@ -478,9 +476,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         # Fetch the data in id descending order to avoid depedendcy
         # problem when the corresponding recordds will be deleted:
         module_data_ids = self.modeldata_obj.search(
-            self.cursor, self.user, [('module','=',self.module)],
-            order=[('id', 'DESC')],
-            )
+            self.cursor, self.user, [
+                ('module', '=', self.module),
+                ('inherit', '=', False),
+                ], order=[('id', 'DESC')])
         return [rec.fs_id for rec in self.modeldata_obj.browse(
                 self.cursor, self.user, module_data_ids)]
 
@@ -509,8 +508,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             db_id, db_model, mdata_id, old_values = \
                     [self.fs2db.get(module, fs_id)[x] for x in \
                     ["db_id","model","id","values"]]
+            inherit_db_ids = {}
 
-            if old_values is None:
+            if not old_values:
                 old_values = {}
             else:
                 old_values = eval(old_values, {
@@ -535,20 +535,55 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 db_id = object_ref.create(cursor, user, values,
                         context={'module': module})
 
+                object = object_ref.browse(cursor, user, db_id)
+                for table, field_name, field in object_ref._inherit_fields.values():
+                    inherit_db_ids[table] = object[field_name].id
+
                 #Add a translation record for field translatable
-                for field_name, field in object_ref._columns.iteritems():
+                for field_name in object_ref._columns.keys() + \
+                        object_ref._inherit_fields.keys():
+                    if field_name in object_ref._columns:
+                        field = object_ref._columns[field_name]
+                        table_name = object_ref._name
+                        res_id = db_id
+                    else:
+                        field = object_ref._inherit_fields[field_name][2]
+                        table_name = self.pool.get(
+                                object_ref._inherit_fields[field_name][0])._name
+                        res_id = inherit_db_id[table_name]
                     if field.translate and values.get(field_name):
                         cursor.execute('INSERT INTO ir_translation ' \
                                 '(name, lang, type, src, res_id, ' \
                                     'value, module, fuzzy) ' \
                                 'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
-                                (object_ref._name + ',' + field_name,
+                                (table_name + ',' + field_name,
                                     'en_US', 'model', values[field_name],
-                                    db_id, '', module))
+                                    res_id, '', module))
+
+                for table in inherit_db_ids.keys():
+                    data_id = self.modeldata_obj.search(cursor, user, [
+                        ('fs_id', '=', fs_id),
+                        ('module', '=', module),
+                        ('model', '=', table),
+                        ], limit=1)
+                    if data_id:
+                        self.modeldata_obj.write(cursor, user, data_id, {
+                            'db_id': inherit_db_ids[table],
+                            'inherit': True,
+                            })
+                    else:
+                        self.modeldata_obj.create(cursor, user, {
+                            'fs_id': fs_id,
+                            'module': module,
+                            'model': table,
+                            'db_id': inherit_db_ids[table],
+                            'inherit': True,
+                            })
 
                 data_id = self.modeldata_obj.search(cursor, user, [
                     ('fs_id', '=', fs_id),
                     ('module', '=', module),
+                    ('model', '=', object_ref._name),
                     ], limit=1)[0]
                 self.modeldata_obj.write(cursor, user, data_id, {
                     'db_id': db_id,
@@ -604,15 +639,24 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 object_ref.write(cursor, user, db_id, to_update)
 
                 #Update/Create translation record for field translatable
-                for field_name, field in object_ref._columns.iteritems():
+                for field_name in object_ref._columns.keys() + \
+                        object_ref._inherit_fields.keys():
+                    if field_name in object_ref._columns:
+                        field = object_ref._columns[field_name]
+                        table_name = object_ref._name
+                        res_id = db_id
+                    else:
+                        field = object_ref._inherit_fields[field_name][2]
+                        table_name = self.pool.get(
+                                object_ref._inherit_fields[field_name][0])._name
                     if field.translate and to_update.get(field_name):
                         cursor.execute('SELECT id FROM ir_translation ' \
                                 'WHERE name = %s' \
                                     'AND lang = %s ' \
                                     'AND type = %s ' \
                                     'AND res_id = %s',
-                                (object_ref._name + ',' + field_name,
-                                    'en_US', 'model', db_id))
+                                (table_name + ',' + field_name,
+                                    'en_US', 'model', res_id))
                         if cursor.rowcount:
                             trans_id = cursor.fetchone()[0]
                             cursor.execute('UPDATE ir_translation ' \
@@ -624,9 +668,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                     '(name, lang, type, src, res_id, ' \
                                         'value, module, fuzzy) ' \
                                     'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
-                                    (object_ref._name + ',' + field_name,
+                                    (table_name + ',' + field_name,
                                         'en_US', 'model', to_update[field_name],
-                                        db_id, '', module))
+                                        res_id, '', module))
 
                 # re-read it: this ensure that we store the real value
                 # in the model_data table:
@@ -661,17 +705,32 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # this record is new, create it in the db:
             db_id = object_ref.create(cursor, user, values,
                     context={'module': module})
+            inherit_db_ids = {}
+
+            object = object_ref.browse(cursor, user, db_id)
+            for table, field_name, field in object_ref._inherit_fields.values():
+                inherit_db_ids[table] = object[field_name].id
 
             #Add a translation record for field translatable
-            for field_name, field in object_ref._columns.iteritems():
+            for field_name in object_ref._columns.keys() + \
+                    object_ref._inherit_fields.keys():
+                if field_name in object_ref._columns:
+                    field = object_ref._columns[field_name]
+                    table_name = object_ref._name
+                    res_id = db_id
+                else:
+                    field = object_ref._inherit_fields[field_name][2]
+                    table_name = self.pool.get(
+                            object_ref._inherit_fields[field_name][0])._name
+                    res_id = inherit_db_ids[table_name]
                 if field.translate and values.get(field_name):
                     cursor.execute('SELECT id FROM ir_translation ' \
                             'WHERE name = %s' \
                                 'AND lang = %s ' \
                                 'AND type = %s ' \
                                 'AND res_id = %s',
-                            (object_ref._name + ',' + field_name,
-                                'en_US', 'model', db_id))
+                            (table_name + ',' + field_name,
+                                'en_US', 'model', res_id))
                     if cursor.rowcount:
                         trans_id = cursor.fetchone()[0]
                         cursor.execute('UPDATE ir_translation ' \
@@ -683,9 +742,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                 '(name, lang, type, src, res_id, ' \
                                     'value, module, fuzzy) ' \
                                 'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
-                                (object_ref._name + ',' + field_name,
+                                (table_name + ',' + field_name,
                                     'en_US', 'model', values[field_name],
-                                    db_id, '', module))
+                                    res_id, '', module))
 
             # re-read it: this ensure that we store the real value
             # in the model_data table:
@@ -697,6 +756,15 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 except Unhandled_field:
                     continue
 
+            for table in inherit_db_ids.keys():
+                self.modeldata_obj.create(cursor, user, {
+                    'fs_id': fs_id,
+                    'model': table,
+                    'module': module,
+                    'db_id': inherit_db_ids[table],
+                    'inherit': True,
+                    })
+
             mdata_id = self.modeldata_obj.create(cursor, user, {
                 'fs_id': fs_id,
                 'model': model,
@@ -704,6 +772,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 'db_id': db_id,
                 'values': str(values),
                 })
+
             # update fs2db:
             self.fs2db.set(module, fs_id, {
                     "db_id": db_id, "model": model,

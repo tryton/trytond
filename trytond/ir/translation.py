@@ -440,7 +440,13 @@ class Translation(OSV, Cacheable):
                     if res_id:
                         model = translation.name.split(',')[0]
                         if model in db_id2fs_id:
-                            res_id = db_id2fs_id[model].get(res_id, res_id)
+                            res_id = db_id2fs_id[model].get(res_id)
+                    try:
+                        val = int(res_id)
+                        if val != 0:
+                            continue
+                    except ValueError:
+                        pass
                     row.append(res_id)
                 elif field == 'fuzzy':
                     row.append(int(translation[field]))
@@ -707,6 +713,7 @@ class TranslationUpdate(Wizard):
         model_data_ids = model_data_obj.search(cursor, user, [
             ('fs_id', '=', 'act_translation_form'),
             ('module', '=', 'ir'),
+            ('inherit', '=', False),
             ], limit=1, context=context)
         model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
                 context=context)
