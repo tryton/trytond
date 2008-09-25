@@ -2770,7 +2770,10 @@ class ORM(object):
             context=None, count=False, query_string=False):
         '''
         Return a list of id that match the clause defined in args.
-        args is a list of tuples or lists
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param args: a list of tuples or lists
             lists are construct like this:
                 ['operator', args, args, ...]
                 operator can be 'AND' or 'OR', if it is missing the
@@ -2790,14 +2793,15 @@ class ORM(object):
                     >=
                     <
                     >
-        offset can be used to specify a offset in the result
-        limit can be used to limit the number of ids return
-        order is a list of tupe that are construct like this:
+        :param offset: an integer to specify the offset in the result
+        :param limit: an integer to limit the number of ids return
+        :param order: a list of tupe that are construct like this:
             ('field name', 'DESC|ASC')
             it allow to specify the order of the ids in the return list
-        count can be used to return just the len of the list
-        if query_string is True, the function will return a tuple with
+        :param count: a boolean to return just the len of the list
+        :param query_string: a boolean to return a tuple with
             the SQL query string and the arguments.
+        :return: a list of ids
         '''
         (qu1, qu2, tables, tables_args) = self._where_calc(cursor, user, args,
                 context=context)
