@@ -1,7 +1,7 @@
 Models
 ######
 
-Models are python classes that usually represent real-life object or
+Models are python classes that usually represent business object or
 concepts. Such classes consist essentially of keywords, fields,
 constraints and helper functions. They inherit from the OSV class
 which provide the framework integration like the database abstraction,
@@ -21,10 +21,16 @@ The following snippet gives a minimal example:
       name = fields.Char('Name')
   Party()
 
-Keywords
-********
+Instanciating the class make it alive for the framework. Actually
+there will be only one instance per class and per database. So model
+classes are essentially accessors to the underlying table.
 
-Keywords defines meta-informations about the model:
+
+Model Properties
+****************
+
+Model properties defines meta-informations about the model, they are
+class attributes starting with and underscore.
 
    * ``_description``: A non technical description of the class.
 
@@ -39,25 +45,61 @@ Keywords defines meta-informations about the model:
    * ``_rec_name``: The name of the main field of the class. If not
      set the field ``name`` is used (like in the above example).
 
-   * ``_sequence``: The name of the field on which the result must
-     be sorted when the underling table is read.
+   * ``_sequence``: The  name of the postgresql sequence that
+     increment the ``id`` column.
 
 
-   * ``_order_name``
+   * ``_order_name``: The name of the field on which the row must
+     be sorted when the underlying table is read.
 
-   * ``_order``
 
    * ``_auto``: When set to ``False`` will prevent the framework from
      creating a table for this class.
 
-   * ``_obj``
+   * ``_obj``: (?)
 
    * ``_sql``: The sql code that must be used to fetch data from the
      database. The columns outputed by the given query must reflect
      the class fields.
 
+Some Model Properties are instance attributes which allow to update
+them at other places in the framework 
+
+   * ``_order``: A tuple defining how the row are sorted when the
+     underlying table is read. E.g.: ``[('name', 'ASC'), 'age',
+     'DESC']``
+
+   * ``_error_messages``: A dictionary mapping keywords to a user
+     message. E.g.: ``{'recursive_categories': 'You can not create
+     recursive categories!'}``
+
+   * ``_sql_constraints``: A list of constraints that are added on
+     the underlying table. E.g.: ``('constrain_name, sql_constraint,
+     'error_msg')`` where  ``'constrain_name'`` is the name of the
+     sql constraint for the database, ``sql_constraint`` is the actual
+     sql constraint (E.g.: ``'UNIQUE(name)'``) and ``'error_msg'`` is
+     one of the key of ``_error_messages``.
+
+   * ``_constraints``: A list of constraints that each record must
+     respect. Each item of this list is a couple ``('function_name',
+     'error_keyword')``, where ``'function_name'`` is the name of a
+     method of the same class, which should return a boolean value
+     (``False`` when the constraint is violated). ``error_keyword``
+     must be one of the key of ``_sql_error_messages``.
+
+   * ``_sql_error_messages``:
+
+   * ``_rpc_allowed``: The list of the names of the method than are
+     allowed to be called remotely.
+
+
 Fields
 ******
+
+Fields are class attributes that do not start with an underscore. Some
+fields are automatically added on each tables: id, create_date,
+create_uid, write_date, write_uid. (TODO)
+
 
 Fields types
 ^^^^^^^^^^^^
@@ -66,7 +108,7 @@ A field can be one of the following basic types:
 
    * ``Char``: A string of character.
 
-   * ``Text``: A mulit-line text.
+   * ``Text``: A multi-line text.
 
    * ``Boolean``: True or False.
 
@@ -81,7 +123,7 @@ A field can be one of the following basic types:
 
    * ``DateTime``: A time in a day. E.g.: 2008-12-31 11:30:59.
 
-   * ``Selection``: A list of values E.g.: Male, Female.
+   * ``Selection``: A value from a list. E.g.: Male, Female.
 
    * ``Binary``: A blob. E.g.: a picture.
 
@@ -144,9 +186,15 @@ Create
 Read
 ****
 
+Browse
+******
+
 Write
 *****
 
 Delete
 ******
+
+inheritance
+###########
 
