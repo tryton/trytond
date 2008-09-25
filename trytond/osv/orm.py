@@ -267,7 +267,6 @@ class ORM(object):
     _sequence = None
     _description = ''
     _auto = True
-    _obj = None
     _sql = ''
     pool = None
     __columns = None
