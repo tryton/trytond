@@ -28,6 +28,8 @@
                 <tree string="Properties">
                     <field name="name" select="1"/>
                     <field name="field" select="1"/>
+                    <field name="value" select="2"/>
+                    <field name="res" select="2"/>
                 </tree>
                 ]]>
             </field>
