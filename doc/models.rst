@@ -64,9 +64,7 @@ class attributes starting with and underscore.
    * ``_description``: A non technical description of the model.
 
    * ``_name``: The unique identifier that can be use to reference the
-     model across all the framwork. The first part of it (before the
-     dot) must be the name of the module in which the class is
-     defined.
+     model across all the framwork.
 
    * ``_table``: The name of the database table which is mapped to
      the current class. If not set the value of ``_name`` is used with
@@ -121,6 +119,7 @@ them at other places in the framework
      'read', 'write', 'create', 'default_get', 'delete', 'fields_get',
      'fields_view_get', 'search', 'name_get', 'name_search', 'copy',
      'import_data', 'export_data', 'search_count', 'search_read']``
+     and all the ``default_*`` and ``on_change_*`` methods.
 
 
 Fields
@@ -131,7 +130,7 @@ fields are automatically added on each tables:
 
    * ``id``: An integer providing a identifier for each row.
 
-   * ``create_date``: The date at which the row was added.
+   * ``create_date``: The date at which the row was created.
 
    * ``create_uid``: The identifier of the user (I.e. the ``id`` of
      one row of the table defining the users) who created the row.
@@ -192,7 +191,8 @@ Or one of these relation types:
      fields.One2Many('relationship.party', 'party',
      'Addresses')``. This correspond in the database to a foreign key
      (who's name is ``party``) from the ``relationship_address`` table
-     to the table of the current model.
+     to the table of the current model. A ``One2Many`` alone will not
+     work, it rely on the ``Many2One`` to create the foreign key.
 
    * ``Many2Many``: A relation from the current model to another one
      where many record of the current model can be linked to many
@@ -210,7 +210,7 @@ Function field can be used to mimic any other type:
    * ``Function``: A computed field. E.g. ``total =
      fields.Function('get_total', type='float',
      string='Total')``. Where ``'get_total'`` is the name if a method
-     of the current class.
+     of the current class. COMPLETEME
 
 
 Fields options
@@ -228,27 +228,30 @@ otherwise in the desctiption.
 
    * ``help``: A text to be show in the interface on mouse-over.
 
-   * ``select``: A boolean. When equel to ``True``, an index is
+   * ``select``: An integer. When equel to ``1``, an index is
      created in the database and the field appear in the search box on
-     list view.
+     list view. When equal to ``2`` the field appear in the *Advanced
+     Search* part of the search box.
 
-   * ``on_change``: The name of a method the the client must call when
-     a user change the field. This method must return a distionnary
-     ``{field_name: new_value}`` for all the field that must be updated.
+   * ``on_change``: The list of values. If set, the client will call
+     the method ``on_change<field_name>`` when a user change the field
+     and pass this list of values as argument. This method must return
+     a dictionnary ``{field_name: new_value}`` for all the field that
+     must be updated.
 
    * ``states``: A dictionnary. Keys are name of other options and
      values are python expression. This allow to update dynamically
      options for the current field. E.g.: ``states={"readonly":
      "total > 10"}``.
 
-   * ``domain``: A domain on the current field. E.g.: ``['name', '!=',
-     'Steve']`` on the ``party`` field of the ``relationship.address``
+   * ``domain``: A domain on the current field. E.g.: ``[('name', '!=',
+     'Steve')]`` on the ``party`` field of the ``relationship.address``
      model will forbid to link the current address to a Party for
      which ``name`` is equal to ``Steve``
 
    * ``translate``: If true, this field is translatable. A flag in the
      interface will allow users to change translate the field for
-     their language.
+     the defined language.
 
    * ``priority``: An integer. Allow to force the order in which
      fields are writen in the database. This is used only for fields
@@ -259,8 +262,8 @@ otherwise in the desctiption.
      ``change_default`` equal to ``True`` can be used as a a condition
      to the default value.
 
-   * ``on_change_with``: Like onchange, but is be defined the other
-     way around: It's a list containing all the fields than must
+   * ``on_change_with``: Like ``on_change``, but defined the other
+     way around: It's a list containing all the fields that must
      update the current field. 
 
    * ``size``: A maximum size on ``Char`` fields.
@@ -271,10 +274,11 @@ otherwise in the desctiption.
 
    * ``on_delete``: Sql expression handling behaviour when a the
      target of a ``Many2One`` is removed. Possible values:
-     ``CASCADE``, ``DO NOTHING``, ``SET NULL`` (default).
+     ``CASCADE``, ``NO ACTION``, ``RESTRICT``, SET DEFAULT, ``SET
+     NULL`` (default).
 
    * ``context``: A string defining a dictionnay which will be given
-     to evaluate the field.
+     to evaluate the relation fields.
 
    * ``ondelete_origin`` and ``ondelete_target``: Like ``on_delete``
      for the column of the table supporting a ``Many2Many`` relation.
