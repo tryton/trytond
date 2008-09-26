@@ -2361,8 +2361,8 @@ class ORM(object):
                     i += 1
                     continue
                 else:
-                    i += 1
-                    continue
+                    raise Exception('ValidateError', 'Clause on field "%s" ' \
+                            'doesn\'t work on "%s"' % (args[i][0], self._name))
             if field._properties:
                 arg = [args.pop(i)]
                 j = i
