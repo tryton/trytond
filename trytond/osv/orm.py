@@ -2315,12 +2315,15 @@ class ORM(object):
         while i < len(args):
             if args[i][1] not in (
                     'child_of',
+                    'not child_of',
                     '=',
-                    'like',
-                    'ilike',
-                    '',
                     '!=',
+                    'like',
+                    'not like',
+                    'ilike',
+                    'not ilike',
                     'in',
+                    'not in',
                     '<=',
                     '>=',
                     '<',
@@ -2412,7 +2415,7 @@ class ORM(object):
                 i += 1
             elif field._type == 'many2many':
                 # XXX must find a solution for long id list
-                if args[i][1] == 'child_of':
+                if args[i][1] in ('child_of', 'not child_of'):
                     if isinstance(args[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
                         field._obj).name_search(cursor, user, args[i][2], [],
@@ -2443,10 +2446,17 @@ class ORM(object):
                                 'WHERE "' + field.target + '" IN (' + \
                                     ','.join(['%s' for x in ids2]) + ')'
                         query2 = [str(x) for x in ids2]
-                        args[i] = ('id', 'inselect', (query1, query2))
+                        if args[i][1] == 'child_of':
+                            args[i] = ('id', 'inselect', (query1, query2))
+                        else:
+                            args[i] = ('id', 'notinselect', (query1, query2))
                     else:
-                        args[i] = ('id', 'in', ids2 + _rec_get(ids2,
-                            table, args[i][0]))
+                        if args[i][1] == 'child_of':
+                            args[i] = ('id', 'in', ids2 + _rec_get(ids2,
+                                table, args[i][0]))
+                        else:
+                            args[i] = ('id', 'not in', ids2 + _rec_get(ids2,
+                                table, args[i][0]))
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = [x[0] for x in self.pool.get(field._obj
@@ -2475,7 +2485,7 @@ class ORM(object):
 
             elif field._type == 'many2one':
                 # XXX must find a solution for long id list
-                if args[i][1] == 'child_of':
+                if args[i][1] in ('child_of', 'not child_of'):
                     if isinstance(args[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
                             field._obj).name_search(cursor, user, args[i][2],
@@ -2501,7 +2511,10 @@ class ORM(object):
                         ids2 = self.pool.get(field._obj).search(cursor, user,
                                 [(args[i][3], 'child_of', ids2)],
                                 context=context)
-                        args[i] = (args[i][0], 'in', ids2, table)
+                        if args[i][1] == 'child_of':
+                            args[i] = (args[i][0], 'in', ids2, table)
+                        else:
+                            args[i] = (args[i][0], 'not in', ids2, table)
                     else:
                         if field.left and field.right:
                             cursor.execute('SELECT "' + field.left + '", ' \
@@ -2521,10 +2534,17 @@ class ORM(object):
 
                             query = 'SELECT id FROM "' + self._table + '" ' + \
                                     'WHERE ' + clause
-                            args[i] = ('id', 'inselect', (query, []))
+                            if args[i][1] == 'child_of':
+                                args[i] = ('id', 'inselect', (query, []))
+                            else:
+                                args[i] = ('id', 'notinselect', (query, []))
                         else:
-                            args[i] = ('id', 'in', ids2 + _rec_get(ids2, table,
-                                args[i][0]), table)
+                            if args[i][1] == 'child_of':
+                                args[i] = ('id', 'in', ids2 + _rec_get(
+                                    ids2, table, args[i][0]), table)
+                            else:
+                                args[i] = ('id', 'not in', ids2 + _rec_get(
+                                    ids2, table, args[i][0]), table)
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = self.pool.get(field._obj).name_search(cursor,
@@ -2537,12 +2557,15 @@ class ORM(object):
                 i += 1
             else:
                 if field.translate:
-                    if args[i][1] in ('like', 'ilike'):
+                    if args[i][1] in ('like', 'ilike', 'not like', 'not ilike'):
+                        oper = 'OR'
+                        if args[i][1] in ('not like', 'not ilike'):
+                            oper = 'AND'
                         query1 = '(SELECT res_id FROM ir_translation ' \
                                 'WHERE name = %s AND lang = %s ' \
                                     'AND type = %s ' \
                                     'AND (value ' + args[i][1] + ' %s ' \
-                                        'OR value ' + args[i][1] + ' %s))'
+                                        + oper +' value ' + args[i][1] + ' %s))'
                         query2 = [table._name + ',' + args[i][0],
                                 context.get('language', False) or 'en_US',
                                 'model', '%% %s%%' % args[i][2],
@@ -2556,7 +2579,7 @@ class ORM(object):
                         query1 += '(SELECT id FROM ' + table_query + \
                                 '"' + table._table + '" ' \
                                 'WHERE ("' + args[i][0] + '" ' + \
-                                args[i][1] + ' %s OR "' + args[i][0] + '" ' + \
+                                args[i][1] + ' %s ' + oper + ' "' + args[i][0] + '" ' + \
                                 args[i][1] + ' %s))'
                         query2 += table_args + ['%% %s%%' % args[i][2],
                                 '%s%%' % args[i][2]]
@@ -2578,7 +2601,7 @@ class ORM(object):
                 qu1.append('(%s.%s %s (%s))' % (table._table, arg[0], clause,
                     arg[2][0]))
                 qu2 += arg[2][1]
-            elif arg[1] == 'in':
+            elif arg[1] in ('in', 'not in'):
                 if len(arg[2]) > 0:
                     todel = []
                     for xitem in range(len(arg[2])):
@@ -2590,21 +2613,29 @@ class ORM(object):
                     #TODO fix max_stack_depth
                     if len(arg[2]):
                         if arg[0] == 'id':
-                            qu1.append('(%s.id in (%s))' % \
+                            qu1.append(('(%s.id ' + arg[1] + ' (%s))') % \
                                     (table._table,
                                         ','.join(['%s'] * len(arg[2])),))
                         else:
-                            qu1.append('(%s.%s in (%s))' % \
+                            qu1.append(('(%s.%s ' + arg[1] + ' (%s))') % \
                                     (table._table, arg[0], ','.join(
                                         [table._columns[arg[0]].\
                                                 _symbol_set[0]] * len(arg[2]))))
                         if todel:
-                            qu1[-1] = '(' + qu1[-1] + ' or ' + arg[0] + ' is null)'
+                            if arg[1] == 'in':
+                                qu1[-1] = '(' + qu1[-1] + ' or ' \
+                                        + arg[0] + ' is null)'
+                            else:
+                                qu1[-1] = '(' + qu1[-1] + ' or ' \
+                                        + arg[0] + ' is not null)'
                         qu2 += arg[2]
                     elif todel:
                         qu1.append('(' + arg[0] + ' IS NULL)')
                 else:
-                    qu1.append(' false')
+                    if arg[1] == 'in':
+                        qu1.append(' false')
+                    else:
+                        qu1.append(' true')
             else:
                 if (arg[2] is False) and (arg[1] == '='):
                     if table._columns[arg[0]]._type == 'boolean':
@@ -2613,7 +2644,7 @@ class ORM(object):
                     else:
                         qu1.append('(%s.%s IS NULL)' % \
                                 (table._table, arg[0]))
-                elif (arg[2] is False) and (arg[1] == '<>' or arg[1] == '!='):
+                elif (arg[2] is False) and (arg[1] == '!='):
                     qu1.append('(%s.%s IS NOT NULL)' % \
                             (table._table, arg[0]))
                 else:
@@ -2627,7 +2658,7 @@ class ORM(object):
                             qu2.append(arg[2])
                     else:
                         add_null = False
-                        if arg[1] in ('like', 'ilike'):
+                        if arg[1] in ('like', 'ilike', 'not like', 'not ilike'):
                             qu2.append('%% %s%%' % arg[2])
                             qu2.append('%s%%' % arg[2])
                             if not arg[2]:
@@ -2638,7 +2669,11 @@ class ORM(object):
                                         _symbol_set[1](arg[2]))
                         if arg[0] in table._columns:
                             if arg[1] in ('like', 'ilike'):
-                                qu1.append('(%s.%s %s %s or %s.%s %s %s)' % \
+                                qu1.append('(%s.%s %s %s OR %s.%s %s %s)' % \
+                                        (table._table, arg[0], arg[1], '%s',
+                                            table._table, arg[0], arg[1], '%s'))
+                            elif arg[1] in ('not like', 'not ilike'):
+                                qu1.append('(%s.%s %s %s AND %s.%s %s %s)' % \
                                         (table._table, arg[0], arg[1], '%s',
                                             table._table, arg[0], arg[1], '%s'))
                             else:
@@ -2650,12 +2685,16 @@ class ORM(object):
                                 qu1.append('(%s.%s %s \'%s\' or %s.%s %s \'%s\')' % \
                                         (table._table, arg[0], arg[1], arg[2],
                                             table._table, arg[0], arg[1], arg[2]))
+                            elif arg[1] in ('not like', 'not ilike'):
+                                qu1.append('(%s.%s %s \'%s\' and %s.%s %s \'%s\')' % \
+                                        (table._table, arg[0], arg[1], arg[2],
+                                            table._table, arg[0], arg[1], arg[2]))
                             else:
                                 qu1.append('(%s.%s %s \'%s\')' % \
                                         (table._table, arg[0], arg[1], arg[2]))
 
                         if add_null:
-                            qu1[-1] = '('+qu1[-1]+' or '+arg[0]+' is null)'
+                            qu1[-1] = '('+qu1[-1]+' OR '+arg[0]+' is null)'
 
         return qu1, qu2
 
@@ -2784,11 +2823,15 @@ class ORM(object):
                     or a relational field by using '.' as separator.
                 operator can be:
                     child_of  (all the childs of a relation field)
+                    not child_of
                     =
-                    like
-                    ilike (case insensitive)
                     !=
+                    like
+                    not like
+                    ilike (case insensitive)
+                    not ilike
                     in
+                    not in
                     <=
                     >=
                     <
