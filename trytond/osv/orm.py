@@ -1948,26 +1948,17 @@ class ORM(object):
         """
         return False
 
-    def __view_look_dom(self, cursor, user, element, type, context=None):
+    def __view_look_dom(self, cursor, user, element, type, fields_width=None,
+            context=None):
         translation_obj = self.pool.get('ir.translation')
 
+        if fields_width is None:
+            fields_width = {}
         if context is None:
             context = {}
         result = False
         fields_attrs = {}
         childs = True
-        fields_width = {}
-
-        if type == 'tree':
-            viewtreewidth_obj = self.pool.get('ir.ui.view_tree_width')
-            viewtreewidth_ids = viewtreewidth_obj.search(cursor, user, [
-                ('model', '=', self._name),
-                ('user', '=', user),
-                ], context=context)
-            for viewtreewidth in viewtreewidth_obj.browse(cursor, user,
-                    viewtreewidth_ids, context=context):
-                if viewtreewidth.width > 0:
-                    fields_width[viewtreewidth.field] = viewtreewidth.width
 
         if element.tag in ('field', 'label', 'separator', 'group'):
             for attr in ('name', 'icon'):
@@ -2063,13 +2054,26 @@ class ORM(object):
         if childs:
             for field in element:
                 fields_attrs.update(self.__view_look_dom(cursor, user, field,
-                    type, context))
+                    type, fields_width=fields_width, context=context))
         return fields_attrs
 
     def _view_look_dom_arch(self, cursor, user, tree, type, context=None):
+        fields_width = {}
         tree_root = tree.getroottree().getroot()
+
+        if type == 'tree':
+            viewtreewidth_obj = self.pool.get('ir.ui.view_tree_width')
+            viewtreewidth_ids = viewtreewidth_obj.search(cursor, user, [
+                ('model', '=', self._name),
+                ('user', '=', user),
+                ], context=context)
+            for viewtreewidth in viewtreewidth_obj.browse(cursor, user,
+                    viewtreewidth_ids, context=context):
+                if viewtreewidth.width > 0:
+                    fields_width[viewtreewidth.field] = viewtreewidth.width
+
         fields_def = self.__view_look_dom(cursor, user, tree_root, type,
-                context=context)
+                fields_width=fields_width, context=context)
         arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
         for field in fields_def:
