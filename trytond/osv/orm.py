@@ -13,6 +13,23 @@ import copy
 from trytond.sql_db import table_handler
 from decimal import Decimal
 
+OPERATORS = (
+        'child_of',
+        'not child_of',
+        '=',
+        '!=',
+        'like',
+        'not like',
+        'ilike',
+        'not ilike',
+        'in',
+        'not in',
+        '<=',
+        '>=',
+        '<',
+        '>',
+    )
+
 def intersect(i, j):
     return [x for x in j if x in i]
 
@@ -2280,10 +2297,13 @@ class ORM(object):
         tuple_args = []
         list_args = []
         for arg in args:
-            if isinstance(arg, list):
+            #add test for xmlrpc that doesn't handle tuple
+            if isinstance(arg, tuple) \
+                    or (isinstance(arg, list) and len(arg) > 2 \
+                    and arg[1] in OPERATORS):
+                tuple_args.append(tuple(arg))
+            elif isinstance(arg, list):
                 list_args.append(arg)
-            elif isinstance(arg, tuple):
-                tuple_args.append(arg)
 
         qu1, qu2 = self.__where_calc(cursor, user,
                 tuple_args, tables, tables_args, context=context)
@@ -2313,21 +2333,7 @@ class ORM(object):
         i = 0
         joins = []
         while i < len(args):
-            if args[i][1] not in (
-                    'child_of',
-                    'not child_of',
-                    '=',
-                    '!=',
-                    'like',
-                    'not like',
-                    'ilike',
-                    'not ilike',
-                    'in',
-                    'not in',
-                    '<=',
-                    '>=',
-                    '<',
-                    '>'):
+            if args[i][1] not in OPERATORS:
                 raise Exception('ValidateError', 'Argument "%s" not supported' \
                         % args[i][1])
 
@@ -2821,21 +2827,7 @@ class ORM(object):
                 ('field name', 'operator', value)
                 field name: is the name of a field of the object
                     or a relational field by using '.' as separator.
-                operator can be:
-                    child_of  (all the childs of a relation field)
-                    not child_of
-                    =
-                    !=
-                    like
-                    not like
-                    ilike (case insensitive)
-                    not ilike
-                    in
-                    not in
-                    <=
-                    >=
-                    <
-                    >
+                operator must be in OPERATORS
         :param offset: an integer to specify the offset in the result
         :param limit: an integer to limit the number of ids return
         :param order: a list of tupe that are construct like this:
