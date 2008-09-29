@@ -474,88 +474,59 @@ otherwise in the desctiption.
 Manipulating Models
 ###################
 
+.. module:: OSV
+
 Create
 ******
 
-Signature:
+.. method:: create(self, cursor, user, vals[, context])
 
-.. highlight:: python
+   :param cursor: An instance of the ``Fakecursor`` class.
 
-::
+   :param user: The id of the user initiating the action.
 
-  def create(self, cursor, user, vals, context=None):
+   :param vals: A dictionnary containing the values to be writen in
+                the database.
 
+   :param context: The context of the action.
 
-Where:
-
-   * ``self``: The current model on which the action take place.
-
-   * ``cursor``: An instance of the ``Fakecursor`` class.
-
-   * ``user``: The id of the user initiating the action.
-
-   * ``vals``: A dictionnary containing the values to be writen in the
-     database.
-
-   * ``context``: The context of the action.
-
-Return: The id of the new record.
+   :return: An integer, the id of the new record.
 
 Read
 ****
 
-Signature:
+.. method:: read(self, cursor, user, ids[, fields_names, context])
 
-.. highlight:: python
+   :param cursor: An instance of the ``Fakecursor`` class.
 
-::
+   :param user: The id of the user initiating the action.
 
-  def read(self, cursor, user, ids, fields_names=None, context=None)
+   :param ids: A list of integer defining the rows to be read.
 
-Where:
-
-   *  ``self``: The current model on which the action take place.
-
-   *  ``cursor``: An instance of the ``Fakecursor`` class.
-
-   *  ``user``: The id of the user initiating the action.
-
-   *  ``ids``: A list of integer defining the rows to be read.
-
-   *  ``fields_name``: A list of the name of the columns to be
+   :param fields_name: A list of the name of the columns to be
       read. If empty all the columns a read.
 
-   *  ``context``: The context of the action.
-
-Return: a list of dictionnary whose keys are the fields names.
-
+   :param context: The context of the action.
+  
+   :return: A list of dictionnary whose keys are the fields names.
+  
 Note: one should favor ``browse`` over ``read``, because it's more
 powerful.
-
+  
 Browse
 ******
 
-Signature:
+.. method:: browse(self, cursor, user, ids[, context])
 
-.. highlight:: python
+   :param cursor: An instance of the ``Fakecursor`` class.
 
-::
+   :param user: The id of the user initiating the action.
 
-  def browse(self, cursor, user, ids, context=None):
+   :param ids: A list of integer defining the rows to be read.
 
-Where:
+   :param context: The context of the action.
 
-   * ``self``: The current model on which the action take place.
-
-   * ``cursor``: An instance of the ``Fakecursor`` class.
-
-   * ``user``: The id of the user initiating the action.
-
-   * ``ids``: A list of integer defining the rows to be read.
-
-   * ``context``: The context of the action.
-
-Return: A ``BrowseRecordList`` instance.
+   :return: A ``BrowseRecordList`` instance.
 
 Example usage:
 
@@ -582,96 +553,70 @@ the data in a pythonic way.
 Write
 *****
 
-Signature:
+.. method::  write(self, cursor, user, ids, vals[, context])
 
-.. highlight:: python
+   :param cursor: An instance of the ``Fakecursor`` class.
 
-::
+   :param user: The id of the user initiating the action.
 
-  def write(self, cursor, user, ids, vals, context=None):
+   :param ids: A list of integer defining the rows to be written.
 
-Where:
-
-   * ``self``: The current model on which the action take place.
-
-   * ``cursor``: An instance of the ``Fakecursor`` class.
-
-   * ``user``: The id of the user initiating the action.
-
-   * ``ids``: A list of integer defining the rows to be written.
-
-   * ``vals``: A dictionnary containing the values to be writen in the
+   :param vals: A dictionnary containing the values to be writen in the
      database.
 
-   * ``context``: The context of the action.
+   :param context: The context of the action.
 
-Return: ``True``
+   :return: ``True``
 
 
 Delete
 ******
 
-Signature:
+.. method:: delete(self, cursor, user, ids[, context])
 
-.. highlight:: python
+   :param self: The current model on which the action take place.
 
-::
+   :param cursor: An instance of the ``Fakecursor`` class.
 
-  def delete(self, cursor, user, ids, context=None):
+   :param user: The id of the user initiating the action.
 
-Where:
+   :param ids: A list of integer defining the rows to be deleted.
 
-   * ``self``: The current model on which the action take place.
+   :param context: The context of the action.
 
-   * ``cursor``: An instance of the ``Fakecursor`` class.
-
-   * ``user``: The id of the user initiating the action.
-
-   * ``ids``: A list of integer defining the rows to be deleted.
-
-   * ``context``: The context of the action.
-
-Return: ``True``
+   :return: ``True``
 
 
 Search
 ******
 
-Signature:
+.. method:: search(self, cursor, user, args[, offset, limit, order,context, count, query_string])
 
-.. highlight:: python
+   :param self: The current model on which the action take place.
 
-::
+   :param cursor: An instance of the ``Fakecursor`` class.
 
-  def search(self, cursor, user, args, offset=0, limit=None, order=None,
-             context=None, count=False, query_string=False):
+   :param args: The search clause, see :ref:`search_clause` for
+                details.
 
-Where:
+   :param offset: An integer. Specify the offset in the results.
 
-   * ``self``: The current model on which the action take place.
+   :param limit: An integer. The maximum number of results.
 
-   * ``cursor``: An instance of the ``Fakecursor`` class.
+   :param order: A list of tuple. The first element of each tuple is a
+                 name of the field, the second is ``ASC`` or
+                 ``DESC``. E.g.: ``[('date', 'DESC'),('name',
+                 'ASC')]``.
 
-   * ``args``: The search clause, see :ref:`search_clause` for
-      details.
+   :param context: The context of the action.
 
-   * ``offset``: An integer. Specify the offset in the results.
-
-   * ``limit``: An integer. The maximum number of results.
-
-   * ``order``: A list of tuple. The first element of each tuple is a
-      name of the field, the second is ``ASC`` or ``DESC``. E.g.:
-      ``[('date', 'DESC'),('name', 'ASC')]``.
-
-   * ``context``: The context of the action.
-
-   * ``count``: A boolean. If true, the result is the length of all
+   :param count: A boolean. If true, the result is the length of all
      the items found.
 
-   * ``query_string``: A boolean: If true, the result is a tuple with
-     the generated sql query and his arguments.
+   :param query_string: A boolean: If true, the result is a tuple with
+                        the generated sql query and his arguments.
 
-Return: A list of ids.
+   :return: A list of ids.
 
 
 .. _search_clause:
