@@ -11,7 +11,7 @@ outdir = os.path.join(srcdir, 'html')
 static_dir = os.path.join(srcdir, 'static')
 doctreedir = path.join(outdir, '.doctrees')
 status = sys.stdout
-confoverrides = {}
+confoverrides = {'html_file_suffix': '.html'}
 freshenv = True
 buildername = 'html'
 if not path.isdir(outdir):
