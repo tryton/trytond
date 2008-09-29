@@ -659,7 +659,7 @@ user.):
 ::
 
   SELECT relationship_address.id FROM relationship_address
-  JOIN relationship_country ON
+  JOIN relationship_country ONc
        (relationship_address.country = relationship_country.id)
   WHERE (relationship_address.name = 'Bob' AND
          relationship_address.city in ('Bruxelles', 'Paris'))
@@ -674,5 +674,40 @@ user.):
 Models Inheritance
 ##################
 
-TODO
+Model Inheritance allow add or override fields, methods and
+constraints on existing models. To inherit an existing model (like
+``Party`` on the first example), one just need to instantiate a class
+whith the same ``_name``:
 
+.. highlight:: python
+
+::
+
+
+  class Car(OSV):
+      _name = "vehicle.car"
+      _rec_name = model
+      model = fields.Char("Model", required=True)
+      manufacturer = fields.Char("Manufacturer")
+      first_owner = fields.Many2One('relationship.party', 'First Owner')
+  Car()
+
+  class Party(OSV):
+      _name = "relationship.party"
+      current_car = fields.Many2One('vehicle.car', 'Current car')
+
+      def __init__(self):
+          super(Party, self).__init__()
+          self._sql_constraints += [
+              ('party_car_uniq', 'UNIQUE(model)',
+                  'Two party cannot use the same car!'),
+          ]
+  
+  Party()
+
+
+This show how to define a new model and link an existing one to it.
+This is also a way to define reflecting ``Many2One``: It's not
+possible to create the two models without using inheritance because
+each of the foreing key (``first_owner`` and ``current_car``) need the
+other model table.
