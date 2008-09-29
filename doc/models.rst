@@ -5,7 +5,7 @@ Models are python classes that usually represent business object or
 concepts. Such classes consist essentially of keywords, fields,
 constraints and helper functions. They inherit from the OSV class
 which provide the framework integration like the database abstraction,
-worklows, translations, etc.
+workflows, translations, etc.
 
 The following snippet gives a first idea of what can be done:
 
@@ -47,7 +47,7 @@ The following snippet gives a first idea of what can be done:
                                     'party', 'category', 'Categories')
   Party()
 
-Instanciating the class make it alive for the framework. Actually
+Instantiating the class make it alive for the framework. Actually
 there will be only one instance per class and per database. So model
 instances are essentially accessors to the underlying table. Columns of
 the table correspond to the fields of the class. Rows of the table
@@ -63,7 +63,7 @@ class attributes starting with and underscore.
    * ``_description``: A non technical description of the model.
 
    * ``_name``: The unique identifier that can be use to reference the
-     model across all the framwork.
+     model across all the framework.
 
    * ``_table``: The name of the database table which is mapped to
      the current class. If not set the value of ``_name`` is used with
@@ -82,7 +82,7 @@ class attributes starting with and underscore.
      creating a table for this class.
 
    * ``_sql``: The sql code that must be used to fetch data from the
-     database. The columns outputed by the given query must reflect
+     database. The columns outputted by the given query must reflect
      the class fields.
 
 Some Model Properties are instance attributes which allow to update
@@ -168,12 +168,6 @@ A field can be one of the following basic types:
    * ``Sha``: Like a char but his content is never shown to the
      user. The typical usage is for password fields.
 
-Or one of these composed types:
-
-   * ``Property``:
-
-   * ``Reference``:
-
 Or one of these relation types:
 
    * ``Many2One``: A relation from the current model to another one
@@ -200,9 +194,20 @@ Or one of these relation types:
      fields.Many2Many('relationship.category',
      'relationship_category_rel', 'party', 'category',
      'Categories')``. This correspond in the database to a new table
-     ``relationship_category_rel`` with two foreing key ``party`` and
+     ``relationship_category_rel`` with two foreign key ``party`` and
      ``category`` pointing to ``relationship_party`` and
      ``relationship_category``.
+
+Or one of these composed types:
+
+   * ``Property``: Like a ``Many2One`` but allow complex usage of
+     default value: when the default value is updated, all the fields
+     with this default value are updated.  When the company module is
+     installed it also allow to define different value for the same
+     field depending on the company of the user.
+
+   * ``Reference``:
+
 
 
 Function field can be used to mimic any other type:
@@ -253,14 +258,14 @@ The ``get_total`` method should look like this:
       return res
 
 
-One should note that the dictionnary ``res`` should map a value for
+One should note that the dictionary ``res`` should map a value for
 each id in ``ids``.
 
 
 One method to rule them all
 ````````````````````````````
 
-The first variant whe can use is tho define a unique function for
+The first variant we can use is tho define a unique function for
 several fields. Let's consider this new field:
 
 .. highlight:: python
@@ -390,11 +395,11 @@ It's also possible to allow the user to write on a function field:
   def get_name(self, cursor, user, ids, name, arg, context=None):
     res = {}
     for party in self.browse(cursor, user, ids, context=context):
-       res[party.id] = party.hidden_name or "unknow"
+       res[party.id] = party.hidden_name or "unknown"
     return res
 
 
-This naïve example is another (inefficient) way to handle default value on the
+This naive example is another (inefficient) way to handle default value on the
 ``name`` field.
 
 
@@ -402,7 +407,7 @@ Fields options
 ^^^^^^^^^^^^^^
 
 Options are available on all type of fields, except when stated
-otherwise in the desctiption.
+otherwise in the description.
 
    * ``readonly``: A boolean, when set to ``True`` the field is not
      editable in the interface.
@@ -421,10 +426,10 @@ otherwise in the desctiption.
    * ``on_change``: The list of values. If set, the client will call
      the method ``on_change_<field_name>`` when a user change the field
      and pass this list of values as argument. This method must return
-     a dictionnary ``{field_name: new_value}`` for all the field that
+     a dictionary ``{field_name: new_value}`` for all the field that
      must be updated.
 
-   * ``states``: A dictionnary. Keys are name of other options and
+   * ``states``: A dictionary. Keys are name of other options and
      values are python expression. This allow to update dynamically
      options for the current field. E.g.: ``states={"readonly":
      "total > 10"}``.
@@ -440,7 +445,7 @@ otherwise in the desctiption.
      the defined language.
 
    * ``priority``: An integer. Allow to force the order in which
-     fields are writen in the database. This is used only for fields
+     fields are written in the database. This is used only for fields
      that are not in the table, like One2Many.
 
    * ``change_default``: When the user choose a default value for a
@@ -463,7 +468,7 @@ otherwise in the desctiption.
      ``CASCADE``, ``NO ACTION``, ``RESTRICT``, ``SET DEFAULT``, ``SET
      NULL`` (default).
 
-   * ``context``: A string defining a dictionnay which will be given
+   * ``context``: A string defining a diction nay which will be given
      to evaluate the relation fields.
 
    * ``ondelete_origin`` and ``ondelete_target``: Like ``on_delete``
@@ -485,7 +490,7 @@ Create
 
    :param user: The id of the user initiating the action.
 
-   :param vals: A dictionnary containing the values to be writen in
+   :param vals: A dictionary containing the values to be written in
                 the database.
 
    :param context: The context of the action.
@@ -508,9 +513,9 @@ Read
 
    :param context: The context of the action.
   
-   :return: A list of dictionnary whose keys are the fields names.
+   :return: A list of dictionary whose keys are the fields names.
   
-Note: one should favor ``browse`` over ``read``, because it's more
+Note: one should favour ``browse`` over ``read``, because it's more
 powerful.
   
 Browse
@@ -561,7 +566,7 @@ Write
 
    :param ids: A list of integer defining the rows to be written.
 
-   :param vals: A dictionnary containing the values to be writen in the
+   :param vals: A dictionary containing the values to be written in the
      database.
 
    :param context: The context of the action.
@@ -640,7 +645,7 @@ More complex clause can be made this way:
 
 ::
 
-  [ 'OR', [('name', '=', 'Bob'),('city','in', ['Bruxelles', 'Paris'])],
+  [ 'OR', [('name', '=', 'Bob'),('city','in', ['Brussels', 'Paris'])],
           [('name', '=', 'Charlie'),('country.name','=', 'Belgium')],
   ]
 
@@ -651,7 +656,7 @@ the underlying relation must be a ``Many2One``.
 
 Which if used in a search call on the Address model will result in
 something similar to the following sql code (the actual sql query will
-be more complex since it has to take care of the acces rights of the
+be more complex since it has to take care of the access rights of the
 user.):
 
 .. highlight:: sql
@@ -659,10 +664,10 @@ user.):
 ::
 
   SELECT relationship_address.id FROM relationship_address
-  JOIN relationship_country ONc
+  JOIN relationship_country ON
        (relationship_address.country = relationship_country.id)
   WHERE (relationship_address.name = 'Bob' AND
-         relationship_address.city in ('Bruxelles', 'Paris'))
+         relationship_address.city in ('Brussels', 'Paris'))
         OR
         (relationship_address.name = 'Charlie' AND
          relationship_country.name  = 'Belgium')
@@ -677,7 +682,7 @@ Models Inheritance
 Model Inheritance allow add or override fields, methods and
 constraints on existing models. To inherit an existing model (like
 ``Party`` on the first example), one just need to instantiate a class
-whith the same ``_name``:
+with the same ``_name``:
 
 .. highlight:: python
 
@@ -709,5 +714,5 @@ whith the same ``_name``:
 This show how to define a new model and link an existing one to it.
 This is also a way to define reflecting ``Many2One``: It's not
 possible to create the two models without using inheritance because
-each of the foreing key (``first_owner`` and ``current_car``) need the
+each of the foreign key (``first_owner`` and ``current_car``) need the
 other model table.
