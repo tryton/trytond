@@ -13,8 +13,6 @@ The following snippet gives a first idea of what can be done:
 
 ::
 
-  class test:
-    pass
   class Category(OSV):
       "Party category"
       _name = 'relationship.category'
@@ -299,7 +297,7 @@ Or even better:
 
 ::
 
-  def get_total(self, cursor, user, ids, name, arg, context=None):
+  def get_total(self, cursor, user, ids, names, arg, context=None):
       res = {'total': {}.fromkeys(ids, 0.0),
              'total_service': {}.fromkeys(ids, 0.0)}
       for invoice in self.browse(cursor, user, ids, context=context):
@@ -327,9 +325,9 @@ called.
 Search on function fields
 `````````````````````````
 
-Another improvement is to provide a search function. Indeed whitout it
+Another improvement is to provide a search function. Indeed without it
 the user will not be able to search across invoice for a certain
-amount.  If whe forget about the ``total_service`` field a first
+amount.  If we forget about the ``total_service`` field a first
 solution could be something like this:
 
 .. highlight:: python
