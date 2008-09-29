@@ -7,8 +7,7 @@ constraints and helper functions. They inherit from the OSV class
 which provide the framework integration like the database abstraction,
 worklows, translations, etc.
 
-
-The following snippet gives a first example:
+The following snippet gives a first idea of what can be done:
 
 .. highlight:: python
 
@@ -87,7 +86,7 @@ class attributes starting with and underscore.
      the class fields.
 
 Some Model Properties are instance attributes which allow to update
-them at other places in the framework 
+them at other places in the framework
 
    * ``_order``: A tuple defining how the row are sorted when the
      underlying table is read. E.g.: ``[('name', 'ASC'), 'age',
@@ -126,7 +125,7 @@ Fields
 ******
 
 Fields are class attributes that do not start with an underscore. Some
-fields are automatically added on each tables: 
+fields are automatically added on each tables:
 
    * ``id``: An integer providing a identifier for each row.
 
@@ -183,7 +182,8 @@ Or one of these relation types:
      fields.Many2One('relationship.party', 'Party')`` where
      ``'relationship.party'`` is the identifier of the other
      model. This correspond in the database to a foreign key from the
-     table of the current model to the ``relationship_party`` table.
+     table of the current model to the ``relationship_party``
+     table. See :ref:`define_tree` for advanced usage.
 
    * ``One2Many``: A relation from the current model to another one
      where one record of the current model can be linked to many
@@ -210,7 +210,192 @@ Function field can be used to mimic any other type:
    * ``Function``: A computed field. E.g. ``total =
      fields.Function('get_total', type='float',
      string='Total')``. Where ``'get_total'`` is the name if a method
-     of the current class. COMPLETEME
+     of the current class. See :ref:`use_function` for more details.
+
+
+.. _define_tree:
+
+How to define tree structures
++++++++++++++++++++++++++++++
+
+Todo: letf, right and child_of.
+
+
+.. _use_function:
+
+How to use function fields
+++++++++++++++++++++++++++
+
+Let's say that the following field is defined on the invoice model:
+
+.. highlight:: python
+
+::
+
+  total = fields.Function('get_total', type='float', string='Total')
+
+
+
+The ``get_total`` method should look like this:
+
+.. highlight:: python
+
+::
+
+  def get_total(self, cursor, user, ids, name, arg, context=None):
+      res = {}.fromkeys(ids, 0.0)
+      for invoice in self.browse(cursor, user, ids, context=context):
+          for line in invoice:
+              if invoice.id in res:
+                  res[invoice.id] += line.amount
+              else:
+                  res[invoice.id] = line.amount
+      return res
+
+
+One should note that the dictionnary ``res`` should map a value for
+each id in ``ids``.
+
+
+One method to rule them all
+````````````````````````````
+
+The first variant whe can use is tho define a unique function for
+several fields. Let's consider this new field:
+
+.. highlight:: python
+
+::
+
+  total_service = fields.Function('get_total', type='float', string='Total Service')
+
+
+
+Which return the total for the invoice lines of kind *service*. Thus
+the method ``get_total`` can be defined this way:
+
+.. highlight:: python
+
+::
+
+  def get_total(self, cursor, user, ids, name, arg, context=None):
+      res = {}.fromkeys(ids, 0.0)
+      for invoice in self.browse(cursor, user, ids, context=context):
+          for line in invoice:
+              if name == 'total_service' and line.kind != "service":
+                  continue
+              if invoice.id in res:
+                  res[invoice.id] += line.amount
+              else:
+                  res[invoice.id] = line.amount
+      return res
+
+
+Or even better:
+
+.. highlight:: python
+
+::
+
+  def get_total(self, cursor, user, ids, names, arg, context=None):
+      res = {'total': {}.fromkeys(ids, 0.0),
+             'total_service': {}.fromkeys(ids, 0.0)}
+      for invoice in self.browse(cursor, user, ids, context=context):
+          for line in invoice:
+              if invoice.id in res['total']:
+                  res['total'][invoice.id] += line.amount
+              else:
+                  res['total'][invoice.id] = line.amount
+
+              if line.kind != "service":
+                  continue
+              if invoice.id in res['total_service']:
+                  res['total_service'][invoice.id] += line.amount
+              else:
+                  res['total_service'][invoice.id] = line.amount
+      return res
+
+
+The framework is able to check if ``names`` (instead of ``name``) is
+used in the method definition, hence adapting the way the method is
+called.
+
+
+
+Search on function fields
+`````````````````````````
+
+Another improvement is to provide a search function. Indeed without it
+the user will not be able to search across invoice for a certain
+amount.  If we forget about the ``total_service`` field a first
+solution could be something like this:
+
+.. highlight:: python
+
+::
+
+  total = fields.Function('get_total', type='float', string='Total',
+                          fnct_search='search_total')
+
+
+  def get_total(self, cursor, user, ids, name, arg, context=None):
+      pass #<See first example>
+
+  def search_total(self, cursor, user, name, domain=[], context=None):
+      # First fetch all the invoice ids
+      invoice_ids = self.search(cursor, user, [], context=context)
+      # Then collect total for each one, implicitly calling get_total:
+      lines = []
+      for invoice in self.browse(cursor, user, invoice_ids, context=context):
+          lines.append({'invoice': invoice.id, 'total': invoice.total})
+
+      res= [l['invoice'] for l in lines if self._eval_domain(l, domain)]
+
+      return [('id', 'in', res)]
+
+  def _eval_domain(self, line, domain):
+      # domain is something like: [('total', '<', 20), ('total', '>', 10)]
+      res = True
+      for field, operator, operand in domain:
+          value = line.get(field)
+          if value == None:
+              return False
+          if operator not in ("=", ">=", "<=", ">", "<", "!="):
+              return False
+          if operator == "=":
+              operator= "=="
+          res = res and (eval(str(value) + operator + str(operand)))
+      return res
+
+
+One should note that this implementation will be very slow for a big
+number of invoices.
+
+
+Write on function fields
+````````````````````````
+It's also possible to allow the user to write on a function field:
+
+.. highlight:: python
+
+::
+
+  name = fields.Function('get_name', type='char', string='Total',
+                          fnct_inv='set_name')
+  hidden_name= fields.Char('Hidden')
+
+  def set_name(self, cursor, user, id, name, value, arg, context=None):
+    self.write(cursor, user, id, {'hidden_name': value}, context=context)
+
+  def get_name(self, cursor, user, ids, name, arg, context=None):
+    res = {}
+    for party in self.browse(cursor, user, ids, context=context):
+       res[party.id] = party.hidden_name or "unknow"
+    return res
+
+
+This naïve example is another (inefficient) way to handle default value on the
+``name`` field.
 
 
 Fields options
@@ -228,13 +413,13 @@ otherwise in the desctiption.
 
    * ``help``: A text to be show in the interface on mouse-over.
 
-   * ``select``: An integer. When equel to ``1``, an index is
+   * ``select``: An integer. When equal to ``1``, an index is
      created in the database and the field appear in the search box on
      list view. When equal to ``2`` the field appear in the *Advanced
      Search* part of the search box.
 
    * ``on_change``: The list of values. If set, the client will call
-     the method ``on_change<field_name>`` when a user change the field
+     the method ``on_change_<field_name>`` when a user change the field
      and pass this list of values as argument. This method must return
      a dictionnary ``{field_name: new_value}`` for all the field that
      must be updated.
@@ -244,10 +429,11 @@ otherwise in the desctiption.
      options for the current field. E.g.: ``states={"readonly":
      "total > 10"}``.
 
-   * ``domain``: A domain on the current field. E.g.: ``[('name', '!=',
-     'Steve')]`` on the ``party`` field of the ``relationship.address``
-     model will forbid to link the current address to a Party for
-     which ``name`` is equal to ``Steve``
+   * ``domain``: A domain on the current field. E.g.: ``[('name',
+     '!=', 'Steve')]`` on the ``party`` field of the
+     ``relationship.address`` model will forbid to link the current
+     address to a Party for which ``name`` is equal to ``Steve``. See
+     :ref:`search_clause` for a more complete explanation.
 
    * ``translate``: If true, this field is translatable. A flag in the
      interface will allow users to change translate the field for
@@ -264,7 +450,7 @@ otherwise in the desctiption.
 
    * ``on_change_with``: Like ``on_change``, but defined the other
      way around: It's a list containing all the fields that must
-     update the current field. 
+     update the current field.
 
    * ``size``: A maximum size on ``Char`` fields.
 
@@ -274,14 +460,14 @@ otherwise in the desctiption.
 
    * ``on_delete``: Sql expression handling behaviour when a the
      target of a ``Many2One`` is removed. Possible values:
-     ``CASCADE``, ``NO ACTION``, ``RESTRICT``, SET DEFAULT, ``SET
+     ``CASCADE``, ``NO ACTION``, ``RESTRICT``, ``SET DEFAULT``, ``SET
      NULL`` (default).
 
    * ``context``: A string defining a dictionnay which will be given
      to evaluate the relation fields.
 
    * ``ondelete_origin`` and ``ondelete_target``: Like ``on_delete``
-     for the column of the table supporting a ``Many2Many`` relation.
+     for the columns of the table supporting a ``Many2Many`` relation.
 
 
 
@@ -301,16 +487,17 @@ Signature:
 
 
 Where:
-   *  ``self``: The current model on which the action take place.
 
-   *  ``cursor``: An instance of the ``Fakecursor`` class.
+   * ``self``: The current model on which the action take place.
 
-   *  ``user``: The id of the user initiating the action.
+   * ``cursor``: An instance of the ``Fakecursor`` class.
 
-   *  ``vals``: A dictionnary containing the values to be writen in
-      the database.
+   * ``user``: The id of the user initiating the action.
 
-   *  ``context``: The context of the action.
+   * ``vals``: A dictionnary containing the values to be writen in the
+     database.
+
+   * ``context``: The context of the action.
 
 Return: The id of the new record.
 
@@ -331,9 +518,9 @@ Where:
 
    *  ``cursor``: An instance of the ``Fakecursor`` class.
 
-   *  ``ids``: A list of integer defining the rows to be read.
-
    *  ``user``: The id of the user initiating the action.
+
+   *  ``ids``: A list of integer defining the rows to be read.
 
    *  ``fields_name``: A list of the name of the columns to be
       read. If empty all the columns a read.
@@ -358,15 +545,15 @@ Signature:
 
 Where:
 
-   *  ``self``: The current model on which the action take place.
+   * ``self``: The current model on which the action take place.
 
-   *  ``cursor``: An instance of the ``Fakecursor`` class.
+   * ``cursor``: An instance of the ``Fakecursor`` class.
 
-   *  ``ids``: A list of integer defining the rows to be read.
+   * ``user``: The id of the user initiating the action.
 
-   *  ``user``: The id of the user initiating the action.
+   * ``ids``: A list of integer defining the rows to be read.
 
-   *  ``context``: The context of the action.
+   * ``context``: The context of the action.
 
 Return: A ``BrowseRecordList`` instance.
 
@@ -391,15 +578,156 @@ One can see that the ``BrowseRecord`` list return by the ``browse`` function
 is able to resolve foreign keys by itself and thus allowing to browse
 the data in a pythonic way.
 
+
 Write
 *****
+
+Signature:
+
+.. highlight:: python
+
+::
+
+  def write(self, cursor, user, ids, vals, context=None):
+
+Where:
+
+   * ``self``: The current model on which the action take place.
+
+   * ``cursor``: An instance of the ``Fakecursor`` class.
+
+   * ``user``: The id of the user initiating the action.
+
+   * ``ids``: A list of integer defining the rows to be written.
+
+   * ``vals``: A dictionnary containing the values to be writen in the
+     database.
+
+   * ``context``: The context of the action.
+
+Return: ``True``
+
 
 Delete
 ******
 
+Signature:
+
+.. highlight:: python
+
+::
+
+  def delete(self, cursor, user, ids, context=None):
+
+Where:
+
+   * ``self``: The current model on which the action take place.
+
+   * ``cursor``: An instance of the ``Fakecursor`` class.
+
+   * ``user``: The id of the user initiating the action.
+
+   * ``ids``: A list of integer defining the rows to be deleted.
+
+   * ``context``: The context of the action.
+
+Return: ``True``
+
+
 Search
 ******
 
-inheritance
-###########
+Signature:
+
+.. highlight:: python
+
+::
+
+  def search(self, cursor, user, args, offset=0, limit=None, order=None,
+             context=None, count=False, query_string=False):
+
+Where:
+
+   * ``self``: The current model on which the action take place.
+
+   * ``cursor``: An instance of the ``Fakecursor`` class.
+
+   * ``args``: The search clause, see :ref:`search_clause` for
+      details.
+
+   * ``offset``: An integer. Specify the offset in the results.
+
+   * ``limit``: An integer. The maximum number of results.
+
+   * ``order``: A list of tuple. The first element of each tuple is a
+      name of the field, the second is ``ASC`` or ``DESC``. E.g.:
+      ``[('date', 'DESC'),('name', 'ASC')]``.
+
+   * ``context``: The context of the action.
+
+   * ``count``: A boolean. If true, the result is the length of all
+     the items found.
+
+   * ``query_string``: A boolean: If true, the result is a tuple with
+     the generated sql query and his arguments.
+
+Return: A list of ids.
+
+
+.. _search_clause:
+
+Search clauses
+^^^^^^^^^^^^^^
+
+Simple clause are a list of condition, with an implicit ``AND``
+operator:
+
+.. highlight:: python
+
+::
+
+  [('name', '=', 'Bob'),('age','>=', 20)]
+
+
+More complex clause can be made this way:
+
+.. highlight:: python
+
+::
+
+  [ 'OR', [('name', '=', 'Bob'),('city','in', ['Bruxelles', 'Paris'])],
+          [('name', '=', 'Charlie'),('country.name','=', 'Belgium')],
+  ]
+
+
+Where ``country`` is a ``Many2One`` field on the current field.  The
+number *dots* in the left hand side of a condition is not limited, but
+the underlying relation must be a ``Many2One``.
+
+Which if used in a search call on the Address model will result in
+something similar to the following sql code (the actual sql query will
+be more complex since it has to take care of the acces rights of the
+user.):
+
+.. highlight:: sql
+
+::
+
+  SELECT relationship_address.id FROM relationship_address
+  JOIN relationship_country ON
+       (relationship_address.country = relationship_country.id)
+  WHERE (relationship_address.name = 'Bob' AND
+         relationship_address.city in ('Bruxelles', 'Paris'))
+        OR
+        (relationship_address.name = 'Charlie' AND
+         relationship_country.name  = 'Belgium')
+
+
+
+
+
+Models Inheritance
+##################
+
+TODO
 
