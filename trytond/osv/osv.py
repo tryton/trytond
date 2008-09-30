@@ -2,7 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 "Objects Services"
 
-from orm import ORM
+from orm import ORM, OPERATORS
 from trytond.netsvc import Service, LocalService
 from trytond import pooler
 import copy
