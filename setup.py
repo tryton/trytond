@@ -3,7 +3,6 @@
 #this repository contains the full copyright notices and license terms.
 
 from setuptools import setup, find_packages
-from distutils.command import sdist
 import os
 
 execfile(os.path.join('trytond', 'version.py'))
