@@ -253,12 +253,14 @@ class Binary(Column):
 class Selection(Column):
     _type = 'selection'
 
-    def __init__(self, selections, string='unknown', **args):
+    def __init__(self, selections, string='unknown', sort=True, **args):
         """
         selections is a list of (key, string)
             or the name of the object function that return the list
         """
-        Column.__init__(self, string=string, selection=selections, **args)
+        self.sort = sort
+        Column.__init__(self, string=string, selection=selections,
+                **args)
 
     def sql_type(self):
         if self.size:
