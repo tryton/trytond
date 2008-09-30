@@ -630,16 +630,20 @@ class ORM(object):
         # reinit the cache on _columns
         self.__columns = None
 
-        for name in self._columns:
-            if isinstance(self._columns[name], (fields.Selection, fields.Reference)) \
-                    and not isinstance(self._columns[name].selection, (list, tuple)) \
-                    and self._columns[name].selection not in self._rpc_allowed:
-                self._rpc_allowed.append(self._columns[name].selection)
-            if self._columns[name].on_change:
+        for name in self._columns.keys() + self._inherit_fields.keys():
+            if name in self._columns:
+                field = self._columns[name]
+            else:
+                field = self._inherit_fields[name][2]
+            if isinstance(field, (fields.Selection, fields.Reference)) \
+                    and not isinstance(field.selection, (list, tuple)) \
+                    and field.selection not in self._rpc_allowed:
+                self._rpc_allowed.append(field.selection)
+            if field.on_change:
                 on_change = 'on_change_' + name
                 if on_change not in self._rpc_allowed:
                     self._rpc_allowed.append(on_change)
-            if self._columns[name].on_change_with:
+            if field.on_change_with:
                 on_change_with = 'on_change_with_' + name
                 if on_change_with not in self._rpc_allowed:
                     self._rpc_allowed.append(on_change_with)
