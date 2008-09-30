@@ -1880,8 +1880,9 @@ class ORM(object):
                     'on_change',
                     'add_remove',
                     'on_change_with',
+                    'sort',
                     ):
-                if getattr(self._columns[field], arg, False):
+                if getattr(self._columns[field], arg, None) != None:
                     res[field][arg] = getattr(self._columns[field], arg)
             if not write_access:
                 res[field]['readonly'] = True
