@@ -5,7 +5,6 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
-from trytond import pooler
 from trytond.osv.fields import Integer
 import csv
 import os.path
@@ -779,7 +778,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     "id": mdata_id, "values": str(values)})
 
 
-def post_import(cursor, module, to_delete):
+def post_import(cursor, pool, module, to_delete):
     """
     Remove the records that are given in to_delete.
     """
@@ -787,7 +786,6 @@ def post_import(cursor, module, to_delete):
     user = 0
     wf_service = LocalService("workflow")
     mdata_delete = []
-    pool = pooler.get_pool(cursor.dbname)
     modeldata_obj = pool.get("ir.model.data")
     transition_delete = []
 

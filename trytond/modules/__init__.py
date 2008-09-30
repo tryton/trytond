@@ -5,7 +5,6 @@ import itertools
 from sets import Set
 from trytond.config import CONFIG
 import trytond.tools as tools
-import trytond.pooler as pooler
 import zipfile
 import zipimport
 import traceback
@@ -185,7 +184,7 @@ def init_module_wizards(cursor, module_name, wizard_list):
     for wizard in wizard_list:
         wizard.auto_init(cursor, module_name)
 
-def load_module_graph(cursor, graph, lang=None):
+def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
     if lang is None:
         lang = ['en_US']
     modules_todo = []
@@ -195,11 +194,8 @@ def load_module_graph(cursor, graph, lang=None):
             continue
         logging.getLogger('init').info('module:%s' % module)
         sys.stdout.flush()
-        pool = pooler.get_pool(cursor.dbname)
         modules = pool.instanciate(module)
-        pool_wizard = pooler.get_pool_wizard(cursor.dbname)
         wizards = pool_wizard.instanciate(module, pool)
-        pool_report = pooler.get_pool_report(cursor.dbname)
         reports = pool_report.instanciate(module, pool)
         cursor.execute('SELECT state FROM ir_module_module WHERE name = %s',
                 (module,))
@@ -215,7 +211,7 @@ def load_module_graph(cursor, graph, lang=None):
             #Instanciate a new parser for the package:
             tryton_parser = tools.TrytondXmlHandler(
                 cursor=cursor,
-                pool=pooler.get_pool(cursor.dbname),
+                pool=pool,
                 module=module,)
 
             for filename in package.datas.get('xml', []):
@@ -258,7 +254,7 @@ def load_module_graph(cursor, graph, lang=None):
     # Vacuum :
     while modules_todo:
         (module, to_delete) = modules_todo.pop()
-        tools.post_import(cursor, module, to_delete)
+        tools.post_import(cursor, pool, module, to_delete)
 
 
     cursor.commit()
@@ -336,7 +332,9 @@ def register_classes():
                 break
         MODULES.append(module)
 
-def load_modules(database, update_module=False, lang=None):
+def load_modules(database, pool, pool_wizard, pool_report, update_module=False,
+        lang=None):
+    res = True
     cursor = database.cursor()
     try:
         force = []
@@ -362,7 +360,8 @@ def load_modules(database, update_module=False, lang=None):
         graph = create_graph(module_list, force)[0]
 
         try:
-            load_module_graph(cursor, graph, lang)
+            load_module_graph(cursor, graph, pool, pool_wizard, pool_report,
+                    lang)
         except:
             cursor.rollback()
             raise
@@ -372,7 +371,6 @@ def load_modules(database, update_module=False, lang=None):
                     "WHERE state IN ('to remove')")
             if cursor.rowcount:
                 for (mod_name,) in cursor.fetchall():
-                    pool = pooler.get_pool(cursor.dbname)
                     #TODO check if ressource not updated by the user
                     cursor.execute('SELECT model, db_id FROM ir_model_data ' \
                             'WHERE module = %s ' \
@@ -383,11 +381,11 @@ def load_modules(database, update_module=False, lang=None):
                 cursor.execute("UPDATE ir_module_module SET state = %s " \
                         "WHERE state IN ('to remove')", ('uninstalled',))
                 cursor.commit()
-                pooler.restart_pool(cursor.dbname)
+                res = False
 
-        pool = pooler.get_pool(cursor.dbname)
         module_obj = pool.get('ir.module.module')
         module_obj.update_list(cursor, 0)
         cursor.commit()
     finally:
         cursor.close()
+    return res
