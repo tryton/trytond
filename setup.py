@@ -1,22 +1,10 @@
 #!/usr/bin/env python
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 from distutils.command import sdist
 import os
-
-
-class mysdist(sdist.sdist):
-
-    def add_defaults(self):
-        sdist.sdist.add_defaults(self)
-        if self.distribution.has_pure_modules():
-            build_py = self.get_finalized_command('build_py')
-            data = []
-            for package in build_py.packages:
-                src_dir = build_py.get_package_dir(package)
-                data.extend(build_py.find_data_files(package, src_dir))
-            self.filelist.extend(data)
 
 execfile(os.path.join('trytond', 'version.py'))
 
@@ -26,22 +14,7 @@ setup(name=PACKAGE,
     author='B2CK',
     author_email='info@b2ck.com',
     url=WEBSITE,
-    packages=[
-        'trytond',
-        'trytond.ir',
-        'trytond.ir.module',
-        'trytond.ir.ui',
-        'trytond.modules',
-        'trytond.osv',
-        'trytond.report',
-        'trytond.res',
-        'trytond.tools',
-        'trytond.webdav',
-        'trytond.web_service',
-        'trytond.wizard',
-        'trytond.wkf_service',
-        'trytond.workflow',
-    ],
+    packages=find_packages(exclude=['*.modules.*', 'modules.*', 'modules']),
     package_data={
         'trytond': ['init.sql'],
         'trytond.ir': ['*.xml', '*.csv'],
@@ -65,13 +38,10 @@ setup(name=PACKAGE,
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
     license=LICENSE,
-    #requires=[
-    #    'psycopg (>=2.0)',
-    #    'lxml',
-    #    'egenix-mx-base',
-    #    'relatorio (>=0.2.0),
-    #],
-    cmdclass={
-        'sdist': mysdist,
-    },
+    install_requires=[
+        'psycopg >= 2.0',
+        'lxml',
+        'egenix-mx-base',
+        'relatorio >= 0.2.0',
+    ],
 )
