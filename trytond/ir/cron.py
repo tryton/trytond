@@ -152,6 +152,10 @@ class Cron(OSV):
                     except:
                         continue
                     tb_s += line
+                try:
+                    tb_s += error.message.decode('utf-8', 'ignore')
+                except:
+                    continue
 
                 request_obj = self.pool.get('res.request')
                 try:
