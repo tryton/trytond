@@ -251,9 +251,8 @@ class TrytonServer(object):
             import psyco
             psyco.full()
 
-        now = time.time()
+        now = time.time() - 60
         while True:
-            time.sleep(1)
             if time.time() - now >= 60:
                 for dbname in pooler.get_db_list():
                     pool = pooler.get_pool(dbname)
@@ -263,6 +262,7 @@ class TrytonServer(object):
                             args=(dbname,), kwargs={})
                     thread.start()
                 now = time.time()
+            time.sleep(1)
 
 if __name__ == "__main__":
     SERVER = TrytonServer()
