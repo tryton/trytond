@@ -93,6 +93,9 @@ class Cron(OSV):
     def default_running(self, cursor, user, context=None):
         return False
 
+    def check_xml_record(self, cursor, user, ids, values, context=None):
+        return True
+
     def _callback(self, cursor, user, job_id, model, func, args):
         args = (args or []) and eval(args)
         obj = self.pool.get(model)
