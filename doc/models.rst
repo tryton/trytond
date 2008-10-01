@@ -206,7 +206,9 @@ Or one of these composed types:
      installed it also allow to define different value for the same
      field depending on the company of the user.
 
-   * ``Reference``:
+   * ``Reference``: Also like a ``Many2One``. It allow to create a
+     link to an arbitrary selection of other  model. This selection is
+     defined by the records of ``res.request.link``.
 
 
 
