@@ -254,6 +254,7 @@ class TrytonServer(object):
         now = time.time() - 60
         while True:
             if time.time() - now >= 60:
+                now = time.time()
                 for dbname in pooler.get_db_list():
                     pool = pooler.get_pool(dbname)
                     cron_obj = pool.get('ir.cron')
@@ -261,7 +262,8 @@ class TrytonServer(object):
                             target=cron_obj.pool_jobs,
                             args=(dbname,), kwargs={})
                     thread.start()
-                now = time.time()
+                if time.time() - now >= 60:
+                    now = time.time()
             time.sleep(1)
 
 if __name__ == "__main__":
