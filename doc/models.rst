@@ -161,7 +161,8 @@ A field can be one of the following basic types:
 
    * ``DateTime``: A time in a day. E.g.: 2008-12-31 11:30:59.
 
-   * ``Selection``: A value from a list. E.g.: Male, Female.
+   * ``Selection``: A value from a list. See :ref:`define_selection`
+     for details.
 
    * ``Binary``: A blob. E.g.: a picture.
 
@@ -219,6 +220,85 @@ Function field can be used to mimic any other type:
      string='Total')``. Where ``'get_total'`` is the name if a method
      of the current class. See :ref:`use_function` for more details.
 
+.. _define_selection:
+
+How to define selections
+++++++++++++++++++++++++
+
+A selection field allow the user to choose one value across a limited
+number of values. There are two way to define a field that will be
+shown as a selection to the user:
+
+  1. Using the fields.Selection()
+
+  2. Using a fields.One2Many() and define it in the xml view of the
+  module as ``widget="Selection"``, see :ref:`example_form_view`.
+
+Let's take the following model as an example of the first option:
+
+.. highlight:: python
+
+::
+
+  class Truck(OSV):
+      _name = "truck"
+      _rec_name = "registration"
+      registration = fields.Char('Registration number', required=True)
+      color = fields.Selection(
+              [("white", "White"),
+               ("black", "Black"),
+              ], "Color")
+  Truck ()
+
+The selection define a list of couple, the first member of each tuple
+will be the value to store in the database if selected. The second
+member is the string (or one of his translations) that the user will
+see .
+
+By default the selection is sorted when presented to the user. In some
+case it could be useful to avoid this behaviour. In this case one can
+use the ``sort`` argument, like:
+
+.. highlight:: python
+
+::
+
+ size = fields.Selection([("small","Small"),
+                          ("average", "Average"),
+                          ("big", "Big")], "Size", sort=False)
+
+If we want overwrite the list of available colors in another module, the
+following will work as expected (See :ref:`define_inheritance`):
+
+.. highlight:: python
+
+::
+
+  class Truck(OSV):
+      _name = "truck"
+      color = fields.Selection(
+              [("white", "White"),
+               ("black", "Black"),
+               ("red", "Red"),
+              ], "Color")
+  Truck ()
+
+But this can create problems if a third module wants to add other
+colors or if the base module evolve.
+
+The solution is to extend the list:
+
+.. highlight:: python
+
+::
+
+  class Truck(OSV):
+      _name = "truck"
+
+      def __init__(self):
+          super(Truck, self).__init__()
+          self.color.selection += [('red', 'Red')]
+  Truck ()
 
 .. _define_tree:
 
@@ -514,12 +594,12 @@ Read
       read. If empty all the columns a read.
 
    :param context: The context of the action.
-  
+
    :return: A list of dictionary whose keys are the fields names.
-  
+
 Note: one should favour ``browse`` over ``read``, because it's more
 powerful.
-  
+
 Browse
 ******
 
@@ -676,7 +756,7 @@ user.):
 
 
 
-
+.. _define_inheritance:
 
 Models Inheritance
 ##################
@@ -709,7 +789,7 @@ with the same ``_name``:
               ('party_car_uniq', 'UNIQUE(model)',
                   'Two party cannot use the same car!'),
           ]
-  
+
   Party()
 
 
