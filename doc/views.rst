@@ -215,6 +215,8 @@ properties
 
 Display a table of 4 columns with all the properties of the object.
 
+.. _example_form_view:
+
 Example
 +++++++
 
