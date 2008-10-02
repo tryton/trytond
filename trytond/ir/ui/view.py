@@ -15,6 +15,7 @@ class View(OSV):
     model = fields.Char('Model', required=True, select=1)
     priority = fields.Integer('Priority', required=True, select=1)
     type = fields.Selection([
+        (False, ''),
        ('tree','Tree'),
        ('form','Form'),
        ('graph', 'Graph'),
