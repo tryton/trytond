@@ -34,7 +34,7 @@ class View(OSV):
             ('check_xml', 'invalid_xml'),
         ]
         self._error_messages.update({
-            'invalid_xml': 'Invalid XML for View Architecture!',
+            'invalid_xml': 'Invalid XML for View!',
         })
         self._order.insert(0, ('priority', 'ASC'))
 
