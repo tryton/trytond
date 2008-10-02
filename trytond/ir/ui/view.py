@@ -16,12 +16,12 @@ class View(OSV):
     priority = fields.Integer('Priority', required=True, select=1)
     type = fields.Selection([
         (False, ''),
-       ('tree','Tree'),
-       ('form','Form'),
-       ('graph', 'Graph'),
-       ('calendar', 'Calendar'),
-       ('board', 'Board'),
-       ], 'View Type', select=1)
+        ('tree','Tree'),
+        ('form','Form'),
+        ('graph', 'Graph'),
+        ('calendar', 'Calendar'),
+        ('board', 'Board'),
+        ], 'View Type', select=1)
     arch = fields.Text('View Architecture', required=True)
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
             ondelete='CASCADE')
