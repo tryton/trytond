@@ -2142,7 +2142,7 @@ class ORM(object):
                         raise AttributeError('Unknown position ' \
                                 'in inherited view %s!' % pos)
                 else:
-                    raise AttributeError('Couldn\'t find tag in parent view!')
+                    raise AttributeError('Couldn\'t find tag (%s: %s) in parent view!' % (element2.tag, element2.get('expr')))
             return etree.tostring(tree_src, encoding='utf-8')
 
         result = {'type': view_type, 'model': self._name}
