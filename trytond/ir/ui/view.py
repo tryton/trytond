@@ -64,6 +64,14 @@ class View(OSV):
             xml = view.arch.strip()
             tree = etree.fromstring(xml)
 
+            if view.inherit:
+                if view.model != view.inherit.model:
+                    logger = logging.getLogger('ir')
+                    logger.error('Invalid model "%s" ' \
+                            'with inherited model "%"' % \
+                            (view.model, view.inherit.model))
+                    return False
+
             # validate the tree using RelaxNG
             rng_name = os.path.join(os.path.dirname(__file__),
                     (view.inherit and view.inherit.type or view.type) + '.rng')
