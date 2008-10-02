@@ -2,6 +2,17 @@ type,name,res_id,src,value,fuzzy
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
 error,ir.action.report,0,The internal name must be unique!,Der interne Name kann nicht mehrfach vergeben werden!,0
 error,ir.attachment,0,Error! You can not create attachment with the same name!,Es kann kein Anhang unter dem selben Namen erstellt werden!,0
+error,ir.cron,0,Scheduled action failed,Geplante Aktion fehlgeschlagen,0
+error,ir.cron,0,"The following action failed to execute properly: ""%s"" 
+ See the first attachment for details.
+ Traceback: 
+
+%s
+","Die folgende Aktion konnte nicht erfolgreich durchgeführt werden: ""%s""
+ Siehe Details im ersten Anhang.
+ Traceback:
+
+%s",0
 error,ir.lang,0,decimal_point and thousands_sep must be different!,Dezimalpunkt and Tausendertrennzeichen müssen unterschiedlich sein!,0
 error,ir.lang,0,Invalid Grouping!,Ungültige Gruppierung,0
 error,ir.lang,0,The date format is not valid!,Ungültiges Datumsformat,0
@@ -11,7 +22,9 @@ error,ir.model.access,0,You can not create this kind of document! (%s),Keine Ber
 error,ir.model.access,0,You can not delete this document! (%s),Keine Berechtigung für die Löschung dieses Dokuments! (%s),0
 error,ir.model.access,0,You can not read this document! (%s),Keine Leseberechtigung für dieses Dokument! (%s),0
 error,ir.model.access,0,You can not write in this document! (%s),Keine Schreibberechtigung für dieses Dokument! (%s),0
+error,ir.model.data,0,"The couple (fs_id, module, model) must be unique!","Der Schlüssel (fs_id, module, model) kann nicht mehrfach vergeben werden!",0
 error,ir.model.data,0,"The couple (fs_id, module) must be unique!","Das Wertepaar (fs_id, module) muss eindeutig sein (kann nicht mehrfach vergeben werden)!",0
+error,ir.model.data,0,"The triple (fs_id, module, model) must be unique!","Die Dreifachkombination (fs_id, module, model)  muss eindeuitg sein (kann nicht mehrfach vergeben werden)!",0
 error,ir.model.field,0,The field name in model must be unique!,Der Feldname in Modell kann nicht mehrfach vergeben werden!,0
 error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Fehlende Abhängigkeiten %s für Modul ""%s""",0
 error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Die zu deinstallierenden Module hängen von installierten Module ab:,0
@@ -83,15 +96,16 @@ field,"ir.cron,active",0,Active,Aktiv,0
 field,"ir.cron,args",0,Arguments,Argumente,0
 field,"ir.cron,doall",0,Repeat missed,Fehlende wiederholen,0
 field,"ir.cron,function",0,Function,Funktion,0
-field,"ir.cron,interval_number",0,Interval Number,Intervall,0
-field,"ir.cron,interval_type",0,Interval Unit,Einheit Intervall,0
+field,"ir.cron,interval_number",0,Interval Number,Intervallanzahl,0
+field,"ir.cron,interval_type",0,Interval Unit,Intervalleinheit,0
 field,"ir.cron,model",0,Model,Modell,0
 field,"ir.cron,name",0,Name,Name,0
 field,"ir.cron,nextcall",0,Next call date,Nächster Aufruf,0
 field,"ir.cron,numbercall",0,Number of calls,Anzahl Aufrufe,0
 field,"ir.cron,priority",0,Priority,Priorität,0
-field,"ir.cron,running",0,Running,Läuft...,0
-field,"ir.cron,user",0,User,Benutzer,0
+field,"ir.cron,request_user",0,Request User,Fehlermeldung an,0
+field,"ir.cron,running",0,Running,Wird zur Zeit ausgeführt,0
+field,"ir.cron,user",0,Execution User,Benutzer,0
 field,"ir.default,clause",0,Clause,Klausel,0
 field,"ir.default,field",0,Field,Feld,0
 field,"ir.default,model",0,Model,Modell,0
@@ -105,11 +119,11 @@ field,"ir.export,resource",0,Resource,Ressource,0
 field,"ir.lang,active",0,Active,Aktiv,0
 field,"ir.lang,code",0,Code,Code,0
 field,"ir.lang,date",0,Date,Datum,0
-field,"ir.lang,decimal_point",0,decimal_point,Dezimalpunkt,0
+field,"ir.lang,decimal_point",0,Decimal Separator,Dezimalpunkt,0
 field,"ir.lang,direction",0,Direction,Richtung,0
-field,"ir.lang,grouping",0,grouping,Gruppierung,0
+field,"ir.lang,grouping",0,Grouping,Gruppierung,0
 field,"ir.lang,name",0,Name,Name,0
-field,"ir.lang,thousands_sep",0,thousands_sep,Tausendertrennzeichen,0
+field,"ir.lang,thousands_sep",0,Thousands Separator,Tausendertrennzeichen,0
 field,"ir.lang,translatable",0,Translatable,Übersetzbar,0
 field,"ir.model.access,description",0,Description,Beschreibung,0
 field,"ir.model.access,group",0,Group,Gruppe,0
@@ -122,6 +136,7 @@ field,"ir.model.data,date_init",0,Init Date,Initialdatum,0
 field,"ir.model.data,date_update",0,Update Date,Aktualisierungsdatum,0
 field,"ir.model.data,db_id",0,Resource ID,ID Ressource,0
 field,"ir.model.data,fs_id",0,Identifier on File System,Identifikator im Dateisystem,0
+field,"ir.model.data,inherit",0,Inherit,Vererbung,0
 field,"ir.model.data,model",0,Model,Modell,0
 field,"ir.model.data,module",0,Module,Modul,0
 field,"ir.model.data,values",0,Values,Werte,0
@@ -245,6 +260,8 @@ a negative number indicates that the function will always be called","Anzahl der
 (eine negative Zahl bewirkt, dass die Funktion immer aufgerufen wird)",0
 help,"ir.cron,priority",0,"0=Very Urgent
 10=Not urgent",0=Sehr dringend,0
+help,"ir.cron,request_user",0,The user who will receive requests in case of failure,"Der Benutzer, der bei Fehlern Anfragen erhält",0
+help,"ir.cron,user",0,The user used to execute this action,"Der Benutzer, der diese Aktion ausführt",0
 help,"ir.lang,code",0,RFC 4646 tag: http://tools.ietf.org/html/rfc4646,RFC 4646 tag: http://tools.ietf.org/html/rfc4646,0
 help,"ir.model.data,db_id",0,The id of the record in the database.,Die ID des Datensatzes in der Datenbank,0
 help,"ir.model.data,fs_id",0,The id of the record as known on the file system.,Die ID des Datensatzes wie im Dateisystem bekannt,0
@@ -259,7 +276,7 @@ model,"ir.action,name",act_action_form,Actions,Aktionen,0
 model,"ir.action,name",act_attachment_form,Attachments,Anhänge,0
 model,"ir.action,name",act_category_tree,Categories,Kategorien,0
 model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
-model,"ir.action,name",act_property_form_default,Default properties,Standardeigenschaften,0
+model,"ir.action,name",act_property_form_default,Default Properties,Standardeigenschaften,0
 model,"ir.action,name",act_default_form,Defaults,Standards,0
 model,"ir.action,name",act_export_form,Exports,Exporte,0
 model,"ir.action,name",act_translation_export,Export Translations,Übersetzungen exportieren,0
@@ -278,7 +295,7 @@ model,"ir.action,name",act_rule_group_form,Record Rules,Datensatzregeln,0
 model,"ir.action,name",act_action_report_form,Reports,Berichte,0
 model,"ir.action,name",act_cron_form,Scheduled Actions,Geplante Aktionen,0
 model,"ir.action,name",act_sequence_form,Sequences,Sequenzen,0
-model,"ir.action,name",sequence_strict_view_form,Sequences Strict,Strikte Sequenzen,0
+model,"ir.action,name",act_sequence_strict_form,Sequences Strict,Strikte Sequenzen,0
 model,"ir.action,name",act_sequence_type_form,Sequence Types,Sequenztypen,0
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
 model,"ir.action,name",act_translation_form,Translations,Übersetzungen,0
@@ -298,7 +315,7 @@ model,"ir.ui.menu,name",menu_administration,Administration,Systemverwaltung,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Anhänge,0
 model,"ir.ui.menu,name",menu_category_tree,Categories,Kategorien,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
-model,"ir.ui.menu,name",menu_property_form_default,Default properties,Standardeigenschaften,0
+model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Standardeigenschaften,0
 model,"ir.ui.menu,name",menu_default_form,Defaults,Standards,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exporte,0
 model,"ir.ui.menu,name",menu_translation_export,Export Translations,Übersetzungen exportieren,0
