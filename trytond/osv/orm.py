@@ -1406,8 +1406,8 @@ class ORM(object):
                 "AND res_type = %s AND state != 'complete'",
             ids + [self._name])
         if cursor.rowcount != 0:
-            raise Exception('UserError',
-                    'You cannot delete a record with a running workflow.')
+            self.raise_user_error(cursor, 'delete_workflow_record',
+                    context=context)
 
         wf_service = LocalService("workflow")
         for obj_id in ids:
