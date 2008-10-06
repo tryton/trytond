@@ -445,7 +445,7 @@ class Translation(OSV, Cacheable):
                         val = int(res_id)
                         if val != 0:
                             continue
-                    except ValueError:
+                    except (ValueError, TypeError):
                         pass
                     row.append(res_id)
                 elif field == 'fuzzy':
