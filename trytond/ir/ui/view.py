@@ -15,12 +15,13 @@ class View(OSV):
     model = fields.Char('Model', required=True, select=1)
     priority = fields.Integer('Priority', required=True, select=1)
     type = fields.Selection([
-       ('tree','Tree'),
-       ('form','Form'),
-       ('graph', 'Graph'),
-       ('calendar', 'Calendar'),
-       ('board', 'Board'),
-       ], 'View Type', select=1)
+        (False, ''),
+        ('tree','Tree'),
+        ('form','Form'),
+        ('graph', 'Graph'),
+        ('calendar', 'Calendar'),
+        ('board', 'Board'),
+        ], 'View Type', select=1)
     arch = fields.Text('View Architecture', required=True)
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
             ondelete='CASCADE')
@@ -33,7 +34,7 @@ class View(OSV):
             ('check_xml', 'invalid_xml'),
         ]
         self._error_messages.update({
-            'invalid_xml': 'Invalid XML for View Architecture!',
+            'invalid_xml': 'Invalid XML for View!',
         })
         self._order.insert(0, ('priority', 'ASC'))
 
@@ -62,6 +63,14 @@ class View(OSV):
         for view in views:
             xml = view.arch.strip()
             tree = etree.fromstring(xml)
+
+            if view.inherit:
+                if view.model != view.inherit.model:
+                    logger = logging.getLogger('ir')
+                    logger.error('Invalid model "%s" ' \
+                            'with inherited model "%"' % \
+                            (view.model, view.inherit.model))
+                    return False
 
             # validate the tree using RelaxNG
             rng_name = os.path.join(os.path.dirname(__file__),

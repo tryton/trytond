@@ -295,7 +295,12 @@ class TinySocketClientThread(threading.Thread):
                     import pdb
                     tback = sys.exc_info()[2]
                     pdb.post_mortem(tback)
-                pysocket.send(exception.args, exception=True, traceback=tb_s)
+                try:
+                    pysocket.send(exception.args, exception=True, traceback=tb_s)
+                except:
+                    pysocket.disconnect()
+                    self.threads.remove(self)
+                    return False
         pysocket.disconnect()
         self.threads.remove(self)
         return True
