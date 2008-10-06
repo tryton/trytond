@@ -666,6 +666,16 @@
       <attribute name="col" a:defaultValue="4"/>
     </optional>
   </define>
+  <define name="attlist.page" combine="interleave">
+    <optional>
+      <attribute name="name"/>
+    </optional>
+  </define>
+  <define name="attlist.page" combine="interleave">
+    <optional>
+      <attribute name="states"/>
+    </optional>
+  </define>
   <define name="group">
     <element name="group">
       <ref name="attlist.group"/>
