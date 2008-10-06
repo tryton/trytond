@@ -226,13 +226,14 @@ How to define selections
 ++++++++++++++++++++++++
 
 A selection field allow the user to choose one value across a limited
-number of values. There are two way to define a field that will be
+number of values. There are two ways to define a field that will be
 shown as a selection to the user:
 
   1. Using the fields.Selection()
 
-  2. Using a fields.One2Many() and define it in the xml view of the
-  module as ``widget="Selection"``, see :ref:`example_form_view`.
+  2. Using a fields.Many2One() (with a static domain) and define it in
+  the xml view of the module as ``widget="Selection"``, see
+  :ref:`example_form_view`.
 
 Let's take the following model as an example of the first option:
 
@@ -407,6 +408,25 @@ The framework is able to check if ``names`` (instead of ``name``) is
 used in the method definition, hence adapting the way the method is
 called.
 
+
+Another way to tackle Function implementation is to pass a dictionary
+to the ``args`` argument on the field definition. It will be forwarded
+to the function call:
+
+.. highlight:: python
+
+::
+
+  state = fields.Function(
+      'get_state', type='selection', string='Total Service',
+      args={'key':'value'},
+      selection=[('draft','Draft'),('done','Done')],
+      )
+
+  def get_state(self, cursor, user, ids, names, arg, context=None):
+      # [...]
+      if arg.get('key'):
+          pass # do something with 'value'
 
 
 Search on function fields
