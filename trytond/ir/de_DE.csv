@@ -1,4 +1,5 @@
 type,name,res_id,src,value,fuzzy
+error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
 error,ir.action.report,0,The internal name must be unique!,Der interne Name kann nicht mehrfach vergeben werden!,0
 error,ir.attachment,0,Error! You can not create attachment with the same name!,Es kann kein Anhang unter dem selben Namen erstellt werden!,0
@@ -36,6 +37,7 @@ error,ir.sequence,0,Missing sequence!,Fehlende Sequenz!,0
 error,ir.sequence.strict,0,Invalid prefix/suffix!,Präfix/Suffix ungültig!,0
 error,ir.sequence.strict,0,Missing sequence!,Fehlende Sequenz!,0
 error,ir.translation,0,Translation must be unique,Übersetzung kann nicht mehrfach vergeben werden!,0
+error,ir.ui.view,0,Invalid XML for View!,Ungültiges XML für Ansicht!,0
 error,ir.ui.view,0,Invalid XML for View Architecture!,Ungültiges XML-Format für Sicht,0
 error,write_xml_record,0,You are not allowed to modify this record.,Keine Berechtigung für die Änderung dieses Datensatzes,0
 error,xml_record_desc,0,This record is part of the base configuration.,Dieser Datensatz ist Teil der Basiskonfiguration,0
@@ -259,7 +261,8 @@ help,"ir.cron,numbercall",0,"Number of time the function is called,
 a negative number indicates that the function will always be called","Anzahl der Funktionsaufrufe
 (eine negative Zahl bewirkt, dass die Funktion immer aufgerufen wird)",0
 help,"ir.cron,priority",0,"0=Very Urgent
-10=Not urgent",0=Sehr dringend,0
+10=Not urgent","0=Sehr dringend
+10=Nicht dringend",0
 help,"ir.cron,request_user",0,The user who will receive requests in case of failure,"Der Benutzer, der bei Fehlern Anfragen erhält",0
 help,"ir.cron,user",0,The user used to execute this action,"Der Benutzer, der diese Aktion ausführt",0
 help,"ir.lang,code",0,RFC 4646 tag: http://tools.ietf.org/html/rfc4646,RFC 4646 tag: http://tools.ietf.org/html/rfc4646,0
@@ -458,6 +461,7 @@ selection,"ir.ui.menu,icon",0,tryton-system-file-manager,tryton-system-file-mana
 selection,"ir.ui.menu,icon",0,tryton-tree,tryton-tree,0
 selection,"ir.ui.menu,icon",0,tryton-users,tryton-users,0
 selection,"ir.ui.menu,icon",0,tryton-web-browser,tryton-web-browser,0
+selection,"ir.ui.view,type",0,,,0
 selection,"ir.ui.view,type",0,Board,Infoseite,0
 selection,"ir.ui.view,type",0,Calendar,Kalender,0
 selection,"ir.ui.view,type",0,Form,Formular,0
