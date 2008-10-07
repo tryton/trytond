@@ -237,4 +237,5 @@ class DB(Service):
             ('de_DE', 'Deutsch'),
             ('en_US', 'English'),
             ('fr_FR', 'Français'),
+            ('es_ES', 'Español'),
         ]
