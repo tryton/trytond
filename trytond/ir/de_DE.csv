@@ -194,7 +194,7 @@ field,"ir.rule,rule_group",0,Group,Gruppe,0
 field,"ir.sequence,active",0,Active,Aktiv,0
 field,"ir.sequence,code",0,Sequence Code,Code Sequenz,0
 field,"ir.sequence,name",0,Sequence Name,Name Sequenz,0
-field,"ir.sequence,number_increment",0,Increment Number,Schrittweite Nummer,0
+field,"ir.sequence,number_increment",0,Increment Number,Schrittweite,0
 field,"ir.sequence,number_next",0,Next Number,Nächste Nummer,0
 field,"ir.sequence,padding",0,Number padding,Füllnummer,0
 field,"ir.sequence,prefix",0,Prefix,Präfix,0
