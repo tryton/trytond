@@ -2398,14 +2398,24 @@ class ORM(object):
                         args[i][2], [], args[i][1], context=context)]
                 else:
                     ids2 = args[i][2]
-                if not ids2:
+
+                table_query = ''
+                table_args = []
+                if field_obj.table_query(context):
+                    table_query, table_args = field_obj.table_query(context)
+                    table_query = '(' + table_query + ') AS '
+
+                if ids2 == True or ids2 == False:
+                    query1 = 'SELECT "' + field._field + '" ' \
+                            'FROM ' + table_query + '"' + field_obj._table + '"'
+                    query2 = table_args
+                    clause = 'inselect'
+                    if ids2 == False:
+                        clause = 'notinselect'
+                    args[i] = ('id', clause, (query1, query2))
+                elif not ids2:
                     args[i] = ('id', '=', '0')
                 else:
-                    table_query = ''
-                    table_args = []
-                    if field_obj.table_query(context):
-                        table_query, table_args = field_obj.table_query(context)
-                        table_query = '(' + table_query + ') AS '
                     if len(ids2) < cursor.IN_MAX:
                         query1 = 'SELECT "' + field._field + '" ' \
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
