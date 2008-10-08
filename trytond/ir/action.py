@@ -69,6 +69,27 @@ class ActionKeyword(OSV):
     def __init__(self):
         super(ActionKeyword, self).__init__()
         self._rpc_allowed.append('get_keyword')
+        self._constraints += [
+            ('check_wizard_model', 'wrong_wizard_model'),
+        ]
+        self._error_messages.update({
+            'wrong_wizard_model': 'Wrong wizard model!',
+        })
+
+    def check_wizard_model(self, cursor, user, ids):
+        action_wizard_obj = self.pool.get('ir.action.wizard')
+        for action_keyword in self.browse(cursor, user, ids):
+            if action_keyword.action.type == 'ir.action.wizard':
+                action_wizard_id = action_wizard_obj.search(cursor, user, [
+                    ('action', '=', action_keyword.action.id),
+                    ], limit=1)[0]
+                action_wizard = action_wizard_obj.browse(cursor, user,
+                        action_wizard_id)
+                if action_wizard.model:
+                    model, record_id = action_keyword.model.split(',', 1)
+                    if model != action_wizard.model:
+                        return False
+        return True
 
     def _convert_vals(self, cursor, user, vals, context=None):
         vals = vals.copy()
@@ -377,6 +398,7 @@ class ActionWizard(OSV):
     _inherits = {'ir.action': 'action'}
     wiz_name = fields.Char('Wizard name', required=True)
     action = fields.Many2One('ir.action', 'Action', required=True)
+    model = fields.Char('Model')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.wizard'

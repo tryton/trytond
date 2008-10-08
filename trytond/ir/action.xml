@@ -248,6 +248,8 @@
                     <field name="name"/>
                     <label name="wiz_name"/>
                     <field name="wiz_name"/>
+                    <label name="model"/>
+                    <field name="model"/>
                     <field name="keywords" colspan="4">
                         <tree string="Keywords">
                             <field name="keyword"/>
