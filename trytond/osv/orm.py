@@ -2407,7 +2407,8 @@ class ORM(object):
 
                 if ids2 == True or ids2 == False:
                     query1 = 'SELECT "' + field._field + '" ' \
-                            'FROM ' + table_query + '"' + field_obj._table + '"'
+                            'FROM ' + table_query + '"' + field_obj._table + '" ' \
+                            'WHERE "' + field._field + '" IS NOT NULL'
                     query2 = table_args
                     clause = 'inselect'
                     if ids2 == False:
@@ -2469,7 +2470,8 @@ class ORM(object):
                         query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + field._rel + '" ' \
                                 'WHERE "' + field.target + '" IN (' + \
-                                    ','.join(['%s' for x in ids2]) + ')'
+                                    ','.join(['%s' for x in ids2]) + ') ' \
+                                    'AND "' + field.origin + '" IS NOT NULL'
                         query2 = [str(x) for x in ids2]
                         if args[i][1] == 'child_of':
                             args[i] = ('id', 'inselect', (query1, query2))
@@ -2491,7 +2493,8 @@ class ORM(object):
                         res_ids = args[i][2]
                     if res_ids == True or res_ids == False:
                         query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + field._rel + '"'
+                                'FROM "' + field._rel + '" '\
+                                'WHERE "' + field.origin + '" IS NOT NULL'
                         query2 = []
                         clause = 'inselect'
                         if res_ids == False:
