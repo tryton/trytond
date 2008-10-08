@@ -2004,15 +2004,6 @@ class ORM(object):
             if element.get('name') in fields_width:
                 element.set('width', str(fields_width[element.get('name')]))
 
-        if element.tag in ('form', 'tree', 'graph'):
-            value = ''
-            if element.get('string'):
-                value = element.get('string')
-            result = self.view_header_get(cursor, user, value, element.tag,
-                    context)
-            if result:
-                element.set('string', result)
-
         # translate view
         if ('language' in context) and not result:
             if element.get('string'):
@@ -2027,6 +2018,16 @@ class ORM(object):
                         element.get('sum'))
                 if trans:
                     element.set('sum', trans)
+
+        if element.tag in ('form', 'tree', 'graph'):
+            value = ''
+            if element.get('string'):
+                value = element.get('string')
+            result = self.view_header_get(cursor, user, value, element.tag,
+                    context)
+            if result:
+                element.set('string', result)
+
         # Add view for properties !
         if element.tag == 'properties':
             parent = element.getparent()
