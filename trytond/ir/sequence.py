@@ -2,7 +2,6 @@
 import time
 from trytond.osv import fields, OSV
 from string import Template
-import datetime
 
 
 class SequenceType(OSV):
@@ -59,15 +58,16 @@ class Sequence(OSV):
 
         for sequence in self.browse(cursor, user, ids):
             try:
-                self._process(sequence.prefix)
-                self._process(sequence.suffix)
+                self._process(cursor, user, sequence.prefix)
+                self._process(cursor, user, sequence.suffix)
             except:
                 return False
         return True
 
-    def _process(self, string, date=None):
+    def _process(self, cursor, user, string, date=None, context=None):
+        date_obj = self.pool.get('ir.date')
         if not date:
-            date = datetime.date.today()
+            date = date_obj.today(cursor, user, context=context)
         year = date.strftime('%Y')
         month = date.strftime('%m')
         day = date.strftime('%d')
@@ -93,12 +93,16 @@ class Sequence(OSV):
                         'write_date = NOW() ' \
                     'WHERE id = %s AND active = True', (user, res['id'],))
             if res['number_next']:
-                return self._process(res['prefix'], date=date) + \
+                return self._process(cursor, user, res['prefix'], date=date,
+                        context=context) + \
                         '%%0%sd' % res['padding'] % res['number_next'] + \
-                        self._process(res['suffix'], date=date)
+                        self._process(cursor, user, res['suffix'], date=date,
+                                context=context)
             else:
-                return self._process(res['prefix'], date=date) + \
-                        self._process(res['suffix'], date=date)
+                return self._process(cursor, user, res['prefix'], date=date,
+                        context=context) + \
+                        self._process(cursor, user, res['suffix'], date=date,
+                                context=context)
         self.raise_user_error(cursor, 'missing', context=context)
 
     def get(self, cursor, user, code, context=None):
