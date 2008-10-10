@@ -17,7 +17,6 @@ import logging
 
 MODULE_LIST = []
 MODULE_CLASS_LIST = {}
-CLASS_POOL = {}
 
 
 class OSVService(Service):
@@ -167,7 +166,6 @@ class OSV(ORM):
         if not hasattr(cls, '_module'):
             cls._module = module
         MODULE_CLASS_LIST.setdefault(cls._module, []).append(cls)
-        CLASS_POOL[cls._name] = cls
         if module not in MODULE_LIST:
             MODULE_LIST.append(cls._module)
         return None
