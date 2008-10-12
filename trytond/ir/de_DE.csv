@@ -1,6 +1,7 @@
 type,name,res_id,src,value,fuzzy
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
+error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique!,Der interne Name kann nicht mehrfach vergeben werden!,0
 error,ir.attachment,0,Error! You can not create attachment with the same name!,Es kann kein Anhang unter dem selben Namen erstellt werden!,0
 error,ir.cron,0,Scheduled action failed,Geplante Aktion fehlgeschlagen,0
@@ -82,6 +83,7 @@ field,"ir.action.url,action",0,Action,Aktion,0
 field,"ir.action.url,url",0,Action Url,URL,0
 field,"ir.action,usage",0,Usage,Gebrauch,0
 field,"ir.action.wizard,action",0,Action,Aktion,0
+field,"ir.action.wizard,model",0,Model,Modell,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Name,0
 field,"ir.attachment,collision",0,Collision,Kollision,0
 field,"ir.attachment,datas",0,Datas,Daten,0
