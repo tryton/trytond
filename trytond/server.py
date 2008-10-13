@@ -19,6 +19,11 @@ import web_service
 import wkf_service
 from trytond.modules import register_classes
 import mx.DateTime
+
+if not hasattr(mx.DateTime, 'strptime'):
+    mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
+            time.strptime(x, y))
+
 from getpass import getpass
 import sha
 import logging
@@ -57,16 +62,11 @@ class TrytonServer(object):
 
         self.logger = logging.getLogger("init")
 
-        if not hasattr(mx.DateTime, 'strptime'):
-            mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
-                    time.strptime(x, y))
-
         self.logger.info('using %s as configuration file' % CONFIG.configfile)
         self.logger.info('initialising distributed objects services')
 
         self.dispatcher = netsvc.Dispatcher()
         self.dispatcher.monitor(signal.SIGINT)
-
 
         web_service.DB()
         web_service.Common()
