@@ -483,18 +483,19 @@ class ORM(object):
         table = table_handler(cursor, self._table, self._name, module_name)
         logs = (
             ('create_date', 'timestamp', 'TIMESTAMP',
-                fields.DateTime._symbol_set),
+                fields.DateTime._symbol_set, lambda *a: datetime.datetime.now()),
             ('write_date', 'timestamp', 'TIMESTAMP',
-                fields.DateTime._symbol_set),
+                fields.DateTime._symbol_set, None),
             ('create_uid', 'int4',
              'INTEGER REFERENCES res_user ON DELETE SET NULL',
-             fields.Integer._symbol_set),
+             fields.Integer._symbol_set, lambda *a: 0),
             ('write_uid', 'int4',
              'INTEGER REFERENCES res_user ON DELETE SET NULL',
-             fields.Integer._symbol_set),
+             fields.Integer._symbol_set, None),
             )
         for log in logs:
-            table.add_raw_column(log[0], (log[1], log[2]), log[3], migrate=False)
+            table.add_raw_column(log[0], (log[1], log[2]), log[3],
+                    default_fun=log[4], migrate=False)
         for field_name, field in self._columns.iteritems():
             default_fun = None
             if field_name in (
