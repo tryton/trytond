@@ -2,9 +2,9 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.sql_db import db_connect
 import logging
-from threading import Semaphore
+from threading import RLock
 
-_SEMAPHORE = Semaphore()
+_LOCK = RLock()
 _DB = {}
 _POOL = {}
 _POOL_WIZARD = {}
@@ -14,7 +14,7 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
         lang=None):
 
     restart = False
-    _SEMAPHORE.acquire()
+    _LOCK.acquire()
     try:
         if db_name in _DB:
             database = _DB[db_name]
@@ -49,7 +49,7 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
             restart = not load_modules(database, pool, pool_wizard, pool_report,
                     update_module, lang)
     finally:
-        _SEMAPHORE.release()
+        _LOCK.release()
     if restart:
         restart_pool(db_name)
 
@@ -60,17 +60,17 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
     return database, pool
 
 def restart_pool(db_name, update_module=False, lang=None):
-    _SEMAPHORE.acquire()
+    _LOCK.acquire()
     try:
         del _POOL[db_name]
         del _POOL_WIZARD[db_name]
         del _POOL_REPORT[db_name]
     finally:
-        _SEMAPHORE.release()
+        _LOCK.release()
     return get_db_and_pool(db_name, update_module=update_module, lang=lang)
 
 def close_db(db_name):
-    _SEMAPHORE.acquire()
+    _LOCK.acquire()
     try:
         if db_name in _DB:
             _DB[db_name].close()
@@ -78,10 +78,10 @@ def close_db(db_name):
         if db_name in _POOL:
             del _POOL[db_name]
     finally:
-        _SEMAPHORE.release()
+        _LOCK.release()
 
 def get_db_only(db_name):
-    _SEMAPHORE.acquire()
+    _LOCK.acquire()
     try:
         if db_name in _DB:
             database = _DB[db_name]
@@ -91,7 +91,7 @@ def get_db_only(db_name):
             database = db_connect(db_name)
             _DB[db_name] = database
     finally:
-        _SEMAPHORE.release()
+        _LOCK.release()
     return database
 
 def get_db(db_name):

@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 from trytond.netsvc import Service, LocalService
 from trytond import security
-from threading import Semaphore
+from threading import Lock
 from random import randint
 from sys import maxint
 from trytond.tools import Cache
@@ -18,7 +18,7 @@ class Wizard(Service):
         self.wiz_datas = {}
         self.wiz_name = {}
         self.wiz_uid = {}
-        self._semaphore = Semaphore()
+        self.lock = Lock()
 
     def _execute(self, database, user, wiz_id, datas, action, context):
         self.wiz_datas[wiz_id].update(datas)
@@ -29,7 +29,7 @@ class Wizard(Service):
     def create(self, database, user, passwd, wiz_name, datas=None):
         security.check(database, user, passwd)
         Cache.clean(database)
-        self._semaphore.acquire()
+        self.lock.acquire()
         wiz_id = 0
         while True:
             wiz_id = randint(0, maxint)
@@ -38,7 +38,7 @@ class Wizard(Service):
         self.wiz_datas[wiz_id] = {}
         self.wiz_name[wiz_id] = wiz_name
         self.wiz_uid[wiz_id] = user
-        self._semaphore.release()
+        self.lock.release()
         return wiz_id
 
     def execute(self, database, user, passwd, wiz_id, datas, *args):
@@ -57,11 +57,11 @@ class Wizard(Service):
         Cache.clean(database)
         if wiz_id in self.wiz_uid:
             if self.wiz_uid[wiz_id] == user:
-                self._semaphore.acquire()
+                self.lock.acquire()
                 del self.wiz_datas[wiz_id]
                 del self.wiz_name[wiz_id]
                 del self.wiz_uid[wiz_id]
-                self._semaphore.release()
+                self.lock.release()
                 return wiz_id
             else:
                 raise Exception, 'AccessDenied'
