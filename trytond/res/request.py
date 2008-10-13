@@ -217,7 +217,7 @@ class RequestReference(OSV):
 
     def links_get(self, cursor, user, context=None):
         request_link_obj = self.pool.get('res.request.link')
-        ids = request_link_obj.search(cursor, user, [])
+        ids = request_link_obj.search(cursor, user, [], context=context)
         request_links = request_link_obj.browse(cursor, user, ids,
                 context=context)
         return [(x.model, x.name) for x in request_links]
