@@ -2,6 +2,7 @@
 "Request"
 from trytond.osv import OSV, fields
 import time
+import datetime
 
 class Request(OSV):
     "Request"
@@ -129,17 +130,20 @@ class Request(OSV):
         return True
 
     def request_get(self, cursor, user):
-        cursor.execute('SELECT id FROM res_request ' \
-                'WHERE act_to = %s ' \
-                    'AND (trigger_date <= now() OR trigger_date IS NULL) ' \
-                    'AND active = True', (user,))
-        ids = [x[0] for x in cursor.fetchall()]
-        cursor.execute('SELECT id FROM res_request ' \
-                'WHERE act_from = %s AND (act_to <> %s) ' \
-                    'AND state != \'draft\' ' \
-                    'AND active = True',
-                    (user, user))
-        ids2 = [x[0] for x in cursor.fetchall()]
+        ids = self.search(cursor, user, [
+            ('act_to', '=', user),
+            ['OR',
+                ('trigger_date', '<=', datetime.datetime.now()),
+                ('trigger_date', '=', False),
+            ],
+            ('active', '=', True),
+            ])
+        ids2 = self.search(cursor, user, [
+            ('act_from', '=', user),
+            ('act_to', '!=', user),
+            ('state', '!=', 'draft'),
+            ('active', '=', True),
+            ])
         return (ids, ids2)
 
 Request()
