@@ -1067,6 +1067,22 @@ class ORM(object):
                             'AS _timestamp']
                 else:
                     fields_pre2 += ['now()::timestamp AS _timestamp']
+
+            if len(ids) > cursor.IN_MAX:
+                cursor.execute('SELECT id ' \
+                        'FROM ' + table_query + '"' + self._table + '" ' \
+                        'ORDER BY ' + \
+                        ','.join([self._table + '.' + x[0] + ' ' + x[1]
+                            for x in self._order]), table_args)
+
+                i = 0
+                ids_sorted = {}
+                for row in cursor.fetchall():
+                    ids_sorted[row[0]] = i
+                    i += 1
+                ids = ids[:]
+                ids.sort(lambda x, y: ids_sorted[x] - ids_sorted[y])
+
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 if domain1:
