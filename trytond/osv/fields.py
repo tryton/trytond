@@ -141,6 +141,10 @@ class Reference(Column):
                 ref_id = eval(ref_id)
             except:
                 pass
+            try:
+                ref_id = int(ref_id)
+            except:
+                continue
             if ref_id \
                 and not ref_obj.search(cursor, user, [
                     ('id', '=', ref_id),
