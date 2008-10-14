@@ -245,7 +245,6 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
                 except IOError:
                     logging.getLogger('init').error(
                         'module:%s:file %s not found!' % (module, filename))
-
                     continue
                 logging.getLogger('init').info(
                     'module:%s:loading %s' % (module, filename))
