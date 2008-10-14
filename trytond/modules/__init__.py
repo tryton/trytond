@@ -240,11 +240,18 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
                 lang2 = os.path.splitext(filename)[0]
                 if lang2 not in lang:
                     continue
+                try:
+                    trans_file = tools.file_open(OPJ(module, filename))
+                except IOError:
+                    logging.getLogger('init').error(
+                        'module:%s:file %s not found!' % (module, filename))
+
+                    continue
                 logging.getLogger('init').info(
                     'module:%s:loading %s' % (module, filename))
                 translation_obj = pool.get('ir.translation')
-                translation_obj.translation_import(cursor, 0, lang2, module,
-                        tools.file_open(OPJ(module, filename)))
+                translation_obj.translation_import(cursor, 0, lang2, module, 
+                                                   trans_file)
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))
