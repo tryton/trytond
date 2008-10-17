@@ -233,6 +233,8 @@ class BrowseRecord(object):
             res = res.id
         if isinstance(res, BrowseRecordList):
             res = res.get_eval()
+        if isinstance(res, BrowseRecordNull):
+            res = False
         return res
 
 
