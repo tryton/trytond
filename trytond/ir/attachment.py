@@ -107,4 +107,44 @@ class Attachment(OSV):
                     'collision = %s ' \
                 'WHERE id = %s', (digest, collision, obj_id))
 
+    def check_access(self, cursor, user, ids, mode='read', context=None):
+        model_access_obj = self.pool.get('ir.model.access')
+        if user == 0:
+            return
+        if not ids:
+            return
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        model_names = set()
+        for attachment in self.browse(cursor, 0, ids, context=context):
+            if attachment.res_model:
+                model_names.add(attachment.res_model)
+        for model_name in model_names:
+            model_access_obj.check(cursor, user, model_name, mode=mode,
+                    context=context)
+
+    def read(self, cursor, user, ids, fields_names=None, context=None,
+            load='_classic_read'):
+        self.check_access(cursor, user, ids, mode='read', context=context)
+        return super(Attachment, self).read(cursor, user, ids,
+                fields_names=fields_names, context=context, load=load)
+
+    def delete(self, cursor, user, ids, context=None):
+        self.check_access(cursor, user, ids, mode='delete', context=context)
+        return super(Attachment, self).delete(cursor, user, ids,
+                context=context)
+
+    def write(self, cursor, user, ids, vals, context=None):
+        self.check_access(cursor, user, ids, mode='write', context=context)
+        res = super(Attachment, self).write(cursor, user, ids, vals,
+                context=context)
+        self.check_access(cursor, user, ids, mode='write', context=context)
+        return res
+
+    def create(self, cursor, user, vals, context=None):
+        res = super(Attachment, self).create(cursor, user, vals,
+                context=context)
+        self.check_access(cursor, user, res, mode='create', context=context)
+        return res
+
 Attachment()
