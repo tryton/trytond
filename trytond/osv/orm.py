@@ -233,6 +233,8 @@ class BrowseRecord(object):
             res = res.id
         if isinstance(res, BrowseRecordList):
             res = res.get_eval()
+        if isinstance(res, BrowseRecordNull):
+            res = False
         return res
 
 
@@ -1011,7 +1013,8 @@ class ORM(object):
         Return list of a dict for each ids or just a dict if ids is an integer.
         The dict have fields_names as keys.
         '''
-        self.pool.get('ir.model.access').check(cursor, user, self._name, 'read')
+        self.pool.get('ir.model.access').check(cursor, user, self._name, 'read',
+                context=context)
         if not fields_names:
             fields_names = self._columns.keys() + \
                     exclude(self._inherit_fields.keys(), self._columns.keys())
@@ -1415,7 +1418,7 @@ class ORM(object):
             del context['_timestamp']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'delete')
+                'delete', context=context)
 
         cursor.execute(
             "SELECT id FROM wkf_instance "\
@@ -1553,7 +1556,7 @@ class ORM(object):
             del context['_timestamp']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'write')
+                'write', context=context)
 
         if 'write_uid' in vals:
             del vals['write_uid']
@@ -1743,7 +1746,7 @@ class ORM(object):
         vals = vals.copy()
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'create')
+                'create', context=context)
 
         if 'create_uid' in vals:
             del vals['create_uid']
@@ -1862,7 +1865,7 @@ class ORM(object):
             res.update(self.pool.get(parent).fields_get(cursor, user,
                 fields_names, context))
         write_access = model_access_obj.check(cursor, user, self._name, 'write',
-                raise_exception=False)
+                raise_exception=False, context=context)
         if self.table_query(context):
             write_access = False
 
@@ -2966,50 +2969,87 @@ class ORM(object):
         default can be a dict with field name as keys,
         it will replace the value of the record.
         '''
+        lang_obj = self.pool.get('ir.lang')
         if default is None:
             default = {}
+        if context is None:
+            context = {}
         if 'state' not in default:
             if 'state' in self._defaults:
                 default['state'] = self._defaults['state'](cursor, user,
                         context)
+
+        def convert_data(fields, data):
+            for field_name in fields:
+                ftype = fields[field_name]['type']
+
+                if field_name in (
+                    'create_date',
+                    'create_uid',
+                    'write_date',
+                    'write_uid',
+                    ):
+                    del data[field_name]
+
+                if field_name in default:
+                    data[field_name] = default[field_name]
+                elif ftype == 'function':
+                    del data[field_name]
+                elif ftype == 'many2one':
+                    try:
+                        data[field_name] = data[field_name] and \
+                                data[field_name][0]
+                    except:
+                        pass
+                elif ftype in ('one2many',):
+                    res = []
+                    rel = self.pool.get(fields[field_name]['relation'])
+                    for rel_id in data[field_name]:
+                        # the lines are first duplicated using the wrong (old)
+                        # parent but then are reassigned to the correct one thanks
+                        # to the ('add', ...)
+                        res.append(('add', rel.copy(cursor, user, rel_id,
+                            context=context)))
+                    data[field_name] = res
+                elif ftype == 'many2many':
+                    data[field_name] = [('set', data[field_name])]
+            if 'id' in data:
+                del data['id']
+            for i in self._inherits:
+                if self._inherits[i] in data:
+                    del data[self._inherits[i]]
+
         data = self.read(cursor, user, object_id, context=context)
-        fields2 = self.fields_get(cursor, user)
-        for field in fields2:
-            ftype = fields2[field]['type']
+        fields = self.fields_get(cursor, user)
+        convert_data(fields, data)
+        new_id = self.create(cursor, user, data, context=context)
 
-            if field in (
-                'create_date',
-                'create_uid',
-                'write_date',
-                'write_uid',
-                ):
-                del data[field]
+        fields_translate = {}
+        for field_name, field in fields.iteritems():
+            if field_name in self._columns and \
+                    self._columns[field_name].translate:
+                fields_translate[field_name] = field
+            elif field_name in self._inherit_fields and \
+                    self._inherit_fields[field_name][2].translate:
+                fields_translate[field_name] = field
 
-            if field in default:
-                data[field] = default[field]
-            elif ftype == 'function':
-                del data[field]
-            elif ftype == 'many2one':
-                try:
-                    data[field] = data[field] and data[field][0]
-                except:
-                    pass
-            elif ftype in ('one2many',):
-                res = []
-                rel = self.pool.get(fields2[field]['relation'])
-                for rel_id in data[field]:
-                    # the lines are first duplicated using the wrong (old)
-                    # parent but then are reassigned to the correct one thanks
-                    # to the ('add', ...)
-                    res.append(('add', rel.copy(cursor, user, rel_id,
-                        context=context)))
-                data[field] = res
-            elif ftype == 'many2many':
-                data[field] = [('set', data[field])]
-        del data['id']
-        for i in self._inherits:
-            del data[self._inherits[i]]
-        return self.create(cursor, user, data, context=context)
+        if fields_translate:
+            lang_ids = lang_obj.search(cursor, user, [
+                ('translatable', '=', True),
+                ], context=context)
+            if lang_ids:
+                lang_ids += lang_obj.search(cursor, user, [
+                    ('code', '=', 'en_US'),
+                    ], context=context)
+                langs = lang_obj.browse(cursor, user, lang_ids, context=context)
+                for lang in langs:
+                    ctx = context.copy()
+                    ctx['language'] = lang.code
+                    data = self.read(cursor, user, object_id,
+                            fields_names=fields_translate.keys(), context=ctx)
+                    convert_data(fields_translate, data)
+                    self.write(cursor, user, new_id, data, context=ctx)
+        return new_id
 
     def search_read(self, cursor, user, args, offset=0, limit=None, order=None,
             context=None, fields_names=None, load='_classic_read'):

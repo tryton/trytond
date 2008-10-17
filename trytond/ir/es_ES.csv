@@ -34,7 +34,6 @@ error,ir.module.module,0,You can not remove a module that is installed or will b
 error,ir.rule.group,0,Global and Default are mutually exclusive!,Global y Predeterminado son mutuamente excluyentes!,0
 error,ir.sequence,0,Invalid prefix/suffix!,prefijo/sufijo inválidos!,0
 error,ir.sequence,0,Missing sequence!,Falta la secuencia!,0
-error,ir.sequence.strict,0,Hace falta la secuencia!,,0
 error,ir.sequence.strict,0,Invalid prefix/suffix!,prefijo/sufijo inválidos!,0
 error,ir.sequence.strict,0,Missing sequence!,Falta la secuencia!,0
 error,ir.translation,0,Translation must be unique,La traducción debe ser única,0

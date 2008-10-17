@@ -380,7 +380,7 @@ class table_handler:
                        (self.table_name, column_name, column_type))
 
         # check if table is non-empty:
-        self.cursor.execute('SELECT 1 FROM %s limit 1' % self.table_name)
+        self.cursor.execute('SELECT 1 FROM "%s" limit 1' % self.table_name)
         if self.cursor.rowcount:
             # Populate column with default values:
             default = None
