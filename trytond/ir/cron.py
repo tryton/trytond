@@ -126,8 +126,8 @@ class Cron(OSV):
                     if numbercall > 0:
                         numbercall -= 1
                     if not done or cron['doall']:
-                            self._callback(cursor, cron['user'], cron['id'], cron['model'],
-                                           cron['function'], cron['args'])
+                        self._callback(cursor, cron['user'], cron['id'], cron['model'],
+                                       cron['function'], cron['args'])
                     if numbercall:
                         nextcall += _INTERVALTYPES[cron['interval_type']](
                                 cron['interval_number'])
