@@ -1011,7 +1011,8 @@ class ORM(object):
         Return list of a dict for each ids or just a dict if ids is an integer.
         The dict have fields_names as keys.
         '''
-        self.pool.get('ir.model.access').check(cursor, user, self._name, 'read')
+        self.pool.get('ir.model.access').check(cursor, user, self._name, 'read',
+                context=context)
         if not fields_names:
             fields_names = self._columns.keys() + \
                     exclude(self._inherit_fields.keys(), self._columns.keys())
@@ -1415,7 +1416,7 @@ class ORM(object):
             del context['_timestamp']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'delete')
+                'delete', context=context)
 
         cursor.execute(
             "SELECT id FROM wkf_instance "\
@@ -1553,7 +1554,7 @@ class ORM(object):
             del context['_timestamp']
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'write')
+                'write', context=context)
 
         if 'write_uid' in vals:
             del vals['write_uid']
@@ -1743,7 +1744,7 @@ class ORM(object):
         vals = vals.copy()
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
-                'create')
+                'create', context=context)
 
         if 'create_uid' in vals:
             del vals['create_uid']
@@ -1862,7 +1863,7 @@ class ORM(object):
             res.update(self.pool.get(parent).fields_get(cursor, user,
                 fields_names, context))
         write_access = model_access_obj.check(cursor, user, self._name, 'write',
-                raise_exception=False)
+                raise_exception=False, context=context)
         if self.table_query(context):
             write_access = False
 
