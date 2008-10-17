@@ -75,7 +75,7 @@ class Request(OSV):
             'request_get',
         ]
         self._order.insert(0, ('priority', 'DESC'))
-        self._order.insert(1, ('trigger_date', 'ASC'))
+        self._order.insert(1, ('trigger_date', 'DESC'))
         self._order.insert(2, ('create_date', 'DESC'))
 
     def on_change_with_number_references(self, cursor, user, ids, vals,
