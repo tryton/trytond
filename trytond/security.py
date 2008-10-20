@@ -17,6 +17,8 @@ def login(dbname, loginname, password, cache=True):
     cursor.close()
     if res:
         user_id = res[0]
+        if user_id == 0:
+            return False
         if cache:
             _USER_CACHE.setdefault(dbname, {})
             timestamp = time.time()
@@ -36,6 +38,8 @@ def check_super(passwd):
         raise Exception('AccessDenied')
 
 def check(dbname, user, session, outdate_timeout=True):
+    if user == 0:
+        raise Exception('AccessDenied')
     result = False
     if _USER_CACHE.get(dbname, {}).has_key(user):
         to_del = []
