@@ -42,7 +42,7 @@ setup(name=PACKAGE,
     ],
     license=LICENSE,
     install_requires=[
-        'psycopg >= 2.0',
+        'psycopg2 >= 2.0',
         'lxml',
         'egenix-mx-base',
         'relatorio >= 0.2.0',
