@@ -33,7 +33,7 @@ class ModelField(OSV):
     name = fields.Char('Name', required=True)
     relation = fields.Char('Model Relation')
     model = fields.Many2One('ir.model', 'Model', required=True,
-       select=True, ondelete='cascade')
+       select=1, ondelete='cascade')
     field_description = fields.Char('Field Description',
        translate=True)
     ttype = fields.Char('Field Type')

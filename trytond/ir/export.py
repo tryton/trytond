@@ -22,6 +22,6 @@ class ExportLine(OSV):
     _description = __doc__
     name = fields.Char('Field name', size=64)
     export = fields.Many2One('ir.export', 'Exportation',
-       select=True)
+       select=1)
 
 ExportLine()
