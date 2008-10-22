@@ -240,7 +240,7 @@ class Cache(object):
 
         def cached_result(self2, cursor=None, *args, **kwargs):
             result = None
-            if isinstance(cursor, str):
+            if isinstance(cursor, basestring):
                 Cache.reset(cursor, self.name)
                 self.lock.acquire()
                 try:
