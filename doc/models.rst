@@ -152,6 +152,8 @@ A field can be one of the following basic types:
 
    * ``Integer``: An integer number.
 
+   * ``BigInteger``: An integer number with a larger range.
+
    * ``Float``: A floating point number.
 
    * ``Numeric``: Like Float, but provide an arbitrary precision on
