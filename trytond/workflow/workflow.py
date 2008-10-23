@@ -66,10 +66,16 @@ class WorkflowActivity(OSV):
        ('subflow', 'Subflow'),
        ('stopall', 'Stop All'),
        ], 'Kind', required=True)
-    action = fields.Char('Action')
+    action = fields.Text('Action', states={
+        'readonly': "kind == 'dummy'",
+        'required': "kind == 'function'",
+        })
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
-    subflow =  fields.Many2One('workflow', 'Subflow')
+    subflow =  fields.Many2One('workflow', 'Subflow', states={
+        'readonly': "kind != 'subflow'",
+        'required': "kind == 'subflow'",
+        })
     signal_send = fields.Char('Signal (subflow.*)')
     out_transitions = fields.One2Many('workflow.transition', 'act_from',
        'Outgoing transitions')
