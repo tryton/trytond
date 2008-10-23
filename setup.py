@@ -47,4 +47,11 @@ setup(name=PACKAGE,
         'egenix-mx-base',
         'relatorio >= 0.2.0',
     ],
+    extras_require={
+        'WebDAV': ['PyWebDAV'],
+        'PDF': ['openoffice.interact'],
+        'SSL': ['pyOpenSSL'],
+        'graphviz': ['pydot'],
+        'timezone': ['pytz'],
+    },
 )
