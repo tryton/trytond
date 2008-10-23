@@ -854,8 +854,9 @@ def post_import(cursor, pool, module, to_delete):
                     'There should be some relation ' \
                     'that points to this resource\n' \
                     'You should manually fix this ' \
-                    'and restart --update=module' % \
-                    (db_id, model))
+                    'and restart --update=module\n' \
+                    'Exception: %s' % \
+                    (db_id, model, str(exception)))
 
     transition_obj = pool.get('workflow.transition')
     for mdata_id, db_id in transition_delete:
