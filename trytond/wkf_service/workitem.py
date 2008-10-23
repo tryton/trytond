@@ -100,17 +100,17 @@ def _execute(cursor, workitem, activity, ident):
                         str(type(id_new))
                 cursor.execute('SELECT id FROM wkf_instance ' \
                         'WHERE res_id = %s AND workflow = %s',
-                        (id_new, activity['subflow_id']))
+                        (id_new, activity['subflow']))
                 (id_new,) = cursor.fetchone()
             else:
-                id_new = instance.create(cursor, ident, activity['subflow_id'])
+                id_new = instance.create(cursor, ident, activity['subflow'])
             cursor.execute('UPDATE wkf_workitem ' \
                     'SET subflow = %s WHERE id = %s',
                     (id_new, workitem['id']))
-            workitem['subflow_id'] = id_new
+            workitem['subflow'] = id_new
         if workitem['state'] == 'running':
             cursor.execute("SELECT state FROM wkf_instance " \
-                    "WHERE id = %s", (workitem['subflow_id'],))
+                    "WHERE id = %s", (workitem['subflow'],))
             (state,) = cursor.fetchone()
             if state == 'complete':
                 _state_set(cursor, workitem, 'complete')
