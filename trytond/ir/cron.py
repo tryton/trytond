@@ -121,10 +121,13 @@ class Cron(OSV):
 
             request_obj = self.pool.get('res.request')
             try:
+                user_obj = self.pool.get('res.user')
+                req_user = user_obj.browse(cursor, cron['user'], cron['request_user'])
                 rid = request_obj.create(
                     cursor, cron['user'],
                     {'name': self.raise_user_error(
-                            cursor, 'request_title', raise_exception=False),
+                            cursor, 'request_title', raise_exception=False,
+                            context={'language': req_user.language.code}),
                      'priority': '2',
                      'act_from': cron['user'],
                      'act_to': cron['request_user'],
