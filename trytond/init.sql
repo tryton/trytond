@@ -135,7 +135,7 @@ create table wkf_activity
     signal_send varchar,
     flow_start boolean,
     flow_stop boolean,
-    action varchar,
+    action text,
     primary key(id)
 );
 
