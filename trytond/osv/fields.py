@@ -67,8 +67,6 @@ class Column(object):
         self.translate = translate
         self._domain = domain or []
         self._context = context
-        self.group_name = False
-        self.view_load = 0
         if select not in (0, 1, 2):
             raise Exception('Error', 'Select must be one of 0, 1, 2')
         self.select = select
