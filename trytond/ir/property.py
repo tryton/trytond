@@ -46,7 +46,10 @@ class Property(OSV):
             val = False
             if value:
                 if value.split(',')[0]:
-                    val = int(value.split(',')[1])
+                    try:
+                        val = int(value.split(',')[1])
+                    except ValueError:
+                        val = False
                 else:
                     if field.ttype == 'numeric':
                         val = Decimal(value.split(',')[1])
@@ -76,7 +79,10 @@ class Property(OSV):
             val = False
             if prop.value:
                 if prop.value.split(',')[0]:
-                    val = int(prop.value.split(',')[1])
+                    try:
+                        val = int(prop.value.split(',')[1])
+                    except ValueError:
+                        val = False
                 else:
                     if field.ttype == 'numeric':
                         val = Decimal(prop.value.split(',')[1])
