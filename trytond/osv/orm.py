@@ -12,6 +12,7 @@ from lxml import etree
 import copy
 from trytond.sql_db import table_handler
 from decimal import Decimal
+import logging
 
 OPERATORS = (
         'child_of',
