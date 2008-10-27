@@ -13,12 +13,12 @@ class Object(Service):
         Service.export_method(self, self.obj_list)
 
     def exec_workflow(self, database, user, session, object_name, method,
-            object_id):
+            object_id, *args):
         security.check(database, user, session)
         Cache.clean(database)
         service = LocalService("object_proxy")
         res = service.exec_workflow(database, user, object_name, method,
-                object_id)
+                object_id, *args)
         return res
 
     def execute(self, database, user, session, object_name, method, *args):

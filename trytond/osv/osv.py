@@ -90,10 +90,12 @@ class OSVService(Service):
             cursor.close()
         return res
 
-    def exec_workflow_cr(self, cursor, user, object_name, method, *args):
+    def exec_workflow_cr(self, cursor, user, object_name, method, object_id,
+            *args):
         wf_service = LocalService("workflow")
         try:
-            wf_service.trg_validate(user, object_name, args[0], method, cursor)
+            wf_service.trg_validate(user, object_name, object_id, method,
+                    cursor, *args)
         except Exception, exception:
             if CONFIG['verbose']:
                 tb_s = reduce(lambda x, y: x+y,
@@ -108,13 +110,14 @@ class OSVService(Service):
             raise
         return True
 
-    def exec_workflow(self, dbname, user, object_name, method, *args):
+    def exec_workflow(self, dbname, user, object_name, method, object_id,
+            *args):
         cursor = pooler.get_db(dbname).cursor()
         # TODO add retry when exception for concurency update
         try:
             try:
                 res = self.exec_workflow_cr(cursor, user, object_name, method,
-                        *args)
+                        object_id, *args)
                 cursor.commit()
             except Exception:
                 cursor.rollback()

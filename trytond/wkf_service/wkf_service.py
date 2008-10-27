@@ -22,16 +22,16 @@ class WorkflowService(Service):
         "Clear workflow cache"
         self.wkf_on_create_cache[cursor.dbname] = {}
 
-    def trg_write(self, user, res_type, res_id, cursor):
+    def trg_write(self, user, res_type, res_id, cursor, context=None):
         "Trigger write"
         ident = (user, res_type, res_id)
         cursor.execute('SELECT id FROM wkf_instance ' \
                 'WHERE res_id = %s AND res_type = %s AND state = %s',
                 (res_id, res_type, 'active'))
         for (instance_id,) in cursor.fetchall():
-            instance.update(cursor, instance_id, ident)
+            instance.update(cursor, instance_id, ident, context=context)
 
-    def trg_trigger(self, user, res_type, res_id, cursor):
+    def trg_trigger(self, user, res_type, res_id, cursor, context=None):
         "Trigger trigger"
         cursor.execute('SELECT instance FROM wkf_trigger ' \
                 'WHERE res_id = %s AND model = %s', (res_id, res_type))
@@ -40,14 +40,14 @@ class WorkflowService(Service):
             cursor.execute('SELECT uid, res_type, res_id FROM wkf_instance ' \
                     'WHERE id = %s', (instance_id,))
             ident = cursor.fetchone()
-            instance.update(cursor, instance_id, ident)
+            instance.update(cursor, instance_id, ident, context=context)
 
-    def trg_delete(self, user, res_type, res_id, cursor):
+    def trg_delete(self, user, res_type, res_id, cursor, context=None):
         "Trigger delete"
         ident = (user, res_type, res_id)
-        instance.delete(cursor, ident)
+        instance.delete(cursor, ident, context=context)
 
-    def trg_create(self, user, res_type, res_id, cursor):
+    def trg_create(self, user, res_type, res_id, cursor, context=None):
         "Trigger create"
         ident = (user, res_type, res_id)
         self.wkf_on_create_cache.setdefault(cursor.dbname, {})
@@ -68,9 +68,10 @@ class WorkflowService(Service):
                 raise Exception("Error", "Another active workflow already "\
                                     "exist for this record: %s@%s."% \
                                     (res_id, res_type))
-            instance.create(cursor, ident, wkf_id)
+            instance.create(cursor, ident, wkf_id, context=context)
 
-    def trg_validate(self, user, res_type, res_id, signal, cursor):
+    def trg_validate(self, user, res_type, res_id, signal, cursor,
+            context=None):
         "Trigger validate"
         ident = (user, res_type, res_id)
         # ids of all active workflow instances
@@ -79,9 +80,11 @@ class WorkflowService(Service):
                 'WHERE res_id = %s AND res_type = %s AND state = %s',
                 (res_id, res_type, 'active'))
         for (instance_id,) in cursor.fetchall():
-            instance.validate(cursor, instance_id, ident, signal)
+            instance.validate(cursor, instance_id, ident, signal,
+                    context=context)
 
-    def trg_redirect(self, user, res_type, res_id, new_rid, cursor):
+    def trg_redirect(self, user, res_type, res_id, new_rid, cursor,
+            context=None):
         """
         Trigger redirect
         make all workitems which are waiting for a (subflow) workflow instance
