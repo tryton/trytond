@@ -1422,7 +1422,8 @@ class ORM(object):
 
         wf_service = LocalService("workflow")
         for obj_id in ids:
-            wf_service.trg_delete(user, self._name, obj_id, cursor)
+            wf_service.trg_delete(user, self._name, obj_id, cursor,
+                    context=context)
 
         if not self.check_xml_record(cursor, user, ids, None, context=context):
             self.raise_user_error(cursor, 'delete_xml_record',
@@ -1699,7 +1700,8 @@ class ORM(object):
 
         wf_service = LocalService("workflow")
         for obj_id in ids:
-            wf_service.trg_write(user, self._name, obj_id, cursor)
+            wf_service.trg_write(user, self._name, obj_id, cursor,
+                    context=context)
         return True
 
     def __clean_defaults(self, defaults):
@@ -1839,7 +1841,7 @@ class ORM(object):
                 self._update_tree(cursor, user, id_new, k, field.left, field.right)
 
         wf_service = LocalService("workflow")
-        wf_service.trg_create(user, self._name, id_new, cursor)
+        wf_service.trg_create(user, self._name, id_new, cursor, context=context)
         return id_new
 
     def fields_get(self, cursor, user, fields_names=None, context=None):

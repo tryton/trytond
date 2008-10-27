@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 import workitem
 
-def create(cursor, ident, wkf_id):
+def create(cursor, ident, wkf_id, context=None):
     (user, res_type, res_id) = ident
     cursor.execute("SELECT NEXTVAL('wkf_instance_id_seq')")
     (id_new,) = cursor.fetchone()
@@ -12,30 +12,32 @@ def create(cursor, ident, wkf_id):
     cursor.execute('SELECT * FROM wkf_activity ' \
             'WHERE flow_start = True and workflow = %s', (wkf_id,))
     res = cursor.dictfetchall()
-    workitem.create(cursor, res, id_new, ident)
+    workitem.create(cursor, res, id_new, ident, context=context)
     update(cursor, id_new, ident)
     return id_new
 
-def delete(cursor, ident):
+def delete(cursor, ident, context=None):
     (user, res_type, res_id) = ident
     cursor.execute('DELETE FROM wkf_instance ' \
             'WHERE res_id = %s AND res_type = %s', (res_id, res_type))
 
-def validate(cursor, inst_id, ident, signal, force_running=False):
+def validate(cursor, inst_id, ident, signal, force_running=False,
+        context=None):
     cursor.execute("SELECT * FROM wkf_workitem WHERE instance = %s",
             (inst_id,))
     for witem in cursor.dictfetchall():
-        workitem.process(cursor, witem, ident, signal, force_running)
-    return _update_end(cursor, inst_id, ident)
+        workitem.process(cursor, witem, ident, signal, force_running,
+                context=context)
+    return _update_end(cursor, inst_id, ident, context=context)
 
-def update(cursor, inst_id, ident):
+def update(cursor, inst_id, ident, context=None):
     cursor.execute("SELECT * FROM wkf_workitem WHERE instance = %s",
             (inst_id,))
     for witem in cursor.dictfetchall():
-        workitem.process(cursor, witem, ident)
-    return _update_end(cursor, inst_id, ident)
+        workitem.process(cursor, witem, ident, context=context)
+    return _update_end(cursor, inst_id, ident, context=context)
 
-def _update_end(cursor, inst_id, ident):
+def _update_end(cursor, inst_id, ident, context=None):
     cursor.execute('SELECT state, flow_stop FROM wkf_workitem w ' \
             'LEFT JOIN wkf_activity a ' \
                 'ON (a.id = w.activity) WHERE w.instance = %s',
@@ -65,5 +67,5 @@ def _update_end(cursor, inst_id, ident):
         for i in cursor.fetchall():
             for act_name in act_names:
                 validate(cursor, i[0], (ident[0], i[1], i[2]),
-                        'subflow.' + act_name[0])
+                        'subflow.' + act_name[0], context=context)
     return res
