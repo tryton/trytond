@@ -2002,14 +2002,27 @@ class ORM(object):
                         for field in element:
                             if field.tag in ('form', 'tree', 'graph'):
                                 field2 = copy.copy(field)
-                                if field2.get('string') \
-                                        and 'language' in context:
-                                    trans = translation_obj._get_source(cursor,
-                                            self._name, 'view',
-                                            context['language'],
-                                            field2.get('string'))
-                                    if trans:
-                                        field2.set('string', trans)
+
+                                def _translate_field(field):
+                                    if field.get('string'):
+                                        trans = translation_obj._get_source(
+                                                cursor, self._name, 'view',
+                                                context['language'],
+                                                field.get('string'))
+                                        if trans:
+                                            field.set('string', trans)
+                                    if field.get('sum'):
+                                        trans = translation_obj._get_source(
+                                                cursor, self._name, 'view',
+                                                context['language'],
+                                                field.get('sum'))
+                                        if trans:
+                                            field.set('sum', trans)
+                                    for field_child in field:
+                                        _translate_field(field_child)
+                                if 'language' in context:
+                                    _translate_field(field2)
+
                                 xarch, xfields = self.pool.get(relation
                                         )._view_look_dom_arch(cursor, user,
                                                 field2, field.tag,
