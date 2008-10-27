@@ -68,8 +68,8 @@ def check(cursor, ident, transition, signal, context=None):
     if transition['signal']:
         res = (signal == transition['signal'])
 
-    if transition['group']:
-        user = ident[0]
+    user = ident[0]
+    if transition['group'] and user != 0:
         user_obj = pooler.get_pool(cursor.dbname).get('res.user')
         user_groups = user_obj.read(cursor, user, user, ['groups'],
                 context=context)['groups']
