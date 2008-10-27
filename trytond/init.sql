@@ -18,8 +18,6 @@ CREATE TABLE ir_model_field (
   relation varchar,
   field_description varchar,
   ttype varchar,
-  group_name varchar,
-  view_load boolean,
   help text,
   module varchar,
   primary key(id)

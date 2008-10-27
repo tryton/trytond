@@ -12,8 +12,7 @@ form =
      | notebook
      | group
      | hpaned
-     | vpaned
-     | properties)*
+     | vpaned)*
   }
 attlist.form &=
   [ a:defaultValue = "Unknown" ] attribute string { text }?
@@ -176,8 +175,7 @@ page =
      | notebook
      | group
      | hpaned
-     | vpaned
-     | properties)*
+     | vpaned)*
   }
 attlist.page &= attribute angle { text }?
 attlist.page &=
@@ -197,8 +195,7 @@ group =
      | notebook
      | group
      | hpaned
-     | vpaned
-     | properties)*
+     | vpaned)*
   }
 attlist.group &= attribute string { text }?
 attlist.group &= [ a:defaultValue = "1" ] attribute colspan { text }?
@@ -228,8 +225,7 @@ child1 =
      | notebook
      | group
      | hpaned
-     | vpaned
-     | properties)*
+     | vpaned)*
   }
 attlist.child1 &= empty
 
@@ -245,13 +241,9 @@ child2 =
      | notebook
      | group
      | hpaned
-     | vpaned
-     | properties)*
+     | vpaned)*
   }
 attlist.child2 &= empty
-
-properties = element properties { attlist.properties, empty }
-attlist.properties &= empty
 
 data = element data { attlist.data, xpath+ }
 attlist.data &= empty

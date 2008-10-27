@@ -39,8 +39,6 @@ class ModelField(OSV):
     ttype = fields.Char('Field Type')
     groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
        'field_id', 'group_id', 'Groups')
-    group_name = fields.Char('Group Name')
-    view_load = fields.Boolean('View Auto-Load')
     help = fields.Text('Help', translate=True)
     module = fields.Char('Module',
        help="Module in which this field is defined")
@@ -51,9 +49,6 @@ class ModelField(OSV):
             ('name_model_uniq', 'UNIQUE(name, model)',
                 'The field name in model must be unique!'),
         ]
-
-    def default_view_load(self, cursor, user, context=None):
-        return False
 
     def default_name(self, cursor, user, context=None):
         return 'No Name'

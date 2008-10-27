@@ -349,8 +349,7 @@ class ORM(object):
         cursor.execute('SELECT f.id AS id, f.name AS name, ' \
                     'f.field_description AS field_description, ' \
                     'f.ttype AS ttype, f.relation AS relation, ' \
-                    'f.group_name AS group_name, f.view_load AS view_load, ' \
-                    'f.module as module '\
+                    'f.module as module, f.help AS help '\
                 'FROM ir_model_field AS f, ir_model AS m ' \
                 'WHERE f.model = m.id ' \
                     'AND m.model = %s ',
@@ -382,30 +381,21 @@ class ORM(object):
             if k not in columns:
                 cursor.execute("INSERT INTO ir_model_field " \
                         "(model, name, field_description, ttype, " \
-                            "relation, group_name, view_load, help, module) " \
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            "relation, help, module) " \
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                         (model_id, k, field.string, field._type,
-                            field._obj or '', field.group_name or '',
-                            (field.view_load and 'True') or 'False',
-                            field.help, module_name))
+                            field._obj or '', field.help, module_name))
             elif columns[k]['field_description'] != field.string \
                     or columns[k]['ttype'] != field._type \
                     or columns[k]['relation'] != (field._obj or '') \
-                    or columns[k]['group_name'] != (field.group_name or '') \
-                    or columns[k]['view_load'] != \
-                        ((field.view_load and 'True') or 'False') \
                     or columns[k]['help'] != field.help:
                 cursor.execute('UPDATE ir_model_field ' \
                         'SET field_description = %s, ' \
                             'ttype = %s, ' \
                             'relation = %s, ' \
-                            'group_name = %s, ' \
-                            'view_load = %s, ' \
                             'help = %s ' \
                         'WHERE id = %s ',
                         (field.string, field._type, field._obj or '',
-                            field.group_name or '',
-                            (field.view_load and 'True') or 'False',
                             field.help, columns[k]['id']))
             trans_name = self._name + ',' + k
             if trans_name not in trans_columns:
@@ -2060,35 +2050,6 @@ class ORM(object):
                     context)
             if result:
                 element.set('string', result)
-
-        # Add view for properties !
-        if element.tag == 'properties':
-            parent = element.getparent()
-            models = ["'" + x + "'" for x in  [self._name] + \
-                    self._inherits.keys()]
-            cursor.execute('SELECT f.name AS name, ' \
-                        'f.group_name AS group_name ' \
-                    'FROM ir_model_field AS f, ir_model AS m ' \
-                    'WHERE f.model = m.id ' \
-                        'AND m.model in (' + ','.join(models) + ') ' \
-                        'AND f.view_load ORDER BY f.group_name, f.id')
-            oldgroup = None
-            for fname, gname in cursor.fetchall():
-                if oldgroup != gname:
-                    child = etree.Element('separator')
-                    child.set('string', gname)
-                    child.set('colspan', '4')
-                    oldgroup = gname
-                    parent.insert(parent.index(element), child)
-
-                child = etree.Element('label')
-                child.set('name', fname)
-                parent.insert(parent.index(element), child)
-                child = etree.Element('field')
-                child.set('name', fname)
-                parent.insert(parent.index(element), child)
-            parent.remove(element)
-            element = parent
 
         if childs:
             for field in element:
