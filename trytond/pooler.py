@@ -23,6 +23,8 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
                 'Connecting to %s' % (db_name))
             database = db_connect(db_name)
             cursor = database.cursor()
+            if not cursor.test():
+                raise Exception('UserError', 'Invalid database!')
             cursor.close()
             _DB[db_name] = database
 

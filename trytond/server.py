@@ -85,40 +85,20 @@ class TrytonServer(object):
             try:
                 cursor = pooler.get_db_only(db_name).cursor()
             except psycopg2.OperationalError:
-                self.logger.info("could not connect to database '%s'!" % db_name,)
+                self.logger.error("could not connect to database '%s'!" % db_name,)
                 continue
 
             init[db_name] = False
             if CONFIG['init']:
-                cursor.execute("SELECT relname " \
-                        "FROM pg_class " \
-                        "WHERE relkind = 'r' AND relname in (" \
-                        "'inherit', "
-                        "'ir_model', "
-                        "'ir_model_field', "
-                        "'ir_ui_view', "
-                        "'ir_ui_menu', "
-                        "'res_user', "
-                        "'res_group', "
-                        "'res_group_user_rel', "
-                        "'wkf', "
-                        "'wkf_activity', "
-                        "'wkf_transition', "
-                        "'wkf_instance', "
-                        "'wkf_workitem', "
-                        "'wkf_witm_trans', "
-                        "'ir_module_category', "
-                        "'ir_module_module', "
-                        "'ir_module_module_dependency, '"
-                        "'ir_translation, '"
-                        "'ir_lang'"
-                        ")")
-                if len(cursor.fetchall()) == 0:
+                if not cursor.test():
                     self.logger.info("init db")
                     sql_db.init_db(cursor)
                     init[db_name] = True
                 cursor.commit()
                 cursor.close()
+                pooler.close_db(db_name)
+            elif not cursor.test():
+                self.logger.error("'%s' is not a Tryton database!" % db_name)
 
         register_classes()
 
@@ -126,12 +106,17 @@ class TrytonServer(object):
             try:
                 cursor = pooler.get_db_only(db_name).cursor()
             except psycopg2.OperationalError:
-                self.logger.info("could not connect to database '%s'!" % db_name,)
+                self.logger.error("could not connect to database '%s'!" % db_name,)
+                continue
+            if not cursor.test():
+                cursor.close()
+                pooler.close_db(db_name)
                 continue
             cursor.execute('SELECT code FROM ir_lang ' \
                     'WHERE translatable = True')
             lang = [x[0] for x in cursor.fetchall()]
             cursor.close()
+            pooler.close_db(db_name)
             update_module = bool(CONFIG['init'] or CONFIG['update'])
             pooler.get_db_and_pool(db_name, update_module=update_module,
                     lang=lang)
@@ -160,6 +145,7 @@ class TrytonServer(object):
                         (sha.new(password).hexdigest(),))
                 cursor.commit()
                 cursor.close()
+                pooler.close_db(db_name)
 
         if update_module:
             self.logger.info('Update/Init succeed!')
