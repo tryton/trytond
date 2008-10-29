@@ -173,6 +173,13 @@ class DB(Service):
         res = stdout.close()
         if res:
             raise Exception, "Couldn't restore database"
+        cursor = pooler.get_db_only(db_name, verbose=False).cursor()
+        if not cursor.test():
+            cursor.close()
+            pooler.close_db(db_name)
+            raise Exception, "Couldn't restore database"
+        cursor.close()
+        pooler.close_db(db_name)
         logger.info('RESTORE DB: %s' % (db_name))
         return True
 
