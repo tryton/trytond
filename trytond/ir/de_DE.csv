@@ -504,7 +504,7 @@ view,ir.module.category,0,Module Categories,Modulkategorien,0
 view,ir.module.category,0,Module Category,Modulkategorie,0
 view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
-view,ir.module.module,0,Cancel Upgrade,Upgrade abbrechen,0
+view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Dependencies,Abhängigkeiten,0
 view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
 view,ir.module.module,0,Mark for Uninstallation (beta),Für die Deinstallation (beta) vormerken,0
