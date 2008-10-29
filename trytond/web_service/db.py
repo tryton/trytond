@@ -222,7 +222,7 @@ class DB(Service):
                         "ORDER BY datname")
             res = []
             for db_name, in cursor.fetchall():
-                cursor2 = pooler.get_db_only(db_name).cursor()
+                cursor2 = pooler.get_db_only(db_name, verbose=False).cursor()
                 if not cursor2.test():
                     cursor2.close()
                     pooler.close_db(db_name)

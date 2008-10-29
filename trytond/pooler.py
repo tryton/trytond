@@ -82,14 +82,15 @@ def close_db(db_name):
     finally:
         _LOCK.release()
 
-def get_db_only(db_name):
+def get_db_only(db_name, verbose=True):
     _LOCK.acquire()
     try:
         if db_name in _DB:
             database = _DB[db_name]
         else:
-            logging.getLogger('pooler').info(
-                'Connecting to %s' % (db_name))
+            if verbose:
+                logging.getLogger('pooler').info(
+                    'Connecting to %s' % (db_name))
             database = db_connect(db_name)
             _DB[db_name] = database
     finally:
