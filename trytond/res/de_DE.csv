@@ -55,17 +55,17 @@ field,"res.request,state",0,State,Status,0
 field,"res.request,trigger_date",0,Trigger Date,Gültig ab,0
 field,"res.request,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.request,write_uid",0,Last modification by,Zuletzt geändert von,0
-field,"res.user,action",0,Home Action,Standard Aktion,0
+field,"res.user,action",0,Home Action,Standardaktion,0
 field,"res.user,active",0,Active,Aktiv,0
 field,"res.user,create_date",0,Creation date,Erstellungsdatum,0
 field,"res.user,create_uid",0,Creation user,Ersteller,0
 field,"res.user,email",0,Email,E-Mail,0
-field,"res.user,groups",0,Groups,Gruppen,0
+field,"res.user,groups",0,Groups,Gruppenzugehörigkeit,0
 field,"res.user,id",0,ID,ID,0
 field,"res.user,language",0,Language,Sprache,0
 field,"res.user,language_direction",0,Language Direction,Sprache Richtung,0
 field,"res.user,login",0,Login,Anmeldename,0
-field,"res.user,menu",0,Menu Action,Menü Aktion,0
+field,"res.user,menu",0,Menu Action,Menüaktion,0
 field,"res.user,name",0,Name,Name,0
 field,"res.user,password",0,Password,Kennwort,0
 field,"res.user,rule_groups",0,Rules,Rollen,0
