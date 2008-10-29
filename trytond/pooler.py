@@ -100,7 +100,7 @@ def get_db(db_name):
     return get_db_and_pool(db_name)[0]
 
 def get_db_list():
-    return _DB.keys()
+    return _POOL.keys()
 
 def get_pool(db_name, update_module=False, lang=None):
     pool = get_db_and_pool(db_name, update_module, lang=lang)[1]
