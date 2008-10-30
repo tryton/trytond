@@ -423,6 +423,8 @@ class One2Many(Column):
                     ids = [act[1]]
                 else:
                     ids = list(act[1])
+                if not ids:
+                    continue
                 cursor.execute('UPDATE "' + _table + '" ' \
                         'SET "' + self._field + '" = %s ' \
                         'WHERE id IN (' \
@@ -536,6 +538,8 @@ class Many2Many(Column):
                     ids = [act[1]]
                 else:
                     ids = list(act[1])
+                if not ids:
+                    continue
                 cursor.execute('SELECT "' + self.target + '" ' \
                         'FROM "' + self._rel + '" ' \
                         'WHERE ' + self.origin + ' = %s ' \
