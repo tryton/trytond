@@ -216,7 +216,8 @@ class ActionReport(OSV):
     report_content = fields.Function('get_report_content',
             fnct_inv='report_content_inv', type='binary',
             string='Content')
-    action = fields.Many2One('ir.action', 'Action', required=True)
+    action = fields.Many2One('ir.action', 'Action', required=True,
+            ondelete='CASCADE')
     style = fields.Property(type='char', string='Style',
             help='Define the style to apply on the report.')
     style_content = fields.Function('get_style_content',
@@ -302,6 +303,19 @@ class ActionReport(OSV):
         return super(ActionReport, self).write(cursor, user, ids, vals,
                 context=context)
 
+    def delete(self, cursor, user, ids, context=None):
+        action_obj = self.pool.get('ir.action')
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        action_ids = [x.action.id for x in self.browse(cursor, user, ids,
+            context=context)]
+
+        res = super(ActionReport, self).delete(cursor, user, ids,
+                context=context)
+        action_obj.delete(cursor, user, action_ids, context=context)
+        return res
+
 ActionReport()
 
 
@@ -329,7 +343,8 @@ class ActionActWindow(OSV):
             help='Default limit for the list view')
     auto_refresh = fields.Integer('Auto-Refresh',
             help='Add an auto-refresh on the view')
-    action = fields.Many2One('ir.action', 'Action', required=True)
+    action = fields.Many2One('ir.action', 'Action', required=True,
+            ondelete='CASCADE')
     window_name = fields.Boolean('Window Name', required=True,
             help='Use the action name as window name')
     search_value = fields.Char('Search Criteria',
@@ -361,6 +376,19 @@ class ActionActWindow(OSV):
         for act in self.browse(cursor, user, ids, context=context):
             res[act.id] = [(view.view.id, view.view.type) \
                     for view in act.act_window_views]
+        return res
+
+    def delete(self, cursor, user, ids, context=None):
+        action_obj = self.pool.get('ir.action')
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        action_ids = [x.action.id for x in self.browse(cursor, user, ids,
+            context=context)]
+
+        res = super(ActionActWindow, self).delete(cursor, user, ids,
+                context=context)
+        action_obj.delete(cursor, user, action_ids, context=context)
         return res
 
 ActionActWindow()
@@ -397,11 +425,25 @@ class ActionWizard(OSV):
     _description = __doc__
     _inherits = {'ir.action': 'action'}
     wiz_name = fields.Char('Wizard name', required=True)
-    action = fields.Many2One('ir.action', 'Action', required=True)
+    action = fields.Many2One('ir.action', 'Action', required=True,
+            ondelete='CASCADE')
     model = fields.Char('Model')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.wizard'
+
+    def delete(self, cursor, user, ids, context=None):
+        action_obj = self.pool.get('ir.action')
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        action_ids = [x.action.id for x in self.browse(cursor, user, ids,
+            context=context)]
+
+        res = super(ActionWizard, self).delete(cursor, user, ids,
+                context=context)
+        action_obj.delete(cursor, user, action_ids, context=context)
+        return res
 
 ActionWizard()
 
@@ -413,12 +455,26 @@ class ActionURL(OSV):
     _description = __doc__
     _inherits = {'ir.action': 'action'}
     url = fields.Char('Action Url', required=True)
-    action = fields.Many2One('ir.action', 'Action', required=True)
+    action = fields.Many2One('ir.action', 'Action', required=True,
+            ondelete='CASCADE')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.url'
 
     def default_target(self, cursor, user, context=None):
         return 'new'
+
+    def delete(self, cursor, user, ids, context=None):
+        action_obj = self.pool.get('ir.action')
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        action_ids = [x.action.id for x in self.browse(cursor, user, ids,
+            context=context)]
+
+        res = super(ActionURL, self).delete(cursor, user, ids,
+                context=context)
+        action_obj.delete(cursor, user, action_ids, context=context)
+        return res
 
 ActionURL()
