@@ -453,6 +453,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         if field_type == 'many2one':
             return browse_record[key] and browse_record[key].id or False
         elif field_type == 'reference':
+            if not browse_record[key]:
+                return False
             ref_mode, ref_id = browse_record[key].split(',', 1)
             try:
                 ref_id = eval(ref_id)
