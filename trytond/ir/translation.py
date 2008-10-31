@@ -13,6 +13,7 @@ import csv
 from trytond.osv import fields, OSV, Cacheable
 from trytond.wizard import Wizard, WizardOSV
 from trytond import tools
+from trytond import pooler
 
 TRANSLATION_TYPE = [
     ('field', 'Field'),
@@ -617,6 +618,156 @@ class ReportTranslationSet(Wizard):
         return {}
 
 ReportTranslationSet()
+
+
+class TranslationCleanInit(WizardOSV):
+    'Clean translation init'
+    _name = 'ir.translation.clean.init'
+    _description = __doc__
+
+TranslationCleanInit()
+
+
+class TranslationCleanStart(WizardOSV):
+    'Clean translation start'
+    _name = 'ir.translation.clean.start'
+    _description = __doc__
+
+TranslationCleanStart()
+
+
+class TranslationClean(Wizard):
+    "Clean translation"
+    _name = 'ir.translation.clean'
+
+    states = {
+        'init': {
+            'actions': [],
+            'result': {
+                'type': 'form',
+                'object': 'ir.translation.clean.init',
+                'state': [
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('start', 'Start', 'tryton-ok', True),
+                ],
+            },
+        },
+        'start': {
+            'actions': ['_clean_translation'],
+            'result': {
+                'type': 'form',
+                'object': 'ir.translation.clean.start',
+                'state': [
+                    ('end', 'Ok', 'tryton-ok', True),
+                ],
+            },
+        },
+    }
+
+    def _clean_translation(self, cursor, user, data, context):
+        translation_obj = self.pool.get('ir.translation')
+        pool_wizard = pooler.get_pool_wizard(cursor.dbname)
+
+        offset = 0
+        limit = cursor.IN_MAX
+        while True:
+            to_delete = []
+            translation_ids = translation_obj.search(cursor, user, [],
+                    offset=offset, limit=limit, context=context)
+            if not translation_ids:
+                break
+            offset += limit
+            for translation in translation_obj.browse(cursor, user,
+                    translation_ids, context=context):
+                if translation.type == 'field':
+                    model_name, field_name = translation.name.split(',', 1)
+                    if model_name not in self.pool.object_name_list():
+                        to_delete.append(translation.id)
+                        continue
+                    model_obj = self.pool.get(model_name)
+                    if field_name not in model_obj._columns:
+                        to_delete.append(translation.id)
+                        continue
+                elif translation.type == 'model':
+                    model_name, _ = translation.name.split(',', 1)
+                    if model_name not in self.pool.object_name_list():
+                        to_delete.append(translation.id)
+                        continue
+                elif translation.type == 'odt':
+                    continue
+                elif translation.type == 'selection':
+                    model_name, field_name = translation.name.split(',', 1)
+                    if model_name not in self.pool.object_name_list():
+                        to_delete.append(translation.id)
+                        continue
+                    model_obj = self.pool.get(model_name)
+                    if field_name not in model_obj._columns:
+                        to_delete.append(translation.id)
+                        continue
+                    field = model_obj._columns[field_name]
+                    if not hasattr(field, 'selection') or not field.selection:
+                        to_delete.append(translation.id)
+                        continue
+                    if translation.src not in dict(field.selection).values():
+                        to_delete.append(translation.id)
+                        continue
+                elif translation.type == 'view':
+                    continue
+                elif translation.type == 'wizard_button':
+                    wizard_name, state_name, button_name = translation.name.split(',', 2)
+                    wizard = pool_wizard.get(wizard_name)
+                    if not wizard:
+                        to_delete.append(translation.id)
+                        continue
+                    state = wizard.states.get(state_name)
+                    if not state:
+                        to_delete.append(translation.id)
+                        continue
+                    find = False
+                    for but in state['result']['state']:
+                        if but[0] == button_name:
+                            find = True
+                    if not find:
+                        to_delete.append(translation.id)
+                        continue
+                elif translation.type == 'help':
+                    model_name, field_name = translation.name.split(',', 1)
+                    if model_name not in self.pool.object_name_list():
+                        to_delete.append(translation.id)
+                        continue
+                    model_obj = self.pool.get(model_name)
+                    if field_name not in model_obj._columns:
+                        to_delete.append(translation.id)
+                        continue
+                    field = model_obj._columns[field_name]
+                    if not field.help:
+                        to_delete.append(translation.id)
+                        continue
+                elif translation.type == 'error':
+                    model_name = translation.name
+                    if model_name in (
+                            'delete_xml_record',
+                            'xml_record_desc',
+                            'write_xml_record',
+                            'delete_workflow_record',
+                            ):
+                        continue
+                    if model_name not in self.pool.object_name_list():
+                        to_delete.append(translation.id)
+                        continue
+                    model_obj = self.pool.get(model_name)
+                    errors = model_obj._error_messages.values() + \
+                            model_obj._sql_error_messages.values()
+                    for _, _, error in model_obj._sql_constraints:
+                        errors.append(error)
+                    if translation.src not in errors:
+                        to_delete.append(translation.id)
+                        continue
+
+            translation_obj.delete(cursor, user, to_delete, context=context)
+        return {}
+
+TranslationClean()
 
 
 class TranslationUpdateInit(WizardOSV):
