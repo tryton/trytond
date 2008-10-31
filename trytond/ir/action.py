@@ -406,7 +406,7 @@ class ActionActWindowView(OSV):
             ondelete='CASCADE')
     multi = fields.Boolean('On multiple doc.',
             help="If set to true, the action will not be displayed \n" \
-                    "on the right toolbar of a form views.")
+                    "on the bottom toolbar of a form views.")
 
     def __init__(self):
         super(ActionActWindowView, self).__init__()
