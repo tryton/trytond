@@ -18,8 +18,8 @@
                     <field name="priority" select="2"/>
                     <field name="interval_number"/>
                     <field name="interval_type"/>
-                    <field name="numbercall"/>
-                    <field name="active" select="1"/>
+                    <field name="numbercall" select="2"/>
+                    <field name="active" select="2"/>
                     <field name="running" select="2"/>
                 </tree>
                 ]]>
