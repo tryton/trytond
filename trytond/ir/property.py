@@ -53,8 +53,8 @@ class Property(OSV):
                 else:
                     if field.ttype == 'numeric':
                         val = Decimal(value.split(',')[1])
-                    elif field.ttype == 'char':
-                        val = prop.value.split(',')[1]
+                    elif field.ttype in ('char', 'selection'):
+                        val = value.split(',')[1]
                     else:
                         raise Exception('Not implemented')
             default_val = val
@@ -86,7 +86,7 @@ class Property(OSV):
                 else:
                     if field.ttype == 'numeric':
                         val = Decimal(prop.value.split(',')[1])
-                    elif field.ttype == 'char':
+                    elif field.ttype in ('char', 'selection'):
                         val = prop.value.split(',')[1]
                     else:
                         raise Exception('Not implemented')
