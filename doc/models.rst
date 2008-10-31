@@ -527,7 +527,7 @@ otherwise in the description.
      list view. When equal to ``2`` the field appear in the *Advanced
      Search* part of the search box.
 
-   * ``on_change``: The list of values. If set, the client will call
+   * ``on_change``: A list of values. If set, the client will call
      the method ``on_change_<field_name>`` when a user change the field
      and pass this list of values as argument. This method must return
      a dictionary ``{field_name: new_value}`` for all the field that
