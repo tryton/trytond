@@ -139,6 +139,40 @@
             id="menu_translation_set_report"
             sequence="10"/>
 
+        <record model="ir.ui.view" id="act_translation_clean_init_view_form">
+            <field name="model">ir.translation.clean.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Clean Translations">
+                    <label string="Clean Translations?"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="act_translation_clean_start_view_form">
+            <field name="model">ir.translation.clean.start</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Clean Translations">
+                    <label string="Clean Translations Succeed!"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.action.wizard" id="act_translation_clean">
+            <field name="name">Clean Translations</field>
+            <field name="wiz_name">ir.translation.clean</field>
+        </record>
+        <menuitem name="Clean Translations"
+            parent="menu_localization"
+            action="act_translation_clean"
+            id="menu_translation_clean"
+            sequence="20"/>
+
         <record model="ir.ui.view" id="act_translation_update_init_view_form">
             <field name="model">ir.translation.update.init</field>
             <field name="type">form</field>
@@ -160,7 +194,7 @@
             parent="menu_localization"
             action="act_translation_update"
             id="menu_translation_update"
-            sequence="20"/>
+            sequence="30"/>
 
         <record model="ir.ui.view" id="act_translation_export_init_view_form">
             <field name="model">ir.translation.export.init</field>
@@ -198,6 +232,6 @@
             parent="menu_localization"
             action="act_translation_export"
             id="menu_translation_export"
-            sequence="30"/>
+            sequence="40"/>
     </data>
 </tryton>
