@@ -111,7 +111,7 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="Set Report Translations">
-                    <label string="Update Report Translations?"/>
+                    <label string="Synchronize Report Translations?"/>
                 </form>
                 ]]>
             </field>
@@ -144,7 +144,7 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Update Translations">
+                <form string="Synchronize Translations">
                     <label name="lang"/>
                     <field name="lang"/>
                 </form>
@@ -153,10 +153,10 @@
         </record>
 
         <record model="ir.action.wizard" id="act_translation_update">
-            <field name="name">Update Translations</field>
+            <field name="name">Synchronize Translations</field>
             <field name="wiz_name">ir.translation.update</field>
         </record>
-        <menuitem name="Update Translations"
+        <menuitem name="Synchronize Translations"
             parent="menu_localization"
             action="act_translation_update"
             id="menu_translation_update"
