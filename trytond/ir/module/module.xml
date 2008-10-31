@@ -27,7 +27,7 @@
                             <field name="website" widget="url"/>
                             <label name="state"/>
                             <field name="state" readonly="1"/>
-                            <group col="1" colspan="2">
+                            <group col="6" colspan="2">
                                 <button string="Mark for Installation" name="button_install"
                                     type="object" states="{'invisible': '''state != 'uninstalled' '''}"/>
                                 <button string="Mark for Upgrade" name="button_upgrade"
