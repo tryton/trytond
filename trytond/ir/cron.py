@@ -62,8 +62,7 @@ class Cron(OSV):
         self._error_messages.update({
             'request_title': 'Scheduled action failed',
             'request_body': "The following action failed to execute "
-                            "properly: \"%s\" \n See the first attachment for "
-                            "details.\n Traceback: \n\n%s\n"
+                            "properly: \"%s\"\n Traceback: \n\n%s\n"
             })
 
     def default_nextcall(self, cursor, user, context=None):
