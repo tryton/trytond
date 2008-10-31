@@ -14,8 +14,8 @@
                     <field name="nextcall"/>
                     <field name="name" select="1"/>
                     <field name="user" select="1"/>
-                    <field name="request_user" select="1"/>
-                    <field name="priority" select="1"/>
+                    <field name="request_user" select="2"/>
+                    <field name="priority" select="2"/>
                     <field name="interval_number"/>
                     <field name="interval_type"/>
                     <field name="numbercall"/>
