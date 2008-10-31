@@ -334,7 +334,7 @@ model,"ir.ui.menu,name",menu_property_form,Properties,Propriétés,0
 model,"ir.ui.menu,name",menu_rule_group_form,Record Rules,Règles d'enregistrement,0
 model,"ir.ui.menu,name",menu_action_report_form,Reports,Rapports,0
 model,"ir.ui.menu,name",menu_cron_form,Scheduled Actions,Actions planifiées,0
-model,"ir.ui.menu,name",menu_scheduler,Scheduler,Programmateur,0
+model,"ir.ui.menu,name",menu_scheduler,Scheduler,Planificateur,0
 model,"ir.ui.menu,name",menu_sequences,Sequences,Séquence,0
 model,"ir.ui.menu,name",menu_sequence_form,Sequences,Séquences,0
 model,"ir.ui.menu,name",menu_sequence_strict_form,Sequences Strict,Séquences Strictes,0
