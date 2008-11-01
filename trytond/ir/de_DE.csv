@@ -3,15 +3,13 @@ error,delete_workflow_record,0,You cannot delete a record with a running workflo
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique!,Der interne Name kann nicht mehrfach vergeben werden!,0
-error,ir.attachment,0,Error! You can not create attachment with the same name!,Es kann kein Anhang unter dem selben Namen erstellt werden!,0
+error,ir.attachment,0,Error! You can not create attachments with the same name!,Fehler! Anhänge müssen unterschiedliche Namen aufweisen!,0
 error,ir.cron,0,Scheduled action failed,Geplante Aktion fehlgeschlagen,0
-error,ir.cron,0,"The following action failed to execute properly: ""%s"" 
- See the first attachment for details.
+error,ir.cron,0,"The following action failed to execute properly: ""%s""
  Traceback: 
 
 %s
 ","Die folgende Aktion konnte nicht erfolgreich durchgeführt werden: ""%s""
- Siehe Details im ersten Anhang.
  Traceback:
 
 %s",0
@@ -24,8 +22,6 @@ error,ir.model.access,0,You can not create this kind of document! (%s),Keine Ber
 error,ir.model.access,0,You can not delete this document! (%s),Keine Berechtigung für die Löschung dieses Dokuments! (%s),0
 error,ir.model.access,0,You can not read this document! (%s),Keine Leseberechtigung für dieses Dokument! (%s),0
 error,ir.model.access,0,You can not write in this document! (%s),Keine Schreibberechtigung für dieses Dokument! (%s),0
-error,ir.model.data,0,"The couple (fs_id, module, model) must be unique!","Der Schlüssel (fs_id, module, model) kann nicht mehrfach vergeben werden!",0
-error,ir.model.data,0,"The couple (fs_id, module) must be unique!","Das Wertepaar (fs_id, module) muss eindeutig sein (kann nicht mehrfach vergeben werden)!",0
 error,ir.model.data,0,"The triple (fs_id, module, model) must be unique!","Die Dreifachkombination (fs_id, module, model)  muss eindeuitg sein (kann nicht mehrfach vergeben werden)!",0
 error,ir.model.field,0,The field name in model must be unique!,Der Feldname in Modell kann nicht mehrfach vergeben werden!,0
 error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Fehlende Abhängigkeiten %s für Modul ""%s""",0
@@ -39,7 +35,6 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,Präfix/Suffix ungültig!,0
 error,ir.sequence.strict,0,Missing sequence!,Fehlende Sequenz!,0
 error,ir.translation,0,Translation must be unique,Übersetzung kann nicht mehrfach vergeben werden!,0
 error,ir.ui.view,0,Invalid XML for View!,Ungültiges XML für Ansicht!,0
-error,ir.ui.view,0,Invalid XML for View Architecture!,Ungültiges XML-Format für Sicht,0
 error,write_xml_record,0,You are not allowed to modify this record.,Keine Berechtigung für die Änderung dieses Datensatzes,0
 error,xml_record_desc,0,This record is part of the base configuration.,Dieser Datensatz ist Teil der Basiskonfiguration,0
 field,"ir.action.act_window,action",0,Action,Aktion,0
@@ -145,7 +140,6 @@ field,"ir.model.data,model",0,Model,Modell,0
 field,"ir.model.data,module",0,Module,Modul,0
 field,"ir.model.data,values",0,Values,Werte,0
 field,"ir.model.field,field_description",0,Field Description,Beschreibung,0
-field,"ir.model.field,group_name",0,Group Name,Name Gruppe,0
 field,"ir.model.field,groups",0,Groups,Gruppen,0
 field,"ir.model.field,help",0,Help,Hilfe,0
 field,"ir.model.field,model",0,Model,Modell,0
@@ -154,7 +148,6 @@ field,"ir.model.field,name",0,Name,Name,0
 field,"ir.model.field,relation",0,Model Relation,Beziehung Modell,0
 field,"ir.model,fields",0,Fields,Felder,0
 field,"ir.model.field,ttype",0,Field Type,Feldtyp,0
-field,"ir.model.field,view_load",0,View Auto-Load,Sicht für automatisches Laden,0
 field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Model Name,Modellname,0
 field,"ir.model,module",0,Module,Modul,0
@@ -173,7 +166,6 @@ field,"ir.module.module.dependency,name",0,Name,Name,0
 field,"ir.module.module.dependency,state",0,State,Status,0
 field,"ir.module.module,description",0,Description,Beschreibung,0
 field,"ir.module.module.install_upgrade.init,module_info",0,Modules to update,Zu aktualisierende Module,0
-field,"ir.module.module,license",0,License,Lizenz,0
 field,"ir.module.module,name",0,Name,Name,0
 field,"ir.module.module,shortdesc",0,Short description,Kurzbeschreibung,0
 field,"ir.module.module,state",0,State,Status,0
@@ -255,7 +247,7 @@ help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Die S
 help,"ir.action.act_window,limit",0,Default limit for the list view,Standardobergrenze für die Listenanscht,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Standardsuchwerte in der Listenansicht,0
 help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
-on the right toolbar of a form views.","Wenn gesetzt (true) , wird die Aktion auf der rechten Toolbar einer Formularansicht nicht dargestellt",0
+on the bottom toolbar of a form views.","Wenn gesetzt (true) , wird die Aktion auf der rechten Toolbar einer Formularansicht nicht dargestellt",0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Aktionsname als Fenstername benutzen,0
 help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Wird auch als Dateiendung verwendet,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definiert den Stil für den Bericht,0
@@ -280,6 +272,7 @@ help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,
 model,"ir.action,name",act_action_form,Actions,Aktionen,0
 model,"ir.action,name",act_attachment_form,Attachments,Anhänge,0
 model,"ir.action,name",act_category_tree,Categories,Kategorien,0
+model,"ir.action,name",act_translation_clean,Clean Translations,Übersetzungen bereinigen,0
 model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
 model,"ir.action,name",act_property_form_default,Default Properties,Standardeigenschaften,0
 model,"ir.action,name",act_default_form,Defaults,Standards,0
@@ -303,9 +296,10 @@ model,"ir.action,name",act_sequence_form,Sequences,Sequenzen,0
 model,"ir.action,name",act_sequence_strict_form,Sequences Strict,Strikte Sequenzen,0
 model,"ir.action,name",act_sequence_type_form,Sequence Types,Sequenztypen,0
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
+model,"ir.action,name",,Synchronize Translations,Übersetzungen synchronisieren,0
+model,"ir.action,name",act_translation_update,Synchronize Translations,Übersetzungen aktualisieren,0
 model,"ir.action,name",act_translation_form,Translations,Übersetzungen,0
 model,"ir.action,name",action_tryton,Tryton,Tryton,0
-model,"ir.action,name",act_translation_update,Update Translations,Übersetzungen aktualisieren,0
 model,"ir.action,name",act_action_url_form,URLs,URLs,0
 model,"ir.action,name",act_view_form,Views,Sichten,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Schnelltasten anzeigen,0
@@ -319,6 +313,7 @@ model,"ir.ui.menu,name",menu_act_action,Actions,Aktionen,0
 model,"ir.ui.menu,name",menu_administration,Administration,Systemverwaltung,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Anhänge,0
 model,"ir.ui.menu,name",menu_category_tree,Categories,Kategorien,0
+model,"ir.ui.menu,name",menu_translation_clean,Clean Translations,Übersetzungen bereinigen,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
 model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Standardeigenschaften,0
 model,"ir.ui.menu,name",menu_default_form,Defaults,Standards,0
@@ -344,9 +339,9 @@ model,"ir.ui.menu,name",menu_sequence_form,Sequences,Sequenzen,0
 model,"ir.ui.menu,name",menu_sequence_strict_form,Sequences Strict,Strikte Sequenzen,0
 model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Sequenztypen,0
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
+model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Übersetzungen aktualisieren,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Übersetzungen,0
 model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
-model,"ir.ui.menu,name",menu_translation_update,Update Translations,Übersetzungen aktualisieren,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,Programmoberfläche,0
 model,"ir.ui.menu,name",menu_view,Views,Sichten,0
@@ -380,8 +375,6 @@ selection,"ir.module.module.dependency,state",0,To be removed,Für die Entfernun
 selection,"ir.module.module.dependency,state",0,To be upgraded,Für die Aktualisierung vorgemerkt,0
 selection,"ir.module.module.dependency,state",0,Uninstallable,Nicht installierbar,0
 selection,"ir.module.module.dependency,state",0,Unknown,Unbekannt,0
-selection,"ir.module.module,license",0,GPL-2,GPL-2,0
-selection,"ir.module.module,license",0,Other proprietary,Andere proprietäre Lizenz,0
 selection,"ir.module.module,state",0,Installed,Installiert,0
 selection,"ir.module.module,state",0,Not Installable,Nicht installierbar,0
 selection,"ir.module.module,state",0,Not Installed,Nicht installiert,0
@@ -546,12 +539,18 @@ view,ir.sequence.strict,0,${year},${year},0
 view,ir.sequence.strict,0,Year:,Jahr:,0
 view,ir.sequence.type,0,Sequence Type,Sequenztyp,0
 view,ir.translation,0,Translations,Übersetzungen,0
+view,ir.translation.clean.init,0,Clean Translations,Übersetzungen bereinigen,0
+view,ir.translation.clean.init,0,Clean Translations?,Übersetzungen bereinigen?,0
+view,ir.translation.clean.start,0,Clean Translations,Übersetzungen bereinigen,0
+view,ir.translation.clean.start,0,Clean Translations Succeed!,Bereinigung der Übersetzungen erfolgreich durchgeführt!,0
 view,ir.translation.export.init,0,Export Translation,Übersetzung exportieren,0
 view,ir.translation.export.start,0,Export Translation,Übersetzung exportieren,0
 view,ir.translation.set_report.init,0,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
+view,ir.translation.set_report.init,0,Synchronize Report Translations?,Übersetzungen für Berichte synchronisieren?,0
 view,ir.translation.set_report.init,0,Update Report Translations?,Übersetzungen für Berichte aktualisieren?,0
 view,ir.translation.set_report.start,0,Set Report Translations,Übersetzungen für Berichte übernehmen,0
 view,ir.translation.set_report.start,0,Set Translations Succeed!,Übersetzungen erfolgreich übernommen!,0
+view,ir.translation.update.init,0,Synchronize Translations,Übersetzungen synchronisieren,0
 view,ir.translation.update.init,0,Update Translations,Übersetzungen aktualisieren,0
 view,ir.translation.update_report.init,0,Update Report Translations,Übersetzungen für Berichte aktualisieren,0
 view,ir.translation.update_report.init,0,Update Report Translations?,Übersetzungen für Berichte aktualisieren?,0
@@ -565,6 +564,9 @@ wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,OK,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Aktualisierung starten,0
 wizard_button,"ir.module.module.install_upgrade,start,config",0,Ok,OK,0
+wizard_button,"ir.translation.clean,init,end",0,Cancel,Abbrechen,0
+wizard_button,"ir.translation.clean,init,start",0,Start,Start,0
+wizard_button,"ir.translation.clean,start,end",0,Ok,Ok,0
 wizard_button,"ir.translation.export,init,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.translation.export,init,start",0,Start Export,Export starten,0
 wizard_button,"ir.translation.export,start,end",0,Close,Schließen,0
@@ -573,5 +575,3 @@ wizard_button,"ir.translation.set_report,init,start",0,Start Update,Aktualisieru
 wizard_button,"ir.translation.set_report,start,end",0,Ok,OK,0
 wizard_button,"ir.translation.update,init,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.translation.update,init,start",0,Start Update,Aktualisierung starten,0
-wizard_button,"ir.translation.update_report,init,end",0,Cancel,Abbrechen,0
-wizard_button,"ir.translation.update_report,init,start",0,Start Update,Aktualisierung starten,0
