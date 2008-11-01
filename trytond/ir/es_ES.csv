@@ -38,7 +38,6 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,prefijo/sufijo inválidos!,0
 error,ir.sequence.strict,0,Missing sequence!,Falta la secuencia!,0
 error,ir.translation,0,Translation must be unique,La traducción debe ser única,0
 error,ir.ui.view,0,Invalid XML for View!,XML inválido para la Vista!,0
-error,ir.ui.view,0,Invalid XML for View Architecture!,XML inválido para arquitectura de vista!,0
 error,write_xml_record,0,You are not allowed to modify this record.,No esta autorizado para modificar este registro.,0
 error,xml_record_desc,0,This record is part of the base configuration.,Este registro es parte de la configuración base.,0
 field,"ir.action.act_window,action",0,Action,Acción,0
@@ -144,7 +143,6 @@ field,"ir.model.data,model",0,Model,Modelo,0
 field,"ir.model.data,module",0,Module,Módulo,0
 field,"ir.model.data,values",0,Values,Valores,0
 field,"ir.model.field,field_description",0,Field Description,Descripción del Campo,0
-field,"ir.model.field,group_name",0,Group Name,Nombre de Grupo,0
 field,"ir.model.field,groups",0,Groups,Grupos,0
 field,"ir.model.field,help",0,Help,Ayuda,0
 field,"ir.model.field,model",0,Model,Modelo,0
@@ -153,7 +151,6 @@ field,"ir.model.field,name",0,Name,Nombre,0
 field,"ir.model.field,relation",0,Model Relation,Relación con Modelo,0
 field,"ir.model,fields",0,Fields,Campos,0
 field,"ir.model.field,ttype",0,Field Type,Tipo de Campo,0
-field,"ir.model.field,view_load",0,View Auto-Load,Ver Autocarga,0
 field,"ir.model,info",0,Information,Información,0
 field,"ir.model,model",0,Model Name,Nombre del Modelo,0
 field,"ir.model,module",0,Module,Módulo,0
@@ -277,6 +274,7 @@ help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,
 model,"ir.action,name",act_action_form,Actions,Acciones,0
 model,"ir.action,name",act_attachment_form,Attachments,Adjuntos,0
 model,"ir.action,name",act_category_tree,Categories,Categorías,0
+model,"ir.action,name",act_translation_clean,Clean Translations,Limpiar Traducciones,0
 model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Configurar los elementos del Wizard,0
 model,"ir.action,name",act_property_form_default,Default Properties,Propiedades predeterminadas,0
 model,"ir.action,name",act_default_form,Defaults,Predeterminados,0
@@ -300,9 +298,9 @@ model,"ir.action,name",act_sequence_form,Sequences,Secuencias,0
 model,"ir.action,name",act_sequence_strict_form,Sequences Strict,Secuencias Estrictas,0
 model,"ir.action,name",act_sequence_type_form,Sequence Types,Tipos de Secuencia,0
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Establecer Traducciones de Reporte,0
+model,"ir.action,name",act_translation_update,Synchronize Translations,Actualizar Traducción,0
 model,"ir.action,name",act_translation_form,Translations,Traducciones,0
 model,"ir.action,name",action_tryton,Tryton,Tryton,0
-model,"ir.action,name",act_translation_update,Update Translations,Actualizar Traducción,0
 model,"ir.action,name",act_action_url_form,URLs,URLs,0
 model,"ir.action,name",act_view_form,Views,Vistas,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Ver Atajos,0
@@ -316,6 +314,7 @@ model,"ir.ui.menu,name",menu_act_action,Actions,Acciones,0
 model,"ir.ui.menu,name",menu_administration,Administration,Administración,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Adjuntos,0
 model,"ir.ui.menu,name",menu_category_tree,Categories,Categorías,0
+model,"ir.ui.menu,name",menu_translation_clean,Clean Translations,Limpiar Traducciones,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Configurar los elementos del Wizard,0
 model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Propiedades predeterminadas,0
 model,"ir.ui.menu,name",menu_default_form,Defaults,Predeterminados,0
@@ -341,9 +340,9 @@ model,"ir.ui.menu,name",menu_sequence_form,Sequences,Secuencias,0
 model,"ir.ui.menu,name",menu_sequence_strict_form,Sequences Strict,Secuencias Estrictas,0
 model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Tipos de Secuencia,0
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Establecer Traducciones de Reporte,0
+model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Actualizar Traducción,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traducciones,0
 model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
-model,"ir.ui.menu,name",menu_translation_update,Update Translations,Actualizar Traducción,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,Interfaz de Usuario,0
 model,"ir.ui.menu,name",menu_view,Views,Vistas,0
@@ -531,7 +530,7 @@ view,ir.sequence,0,Month:,Mes:,0
 view,ir.sequence,0,Sequences,Secuencias,0
 view,ir.sequence,0,${year},${year},0
 view,ir.sequence,0,Year:,Año:,0
-view,ir.sequence.strict,0,${day},${day},1
+view,ir.sequence.strict,0,${day},${day},0
 view,ir.sequence.strict,0,Day:,Día:,0
 view,ir.sequence.strict,0,"Legend (for prefix, suffix)","Letras (para prefijo, sufijo)",0
 view,ir.sequence.strict,0,${month},${month},0
@@ -541,12 +540,18 @@ view,ir.sequence.strict,0,${year},${year},0
 view,ir.sequence.strict,0,Year:,Año:,0
 view,ir.sequence.type,0,Sequence Type,Tipo de Secuencia,0
 view,ir.translation,0,Translations,Traducciones,0
+view,ir.translation.clean.init,0,Clean Translations,Limpiar Traducciones,0
+view,ir.translation.clean.init,0,Clean Translations?,¿Limpiar Traducciones?,0
+view,ir.translation.clean.start,0,Clean Translations,Limpiar Traducciones,0
+view,ir.translation.clean.start,0,Clean Translations Succeed!,Las traducciones se limpiaron!,0
 view,ir.translation.export.init,0,Export Translation,Exportar Traducción,0
 view,ir.translation.export.start,0,Export Translation,Exportar Traducción,0
 view,ir.translation.set_report.init,0,Set Report Translations,Establecer Traducciones de Reporte,0
+view,ir.translation.set_report.init,0,Synchronize Report Translations?,¿Sincronizar las traducciones de reportes?,0
 view,ir.translation.set_report.init,0,Update Report Translations?,Actualizar Traducciones de Reportes?,0
 view,ir.translation.set_report.start,0,Set Report Translations,Establecer Traducciones de Reporte,0
 view,ir.translation.set_report.start,0,Set Translations Succeed!,Establecimiento de Traducciones exitoso!,0
+view,ir.translation.update.init,0,Synchronize Translations,Sincronizar Traducciones,0
 view,ir.translation.update.init,0,Update Translations,Actualizar Traducción,0
 view,ir.ui.menu,0,Menu,Menú,0
 view,ir.ui.view,0,View,Vista,0
@@ -558,6 +563,9 @@ wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,Aceptar,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Cancelar,0
 wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Iniciar Actualización,0
 wizard_button,"ir.module.module.install_upgrade,start,config",0,Ok,Aceptar,0
+wizard_button,"ir.translation.clean,init,end",0,Cancel,Cancelar,0
+wizard_button,"ir.translation.clean,init,start",0,Start,Comenzar,0
+wizard_button,"ir.translation.clean,start,end",0,Ok,Aceptar,0
 wizard_button,"ir.translation.export,init,end",0,Cancel,Cancelar,0
 wizard_button,"ir.translation.export,init,start",0,Start Export,Comenzar a Exportar,0
 wizard_button,"ir.translation.export,start,end",0,Close,Cerrar,0
