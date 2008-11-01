@@ -89,6 +89,7 @@ class View(OSV):
             view_ids = self.search(cursor, 0, [
                 ('model', '=', view.model),
                 ('id', '!=', view.id),
+                ('module', '=', view.module),
                 ])
             for view2 in self.browse(cursor, 0, view_ids):
                 tree2 = etree.fromstring(view2.arch)
@@ -129,9 +130,10 @@ class View(OSV):
                 cursor.execute('DELETE FROM ir_translation ' \
                         'WHERE name = %s ' \
                             'AND type = %s ' \
+                            'AND module = %s ' \
                             'AND src NOT IN ' \
                                 '(' + ','.join(['%s' for x in strings]) + ')',
-                        (view.model, 'view') + tuple(strings))
+                        (view.model, 'view', view.module) + tuple(strings))
         return True
 
     def delete(self, cursor, user, ids, context=None):
