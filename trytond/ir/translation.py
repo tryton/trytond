@@ -680,7 +680,11 @@ class TranslationClean(Wizard):
             for translation in translation_obj.browse(cursor, user,
                     translation_ids, context=context):
                 if translation.type == 'field':
-                    model_name, field_name = translation.name.split(',', 1)
+                    try:
+                        model_name, field_name = translation.name.split(',', 1)
+                    except ValueError:
+                        to_delete.append(translation.id)
+                        continue
                     if model_name not in self.pool.object_name_list():
                         to_delete.append(translation.id)
                         continue
@@ -689,14 +693,22 @@ class TranslationClean(Wizard):
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'model':
-                    model_name, _ = translation.name.split(',', 1)
+                    try:
+                        model_name, _ = translation.name.split(',', 1)
+                    except ValueError:
+                        to_delete.append(translation.id)
+                        continue
                     if model_name not in self.pool.object_name_list():
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'odt':
                     continue
                 elif translation.type == 'selection':
-                    model_name, field_name = translation.name.split(',', 1)
+                    try:
+                        model_name, field_name = translation.name.split(',', 1)
+                    except ValueError:
+                        to_delete.append(translation.id)
+                        continue
                     if model_name not in self.pool.object_name_list():
                         to_delete.append(translation.id)
                         continue
@@ -714,7 +726,12 @@ class TranslationClean(Wizard):
                 elif translation.type == 'view':
                     continue
                 elif translation.type == 'wizard_button':
-                    wizard_name, state_name, button_name = translation.name.split(',', 2)
+                    try:
+                        wizard_name, state_name, button_name = \
+                                translation.name.split(',', 2)
+                    except ValueError:
+                        to_delete.append(translation.id)
+                        continue
                     wizard = pool_wizard.get(wizard_name)
                     if not wizard:
                         to_delete.append(translation.id)
@@ -731,7 +748,11 @@ class TranslationClean(Wizard):
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'help':
-                    model_name, field_name = translation.name.split(',', 1)
+                    try:
+                        model_name, field_name = translation.name.split(',', 1)
+                    except ValueError:
+                        to_delete.append(translation.id)
+                        continue
                     if model_name not in self.pool.object_name_list():
                         to_delete.append(translation.id)
                         continue
