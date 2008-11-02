@@ -3,15 +3,13 @@ error,delete_workflow_record,0,You cannot delete a record with a running workflo
 error,delete_xml_record,0,You are not allowed to delete this record.,No esta autorizado a eliminar este registro.,0
 error,ir.action.keyword,0,Wrong wizard model!,Modelo erróneo para el asistente,0
 error,ir.action.report,0,The internal name must be unique!,El nombre interno debe ser único!,0
-error,ir.attachment,0,Error! You can not create attachment with the same name!,Error! No puede crear un adjunto con el mismo nombre!,0
+error,ir.attachment,0,Error! You can not create attachments with the same name!,¡Error! ¡No puede crear adjuntos con el mismo nombre!,0
 error,ir.cron,0,Scheduled action failed,La acción agendada falló,0
-error,ir.cron,0,"The following action failed to execute properly: ""%s"" 
- See the first attachment for details.
+error,ir.cron,0,"The following action failed to execute properly: ""%s""
  Traceback: 
 
 %s
-","La siguiente acción falló al ejecutarse: ""%s""
- Vea el primer adjunto para más detalles.
+","La siguiente acción no se ejecutó correctamente: ""%s""
  Traza:
 
 %s
@@ -250,7 +248,8 @@ help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Adici
 help,"ir.action.act_window,limit",0,Default limit for the list view,Límite predeterminado para la lista de vista,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Criterio de Búsqueda predeterminado para la vista de lista,0
 help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
-on the right toolbar of a form views.","Si es verdadero, la acción no se desplegará",0
+on the bottom toolbar of a form views.","Si es verdadero, la acción no se desplegará
+en la barra de herramienta inferior en la vista de formulario.",0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Usar el nombre de la acción como el nombre de la ventana,0
 help,"ir.action.report.outputformat,format",0,"Used as file extension, too.","Usado como extensión de archivo, también.",0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definir el estilo para aplicar al reporte.,0
