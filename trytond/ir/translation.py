@@ -666,6 +666,7 @@ class TranslationClean(Wizard):
 
     def _clean_translation(self, cursor, user, data, context):
         translation_obj = self.pool.get('ir.translation')
+        report_obj = self.pool.get('ir.action.report')
         pool_wizard = pooler.get_pool_wizard(cursor.dbname)
 
         offset = 0
@@ -702,7 +703,11 @@ class TranslationClean(Wizard):
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'odt':
-                    continue
+                    if not report_obj.search(cursor, user, [
+                        ('report_name', '=', translation.name),
+                        ], context=context):
+                        to_delete.append(translation.id)
+                        continue
                 elif translation.type == 'selection':
                     try:
                         model_name, field_name = translation.name.split(',', 1)
@@ -724,7 +729,10 @@ class TranslationClean(Wizard):
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'view':
-                    continue
+                    model_name = translation.name
+                    if model_name not in self.pool.object_name_list():
+                        to_delete.append(translation.id)
+                        continue
                 elif translation.type == 'wizard_button':
                     try:
                         wizard_name, state_name, button_name = \
