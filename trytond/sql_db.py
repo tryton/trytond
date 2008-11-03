@@ -379,12 +379,12 @@ class table_handler:
             if not migrate:
                 return
             base_type = column_type[0].lower()
-            if not base_type == self.table[column_name]['typname']:
+            if base_type != self.table[column_name]['typname']:
                 logging.getLogger('init').warning(
                     'Unable to migrate column %s on table %s from %s to %s.' % \
                     (column_name, self.table_name,
                         self.table[column_name]['typname'], base_type))
-            if not base_type == 'varchar':
+            if base_type != 'varchar':
                 return
             if field_size == None:
                 if self.table[column_name]['size'] > 0:
