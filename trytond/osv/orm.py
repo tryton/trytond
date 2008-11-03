@@ -552,11 +552,6 @@ class ORM(object):
             elif not isinstance(field, (fields.One2Many, fields.Function)):
                 raise Exception('Unknow field type !')
 
-
-            if "type has changed":
-                pass #try_to_migrate
-
-
         for field_name, field in self._columns.iteritems():
             if isinstance(field, fields.Many2One) \
                     and field._obj == self._name \
