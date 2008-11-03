@@ -225,7 +225,7 @@
             </field>
         </record>
 
-        <menuitem name="Install \ Upgrade Modules"
+        <menuitem name="Perform Pending Installation/Upgrade"
             parent="menu_modules"
             action="act_module_install_upgrade"
             id="menu_module_install_upgrade"/>
