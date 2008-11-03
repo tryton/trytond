@@ -218,7 +218,7 @@ field,"ir.translation,res_id",0,Resource ID,ID de la ressource,0
 field,"ir.translation,src",0,Source,Source,0
 field,"ir.translation,type",0,Type,Type,0
 field,"ir.translation.update.init,lang",0,Language,Langue,0
-field,"ir.translation,value",0,Translation Value,Valeur de traduction,0
+field,"ir.translation,value",0,Translation Value,Traduction,0
 field,"ir.ui.menu,action",0,Action,Action,0
 field,"ir.ui.menu,active",0,Active,Actif,0
 field,"ir.ui.menu,childs",0,Childs,Enfants,0
@@ -249,7 +249,7 @@ help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par d
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Critères de recherche par défaut pour la vue liste,0
 help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
 on the bottom toolbar of a form views.","Si positionné sur vrai, l'action ne sera pas affichée
-sur la barre du bas des vues formulaires",1
+sur la barre du bas des vues formulaires",0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Utiliser le nom de l'action comme nom de la fenêtre,0
 help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Utiliser aussi comme extension de fichier.,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Définit le style à appliquer sur le rapport.,0
@@ -297,7 +297,6 @@ model,"ir.action,name",act_sequence_form,Sequences,Séquences,0
 model,"ir.action,name",act_sequence_strict_form,Sequences Strict,Séquences strictes,0
 model,"ir.action,name",act_sequence_type_form,Sequence Types,Types de séquences,0
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Mettre à jours les traductions des rapports,0
-model,"ir.action,name",,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.action,name",act_translation_update,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.action,name",act_translation_form,Translations,Traductions,0
 model,"ir.action,name",action_tryton,Tryton,,0
@@ -340,7 +339,7 @@ model,"ir.ui.menu,name",menu_sequence_form,Sequences,Séquences,0
 model,"ir.ui.menu,name",menu_sequence_strict_form,Sequences Strict,Séquences Strictes,0
 model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de la séquence,0
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Mettre à jours les traductions des rapports,0
-model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Mettre à jour les traductions,1
+model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traductions,0
 model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
@@ -522,8 +521,6 @@ view,ir.module.module.install_upgrade.start,0,System upgrade done,Mis à jour du
 view,ir.module.module.install_upgrade.start,0,The modules have been upgraded / installed !,Les modules ont été mis à jour / installés !,0
 view,ir.module.module.install_upgrade.start,0,We suggest you to reload the menu tab (Ctrl+t Ctrl+r).,Nous vous suggérons de recharger l'onglet du menu (Ctrl+t Ctrl+r),0
 view,ir.module.module.install_upgrade.start,0,You may have to reinstall some language pack.,Vous devriez réinstaller quelque langue.,0
-view,ir.module.module.update_list.init,0,Update Module List,Mettre à jour la liste des modules,0
-view,ir.module.module.update_list.update,0,New modules,Nouveau modules,0
 view,ir.property,0,Properties,Propriétés,0
 view,ir.property,0,Property,Propriété,0
 view,ir.rule,0,Test,Test,0
