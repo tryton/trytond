@@ -530,9 +530,7 @@ class ORM(object):
                         ref = self.pool.get(field._obj)._table
                     table.add_fk(field_name, ref, field.ondelete)
 
-                if not isinstance(field, fields.Many2One):
-                    # Postgres does not allow index on fk
-                    table.index_action(
+                table.index_action(
                         field_name, action=field.select and 'add' or 'remove')
 
                 required = field.required
