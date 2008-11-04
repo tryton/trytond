@@ -1,2 +1,4 @@
 Installation
 ############
+
+see INSTALL file.
