@@ -581,12 +581,12 @@ otherwise in the description.
 
 
 Manipulating Models
-###################
+*******************
 
 .. module:: OSV
 
 Create
-******
+^^^^^^
 
 .. method:: create(self, cursor, user, vals[, context])
 
@@ -602,7 +602,7 @@ Create
    :return: An integer, the id of the new record.
 
 Read
-****
+^^^^
 
 .. method:: read(self, cursor, user, ids[, fields_names, context])
 
@@ -623,7 +623,7 @@ Note: one should favour ``browse`` over ``read``, because it's more
 powerful.
 
 Browse
-******
+^^^^^^
 
 .. method:: browse(self, cursor, user, ids[, context])
 
@@ -660,7 +660,7 @@ the data in a pythonic way.
 
 
 Write
-*****
+^^^^^
 
 .. method::  write(self, cursor, user, ids, vals[, context])
 
@@ -679,7 +679,7 @@ Write
 
 
 Delete
-******
+^^^^^^
 
 .. method:: delete(self, cursor, user, ids[, context])
 
@@ -697,7 +697,7 @@ Delete
 
 
 Search
-******
+^^^^^^
 
 .. method:: search(self, cursor, user, args[, offset, limit, order,context, count, query_string])
 
@@ -781,7 +781,7 @@ user.):
 .. _define_inheritance:
 
 Models Inheritance
-##################
+******************
 
 Model Inheritance allow add or override fields, methods and
 constraints on existing models. To inherit an existing model (like
