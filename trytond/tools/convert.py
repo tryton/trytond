@@ -504,6 +504,15 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         object_ref = self.pool.get(model)
 
         if self.fs2db.get(module, fs_id):
+
+            # Remove this record from the to_delete list. This means that
+            # the corresponding record have been found.
+            if module == self.module and fs_id in self.to_delete:
+                self.to_delete.remove(fs_id)
+
+            if self.noupdate:
+                return
+
             # this record is already in the db:
             # XXX maybe use only one call to get()
             db_id, db_model, mdata_id, old_values = \
@@ -698,10 +707,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                     })
 
-            # Remove this record from the to_delete list. This means that
-            # the corresponding record have been found.
-            if module == self.module and fs_id in self.to_delete:
-                self.to_delete.remove(fs_id)
         else:
             # this record is new, create it in the db:
             db_id = object_ref.create(cursor, user, values,
