@@ -350,7 +350,7 @@ class table_handler:
             for line in self.cursor.fetchall():
                 self.field2module[line[0]] = line[1]
 
-    def migrate_column(self, column_name, column_type):
+    def alter_size(self, column_name, column_type):
 
         self.cursor.execute("ALTER TABLE \"%s\" " \
                        "RENAME COLUMN \"%s\" " \
@@ -367,6 +367,11 @@ class table_handler:
                        (self.table_name,))
         self.update_definitions()
 
+    def alter_type(self, column_name, column_type):
+        self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
+                'ALTER "' + column_name + '" TYPE ' + column_type)
+        self.update_definitions()
+
     def db_default(self, column_name, value):
         self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
                 'ALTER COLUMN "' + column_name + '" SET DEFAULT %s',
@@ -380,29 +385,40 @@ class table_handler:
                 return
             base_type = column_type[0].lower()
             if base_type != self.table[column_name]['typname']:
-                logging.getLogger('init').warning(
-                    'Unable to migrate column %s on table %s from %s to %s.' % \
-                    (column_name, self.table_name,
-                        self.table[column_name]['typname'], base_type))
-            if base_type != 'varchar':
-                return
-            if field_size == None:
-                if self.table[column_name]['size'] > 0:
-                    self.migrate_column(column_name, base_type)
-                return
-            elif self.table[column_name]['size'] == field_size:
-                return
-            elif self.table[column_name]['size'] > 0 and \
-                    self.table[column_name]['size'] < field_size:
-                self.migrate_column(column_name, column_type[1])
-            else:
-                logging.getLogger('init').warning(
-                    'Unable to migrate column %s on table %s ' \
-                            'from varchar(%s) to varchar(%s).' % \
-                    (column_name, self.table_name,
-                     self.table[column_name]['size'] > 0 and \
-                         self.table[column_name]['size'] or "",
-                     field_size))
+                if (self.table[column_name]['typname'], base_type) in [
+                        ('varchar', 'text'),
+                        ('text', 'varchar'),
+                        ('date', 'timestamp'),
+                        ('int4', 'float8'),
+                        ]:
+                    self.alter_type(column_name, base_type)
+                else:
+                    logging.getLogger('init').warning(
+                        'Unable to migrate column %s on table %s ' \
+                                'from %s to %s.' % \
+                        (column_name, self.table_name,
+                            self.table[column_name]['typname'], base_type))
+
+            if base_type == 'varchar' \
+                    and self.table[column_name]['typname'] == 'varchar':
+                # Migrate size
+                if field_size == None:
+                    if self.table[column_name]['size'] > 0:
+                        self.alter_size(column_name, base_type)
+                    pass
+                elif self.table[column_name]['size'] == field_size:
+                    pass
+                elif self.table[column_name]['size'] > 0 and \
+                        self.table[column_name]['size'] < field_size:
+                    self.alter_size(column_name, column_type[1])
+                else:
+                    logging.getLogger('init').warning(
+                        'Unable to migrate column %s on table %s ' \
+                                'from varchar(%s) to varchar(%s).' % \
+                        (column_name, self.table_name,
+                         self.table[column_name]['size'] > 0 and \
+                             self.table[column_name]['size'] or "",
+                         field_size))
             return
 
         column_type = column_type[1]
