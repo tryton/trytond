@@ -716,7 +716,10 @@ class ORM(object):
             error = res
 
         if error_args:
-            error = error % error_args
+            try:
+                error = error % error_args
+            except TypeError:
+                pass
 
         if error_description:
             error_description = self._error_messages.get(error_description,
@@ -735,7 +738,11 @@ class ORM(object):
                 error_description = res
 
             if error_description_args:
-                error_description = error_description % error_description_args
+                try:
+                    error_description = error_description % \
+                            error_description_args
+                except TypeError:
+                    pass
             if raise_exception:
                 raise Exception('UserError', error, error_description)
             else:
