@@ -340,8 +340,7 @@ class Module(OSV):
                 module_id = ids[0]
                 mod = self.browse(cursor, user, module_id)
                 tryton = Module.get_module_info(mod_name)
-                if tryton.get('installable', True) \
-                        and mod.state == 'uninstallable':
+                if mod.state == 'uninstallable':
                     self.write(cursor, user, module_id, {
                         'state': 'uninstalled'}, context=context)
                 self.write(cursor, user, module_id, {
@@ -364,7 +363,7 @@ class Module(OSV):
                     or os.path.islink(mod_path) \
                     or zipfile.is_zipfile(mod_path):
                 tryton = Module.get_module_info(mod_name)
-                if not tryton or not tryton.get('installable', True):
+                if not tryton:
                     continue
                 new_id = self.create(cursor, user, {
                     'name': mod_name,
