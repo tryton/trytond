@@ -2,9 +2,14 @@
 #this repository contains the full copyright notices and license terms.
 {
     'name': 'IR',
+    'name_de_DE': 'Interne Administration',
     'category': 'Generic',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of models, actions, sequences, localizations, cron jobs etc.
+''',
+    'description_de_DE': '''Basismodul für interne Aufgaben der Anwendung
+
+ - Stellt Konzept und Administration für Modelle, Aktionen, Sequenzen, Lokalisierungen, Zeitplaner etc. zur Verfügung
 ''',
     'active': True,
     'xml': [
