@@ -1,7 +1,11 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 {
     'name': 'IR',
     'category': 'Generic',
+    'description': '''Basic module handling internal tasks of the application.
+Provides concepts and administration of models, actions, sequences, localizations, cron jobs etc.
+''',
     'active': True,
     'xml': [
         'ir.xml',
