@@ -666,6 +666,7 @@ class TranslationClean(Wizard):
 
     def _clean_translation(self, cursor, user, data, context):
         translation_obj = self.pool.get('ir.translation')
+        model_data_obj = self.pool.get('ir.model.data')
         report_obj = self.pool.get('ir.action.report')
         pool_wizard = pooler.get_pool_wizard(cursor.dbname)
 
@@ -792,6 +793,15 @@ class TranslationClean(Wizard):
                     if translation.src not in errors:
                         to_delete.append(translation.id)
                         continue
+            # skip translation handled in ir.model.data
+            mdata_ids = model_data_obj.search(
+                cursor, user,
+                [('db_id', 'in', to_delete), ('model', '=', 'ir.translation')],
+                context=context)
+            for mdata in model_data_obj.browse(cursor, user, mdata_ids,
+                                               context=context):
+                if mdata.db_id in to_delete:
+                    to_delete.remove(mdata.db_id)
 
             translation_obj.delete(cursor, user, to_delete, context=context)
         return {}
