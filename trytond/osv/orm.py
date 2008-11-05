@@ -2607,33 +2607,35 @@ class ORM(object):
                 i += 1
             else:
                 if field.translate:
+                    exprs = ['%s', '%s']
                     if args[i][1] in ('like', 'ilike', 'not like', 'not ilike'):
-                        oper = 'OR'
-                        if args[i][1] in ('not like', 'not ilike'):
-                            oper = 'AND'
-                        query1 = '(SELECT res_id FROM ir_translation ' \
-                                'WHERE name = %s AND lang = %s ' \
-                                    'AND type = %s ' \
-                                    'AND (value ' + args[i][1] + ' %s ' \
-                                        + oper +' value ' + args[i][1] + ' %s))'
-                        query2 = [table._name + ',' + args[i][0],
-                                context.get('language', False) or 'en_US',
-                                'model', '%% %s%%' % args[i][2],
-                                '%s%%' % args[i][2]]
-                        query1 += ' UNION '
-                        table_query = ''
-                        table_args = []
-                        if table.table_query(context):
-                            table_query, table_args = table.table_query(context)
-                            table_query = '(' + table_query  + ') AS '
-                        query1 += '(SELECT id FROM ' + table_query + \
-                                '"' + table._table + '" ' \
-                                'WHERE ("' + args[i][0] + '" ' + \
-                                args[i][1] + ' %s ' + oper + ' "' + args[i][0] + '" ' + \
-                                args[i][1] + ' %s))'
-                        query2 += table_args + ['%% %s%%' % args[i][2],
-                                '%s%%' % args[i][2]]
-                        args[i] = ('id', 'inselect', (query1, query2), table)
+                        exprs = ['%% %s%%', '%s%%']
+                    oper = 'OR'
+                    if args[i][1] in ('not like', 'not ilike', '!='):
+                        oper = 'AND'
+                    query1 = '(SELECT res_id FROM ir_translation ' \
+                            'WHERE name = %s AND lang = %s ' \
+                                'AND type = %s ' \
+                                'AND (value ' + args[i][1] + ' %s ' \
+                                    + oper +' value ' + args[i][1] + ' %s))'
+                    query2 = [table._name + ',' + args[i][0],
+                            context.get('language', False) or 'en_US',
+                            'model', exprs[0] % args[i][2],
+                            exprs[1] % args[i][2]]
+                    query1 += ' UNION '
+                    table_query = ''
+                    table_args = []
+                    if table.table_query(context):
+                        table_query, table_args = table.table_query(context)
+                        table_query = '(' + table_query  + ') AS '
+                    query1 += '(SELECT id FROM ' + table_query + \
+                            '"' + table._table + '" ' \
+                            'WHERE ("' + args[i][0] + '" ' + \
+                            args[i][1] + ' %s ' + oper + ' "' + args[i][0] + '" ' + \
+                            args[i][1] + ' %s))'
+                    query2 += table_args + [exprs[0] % args[i][2],
+                            exprs[1] % args[i][2]]
+                    args[i] = ('id', 'inselect', (query1, query2), table)
                 else:
                     args[i] += (table,)
                 i += 1
