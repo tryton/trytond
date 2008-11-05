@@ -2974,7 +2974,7 @@ class ORM(object):
                 elif ftype in ('one2many',):
                     res = []
                     rel = self.pool.get(fields[field_name]['relation'])
-                    for rel_id in data[field_name]:
+                    for rel_id in data[field_name] or []:
                         # the lines are first duplicated using the wrong (old)
                         # parent but then are reassigned to the correct one thanks
                         # to the ('add', ...)
@@ -2982,7 +2982,8 @@ class ORM(object):
                             context=context)))
                     data[field_name] = res
                 elif ftype == 'many2many':
-                    data[field_name] = [('set', data[field_name])]
+                    if data[field_name]:
+                        data[field_name] = [('set', data[field_name])]
             if 'id' in data:
                 del data['id']
             for i in self._inherits:
