@@ -104,6 +104,24 @@
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
+        <record model="ir.translation" id="translation_domain_validation_record">
+            <field name="name">domain_validation_record</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">The value of the field "%s" on "%s" is not valid with his domain.</field>
+            <field name="value">The value of the field "%s" on "%s" is not valid with his domain.</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
+        <record model="ir.translation" id="translation_required_validation_record">
+            <field name="name">required_validation_record</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">The field "%s" on "%s" is required.</field>
+            <field name="value">The field "%s" on "%s" is required.</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
 
         <record model="ir.ui.view" id="act_translation_set_report_init_view_form">
             <field name="model">ir.translation.set_report.init</field>

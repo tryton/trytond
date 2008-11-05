@@ -1195,6 +1195,23 @@ class ORM(object):
             ctx_pref = user_obj.get_preferences(cursor, user,
                 context_only=True, context=context)
 
+        def get_error_args(field_name):
+            model_field_obj = self.pool.get('ir.model.field')
+            error_args = (field_name, self._name)
+            if model_field_obj:
+                model_field_ids = model_field_obj.search(cursor,
+                        user, [
+                            ('name', '=', field_name),
+                            ('model.model', '=', self._name),
+                            ], context=context, limit=1)
+                if model_field_ids:
+                    model_field = model_field_obj.browse(cursor,
+                            user, model_field_ids[0],
+                            context=context)
+                    error_args = (model_field.field_description,
+                            model_field.model.name)
+            return error_args
+
         context.update(ctx_pref)
         records = self.browse(cursor, user, ids, context=context)
         for field_name, field in self._columns.iteritems():
@@ -1227,7 +1244,9 @@ class ORM(object):
                                     domain,
                                     ], context=context):
                             self.raise_user_error(cursor,
-                                    'domain_' + field_name, context=context)
+                                    'domain_validation_record',
+                                    error_args=get_error_args(field_name),
+                                    context=context)
                 else:
                     relation_ids = []
                     for record in records:
@@ -1245,7 +1264,9 @@ class ORM(object):
                             ], context=context)
                         if not set(relation_ids) == set(find_ids):
                             self.raise_user_error(cursor,
-                                    'domain_' + field_name, context=context)
+                                    'domain_validation_record',
+                                    error_args=get_error_args(field_name),
+                                    context=context)
             # validate states required
             if field.states and 'required' in field.states:
                 if isinstance(field.states['required'], basestring):
@@ -1261,13 +1282,16 @@ class ORM(object):
                         required = eval(field.states['required'], env)
                         if required and not record[field_name]:
                             self.raise_user_error(cursor,
-                                    'required_' + field_name, context=context)
+                                    'required_validation_record',
+                                    error_args=get_error_args(field_name),
+                                    context=context)
                 else:
                     if field.states['required']:
                         for record in records:
                             if not record[field_name]:
                                 self.raise_user_error(cursor,
-                                        'required_' + field_name,
+                                        'required_validation_record',
+                                        error_args=get_error_args(field_name),
                                         context=context)
 
     def default_get(self, cursor, user, fields_names, context=None):
