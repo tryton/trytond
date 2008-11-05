@@ -302,7 +302,9 @@ class Report(object):
             data = rel_report(objects, **localcontext).render().getvalue()
         else:
             localcontext['objects'] = objects
-            data = rel_report(**localcontext).render().getvalue()
+            data = rel_report(**localcontext).render()
+            if hasattr(data, 'getvalue'):
+                data = data.getvalue()
         os.remove(path)
         output_format = report.output_format.format
         if output_format == 'pdf':
