@@ -297,7 +297,7 @@ class Report(object):
         rel_report = relatorio.reporting.Report(path, 'application/vnd.oasis.opendocument.text',
                 ReportFactory(), relatorio.reporting.MIMETemplateLoader())
         rel_report.filters.insert(0, translator)
-        #Test compatibility with old relatorio version <= 0.2.0
+        #Test compatibility with old relatorio version <= 0.3.0
         if len(inspect.getargspec(rel_report.__call__)[0]) == 2:
             data = rel_report(objects, **localcontext).render().getvalue()
         else:
