@@ -130,8 +130,8 @@ class Module(OSV):
     name = fields.Char("Name", readonly=True, required=True)
     category = fields.Many2One('ir.module.category', 'Category',
         readonly=True)
-    shortdesc = fields.Char('Short description', readonly=True)
-    description = fields.Text("Description", readonly=True)
+    shortdesc = fields.Char('Short description', readonly=True, translate=True)
+    description = fields.Text("Description", readonly=True, translate=True)
     author = fields.Char("Author", readonly=True)
     website = fields.Char("Website", readonly=True)
     version = fields.Function('get_version', string='Version', type='char')
@@ -323,7 +323,17 @@ class Module(OSV):
 
     # update the list of available packages
     def update_list(self, cursor, user, context=None):
+        lang_obj = self.pool.get('ir.lang')
+
+        if context is None:
+            context = {}
         res = 0
+
+        lang_ids = lang_obj.search(cursor, user, [
+            ('translatable', '=', True),
+            ], context=context)
+        lang_codes = [x.code for x in lang_obj.browse(cursor, user, lang_ids,
+            context=context)]
 
         module_names = ['ir', 'workflow', 'res', 'webdav']
         if os.path.isdir(MODULES_PATH):
@@ -349,6 +359,13 @@ class Module(OSV):
                     'author': tryton.get('author', ''),
                     'website': tryton.get('website', ''),
                     }, context=context)
+                for code in lang_codes:
+                    ctx = context.copy()
+                    ctx['language'] = code
+                    self.write(cursor, user, module_id, {
+                        'description': tryton.get('description_' + code, ''),
+                        'shortdesc': tryton.get('name_' + code, ''),
+                        }, context=ctx)
                 self._update_dependencies(cursor, user, module_id,
                         tryton.get('depends', []), context=context)
                 self._update_category(cursor, user, module_id,
@@ -373,6 +390,13 @@ class Module(OSV):
                     'author': tryton.get('author', 'Unknown'),
                     'website': tryton.get('website', ''),
                 }, context=context)
+                for code in lang_codes:
+                    ctx = context.copy()
+                    ctx['language'] = code
+                    self.write(cursor, user, new_id, {
+                        'description': tryton.get('description_' + code, ''),
+                        'shortdesc': tryton.get('name_' + code, ''),
+                        }, context=ctx)
                 res += 1
                 self._update_dependencies(cursor, user, new_id,
                         tryton.get('depends', []), context=context)

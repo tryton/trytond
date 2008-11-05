@@ -27,6 +27,8 @@ It is a Python file that must contain only dictionary with those keywords:
 
    * ``name``: The name of the module.
 
+   * ``name_language_code``: The name of the module in the language code.
+
    * ``version``: The version number of the module.
 
    * ``author``: The author name of the module.
@@ -38,6 +40,8 @@ It is a Python file that must contain only dictionary with those keywords:
    * ``category``: A category for the module (optional).
 
    * ``description``: A long description of the module.
+
+   * ``description_language_code``: The long description in the language code.
 
    * ``depends``: A list of modules on which the module depends.
 
