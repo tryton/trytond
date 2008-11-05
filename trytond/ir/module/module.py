@@ -135,7 +135,6 @@ class Module(OSV):
     author = fields.Char("Author", readonly=True)
     website = fields.Char("Website", readonly=True)
     version = fields.Function('get_version', string='Version', type='char')
-    url = fields.Char('URL')
     dependencies = fields.One2Many('ir.module.module.dependency',
         'module', 'Dependencies', readonly=True)
     state = fields.Selection([
