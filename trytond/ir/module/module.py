@@ -349,11 +349,11 @@ class Module(OSV):
                     'shortdesc': tryton.get('name', ''),
                     'author': tryton.get('author', ''),
                     'website': tryton.get('website', ''),
-                    })
+                    }, context=context)
                 self._update_dependencies(cursor, user, module_id,
-                        tryton.get('depends', []))
+                        tryton.get('depends', []), context=context)
                 self._update_category(cursor, user, module_id,
-                        tryton.get('category', 'None'))
+                        tryton.get('category', 'None'), context=context)
                 continue
             if name in ['ir', 'workflow', 'res', 'webdav']:
                 mod_path = os.path.join(
@@ -373,29 +373,31 @@ class Module(OSV):
                     'shortdesc': tryton.get('name', ''),
                     'author': tryton.get('author', 'Unknown'),
                     'website': tryton.get('website', ''),
-                })
+                }, context=context)
                 res += 1
                 self._update_dependencies(cursor, user, new_id,
-                        tryton.get('depends', []))
+                        tryton.get('depends', []), context=context)
                 self._update_category(cursor, user, new_id,
-                        tryton.get('category', 'None'))
+                        tryton.get('category', 'None'), context=context)
         return res
 
-    def _update_dependencies(self, cursor, user, module_id, depends=None):
+    def _update_dependencies(self, cursor, user, module_id, depends=None,
+            context=None):
         dependency_obj = self.pool.get('ir.module.module.dependency')
         dependency_ids = dependency_obj.search(cursor, user, [
             ('module', '=', module_id),
-            ])
-        dependency_obj.delete(cursor, user, dependency_ids)
+            ], context=context)
+        dependency_obj.delete(cursor, user, dependency_ids, context=context)
         if depends is None:
             depends = []
         for depend in depends:
             dependency_obj.create(cursor, user, {
                 'module': module_id,
                 'name': depend,
-                })
+                }, context=context)
 
-    def _update_category(self, cursor, user, module_id, category='None'):
+    def _update_category(self, cursor, user, module_id, category='None',
+            context=None):
         category_obj = self.pool.get('ir.module.category')
         categs = category.split('/')
         parent_id = None
@@ -404,21 +406,22 @@ class Module(OSV):
                 category_ids = category_obj.search(cursor, user, [
                     ('name', '=', categs[0]),
                     ('parent', '=', parent_id),
-                    ])
+                    ], context=context)
             else:
                 category_ids = category_obj.search(cursor, user, [
                     ('name', '=', categs[0]),
                     ('parent', '=', False),
-                    ])
+                    ], context=context)
             if not category_ids:
                 parent_id = category_obj.create(cursor, user, {
                     'name': categs[0],
                     'parent': parent_id,
-                    })
+                    }, context=context)
             else:
                 parent_id = category_ids[0]
             categs = categs[1:]
-        self.write(cursor, user, module_id, {'category': parent_id})
+        self.write(cursor, user, module_id, {'category': parent_id},
+                context=context)
 
 Module()
 
