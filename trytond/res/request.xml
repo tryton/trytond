@@ -14,6 +14,7 @@
                     <field name="name" select="1"/>
                     <field name="priority" select="2"/>
                     <field name="trigger_date" select="2"/>
+                    <field name="number_references"/>
                     <field name="state"/>
                     <field name="active" select="2"/>
                     <field name="body" tree_invisible="1" select="2"/>
@@ -147,8 +148,10 @@
                 <tree string="Request History">
                     <field name="act_from"/>
                     <field name="act_to"/>
-                    <field name="date_sent"/>
                     <field name="name"/>
+                    <field name="number_references"/>
+                    <field name="date_sent"/>
+                    <field name="state"/>
                 </tree>
                 ]]>
             </field>
@@ -163,11 +166,18 @@
                     <field name="act_from"/>
                     <label name="act_to"/>
                     <field name="act_to"/>
-                    <label name="date_sent"/>
-                    <field name="date_sent"/>
-                    <label name="name"/>
-                    <field name="name" colspan="5"/>
+                    <label name="number_references"/>
+                    <field name="number_references"/>
+                    <label name="subject"/>
+                    <field name="subject" colspan="3"/>
+                    <label name="priority"/>
+                    <field name="priority"/>
                     <field name="body" colspan="6"/>
+                    <label name="date_sent"/>
+                    <field name="date_sent" colspan="3"/>
+                    <newline/>
+                    <label name="state"/>
+                    <field name="state" colspan="3"/>
                 </form>
                 ]]>
             </field>
