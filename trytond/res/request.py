@@ -4,6 +4,19 @@ from trytond.osv import OSV, fields
 import time
 import datetime
 
+_STATES = [
+    ('draft', 'Draft'),
+    ('waiting', 'Waiting'),
+    ('chatting', 'Chatting'),
+    ('closed', 'Closed'),
+]
+
+_PRIORITIES = [
+    ('0', 'Low'),
+    ('1', 'Normal'),
+    ('2', 'High'),
+]
+
 class Request(OSV):
     "Request"
     _name = 'res.request'
@@ -15,11 +28,7 @@ class Request(OSV):
                "(state == 'chatting' and act_from != _user)",
        }, required=True)
     active = fields.Boolean('Active')
-    priority = fields.Selection([
-       ('0', 'Low'),
-       ('1', 'Normal'),
-       ('2', 'High'),
-       ], 'Priority', states={
+    priority = fields.Selection(_PRIORITIES, 'Priority', states={
            'readonly': "(state in ('waiting', 'closed')) or " \
                    "(state == 'chatting' and act_from != _user)",
            }, required=True)
@@ -45,12 +54,7 @@ class Request(OSV):
             })
     number_references = fields.Function('get_number_references', type='integer',
             string="Number of References", on_change_with=['references'])
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('waiting', 'Waiting'),
-        ('chatting', 'Chatting'),
-        ('closed', 'Closed'),
-        ], 'State', required=True, readonly=True)
+    state = fields.Selection(_STATES, 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
 
@@ -61,7 +65,7 @@ class Request(OSV):
         return 'draft'
 
     def default_active(self, cursor, user, context=None):
-        return 1
+        return True
 
     def default_priority(self, cursor, user, context=None):
         return '1'
@@ -102,6 +106,10 @@ class Request(OSV):
                 'act_from': request.act_from.id,
                 'act_to': request.act_to.id,
                 'body': request.body,
+                'state': request.state,
+                'subject': request.name,
+                'number_references': request.number_references,
+                'priority': request.priority,
             }
             if values['body'] and len(values['body']) > 128:
                 values['name'] = values['body'][:125] + '...'
@@ -176,14 +184,19 @@ class RequestHistory(OSV):
     "Request history"
     _name = 'res.request.history'
     _description = __doc__
-    name = fields.Char('Summary', required=True)
+    name = fields.Char('Summary', required=True, readonly=True)
     request = fields.Many2One('res.request', 'Request', required=True,
-       ondelete='CASCADE', select=1)
+       ondelete='CASCADE', select=1, readonly=True)
     act_from = fields.Many2One('res.user', 'From', required=True,
        readonly=True)
-    act_to = fields.Many2One('res.user', 'To', required=True)
-    body = fields.Text('Body')
-    date_sent = fields.DateTime('Date sent', required=True)
+    act_to = fields.Many2One('res.user', 'To', required=True, readonly=True)
+    body = fields.Text('Body', readonly=True)
+    date_sent = fields.DateTime('Date sent', required=True, readonly=True)
+    state = fields.Selection(_STATES, 'State', required=True, readonly=True)
+    subject = fields.Char('Subject', required=True, readonly=True)
+    number_references = fields.Integer('References', readonly=True)
+    priority = fields.Selection(_PRIORITIES, 'Priority', required=True,
+            readonly=True)
 
     def __init__(self):
         super(RequestHistory, self).__init__()
@@ -199,7 +212,10 @@ class RequestHistory(OSV):
         return user
 
     def default_date_sent(self, cursor, user, context=None):
-        return time.strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.now()
+
+    def write(self, cursor, user, ids, vals, context=None):
+        raise
 
 RequestHistory()
 
