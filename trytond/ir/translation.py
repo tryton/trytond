@@ -946,8 +946,7 @@ class TranslationExportInit(WizardOSV):
         module_obj = self.pool.get('ir.module.module')
         module_ids = module_obj.search(cursor, user, [], context=context)
         modules = module_obj.browse(cursor, user, module_ids, context=context)
-        res =  [(module.name, module.shortdesc or module.name) \
-                for module in modules]
+        res =  [(module.name, module.name) for module in modules]
         return res
 
 TranslationExportInit()
