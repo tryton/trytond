@@ -2,9 +2,14 @@
 #this repository contains the full copyright notices and license terms.
 {
     'name': 'Res',
+    'name_de_DE': 'Benutzerverwaltung',
     'category': 'Generic',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of users and internal communication.
+''',
+    'description_de_DE': '''Basismodul für interne Aufgaben der Anwendung
+
+ - Stellt Konzept und Administration für die Benutzerverwaltung und interne Kommunikation zur Verfügung
 ''',
     'active': True,
     'depends': ['ir'],
