@@ -20,7 +20,7 @@ class User(OSV):
     menu = fields.Many2One('ir.action', 'Menu Action',
             domain=[('usage','=','menu')], required=True)
     groups = fields.Many2Many('res.group', 'res_group_user_rel',
-       'uid', 'gid', 'Groups')
+       'uid', 'gid', 'Groups', ondelete_target='CASCADE')
     rule_groups = fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
        'user_id', 'rule_group_id', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
@@ -272,7 +272,8 @@ User()
 class Group(OSV):
     _name = 'res.group'
     users = fields.Many2Many(
-        'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users')
+        'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users',
+        ondelete_target='CASCADE')
 
 Group()
 
