@@ -115,7 +115,7 @@ class Rule(OSV):
 
         return res
 
-    def get_operand(self, cursor, user, context):
+    def get_operand(self, cursor, user, context=None):
         res = []
         operands = self._operand_get(cursor, user, 'res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
@@ -123,10 +123,18 @@ class Rule(OSV):
             res.append((i, i))
         return res
 
-    def domain_get(self, cursor, user, model_name):
+    def domain_get(self, cursor, user, model_name, context=None):
+        if context is None:
+            context = {}
+
         # root user above constraint
         if user == 0:
-            return '', []
+            if not context.get('user'):
+                return '', []
+            ctx = context.copy()
+            del ctx['user']
+            return self.domain_get(cursor, context['user'], model_name,
+                    context=ctx)
 
         cursor.execute("SELECT r.id FROM ir_rule r " \
                 "JOIN (ir_rule_group g " \
@@ -151,7 +159,7 @@ class Rule(OSV):
         clause_global = {}
         operand2query = self._operand_get(cursor, user, 'res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
-        # Use root user to prevent recursion
+        # Use root user without context to prevent recursion
         for rule in self.browse(cursor, 0, ids):
             dom = eval("[('%s', '%s', %s)]" % \
                     (rule.field.name, rule.operator,
@@ -194,7 +202,7 @@ class Rule(OSV):
             clause = ['AND', clause_global, clause]
 
         query, val, _, _ = obj._where_calc(cursor, user,
-                clause, active_test=False)
+                clause, active_test=False, context=context)
 
         return query, val
 

@@ -1034,7 +1034,7 @@ class ORM(object):
 
         # construct a clause for the rules :
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
-                self._name)
+                self._name, context=context)
 
         # all inherited fields + all non inherited fields
         # for which the attribute whose name is in load is True
@@ -1467,7 +1467,7 @@ class ORM(object):
                 tree_ids[k] = [x[0] for x in cursor.fetchall()]
 
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
-                self._name)
+                self._name, context=context)
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
         for i in range(0, len(ids), cursor.IN_MAX):
@@ -1635,7 +1635,7 @@ class ORM(object):
 
         if len(upd0):
             domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor,
-                    user, self._name)
+                    user, self._name, context=context)
             if domain1:
                 domain1 = ' AND (' + domain1 + ') '
             for i in range(0, len(ids), cursor.IN_MAX):
@@ -2913,7 +2913,7 @@ class ORM(object):
 
         # construct a clause for the rules :
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
-                self._name)
+                self._name, context=context)
         if domain1:
             if qu1:
                 qu1 += ' AND ' + domain1
