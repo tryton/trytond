@@ -3,7 +3,6 @@
 {
     'name': 'Workflow',
     'name_de_DE': 'Workflow',
-    'category': 'Generic',
     'description': '''Basic module providing concept and administration of workflows.
 ''',
     'description_de_DE': '''Basismodul für Konzept und Administration von Workflows

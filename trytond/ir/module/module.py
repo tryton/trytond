@@ -128,8 +128,6 @@ class Module(OSV):
     _name = "ir.module.module"
     _description = __doc__
     name = fields.Char("Name", readonly=True, required=True)
-    category = fields.Many2One('ir.module.category', 'Category',
-        readonly=True)
     shortdesc = fields.Char('Short description', readonly=True, translate=True)
     description = fields.Text("Description", readonly=True, translate=True)
     author = fields.Char("Author", readonly=True)
@@ -367,8 +365,6 @@ class Module(OSV):
                         }, context=ctx)
                 self._update_dependencies(cursor, user, module_id,
                         tryton.get('depends', []), context=context)
-                self._update_category(cursor, user, module_id,
-                        tryton.get('category', 'None'), context=context)
                 continue
             if name in ['ir', 'workflow', 'res', 'webdav']:
                 mod_path = os.path.join(
@@ -399,8 +395,6 @@ class Module(OSV):
                 res += 1
                 self._update_dependencies(cursor, user, new_id,
                         tryton.get('depends', []), context=context)
-                self._update_category(cursor, user, new_id,
-                        tryton.get('category', 'None'), context=context)
         return res
 
     def _update_dependencies(self, cursor, user, module_id, depends=None,
@@ -418,34 +412,8 @@ class Module(OSV):
                 'name': depend,
                 }, context=context)
 
-    def _update_category(self, cursor, user, module_id, category='None',
-            context=None):
-        category_obj = self.pool.get('ir.module.category')
-        categs = category.split('/')
-        parent_id = None
-        while categs:
-            if parent_id is not None:
-                category_ids = category_obj.search(cursor, user, [
-                    ('name', '=', categs[0]),
-                    ('parent', '=', parent_id),
-                    ], context=context)
-            else:
-                category_ids = category_obj.search(cursor, user, [
-                    ('name', '=', categs[0]),
-                    ('parent', '=', False),
-                    ], context=context)
-            if not category_ids:
-                parent_id = category_obj.create(cursor, user, {
-                    'name': categs[0],
-                    'parent': parent_id,
-                    }, context=context)
-            else:
-                parent_id = category_ids[0]
-            categs = categs[1:]
-        self.write(cursor, user, module_id, {'category': parent_id},
-                context=context)
-
 Module()
+
 
 class ModuleDependency(OSV):
     "Module dependency"
