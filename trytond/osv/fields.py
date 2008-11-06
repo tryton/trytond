@@ -487,7 +487,7 @@ class Many2Many(Column):
         obj = obj.pool.get(self._obj)
 
         domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
-                user, obj._name)
+                user, obj._name, context=context)
         if domain1:
             domain1 = ' and '+domain1
 
@@ -564,7 +564,7 @@ class Many2Many(Column):
                 else:
                     ids = list(act[1])
                 domain1, domain2 = obj.pool.get('ir.rule').domain_get(cursor,
-                        user, obj._name)
+                        user, obj._name, context=context)
                 if domain1:
                     domain1 = ' AND ' + domain1
                 cursor.execute('DELETE FROM "' + self._rel + '" ' \
