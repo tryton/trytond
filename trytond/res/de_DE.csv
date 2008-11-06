@@ -30,7 +30,11 @@ field,"res.request.history,create_uid",0,Creation user,Ersteller,0
 field,"res.request.history,date_sent",0,Date sent,Gesendet am,0
 field,"res.request.history,id",0,ID,ID,0
 field,"res.request.history,name",0,Summary,Zusammenfassung,0
+field,"res.request.history,number_references",0,References,Verweise,0
+field,"res.request.history,priority",0,Priority,Priorität,0
 field,"res.request.history,request",0,Request,Anfrage,0
+field,"res.request.history,state",0,State,Status,0
+field,"res.request.history,subject",0,Subject,Betreff,0
 field,"res.request.history,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.request.history,write_uid",0,Last modification by,Zuletzt geändert von,0
 field,"res.request,id",0,ID,ID,0
@@ -81,6 +85,13 @@ model,"ir.ui.menu,name",menu_request_form,Requests,Anfragen,0
 model,"ir.ui.menu,name",menu_res,Users,Benutzer,0
 model,"ir.ui.menu,name",menu_user_form,Users,Benutzer,0
 model,"res.request.link,name",request_link_cron,Scheduler,Zeitplaner,0
+selection,"res.request.history,priority",0,High,Hoch,0
+selection,"res.request.history,priority",0,Low,Niedrig,0
+selection,"res.request.history,priority",0,Normal,Normal,0
+selection,"res.request.history,state",0,Chatting,Schreibt gerade...,0
+selection,"res.request.history,state",0,Closed,Geschlossen,0
+selection,"res.request.history,state",0,Draft,Entwurf,0
+selection,"res.request.history,state",0,Waiting,Wartend,0
 selection,"res.request,priority",0,High,Hoch,0
 selection,"res.request,priority",0,Low,Niedrig,0
 selection,"res.request,priority",0,Normal,Normal,0

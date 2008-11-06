@@ -1,6 +1,7 @@
 type,name,res_id,src,value,fuzzy
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
+error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist in seiner Domain nicht gültig.",0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique!,Der interne Name kann nicht mehrfach vergeben werden!,0
 error,ir.attachment,0,Error! You can not create attachments with the same name!,Fehler! Anhänge müssen unterschiedliche Namen aufweisen!,0
@@ -35,6 +36,7 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,Präfix/Suffix ungültig!,0
 error,ir.sequence.strict,0,Missing sequence!,Fehlende Sequenz!,0
 error,ir.translation,0,Translation must be unique,Übersetzung kann nicht mehrfach vergeben werden!,0
 error,ir.ui.view,0,Invalid XML for View!,Ungültiges XML für Ansicht!,0
+error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Das Feld ""%s"" in ""%s"" ist erforderlich.",0
 error,write_xml_record,0,You are not allowed to modify this record.,Keine Berechtigung für die Änderung dieses Datensatzes,0
 error,xml_record_desc,0,This record is part of the base configuration.,Dieser Datensatz ist Teil der Basiskonfiguration,0
 field,"ir.action.act_window,action",0,Action,Aktion,0
@@ -296,7 +298,6 @@ model,"ir.action,name",act_sequence_form,Sequences,Sequenzen,0
 model,"ir.action,name",act_sequence_strict_form,Sequences Strict,Strikte Sequenzen,0
 model,"ir.action,name",act_sequence_type_form,Sequence Types,Sequenztypen,0
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
-model,"ir.action,name",,Synchronize Translations,Übersetzungen synchronisieren,0
 model,"ir.action,name",act_translation_update,Synchronize Translations,Übersetzungen aktualisieren,0
 model,"ir.action,name",act_translation_form,Translations,Übersetzungen,0
 model,"ir.action,name",action_tryton,Tryton,Tryton,0
@@ -320,7 +321,6 @@ model,"ir.ui.menu,name",menu_default_form,Defaults,Standards,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exporte,0
 model,"ir.ui.menu,name",menu_translation_export,Export Translations,Übersetzungen exportieren,0
 model,"ir.ui.menu,name",model_model_fields_form,Fields,Felder,0
-model,"ir.ui.menu,name",menu_module_install_upgrade,Install \ Upgrade Modules,Module installieren / aktualisieren,0
 model,"ir.ui.menu,name",menu_lang_form,Languages,Sprachen,0
 model,"ir.ui.menu,name",menu_localization,Localization,Lokalisierung,0
 model,"ir.ui.menu,name",menu_menu_form,Menus,Menüs,0
@@ -329,6 +329,7 @@ model,"ir.ui.menu,name",menu_model_form,Models,Modelle,0
 model,"ir.ui.menu,name",menu_model_access_form,Models Access,Berechtigungen für Modelle,0
 model,"ir.ui.menu,name",menu_modules,Modules,Module,0
 model,"ir.ui.menu,name",menu_module_form,Modules,Module,0
+model,"ir.ui.menu,name",menu_module_install_upgrade,Perform Pending Installation/Upgrade,Vorgemerkte Installationen / Aktualisierungen durchführen,0
 model,"ir.ui.menu,name",menu_property_form,Properties,Eigenschaften,0
 model,"ir.ui.menu,name",menu_rule_group_form,Record Rules,Datensatzregeln,0
 model,"ir.ui.menu,name",menu_action_report_form,Reports,Berichte,0
