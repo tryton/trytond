@@ -1090,7 +1090,7 @@ class ORM(object):
                             for x in self._order])),
                             table_args + sub_ids + domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                        raise Exception('ValidateError',
+                        raise Exception('AccessError',
                                 'You try to bypass an access rule ' \
                                         '(Document type: %s).' % \
                                         self._description)
