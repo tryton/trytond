@@ -3,7 +3,6 @@
 {
     'name': 'IR',
     'name_de_DE': 'Interne Administration',
-    'category': 'Generic',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of models, actions, sequences, localizations, cron jobs etc.
 ''',
@@ -28,7 +27,6 @@ Provides concepts and administration of models, actions, sequences, localization
         'rule.xml',
         'property.xml',
         'module/module.xml',
-        'module/category.xml',
         'default.xml',
         ],
     'translation': [

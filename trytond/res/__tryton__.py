@@ -3,7 +3,6 @@
 {
     'name': 'Res',
     'name_de_DE': 'Benutzerverwaltung',
-    'category': 'Generic',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of users and internal communication.
 ''',

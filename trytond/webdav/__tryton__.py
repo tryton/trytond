@@ -3,7 +3,6 @@
 {
     'name': 'WebDAV',
     'name_de_DE': 'WebDAV',
-    'category': 'Generic',
     'description': '''Basic module providing concept and administration of integrated webDAV features.
 ''',
     'description_de_DE': '''Basismodul für Konzept und Administration der integrierten WebDAV-Komponente
