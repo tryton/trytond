@@ -11,7 +11,7 @@ class User(OSV):
     "User"
     _name = "res.user"
     _description = __doc__
-    name = fields.Char('Name', required=True, select=1)
+    name = fields.Char('Name', required=True, select=1, translate=True)
     login = fields.Char('Login', required=True)
     password = fields.Sha('Password')
     signature = fields.Text('Signature')

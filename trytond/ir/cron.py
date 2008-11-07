@@ -27,7 +27,7 @@ class Cron(OSV):
     "Cron"
     _name = "ir.cron"
     _description = __doc__
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Name', required=True, translate=True)
     user = fields.Many2One('res.user', 'Execution User', required=True,
                            help="The user used to execute this action")
     request_user = fields.Many2One(
