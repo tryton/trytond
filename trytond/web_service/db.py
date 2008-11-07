@@ -47,7 +47,7 @@ class DB(Service):
                 cursor.commit()
                 cursor.close()
                 cursor = None
-                pooler.get_pool(db_name, update_module=True, lang=[lang])
+                pool = pooler.get_pool(db_name, update_module=True, lang=[lang])
                 cursor = sql_db.db_connect(db_name).cursor()
                 if lang != 'en_US':
                     cursor.execute('UPDATE ir_lang ' \
@@ -61,6 +61,9 @@ class DB(Service):
                         'SET password = %s ' \
                         'WHERE login = \'admin\'',
                         (sha.new(admin_password).hexdigest(),))
+                module_obj = pool.get('ir.module.module')
+                if module_obj:
+                    module_obj.update_list(cursor, 0)
                 cursor.commit()
                 res = True
             except:
