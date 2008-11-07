@@ -509,7 +509,7 @@ view,ir.module.module,0,Module,Module,0
 view,ir.module.module,0,Modules,Modules,0
 view,ir.module.module,0,Uninstall (beta),Désinstaller (béta),0
 view,ir.module.module,0,Upgrade,Mettre à jour,0
-view,ir.module.module.config_wizard.first,0,depending on the modules you have installed.,dépendant des modules installé.,0
+view,ir.module.module.config_wizard.first,0,depending on the modules you have installed.,en fonction des modules installé.,0
 view,ir.module.module.config_wizard.first,0,Module Configuration Wizard,Wizard de Configuration de Module,0
 view,ir.module.module.config_wizard.first,0,Welcome to the module configuration wizard!,Bienvenu dans le Wizard de Configuration de Module !,0
 view,ir.module.module.config_wizard.first,0,You will be able to configure your installation,Vous pourrez configurer votre installation,0
