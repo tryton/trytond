@@ -232,14 +232,10 @@ def init_db(cursor):
                 categs = categs[1:]
 
             active = info.get('active', False)
-            installable = info.get('installable', True)
-            if installable:
-                if active:
-                    state = 'to install'
-                else:
-                    state = 'uninstalled'
+            if active:
+                state = 'to install'
             else:
-                state = 'uninstallable'
+                state = 'uninstalled'
             cursor.execute('SELECT NEXTVAL(\'ir_module_module_id_seq\')')
             module_id = cursor.fetchone()[0]
             cursor.execute('INSERT INTO ir_module_module ' \
