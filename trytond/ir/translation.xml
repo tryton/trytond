@@ -37,7 +37,7 @@
               <![CDATA[
                 <tree string="Translations" editable="bottom">
                     <field name="src" select="1"/>
-                    <field name="value" select="1"/>
+                    <field name="value" select="2"/>
                     <field name="fuzzy" select="1"/>
                     <field name="name" select="2"/>
                     <field name="lang" select="1"/>
