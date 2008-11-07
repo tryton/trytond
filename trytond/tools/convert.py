@@ -648,40 +648,42 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # write the values in the db:
                 object_ref.write(cursor, user, db_id, to_update)
 
-                #Update/Create translation record for field translatable
-                for field_name in object_ref._columns.keys() + \
-                        object_ref._inherit_fields.keys():
-                    if field_name in object_ref._columns:
-                        field = object_ref._columns[field_name]
-                        table_name = object_ref._name
-                        res_id = db_id
-                    else:
-                        field = object_ref._inherit_fields[field_name][2]
-                        table_name = self.pool.get(
-                                object_ref._inherit_fields[field_name][0])._name
-                    if field.translate and to_update.get(field_name):
-                        cursor.execute('SELECT id FROM ir_translation ' \
-                                'WHERE name = %s' \
-                                    'AND lang = %s ' \
-                                    'AND type = %s ' \
-                                    'AND res_id = %s',
-                                (table_name + ',' + field_name,
-                                    'en_US', 'model', res_id))
-                        if cursor.rowcount:
+            #Update/Create translation record for field translatable
+            for field_name in object_ref._columns.keys() + \
+                    object_ref._inherit_fields.keys():
+                if field_name in object_ref._columns:
+                    field = object_ref._columns[field_name]
+                    table_name = object_ref._name
+                    res_id = db_id
+                else:
+                    field = object_ref._inherit_fields[field_name][2]
+                    table_name = self.pool.get(
+                            object_ref._inherit_fields[field_name][0])._name
+                if field.translate:
+                    cursor.execute('SELECT id FROM ir_translation ' \
+                            'WHERE name = %s' \
+                                'AND lang = %s ' \
+                                'AND type = %s ' \
+                                'AND res_id = %s',
+                            (table_name + ',' + field_name,
+                                'en_US', 'model', res_id))
+                    if cursor.rowcount:
+                        if to_update.get(field_name):
                             trans_id = cursor.fetchone()[0]
                             cursor.execute('UPDATE ir_translation ' \
                                     'SET src = %s, module = %s ' \
                                     'WHERE id = %s',
                                     (to_update[field_name], module, trans_id))
-                        else:
-                            cursor.execute('INSERT INTO ir_translation ' \
-                                    '(name, lang, type, src, res_id, ' \
-                                        'value, module, fuzzy) ' \
-                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
-                                    (table_name + ',' + field_name,
-                                        'en_US', 'model', to_update[field_name],
-                                        res_id, '', module))
+                    elif values.get(field_name):
+                        cursor.execute('INSERT INTO ir_translation ' \
+                                '(name, lang, type, src, res_id, ' \
+                                    'value, module, fuzzy) ' \
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                (table_name + ',' + field_name,
+                                    'en_US', 'model', values[field_name],
+                                    res_id, '', module))
 
+            if to_update:
                 # re-read it: this ensure that we store the real value
                 # in the model_data table:
                 db_val = object_ref.browse(cursor, user, db_id)
