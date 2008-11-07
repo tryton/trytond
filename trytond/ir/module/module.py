@@ -497,7 +497,7 @@ class ModuleConfigWizardItem(OSV):
     state = fields.Selection([
         ('open', 'Open'),
         ('done', 'Done'),
-        ], string='State', required=True)
+        ], string='State', required=True, select=1)
 
     def __init__(self):
         super(ModuleConfigWizardItem, self).__init__()

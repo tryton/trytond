@@ -99,9 +99,9 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Config Wizard Items" editable="bottom">
-                    <field name="name"/>
+                    <field name="name" select="1"/>
                     <field name="sequence"/>
-                    <field name="state"/>
+                    <field name="state" select="1"/>
                 </tree>
                 ]]>
             </field>
