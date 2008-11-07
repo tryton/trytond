@@ -136,7 +136,6 @@ class Module(OSV):
     dependencies = fields.One2Many('ir.module.module.dependency',
         'module', 'Dependencies', readonly=True)
     state = fields.Selection([
-        ('uninstallable', 'Not Installable'),
         ('uninstalled', 'Not Installed'),
         ('installed', 'Installed'),
         ('to upgrade', 'To be upgraded'),
@@ -282,7 +281,7 @@ class Module(OSV):
                     'JOIN ir_module_module m on (d.module = m.id) ' \
                     'WHERE d.name = %s ' \
                         'AND m.state not in ' \
-                        '(\'uninstalled\',\'uninstallable\',\'to remove\')',
+                        '(\'uninstalled\', \'to remove\')',
                             (module.name,))
             res = cursor.fetchall()
             if res:
@@ -324,7 +323,12 @@ class Module(OSV):
 
         if context is None:
             context = {}
+
         res = 0
+
+        context = context.copy()
+        if 'language' in context:
+            del context['language']
 
         lang_ids = lang_obj.search(cursor, user, [
             ('translatable', '=', True),
@@ -336,34 +340,60 @@ class Module(OSV):
         if os.path.isdir(MODULES_PATH):
             module_names += os.listdir(MODULES_PATH)
 
+        module_ids = self.search(cursor, user, [], context=context)
+        modules = self.browse(cursor, user, module_ids, context=context)
+        name2module = {}
+        for module in modules:
+            name2module.setdefault(module.name, {})
+            name2module[module.name]['en_US'] = module
+        for code in lang_codes:
+            ctx = context.copy()
+            ctx['language'] = code
+            modules = self.browse(cursor, user, module_ids, context=ctx)
+            for module in modules:
+                name2module[module.name][code] = module
+
         # iterate through installed modules and mark them as being so
         for name in module_names:
             mod_name = name
             if name[-4:] == '.zip':
                 mod_name = name[:-4]
-            ids = self.search(cursor, user, [('name', '=', mod_name)],
-                    context=context)
-            if ids:
-                module_id = ids[0]
-                mod = self.browse(cursor, user, module_id)
+            if mod_name in name2module.keys():
+                mod = name2module[mod_name]['en_US']
                 tryton = Module.get_module_info(mod_name)
-                if mod.state == 'uninstallable':
-                    self.write(cursor, user, module_id, {
-                        'state': 'uninstalled'}, context=context)
-                self.write(cursor, user, module_id, {
-                    'description': tryton.get('description', ''),
-                    'shortdesc': tryton.get('name', ''),
-                    'author': tryton.get('author', ''),
-                    'website': tryton.get('website', ''),
-                    }, context=context)
+
+                if mod.description != tryton.get('description',
+                        '').decode('utf-8', 'ignore') \
+                        or mod.shortdesc != tryton.get('name',
+                                '').decode('utf-8', 'ignore') \
+                        or mod.author != tryton.get('author',
+                                '').decode('utf-8', 'ignore') \
+                        or mod.website != tryton.get('website',
+                                '').decode('utf-8', 'ignore'):
+                    self.write(cursor, user, mod.id, {
+                        'description': tryton.get('description', ''),
+                        'shortdesc': tryton.get('name', ''),
+                        'author': tryton.get('author', ''),
+                        'website': tryton.get('website', ''),
+                        }, context=context)
+
                 for code in lang_codes:
-                    ctx = context.copy()
-                    ctx['language'] = code
-                    self.write(cursor, user, module_id, {
-                        'description': tryton.get('description_' + code, ''),
-                        'shortdesc': tryton.get('name_' + code, ''),
-                        }, context=ctx)
-                self._update_dependencies(cursor, user, module_id,
+                    mod2 = name2module[mod_name][code]
+                    if mod2.description != \
+                            tryton.get('description_' + code,
+                                    '').decode('utf-8', 'ignore') \
+                            or mod2.shortdesc != \
+                            tryton.get('name_' + code,
+                                    '').decode('utf-8', 'ignore'):
+                        ctx = context.copy()
+                        ctx['language'] = code
+                        self.write(cursor, user, mod.id, {
+                            'description': tryton.get('description_' + code,
+                                ''),
+                            'shortdesc': tryton.get('name_' + code, ''),
+                            }, context=ctx)
+
+                self._update_dependencies(cursor, user, mod,
                         tryton.get('depends', []), context=context)
                 continue
             if name in ['ir', 'workflow', 'res', 'webdav']:
@@ -393,24 +423,26 @@ class Module(OSV):
                         'shortdesc': tryton.get('name_' + code, ''),
                         }, context=ctx)
                 res += 1
-                self._update_dependencies(cursor, user, new_id,
+                name2module[mod_name] = self.browse(cursor, user, new_id,
+                        context=context)
+                self._update_dependencies(cursor, user, name2module[mod_name],
                         tryton.get('depends', []), context=context)
         return res
 
-    def _update_dependencies(self, cursor, user, module_id, depends=None,
+    def _update_dependencies(self, cursor, user, module, depends=None,
             context=None):
         dependency_obj = self.pool.get('ir.module.module.dependency')
-        dependency_ids = dependency_obj.search(cursor, user, [
-            ('module', '=', module_id),
-            ], context=context)
-        dependency_obj.delete(cursor, user, dependency_ids, context=context)
+        dependency_obj.delete(cursor, user, [x.id for x in module.dependencies
+            if x.name not in depends], context=context)
         if depends is None:
             depends = []
+        dependency_names = [x.name for x in module.dependencies]
         for depend in depends:
-            dependency_obj.create(cursor, user, {
-                'module': module_id,
-                'name': depend,
-                }, context=context)
+            if depend not in dependency_names:
+                dependency_obj.create(cursor, user, {
+                    'module': module.id,
+                    'name': depend,
+                    }, context=context)
 
 Module()
 
@@ -424,7 +456,6 @@ class ModuleDependency(OSV):
        ondelete='cascade')
     state = fields.Function('get_state', type='selection',
        selection=[
-       ('uninstallable','Uninstallable'),
        ('uninstalled','Not Installed'),
        ('installed','Installed'),
        ('to upgrade','To be upgraded'),
@@ -432,6 +463,13 @@ class ModuleDependency(OSV):
        ('to install','To be installed'),
        ('unknown', 'Unknown'),
        ], string='State', readonly=True)
+
+    def __init__(self):
+        super(ModuleDependency, self).__init__()
+        self._sql_constraints += [
+            ('name_module_uniq', 'UNIQUE(name, module)',
+                'Dependency must be unique by module!'),
+        ]
 
     def get_state(self, cursor, user, ids, name, args, context=None):
         result = {}

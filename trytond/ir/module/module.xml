@@ -60,7 +60,7 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Modules"
-                    colors="blue:state=='to upgrade' or state=='to install';grey:state=='uninstalled' or state=='uninstallable'">
+                    colors="blue:state=='to upgrade' or state=='to install';grey:state=='uninstalled'">
                     <field name="name" select="1"/>
                     <field name="shortdesc" select="2"/>
                     <field name="author" select="2"/>

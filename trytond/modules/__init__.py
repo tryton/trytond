@@ -133,8 +133,7 @@ def create_graph(module_list, force=None):
                 logging.getLogger('init').error(
                     'module:%s:eval file %s' % (module, tryton_file))
                 raise
-            if info.get('installable', True):
-                packages.append((module, info.get('depends', []), info))
+            packages.append((module, info.get('depends', []), info))
         elif module != 'all':
             logging.getLogger('init').error(
                 'module:%s:Module not found!' % (module,))
@@ -346,8 +345,7 @@ def load_modules(database, pool, pool_wizard, pool_report, update_module=False,
         force = []
         if update_module:
             if 'all' in CONFIG['init']:
-                cursor.execute("SELECT name FROM ir_module_module " \
-                        "WHERE state != 'uninstallable'")
+                cursor.execute("SELECT name FROM ir_module_module")
             else:
                 cursor.execute("SELECT name FROM ir_module_module " \
                         "WHERE state IN ('installed', 'to install', " \
