@@ -139,6 +139,7 @@ class Translation(OSV, Cacheable):
                     'WHERE lang = %s ' \
                         'AND type = %s ' \
                         'AND name = %s ' \
+                        'AND fuzzy = false ' \
                         'AND res_id in (' + \
                             ','.join([str(x) for x in to_fetch]) + ')',
                     (lang, ttype, name))
@@ -213,17 +214,19 @@ class Translation(OSV, Cacheable):
             source = source.strip().replace('\n',' ')
             cursor.execute('SELECT value ' \
                     'FROM ir_translation ' \
-                    'WHERE lang=%s ' \
-                        'AND type=%s ' \
-                        'AND name=%s ' \
-                        'AND src=%s',
+                    'WHERE lang = %s ' \
+                        'AND type = %s ' \
+                        'AND name = %s ' \
+                        'AND src = %s' \
+                        'AND fuzzy = false ',
                     (lang, ttype, str(name), source))
         else:
             cursor.execute('SELECT value ' \
                     'FROM ir_translation ' \
-                    'WHERE lang=%s ' \
-                        'AND type=%s ' \
-                        'AND name=%s',
+                    'WHERE lang = %s ' \
+                        'AND type = %s ' \
+                        'AND name = %s' \
+                        'AND fuzzy = false ',
                     (lang, ttype, str(name)))
         res = cursor.fetchone()
         if res:
@@ -256,15 +259,17 @@ class Translation(OSV, Cacheable):
                 if clause:
                     clause += ' OR '
                 if source:
-                    clause += '(lang=%s ' \
-                            'AND type=%s ' \
-                            'AND name=%s ' \
-                            'AND src=%s)'
+                    clause += '(lang = %s ' \
+                            'AND type = %s ' \
+                            'AND name = %s ' \
+                            'AND src = %s ' \
+                            'AND fuzzy = false)'
                     value.extend((lang, ttype, str(name), source))
                 else:
-                    clause += '(lang=%s ' \
-                            'AND type=%s ' \
-                            'AND name=%s)'
+                    clause += '(lang = %s ' \
+                            'AND type = %s ' \
+                            'AND name = %s ' \
+                            'AND fuzzy = false)'
                     value.extend((lang, ttype, str(name)))
         if clause:
             cursor.execute('SELECT lang, type, name, src, value ' \
