@@ -170,7 +170,7 @@
                             <label name="view"/>
                             <field name="view"/>
                         </form>
-                        <tree string="Views" sequence="sequence">
+                        <tree string="Views" sequence="sequence" fill="1">
                             <field name="sequence" tree_invisible="1"/>
                             <field name="view"/>
                         </tree>
