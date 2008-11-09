@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Attachment"
 import os
 import md5
@@ -50,9 +51,12 @@ class Attachment(OSV):
                     statinfo = os.stat(filename)
                     value = statinfo.st_size
                 else:
-                    file_p = file(filename, 'rb')
-                    value = base64.encodestring(file_p.read())
-                    file_p.close()
+                    try:
+                        file_p = file(filename, 'rb')
+                        value = base64.encodestring(file_p.read())
+                        file_p.close()
+                    except IOError:
+                        pass
             res[attachment.id] = value
         return res
 
