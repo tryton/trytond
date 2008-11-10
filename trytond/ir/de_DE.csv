@@ -29,6 +29,7 @@ error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Fehlende A
 error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Die zu deinstallierenden Module hängen von installierten Module ab:,0
 error,ir.module.module,0,The name of the module must be unique!,Der Name eines Moduls kann nicht mehrfach vergeben werden,0
 error,ir.module.module,0,You can not remove a module that is installed or will be installed,Ein bereits installiertes oder für die Installation vorgemwerktes Modul kann nicht entfernt werden,0
+error,ir.module.module.dependency,0,Dependency must be unique by module!,Die Abhängigkeit eines Moduls muss eindeutig sein!,0
 error,ir.rule.group,0,Global and Default are mutually exclusive!,Global und Standard schließen sich gegenseitig aus!,0
 error,ir.sequence,0,Invalid prefix/suffix!,Ungültiger Präfix/Suffix!,0
 error,ir.sequence,0,Missing sequence!,Fehlende Sequenz!,0
@@ -273,7 +274,6 @@ so every users must follow this rule","Regel global setzen
 help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,"Die Regel wird gültig bewertet, wenn wenigstens ein Test positiv ist (True)",0
 model,"ir.action,name",act_action_form,Actions,Aktionen,0
 model,"ir.action,name",act_attachment_form,Attachments,Anhänge,0
-model,"ir.action,name",act_category_tree,Categories,Kategorien,0
 model,"ir.action,name",act_translation_clean,Clean Translations,Übersetzungen bereinigen,0
 model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
 model,"ir.action,name",act_property_form_default,Default Properties,Standardeigenschaften,0
@@ -288,7 +288,6 @@ model,"ir.action,name",act_model_form,Models,Modelle,0
 model,"ir.action,name",act_model_access_form,Models Access,Berechtigungen für Modelle,0
 model,"ir.action,name",act_module_config_wizard,Module Configuration,Modulkonfiguration,0
 model,"ir.action,name",act_module_form,Modules,Module,0
-model,"ir.action,name",act_module_form2,Modules,Module,0
 model,"ir.action,name",act_module_install_upgrade,Perform Pending Installation/Upgrade,Vorgemerkte Installationen / Aktualisierungen durchführen,0
 model,"ir.action,name",act_property_form,Properties,Eigenschaften,0
 model,"ir.action,name",act_rule_group_form,Record Rules,Datensatzregeln,0
@@ -313,7 +312,6 @@ model,"ir.ui.menu,name",menu_action,Actions,Aktionen,0
 model,"ir.ui.menu,name",menu_act_action,Actions,Aktionen,0
 model,"ir.ui.menu,name",menu_administration,Administration,Systemverwaltung,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Anhänge,0
-model,"ir.ui.menu,name",menu_category_tree,Categories,Kategorien,0
 model,"ir.ui.menu,name",menu_translation_clean,Clean Translations,Übersetzungen bereinigen,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
 model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Standardeigenschaften,0

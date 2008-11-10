@@ -84,7 +84,9 @@ model,"ir.ui.menu,name",menu_request_link_form,Request Links,Anfrageverknüpfung
 model,"ir.ui.menu,name",menu_request_form,Requests,Anfragen,0
 model,"ir.ui.menu,name",menu_res,Users,Benutzer,0
 model,"ir.ui.menu,name",menu_user_form,Users,Benutzer,0
+model,"res.group,name",group_admin,Administration,Administration Intern,0
 model,"res.request.link,name",request_link_cron,Scheduler,Zeitplaner,0
+model,"res.user,name",user_admin,Administrator,Administrator,0
 selection,"res.request.history,priority",0,High,Hoch,0
 selection,"res.request.history,priority",0,Low,Niedrig,0
 selection,"res.request.history,priority",0,Normal,Normal,0
