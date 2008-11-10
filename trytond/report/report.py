@@ -18,7 +18,12 @@ import os
 import datetime
 import md5
 from base64 import decodestring
+
+import warnings
+warnings.simplefilter("ignore")
 import relatorio.reporting
+warnings.resetwarnings()
+
 import tempfile
 from genshi.filters import Translator
 import traceback
