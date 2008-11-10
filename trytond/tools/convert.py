@@ -560,7 +560,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         field = object_ref._inherit_fields[field_name][2]
                         table_name = self.pool.get(
                                 object_ref._inherit_fields[field_name][0])._name
-                        res_id = inherit_db_id[table_name]
+                        res_id = inherit_db_ids[table_name]
                     if field.translate and values.get(field_name):
                         cursor.execute('INSERT INTO ir_translation ' \
                                 '(name, lang, type, src, res_id, ' \
@@ -648,6 +648,13 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # write the values in the db:
                 object_ref.write(cursor, user, db_id, to_update)
 
+
+            if not inherit_db_ids:
+                object = object_ref.browse(cursor, user, db_id)
+                for table, field_name, field in \
+                        object_ref._inherit_fields.values():
+                    inherit_db_ids[table] = object[field_name].id
+
             #Update/Create translation record for field translatable
             for field_name in object_ref._columns.keys() + \
                     object_ref._inherit_fields.keys():
@@ -659,6 +666,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     field = object_ref._inherit_fields[field_name][2]
                     table_name = self.pool.get(
                             object_ref._inherit_fields[field_name][0])._name
+                    res_id = inherit_db_ids[table_name]
                 if field.translate:
                     cursor.execute('SELECT id FROM ir_translation ' \
                             'WHERE name = %s' \
