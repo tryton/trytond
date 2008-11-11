@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 import time
 from trytond.osv import fields, OSV
 from string import Template
@@ -8,7 +9,7 @@ class SequenceType(OSV):
     "Sequence type"
     _name = 'ir.sequence.type'
     _description = __doc__
-    name = fields.Char('Sequence Name', required=True)
+    name = fields.Char('Sequence Name', required=True, translate=True)
     code = fields.Char('Sequence Code', required=True)
 
 SequenceType()
@@ -18,7 +19,7 @@ class Sequence(OSV):
     "Sequence"
     _name = 'ir.sequence'
     _description = __doc__
-    name = fields.Char('Sequence Name', required=True)
+    name = fields.Char('Sequence Name', required=True, translate=True)
     code = fields.Selection('code_get', 'Sequence Code', required=True)
     active = fields.Boolean('Active')
     prefix = fields.Char('Prefix')
@@ -50,8 +51,12 @@ class Sequence(OSV):
         return 0
 
     def code_get(self, cursor, user, context=None):
-        cursor.execute('select code, name from ir_sequence_type')
-        return cursor.fetchall()
+        sequence_type_obj = self.pool.get('ir.sequence.type')
+        sequence_type_ids = sequence_type_obj.search(cursor, user, [],
+                context=context)
+        sequence_types = sequence_type_obj.browse(cursor, user,
+                sequence_type_ids, context=context)
+        return [(x.code, x.name) for x in sequence_types]
 
     def check_prefix_suffix(self, cursor, user, ids):
         "Check prefix and suffix"
