@@ -13,7 +13,7 @@ class Workflow(OSV):
     _name = "workflow"
     _table = "wkf"
     _description = __doc__
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Name', required=True, translate=True)
     osv = fields.Char('Resource Model', required=True, select=1)
     on_create = fields.Boolean('On Create', select=2)
     activities = fields.One2Many('workflow.activity', 'workflow',
@@ -48,7 +48,7 @@ class WorkflowActivity(OSV):
     _name = "workflow.activity"
     _table = "wkf_activity"
     _description = __doc__
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Name', required=True, translate=True)
     workflow = fields.Many2One('workflow', 'Workflow', required=True,
        select=1, ondelete='cascade')
     split_mode = fields.Selection([
