@@ -873,6 +873,7 @@ class TranslationUpdate(Wizard):
                 'res_id': row['res_id'],
                 'lang': data['form']['lang'],
                 'type': row['type'],
+                'module': row['module'],
                 })
         cursor.execute('SELECT name, res_id, type, src ' \
                 'FROM ir_translation ' \
