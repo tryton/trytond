@@ -913,7 +913,8 @@ class TranslationUpdate(Wizard):
         model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
                 context=context)
         res = act_window_obj.read(cursor, user, model_data.db_id, context=context)
-        res['domain'] = str([('lang', '=', data['form']['lang'])])
+        res['domain'] = res['domain'][:-1] + ',' + \
+                str(('lang', '=', data['form']['lang'])) + res['domain'][-1:]
         return res
 
     states = {
