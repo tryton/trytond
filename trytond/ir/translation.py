@@ -785,6 +785,8 @@ class TranslationClean(Wizard):
                             'xml_record_desc',
                             'write_xml_record',
                             'delete_workflow_record',
+                            'domain_validation_record',
+                            'required_validation_record',
                             ):
                         continue
                     if model_name not in self.pool.object_name_list():
