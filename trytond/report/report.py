@@ -217,9 +217,6 @@ class Report(object):
 
     def _get_objects(self, cursor, user, ids, model, datas, context):
         model_obj = self.pool.get(model)
-        context = context.copy()
-        if 'language' in context:
-            del context['language']
         return model_obj.browse(cursor, user, ids, context=context)
 
     def parse(self, cursor, user, report, objects, datas, context):
