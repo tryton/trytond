@@ -1,7 +1,7 @@
 type,name,res_id,src,value,fuzzy
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
-error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist in seiner Domain nicht gültig.",0
+error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique!,Der interne Name kann nicht mehrfach vergeben werden!,0
 error,ir.attachment,0,Error! You can not create attachments with the same name!,Fehler! Anhänge müssen unterschiedliche Namen aufweisen!,0
@@ -37,7 +37,7 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,Präfix/Suffix ungültig!,0
 error,ir.sequence.strict,0,Missing sequence!,Fehlende Sequenz!,0
 error,ir.translation,0,Translation must be unique,Übersetzung kann nicht mehrfach vergeben werden!,0
 error,ir.ui.view,0,Invalid XML for View!,Ungültiges XML für Ansicht!,0
-error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Das Feld ""%s"" in ""%s"" ist erforderlich.",0
+error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
 error,write_xml_record,0,You are not allowed to modify this record.,Keine Berechtigung für die Änderung dieses Datensatzes,0
 error,xml_record_desc,0,This record is part of the base configuration.,Dieser Datensatz ist Teil der Basiskonfiguration,0
 field,"ir.action.act_window,action",0,Action,Aktion,0
@@ -155,11 +155,7 @@ field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Model Name,Modellname,0
 field,"ir.model,module",0,Module,Modul,0
 field,"ir.model,name",0,Model Description,Modell Beschreibung,0
-field,"ir.module.category,childs",0,Child Categories,Untergeordnet (Modulkategorien),0
-field,"ir.module.category,name",0,Name,Name,0
-field,"ir.module.category,parent",0,Parent Category,Übergeordnet (Modulkategorie),0
 field,"ir.module.module,author",0,Author,Autor,0
-field,"ir.module.module,category",0,Category,Kategorie,0
 field,"ir.module.module.config_wizard.item,name",0,Name,Name,0
 field,"ir.module.module.config_wizard.item,sequence",0,Sequence,Reihenfolge,0
 field,"ir.module.module.config_wizard.item,state",0,State,Status,0
@@ -172,7 +168,6 @@ field,"ir.module.module.install_upgrade.init,module_info",0,Modules to update,Zu
 field,"ir.module.module,name",0,Name,Name,0
 field,"ir.module.module,shortdesc",0,Short description,Kurzbeschreibung,0
 field,"ir.module.module,state",0,State,Status,0
-field,"ir.module.module,url",0,URL,URL,0
 field,"ir.module.module,version",0,Version,Version,0
 field,"ir.module.module,website",0,Website,Website,0
 field,"ir.property,field",0,Field,Feld,0
@@ -240,7 +235,7 @@ field,"ir.ui.view_sc,name",0,Shortcut Name,Name Schnelltaste,0
 field,"ir.ui.view_sc,res_id",0,Resource Ref.,Ref. Ressource,0
 field,"ir.ui.view_sc,resource",0,Resource Name,Name Ressource,0
 field,"ir.ui.view_sc,sequence",0,Sequence,Sequenz,0
-field,"ir.ui.view_sc,user_id",0,User Ref.,Benutzer Ref.,0
+field,"ir.ui.view_sc,user_id",0,User Ref.,Benutzer,0
 field,"ir.ui.view_tree_width,field",0,Field,Feld,0
 field,"ir.ui.view_tree_width,model",0,Model,Modell,0
 field,"ir.ui.view_tree_width,user",0,User,Benutzer,0
@@ -303,7 +298,7 @@ model,"ir.action,name",action_tryton,Tryton,Tryton,0
 model,"ir.action,name",act_action_url_form,URLs,URLs,0
 model,"ir.action,name",act_view_form,Views,Sichten,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Schnelltasten anzeigen,0
-model,"ir.action,name",act_view_tree_width_form,View Tree Width,Baumbreite anzeigen,0
+model,"ir.action,name",act_view_tree_width_form,View Tree Width,Spaltenbreiten anzeigen,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Fensteraktionen,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
 model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),ODF Dokumente (.odf),0
@@ -345,7 +340,7 @@ model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,Programmoberfläche,0
 model,"ir.ui.menu,name",menu_view,Views,Sichten,0
 model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Schnelltasten anzeigen,0
-model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Baumbreite anzeigen,0
+model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Spaltenbreiten anzeigen,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Fensteraktionen,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Wizards,0
 selection,"ir.action.act_window,view_type",0,Board,Infoseite,0
@@ -372,10 +367,8 @@ selection,"ir.module.module.dependency,state",0,Not Installed,Nicht installiert,
 selection,"ir.module.module.dependency,state",0,To be installed,Für die Installation vorgemerkt,0
 selection,"ir.module.module.dependency,state",0,To be removed,Für die Entfernung vorgemerkt,0
 selection,"ir.module.module.dependency,state",0,To be upgraded,Für die Aktualisierung vorgemerkt,0
-selection,"ir.module.module.dependency,state",0,Uninstallable,Nicht installierbar,0
 selection,"ir.module.module.dependency,state",0,Unknown,Unbekannt,0
 selection,"ir.module.module,state",0,Installed,Installiert,0
-selection,"ir.module.module,state",0,Not Installable,Nicht installierbar,0
 selection,"ir.module.module,state",0,Not Installed,Nicht installiert,0
 selection,"ir.module.module,state",0,To be installed,Für die Installation vorgemerkt,0
 selection,"ir.module.module,state",0,To be removed,Für die Entfernung vorgemerkt,0
@@ -492,8 +485,6 @@ view,ir.model,0,Fields Description,Feld Beschreibung,0
 view,ir.model,0,Model Description,Modell Beschreibung,0
 view,ir.model.access,0,Access controls,Zugangsberechtigungen,0
 view,ir.model.field,0,Fields,Felder,0
-view,ir.module.category,0,Module Categories,Modulkategorien,0
-view,ir.module.category,0,Module Category,Modulkategorie,0
 view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
 view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
@@ -551,13 +542,11 @@ view,ir.translation.set_report.start,0,Set Report Translations,Übersetzungen f�
 view,ir.translation.set_report.start,0,Set Translations Succeed!,Übersetzungen erfolgreich übernommen!,0
 view,ir.translation.update.init,0,Synchronize Translations,Übersetzungen synchronisieren,0
 view,ir.translation.update.init,0,Update Translations,Übersetzungen aktualisieren,0
-view,ir.translation.update_report.init,0,Update Report Translations,Übersetzungen für Berichte aktualisieren,0
-view,ir.translation.update_report.init,0,Update Report Translations?,Übersetzungen für Berichte aktualisieren?,0
 view,ir.ui.menu,0,Menu,Menü,0
 view,ir.ui.view,0,View,Sicht,0
 view,ir.ui.view_sc,0,Shortcut,Schnelltaste,0
-view,ir.ui.view_tree_width,0,Views Tree Width,Baumbreite anzeigen,0
-view,ir.ui.view_tree_width,0,View Tree Width,Baumbreite anzeigen,0
+view,ir.ui.view_tree_width,0,Views Tree Width,Spaltenbreiten anzeigen,0
+view,ir.ui.view_tree_width,0,View Tree Width,Spaltenbreiten anzeigen,0
 wizard_button,"ir.module.module.config_wizard,first,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,OK,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Abbrechen,0
