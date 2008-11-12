@@ -214,10 +214,11 @@ class BrowseRecord(object):
 
     def setLang(self, lang):
         self._context = self._context.copy()
+        prev_lang = self._context.get('language', 'en_US')
         self._context['language'] = lang
         for table in self._cache:
             for obj_id in self._cache[table]:
-                self._language_cache.setdefault(self._context['language'],
+                self._language_cache.setdefault(prev_lang,
                         {}).setdefault(table, {}).update(
                                 self._cache[table][obj_id])
                 if lang in self._language_cache \
