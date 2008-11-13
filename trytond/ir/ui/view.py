@@ -103,6 +103,8 @@ class View(OSV):
                     del trans_views[view.model][string]
                     continue
                 for string_trans in trans_views.get(view.model, {}):
+                    if string_trans in strings:
+                        continue
                     seqmatch = SequenceMatcher(lambda x: x == ' ',
                             string, string_trans)
                     if seqmatch.ratio() == 1.0:
