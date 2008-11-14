@@ -341,8 +341,10 @@ class InstanceGraph(Report):
                 context=context)
         for transition in transitions:
             args = {}
-            args['label'] = str(transition.condition).replace(' or ',
-                    '\\nor ').replace(' and ', '\\nand ')
+            args['label'] = ' '
+            if transition.condition != 'True':
+                args['label'] += str(transition.condition).replace(' or ',
+                        '\\nor ').replace(' and ', '\\nand ')
             if transition.signal:
                 args['label'] += '\\n' + str(transition.signal)
                 args['style'] = 'bold'
