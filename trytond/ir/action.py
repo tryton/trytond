@@ -101,9 +101,10 @@ class ActionKeyword(OSV):
 
     def models_get(self, cursor, user, context=None):
         model_obj = self.pool.get('ir.model')
-        model_ids = model_obj.search(cursor, user, [])
+        model_ids = model_obj.search(cursor, user, [], context=context)
         res = []
-        for model in model_obj.browse(cursor, user, model_ids, context=context):
+        for model in model_obj.browse(cursor, user, model_ids,
+                context=context):
             res.append([model.model, model.name])
         return res
 
