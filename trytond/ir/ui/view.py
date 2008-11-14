@@ -50,17 +50,16 @@ class View(OSV):
     def check_xml(self, cursor, user, ids):
         "Check XML"
         views = self.browse(cursor, user, ids)
-        cursor.execute('SELECT id, name, src FROM ir_translation ' \
-                'WHERE lang = %s ' \
-                    'AND type = %s ' \
-                    'AND name IN ' \
-                        '(' + ','.join(['%s' for x in views]) + ')',
-                        ('en_US', 'view') + tuple([x.model for x in views]))
-        trans_views = {}
-        for trans in cursor.dictfetchall():
-            trans_views.setdefault(trans['name'], {})
-            trans_views[trans['name']][trans['src']] = trans
         for view in views:
+            cursor.execute('SELECT id, name, src FROM ir_translation ' \
+                    'WHERE lang = %s ' \
+                        'AND type = %s ' \
+                        'AND name = %s '\
+                        'AND module = %s',
+                            ('en_US', 'view', view.model, view.module))
+            trans_views = {}
+            for trans in cursor.dictfetchall():
+                trans_views[trans['src']] = trans
             xml = view.arch.strip()
             tree = etree.fromstring(xml)
 
@@ -99,16 +98,16 @@ class View(OSV):
                 continue
             for string in {}.fromkeys(strings).keys():
                 done = False
-                if string in trans_views.get(view.model, {}):
-                    del trans_views[view.model][string]
+                if string in trans_views:
+                    del trans_views[string]
                     continue
-                for string_trans in trans_views.get(view.model, {}):
+                for string_trans in trans_views:
                     if string_trans in strings:
                         continue
                     seqmatch = SequenceMatcher(lambda x: x == ' ',
                             string, string_trans)
                     if seqmatch.ratio() == 1.0:
-                        del trans_views[view.model][string_trans]
+                        del trans_views[string_trans]
                         done = True
                         break
                     if seqmatch.ratio() > 0.6:
@@ -117,9 +116,11 @@ class View(OSV):
                                 'fuzzy = True ' \
                             'WHERE name = %s ' \
                                 'AND type = %s ' \
-                                'AND src = %s',
-                            (string, view.model, 'view', string_trans))
-                        del trans_views[view.model][string_trans]
+                                'AND src = %s '\
+                                'AND module = %s',
+                            (string, view.model, 'view', string_trans,
+                                view.module))
+                        del trans_views[string_trans]
                         done = True
                         break
                 if not done:

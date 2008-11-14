@@ -55,7 +55,8 @@ class Translation(OSV, Cacheable):
         super(Translation, self).__init__()
         Cacheable.__init__(self)
         self._sql_constraints += [
-            ('translation_uniq', 'UNIQUE (name, res_id, lang, type, src)',
+            ('translation_uniq',
+                'UNIQUE (name, res_id, lang, type, src, module)',
                 'Translation must be unique'),
         ]
         self.max_len = 10240
@@ -139,6 +140,8 @@ class Translation(OSV, Cacheable):
                     'WHERE lang = %s ' \
                         'AND type = %s ' \
                         'AND name = %s ' \
+                        'AND value != \'\' ' \
+                        'AND value IS NOT NULL ' \
                         'AND fuzzy = false ' \
                         'AND res_id in (' + \
                             ','.join([str(x) for x in to_fetch]) + ')',
@@ -218,6 +221,8 @@ class Translation(OSV, Cacheable):
                         'AND type = %s ' \
                         'AND name = %s ' \
                         'AND src = %s' \
+                        'AND value != \'\' ' \
+                        'AND value IS NOT NULL ' \
                         'AND fuzzy = false ',
                     (lang, ttype, str(name), source))
         else:
@@ -226,6 +231,8 @@ class Translation(OSV, Cacheable):
                     'WHERE lang = %s ' \
                         'AND type = %s ' \
                         'AND name = %s' \
+                        'AND value != \'\' ' \
+                        'AND value IS NOT NULL ' \
                         'AND fuzzy = false ',
                     (lang, ttype, str(name)))
         res = cursor.fetchone()
@@ -263,12 +270,16 @@ class Translation(OSV, Cacheable):
                             'AND type = %s ' \
                             'AND name = %s ' \
                             'AND src = %s ' \
+                            'AND value != \'\' ' \
+                            'AND value IS NOT NULL ' \
                             'AND fuzzy = false)'
                     value.extend((lang, ttype, str(name), source))
                 else:
                     clause += '(lang = %s ' \
                             'AND type = %s ' \
                             'AND name = %s ' \
+                            'AND value != \'\' ' \
+                            'AND value IS NOT NULL ' \
                             'AND fuzzy = false)'
                     value.extend((lang, ttype, str(name)))
         if clause:
@@ -539,18 +550,17 @@ class ReportTranslationSet(Wizard):
 
         reports = report_obj.browse(cursor, user, report_ids, context=context)
 
-        cursor.execute('SELECT id, name, src FROM ir_translation ' \
-                'WHERE lang = %s ' \
-                    'AND type = %s ' \
-                    'AND name IN ' \
-                        '(' + ','.join(['%s' for x in reports]) + ')',
-                ('en_US', 'odt') + tuple([x.report_name for x in reports]))
-        trans_reports = {}
-        for trans in cursor.dictfetchall():
-            trans_reports.setdefault(trans['name'], {})
-            trans_reports[trans['name']][trans['src']] = trans
-
         for report in reports:
+            cursor.execute('SELECT id, name, src FROM ir_translation ' \
+                    'WHERE lang = %s ' \
+                        'AND type = %s ' \
+                        'AND name = %s ' \
+                        'AND module = %s',
+                    ('en_US', 'odt', report.report_name, report.module))
+            trans_reports = {}
+            for trans in cursor.dictfetchall():
+                trans_reports[trans['src']] = trans
+
             try:
                 content = report.report_content
             except:
@@ -586,10 +596,12 @@ class ReportTranslationSet(Wizard):
 
             for string in {}.fromkeys(strings).keys():
                 done = False
-                if string in trans_reports.get(report.report_name, {}):
-                    del trans_reports[report.report_name][string]
+                if string in trans_reports:
+                    del trans_reports[string]
                     continue
-                for string_trans in trans_reports.get(report.report_name, {}):
+                for string_trans in trans_reports:
+                    if string_trans in strings:
+                        continue
                     seqmatch = SequenceMatcher(lambda x: x == ' ',
                             string, string_trans)
                     if seqmatch.ratio() == 1.0:
@@ -602,9 +614,11 @@ class ReportTranslationSet(Wizard):
                                     'fuzzy = True ' \
                                 'WHERE name = %s ' \
                                     'AND type = %s ' \
-                                    'AND src = %s',
-                                (string, report.report_name, 'odt', string_trans))
-                        del trans_reports[report.report_name][string_trans]
+                                    'AND src = %s ' \
+                                    'AND module = %s',
+                                (string, report.report_name, 'odt', string_trans,
+                                    report.module))
+                        del trans_reports[string_trans]
                         done = True
                         break
                 if not done:
