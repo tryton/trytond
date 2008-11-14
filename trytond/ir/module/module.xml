@@ -190,10 +190,6 @@
                 <form string="System upgrade done" col="1">
                     <label align="0.0"
                         string="The modules have been upgraded / installed !"/>
-                    <label align="0.0"
-                        string="You may have to reinstall some language pack."/>
-                    <label align="0.0"
-                        string="We suggest you to reload the menu tab (Ctrl+t Ctrl+r)."/>
                 </form>
                 ]]>
             </field>
