@@ -322,12 +322,15 @@ class InstanceGraph(Report):
                 actto[activity.id] = substop
             else:
                 args = {}
+                args['label'] = activity.name
+                args['fontsize'] = '10'
                 if activity.flow_start or activity.flow_stop:
                     args['style'] = 'filled'
                     args['color'] = 'lightgrey'
-                args['label'] = activity.name
                 if activity.subflow:
                     args['shape'] = 'box'
+                else:
+                    args['shape'] = 'octagon'
                 if activity.id in workitem:
                     args['label'] += '\\nx ' + str(workitem[activity.id])
                     args['color'] = 'red'
