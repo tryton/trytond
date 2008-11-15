@@ -176,7 +176,7 @@ field,"ir.property,name",0,Name,Nom,0
 field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Valeur,0
 field,"ir.rule,field",0,Field,Champ,0
-field,"ir.rule.group,default_p",0,Default,Défault,0
+field,"ir.rule.group,default_p",0,Default,Défaut,0
 field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Groupes,0
 field,"ir.rule.group,model",0,Model,Modèle,0
@@ -243,7 +243,7 @@ field,"ir.ui.view_tree_width,user",0,User,Utilisateur,0
 field,"ir.ui.view_tree_width,width",0,Width,Largeur,0
 field,"ir.ui.view,type",0,View Type,Type de vue,0
 help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Ajoute un auto-rafraîchissement sur la vue,0
-help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par défault pour la vue liste,0
+help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par défaut pour la vue liste,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Critères de recherche par défaut pour la vue liste,0
 help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
 on the bottom toolbar of a form views.","Si positionné sur vrai, l'action ne sera pas affichée
@@ -273,7 +273,7 @@ model,"ir.action,name",act_attachment_form,Attachments,Attachements,0
 model,"ir.action,name",act_translation_clean,Clean Translations,Nettoyer les traductions,0
 model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Élements du wizard de configuration,0
 model,"ir.action,name",act_property_form_default,Default Properties,Propriétés par défaut,0
-model,"ir.action,name",act_default_form,Defaults,Défauts,0
+model,"ir.action,name",act_default_form,Defaults,Valeurs par défaut,0
 model,"ir.action,name",act_export_form,Exports,Exports,0
 model,"ir.action,name",act_translation_export,Export Translations,Exporter les traductions,0
 model,"ir.action,name",act_model_fields_form,Fields,Champs,0
@@ -311,7 +311,7 @@ model,"ir.ui.menu,name",menu_attachment_form,Attachments,Pièces jointes,0
 model,"ir.ui.menu,name",menu_translation_clean,Clean Translations,Nettoyer les traductions,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Élements du wizard de configuration,0
 model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Propriétés par default,0
-model,"ir.ui.menu,name",menu_default_form,Defaults,Défaults,0
+model,"ir.ui.menu,name",menu_default_form,Defaults,Valeurs par défaut,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exportations,0
 model,"ir.ui.menu,name",menu_translation_export,Export Translations,Exporter les traductions,0
 model,"ir.ui.menu,name",model_model_fields_form,Fields,Champs,0
@@ -475,8 +475,8 @@ view,ir.attachment,0,Attachments,Pièces jointes,0
 view,ir.cron,0,Action to trigger,Action à suivre,0
 view,ir.cron,0,Scheduled Action,Action planifiée,0
 view,ir.cron,0,Scheduled Actions,Actions planifiées,0
-view,ir.default,0,Default,Défault,0
-view,ir.default,0,Defaults,Défaults,0
+view,ir.default,0,Default,Valeur par défaut,0
+view,ir.default,0,Defaults,Valeurs par défaut,0
 view,ir.export,0,Exports,Exportations,0
 view,ir.lang,0,Date Formatting,Formatage des dates,0
 view,ir.lang,0,Language,Langues,0
