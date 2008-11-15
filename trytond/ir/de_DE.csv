@@ -130,10 +130,10 @@ field,"ir.lang,translatable",0,Translatable,Übersetzbar,0
 field,"ir.model.access,description",0,Description,Beschreibung,0
 field,"ir.model.access,group",0,Group,Gruppe,0
 field,"ir.model.access,model",0,Model,Modell,0
-field,"ir.model.access,perm_create",0,Create Access,Berechtigung erstellen,0
-field,"ir.model.access,perm_delete",0,Delete Permission,Berechtigung löschen,0
-field,"ir.model.access,perm_read",0,Read Access,Leseberechtigung,0
-field,"ir.model.access,perm_write",0,Write Access,Schreibberechtigung,0
+field,"ir.model.access,perm_create",0,Create Access,Erstellen,0
+field,"ir.model.access,perm_delete",0,Delete Permission,Löschen,0
+field,"ir.model.access,perm_read",0,Read Access,Lesen,0
+field,"ir.model.access,perm_write",0,Write Access,Schreiben,0
 field,"ir.model.data,date_init",0,Init Date,Initialdatum,0
 field,"ir.model.data,date_update",0,Update Date,Aktualisierungsdatum,0
 field,"ir.model.data,db_id",0,Resource ID,ID Ressource,0
@@ -483,7 +483,7 @@ view,ir.lang,0,Languages,Sprachen,0
 view,ir.lang,0,Numbers Formatting,Zahlenformat,0
 view,ir.model,0,Fields Description,Feld Beschreibung,0
 view,ir.model,0,Model Description,Modell Beschreibung,0
-view,ir.model.access,0,Access controls,Zugangsberechtigungen,0
+view,ir.model.access,0,Access controls,Zugriffsberechtigungen,0
 view,ir.model.field,0,Fields,Felder,0
 view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
@@ -551,7 +551,6 @@ wizard_button,"ir.module.module.config_wizard,first,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,OK,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Aktualisierung starten,0
-wizard_button,"ir.module.module.install_upgrade,start,config",0,Ok,OK,0
 wizard_button,"ir.module.module.install_upgrade,start,menu",0,Ok,OK,0
 wizard_button,"ir.translation.clean,init,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.translation.clean,init,start",0,Start,Start,0
