@@ -1,6 +1,7 @@
 type,name,res_id,src,value,fuzzy
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Vous ne pouvez pas supprimer un enregistrement avec un workflow actif.,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Vous n'êtes pas authorisé à supprimer cet enregistrement,0
+error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","La valeur du champ ""%s"" de ""%s"" ne respecte pas son domaine.",0
 error,ir.action.keyword,0,Wrong wizard model!,Mauvais modèle de wizard,0
 error,ir.action.report,0,The internal name must be unique!,Le nom interne doit être unique,0
 error,ir.attachment,0,Error! You can not create attachments with the same name!,Erreur ! Vous ne pouvez pas créer des pièces jointes avec le même nom.,0
@@ -29,6 +30,7 @@ error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Dépendenc
 error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Les modules que vous essayez de déinstaller dépendent de modules installés :,0
 error,ir.module.module,0,The name of the module must be unique!,Le nom du module doit être unique,0
 error,ir.module.module,0,You can not remove a module that is installed or will be installed,Vous ne pouvez pas supprimer un module qui est installé ou qui le sera,0
+error,ir.module.module.dependency,0,Dependency must be unique by module!,Une dépendance doit être unique par module !,0
 error,ir.rule.group,0,Global and Default are mutually exclusive!,Global et Défaut sont exclusifs !,0
 error,ir.sequence,0,Invalid prefix/suffix!,Prefixe/suffixe non valide !,0
 error,ir.sequence,0,Missing sequence!,Séquence manquante !,0
@@ -36,6 +38,7 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,Prefixe/suffixe non valide !,0
 error,ir.sequence.strict,0,Missing sequence!,Séquence manquante !,0
 error,ir.translation,0,Translation must be unique,La traduction doit être unique,0
 error,ir.ui.view,0,Invalid XML for View!,L'xml de la vue n'est pas valide !,0
+error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Le champ ""%s"" de ""%s"" est requis.",0
 error,write_xml_record,0,You are not allowed to modify this record.,Vous n'êtes pas autorisé à modifier cet enregistrement.,0
 error,xml_record_desc,0,This record is part of the base configuration.,Cet enregistrement fait partie de la configuration de base.,0
 field,"ir.action.act_window,action",0,Action,Action,0
@@ -153,11 +156,7 @@ field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Model Name,Nom de l'objet,0
 field,"ir.model,module",0,Module,Module,0
 field,"ir.model,name",0,Model Description,Nom du modèle,0
-field,"ir.module.category,childs",0,Child Categories,Catégorie fille,0
-field,"ir.module.category,name",0,Name,Nom,0
-field,"ir.module.category,parent",0,Parent Category,Catégorie parente,0
 field,"ir.module.module,author",0,Author,Auteur,0
-field,"ir.module.module,category",0,Category,Catégorie,0
 field,"ir.module.module.config_wizard.item,name",0,Name,Nom,0
 field,"ir.module.module.config_wizard.item,sequence",0,Sequence,Séquence,0
 field,"ir.module.module.config_wizard.item,state",0,State,État,0
@@ -170,7 +169,6 @@ field,"ir.module.module.install_upgrade.init,module_info",0,Modules to update,Mo
 field,"ir.module.module,name",0,Name,Nom,0
 field,"ir.module.module,shortdesc",0,Short description,Description courte,0
 field,"ir.module.module,state",0,State,État,0
-field,"ir.module.module,url",0,URL,URL,0
 field,"ir.module.module,version",0,Version,Version,0
 field,"ir.module.module,website",0,Website,Site web,0
 field,"ir.property,field",0,Field,Champ,0
@@ -178,7 +176,7 @@ field,"ir.property,name",0,Name,Nom,0
 field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Valeur,0
 field,"ir.rule,field",0,Field,Champ,0
-field,"ir.rule.group,default_p",0,Default,Défault,0
+field,"ir.rule.group,default_p",0,Default,Défaut,0
 field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Groupes,0
 field,"ir.rule.group,model",0,Model,Modèle,0
@@ -245,7 +243,7 @@ field,"ir.ui.view_tree_width,user",0,User,Utilisateur,0
 field,"ir.ui.view_tree_width,width",0,Width,Largeur,0
 field,"ir.ui.view,type",0,View Type,Type de vue,0
 help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Ajoute un auto-rafraîchissement sur la vue,0
-help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par défault pour la vue liste,0
+help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par défaut pour la vue liste,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Critères de recherche par défaut pour la vue liste,0
 help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
 on the bottom toolbar of a form views.","Si positionné sur vrai, l'action ne sera pas affichée
@@ -272,11 +270,10 @@ so every users must follow this rule",Rend la règle globale de sorte que tout u
 help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
 model,"ir.action,name",act_action_form,Actions,Actions,0
 model,"ir.action,name",act_attachment_form,Attachments,Attachements,0
-model,"ir.action,name",act_category_tree,Categories,Catégories,0
 model,"ir.action,name",act_translation_clean,Clean Translations,Nettoyer les traductions,0
-model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,,0
+model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Élements du wizard de configuration,0
 model,"ir.action,name",act_property_form_default,Default Properties,Propriétés par défaut,0
-model,"ir.action,name",act_default_form,Defaults,Défauts,0
+model,"ir.action,name",act_default_form,Defaults,Valeurs par défaut,0
 model,"ir.action,name",act_export_form,Exports,Exports,0
 model,"ir.action,name",act_translation_export,Export Translations,Exporter les traductions,0
 model,"ir.action,name",act_model_fields_form,Fields,Champs,0
@@ -287,7 +284,6 @@ model,"ir.action,name",act_model_form,Models,Modèles,0
 model,"ir.action,name",act_model_access_form,Models Access,Accès des modèles,0
 model,"ir.action,name",act_module_config_wizard,Module Configuration,Configuration du module,0
 model,"ir.action,name",act_module_form,Modules,Modules,0
-model,"ir.action,name",act_module_form2,Modules,Modules,0
 model,"ir.action,name",act_module_install_upgrade,Perform Pending Installation/Upgrade,Lancer les installations/mise à jours en attente,0
 model,"ir.action,name",act_property_form,Properties,Propriétés,0
 model,"ir.action,name",act_rule_group_form,Record Rules,Règles des enregistrements,0
@@ -299,28 +295,26 @@ model,"ir.action,name",act_sequence_type_form,Sequence Types,Types de séquences
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Mettre à jours les traductions des rapports,0
 model,"ir.action,name",act_translation_update,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.action,name",act_translation_form,Translations,Traductions,0
-model,"ir.action,name",action_tryton,Tryton,,0
-model,"ir.action,name",act_action_url_form,URLs,,0
+model,"ir.action,name",action_tryton,Tryton,Tryton,0
+model,"ir.action,name",act_action_url_form,URLs,URLs,0
 model,"ir.action,name",act_view_form,Views,Vues,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Raccourcis,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Largeur de la vue arbre,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Actions de la fenêtre,0
-model,"ir.action,name",act_action_wizard_form,Wizards,,0
+model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
 model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),Documents ODF (.odt),0
 model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,Document PDF,0
 model,"ir.ui.menu,name",menu_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_act_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_administration,Administration,Administration,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Pièces jointes,0
-model,"ir.ui.menu,name",menu_category_tree,Categories,Catégories,0
 model,"ir.ui.menu,name",menu_translation_clean,Clean Translations,Nettoyer les traductions,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Élements du wizard de configuration,0
 model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Propriétés par default,0
-model,"ir.ui.menu,name",menu_default_form,Defaults,Défaults,0
+model,"ir.ui.menu,name",menu_default_form,Defaults,Valeurs par défaut,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exportations,0
 model,"ir.ui.menu,name",menu_translation_export,Export Translations,Exporter les traductions,0
 model,"ir.ui.menu,name",model_model_fields_form,Fields,Champs,0
-model,"ir.ui.menu,name",menu_module_install_upgrade,Install \ Upgrade Modules,Installer \ Mettre à jour les modules,0
 model,"ir.ui.menu,name",menu_lang_form,Languages,Langues,0
 model,"ir.ui.menu,name",menu_localization,Localization,Localisation,0
 model,"ir.ui.menu,name",menu_menu_form,Menus,Menus,0
@@ -329,6 +323,7 @@ model,"ir.ui.menu,name",menu_model_form,Models,Modèles,0
 model,"ir.ui.menu,name",menu_model_access_form,Models Access,Accès au modèles,0
 model,"ir.ui.menu,name",menu_modules,Modules,Modules,0
 model,"ir.ui.menu,name",menu_module_form,Modules,Modules,0
+model,"ir.ui.menu,name",menu_module_install_upgrade,Perform Pending Installation/Upgrade,Installer \ Mettre à jour les modules,0
 model,"ir.ui.menu,name",menu_property_form,Properties,Propriétés,0
 model,"ir.ui.menu,name",menu_rule_group_form,Record Rules,Règles d'enregistrement,0
 model,"ir.ui.menu,name",menu_action_report_form,Reports,Rapports,0
@@ -373,20 +368,18 @@ selection,"ir.module.module.dependency,state",0,Not Installed,Pas installé,0
 selection,"ir.module.module.dependency,state",0,To be installed,À être installé,0
 selection,"ir.module.module.dependency,state",0,To be removed,À être enlevé,0
 selection,"ir.module.module.dependency,state",0,To be upgraded,À être mis à jour,0
-selection,"ir.module.module.dependency,state",0,Uninstallable,Désinstallable,0
 selection,"ir.module.module.dependency,state",0,Unknown,Inconnu,0
 selection,"ir.module.module,state",0,Installed,Installé,0
-selection,"ir.module.module,state",0,Not Installable,Pas installable,0
 selection,"ir.module.module,state",0,Not Installed,Pas installé,0
 selection,"ir.module.module,state",0,To be installed,À être installé,0
 selection,"ir.module.module,state",0,To be removed,À être enlevé,0
 selection,"ir.module.module,state",0,To be upgraded,À être mis à jour,0
-selection,"ir.rule,operator",0,<=,,0
-selection,"ir.rule,operator",0,<>,,0
-selection,"ir.rule,operator",0,=,,0
-selection,"ir.rule,operator",0,>=,,0
-selection,"ir.rule,operator",0,child_of,,0
-selection,"ir.rule,operator",0,in,,0
+selection,"ir.rule,operator",0,<=,<=,0
+selection,"ir.rule,operator",0,<>,<>,0
+selection,"ir.rule,operator",0,=,=,0
+selection,"ir.rule,operator",0,>=,>=,0
+selection,"ir.rule,operator",0,child_of,fils de,0
+selection,"ir.rule,operator",0,in,dans,0
 selection,"ir.translation,type",0,Error,Erreur,0
 selection,"ir.translation,type",0,Field,Champ,0
 selection,"ir.translation,type",0,Help,Aide,0
@@ -482,8 +475,8 @@ view,ir.attachment,0,Attachments,Pièces jointes,0
 view,ir.cron,0,Action to trigger,Action à suivre,0
 view,ir.cron,0,Scheduled Action,Action planifiée,0
 view,ir.cron,0,Scheduled Actions,Actions planifiées,0
-view,ir.default,0,Default,Défault,0
-view,ir.default,0,Defaults,Défaults,0
+view,ir.default,0,Default,Valeur par défaut,0
+view,ir.default,0,Defaults,Valeurs par défaut,0
 view,ir.export,0,Exports,Exportations,0
 view,ir.lang,0,Date Formatting,Formatage des dates,0
 view,ir.lang,0,Language,Langues,0
@@ -493,8 +486,6 @@ view,ir.model,0,Fields Description,Champs de description,0
 view,ir.model,0,Model Description,Description du modèle,0
 view,ir.model.access,0,Access controls,Contrôles d'accès,0
 view,ir.model.field,0,Fields,Champs,0
-view,ir.module.category,0,Module Categories,Catégories de module,0
-view,ir.module.category,0,Module Category,Catégorie de module,0
 view,ir.module.module,0,Cancel Install,Annuler l'installation,0
 view,ir.module.module,0,Cancel Installation,Annuler l'installation,0
 view,ir.module.module,0,Cancel Uninstall,Annuler la désinstallation,0
@@ -536,13 +527,13 @@ view,ir.sequence,0,Sequences,Séquences,0
 view,ir.sequence,0,${year},,0
 view,ir.sequence,0,Year:,Année :,0
 view,ir.sequence.strict,0,${day},,0
-view,ir.sequence.strict,0,Day:,,0
-view,ir.sequence.strict,0,"Legend (for prefix, suffix)",,0
+view,ir.sequence.strict,0,Day:,Jour,0
+view,ir.sequence.strict,0,"Legend (for prefix, suffix)",Légende (préfixe et suffixe),0
 view,ir.sequence.strict,0,${month},,0
-view,ir.sequence.strict,0,Month:,,0
-view,ir.sequence.strict,0,Sequences Strict,,0
+view,ir.sequence.strict,0,Month:,Mois :,0
+view,ir.sequence.strict,0,Sequences Strict,Séquence stricte,0
 view,ir.sequence.strict,0,${year},,0
-view,ir.sequence.strict,0,Year:,,0
+view,ir.sequence.strict,0,Year:,Année :,0
 view,ir.sequence.type,0,Sequence Type,Type de la séquence,0
 view,ir.translation,0,Translations,Traductions,0
 view,ir.translation.clean.init,0,Clean Translations,Nettoyer les traductions,0
@@ -568,7 +559,7 @@ wizard_button,"ir.module.module.config_wizard,first,end",0,Cancel,Annuler,0
 wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,Valider,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Démarrer la mis à jour,0
-wizard_button,"ir.module.module.install_upgrade,start,config",0,Ok,Valider,0
+wizard_button,"ir.module.module.install_upgrade,start,menu",0,Ok,Ok,0
 wizard_button,"ir.translation.clean,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.translation.clean,init,start",0,Start,Départ,0
 wizard_button,"ir.translation.clean,start,end",0,Ok,Ok,0
