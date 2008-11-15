@@ -746,7 +746,9 @@ class TranslationClean(Wizard):
                     if not hasattr(field, 'selection') or not field.selection:
                         to_delete.append(translation.id)
                         continue
-                    if translation.src not in dict(field.selection).values():
+                    if isinstance(field.selection, (tuple, list)) \
+                            and translation.src not in \
+                            dict(field.selection).values():
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'view':
