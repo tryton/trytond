@@ -1,4 +1,6 @@
 type,name,res_id,src,value,fuzzy
+error,workflow,0,No workflow defined!,Aucun workflow de défini !,0
+error,workflow.instance,0,No workflow instance defined!,Aucuns instance de workflow de définie !,0
 field,"workflow,activities",0,Activities,Activités,0
 field,"workflow.activity,action",0,Action,Action,0
 field,"workflow.activity,flow_start",0,Flow Start,Départ du flux,0
@@ -35,6 +37,11 @@ field,"workflow.workitem,activity",0,Activity,Activité,0
 field,"workflow.workitem,instance",0,Instance,Instance,0
 field,"workflow.workitem,state",0,State,État,0
 field,"workflow.workitem,subflow",0,Subflow,Sous-flux,0
+model,"ir.action,name",act_activity_form,Activities,Activités,0
+model,"ir.action,name",act_instance_form,Instances,Instances,0
+model,"ir.action,name",act_transition_form,Transitions,Transitions,0
+model,"ir.action,name",act_workflow_form,Workflows,Workflows,0
+model,"ir.action,name",act_workitem_form,Workitems,Éléments,0
 model,"ir.ui.menu,name",menu_activity_form,Activities,Activités,0
 model,"ir.ui.menu,name",menu_instance_form,Instances,Instances,0
 model,"ir.ui.menu,name",menu_transition_form,Transitions,Transitions,0
@@ -43,7 +50,7 @@ model,"ir.ui.menu,name",menu_workflow_form,Workflows,Workflows,0
 model,"ir.ui.menu,name",menu_workitem_form,Workitems,Éléments,0
 selection,"workflow.activity,join_mode",0,And,Et,0
 selection,"workflow.activity,join_mode",0,Xor,Ou exclusif,0
-selection,"workflow.activity,kind",0,Dummy,,0
+selection,"workflow.activity,kind",0,Dummy,Fausse,0
 selection,"workflow.activity,kind",0,Function,Fonction,0
 selection,"workflow.activity,kind",0,Stop All,Arrêter Tout,0
 selection,"workflow.activity,kind",0,Subflow,Sous-flux,0
