@@ -806,15 +806,22 @@ class TranslationClean(Wizard):
                             'required_validation_record',
                             ):
                         continue
-                    if model_name not in self.pool.object_name_list():
-                        to_delete.append(translation.id)
-                        continue
-                    model_obj = self.pool.get(model_name)
-                    errors = model_obj._error_messages.values() + \
-                            model_obj._sql_error_messages.values()
-                    for _, _, error in model_obj._sql_constraints:
-                        errors.append(error)
-                    if translation.src not in errors:
+                    if model_name in self.pool.object_name_list():
+                        model_obj = self.pool.get(model_name)
+                        errors = model_obj._error_messages.values() + \
+                                model_obj._sql_error_messages.values()
+                        for _, _, error in model_obj._sql_constraints:
+                            errors.append(error)
+                        if translation.src not in errors:
+                            to_delete.append(translation.id)
+                            continue
+                    elif model_name in pool_wizard.object_name_list():
+                        wizard_obj = pool_wizard.get(model_name)
+                        errors = wizard_obj._error_messages.values()
+                        if translation.src not in errors:
+                            to_delete.append(translation.id)
+                            continue
+                    else:
                         to_delete.append(translation.id)
                         continue
             # skip translation handled in ir.model.data
