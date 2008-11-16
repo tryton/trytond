@@ -1,6 +1,6 @@
 type,name,res_id,src,value,fuzzy
 error,res.group,0,The name of the group must be unique!,Der Name der Gruppe kann nicht mehrfach vergeben werden!,0
-error,res.user,0,You can not have two users with the same login!,Der Anmeldename eines Benutzers kann nicht mehrfach vergeben werden!,0
+error,res.user,0,You can not have two users with the same login!,Der Name für einen Benutzer kann nur einmal vergeben werden!,0
 error,res.user,0,"You can not remove the root user
 as it is used internally for resources
 created by the system (updates, module installation, ...)","Der Benutzer root kann nicht gelöscht werden, da er intern für Systemverwaltungsaufgaben (Updates, Modulinstallation, ...) verwendet wird",0
@@ -65,10 +65,10 @@ field,"res.user,groups",0,Groups,Gruppenzugehörigkeit,0
 field,"res.user,id",0,ID,ID,0
 field,"res.user,language",0,Language,Sprache,0
 field,"res.user,language_direction",0,Language Direction,Sprache Richtung,0
-field,"res.user,login",0,Login,Anmeldename,0
+field,"res.user,login",0,Login,Benutzername,0
 field,"res.user,menu",0,Menu Action,Menüaktion,0
 field,"res.user,name",0,Name,Name,0
-field,"res.user,password",0,Password,Kennwort,0
+field,"res.user,password",0,Password,Passwort,0
 field,"res.user,rule_groups",0,Rules,Rollen,0
 field,"res.user,signature",0,Signature,Signatur,0
 field,"res.user,status_bar",0,Status Bar,Status Anzeige,0
@@ -101,6 +101,12 @@ selection,"res.request,state",0,Chatting,Schreibt gerade...,0
 selection,"res.request,state",0,Closed,Geschlossen,0
 selection,"res.request,state",0,Draft,Entwurf,0
 selection,"res.request,state",0,Waiting,Wartend,0
+view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
+view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
+view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
+view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
+view,ir.module.module,0,Mark for Uninstallation (beta),Für die Deinstallation (beta) vormerken,0
+view,ir.module.module,0,Mark for Upgrade,Für die Aktualisierung vormerken,0
 view,res.group,0,Group,Gruppe,0
 view,res.group,0,Groups,Gruppen,0
 view,res.group,0,Security,Sicherheit,0
@@ -121,8 +127,8 @@ view,res.user,0,Security,Sicherheit,0
 view,res.user,0,User,Benutzer,0
 view,res.user,0,Users,Benutzer,0
 view,res.user.config.init,0,Add Users,Benutzer hinzufügen,0
-view,res.user.config.init,0,Be careful that the login must be unique!,"WICHTIG - Achten Sie darauf, dass ein Anmeldename nicht mehrfach vergeben werden kann.
-(der Anmeldename admin wird automatisch angelegt)",0
+view,res.user.config.init,0,Be careful that the login must be unique!,"WICHTIG - Achten Sie darauf, dass ein Benutzername nicht mehrfach vergeben werden kann.
+(der Benutzername admin wird automatisch angelegt)",0
 view,res.user.config.init,0,You can now add some users into the system.,Sie können nun neue Benutzer der Datenbank hinzufügen,0
 wizard_button,"res.user.config,init,end",0,Cancel,Abbrechen,0
 wizard_button,"res.user.config,init,user",0,Ok,OK,0
