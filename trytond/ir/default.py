@@ -1,7 +1,10 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Default"
 from trytond.osv import fields, OSV
 from decimal import Decimal
+import mx.DateTime
+import datetime
 
 
 class Default(OSV):
@@ -44,8 +47,24 @@ class Default(OSV):
         for default in self.browse(cursor, user, default_ids, context=context):
             if default.field.name not in res:
                 if default.field.ttype in ('reference', 'char', 'sha', 'text',
-                        'date', 'datetime', 'time', 'selection'):
+                        'time', 'selection'):
                     res[default.field.name] = default.value
+                elif default.field.ttype in ('integer', 'biginteger'):
+                    res[default.field.name] = int(default.value)
+                elif default.field.ttype == 'float':
+                    res[default.field.name] = float(default.value)
+                elif default.field.ttype == 'numeric':
+                    res[default.field.name] = Decimal(default.value)
+                elif default.field.ttype == 'date':
+                    date = mx.DateTime.strptime(default.value, '%Y-%m-%d')
+                    res[default.field.name] = datetime.date(date.year,
+                            date.month, date.day)
+                elif default.field.ttype == 'datetime':
+                    date = mx.DateTime.strptime(default.value,
+                            '%Y-%m-%d %H:%M:%S')
+                    res[default.field.name] = datetime.datetime(date.year,
+                            date.month, date.day, date.hour, date.minute,
+                            int(date.second))
                 else:
                     res[default.field.name] = eval(default.value)
         return res
