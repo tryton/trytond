@@ -81,6 +81,9 @@ class WizardService(Service):
             cursor.close()
         return res
 
+    def object_name_list(self):
+        return self.object_name_pool.keys()
+
     def add(self, name, object_name_inst):
         """
         adds a new obj instance to the obj pool.
