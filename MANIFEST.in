@@ -3,6 +3,7 @@ include COPYRIGHT
 include README
 include INSTALL
 include TODO
+include CHANGELOG
 include doc/*
 include etc/*
 include trytond/init.sql
