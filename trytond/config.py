@@ -73,6 +73,8 @@ class ConfigManager(object):
                 configdir = os.path.abspath(os.path.normpath(os.path.join(
                     os.path.dirname(__file__), '..')))
                 self.configfile = os.path.join(configdir, 'etc', 'trytond.conf')
+        if not os.path.isfile(self.configfile):
+            self.configfile = None
         self.load()
 
         # Verify that we want to log or not, if not the output will go to stdout
@@ -113,6 +115,8 @@ class ConfigManager(object):
 
     def load(self):
         parser = ConfigParser.ConfigParser()
+        if not self.configfile:
+            return
         try:
             parser.read([self.configfile])
             for (name, value) in parser.items('options'):

@@ -62,7 +62,9 @@ class TrytonServer(object):
 
         self.logger = logging.getLogger("init")
 
-        self.logger.info('using %s as configuration file' % CONFIG.configfile)
+        if CONFIG.configfile:
+            self.logger.info('using %s as configuration file' % \
+                    CONFIG.configfile)
         self.logger.info('initialising distributed objects services')
 
         self.dispatcher = netsvc.Dispatcher()
