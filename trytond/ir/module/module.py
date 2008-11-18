@@ -175,11 +175,9 @@ class Module(OSV):
         "Return the content of the __tryton__.py"
         try:
             if name in ['ir', 'workflow', 'res', 'webdav']:
-                file_p = tools.file_open(os.path.join(
-                    os.path.dirname(MODULES_PATH), name, '__tryton__.py'))
+                file_p = tools.file_open(os.path.join(name, '__tryton__.py'))
             else:
-                file_p = tools.file_open(os.path.join(MODULES_PATH, name,
-                    '__tryton__.py'))
+                file_p = tools.file_open(os.path.join(name, '__tryton__.py'))
             data = file_p.read()
             info = eval(data)
             file_p.close()
@@ -336,9 +334,7 @@ class Module(OSV):
         lang_codes = [x.code for x in lang_obj.browse(cursor, user, lang_ids,
             context=context)]
 
-        module_names = ['ir', 'workflow', 'res', 'webdav']
-        if os.path.isdir(MODULES_PATH):
-            module_names += os.listdir(MODULES_PATH)
+        module_names = get_module_list()
 
         module_ids = self.search(cursor, user, [], context=context)
         modules = self.browse(cursor, user, module_ids, context=context)
@@ -396,37 +392,36 @@ class Module(OSV):
                 self._update_dependencies(cursor, user, mod,
                         tryton.get('depends', []), context=context)
                 continue
+
             if name in ['ir', 'workflow', 'res', 'webdav']:
                 mod_path = os.path.join(
                         os.path.dirname(MODULES_PATH), name)
             else:
                 mod_path = os.path.join(MODULES_PATH, name)
-            if os.path.isdir(mod_path) \
-                    or os.path.islink(mod_path) \
-                    or zipfile.is_zipfile(mod_path):
-                tryton = Module.get_module_info(mod_name)
-                if not tryton:
-                    continue
-                new_id = self.create(cursor, user, {
-                    'name': mod_name,
-                    'state': 'uninstalled',
-                    'description': tryton.get('description', ''),
-                    'shortdesc': tryton.get('name', ''),
-                    'author': tryton.get('author', 'Unknown'),
-                    'website': tryton.get('website', ''),
-                }, context=context)
-                for code in lang_codes:
-                    ctx = context.copy()
-                    ctx['language'] = code
-                    self.write(cursor, user, new_id, {
-                        'description': tryton.get('description_' + code, ''),
-                        'shortdesc': tryton.get('name_' + code, ''),
-                        }, context=ctx)
-                res += 1
-                name2module[mod_name] = self.browse(cursor, user, new_id,
-                        context=context)
-                self._update_dependencies(cursor, user, name2module[mod_name],
-                        tryton.get('depends', []), context=context)
+
+            tryton = Module.get_module_info(mod_name)
+            if not tryton:
+                continue
+            new_id = self.create(cursor, user, {
+                'name': mod_name,
+                'state': 'uninstalled',
+                'description': tryton.get('description', ''),
+                'shortdesc': tryton.get('name', ''),
+                'author': tryton.get('author', 'Unknown'),
+                'website': tryton.get('website', ''),
+            }, context=context)
+            for code in lang_codes:
+                ctx = context.copy()
+                ctx['language'] = code
+                self.write(cursor, user, new_id, {
+                    'description': tryton.get('description_' + code, ''),
+                    'shortdesc': tryton.get('name_' + code, ''),
+                    }, context=ctx)
+            res += 1
+            name2module[mod_name] = self.browse(cursor, user, new_id,
+                    context=context)
+            self._update_dependencies(cursor, user, name2module[mod_name],
+                    tryton.get('depends', []), context=context)
         return res
 
     def _update_dependencies(self, cursor, user, module, depends=None,

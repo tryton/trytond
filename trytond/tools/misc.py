@@ -64,7 +64,18 @@ def exec_command_pipe(name, *args):
 
 def file_open(name, mode="r", subdir='modules'):
     """Open a file from the root dir, using a subdir folder."""
+    from trytond.modules import EGG_MODULES
     root_path = os.path.dirname(os.path.dirname(__file__))
+
+    name3 = False
+    if subdir == 'modules':
+        module_name = name.split(os.sep)[0]
+        if module_name in EGG_MODULES:
+            ep = EGG_MODULES[module_name]
+            mod_path = os.path.join(ep.dist.location,
+                    *ep.module_name.split('.')[:-1])
+            name3 = os.path.join(mod_path, name)
+
     if subdir:
         if subdir == 'modules'\
                 and (name.startswith('ir' + os.sep) \
@@ -97,7 +108,7 @@ def file_open(name, mode="r", subdir='modules'):
                         os.sep, '/')))
             except:
                 name2 = os.path.normpath(os.path.join(head + '.zip', zipname))
-    for i in (name2, name):
+    for i in (name2, name, name3):
         if i and os.path.isfile(i):
             return file(i, mode)
 

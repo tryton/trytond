@@ -16,6 +16,15 @@ sys.path.insert(1, MODULES_PATH)
 
 MODULES = []
 
+EGG_MODULES = {}
+try:
+    import pkg_resources
+    for ep in pkg_resources.iter_entry_points('trytond.modules'):
+        mod_name = ep.module_name.split('.')[-1]
+        EGG_MODULES[mod_name] = ep
+except ImportError:
+    pass
+
 
 class Graph(dict):
 
@@ -126,9 +135,14 @@ def create_graph(module_list, force=None):
             root_path = os.path.dirname(os.path.dirname(__file__))
             tryton_file = OPJ(root_path, module, '__tryton__.py')
             mod_path = OPJ(root_path, module)
+        elif module in EGG_MODULES:
+            ep = EGG_MODULES[module]
+            tryton_file = OPJ(ep.dist.location, 'trytond', 'modules', module,
+                    '__tryton__.py')
+            mod_path = OPJ(ep.dist.location, 'trytond', 'modules', module)
         if os.path.isfile(tryton_file) or zipfile.is_zipfile(mod_path+'.zip'):
             try:
-                info = eval(tools.file_open(tryton_file).read())
+                info = eval(tools.file_open(tryton_file, subdir='').read())
             except:
                 logging.getLogger('init').error(
                     'module:%s:eval file %s' % (module, tryton_file))
@@ -272,6 +286,9 @@ def get_module_list():
                 module_list.append(file)
             elif file[-4:] == '.zip':
                 module_list.append(file)
+    for ep in pkg_resources.iter_entry_points('trytond.modules'):
+         mod_name = ep.module_name.split('.')[-1]
+         module_list.append(mod_name)
     module_list.append('ir')
     module_list.append('workflow')
     module_list.append('res')
@@ -283,6 +300,7 @@ def register_classes():
     import trytond.workflow
     import trytond.res
     import trytond.webdav
+
     for package in create_graph(get_module_list())[0]:
         module = package.name
         logging.getLogger('init').info(
@@ -292,29 +310,8 @@ def register_classes():
             MODULES.append(module)
             continue
 
-        if not os.path.isfile(OPJ(MODULES_PATH, module+'.zip')):
-            try:
-                imp.load_module(module, *imp.find_module(module,
-                    [MODULES_PATH]))
-            except ImportError:
-                tb_s = ''
-                for line in traceback.format_exception(*sys.exc_info()):
-                    try:
-                        line = line.encode('utf-8', 'ignore')
-                    except:
-                        continue
-                    tb_s += line
-                for path in sys.path:
-                    tb_s = tb_s.replace(path, '')
-                if CONFIG['debug_mode']:
-                    import pdb
-                    traceb = sys.exc_info()[2]
-                    pdb.post_mortem(traceb)
-                logging.getLogger('init').error(
-                    'Couldn\'t import module %s:\n%s' % (module, tb_s))
-                break
-        else:
-            mod_path = OPJ(MODULES_PATH, module+'.zip')
+        if os.path.isfile(OPJ(MODULES_PATH, module + '.zip')):
+            mod_path = OPJ(MODULES_PATH, module + '.zip')
             try:
                 zimp = zipimport.zipimporter(mod_path)
                 zimp.load_module(module)
@@ -335,6 +332,36 @@ def register_classes():
                 logging.getLogger('init').error(
                     'Couldn\'t import module %s:\n%s' % (module, tb_s))
                 break
+        elif os.path.isdir(OPJ(MODULES_PATH, module)):
+            try:
+                imp.load_module(module, *imp.find_module(module,
+                    [MODULES_PATH]))
+            except ImportError:
+                tb_s = ''
+                for line in traceback.format_exception(*sys.exc_info()):
+                    try:
+                        line = line.encode('utf-8', 'ignore')
+                    except:
+                        continue
+                    tb_s += line
+                for path in sys.path:
+                    tb_s = tb_s.replace(path, '')
+                if CONFIG['debug_mode']:
+                    import pdb
+                    traceb = sys.exc_info()[2]
+                    pdb.post_mortem(traceb)
+                logging.getLogger('init').error(
+                    'Couldn\'t import module %s:\n%s' % (module, tb_s))
+                break
+        elif module in EGG_MODULES:
+            ep = EGG_MODULES[module]
+            mod_path = os.path.join(ep.dist.location,
+                    *ep.module_name.split('.')[:-1])
+            imp.load_module(module, *imp.find_module(module, [mod_path]))
+        else:
+            logging.getLogger('init').error(
+                    'Couldn\'t find module %s' % module)
+            break
         MODULES.append(module)
 
 def load_modules(database, pool, pool_wizard, pool_report, update_module=False,

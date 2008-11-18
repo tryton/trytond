@@ -13,6 +13,8 @@ setup(name=PACKAGE,
     author='B2CK',
     author_email='info@b2ck.com',
     url=WEBSITE,
+    download_url="http://downloads.tryton.org/" + \
+            VERSION.rsplit('.', 1)[0] + '/',
     packages=find_packages(exclude=['*.modules.*', 'modules.*', 'modules']),
     package_data={
         'trytond': ['init.sql'],
@@ -23,9 +25,6 @@ setup(name=PACKAGE,
         'trytond.webdav': ['*.xml', '*.csv'],
         'trytond.workflow': ['*.xml', '*.csv'],
     },
-    data_files=[
-        ('/etc', ['etc/trytond.conf']),
-    ],
     scripts=['bin/trytond'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -54,4 +53,5 @@ setup(name=PACKAGE,
         'graphviz': ['pydot'],
         'timezone': ['pytz'],
     },
+    zip_safe = False,
 )
