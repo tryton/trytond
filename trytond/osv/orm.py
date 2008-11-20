@@ -2375,8 +2375,9 @@ class ORM(object):
                         % args[i][1])
 
             table = self
-            if args[i][0] in self._inherit_fields:
-                itable = self.pool.get(self._inherit_fields[args[i][0]][0])
+            fargs = args[i][0].split('.', 1)
+            if fargs[0] in self._inherit_fields:
+                itable = self.pool.get(self._inherit_fields[fargs[0]][0])
                 table_query = ''
                 table_arg = []
                 if itable.table_query(context):
@@ -2387,20 +2388,19 @@ class ORM(object):
                     tables_args += table_arg
                     joins.append(('id', 'join', '%s.%s' % \
                             (self._table, self._inherits[itable._name]), itable))
-            fargs = args[i][0].split('.', 1)
             field = table._columns.get(fargs[0], False)
             if not field:
                 if not fargs[0] in self._inherit_fields:
                     raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
                             'exist on "%s"' % (fargs[0], self._name))
-                table = self.pool.get(self._inherit_fields[args[i][0]][0])
+                table = self.pool.get(self._inherit_fields[fargs[0]][0])
                 field = table._columns.get(fargs[0], False)
             if len(fargs) > 1:
                 if field._type == 'many2one':
                     args[i] = (fargs[0], 'inselect',
                             self.pool.get(field._obj).search(cursor, user,
                                 [(fargs[1], args[i][1], args[i][2])],
-                                context=context, query_string=True))
+                                context=context, query_string=True), table)
                     i += 1
                     continue
                 else:
@@ -2415,7 +2415,7 @@ class ORM(object):
                     else:
                         j += 1
                 if field._fnct_search:
-                    args.extend(field.search(cursor, user, self,
+                    args.extend(field.search(cursor, user, table,
                         arg[0][0], arg, context=context))
             elif field._type == 'one2many':
                 field_obj = self.pool.get(field._obj)
