@@ -250,9 +250,14 @@ class EvalEnvironment(dict):
     def __getitem__(self, item):
         if item.startswith('_parent_'):
             field = item[8:]
-            obj = self.obj.pool.get(self.obj._columns[field]._obj)
+            if field in self.obj._columns:
+                _obj = self.obj._columns[field]._obj
+            else:
+                _obj = self.obj._inherit_fields[field][2]._obj
+            obj = self.obj.pool.get(_obj)
             return EvalEnvironment(self.record[field], obj)
-        if item in self.obj._columns:
+        if item in self.obj._columns \
+                or item in self.obj._inherit_fields:
             return self.record.get_eval(item)
         return super(EvalEnvironment, self).__getitem__(item)
 
