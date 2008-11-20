@@ -352,8 +352,6 @@ class Module(OSV):
         # iterate through installed modules and mark them as being so
         for name in module_names:
             mod_name = name
-            if name[-4:] == '.zip':
-                mod_name = name[:-4]
             if mod_name in name2module.keys():
                 mod = name2module[mod_name]['en_US']
                 tryton = Module.get_module_info(mod_name)

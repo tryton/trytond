@@ -127,8 +127,6 @@ def create_graph(module_list, force=None):
     packages = []
 
     for module in module_list:
-        if module[-4:] == '.zip':
-            module = module[:-4]
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
         mod_path = OPJ(MODULES_PATH, module)
         if module in ('ir', 'workflow', 'res', 'webdav'):
@@ -285,7 +283,7 @@ def get_module_list():
             if os.path.isdir(OPJ(MODULES_PATH, file)):
                 module_list.append(file)
             elif file[-4:] == '.zip':
-                module_list.append(file)
+                module_list.append(file[-4:])
     for ep in pkg_resources.iter_entry_points('trytond.modules'):
          mod_name = ep.module_name.split('.')[-1]
          module_list.append(mod_name)
