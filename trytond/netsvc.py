@@ -146,7 +146,7 @@ class GenericXMLRPCRequestHandler:
                 import pdb
                 traceb = sys.exc_info()[2]
                 pdb.post_mortem(traceb)
-            raise xmlrpclib.Fault(str(sys.exc_value), tb_s)
+            raise xmlrpclib.Fault(1, str(sys.exc_value) + '\n' + tb_s)
 
 
 class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
