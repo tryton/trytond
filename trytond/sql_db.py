@@ -141,7 +141,6 @@ class FakeCursor(object):
                 "'wkf_instance', "
                 "'wkf_workitem', "
                 "'wkf_witm_trans', "
-                "'ir_module_category', "
                 "'ir_module_module', "
                 "'ir_module_module_dependency, '"
                 "'ir_translation, '"
