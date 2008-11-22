@@ -181,18 +181,6 @@ create table wkf_witm_trans
 -- Modules
 ---------------------------------
 
-CREATE TABLE ir_module_category (
-    id serial NOT NULL,
-    create_uid integer references res_user on delete set null,
-    create_date timestamp without time zone,
-    write_date timestamp without time zone,
-    write_uid integer references res_user on delete set null,
-    parent integer REFERENCES ir_module_category ON DELETE SET NULL,
-    name varchar NOT NULL,
-    primary key(id)
-);
-
-
 CREATE TABLE ir_module_module (
     id serial NOT NULL,
     create_uid integer references res_user on delete set null,
@@ -205,7 +193,6 @@ CREATE TABLE ir_module_module (
     url varchar,
     state varchar,
     shortdesc varchar,
-    category integer REFERENCES ir_module_category ON DELETE SET NULL,
     description text,
     primary key(id)
 );

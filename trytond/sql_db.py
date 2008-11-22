@@ -183,73 +183,30 @@ def init_db(cursor):
         if (len(line)>0) and (not line.isspace()):
             cursor.execute(line)
 
-    opj = os.path.join
-    modules_path = os.path.join(os.path.dirname(__file__), 'modules')
-    modules = []
-    if os.path.exists(modules_path) and os.path.isdir(modules_path):
-        modules = os.listdir(modules_path)
-
-    for i in (modules + ['ir', 'workflow', 'res', 'webdav']):
-        tryton_file = opj(modules_path, i, '__tryton__.py')
-        mod_path = opj(modules_path, i)
-        if i in ('ir', 'workflow', 'res', 'webdav'):
-            root_path = os.path.dirname(__file__)
-            tryton_file = opj(root_path, i, '__tryton__.py')
-            mod_path = opj(root_path, i)
-        info = {}
-        if os.path.isfile(tryton_file) \
-                and not os.path.isfile(opj(modules_path, i + '.zip')):
-            info = eval(file(tryton_file).read())
-        elif zipfile.is_zipfile(mod_path):
-            zfile = zipfile.ZipFile(mod_path)
-            i = os.path.splitext(i)[0]
-            info = eval(zfile.read(opj(i, '__tryton__.py')))
-        if info:
-            categs = info.get('category', 'Uncategorized').split('/')
-            p_id = None
-            while categs:
-                if p_id is not None:
-                    cursor.execute('SELECT id ' \
-                            'FROM ir_module_category ' \
-                            'WHERE name = %s AND parent = %s',
-                            (categs[0], p_id))
-                else:
-                    cursor.execute('SELECT id ' \
-                            'FROM ir_module_category ' \
-                            'WHERE name = %s AND parent is NULL',
-                            (categs[0],))
-                c_id = cursor.fetchone()
-                if not c_id:
-                    cursor.execute(
-                            'SELECT NEXTVAL(\'ir_module_category_id_seq\')')
-                    c_id = cursor.fetchone()[0]
-                    cursor.execute('INSERT INTO ir_module_category ' \
-                            '(id, name, parent) ' \
-                            'VALUES (%s, %s, %s)', (c_id, categs[0], p_id))
-                else:
-                    c_id = c_id[0]
-                p_id = c_id
-                categs = categs[1:]
-
-            active = info.get('active', False)
-            if active:
-                state = 'to install'
-            else:
-                state = 'uninstalled'
-            cursor.execute('SELECT NEXTVAL(\'ir_module_module_id_seq\')')
-            module_id = cursor.fetchone()[0]
-            cursor.execute('INSERT INTO ir_module_module ' \
-                    '(id, author, website, name, shortdesc, ' \
-                    'description, category, state) ' \
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (module_id, info.get('author', ''),
-                info.get('website', ''), i, info.get('name', False),
-                info.get('description', ''), p_id, state))
-            dependencies = info.get('depends', [])
-            for dependency in dependencies:
-                cursor.execute('INSERT INTO ir_module_module_dependency ' \
-                        '(module, name) VALUES (%s, %s)',
-                        (module_id, dependency))
+    for i in ('ir', 'workflow', 'res', 'webdav'):
+        root_path = os.path.dirname(__file__)
+        tryton_file = os.path.join(root_path, i, '__tryton__.py')
+        mod_path = os.path.join(root_path, i)
+        info = eval(file(tryton_file).read())
+        active = info.get('active', False)
+        if active:
+            state = 'to install'
+        else:
+            state = 'uninstalled'
+        cursor.execute('SELECT NEXTVAL(\'ir_module_module_id_seq\')')
+        module_id = cursor.fetchone()[0]
+        cursor.execute('INSERT INTO ir_module_module ' \
+                '(id, author, website, name, shortdesc, ' \
+                'description, state) ' \
+                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                (module_id, info.get('author', ''),
+            info.get('website', ''), i, info.get('name', False),
+            info.get('description', ''), state))
+        dependencies = info.get('depends', [])
+        for dependency in dependencies:
+            cursor.execute('INSERT INTO ir_module_module_dependency ' \
+                    '(module, name) VALUES (%s, %s)',
+                    (module_id, dependency))
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 
