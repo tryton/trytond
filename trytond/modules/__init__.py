@@ -199,6 +199,15 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
     if lang is None:
         lang = ['en_US']
     modules_todo = []
+
+    modules = [x.name for x in graph]
+    cursor.execute('SELECT name, state FROM ir_module_module ' \
+            'WHERE name in (' + ','.join(['%s' for x in modules]) + ')',
+            modules)
+    module2state = {}
+    for name, state in cursor.fetchall():
+        module2state[name] = state
+
     for package in graph:
         module = package.name
         if module not in MODULES:
@@ -208,10 +217,7 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
         modules = pool.instanciate(module)
         wizards = pool_wizard.instanciate(module, pool)
         reports = pool_report.instanciate(module, pool)
-        cursor.execute('SELECT state FROM ir_module_module WHERE name = %s',
-                (module,))
-        package_state = (cursor.rowcount and cursor.fetchone()[0]) \
-                or 'uninstalled'
+        package_state = module2state.get(module, 'uninstalled')
         idref = {}
         if hasattr(package, 'init') \
                 or hasattr(package, 'update') \
@@ -227,7 +233,7 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
 
             for filename in package.datas.get('xml', []):
                 mode = 'update'
-                if hasattr(package, 'init') or package_state=='to install':
+                if hasattr(package, 'init') or package_state == 'to install':
                     mode = 'init'
                 logging.getLogger('init').info(
                     'module:%s:loading %s' % (module, filename))
@@ -265,6 +271,7 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))
+            module2state[package.name] = 'installed'
         cursor.commit()
 
 
