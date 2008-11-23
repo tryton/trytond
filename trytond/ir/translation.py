@@ -177,11 +177,13 @@ class Translation(OSV, Cacheable):
                         'type': ttype,
                         'src': field[field_name],
                         'value': value,
+                        'fuzzy': False,
                         })
                 else:
                     self.write(cursor, user, ids, {
                         'src': field[field_name],
                         'value': value,
+                        'fuzzy': False,
                         })
             return len(ids)
         model_obj = self.pool.get(model_name)
@@ -200,11 +202,13 @@ class Translation(OSV, Cacheable):
                     'res_id': record.id,
                     'value': value,
                     'src': record[field_name],
+                    'fuzzy': False,
                     })
             else:
                 self.write(cursor, user, ids2, {
                     'value': value,
                     'src': record[field_name],
+                    'fuzzy': False,
                     })
         return len(ids)
 
