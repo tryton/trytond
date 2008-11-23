@@ -225,6 +225,7 @@ class TrytonServer(object):
 
         signal.signal(signal.SIGINT, handler)
         signal.signal(signal.SIGTERM, handler)
+        signal.signal(signal.SIGQUIT, handler)
         signal.signal(signal.SIGUSR1, handler)
 
         self.logger.info('the server is running, waiting for connections...')
