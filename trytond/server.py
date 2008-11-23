@@ -214,6 +214,7 @@ class TrytonServer(object):
                 webdavd.stop()
             if CONFIG['pidfile']:
                 os.unlink(CONFIG['pidfile'])
+            logging.getLogger('web-service').info('stop server')
             sys.exit(0)
 
         if CONFIG['pidfile']:
