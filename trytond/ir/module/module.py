@@ -377,10 +377,12 @@ class Module(OSV):
                     mod2 = name2module[mod_name][code]
                     if mod2.description != \
                             tryton.get('description_' + code,
-                                    '').decode('utf-8', 'ignore') \
+                                    tryton.get('description', '')
+                                    ).decode('utf-8', 'ignore') \
                             or mod2.shortdesc != \
                             tryton.get('name_' + code,
-                                    '').decode('utf-8', 'ignore'):
+                                    tryton.get('name', '')
+                                    ).decode('utf-8', 'ignore'):
                         ctx = context.copy()
                         ctx['language'] = code
                         self.write(cursor, user, mod.id, {
