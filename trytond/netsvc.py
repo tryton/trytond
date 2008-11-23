@@ -342,7 +342,10 @@ class TinySocketServerThread(threading.Thread):
                     self.threads.append(c_thread)
                     c_thread.start()
         except:
-            self.socket.close()
+            try:
+                self.socket.close()
+            except:
+                pass
             return False
 
     def stop(self):
