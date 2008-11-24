@@ -20,7 +20,7 @@ class Sequence(OSV):
     _name = 'ir.sequence'
     _description = __doc__
     name = fields.Char('Sequence Name', required=True, translate=True)
-    code = fields.Selection('code_get', 'Sequence Code', required=True)
+    code = fields.Selection('code_get', 'Sequence Type', required=True)
     active = fields.Boolean('Active')
     prefix = fields.Char('Prefix')
     suffix = fields.Char('Suffix')
