@@ -82,36 +82,45 @@ class Sequence(OSV):
                 day=day,
                 )
 
-    def get_id(self, cursor, user, sequence_id, test='id=%s', context=None):
+    def get_id(self, cursor, user, domain, context=None):
+        '''
+        Return sequence value for the domain
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param domain: a domain or a sequence id
+        :param context: the context
+        :return: the sequence value
+        '''
         if context is None:
             context = {}
-        cursor.execute('SELECT id, number_next, number_increment, prefix, ' \
-                    'suffix, padding ' \
-                'FROM "' + self._table + '" ' \
-                'WHERE ' + test + ' AND active = True', (sequence_id,))
-        res = cursor.dictfetchone()
+        if isinstance(domain, (int, long)):
+            domain = [('id', '=', domain)]
+
+        sequence_ids = self.search(cursor, user, domain, limit=1,
+                context=context)
         date = context.get('date')
-        if res:
-            cursor.execute('UPDATE "' + self._table + '" ' \
-                    'SET number_next = number_next + number_increment, ' \
-                        'write_uid = %s, ' \
-                        'write_date = NOW() ' \
-                    'WHERE id = %s AND active = True', (user, res['id'],))
-            if res['number_next']:
-                return self._process(cursor, user, res['prefix'], date=date,
+        if sequence_ids:
+            sequence = self.browse(cursor, user, sequence_ids[0],
+                    context=context)
+            self.write(cursor, user, sequence.id, {
+                'number_next': sequence.number_next + sequence.number_increment,
+                }, context=context)
+            if sequence.number_next:
+                return self._process(cursor, user, sequence.prefix, date=date,
                         context=context) + \
-                        '%%0%sd' % res['padding'] % res['number_next'] + \
-                        self._process(cursor, user, res['suffix'], date=date,
+                        '%%0%sd' % sequence.padding % sequence.number_next + \
+                        self._process(cursor, user, sequence.suffix, date=date,
                                 context=context)
             else:
-                return self._process(cursor, user, res['prefix'], date=date,
+                return self._process(cursor, user, sequence.prefix, date=date,
                         context=context) + \
-                        self._process(cursor, user, res['suffix'], date=date,
+                        self._process(cursor, user, sequence.suffix, date=date,
                                 context=context)
         self.raise_user_error(cursor, 'missing', context=context)
 
     def get(self, cursor, user, code, context=None):
-        return self.get_id(cursor, user, code, test='code=%s', context=context)
+        return self.get_id(cursor, user, [('code', '=', code)], context=context)
 
 Sequence()
 
@@ -121,9 +130,9 @@ class SequenceStrict(Sequence):
     _name = 'ir.sequence.strict'
     _description = __doc__
 
-    def get_id(self, cursor, user, sequence_id, test='id=%s', context=None):
+    def get_id(self, cursor, user, clause, context=None):
         cursor.execute('LOCK TABLE "' + self._table + '"')
-        return super(SequenceStrict, self).get_id(cursor, user, sequence_id,
-                test=test, context=context)
+        return super(SequenceStrict, self).get_id(cursor, user, clause,
+                context=context)
 
 SequenceStrict()
