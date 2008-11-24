@@ -84,13 +84,13 @@ class TrytonServer(object):
         update_module = False
         init = {}
         for db_name in CONFIG["db_name"]:
+            init[db_name] = False
             try:
                 cursor = pooler.get_db_only(db_name).cursor()
             except psycopg2.OperationalError:
                 self.logger.error("could not connect to database '%s'!" % db_name,)
                 continue
 
-            init[db_name] = False
             if CONFIG['init']:
                 if not cursor.test():
                     self.logger.info("init db")
