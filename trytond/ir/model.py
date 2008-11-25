@@ -34,12 +34,11 @@ class ModelField(OSV):
     relation = fields.Char('Model Relation')
     model = fields.Many2One('ir.model', 'Model', required=True,
        select=1, ondelete='cascade')
-    field_description = fields.Char('Field Description',
-       translate=True)
+    field_description = fields.Char('Field Description')
     ttype = fields.Char('Field Type')
     groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
        'field_id', 'group_id', 'Groups')
-    help = fields.Text('Help', translate=True)
+    help = fields.Text('Help')
     module = fields.Char('Module',
        help="Module in which this field is defined")
 
@@ -55,6 +54,81 @@ class ModelField(OSV):
 
     def default_field_description(self, cursor, user, context=None):
         return 'No description available'
+
+    def read(self, cursor, user, ids, fields_names=None, context=None,
+            load='_classic_read'):
+        translation_obj = self.pool.get('ir.translation')
+
+        if context is None:
+            context = {}
+        to_delete = []
+        if context.get('language'):
+            if fields_names is None:
+                fields_names = self._columns.keys()
+
+            if 'field_description' in fields_names \
+                    or 'help' in fields_names:
+                if 'model' not in fields_names:
+                    fields_names.append('model')
+                    to_delete.append('model')
+                if 'name' not in fields_names:
+                    fields_names.append('name')
+                    to_delete.append('name')
+
+        res = super(ModelField, self).read(cursor, user, ids,
+                fields_names=fields_names, context=context, load=load)
+
+        if context.get('language') \
+                and ('field_description' in fields_names \
+                or 'help' in fields_names):
+            model_ids = set()
+            for rec in res:
+                if isinstance(rec['model'], (list, tuple)):
+                    model_ids.add(rec['model'][0])
+                else:
+                    model_ids.add(rec['model'])
+            model_ids = list(model_ids)
+            cursor.execute('SELECT id, model FROM ir_model WHERE id IN ' \
+                    '(' + ','.join(['%s' for x in model_ids]) + ')', model_ids)
+            id2model = dict(cursor.fetchall())
+
+            trans_args = []
+            for rec in res:
+                if isinstance(rec['model'], (list, tuple)):
+                    model_id = rec['model'][0]
+                else:
+                    model_id = rec['model']
+                if 'field_description' in fields_names:
+                    trans_args.append(
+                            (id2model[model_id] + ',' + rec['name'],
+                                'field', context['language'], None))
+                if 'help' in fields_names:
+                    trans_args.append((id2model[model_id] + ',' + rec['name'],
+                            'help', context['language'], None))
+            translation_obj._get_sources(cursor, trans_args)
+            for rec in res:
+                if isinstance(rec['model'], (list, tuple)):
+                    model_id = rec['model'][0]
+                else:
+                    model_id = rec['model']
+                if 'field_description' in fields_names:
+                    res_trans = translation_obj._get_source(cursor,
+                            id2model[model_id] + ',' + rec['name'],
+                                'field', context['language'])
+                    if res_trans:
+                        rec['field_description'] = res_trans
+                if 'help' in fields_names:
+                    res_trans = translation_obj._get_source(cursor,
+                            id2model[model_id] + ',' + rec['name'],
+                            'help', context['language'])
+                    if res_trans:
+                        res['help'] = res_trans
+
+        if to_delete:
+            for rec in res:
+                for field in to_delete:
+                    del rec[field]
+        return res
 
 ModelField()
 
