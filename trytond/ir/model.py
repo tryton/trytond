@@ -122,7 +122,7 @@ class ModelField(OSV):
                             id2model[model_id] + ',' + rec['name'],
                             'help', context['language'])
                     if res_trans:
-                        res['help'] = res_trans
+                        rec['help'] = res_trans
 
         if to_delete:
             for rec in res:
