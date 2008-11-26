@@ -2,3 +2,4 @@
 - Handle button as a field to allow to override it with python code
 - Allow to create fields from the client interface
 - Fix the order of views that inherits (must be the module dependency order)
+- Improve encoding of default properties
