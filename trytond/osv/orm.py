@@ -431,7 +431,8 @@ class ORM(object):
                         'WHERE id = %s ',
                         (field.help, trans_help[trans_name]['id']))
             if hasattr(field, 'selection') \
-                    and isinstance(field.selection, (tuple, list)):
+                    and isinstance(field.selection, (tuple, list)) \
+                    and field.translate:
                 for (key, val) in field.selection:
                     if trans_name not in trans_selection \
                             or val not in trans_selection[trans_name]:
@@ -1901,7 +1902,8 @@ class ORM(object):
                 trans_args.append((self._name + ',' + field, 'help',
                     context['language'], None))
                 if hasattr(self._columns[field], 'selection'):
-                    if isinstance(self._columns[field].selection, (tuple, list)):
+                    if isinstance(self._columns[field].selection, (tuple, list)) \
+                            and self._columns[field].translate:
                         sel = self._columns[field].selection
                         for (key, val) in sel:
                             trans_args.append((self._name + ',' + field,
@@ -1957,7 +1959,8 @@ class ORM(object):
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)):
                     sel = self._columns[field].selection
-                    if context.get('language'):
+                    if context.get('language') and \
+                            self._columns[field].translate:
                         # translate each selection option
                         sel2 = []
                         for (key, val) in sel:
