@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
         <record model="res.user" id="user_admin">
@@ -16,12 +17,12 @@
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="User">
+                    <label name="name"/>
+                    <field name="name"/>
+                    <label name="active"/>
+                    <field name="active"/>
                     <notebook colspan="4">
-                        <page string="User">
-                            <label name="name"/>
-                            <field name="name"/>
-                            <label name="active"/>
-                            <field name="active"/>
+                        <page string="_User">
                             <label name="login"/>
                             <field name="login"/>
                             <label name="password"/>
@@ -37,13 +38,13 @@
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
                         </page>
-                        <page string="Security" col="1">
+                        <page string="_Security" col="1">
                             <separator name="groups"/>
                             <field name="groups"/>
                             <separator name="rule_groups"/>
                             <field name="rule_groups"/>
                         </page>
-                        <page string="Preferences" col="2">
+                        <page string="_Preferences" col="2">
                             <label name="language"/>
                             <field name="language" widget="selection"/>
                             <label name="timezone"/>
