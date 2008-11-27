@@ -2630,7 +2630,7 @@ class ORM(object):
                         args[i] += (table,)
                 i += 1
             else:
-                if field.translate:
+                if field.translate and field._type in ('char', 'text'):
                     exprs = ['%s', '%s']
                     if args[i][1] in ('like', 'ilike', 'not like', 'not ilike'):
                         exprs = ['%% %s%%', '%s%%']
