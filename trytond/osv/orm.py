@@ -262,11 +262,7 @@ class EvalEnvironment(dict):
         return super(EvalEnvironment, self).__getitem__(item)
 
     def __getattr__(self, item):
-        try:
-            return self.__getitem__(item)
-        except:
-            pass
-        return super(EvalEnvironment, self).__getattr__(item)
+        return self.__getitem__(item)
 
     def get(self, item):
         try:
@@ -276,7 +272,7 @@ class EvalEnvironment(dict):
         return super(EvalEnvironment, self).get(item)
 
     def __nonzero__(self):
-        return bool(self.obj)
+        return bool(self.record)
 
 class ORM(object):
     """
