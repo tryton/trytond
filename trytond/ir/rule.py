@@ -79,7 +79,7 @@ class Rule(OSV):
        ('>=', '>='),
        ('in', 'in'),
        ('child_of', 'child_of'),
-       ], 'Operator', required=True)
+       ], 'Operator', required=True, translate=False)
     operand = fields.Selection('get_operand','Operand', required=True)
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=2,
        required=True, ondelete="cascade")

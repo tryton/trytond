@@ -43,7 +43,7 @@
                     <label name="priority"/>
                     <field name="priority"/>
                     <notebook colspan="6">
-                        <page string="Request">
+                        <page string="_Request">
                             <separator name="body" colspan="4"/>
                             <field name="body" colspan="4"/>
                             <field name="history" colspan="4"/>
@@ -65,7 +65,7 @@
                                     string="Close" type="object"/>
                             </group>
                         </page>
-                        <page string="References" col="1">
+                        <page string="_References" col="1">
                             <field name="references"/>
                         </page>
                     </notebook>

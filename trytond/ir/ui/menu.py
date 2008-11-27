@@ -84,7 +84,7 @@ class UIMenu(OSV):
        'menu_id', 'gid', 'Groups', ondelete_target='CASCADE')
     complete_name = fields.Function('get_full_name',
        string='Complete Name', type='char', order_field='name')
-    icon = fields.Selection(ICONS, 'Icon')
+    icon = fields.Selection(ICONS, 'Icon', translate=False)
     action = fields.Function('get_action', fnct_inv='action_inv',
        type='reference', string='Action',
        selection=[
