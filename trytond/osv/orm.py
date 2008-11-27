@@ -262,8 +262,21 @@ class EvalEnvironment(dict):
         return super(EvalEnvironment, self).__getitem__(item)
 
     def __getattr__(self, item):
-        return self.__getitem__(item)
+        try:
+            return self.__getitem__(item)
+        except:
+            pass
+        return super(EvalEnvironment, self).__getattr__(item)
 
+    def get(self, item):
+        try:
+            return self.__getitem__(item)
+        except:
+            pass
+        return super(EvalEnvironment, self).get(item)
+
+    def __nonzero__(self):
+        return bool(self.obj)
 
 class ORM(object):
     """
@@ -431,7 +444,8 @@ class ORM(object):
                         'WHERE id = %s ',
                         (field.help, trans_help[trans_name]['id']))
             if hasattr(field, 'selection') \
-                    and isinstance(field.selection, (tuple, list)):
+                    and isinstance(field.selection, (tuple, list)) \
+                    and field.translate:
                 for (key, val) in field.selection:
                     if trans_name not in trans_selection \
                             or val not in trans_selection[trans_name]:
@@ -1901,7 +1915,8 @@ class ORM(object):
                 trans_args.append((self._name + ',' + field, 'help',
                     context['language'], None))
                 if hasattr(self._columns[field], 'selection'):
-                    if isinstance(self._columns[field].selection, (tuple, list)):
+                    if isinstance(self._columns[field].selection, (tuple, list)) \
+                            and self._columns[field].translate:
                         sel = self._columns[field].selection
                         for (key, val) in sel:
                             trans_args.append((self._name + ',' + field,
@@ -1957,7 +1972,8 @@ class ORM(object):
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)):
                     sel = self._columns[field].selection
-                    if context.get('language'):
+                    if context.get('language') and \
+                            self._columns[field].translate:
                         # translate each selection option
                         sel2 = []
                         for (key, val) in sel:

@@ -10,7 +10,7 @@
               <![CDATA[
                 <form string="Module">
                     <notebook>
-                        <page string="Module">
+                        <page string="_Module">
                             <label name="name"/>
                             <field name="name"/>
                             <label name="shortdesc"/>
@@ -41,7 +41,7 @@
                                     type="object" states="{'invisible': '''state != 'to remove' '''}"/>
                             </group>
                         </page>
-                        <page string="Dependencies" col="1">
+                        <page string="_Dependencies" col="1">
                             <field name="dependencies">
                                 <tree string="Dependencies">
                                     <field name="name"/>
