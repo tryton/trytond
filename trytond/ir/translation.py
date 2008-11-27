@@ -748,7 +748,8 @@ class TranslationClean(Wizard):
                         continue
                     field = model_obj._columns[field_name]
                     if not hasattr(field, 'selection') or not field.selection \
-                            or not field.translate:
+                            or not ((hasattr(field, 'translate_selection') and \
+                            field.translate_selection) or True):
                         to_delete.append(translation.id)
                         continue
                     if isinstance(field.selection, (tuple, list)) \
