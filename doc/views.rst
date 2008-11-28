@@ -411,6 +411,8 @@ For this purpose, the inheritance engine use some xpath expressions.
 
 The inherited view is defined with the field ``inherit`` of the ir.ui.view.
 
+If the field ``domain`` is not set or evaluated to True, the inheritance will be proceed.
+
 
 XML description
 +++++++++++++++
