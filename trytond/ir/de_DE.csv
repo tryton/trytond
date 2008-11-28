@@ -489,10 +489,12 @@ view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
 view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Dependencies,Abhängigkeiten,0
+view,ir.module.module,0,_Dependencies,_Abhängigkeiten,0
 view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
 view,ir.module.module,0,Mark for Uninstallation (beta),Für die Deinstallation (beta) vormerken,0
 view,ir.module.module,0,Mark for Upgrade,Für die Aktualisierung vormerken,0
 view,ir.module.module,0,Module,Modul,0
+view,ir.module.module,0,_Module,_Module,0
 view,ir.module.module,0,Modules,Module,0
 view,ir.module.module.config_wizard.first,0,depending on the modules you have installed.,abhängig von den installierten Modulen.,0
 view,ir.module.module.config_wizard.first,0,Welcome to the module configuration wizard!,Willkommen bei der Modulkonfiguration!,0
