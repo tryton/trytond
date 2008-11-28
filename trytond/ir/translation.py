@@ -720,11 +720,19 @@ class TranslationClean(Wizard):
                         continue
                 elif translation.type == 'model':
                     try:
-                        model_name, _ = translation.name.split(',', 1)
+                        model_name, field_name = translation.name.split(',', 1)
                     except ValueError:
                         to_delete.append(translation.id)
                         continue
                     if model_name not in self.pool.object_name_list():
+                        to_delete.append(translation.id)
+                        continue
+                    model_obj = self.pool.get(model_name)
+                    if field_name not in model_obj._columns:
+                        to_delete.append(translation.id)
+                        continue
+                    field = model_obj._columns[field_name]
+                    if not hasattr(field, 'translate') or not field.translate:
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'odt':
@@ -748,7 +756,8 @@ class TranslationClean(Wizard):
                         continue
                     field = model_obj._columns[field_name]
                     if not hasattr(field, 'selection') or not field.selection \
-                            or not field.translate:
+                            or not ((hasattr(field, 'translate_selection') and \
+                            field.translate_selection) or True):
                         to_delete.append(translation.id)
                         continue
                     if isinstance(field.selection, (tuple, list)) \
