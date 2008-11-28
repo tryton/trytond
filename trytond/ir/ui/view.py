@@ -26,7 +26,9 @@ class View(OSV):
     arch = fields.Text('View Architecture', required=True)
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
             ondelete='CASCADE')
-    field_childs = fields.Char('Childs Field')
+    field_childs = fields.Char('Childs Field', states={
+        'invisible': "type != 'tree'",
+        })
     module = fields.Char('Module', readonly=True)
     domain = fields.Char('Domain', states={
         'invisible': "not bool(inherit)",

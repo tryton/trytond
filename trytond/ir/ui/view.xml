@@ -16,10 +16,10 @@
                     <field name="inherit"/>
                     <label name="domain"/>
                     <field name="domain"/>
-                    <label name="field_childs"/>
-                    <field name="field_childs"/>
                     <label name="priority"/>
                     <field name="priority"/>
+                    <label name="field_childs"/>
+                    <field name="field_childs"/>
                     <separator name="arch" colspan="4"/>
                     <field name="arch" colspan="4"/>
                 </form>
