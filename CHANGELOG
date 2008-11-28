@@ -1,3 +1,4 @@
+* Add contextual domain on inherited views
 * Allow to use globals in domain and states
 * Add translate attribute on Selection field
 * Use explicit join in search SQL query

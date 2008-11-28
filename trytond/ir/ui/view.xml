@@ -14,10 +14,12 @@
                     <field name="type"/>
                     <label name="inherit"/>
                     <field name="inherit"/>
-                    <label name="field_childs"/>
-                    <field name="field_childs"/>
+                    <label name="domain"/>
+                    <field name="domain"/>
                     <label name="priority"/>
                     <field name="priority"/>
+                    <label name="field_childs"/>
+                    <field name="field_childs"/>
                     <separator name="arch" colspan="4"/>
                     <field name="arch" colspan="4"/>
                 </form>
@@ -34,6 +36,7 @@
                     <field name="model" select="1"/>
                     <field name="type" select="1"/>
                     <field name="inherit" select="1"/>
+                    <field name="domain" select="2"/>
                     <field name="field_childs" select="2"/>
                 </tree>
                 ]]>

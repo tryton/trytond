@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "View"
 from trytond.osv import fields, OSV
 from difflib import SequenceMatcher
@@ -25,8 +26,13 @@ class View(OSV):
     arch = fields.Text('View Architecture', required=True)
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
             ondelete='CASCADE')
-    field_childs = fields.Char('Childs Field')
+    field_childs = fields.Char('Childs Field', states={
+        'invisible': "type != 'tree'",
+        })
     module = fields.Char('Module', readonly=True)
+    domain = fields.Char('Domain', states={
+        'invisible': "not bool(inherit)",
+        })
 
     def __init__(self):
         super(View, self).__init__()
