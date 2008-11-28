@@ -2149,6 +2149,9 @@ class ORM(object):
             md5 or the dict.
         '''
 
+        if context is None:
+            context = {}
+
         def _inherit_apply(src, inherit):
 
             def _find(tree, element):
@@ -2231,11 +2234,14 @@ class ORM(object):
 
             def _inherit_apply_rec(result, inherit_id):
                 # get all views which inherit from (ie modify) this view
-                cursor.execute('SELECT arch, id FROM ir_ui_view ' \
+                cursor.execute('SELECT arch, domain, id FROM ir_ui_view ' \
                         'WHERE inherit = %s AND model = %s ' \
                         'ORDER BY priority', (inherit_id, self._name))
                 sql_inherit = cursor.fetchall()
-                for (inherit, view_id) in sql_inherit:
+                for (inherit, domain, view_id) in sql_inherit:
+                    if domain:
+                        if not eval(domain, {'context': context}):
+                            continue
                     result = _inherit_apply(result, inherit)
                     result = _inherit_apply_rec(result, view_id)
                 return result
