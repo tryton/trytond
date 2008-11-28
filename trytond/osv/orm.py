@@ -262,11 +262,7 @@ class EvalEnvironment(dict):
         return super(EvalEnvironment, self).__getitem__(item)
 
     def __getattr__(self, item):
-        try:
-            return self.__getitem__(item)
-        except:
-            pass
-        return super(EvalEnvironment, self).__getattr__(item)
+        return self.__getitem__(item)
 
     def get(self, item):
         try:
@@ -276,7 +272,7 @@ class EvalEnvironment(dict):
         return super(EvalEnvironment, self).get(item)
 
     def __nonzero__(self):
-        return bool(self.obj)
+        return bool(self.record)
 
 class ORM(object):
     """
@@ -445,7 +441,8 @@ class ORM(object):
                         (field.help, trans_help[trans_name]['id']))
             if hasattr(field, 'selection') \
                     and isinstance(field.selection, (tuple, list)) \
-                    and field.translate:
+                    and ((hasattr(field, 'translate_selection') \
+                        and field.translate_selection) or True):
                 for (key, val) in field.selection:
                     if trans_name not in trans_selection \
                             or val not in trans_selection[trans_name]:
@@ -1916,7 +1913,10 @@ class ORM(object):
                     context['language'], None))
                 if hasattr(self._columns[field], 'selection'):
                     if isinstance(self._columns[field].selection, (tuple, list)) \
-                            and self._columns[field].translate:
+                            and ((hasattr(self._columns[field],
+                                'translate_selection') \
+                                and self._columns[field].translate_selection) \
+                                or True):
                         sel = self._columns[field].selection
                         for (key, val) in sel:
                             trans_args.append((self._name + ',' + field,
@@ -1973,7 +1973,10 @@ class ORM(object):
                 if isinstance(self._columns[field].selection, (tuple, list)):
                     sel = self._columns[field].selection
                     if context.get('language') and \
-                            self._columns[field].translate:
+                            ((hasattr(self._columns[field],
+                                'translate_selection') \
+                                and self._columns[field].translate_selection) \
+                                or True):
                         # translate each selection option
                         sel2 = []
                         for (key, val) in sel:
@@ -2164,8 +2167,14 @@ class ORM(object):
                     pos = element2.get('position', 'inside')
                     if pos == 'replace':
                         parent = element.getparent()
+                        next = element.getnext()
+                        if next is not None:
+                            for child in element2:
+                                index = parent.index(next)
+                                parent.insert(index, child)
+                        else:
+                            parent.extend(element2.getchildren())
                         parent.remove(element)
-                        parent.extend(element2.getchildren())
                     elif pos == 'inside':
                         element.extend(element2.getchildren())
                     elif pos == 'after':
@@ -2630,7 +2639,7 @@ class ORM(object):
                         args[i] += (table,)
                 i += 1
             else:
-                if field.translate and field._type in ('char', 'text'):
+                if field.translate:
                     exprs = ['%s', '%s']
                     if args[i][1] in ('like', 'ilike', 'not like', 'not ilike'):
                         exprs = ['%% %s%%', '%s%%']

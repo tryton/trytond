@@ -269,8 +269,8 @@ class Selection(Column):
             or the name of the object function that return the list
         """
         self.sort = sort
-        Column.__init__(self, string=string, selection=selections,
-                translate=translate, **args)
+        self.translate_selection = translate
+        Column.__init__(self, string=string, selection=selections, **args)
 
     def sql_type(self):
         if self.size:
