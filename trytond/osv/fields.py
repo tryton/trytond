@@ -413,12 +413,13 @@ class One2Many(Column):
                     ids = list(act[1])
                 if not ids:
                     continue
-                cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._field + '" = NULL ' \
-                        'WHERE id IN (' \
-                            + ','.join(['%s' for x in ids]) + ') ' \
-                            'AND "' + self._field + '" = %s',
-                        ids + [obj_id])
+                ids = obj.search(cursor, user, [
+                    (self._field, '=', obj_id),
+                    ('id', 'in', ids),
+                    ], context=context)
+                obj.write(cursor, user, ids, {
+                    self._field: False,
+                    }, context=context)
             elif act[0] == 'add':
                 if isinstance(act[1], (int, long)):
                     ids = [act[1]]
@@ -426,32 +427,32 @@ class One2Many(Column):
                     ids = list(act[1])
                 if not ids:
                     continue
-                cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._field + '" = %s ' \
-                        'WHERE id IN (' \
-                            + ','.join(['%s' for x in ids]) + ')',
-                        [obj_id] + ids)
+                ids = obj.write(cursor, user, ids, {
+                    self._field: obj_id,
+                    }, context=context)
             elif act[0] == 'unlink_all':
-                cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._field + '" = NULL ' \
-                        'WHERE "' + self._field + '" = %s', (obj_id,))
+                ids = obj.search(cursor, user, [
+                    (self._field, '=', obj_id),
+                    ], context=context)
+                obj.write(cursor, user, ids, {
+                    self._field: False,
+                    }, context=context)
             elif act[0] == 'set':
                 if not act[1]:
                     ids = [0]
                 else:
                     ids = list(act[1])
-                cursor.execute('UPDATE "' + _table + '" ' \
-                        'SET "' + self._field + '" = NULL ' \
-                        'WHERE "' + self._field + '" = %s ' \
-                            'AND id not IN (' + \
-                                ','.join(['%s' for x in ids]) + ')',
-                                [obj_id] + ids)
+                ids2 = obj.search(cursor, user, [
+                    (self._field, '=', obj_id),
+                    ('id', 'not in', ids),
+                    ], context=context)
+                obj.write(cursor, user, ids2, {
+                    self._field: False,
+                    }, context=context)
                 if act[1]:
-                    cursor.execute('UPDATE "' + _table + '" ' \
-                            'SET "' + self._field + '" = %s ' \
-                            'WHERE id IN (' + \
-                                ','.join(['%s' for x in ids]) + ')',
-                                [obj_id] + ids)
+                    obj.write(cursor, user, ids, {
+                        self._field: obj_id,
+                        }, context=context)
             else:
                 raise Exception('Bad arguments')
 
