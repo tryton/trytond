@@ -108,14 +108,18 @@ view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
 view,ir.module.module,0,Mark for Uninstallation (beta),Für die Deinstallation (beta) vormerken,0
 view,ir.module.module,0,Mark for Upgrade,Für die Aktualisierung vormerken,0
 view,res.group,0,Group,Gruppe,0
+view,res.group,0,_Group,_Gruppe,0
 view,res.group,0,Groups,Gruppen,0
 view,res.group,0,Security,Sicherheit,0
+view,res.group,0,_Security,_Sicherheit,0
 view,res.request,0,Close,Schließen,0
 view,res.request,0,Description,Beschreibung,0
 view,res.request,0,History,Geschichte,0
 view,res.request,0,References,Verweise,0
+view,res.request,0,_References,_Verweise,0
 view,res.request,0,Reply,Antworten,0
 view,res.request,0,Request,Anfrage,0
+view,res.request,0,_Request,_Anfrage,0
 view,res.request,0,Requests,Anfragen,0
 view,res.request,0,Send,Senden,0
 view,res.request.history,0,Request History,bisherige Anfragen,0
@@ -123,8 +127,11 @@ view,res.request.link,0,Request Link,Anfrage Verknüpfung,0
 view,res.request.reference,0,Request Reference,Anfrageverweis,0
 view,res.request.reference,0,Request References,Verweise,0
 view,res.user,0,Preferences,Einstellungen,0
+view,res.user,0,_Preferences,_Einstellungen,0
 view,res.user,0,Security,Sicherheit,0
+view,res.user,0,_Security,_Sicherheit,0
 view,res.user,0,User,Benutzer,0
+view,res.user,0,_User,_Benutzer,0
 view,res.user,0,Users,Benutzer,0
 view,res.user.config.init,0,Add Users,Benutzer hinzufügen,0
 view,res.user.config.init,0,Be careful that the login must be unique!,"WICHTIG - Achten Sie darauf, dass ein Benutzername nicht mehrfach vergeben werden kann.
