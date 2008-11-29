@@ -3,3 +3,4 @@
 - Allow to create fields from the client interface
 - Fix the order of views that inherits (must be the module dependency order)
 - Improve encoding of default properties
+- Use real view in get_preferences_fields_view of res.user
