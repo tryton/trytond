@@ -186,18 +186,18 @@ field,"ir.rule,operand",0,Operand,Operand,0
 field,"ir.rule,operator",0,Operator,Operator,0
 field,"ir.rule,rule_group",0,Group,Gruppe,0
 field,"ir.sequence,active",0,Active,Aktiv,0
-field,"ir.sequence,code",0,Sequence Code,Code Sequenz,0
+field,"ir.sequence,code",0,Sequence Type,Typ Sequenz,0
 field,"ir.sequence,name",0,Sequence Name,Name Sequenz,0
 field,"ir.sequence,number_increment",0,Increment Number,Schrittweite,0
 field,"ir.sequence,number_next",0,Next Number,Nächste Nummer,0
-field,"ir.sequence,padding",0,Number padding,Füllnummer,0
+field,"ir.sequence,padding",0,Number padding,Feste Länge (Vornullen),0
 field,"ir.sequence,prefix",0,Prefix,Präfix,0
 field,"ir.sequence.strict,active",0,Active,Aktiv,0
-field,"ir.sequence.strict,code",0,Sequence Code,Code Strikte Sequenz,0
+field,"ir.sequence.strict,code",0,Sequence Type,Typ Strikte Sequenz,0
 field,"ir.sequence.strict,name",0,Sequence Name,Name Sequenz,0
 field,"ir.sequence.strict,number_increment",0,Increment Number,Schrittweite,0
 field,"ir.sequence.strict,number_next",0,Next Number,Nächste Zahl,0
-field,"ir.sequence.strict,padding",0,Number padding,Füllnummer,0
+field,"ir.sequence.strict,padding",0,Number padding,Feste Länge (Vornullen),0
 field,"ir.sequence.strict,prefix",0,Prefix,Präfix,0
 field,"ir.sequence.strict,suffix",0,Suffix,Suffix,0
 field,"ir.sequence,suffix",0,Suffix,Suffix,0
@@ -489,10 +489,12 @@ view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
 view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Dependencies,Abhängigkeiten,0
+view,ir.module.module,0,_Dependencies,_Abhängigkeiten,0
 view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
 view,ir.module.module,0,Mark for Uninstallation (beta),Für die Deinstallation (beta) vormerken,0
 view,ir.module.module,0,Mark for Upgrade,Für die Aktualisierung vormerken,0
 view,ir.module.module,0,Module,Modul,0
+view,ir.module.module,0,_Module,_Module,0
 view,ir.module.module,0,Modules,Module,0
 view,ir.module.module.config_wizard.first,0,depending on the modules you have installed.,abhängig von den installierten Modulen.,0
 view,ir.module.module.config_wizard.first,0,Welcome to the module configuration wizard!,Willkommen bei der Modulkonfiguration!,0
