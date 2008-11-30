@@ -420,12 +420,13 @@ class Translation(OSV, Cacheable):
                         }, context=ctx)
                 translation_ids += ids
 
-        cursor.execute('DELETE FROM ir_translation ' \
-                'WHERE module = %s ' \
-                    'AND lang = %s ' \
-                    'AND id NOT IN ' \
+        if translation_ids:
+            cursor.execute('DELETE FROM ir_translation ' \
+                    'WHERE module = %s ' \
+                        'AND lang = %s ' \
+                        'AND id NOT IN ' \
                         '(' + ','.join(['%s' for x in translation_ids]) + ')',
-                (module, lang) + tuple(translation_ids))
+                    (module, lang) + tuple(translation_ids))
         return len(translation_ids)
 
     def translation_export(self, cursor, user, lang, module, context=None):
