@@ -22,11 +22,3 @@ Contents:
    workflows
    unittest
    protocols
-
-Indices and tables
-******************
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
