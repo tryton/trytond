@@ -2,8 +2,10 @@
    completely to your liking, but it should at least contain the root
    `toctree` directive.
 
-Index
-#####
+:tocdepth: 2
+
+Tryton Server
+#############
 
 Contents:
 
@@ -20,11 +22,3 @@ Contents:
    workflows
    unittest
    protocols
-
-Indices and tables
-##################
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
