@@ -71,8 +71,7 @@ def check(cursor, ident, transition, signal, context=None):
     user = ident[0]
     if transition['group'] and user != 0:
         user_obj = pooler.get_pool(cursor.dbname).get('res.user')
-        user_groups = user_obj.read(cursor, user, user, ['groups'],
-                context=context)['groups']
+        user_groups = user_obj.get_groups(cursor, user, context=context)
         res = res and transition['group'] in user_groups
     res = res and eval_expr(cursor, ident, transition['condition'],
             context=context)
