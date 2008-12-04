@@ -251,6 +251,7 @@ class Cache(object):
 
         def cached_result(self2, cursor=None, *args, **kwargs):
             result = None
+            find = False
             if isinstance(cursor, basestring):
                 Cache.reset(cursor, self.name)
                 self.lock.acquire()
@@ -298,10 +299,11 @@ class Cache(object):
                     mintime = time.time() - self.timeout
                     if self.timeout <= 0 or mintime <= last_time:
                         result = value
+                        find = True
             finally:
                 self.lock.release()
 
-            if not result:
+            if not find:
                 # Work out new value, cache it and return it
                 # Should copy() this value to avoid futur modf of the cacle ?
                 result = function(self2, cursor, **dict(kwargs))
