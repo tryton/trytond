@@ -1,3 +1,4 @@
+* Allow to use a list of id for copy method
 * Use one lock per database
 * Improve netrpc communication speed
 * Add contextual domain on inherited views
