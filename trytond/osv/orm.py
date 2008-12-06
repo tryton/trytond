@@ -1539,6 +1539,8 @@ class ORM(object):
         if values == None:
             return False
         for line in cursor.fetchall():
+            if not line[0]:
+                continue
             xml_values = eval(line[0], {
                 'Decimal': Decimal,
                 'datetime': datetime,
@@ -2999,17 +3001,29 @@ class ORM(object):
         res = self.name_get(cursor, user, ids, context=context)
         return res
 
-    def copy(self, cursor, user, object_id, default=None, context=None):
+    def copy(self, cursor, user, ids, default=None, context=None):
         '''
-        Duplicate the object_id record.
-        default can be a dict with field name as keys,
-        it will replace the value of the record.
+        Duplicate the record in ids.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: a list of ids or an id
+        :param default: a dictionnary with field name as keys and
+            new value for the field as value
+        :param context: the context
+        :return: a list of new ids or the new id
         '''
         lang_obj = self.pool.get('ir.lang')
         if default is None:
             default = {}
         if context is None:
             context = {}
+
+        int_id = False
+        if isinstance(ids, (int, long)):
+            int_id = True
+            ids = [ids]
+
         if 'state' not in default:
             if 'state' in self._defaults:
                 default['state'] = self._defaults['state'](cursor, user,
@@ -3040,13 +3054,11 @@ class ORM(object):
                 elif ftype in ('one2many',):
                     res = []
                     rel = self.pool.get(fields[field_name]['relation'])
-                    for rel_id in data[field_name] or []:
-                        # the lines are first duplicated using the wrong (old)
-                        # parent but then are reassigned to the correct one thanks
-                        # to the ('add', ...)
-                        res.append(('add', rel.copy(cursor, user, rel_id,
-                            context=context)))
-                    data[field_name] = res
+                    if data[field_name]:
+                        data[field_name] = [('add', rel.copy(cursor, user,
+                            data[field_name], context=context))]
+                    else:
+                        data[field_name] = False
                 elif ftype == 'many2many':
                     if data[field_name]:
                         data[field_name] = [('set', data[field_name])]
@@ -3056,10 +3068,12 @@ class ORM(object):
                 if self._inherits[i] in data:
                     del data[self._inherits[i]]
 
-        data = self.read(cursor, user, object_id, context=context)
-        fields = self.fields_get(cursor, user)
-        convert_data(fields, data)
-        new_id = self.create(cursor, user, data, context=context)
+        new_ids = []
+        datas = self.read(cursor, user, ids, context=context)
+        fields = self.fields_get(cursor, user, context=context)
+        for data in datas:
+            convert_data(fields, data)
+            new_ids.append(self.create(cursor, user, data, context=context))
 
         fields_translate = {}
         for field_name, field in fields.iteritems():
@@ -3082,11 +3096,16 @@ class ORM(object):
                 for lang in langs:
                     ctx = context.copy()
                     ctx['language'] = lang.code
-                    data = self.read(cursor, user, object_id,
-                            fields_names=fields_translate.keys(), context=ctx)
-                    convert_data(fields_translate, data)
-                    self.write(cursor, user, new_id, data, context=ctx)
-        return new_id
+                    datas = self.read(cursor, user, ids,
+                            fields_names=fields_translate.keys() + ['id'],
+                            context=ctx)
+                    for data in datas:
+                        data_id = data['id']
+                        convert_data(fields_translate, data)
+                        self.write(cursor, user, data_id, data, context=ctx)
+        if int_id:
+            return new_ids[0]
+        return new_ids
 
     def search_read(self, cursor, user, args, offset=0, limit=None, order=None,
             context=None, fields_names=None, load='_classic_read'):

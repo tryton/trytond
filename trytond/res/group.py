@@ -27,6 +27,8 @@ class Group(OSV):
                 context=context)
         # Restart the cache on the domain_get method
         self.pool.get('ir.rule').domain_get(cursor.dbname)
+        # Restart the cache for get_groups
+        self.pool.get('res.user').get_groups(cursor.dbname)
         return res
 
 Group()

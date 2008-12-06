@@ -519,6 +519,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     [self.fs2db.get(module, fs_id)[x] for x in \
                     ["db_id","model","id","values"]]
             inherit_db_ids = {}
+            inherit_mdata_ids = []
 
             if not old_values:
                 old_values = {}
@@ -582,13 +583,14 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             'inherit': True,
                             })
                     else:
-                        self.modeldata_obj.create(cursor, user, {
+                        data_id = self.modeldata_obj.create(cursor, user, {
                             'fs_id': fs_id,
                             'module': module,
                             'model': table,
                             'db_id': inherit_db_ids[table],
                             'inherit': True,
                             })
+                    inherit_mdata_ids.append((table, data_id))
 
                 data_id = self.modeldata_obj.search(cursor, user, [
                     ('fs_id', '=', fs_id),
@@ -654,6 +656,14 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 for table, field_name, field in \
                         object_ref._inherit_fields.values():
                     inherit_db_ids[table] = object[field_name].id
+            if not inherit_mdata_ids:
+                for table in inherit_db_ids.keys():
+                    data_id = self.modeldata_obj.search(cursor, user, [
+                        ('fs_id', '=', fs_id),
+                        ('module', '=', module),
+                        ('model', '=', table),
+                        ], limit=1)
+                    inherit_mdata_ids.append((table, data_id))
 
             #Update/Create translation record for field translatable
             for field_name in object_ref._columns.keys() + \
@@ -716,6 +726,15 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'values': values,
                     'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                     })
+                for table, inherit_mdata_id in inherit_mdata_ids:
+                    self.modeldata_obj.write(cursor, user, inherit_mdata_id, {
+                        'fs_id': fs_id,
+                        'model': table,
+                        'module': module,
+                        'db_id': inherit_db_ids[table],
+                        'values': values,
+                        'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
+                        })
 
         else:
             # this record is new, create it in the db:
@@ -778,6 +797,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'model': table,
                     'module': module,
                     'db_id': inherit_db_ids[table],
+                    'values': str(values),
                     'inherit': True,
                     })
 
