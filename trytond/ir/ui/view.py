@@ -120,12 +120,8 @@ class View(OSV):
                         cursor.execute('UPDATE ir_translation ' \
                             'SET src = %s, ' \
                                 'fuzzy = True ' \
-                            'WHERE name = %s ' \
-                                'AND type = %s ' \
-                                'AND src = %s '\
-                                'AND module = %s',
-                            (string, view.model, 'view', string_trans,
-                                view.module))
+                            'WHERE id = %s ',
+                            (string, trans_views[string_trans]['id']))
                         del trans_views[string_trans]
                         done = True
                         break

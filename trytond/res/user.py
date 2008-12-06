@@ -5,6 +5,7 @@ import copy
 from trytond.osv import fields, OSV
 from trytond.wizard import Wizard, WizardOSV
 from lxml import etree
+from trytond.tools import Cache
 
 
 class User(OSV):
@@ -122,6 +123,8 @@ class User(OSV):
         res = super(User, self).write(cursor, user, ids, vals, context=context)
         # Restart the cache for domain_get method
         self.pool.get('ir.rule').domain_get(cursor.dbname)
+        # Restart the cache for get_groups
+        self.get_groups(cursor.dbname)
         return res
 
     def delete(self, cursor, user, ids, context=None):
@@ -265,6 +268,20 @@ class User(OSV):
         except ImportError:
             res = []
         return res
+
+    def get_groups(self, cursor, user, context=None):
+        '''
+        Return a list of group ids for the user
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param context: the context
+        :return: a list of group ids
+        '''
+        return self.read(cursor, user, user, ['groups'],
+                context=context)['groups']
+
+    get_groups = Cache('res_user.get_groups')(get_groups)
 
 User()
 
