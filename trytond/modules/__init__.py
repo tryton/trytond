@@ -266,7 +266,7 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
                 logging.getLogger('init').info(
                     'module:%s:loading %s' % (module, filename))
                 translation_obj = pool.get('ir.translation')
-                translation_obj.translation_import(cursor, 0, lang2, module, 
+                translation_obj.translation_import(cursor, 0, lang2, module,
                                                    trans_file)
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
