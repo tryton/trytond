@@ -486,14 +486,8 @@ view,ir.model,0,Fields Description,Feld Beschreibung,0
 view,ir.model,0,Model Description,Modell Beschreibung,0
 view,ir.model.access,0,Access controls,Zugriffsberechtigungen,0
 view,ir.model.field,0,Fields,Felder,0
-view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
-view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
-view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Dependencies,Abhängigkeiten,0
 view,ir.module.module,0,_Dependencies,_Abhängigkeiten,0
-view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
-view,ir.module.module,0,Mark for Uninstallation (beta),Für die Deinstallation (beta) vormerken,0
-view,ir.module.module,0,Mark for Upgrade,Für die Aktualisierung vormerken,0
 view,ir.module.module,0,Module,Modul,0
 view,ir.module.module,0,_Module,_Module,0
 view,ir.module.module,0,Modules,Module,0

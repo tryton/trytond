@@ -486,16 +486,8 @@ view,ir.model,0,Fields Description,Champs de description,0
 view,ir.model,0,Model Description,Description du modèle,0
 view,ir.model.access,0,Access controls,Contrôles d'accès,0
 view,ir.model.field,0,Fields,Champs,0
-view,ir.module.module,0,Cancel Install,Annuler l'installation,0
-view,ir.module.module,0,Cancel Installation,Annuler l'installation,0
-view,ir.module.module,0,Cancel Uninstall,Annuler la désinstallation,0
-view,ir.module.module,0,Cancel Uninstallation,Annuler la désinstallation,0
-view,ir.module.module,0,Cancel Upgrade,Annuler la mis-à-jour,0
 view,ir.module.module,0,Dependencies,Dépendances,0
 view,ir.module.module,0,Install,Installer,0
-view,ir.module.module,0,Mark for Installation,Sélectionner pour l'installation,0
-view,ir.module.module,0,Mark for Uninstallation (beta),Sélectionner pour la dés-installation,0
-view,ir.module.module,0,Mark for Upgrade,Sélectionner pour la mise à jour,0
 view,ir.module.module,0,Module,Module,0
 view,ir.module.module,0,Modules,Modules,0
 view,ir.module.module,0,Uninstall (beta),Désinstaller (béta),0

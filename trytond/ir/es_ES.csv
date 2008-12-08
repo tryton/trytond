@@ -495,13 +495,7 @@ view,ir.model.access,0,Access controls,Controles de Acceso,0
 view,ir.model.field,0,Fields,Campos,0
 view,ir.module.category,0,Module Categories,Categorías de Módulos,0
 view,ir.module.category,0,Module Category,Categoría de Módulo,0
-view,ir.module.module,0,Cancel Installation,Cancelar Instalación,0
-view,ir.module.module,0,Cancel Uninstallation,Cancelar la no instalación,0
-view,ir.module.module,0,Cancel Upgrade,Cancelar actualización,0
 view,ir.module.module,0,Dependencies,Dependencias,0
-view,ir.module.module,0,Mark for Installation,Marcar para Instalación,0
-view,ir.module.module,0,Mark for Uninstallation (beta),Marcar para Desinstalar,0
-view,ir.module.module,0,Mark for Upgrade,Marcar para Actualizar,0
 view,ir.module.module,0,Module,Módulo,0
 view,ir.module.module,0,Modules,Módulos,0
 view,ir.module.module.config_wizard.first,0,depending on the modules you have installed.,dependiendo de los módulos que haya instalado.,0
