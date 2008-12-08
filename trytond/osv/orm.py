@@ -2400,13 +2400,14 @@ class ORM(object):
             context=None):
         if context is None:
             context = {}
+
+        for arg in args:
+            if arg[1] not in OPERATORS:
+                raise Exception('ValidateError', 'Argument "%s" not supported' \
+                        % args[i][1])
         i = 0
         joins = []
         while i < len(args):
-            if args[i][1] not in OPERATORS:
-                raise Exception('ValidateError', 'Argument "%s" not supported' \
-                        % args[i][1])
-
             table = self
             fargs = args[i][0].split('.', 1)
             if fargs[0] in self._inherit_fields:
