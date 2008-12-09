@@ -769,6 +769,43 @@ class ORM(object):
         else:
             return error
 
+    def raise_user_warning(self, cursor, user, warning_name, warning,
+            warning_args=None, warning_description='',
+            warning_description_args=None, context=None):
+        '''
+        Raise an exception that will be display as a warning message
+        in the client if the user has not yet by-pass it.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param warning_name: the unique warning name
+        :param warning: the key of the dictionary _error_messages used
+            for warning message
+        :param warning_args: the arguments that will be used for
+            "%"-based substitution
+        :param warning_description: the key of the dictionary
+            _error_messages used for warning description
+        :param warning_description_args: the arguments that will be used
+            for "%"-based substitution
+        :param context: the context in wich the language key will
+            be used for translation
+        '''
+        warning_obj = self.pool.get('res.user.warning')
+        if warning_obj.check(cursor, user, warning_name, context=context):
+            if warning_description:
+                warning, warning_description = self.raise_user_error(cursor,
+                        warning, error_args=warning_args,
+                        error_description=warning_description,
+                        error_description_args=warning_description_args,
+                        raise_exception=False, context=context)
+                raise Exception('UserWarning', warning_name, warning,
+                        warning_description)
+            else:
+                warning = self.raise_user_error(cursor, warning,
+                        error_args=warning_args, raise_exception=False,
+                        context=context)
+                raise Exception('UserWarning', warning_name, warning)
+
     def browse(self, cursor, user, ids, context=None):
         '''
         Return a browse a BrowseRecordList for the ids
