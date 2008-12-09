@@ -32,6 +32,7 @@ class User(OSV):
     email = fields.Char('Email')
     status_bar = fields.Function('get_status_bar', type='char',
             string="Status Bar")
+    warnings = fields.One2Many('res.user.warning', 'user', 'Warnings')
 
     def __init__(self):
         super(User, self).__init__()
@@ -52,6 +53,7 @@ class User(OSV):
             'menu',
             'action',
             'status_bar',
+            'warnings',
         ]
         self._context_fields = [
             'language',
@@ -284,6 +286,30 @@ class User(OSV):
     get_groups = Cache('res_user.get_groups')(get_groups)
 
 User()
+
+
+class Warning(OSV):
+    _name = 'res.user.warning'
+
+    user = fields.Many2One('res.user', 'User', required=True, select=1)
+    name = fields.Char('Name', required=True, select=1)
+    always = fields.Boolean('Always')
+
+    def check(self, cursor, user, warning_name, context=None):
+        if not user:
+            return False
+        warning_ids = self.search(cursor, user, [
+            ('user', '=', user),
+            ('name', '=', warning_name),
+            ], context=context)
+        if not warning_ids:
+            return True
+        warnings = self.browse(cursor, user, warning_ids, context=context)
+        self.delete(cursor, user, [x.id for x in warnings if not x.always],
+                context=context)
+        return False
+
+Warning()
 
 
 class Group(OSV):

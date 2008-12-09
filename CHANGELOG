@@ -1,3 +1,4 @@
+* Add user warnings
 * Allow to use a list of id for copy method
 * Use one lock per database
 * Improve netrpc communication speed
