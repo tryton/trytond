@@ -22,7 +22,7 @@ this repository contains the full copyright notices and license terms. -->
                     <label name="active"/>
                     <field name="active"/>
                     <notebook colspan="4">
-                        <page string="_User">
+                        <page string="User">
                             <label name="login"/>
                             <field name="login"/>
                             <label name="password"/>
@@ -38,13 +38,13 @@ this repository contains the full copyright notices and license terms. -->
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
                         </page>
-                        <page string="_Security" col="1">
+                        <page string="Security" col="1">
                             <separator name="groups"/>
                             <field name="groups"/>
                             <separator name="rule_groups"/>
                             <field name="rule_groups"/>
                         </page>
-                        <page string="_Preferences" col="2">
+                        <page string="Preferences" col="2">
                             <label name="language"/>
                             <field name="language" widget="selection"/>
                             <label name="timezone"/>
