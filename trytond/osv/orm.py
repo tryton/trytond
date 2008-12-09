@@ -1980,17 +1980,18 @@ class ORM(object):
                     'sort',
                     ):
                 if getattr(self._columns[field], arg, None) != None:
-                    res[field][arg] = getattr(self._columns[field], arg)
+                    res[field][arg] = copy.copy(getattr(self._columns[field],
+                        arg))
             if not write_access:
                 res[field]['readonly'] = True
                 if res[field].get('states') and \
                         'readonly' in res[field]['states']:
-                    res[field]['states'] = res[field]['states'].copy()
                     del res[field]['states']['readonly']
             for arg in ('digits', 'invisible'):
                 if hasattr(self._columns[field], arg) \
                         and getattr(self._columns[field], arg):
-                    res[field][arg] = getattr(self._columns[field], arg)
+                    res[field][arg] = copy.copy(getattr(self._columns[field],
+                        arg))
             if isinstance(self._columns[field], fields.Function) \
                     and not self._columns[field].order_field:
                 res[field]['sortable'] = False
@@ -2010,7 +2011,7 @@ class ORM(object):
 
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)):
-                    sel = self._columns[field].selection
+                    sel = copy.copy(self._columns[field].selection)
                     if context.get('language') and \
                             ((hasattr(self._columns[field],
                                 'translate_selection') \
@@ -2027,17 +2028,19 @@ class ORM(object):
                     res[field]['selection'] = sel
                 else:
                     # call the 'dynamic selection' function
-                    res[field]['selection'] = self._columns[field].selection
+                    res[field]['selection'] = copy.copy(
+                            self._columns[field].selection)
             if res[field]['type'] in (
                     'one2many',
                     'many2many',
                     'many2one',
                     ):
-                res[field]['relation'] = self._columns[field]._obj
-                res[field]['domain'] = self._columns[field]._domain
-                res[field]['context'] = self._columns[field]._context
+                res[field]['relation'] = copy.copy(self._columns[field]._obj)
+                res[field]['domain'] = copy.copy(self._columns[field]._domain)
+                res[field]['context'] = copy.copy(self._columns[field]._context)
             if res[field]['type'] == 'one2many':
-                res[field]['relation_field'] = self._columns[field]._field
+                res[field]['relation_field'] = copy.copy(
+                        self._columns[field]._field)
 
         if fields_names:
             # filter out fields which aren't in the fields_names list
