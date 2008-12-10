@@ -22,7 +22,7 @@ this repository contains the full copyright notices and license terms. -->
                     <label name="active"/>
                     <field name="active"/>
                     <notebook colspan="4">
-                        <page string="_User">
+                        <page string="User">
                             <label name="login"/>
                             <field name="login"/>
                             <label name="password"/>
@@ -38,13 +38,13 @@ this repository contains the full copyright notices and license terms. -->
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
                         </page>
-                        <page string="_Security" col="1">
+                        <page string="Security" col="1">
                             <separator name="groups"/>
                             <field name="groups"/>
                             <separator name="rule_groups"/>
                             <field name="rule_groups"/>
                         </page>
-                        <page string="_Preferences" col="2">
+                        <page string="Preferences" col="2">
                             <label name="language"/>
                             <field name="language" widget="selection"/>
                             <label name="timezone"/>
@@ -124,5 +124,49 @@ this repository contains the full copyright notices and license terms. -->
             id="config_wizard_item_user">
             <field name="name">res.user.config</field>
         </record>
+
+        <record model="ir.ui.view" id="user_warning_view_form">
+            <field name="model">res.user.warning</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Warning">
+                    <label name="user"/>
+                    <field name="user"/>
+                    <newline/>
+                    <label name="name"/>
+                    <field name="name"/>
+                    <label name="always"/>
+                    <field name="always"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="user_warning_view_tree">
+            <field name="model">res.user.warning</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Warnings">
+                    <field name="user" select="1"/>
+                    <field name="name" select="1"/>
+                    <field name="always" select="1"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_user_warning">
+            <field name="model" search="[('model', '=', 'res.user.warning')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_user_warning1">
+            <field name="field" search="[('name', '=', 'user'), ('model.model', '=', 'res.user.warning')]"/>
+            <field name="operator">=</field>
+            <field name="operand">User</field>
+            <field name="rule_group" ref="rule_group_user_warning"/>
+        </record>
+
     </data>
 </tryton>

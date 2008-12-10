@@ -384,6 +384,7 @@ class Translation(OSV, Cacheable):
                     ('lang', '=', lang),
                     ('type', '=', ttype),
                     ('src', '=', src),
+                    ('module', '=', module),
                     ], context=context)
             elif ttype in('field', 'model','help'):
                 ids = self.search(cursor, user, [
@@ -391,6 +392,7 @@ class Translation(OSV, Cacheable):
                     ('res_id', '=', res_id),
                     ('lang', '=', lang),
                     ('type', '=', ttype),
+                    ('module', '=', module),
                     ], context=context)
             else:
                 raise Exception('Unknow translation type: %s' % ttype)
