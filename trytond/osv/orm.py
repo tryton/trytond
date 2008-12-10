@@ -769,6 +769,43 @@ class ORM(object):
         else:
             return error
 
+    def raise_user_warning(self, cursor, user, warning_name, warning,
+            warning_args=None, warning_description='',
+            warning_description_args=None, context=None):
+        '''
+        Raise an exception that will be display as a warning message
+        in the client if the user has not yet by-pass it.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param warning_name: the unique warning name
+        :param warning: the key of the dictionary _error_messages used
+            for warning message
+        :param warning_args: the arguments that will be used for
+            "%"-based substitution
+        :param warning_description: the key of the dictionary
+            _error_messages used for warning description
+        :param warning_description_args: the arguments that will be used
+            for "%"-based substitution
+        :param context: the context in wich the language key will
+            be used for translation
+        '''
+        warning_obj = self.pool.get('res.user.warning')
+        if warning_obj.check(cursor, user, warning_name, context=context):
+            if warning_description:
+                warning, warning_description = self.raise_user_error(cursor,
+                        warning, error_args=warning_args,
+                        error_description=warning_description,
+                        error_description_args=warning_description_args,
+                        raise_exception=False, context=context)
+                raise Exception('UserWarning', warning_name, warning,
+                        warning_description)
+            else:
+                warning = self.raise_user_error(cursor, warning,
+                        error_args=warning_args, raise_exception=False,
+                        context=context)
+                raise Exception('UserWarning', warning_name, warning)
+
     def browse(self, cursor, user, ids, context=None):
         '''
         Return a browse a BrowseRecordList for the ids
@@ -1943,17 +1980,18 @@ class ORM(object):
                     'sort',
                     ):
                 if getattr(self._columns[field], arg, None) != None:
-                    res[field][arg] = getattr(self._columns[field], arg)
+                    res[field][arg] = copy.copy(getattr(self._columns[field],
+                        arg))
             if not write_access:
                 res[field]['readonly'] = True
                 if res[field].get('states') and \
                         'readonly' in res[field]['states']:
-                    res[field]['states'] = res[field]['states'].copy()
                     del res[field]['states']['readonly']
             for arg in ('digits', 'invisible'):
                 if hasattr(self._columns[field], arg) \
                         and getattr(self._columns[field], arg):
-                    res[field][arg] = getattr(self._columns[field], arg)
+                    res[field][arg] = copy.copy(getattr(self._columns[field],
+                        arg))
             if isinstance(self._columns[field], fields.Function) \
                     and not self._columns[field].order_field:
                 res[field]['sortable'] = False
@@ -1973,7 +2011,7 @@ class ORM(object):
 
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)):
-                    sel = self._columns[field].selection
+                    sel = copy.copy(self._columns[field].selection)
                     if context.get('language') and \
                             ((hasattr(self._columns[field],
                                 'translate_selection') \
@@ -1990,17 +2028,19 @@ class ORM(object):
                     res[field]['selection'] = sel
                 else:
                     # call the 'dynamic selection' function
-                    res[field]['selection'] = self._columns[field].selection
+                    res[field]['selection'] = copy.copy(
+                            self._columns[field].selection)
             if res[field]['type'] in (
                     'one2many',
                     'many2many',
                     'many2one',
                     ):
-                res[field]['relation'] = self._columns[field]._obj
-                res[field]['domain'] = self._columns[field]._domain
-                res[field]['context'] = self._columns[field]._context
+                res[field]['relation'] = copy.copy(self._columns[field]._obj)
+                res[field]['domain'] = copy.copy(self._columns[field]._domain)
+                res[field]['context'] = copy.copy(self._columns[field]._context)
             if res[field]['type'] == 'one2many':
-                res[field]['relation_field'] = self._columns[field]._field
+                res[field]['relation_field'] = copy.copy(
+                        self._columns[field]._field)
 
         if fields_names:
             # filter out fields which aren't in the fields_names list
@@ -2400,13 +2440,14 @@ class ORM(object):
             context=None):
         if context is None:
             context = {}
+
+        for arg in args:
+            if arg[1] not in OPERATORS:
+                raise Exception('ValidateError', 'Argument "%s" not supported' \
+                        % args[i][1])
         i = 0
         joins = []
         while i < len(args):
-            if args[i][1] not in OPERATORS:
-                raise Exception('ValidateError', 'Argument "%s" not supported' \
-                        % args[i][1])
-
             table = self
             fargs = args[i][0].split('.', 1)
             if fargs[0] in self._inherit_fields:
