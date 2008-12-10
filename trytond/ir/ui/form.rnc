@@ -245,7 +245,7 @@ child2 =
   }
 attlist.child2 &= empty
 
-data = element data { attlist.data, xpath+ }
+data = element data { attlist.data, xpath* }
 attlist.data &= empty
 
 xpath = element xpath { attlist.xpath, any }

@@ -2250,47 +2250,60 @@ class ORM(object):
         test = True
         model = True
         sql_res = False
+        inherit_view_id = False
         while test:
             if view_id:
                 where = (model and (" and model='%s'" % (self._name,))) or ''
                 cursor.execute('SELECT arch, field_childs, id, type, ' \
-                            'inherit ' \
+                            'inherit, model ' \
                         'FROM ir_ui_view WHERE id = %s ' + where, (view_id,))
             else:
                 cursor.execute('SELECT arch, field_childs, id, type, ' \
-                        'inherit ' \
+                        'inherit, model ' \
                         'FROM ir_ui_view ' \
-                        'WHERE model = %s AND type = %s AND inherit IS NULL ' \
-                        'ORDER BY priority',
-                        (self._name,view_type))
+                        'WHERE model = %s AND type = %s' \
+                        'ORDER BY inherit DESC, priority',
+                        (self._name, view_type))
             sql_res = cursor.fetchone()
             if not sql_res:
                 break
             test = sql_res[4]
+            if test:
+                inherit_view_id = sql_res[2]
             view_id = test or sql_res[2]
             model = False
 
         # if a view was found
         if sql_res:
             result['type'] = sql_res[3]
-            result['view_id'] = sql_res[2]
+            result['view_id'] = view_id
             result['arch'] = sql_res[0]
+
+            if sql_res[5] != self._name:
+                inherit_obj = self.pool.get(sql_res[5])
+                result['arch'] = inherit_obj.fields_view_get(cursor, user,
+                        result['view_id'], context=context)['arch']
+                view_id = inherit_view_id
 
             def _inherit_apply_rec(result, inherit_id):
                 # get all views which inherit from (ie modify) this view
                 cursor.execute('SELECT arch, domain, id FROM ir_ui_view ' \
-                        'WHERE inherit = %s AND model = %s ' \
-                        'ORDER BY priority', (inherit_id, self._name))
+                        'WHERE (inherit = %s AND model = %s) OR ' \
+                            ' (id = %s AND inherit IS NOT NULL) '
+                        'ORDER BY priority',
+                        (inherit_id, self._name, inherit_id))
                 sql_inherit = cursor.fetchall()
-                for (inherit, domain, view_id) in sql_inherit:
+                for (arch, domain, view_id) in sql_inherit:
                     if domain:
                         if not eval(domain, {'context': context}):
                             continue
-                    result = _inherit_apply(result, inherit)
-                    result = _inherit_apply_rec(result, view_id)
+                    if not arch or not arch.strip():
+                        continue
+                    result = _inherit_apply(result, arch)
+                    #result = _inherit_apply_rec(result, view_id)
                 return result
 
-            result['arch'] = _inherit_apply_rec(result['arch'], sql_res[2])
+            result['arch'] = _inherit_apply_rec(result['arch'], view_id)
 
             result['field_childs'] = sql_res[1] or False
         # otherwise, build some kind of default view
