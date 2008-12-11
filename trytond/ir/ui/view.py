@@ -6,6 +6,7 @@ from difflib import SequenceMatcher
 import os
 import logging
 from lxml import etree
+from trytond.sql_db import table_handler
 
 
 class View(OSV):
@@ -23,7 +24,7 @@ class View(OSV):
         ('calendar', 'Calendar'),
         ('board', 'Board'),
         ], 'View Type', select=1)
-    arch = fields.Text('View Architecture', required=True)
+    arch = fields.Text('View Architecture')
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
             ondelete='CASCADE')
     field_childs = fields.Char('Childs Field', states={
@@ -43,6 +44,17 @@ class View(OSV):
             'invalid_xml': 'Invalid XML for View!',
         })
         self._order.insert(0, ('priority', 'ASC'))
+
+    def _auto_init(self, cursor, module_name):
+        super(View, self)._auto_init(cursor, module_name)
+        table = table_handler(cursor, self._table, self._name, module_name)
+
+        # Migration from 1.0 arch no more required
+        if 'arch' in table.table:
+            if table.table['arch']['notnull']:
+                cursor.execute('ALTER TABLE "' + self._table + '" ' \
+                        'ALTER COLUMN "arch" ' \
+                        'DROP NOT NULL')
 
     def default_arch(self, cursor, user, context=None):
         return '<?xml version="1.0"?>'
@@ -66,16 +78,12 @@ class View(OSV):
             trans_views = {}
             for trans in cursor.dictfetchall():
                 trans_views[trans['src']] = trans
+            if not view.arch:
+                continue
             xml = view.arch.strip()
+            if not xml:
+                continue
             tree = etree.fromstring(xml)
-
-            if view.inherit:
-                if view.model != view.inherit.model:
-                    logger = logging.getLogger('ir')
-                    logger.error('Invalid model "%s" ' \
-                            'with inherited model "%"' % \
-                            (view.model, view.inherit.model))
-                    return False
 
             # validate the tree using RelaxNG
             rng_name = os.path.join(os.path.dirname(__file__),

@@ -27,7 +27,7 @@ class Wizard(Service):
                 self.wiz_datas[wiz_id], action, context)
 
     def create(self, database, user, passwd, wiz_name, datas=None):
-        security.check(database, user, passwd)
+        user = security.check(database, user, passwd)
         Cache.clean(database)
         self.lock.acquire()
         wiz_id = 0
@@ -42,7 +42,7 @@ class Wizard(Service):
         return wiz_id
 
     def execute(self, database, user, passwd, wiz_id, datas, *args):
-        security.check(database, user, passwd)
+        user = security.check(database, user, passwd)
         Cache.clean(database)
         if wiz_id in self.wiz_uid:
             if self.wiz_uid[wiz_id] == user:
@@ -53,7 +53,7 @@ class Wizard(Service):
             raise Exception, 'WizardNotFound'
 
     def delete(self, database, user, passwd, wiz_id):
-        security.check(database, user, passwd)
+        user = security.check(database, user, passwd)
         Cache.clean(database)
         if wiz_id in self.wiz_uid:
             if self.wiz_uid[wiz_id] == user:

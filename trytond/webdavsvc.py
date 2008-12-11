@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 import urlparse
 import socket
 import base64
@@ -6,20 +7,18 @@ import time
 from DAV import AuthServer, WebDAVServer, iface
 from DAV.errors import *
 from DAV.constants import COLLECTION, OBJECT
-from DAV.utils import get_uriparentpath, get_urifilename
+from DAV.utils import get_uriparentpath, get_urifilename, quote_uri
 from DAV.davcmd import copyone, copytree, moveone, movetree, delone, deltree
 from netsvc import LocalService, SSLSocket
 import security
 import pooler
 from version import PACKAGE, VERSION, WEBSITE
-from tools.misc import Cache
+from tools.misc import Cache, LocalDict
+import urllib
 
 # Local int for multi-thread
 import sys
-if sys.version_info[:2] < (2, 4):
-    from threadinglocal import local
-else:
-    from threading import local
+from threading import local
 
 
 class LocalInt(local):
@@ -31,6 +30,7 @@ class LocalInt(local):
         return int(self.value)
 
 USER_ID = LocalInt(0)
+CACHE = LocalDict()
 
 # Fix for bad use of Document in DAV.utils make_xmlresponse
 from DAV.utils import VERSION as DAV_VERSION
@@ -83,7 +83,8 @@ class TrytonDAVInterface(iface.dav_interface):
         collection_obj = pool.get('webdav.collection')
         if uri[-1:] != '/':
             uri += '/'
-        for child in collection_obj.get_childs(cursor, int(USER_ID), dburi):
+        for child in collection_obj.get_childs(cursor, int(USER_ID), dburi,
+                cache=CACHE):
             res.append(urlparse.urljoin(self.baseuri, uri + child))
         cursor.close()
         return res
@@ -103,16 +104,16 @@ class TrytonDAVInterface(iface.dav_interface):
             res += '<ul>'
             if dbname:
                 res += '<li><a href="%s">..</a></li>' \
-                        % (get_uriparentpath(uri) or '/')
+                        % (quote_uri(get_uriparentpath(uri) or '/'))
             childs = self.get_childs(uri)
             childs.sort()
             for child in childs:
                 res += '<li><a href="%s">%s</a></li>' \
-                        % (child, get_urifilename(child))
+                        % (quote_uri(child), get_urifilename(child))
             res += '</ul>'
             res += '<hr noshade>'
             res += '<em>Powered by <a href="%s">%s</a> version %s</em>' \
-                    % (WEBSITE, PACKAGE, VERSION)
+                    % (quote_uri(WEBSITE), PACKAGE, VERSION)
             res += '</body>'
             res += '</html>'
             return res
@@ -120,7 +121,8 @@ class TrytonDAVInterface(iface.dav_interface):
         cursor = pooler.get_db(dbname).cursor()
         collection_obj = pool.get('webdav.collection')
         try:
-            res = collection_obj.get_data(cursor, int(USER_ID), dburi)
+            res = collection_obj.get_data(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
         finally:
             cursor.close()
         return res
@@ -135,7 +137,7 @@ class TrytonDAVInterface(iface.dav_interface):
         try:
             try:
                 res = collection_obj.put(cursor, int(USER_ID), dburi, data,
-                        content_type)
+                        content_type, cache=CACHE)
                 cursor.commit()
             except:
                 cursor.rollback()
@@ -153,7 +155,8 @@ class TrytonDAVInterface(iface.dav_interface):
         collection_obj = pool.get('webdav.collection')
         try:
             try:
-                res = collection_obj.mkcol(cursor, int(USER_ID), dburi)
+                res = collection_obj.mkcol(cursor, int(USER_ID), dburi,
+                        cache=CACHE)
                 cursor.commit()
             except:
                 cursor.rollback()
@@ -169,7 +172,8 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         collection_obj = pool.get('webdav.collection')
-        res = collection_obj.get_resourcetype(cursor, int(USER_ID), dburi)
+        res = collection_obj.get_resourcetype(cursor, int(USER_ID), dburi,
+                cache=CACHE)
         cursor.close()
         return res
 
@@ -183,7 +187,8 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         collection_obj = pool.get('webdav.collection')
-        res = collection_obj.get_contentlength(cursor, int(USER_ID), dburi)
+        res = collection_obj.get_contentlength(cursor, int(USER_ID), dburi,
+                cache=CACHE)
         cursor.close()
         return res
 
@@ -194,7 +199,8 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         collection_obj = pool.get('webdav.collection')
-        res = collection_obj.get_contenttype(cursor, int(USER_ID), dburi)
+        res = collection_obj.get_contenttype(cursor, int(USER_ID), dburi,
+                cache=CACHE)
         cursor.close()
         return res
 
@@ -205,7 +211,8 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         collection_obj = pool.get('webdav.collection')
-        res = collection_obj.get_creationdate(cursor, int(USER_ID), dburi)
+        res = collection_obj.get_creationdate(cursor, int(USER_ID), dburi,
+                cache=CACHE)
         cursor.close()
         return res
 
@@ -216,7 +223,8 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         collection_obj = pool.get('webdav.collection')
-        res = collection_obj.get_lastmodified(cursor, int(USER_ID), dburi)
+        res = collection_obj.get_lastmodified(cursor, int(USER_ID), dburi,
+                cache=CACHE)
         cursor.close()
         return res
 
@@ -229,7 +237,8 @@ class TrytonDAVInterface(iface.dav_interface):
         collection_obj = pool.get('webdav.collection')
         try:
             try:
-                res = collection_obj.rmcol(cursor, int(USER_ID), dburi)
+                res = collection_obj.rmcol(cursor, int(USER_ID), dburi,
+                        cache=CACHE)
                 cursor.commit()
             except:
                 cursor.rollback()
@@ -247,7 +256,8 @@ class TrytonDAVInterface(iface.dav_interface):
         collection_obj = pool.get('webdav.collection')
         try:
             try:
-                res = collection_obj.rm(cursor, int(USER_ID), dburi)
+                res = collection_obj.rm(cursor, int(USER_ID), dburi,
+                        cache=CACHE)
                 cursor.commit()
             except:
                 cursor.rollback()
@@ -263,7 +273,7 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = pooler.get_pool(dbname)
         cursor = pooler.get_db(dbname).cursor()
         collection_obj = pool.get('webdav.collection')
-        res = collection_obj.exists(cursor, int(USER_ID), dburi)
+        res = collection_obj.exists(cursor, int(USER_ID), dburi, cache=CACHE)
         cursor.close()
         return res
 
