@@ -73,6 +73,10 @@ field,"res.user,rule_groups",0,Rules,Rollen,0
 field,"res.user,signature",0,Signature,Signatur,0
 field,"res.user,status_bar",0,Status Bar,Status Anzeige,0
 field,"res.user,timezone",0,Timezone,Zeitzone,0
+field,"res.user.warning,always",0,Always,Immer,0
+field,"res.user.warning,name",0,Name,Name,0
+field,"res.user,warnings",0,Warnings,Warnungen,0
+field,"res.user.warning,user",0,User,Benutzer,0
 field,"res.user,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.user,write_uid",0,Last modification by,Zuletzt geändert von,0
 model,"ir.action,name",act_group_form,Groups,Gruppen,0
@@ -101,7 +105,7 @@ selection,"res.request,state",0,Chatting,Schreibt gerade...,0
 selection,"res.request,state",0,Closed,Geschlossen,0
 selection,"res.request,state",0,Draft,Entwurf,0
 selection,"res.request,state",0,Waiting,Wartend,0
-view,ir.module.module,0,Cancel Installation,Installation abbrechen,0
+view,ir.module.module,0,Cancel Installation,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
 view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
@@ -137,6 +141,8 @@ view,res.user.config.init,0,Add Users,Benutzer hinzufügen,0
 view,res.user.config.init,0,Be careful that the login must be unique!,"WICHTIG - Achten Sie darauf, dass ein Benutzername nicht mehrfach vergeben werden kann.
 (der Benutzername admin wird automatisch angelegt)",0
 view,res.user.config.init,0,You can now add some users into the system.,Sie können nun neue Benutzer der Datenbank hinzufügen,0
+view,res.user.warning,0,Warning,Warnung,0
+view,res.user.warning,0,Warnings,Warnungen,0
 wizard_button,"res.user.config,init,end",0,Cancel,Abbrechen,0
 wizard_button,"res.user.config,init,user",0,Ok,OK,0
 wizard_button,"res.user.config,user,add",0,Add,Hinzufügen,0
