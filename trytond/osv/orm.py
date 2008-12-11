@@ -678,7 +678,7 @@ class ORM(object):
 
     def default_create_uid(self, cursor, user, context=None):
         "Default value for uid field"
-        return user
+        return int(user)
 
     def default_create_date(self, cursor, user, context=None):
         "Default value for create_date field"
