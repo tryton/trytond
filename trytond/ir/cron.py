@@ -72,7 +72,8 @@ class Cron(OSV):
         return 5
 
     def default_user(self, cursor, user, context=None):
-        return user
+        user_obj = self.pool.get('res.user')
+        return user_obj.name_get(cursor, user, user, context=context)[0]
 
     def default_interval_number(self, cursor, user, context=None):
         return 1

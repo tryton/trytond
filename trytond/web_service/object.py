@@ -14,7 +14,7 @@ class Object(Service):
 
     def exec_workflow(self, database, user, session, object_name, method,
             object_id, *args):
-        security.check(database, user, session)
+        user = security.check(database, user, session)
         Cache.clean(database)
         service = LocalService("object_proxy")
         res = service.exec_workflow(database, user, object_name, method,
@@ -23,16 +23,16 @@ class Object(Service):
 
     def execute(self, database, user, session, object_name, method, *args):
         if object_name == 'res.request' and method == 'request_get':
-            security.check(database, user, session, False)
+            user = security.check(database, user, session, False)
         else:
-            security.check(database, user, session)
+            user = security.check(database, user, session)
         Cache.clean(database)
         service = LocalService("object_proxy")
         res = service.execute(database, user, object_name, method, *args)
         return res
 
     def obj_list(self, database, user, session):
-        security.check(database, user, session)
+        user = security.check(database, user, session)
         Cache.clean(database)
         service = LocalService("object_proxy")
         res = service.obj_list()

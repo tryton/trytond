@@ -9,7 +9,7 @@ from trytond.config import CONFIG
 import socket
 import zipfile
 from trytond import pooler
-from threading import Lock
+from threading import Lock, local
 import logging
 try:
     import cStringIO as StringIO
@@ -369,3 +369,104 @@ def mod10r(number):
         if digit.isdigit():
             report = codec[ (int(digit) + report) % 10 ]
     return result + str((10 - report) % 10)
+
+
+class LocalDict(local):
+
+    def __init__(self, dict=None):
+        if dict is None:
+            dict = {}
+        self.dict = dict
+
+    def __str__(self):
+        return str(self.dict)
+
+    def __repr__(self):
+        return str(self.dict)
+
+    def clear(self):
+        return self.dict.clear()
+
+    def keys(self):
+        return self.dict.keys()
+
+    def __setitem__(self, i, y):
+        self.dict.__setitem__(i, y)
+
+    def __getitem__(self, i):
+        return self.dict.__getitem__(i)
+
+    def copy(self):
+        return self.dict.copy()
+
+    def iteritems(self):
+        return self.dict.iteritems()
+
+    def iterkeys(self):
+        return self.dict.iterkeys()
+
+    def itervalues(self):
+        return self.dict.itervalues()
+
+    def pop(self, k, d=None):
+        return self.dict.pop(k, d)
+
+    def popitem(self):
+        return self.dict.popitem()
+
+    def setdefault(self, k, d=None):
+        return self.dict.setdefault(k, d)
+
+    def update(self, E, **F):
+        return self.dict.update(E, F)
+
+    def values(self):
+        return self.dict.values()
+
+    def get(self, k, d=None):
+        return self.dict.get(k, d)
+
+    def has_key(self, k):
+        return self.dict.has_key(k)
+
+    def items(self):
+        return self.dict.items()
+
+    def __cmp__(self, y):
+        return self.dict.__cmp__(y)
+
+    def __contains__(self, k):
+        return self.dict.__contains__(k)
+
+    def __delitem__(self, y):
+        return self.dict.__delitem__(y)
+
+    def __eq__(self, y):
+        return self.dict.__eq__(y)
+
+    def __ge__(self, y):
+        return self.dict.__ge__(y)
+
+    def __getitem__(self, y):
+        return self.dict.__getitem__(y)
+
+    def __gt__(self, y):
+        return self.dict.__gt__(y)
+
+    def __hash__(self):
+        return self.dict.__hash__()
+
+    def __iter__(self):
+        return self.dict.__iter__()
+
+    def __le__(self, y):
+        return self.dict.__le__(y)
+
+    def __len__(self):
+        return self.dict.__len__()
+
+    def __lt__(self, y):
+        return self.dict.__lt__(y)
+
+    def __ne__(self, y):
+        return self.dict.__ne__(y)

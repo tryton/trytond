@@ -1,6 +1,7 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 from psycopg2.pool import ThreadedConnectionPool
-from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE, cursor
+from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE, cursor, AsIs
 from psycopg2 import IntegrityError
 import psycopg2
 import re
@@ -10,6 +11,7 @@ import zipfile
 import version
 from config import CONFIG
 import logging
+from trytond.security import Session
 
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
@@ -208,7 +210,8 @@ def init_db(cursor):
                     (module_id, dependency))
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
-
+psycopg2.extensions.register_adapter(Session,
+        psycopg2.extensions.AsIs)
 
 
 def table_exist(cursor, table_name):
