@@ -150,14 +150,10 @@ class View(OSV):
         return True
 
     def delete(self, cursor, user, ids, context=None):
-
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        views = self.browse(cursor, user, ids, context=context)
-        for view in views:
-            # Restart the cache
+        # Restart the cache
+        for model in self.pool.object_name_list():
             try:
-                self.pool.get(view.model).fields_view_get(cursor.dbname)
+                self.pool.get(model).fields_view_get(cursor.dbname)
             except:
                 pass
         res = super(View, self).delete(cursor, user, ids, context=context)
@@ -165,9 +161,8 @@ class View(OSV):
 
     def create(self, cursor, user, vals, context=None):
         res = super(View, self).create(cursor, user, vals, context=context)
-        if 'model' in vals:
-            model = vals['model']
-            # Restart the cache
+        # Restart the cache
+        for model in self.pool.object_name_list():
             try:
                 self.pool.get(model).fields_view_get(cursor.dbname)
             except:
@@ -175,22 +170,11 @@ class View(OSV):
         return res
 
     def write(self, cursor, user, ids, vals, context=None):
-
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        views = self.browse(cursor, user, ids)
-        for view in views:
-            # Restart the cache
-            try:
-                self.pool.get(view.model).fields_view_get(cursor.dbname)
-            except:
-                pass
         res = super(View, self).write(cursor, user, ids, vals, context=context)
-        views = self.browse(cursor, user, ids)
-        for view in views:
-            # Restart the cache
+        # Restart the cache
+        for model in self.pool.object_name_list():
             try:
-                self.pool.get(view.model).fields_view_get(cursor.dbname)
+                self.pool.get(model).fields_view_get(cursor.dbname)
             except:
                 pass
         return res
