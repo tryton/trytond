@@ -32,7 +32,7 @@
                     <field name="act_from"/>
                     <label name="act_to"/>
                     <field name="act_to"/>
-                    <group colspan="2" col="4">
+                    <group colspan="2" col="4" id="active_ref">
                         <label name="active"/>
                         <field name="active"/>
                         <label name="references"/>
@@ -43,13 +43,13 @@
                     <label name="priority"/>
                     <field name="priority"/>
                     <notebook colspan="6">
-                        <page string="_Request">
+                        <page string="Request" id="request">
                             <separator name="body" colspan="4"/>
                             <field name="body" colspan="4"/>
                             <field name="history" colspan="4"/>
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
-                            <group col="2" colspan="2">
+                            <group col="2" colspan="2" id="buttons">
                                 <button name="request_send"
                                     states="{'invisible': '''state not in ('draft', 'chatting')''', 'readonly': '''act_from != _user'''}"
                                     string="Send" type="object"/>
@@ -59,13 +59,13 @@
                             </group>
                             <label name="state"/>
                             <field name="state"/>
-                            <group col="3" colspan="2">
+                            <group col="3" colspan="2" id="button">
                                 <button name="request_close"
                                     states="{'invisible': '''state not in ('waiting', 'draft', 'chatting')'''}"
                                     string="Close" type="object"/>
                             </group>
                         </page>
-                        <page string="_References" col="1">
+                        <page string="References" col="1" id="references">
                             <field name="references"/>
                         </page>
                     </notebook>

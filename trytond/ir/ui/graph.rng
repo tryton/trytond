@@ -134,7 +134,13 @@
   <define name="xpath">
     <element name="xpath">
       <ref name="attlist.xpath"/>
-      <ref name="any"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="graph"/>
+          <ref name="x"/>
+          <ref name="y"/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
   <define name="attlist.xpath" combine="interleave">
@@ -158,20 +164,4 @@
       <ref name="graph"/>
     </choice>
   </start>
-  <define name="any">
-    <zeroOrMore>
-      <choice>
-        <element>
-          <anyName/>
-          <zeroOrMore>
-            <attribute>
-              <anyName/>
-            </attribute>
-          </zeroOrMore>
-          <ref name="any"/>
-        </element>
-        <text/>
-      </choice>
-    </zeroOrMore>
-  </define>
 </grammar>

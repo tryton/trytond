@@ -50,7 +50,7 @@ attlist.y &= empty
 
 label = element label { attlist.label, empty }
 attlist.label &= [ a:defaultValue = "" ] attribute string { text }?
-attlist.label &= attribute name { text }?
+attlist.label &= ( attribute name { text } | attribute id { text } )
 attlist.label &= attribute states { text }?
 attlist.label &= [ a:defaultValue = "0.0" ] attribute align { text }?
 attlist.label &=
@@ -122,7 +122,7 @@ attlist.field &=
     | "right_to_left"
     | "bottom_to_top"
     | "top_to_bottom"
-  }
+  }?
 attlist.field &= attribute spell { text }?
 image = element image { attlist.image, empty }
 attlist.image &= attribute name { text }
@@ -134,7 +134,7 @@ attlist.image &= attribute help { text }?
 attlist.image &= attribute states { text }?
 separator = element separator { attlist.separator, empty }
 attlist.separator &= [ a:defaultValue = "" ] attribute string { text }?
-attlist.separator &= attribute name { text }?
+attlist.separator &= ( attribute name { text } | attribute id { text} )
 attlist.separator &= attribute states { text }?
 attlist.separator &=
   [ a:defaultValue = "0.0" ] attribute align { text }?
@@ -181,7 +181,7 @@ attlist.page &= attribute angle { text }?
 attlist.page &=
   [ a:defaultValue = "Unknown" ] attribute string { text }?
 attlist.page &= [ a:defaultValue = "4" ] attribute col { text }?
-attlist.page &= attribute name { text }?
+attlist.page &= ( attribute name { text } | attribute id { text } )
 attlist.page &= attribute states { text }?
 group =
   element group {
@@ -204,18 +204,19 @@ attlist.group &=
 attlist.group &= [ a:defaultValue = "1" ] attribute fill { "0" | "1" }?
 attlist.group &= [ a:defaultValue = "1" ] attribute rowspan { text }?
 attlist.group &= [ a:defaultValue = "4" ] attribute col { text }?
+attlist.group &= ( attribute name { text } | attribute id { text } )
 
-hpaned = element hpaned { attlist.hpaned, child1?, child2? }
-attlist.hpaned &= [ a:defaultValue = "4" ] attribute colspan { text }?
-attlist.hpaned &= attribute position { text }?
+hpaned = element hpaned { attlist.paned, child1?, child2? }
 
-vpaned = element vpaned { attlist.vpaned, child1?, child2? }
-attlist.vpaned &= [ a:defaultValue = "4" ] attribute colspan { text }?
-attlist.vpaned &= attribute position { text }?
+vpaned = element vpaned { attlist.paned, child1?, child2? }
+
+attlist.paned &= [ a:defaultValue = "4" ] attribute colspan { text }?
+attlist.paned &= attribute position { text }?
+attlist.paned &= attribute id { text }
 
 child1 =
   element child1 {
-    attlist.child1,
+    attlist.child,
     (label
      | field
      | image
@@ -227,11 +228,10 @@ child1 =
      | hpaned
      | vpaned)*
   }
-attlist.child1 &= empty
 
 child2 =
   element child2 {
-    attlist.child2,
+    attlist.child,
     (label
      | field
      | image
@@ -243,21 +243,35 @@ child2 =
      | hpaned
      | vpaned)*
   }
-attlist.child2 &= empty
+
+attlist.child &= attribute id { text }
 
 data = element data { attlist.data, xpath* }
 attlist.data &= empty
 
-xpath = element xpath { attlist.xpath, any }
+xpath = element xpath { attlist.xpath,
+    (label
+    | field
+    | image
+    | separator
+    | newline
+    | button
+    | notebook
+    | group
+    | hpaned
+    | vpaned
+    | form
+    | tree
+    | graph
+    | x
+    | y
+    | page
+    | child1
+    | child2)*
+  }
 attlist.xpath &= attribute expr { text }
 attlist.xpath &=
   [ a:defaultValue = "inside" ]
   attribute position { "inside" | "replace" | "after" | "before" }?
 
-any =
-  (element * {
-     attribute * { text }*,
-     any
-   }
-   | text)*
 start = data | form
