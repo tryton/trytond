@@ -405,16 +405,10 @@ class ActionActWindowView(OSV):
             ondelete='CASCADE')
     act_window = fields.Many2One('ir.action.act_window', 'Action',
             ondelete='CASCADE')
-    multi = fields.Boolean('On multiple doc.',
-            help="If set to true, the action will not be displayed \n" \
-                    "on the bottom toolbar of a form views.")
 
     def __init__(self):
         super(ActionActWindowView, self).__init__()
         self._order.insert(0, ('sequence', 'ASC'))
-
-    def default_multi(self, cursor, user, context=None):
-        return False
 
 ActionActWindowView()
 
