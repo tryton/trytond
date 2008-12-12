@@ -162,14 +162,29 @@ class User(OSV):
                     limit=limit, context=context)
         return self.name_get(cursor, user, ids, context=context)
 
-    def copy(self, cursor, user, obj_id, default=None, context=None):
+    def copy(self, cursor, user, ids, default=None, context=None):
         if default is None:
             default = {}
-        login = self.read(cursor, user, obj_id, ['login'])['login']
-        default.update({'login': login+' (copy)'})
-        default.update({'password': ''})
-        return super(User, self).copy(cursor, user, obj_id, default,
+        default = default.copy()
+
+        int_id = False
+        if isinstance(ids, (int, long)):
+            int_id = True
+            ids = [ids]
+
+        default['password'] = ''
+
+        new_ids = []
+        user_id = user
+        for user in self.browse(cursor, user_id, ids, context=context):
+            default['login'] = user.login + ' (copy)'
+            new_id = super(User, self).copy(cursor, user_id, user.id, default,
                 context=context)
+            new_ids.append(new_id)
+
+        if int_id:
+            return new_ids[0]
+        return new_ids
 
     def get_preferences(self, cursor, user, context_only=False, context=None):
         res = {}
