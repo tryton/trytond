@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
         <menuitem name="Scheduler" parent="menu_administration"
@@ -51,7 +52,8 @@
                     <field name="nextcall"/>
                     <label name="doall"/>
                     <field name="doall"/>
-                    <separator string="Action to trigger" colspan="6"/>
+                    <separator string="Action to trigger" colspan="6"
+                        id="action_trigger"/>
                     <label name="model"/>
                     <field name="model"  readonly="1"/>
                     <label name="function"/>

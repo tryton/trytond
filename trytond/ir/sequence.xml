@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
         <menuitem name="Sequences" parent="menu_administration"
@@ -27,13 +28,14 @@
                     <field name="number_increment"/>
                     <label name="number_next"/>
                     <field name="number_next"/>
-                    <separator string="Legend (for prefix, suffix)" colspan="4"/>
-                    <label string="Year:"/>
-                    <label string="${year}" colspan="3" align="0.0"/>
-                    <label string="Month:"/>
-                    <label string="${month}" colspan="3" align="0.0"/>
-                    <label string="Day:"/>
-                    <label string="${day}" colspan="3" align="0.0"/>
+                    <separator string="Legend (for prefix, suffix)" colspan="4"
+                        id="legend"/>
+                    <label string="Year:" id="label_year"/>
+                    <label string="${year}" colspan="3" align="0.0" id="year"/>
+                    <label string="Month:" id="label_month"/>
+                    <label string="${month}" colspan="3" align="0.0" id="month"/>
+                    <label string="Day:" id="label_day"/>
+                    <label string="${day}" colspan="3" align="0.0" id="day"/>
                 </form>
                 ]]>
             </field>

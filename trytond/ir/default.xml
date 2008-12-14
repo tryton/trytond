@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
         <record model="ir.ui.view" id="default_view_form">
@@ -14,7 +15,7 @@
                     <field name="field"/>
                     <label name="user"/>
                     <field name="user"/>
-                    <group col="2" colspan="6" expand="1">
+                    <group col="2" colspan="6" expand="1" id="value_clause">
                         <separator name="value"/>
                         <separator name="clause"/>
                         <field name="value"/>

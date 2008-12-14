@@ -7,7 +7,7 @@
         <choice>
           <ref name="image"/>
           <ref name="separator"/>
-          <ref name="labe"/>
+          <ref name="label"/>
           <ref name="newline"/>
           <ref name="notebook"/>
           <ref name="group"/>
@@ -84,9 +84,10 @@
     </optional>
   </define>
   <define name="attlist.separator" combine="interleave">
-    <optional>
+    <choice>
       <attribute name="name"/>
-    </optional>
+      <attribute name="name"/>
+    </choice>
   </define>
   <define name="attlist.separator" combine="interleave">
     <optional>
@@ -140,9 +141,10 @@
     </optional>
   </define>
   <define name="attlist.label" combine="interleave">
-    <optional>
+    <choice>
       <attribute name="name"/>
-    </optional>
+      <attribute name="name"/>
+    </choice>
   </define>
   <define name="attlist.label" combine="interleave">
     <optional>
@@ -211,7 +213,7 @@
     </element>
   </define>
   <define name="attlist.newline" combine="interleave">
-    <empty/>
+    <attribute name="id"/>
   </define>
   <define name="notebook">
     <element name="notebook">
@@ -245,7 +247,7 @@
         <choice>
           <ref name="image"/>
           <ref name="separator"/>
-          <ref name="labe"/>
+          <ref name="label"/>
           <ref name="newline"/>
           <ref name="notebook"/>
           <ref name="group"/>
@@ -271,6 +273,12 @@
       <attribute name="col" a:defaultValue="4"/>
     </optional>
   </define>
+  <define name="attlist.page" combine="interleave">
+    <choice>
+      <attribute name="name"/>
+      <attribute name="id"/>
+    </choice>
+  </define>
   <define name="group">
     <element name="group">
       <ref name="attlist.group"/>
@@ -278,7 +286,7 @@
         <choice>
           <ref name="image"/>
           <ref name="separator"/>
-          <ref name="labe"/>
+          <ref name="label"/>
           <ref name="newline"/>
           <ref name="notebook"/>
           <ref name="group"/>
@@ -329,9 +337,12 @@
       <attribute name="col" a:defaultValue="4"/>
     </optional>
   </define>
+  <define name="attlist.group" combine="interleave">
+    <attribute name="id"/>
+  </define>
   <define name="hpaned">
     <element name="hpaned">
-      <ref name="attlist.hpaned"/>
+      <ref name="attlist.paned"/>
       <optional>
         <ref name="child1"/>
       </optional>
@@ -339,20 +350,10 @@
         <ref name="child2"/>
       </optional>
     </element>
-  </define>
-  <define name="attlist.hpaned" combine="interleave">
-    <optional>
-      <attribute name="colspan" a:defaultValue="4"/>
-    </optional>
-  </define>
-  <define name="attlist.hpaned" combine="interleave">
-    <optional>
-      <attribute name="position"/>
-    </optional>
   </define>
   <define name="vpaned">
     <element name="vpaned">
-      <ref name="attlist.vpaned"/>
+      <ref name="attlist.paned"/>
       <optional>
         <ref name="child1"/>
       </optional>
@@ -361,24 +362,27 @@
       </optional>
     </element>
   </define>
-  <define name="attlist.vpaned" combine="interleave">
+  <define name="attlist.paned" combine="interleave">
     <optional>
       <attribute name="colspan" a:defaultValue="4"/>
     </optional>
   </define>
-  <define name="attlist.vpaned" combine="interleave">
+  <define name="attlist.paned" combine="interleave">
     <optional>
       <attribute name="position"/>
     </optional>
   </define>
+  <define name="attlist.paned" combine="interleave">
+    <attribute name="id"/>
+  </define>
   <define name="child1">
     <element name="child1">
-      <ref name="attlist.child1"/>
+      <ref name="attlist.child"/>
       <zeroOrMore>
         <choice>
           <ref name="image"/>
           <ref name="separator"/>
-          <ref name="labe"/>
+          <ref name="label"/>
           <ref name="newline"/>
           <ref name="notebook"/>
           <ref name="group"/>
@@ -388,18 +392,15 @@
         </choice>
       </zeroOrMore>
     </element>
-  </define>
-  <define name="attlist.child1" combine="interleave">
-    <empty/>
   </define>
   <define name="child2">
     <element name="child2">
-      <ref name="attlist.child2"/>
+      <ref name="attlist.child"/>
       <zeroOrMore>
         <choice>
           <ref name="image"/>
           <ref name="separator"/>
-          <ref name="labe"/>
+          <ref name="label"/>
           <ref name="newline"/>
           <ref name="notebook"/>
           <ref name="group"/>
@@ -410,8 +411,8 @@
       </zeroOrMore>
     </element>
   </define>
-  <define name="attlist.child2" combine="interleave">
-    <empty/>
+  <define name="attlist.child" combine="interleave">
+    <attribute name="id"/>
   </define>
   <define name="data">
     <element name="data">
@@ -427,7 +428,22 @@
   <define name="xpath">
     <element name="xpath">
       <ref name="attlist.xpath"/>
-      <ref name="any"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="image"/>
+          <ref name="separator"/>
+          <ref name="label"/>
+          <ref name="newline"/>
+          <ref name="notebook"/>
+          <ref name="group"/>
+          <ref name="hpaned"/>
+          <ref name="vpaned"/>
+          <ref name="action"/>
+          <ref name="page"/>
+          <ref name="child1"/>
+          <ref name="child2"/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
   <define name="attlist.xpath" combine="interleave">
@@ -448,7 +464,7 @@
   <define name="action" combine="choice">
     <notAllowed/>
   </define>
-  <define name="labe" combine="choice">
+  <define name="label" combine="choice">
     <notAllowed/>
   </define>
   <start>
@@ -458,20 +474,4 @@
       <ref name="label"/>
     </choice>
   </start>
-  <define name="any">
-    <zeroOrMore>
-      <choice>
-        <element>
-          <anyName/>
-          <zeroOrMore>
-            <attribute>
-              <anyName/>
-            </attribute>
-          </zeroOrMore>
-          <ref name="any"/>
-        </element>
-        <text/>
-      </choice>
-    </zeroOrMore>
-  </define>
 </grammar>

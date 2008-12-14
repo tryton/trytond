@@ -69,10 +69,10 @@
                     <field name="direction"/>
                     <label name="translatable"/>
                     <field name="translatable"/>
-                    <separator string="Date Formatting" colspan="6"/>
+                    <separator string="Date Formatting" colspan="6" id="date"/>
                     <label name="date"/>
                     <field name="date"/>
-                    <separator string="Numbers Formatting" colspan="6"/>
+                    <separator string="Numbers Formatting" colspan="6" id="number"/>
                     <label name="grouping"/>
                     <field name="grouping"/>
                     <label name="thousands_sep"/>

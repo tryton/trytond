@@ -22,7 +22,7 @@ this repository contains the full copyright notices and license terms. -->
                     <label name="active"/>
                     <field name="active"/>
                     <notebook colspan="4">
-                        <page string="User">
+                        <page string="User" id="user">
                             <label name="login"/>
                             <field name="login"/>
                             <label name="password"/>
@@ -38,13 +38,13 @@ this repository contains the full copyright notices and license terms. -->
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
                         </page>
-                        <page string="Security" col="1">
+                        <page string="Security" col="1" id="security">
                             <separator name="groups"/>
                             <field name="groups"/>
                             <separator name="rule_groups"/>
                             <field name="rule_groups"/>
                         </page>
-                        <page string="Preferences" col="2">
+                        <page string="Preferences" col="2" id="preferences">
                             <label name="language"/>
                             <field name="language" widget="selection"/>
                             <label name="timezone"/>
@@ -110,11 +110,11 @@ this repository contains the full copyright notices and license terms. -->
                 <![CDATA[
                 <form string="Add Users" col="2">
                     <image name="tryton-dialog-information"/>
-                    <group col="1">
+                    <group col="1" id="labels">
                         <label string="You can now add some users into the system."
-                            align="0.0"/>
+                            align="0.0" id="add"/>
                         <label string="Be careful that the login must be unique!"
-                            align="0.0"/>
+                            align="0.0" id="carefull"/>
                     </group>
                 </form>
                 ]]>
