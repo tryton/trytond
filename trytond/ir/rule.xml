@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms. -->
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
         <record model="ir.ui.view" id="rule_group_view_form">
@@ -18,9 +19,9 @@
                     <field name="name" colspan="5"/>
                     <field name="rules" colspan="6"/>
                     <label string="The rule is satisfied if at least one test is True"
-                        colspan="6" align="0.0"/>
+                        colspan="6" align="0.0" id="satisfied"/>
                     <label string="If there is no test defined, the rule is always satified if not global"
-                        colspan="6" align="0.0"/>
+                        colspan="6" align="0.0" id="no_test"/>
                 </form>
                 ]]>
             </field>

@@ -442,7 +442,8 @@ class ORM(object):
             if hasattr(field, 'selection') \
                     and isinstance(field.selection, (tuple, list)) \
                     and ((hasattr(field, 'translate_selection') \
-                        and field.translate_selection) or True):
+                        and field.translate_selection)
+                        or not hasattr(field, 'translate_selection')):
                 for (key, val) in field.selection:
                     if trans_name not in trans_selection \
                             or val not in trans_selection[trans_name]:
@@ -1955,7 +1956,8 @@ class ORM(object):
                             and ((hasattr(self._columns[field],
                                 'translate_selection') \
                                 and self._columns[field].translate_selection) \
-                                or True):
+                                or not hasattr(self._columns[field],
+                                    'translate_selection')):
                         sel = self._columns[field].selection
                         for (key, val) in sel:
                             trans_args.append((self._name + ',' + field,
@@ -2016,7 +2018,8 @@ class ORM(object):
                             ((hasattr(self._columns[field],
                                 'translate_selection') \
                                 and self._columns[field].translate_selection) \
-                                or True):
+                                or not hasattr(self._columns[field],
+                                    'translate_selection')):
                         # translate each selection option
                         sel2 = []
                         for (key, val) in sel:

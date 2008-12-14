@@ -224,7 +224,7 @@ class Translation(OSV, Cacheable):
                     'WHERE lang = %s ' \
                         'AND type = %s ' \
                         'AND name = %s ' \
-                        'AND src = %s' \
+                        'AND src = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
                         'AND fuzzy = false ',
@@ -234,7 +234,7 @@ class Translation(OSV, Cacheable):
                     'FROM ir_translation ' \
                     'WHERE lang = %s ' \
                         'AND type = %s ' \
-                        'AND name = %s' \
+                        'AND name = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
                         'AND fuzzy = false ',
@@ -267,6 +267,7 @@ class Translation(OSV, Cacheable):
                 res[(name, ttype, lang, source)] = trans
             else:
                 res[(name, ttype, lang, source)] = False
+                self.add(cursor, (lang, ttype, name, source), False)
                 if clause:
                     clause += ' OR '
                 if source:

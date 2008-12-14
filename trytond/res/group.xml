@@ -18,11 +18,11 @@ this repository contains the full copyright notices and license terms. -->
                     <label name="name"/>
                     <field name="name"/>
                     <notebook>
-                        <page string="_Group" col="2">
+                        <page string="Group" col="2" id="group">
                             <separator name="users" colspan="2"/>
                             <field name="users" colspan="2"/>
                         </page>
-                        <page string="_Security" col="1">
+                        <page string="Security" col="1" id="security">
                             <separator name="model_access"/>
                             <field name="model_access"/>
                             <separator name="menu_access"/>
