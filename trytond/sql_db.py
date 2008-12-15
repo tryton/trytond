@@ -60,7 +60,10 @@ class FakeCursor(object):
         self.dbname = dbname
         self.sql_from_log = {}
         self.sql_into_log = {}
-        self.count = 0
+        self.count = {
+            'from': 0,
+            'into': 0,
+        }
 
     def execute(self, sql, params=None):
         if not params:
@@ -73,17 +76,18 @@ class FakeCursor(object):
         else:
             res = self.cursor.execute(sql)
         if self.sql_log:
-            self.count += 1
             res_from = RE_FROM.match(sql.lower())
             if res_from:
                 self.sql_from_log.setdefault(res_from.group(1), [0, 0])
                 self.sql_from_log[res_from.group(1)][0] += 1
                 self.sql_from_log[res_from.group(1)][1] += mdt.now() - now
+                self.count['from'] += 1
             res_into = RE_INTO.match(sql.lower())
             if res_into:
                 self.sql_into_log.setdefault(res_into.group(1), [0, 0])
                 self.sql_into_log[res_into.group(1)][0] += 1
                 self.sql_into_log[res_into.group(1)][1] += mdt.now() - now
+                self.count['into'] += 1
         return res
 
     def print_log(self, sql_type='from'):
@@ -97,7 +101,7 @@ class FakeCursor(object):
         for log in logs:
             print "table:", log[0], ":", str(log[1][1]), "/", log[1][0]
             amount += log[1][1]
-        print "SUM:%s/%d"% (amount, self.count)
+        print "SUM:%s/%d"% (amount, self.count[sql_type])
 
     def close(self):
         if self.sql_log:
