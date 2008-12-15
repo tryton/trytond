@@ -136,7 +136,7 @@ class BrowseRecord(object):
                         self._table._inherit_fields.items()]
                 # complete the field list with the inherited fields
                 # which are classic or many2one
-                ffields += [x for x in inherits if x[1]._classic_write] \
+                ffields += [x for x in inherits if x[1]._classic_write \
                         and not x[1].translate]
             # otherwise we fetch only that field
             else:
