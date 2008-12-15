@@ -83,6 +83,8 @@
                     <field name="style"/>
                     <label name="direct_print"/>
                     <field name="direct_print"/>
+                    <label name="email"/>
+                    <field name="email" colspan="5"/>
                     <field name="keywords" colspan="8">
                         <tree string="Keywords">
                             <field name="keyword"/>
