@@ -126,17 +126,18 @@ class BrowseRecord(object):
 
             # if the field is a classic one or a many2one,
             # we'll fetch all classic and many2one fields
-            if col._classic_write:
+            if col._classic_write and not col.translate:
                 # gen the list of "local" (ie not inherited)
                 # fields which are classic or many2one
                 ffields = [x for x in self._table._columns.items() \
-                        if x[1]._classic_write]
+                        if x[1]._classic_write and not x[1].translate]
                 # gen the list of inherited fields
                 inherits = [(x[0], x[1][2]) for x in \
                         self._table._inherit_fields.items()]
                 # complete the field list with the inherited fields
                 # which are classic or many2one
-                ffields += [x for x in inherits if x[1]._classic_write]
+                ffields += [x for x in inherits if x[1]._classic_write \
+                        and not x[1].translate]
             # otherwise we fetch only that field
             else:
                 ffields = [(name, col)]

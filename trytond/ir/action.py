@@ -227,6 +227,7 @@ class ActionReport(OSV):
     output_format = fields.Many2One('ir.action.report.outputformat',
             'Output format', required=True)
     module = fields.Char('Module', readonly=True)
+    email = fields.Char('Email')
 
     def __init__(self):
         super(ActionReport, self).__init__()
