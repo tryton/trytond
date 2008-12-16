@@ -1,3 +1,4 @@
+* Add email paramter on report action
 * Allow to inherit views from an other model
 * Add user warnings
 * Allow to use a list of id for copy method
