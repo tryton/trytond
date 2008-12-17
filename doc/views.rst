@@ -430,7 +430,7 @@ xpath
 
     * ``expr``: the xpath expression to find a node in the inherited view.
 
-    * ``position``: Define the position from the finded node, it can be ``before``, ``after``, ``replace``, ``inside``.
+    * ``position``: Define the position from the finded node, it can be ``before``, ``after``, ``replace``, ``inside`` or ``replace_attributes`` which will change the attributes.
 
 Example
 +++++++

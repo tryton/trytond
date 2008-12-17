@@ -442,6 +442,7 @@
           <ref name="page"/>
           <ref name="child1"/>
           <ref name="child2"/>
+          <ref name="board"/>
         </choice>
       </zeroOrMore>
     </element>
@@ -455,6 +456,7 @@
         <choice>
           <value>inside</value>
           <value>replace</value>
+          <value>replace_attributes</value>
           <value>after</value>
           <value>before</value>
         </choice>
