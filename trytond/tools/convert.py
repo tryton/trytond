@@ -291,17 +291,27 @@ class Fs2bdAccessor:
     Provide some helper function to ease cache access and management.
     """
 
-    def __init__(self, cursor, user, modeldata_obj):
+    def __init__(self, cursor, user, modeldata_obj, pool):
         self.fs2db = {}
         self.fetched_modules = []
         self.modeldata_obj = modeldata_obj
         self.cursor = cursor
         self.user = user
+        self.browserecord = {}
+        self.pool = pool
 
     def get(self, module, fs_id):
         if module not in self.fetched_modules:
             self.fetch_new_module(module)
         return self.fs2db[module].get(fs_id, None)
+
+    def get_browserecord(self, module, model_name, db_id):
+        if module not in self.fetched_modules:
+            self.fetch_new_module(module)
+        if model_name in self.browserecord[module] \
+                and db_id in self.browserecord[module][model_name]:
+            return self.browserecord[module][model_name][db_id]
+        return None
 
     def set(self, module, fs_id, values):
         """
@@ -316,6 +326,23 @@ class Fs2bdAccessor:
         for key, val in values.items():
             fs2db_val[key] = val
 
+    def reset_browsercord(self, module, model_name, ids=None):
+        if module not in self.fetched_modules:
+            return
+        if model_name not in self.browserecord[module]:
+            return
+        model_obj = self.pool.get(model_name)
+        if not ids:
+            object_ids = self.browserecord[module][model_name].keys()
+        else:
+            if isinstance(ids, (int, long)):
+                object_ids = [ids]
+            else:
+                object_ids = ids
+        models = model_obj.browse(self.cursor, self.user, object_ids)
+        for model in models:
+            self.browserecord[module][model_name][model.id] = model
+
     def fetch_new_module(self, module):
         if module == "ir.ui.menu": raise
         self.fs2db[module] = {}
@@ -324,12 +351,27 @@ class Fs2bdAccessor:
                 ('module', '=', module),
                 ('inherit', '=', False),
                 ])
+
+        record_ids = {}
         for rec in self.modeldata_obj.browse(
                 self.cursor, self.user, module_data_ids):
             self.fs2db[rec.module][rec.fs_id] = {
                 "db_id": rec.db_id, "model": rec.model,
                 "id": rec.id, "values": rec.values
                 }
+            record_ids.setdefault(rec.model, [])
+            record_ids[rec.model].append(rec.db_id)
+
+        self.browserecord[module] = {}
+        for model_name in record_ids.keys():
+            model_obj = self.pool.get(model_name)
+            self.browserecord[module][model_name] = {}
+            ids = model_obj.search(self.cursor, self.user, [
+                ('id', 'in', record_ids[model_name]),
+                ], context={'active_test': False})
+            models = model_obj.browse(self.cursor, self.user, ids)
+            for model in models:
+                self.browserecord[module][model_name][model.id] = model
         self.fetched_modules.append(module)
 
 
@@ -343,7 +385,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.user = 0
         self.module = module
         self.modeldata_obj = pool.get('ir.model.data')
-        self.fs2db = Fs2bdAccessor(cursor, self.user, self.modeldata_obj)
+        self.fs2db = Fs2bdAccessor(cursor, self.user, self.modeldata_obj, pool)
         self.to_delete = self.populate_to_delete()
 
         # Tag handlders are used to delegate the processing
@@ -541,8 +583,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 "data with the wrong model: %s (module: %s)" % (fs_id, module))
 
             #Re-create object if it was deleted
-            if not object_ref.search(cursor, user, [('id', '=', db_id)],
-                    context={'active_test': False}):
+            if not self.fs2db.get_browserecord(module, object_ref._name, db_id):
                 db_id = object_ref.create(cursor, user, values,
                         context={'module': module})
 
@@ -563,13 +604,28 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                 object_ref._inherit_fields[field_name][0])._name
                         res_id = inherit_db_ids[table_name]
                     if field.translate and values.get(field_name):
-                        cursor.execute('INSERT INTO ir_translation ' \
-                                '(name, lang, type, src, res_id, ' \
-                                    'value, module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                        cursor.execute('SELECT id FROM ir_translation ' \
+                                'WHERE name = %s ' \
+                                    'AND lang = %s ' \
+                                    'AND type = %s ' \
+                                    'AND res_id = %s ' \
+                                    'AND module = %s',
                                 (table_name + ',' + field_name,
-                                    'en_US', 'model', values[field_name],
-                                    res_id, '', module))
+                                    'en_US', 'model', res_id, module))
+                        if cursor.rowcount:
+                            trans_id = cursor.fetchone()[0]
+                            cursor.execute('UPDATE ir_translation ' \
+                                    'SET src = %s, module = %s ' \
+                                    'WHERE id = %s',
+                                    (values[field_name], module, trans_id))
+                        else:
+                            cursor.execute('INSERT INTO ir_translation ' \
+                                    '(name, lang, type, src, res_id, ' \
+                                        'value, module, fuzzy) ' \
+                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                    (table_name + ',' + field_name,
+                                        'en_US', 'model', values[field_name],
+                                        res_id, '', module))
 
                 for table in inherit_db_ids.keys():
                     data_id = self.modeldata_obj.search(cursor, user, [
@@ -602,7 +658,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     })
                 self.fs2db.get(module, fs_id)["db_id"] = db_id
 
-            db_val = object_ref.browse(cursor, user, db_id)
+            db_val = self.fs2db.get_browserecord(module, object_ref._name, db_id)
+            if not db_val:
+                db_val = object_ref.browse(cursor, user, db_id)
 
             to_update = {}
             for key in values:
@@ -650,6 +708,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # write the values in the db:
                 object_ref.write(cursor, user, db_id, to_update,
                         context={'module': module})
+                self.fs2db.reset_browsercord(module, object_ref._name, db_id)
 
 
             if not inherit_db_ids:
@@ -667,45 +726,50 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     inherit_mdata_ids.append((table, data_id))
 
             #Update/Create translation record for field translatable
-            for field_name in object_ref._columns.keys() + \
-                    object_ref._inherit_fields.keys():
-                if field_name in object_ref._columns:
-                    field = object_ref._columns[field_name]
-                    table_name = object_ref._name
-                    res_id = db_id
-                else:
-                    field = object_ref._inherit_fields[field_name][2]
-                    table_name = self.pool.get(
-                            object_ref._inherit_fields[field_name][0])._name
-                    res_id = inherit_db_ids[table_name]
-                if field.translate:
-                    cursor.execute('SELECT id FROM ir_translation ' \
-                            'WHERE name = %s' \
-                                'AND lang = %s ' \
-                                'AND type = %s ' \
-                                'AND res_id = %s',
-                            (table_name + ',' + field_name,
-                                'en_US', 'model', res_id))
-                    if cursor.rowcount:
-                        if to_update.get(field_name):
-                            trans_id = cursor.fetchone()[0]
-                            cursor.execute('UPDATE ir_translation ' \
-                                    'SET src = %s, module = %s ' \
-                                    'WHERE id = %s',
-                                    (to_update[field_name], module, trans_id))
-                    elif values.get(field_name):
-                        cursor.execute('INSERT INTO ir_translation ' \
-                                '(name, lang, type, src, res_id, ' \
-                                    'value, module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+            if to_update:
+                for field_name in object_ref._columns.keys() + \
+                        object_ref._inherit_fields.keys():
+                    if field_name in object_ref._columns:
+                        field = object_ref._columns[field_name]
+                        table_name = object_ref._name
+                        res_id = db_id
+                    else:
+                        field = object_ref._inherit_fields[field_name][2]
+                        table_name = self.pool.get(
+                                object_ref._inherit_fields[field_name][0])._name
+                        res_id = inherit_db_ids[table_name]
+                    if field.translate:
+                        cursor.execute('SELECT id FROM ir_translation ' \
+                                'WHERE name = %s ' \
+                                    'AND lang = %s ' \
+                                    'AND type = %s ' \
+                                    'AND res_id = %s ' \
+                                    'AND module = %s',
                                 (table_name + ',' + field_name,
-                                    'en_US', 'model', values[field_name],
-                                    res_id, '', module))
+                                    'en_US', 'model', res_id, module))
+                        if cursor.rowcount:
+                            if to_update.get(field_name):
+                                trans_id = cursor.fetchone()[0]
+                                cursor.execute('UPDATE ir_translation ' \
+                                        'SET src = %s, module = %s ' \
+                                        'WHERE id = %s',
+                                        (to_update[field_name], module, trans_id))
+                        elif values.get(field_name):
+                            cursor.execute('INSERT INTO ir_translation ' \
+                                    '(name, lang, type, src, res_id, ' \
+                                        'value, module, fuzzy) ' \
+                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                    (table_name + ',' + field_name,
+                                        'en_US', 'model', values[field_name],
+                                        res_id, '', module))
 
             if to_update:
                 # re-read it: this ensure that we store the real value
                 # in the model_data table:
-                db_val = object_ref.browse(cursor, user, db_id)
+                db_val = self.fs2db.get_browserecord(module, object_ref._name,
+                        db_id)
+                if not db_val:
+                    db_val = object_ref.browse(cursor, user, db_id)
                 for key in to_update:
                     try:
                         values[key] = self._clean_value(

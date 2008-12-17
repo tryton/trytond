@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 # -*- coding: utf-8 -*-
 """
 Miscelleanous tools used by tryton
@@ -27,7 +28,7 @@ def find_in_path(name):
         val = os.path.join(directory, name)
         if os.path.isfile(val) or os.path.islink(val):
             return val
-    return None
+    return name
 
 def find_pg_tool(name):
     if CONFIG['pg_path'] and CONFIG['pg_path'] != 'None':
