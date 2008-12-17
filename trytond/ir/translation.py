@@ -227,7 +227,7 @@ class Translation(OSV, Cacheable):
                         'AND src = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
-                        'AND fuzzy = false ',
+                        'AND fuzzy = false',
                     (lang, ttype, str(name), source))
         else:
             cursor.execute('SELECT value ' \
