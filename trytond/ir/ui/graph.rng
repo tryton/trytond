@@ -152,6 +152,7 @@
         <choice>
           <value>inside</value>
           <value>replace</value>
+          <value>replace_attributes</value>
           <value>after</value>
           <value>before</value>
         </choice>

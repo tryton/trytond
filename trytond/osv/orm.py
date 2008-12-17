@@ -2224,6 +2224,10 @@ class ORM(object):
                         else:
                             parent.extend(element2.getchildren())
                         parent.remove(element)
+                    elif pos == 'replace_attributes':
+                        child = element2.getchildren()[0]
+                        for attr in child.attrib:
+                            element.set(attr, child.get(attr))
                     elif pos == 'inside':
                         element.extend(element2.getchildren())
                     elif pos == 'after':
