@@ -3,6 +3,7 @@
 "Action"
 from trytond.osv import fields, OSV
 from trytond.tools import file_open
+from trytond.sql_db import table_handler
 
 
 class Action(OSV):
@@ -410,6 +411,15 @@ class ActionActWindowView(OSV):
     def __init__(self):
         super(ActionActWindowView, self).__init__()
         self._order.insert(0, ('sequence', 'ASC'))
+
+    def _auto_init(self, cursor, module_name):
+        super(ActionActWindowView, self)._auto_init(cursor, module_name)
+        table = table_handler(cursor, self._table, self._name, module_name)
+
+        # Migration from 1.0 remove multi
+        if 'multi' in table.table:
+            cursor.execute('ALTER TABLE "' + self._table + '" ' \
+                    'DROP COLUMN multi')
 
 ActionActWindowView()
 
