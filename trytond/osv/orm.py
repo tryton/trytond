@@ -1944,26 +1944,25 @@ class ORM(object):
         if self.table_query(context):
             write_access = False
 
-        if context.get('language'):
-            #Add translation to cache
-            trans_args = []
-            for field in self._columns.keys():
-                trans_args.append((self._name + ',' + field, 'field',
-                    context['language'], None))
-                trans_args.append((self._name + ',' + field, 'help',
-                    context['language'], None))
-                if hasattr(self._columns[field], 'selection'):
-                    if isinstance(self._columns[field].selection, (tuple, list)) \
-                            and ((hasattr(self._columns[field],
-                                'translate_selection') \
-                                and self._columns[field].translate_selection) \
-                                or not hasattr(self._columns[field],
-                                    'translate_selection')):
-                        sel = self._columns[field].selection
-                        for (key, val) in sel:
-                            trans_args.append((self._name + ',' + field,
-                                'selection', context['language'], val))
-            translation_obj._get_sources(cursor, trans_args)
+        #Add translation to cache
+        trans_args = []
+        for field in self._columns.keys():
+            trans_args.append((self._name + ',' + field, 'field',
+                context.get('language', 'en_US'), None))
+            trans_args.append((self._name + ',' + field, 'help',
+                context.get('language', 'en_US'), None))
+            if hasattr(self._columns[field], 'selection'):
+                if isinstance(self._columns[field].selection, (tuple, list)) \
+                        and ((hasattr(self._columns[field],
+                            'translate_selection') \
+                            and self._columns[field].translate_selection) \
+                            or not hasattr(self._columns[field],
+                                'translate_selection')):
+                    sel = self._columns[field].selection
+                    for (key, val) in sel:
+                        trans_args.append((self._name + ',' + field,
+                            'selection', context.get('language', 'en_US'), val))
+        translation_obj._get_sources(cursor, trans_args)
 
         for field in self._columns.keys():
             res[field] = {'type': self._columns[field]._type}

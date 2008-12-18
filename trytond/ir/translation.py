@@ -227,7 +227,7 @@ class Translation(OSV, Cacheable):
                         'AND src = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
-                        'AND fuzzy = false ',
+                        'AND fuzzy = false',
                     (lang, ttype, str(name), source))
         else:
             cursor.execute('SELECT value ' \
@@ -271,6 +271,7 @@ class Translation(OSV, Cacheable):
                 if clause:
                     clause += ' OR '
                 if source:
+                    source = source.strip().replace('\n',' ')
                     clause += '(lang = %s ' \
                             'AND type = %s ' \
                             'AND name = %s ' \
@@ -291,10 +292,9 @@ class Translation(OSV, Cacheable):
             cursor.execute('SELECT lang, type, name, src, value ' \
                     'FROM ir_translation ' \
                     'WHERE ' + clause, value)
-            for lang, ttype, name, src, value in cursor.fetchall():
+            for lang, ttype, name, source, value in cursor.fetchall():
                 res[(name, ttype, lang, source)] = value
-                self.add(cursor, (lang, ttype, name, source),
-                        res[(name, ttype, lang, source)])
+                self.add(cursor, (lang, ttype, name, source), value)
         return res
 
     def delete(self, cursor, user, ids, context=None):
