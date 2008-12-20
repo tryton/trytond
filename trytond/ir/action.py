@@ -407,6 +407,7 @@ class ActionActWindowView(OSV):
             ondelete='CASCADE')
     act_window = fields.Many2One('ir.action.act_window', 'Action',
             ondelete='CASCADE')
+    email = fields.Char('Email')
 
     def __init__(self):
         super(ActionActWindowView, self).__init__()
