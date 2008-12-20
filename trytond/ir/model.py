@@ -1,8 +1,12 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "model"
 from trytond.osv import fields, OSV
 from trytond.tools import Cache
+from trytond.report import Report
+from trytond.wizard import Wizard, WizardOSV
 import time
+import base64
 
 
 class Model(OSV):
@@ -23,6 +27,7 @@ class Model(OSV):
             ('model_uniq', 'UNIQUE(model)',
                 'The model must be unique!'),
         ]
+        self._order.insert(0, ('model', 'ASC'))
 
 Model()
 
@@ -48,6 +53,7 @@ class ModelField(OSV):
             ('name_model_uniq', 'UNIQUE(name, model)',
                 'The field name in model must be unique!'),
         ]
+        self._order.insert(0, ('name', 'ASC'))
 
     def default_name(self, cursor, user, context=None):
         return 'No Name'
@@ -284,3 +290,122 @@ class ModelData(OSV):
         return self.read(cursor, user, ids[0], ['db_id'])['db_id']
 
 ModelData()
+
+
+class PrintModelGraphInit(WizardOSV):
+    _name = 'ir.model.print_model_graph.init'
+    level = fields.Integer('Level')
+
+    def default_level(self, cursor, user, context=None):
+        return 1
+
+PrintModelGraphInit()
+
+
+class PrintModelGraph(Wizard):
+    _name = 'ir.model.print_model_graph'
+    states = {
+        'init': {
+            'result': {
+                'type': 'form',
+                'object': 'ir.model.print_model_graph.init',
+                'state': [
+                    ('end', 'Cancel', 'tryton-cancel'),
+                    ('print', 'Print', 'tryton-ok', True),
+                ],
+            },
+        },
+        'print': {
+            'result': {
+                'type': 'print',
+                'report': 'ir.model.graph',
+                'state': 'end',
+            },
+        },
+    }
+
+PrintModelGraph()
+
+
+class ModelGraph(Report):
+    _name = 'ir.model.graph'
+
+    def execute(self, cursor, user, ids, datas, context=None):
+        import pydot
+        model_obj = self.pool.get('ir.model')
+
+        if context is None:
+            context = {}
+
+        models = model_obj.browse(cursor, user, ids, context=context)
+
+        graph = pydot.Dot(fontsize="8")
+        graph.set('center', '1')
+        graph.set('ratio', 'auto')
+        self.fill_graph(cursor, user, models, graph,
+                level=datas['form']['level'], context=context)
+        data = graph.create(prog='dot', format='png')
+        return ('png', base64.encodestring(data), False)
+
+    def fill_graph(self, cursor, user, models, graph, level=1, context=None):
+        import pydot
+        model_obj = self.pool.get('ir.model')
+
+        sub_models = set()
+        if level > 0:
+            for model in models:
+                for field in model.fields:
+                    if field.name in ('create_uid', 'write_uid'):
+                        continue
+                    if field.relation and not graph.get_node(field.relation):
+                        sub_models.add(field.relation)
+            if sub_models:
+                model_ids = model_obj.search(cursor, user, [
+                    ('model', 'in', list(sub_models)),
+                    ], context=context)
+                sub_models = model_obj.browse(cursor, user, model_ids,
+                        context=context)
+                if set(sub_models) != set(models):
+                    self.fill_graph(cursor, user, sub_models, graph,
+                            level=level - 1, context=context)
+
+        for model in models:
+            label = '{' + model.model + '\\n'
+            if model.fields:
+                label += '|'
+            for field in model.fields:
+                if field.name in ('create_uid', 'write_uid',
+                        'create_date', 'write_date', 'id'):
+                    continue
+                label += '+ ' + field.name + ': ' + field.ttype
+                if field.relation:
+                    label += ' ' + field.relation
+                label += '\l'
+            label += '}'
+            node = pydot.Node(model.model, shape='record', label=label)
+            graph.add_node(node)
+
+            for field in model.fields:
+                if field.name in ('create_uid', 'write_uid'):
+                    continue
+                if field.relation and graph.get_node(field.relation):
+                    args = {}
+                    if field.ttype == 'many2one':
+                        edge = graph.get_edge(model.model, field.relation)
+                        if edge:
+                            continue
+                        args['arrowhead'] = "normal"
+                    elif field.ttype == 'one2many':
+                        continue
+                    elif field.ttype == 'many2many':
+                        if graph.get_edge(model.model, field.relation):
+                            continue
+                        if graph.get_edge(field.relation, model.model):
+                            continue
+                        args['arrowtail'] = "inv"
+                        args['arrowhead'] = "inv"
+
+                    edge = pydot.Edge(model.model, field.relation, **args)
+                    graph.add_edge(edge)
+
+ModelGraph()
