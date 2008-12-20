@@ -10,3 +10,4 @@
 - Add check for index and constraint name lenght (limit 31)
 - Change _constraint to pass a BrowseRecordList instead of a list of ids
 - Change action, menu on res.user into a Many2Many
+- Add order attribute on page tag
