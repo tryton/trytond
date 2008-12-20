@@ -190,5 +190,35 @@ this repository contains the full copyright notices and license terms. -->
         <menuitem parent="ir.menu_models"
             action="act_model_access_form" id="menu_model_access_form"/>
 
+        <record model="ir.action.report" id="report_model_graph">
+            <field name="name">Graph</field>
+            <field name="model">ir.model</field>
+            <field name="report_name">ir.model.graph</field>
+        </record>
+
+        <record model="ir.ui.view" id="print_model_graph_init_view_form">
+            <field name="model">ir.model.print_model_graph.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Print Model Graph" col="2">
+                    <label name="level"/>
+                    <field name="level"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.action.wizard" id="print_model_graph">
+            <field name="name">Graph</field>
+            <field name="wiz_name">ir.model.print_model_graph</field>
+            <field name="model">ir.model</field>
+        </record>
+        <record model="ir.action.keyword" id="print_model_graph_keyword">
+            <field name="keyword">form_print</field>
+            <field name="model">ir.model,0</field>
+            <field name="action" ref="print_model_graph"/>
+        </record>
+
     </data>
 </tryton>
