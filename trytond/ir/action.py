@@ -407,7 +407,6 @@ class ActionActWindowView(OSV):
             ondelete='CASCADE')
     act_window = fields.Many2One('ir.action.act_window', 'Action',
             ondelete='CASCADE')
-    email = fields.Char('Email')
 
     def __init__(self):
         super(ActionActWindowView, self).__init__()
@@ -435,6 +434,7 @@ class ActionWizard(OSV):
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
     model = fields.Char('Model')
+    email = fields.Char('Email')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.wizard'

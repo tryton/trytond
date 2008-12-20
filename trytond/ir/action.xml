@@ -251,6 +251,9 @@
                     <field name="wiz_name"/>
                     <label name="model"/>
                     <field name="model"/>
+                    <newline/>
+                    <label name="email"/>
+                    <field name="email" colspan="3"/>
                     <field name="keywords" colspan="4">
                         <tree string="Keywords">
                             <field name="keyword"/>
