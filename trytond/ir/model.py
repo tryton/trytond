@@ -390,13 +390,20 @@ class ModelGraph(Report):
                     continue
                 if field.relation and graph.get_node(field.relation):
                     args = {}
+                    tail = model.model
+                    head = field.relation
                     if field.ttype == 'many2one':
                         edge = graph.get_edge(model.model, field.relation)
                         if edge:
                             continue
                         args['arrowhead'] = "normal"
                     elif field.ttype == 'one2many':
-                        continue
+                        edge = graph.get_edge(field.relation, model.model)
+                        if edge:
+                            continue
+                        args['arrowhead'] = "normal"
+                        tail = field.relation
+                        head = model.model
                     elif field.ttype == 'many2many':
                         if graph.get_edge(model.model, field.relation):
                             continue
@@ -405,7 +412,7 @@ class ModelGraph(Report):
                         args['arrowtail'] = "inv"
                         args['arrowhead'] = "inv"
 
-                    edge = pydot.Edge(model.model, field.relation, **args)
+                    edge = pydot.Edge(tail, head, **args)
                     graph.add_edge(edge)
 
 ModelGraph()
