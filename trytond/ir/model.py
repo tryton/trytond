@@ -382,37 +382,54 @@ class ModelGraph(Report):
                     label += ' ' + field.relation
                 label += '\l'
             label += '}'
-            node = pydot.Node(model.model, shape='record', label=label)
+            if pydot.__version__ == '1.0.2':
+                # version 1.0.2 doesn't quote correctly label on Node object
+                label = '"' + label + '"'
+            node = pydot.Node(str(model.model), shape='record', label=label)
             graph.add_node(node)
 
             for field in model.fields:
                 if field.name in ('create_uid', 'write_uid'):
                     continue
-                if field.relation and graph.get_node(field.relation):
+                if field.relation:
+                    node_name = field.relation
+                    if pydot.__version__ == '1.0.2':
+                        # version 1.0.2 doesn't quote correctly node name
+                        node_name = '"' + node_name + '"'
+                    if not graph.get_node(node_name):
+                        continue
                     args = {}
                     tail = model.model
                     head = field.relation
+                    edge_model_name = model.model
+                    edge_relation_name = field.relation
+                    if pydot.__version__ == '1.0.2':
+                        # version 1.0.2 doesn't quote correctly edge name
+                        edge_model_name = '"' + edge_model_name + '"'
+                        edge_relation_name = '"' + edge_relation_name + '"'
                     if field.ttype == 'many2one':
-                        edge = graph.get_edge(model.model, field.relation)
+                        edge = graph.get_edge(edge_model_name,
+                                edge_relation_name)
                         if edge:
                             continue
                         args['arrowhead'] = "normal"
                     elif field.ttype == 'one2many':
-                        edge = graph.get_edge(field.relation, model.model)
+                        edge = graph.get_edge(edge_relation_name,
+                                edge_model_name)
                         if edge:
                             continue
                         args['arrowhead'] = "normal"
                         tail = field.relation
                         head = model.model
                     elif field.ttype == 'many2many':
-                        if graph.get_edge(model.model, field.relation):
+                        if graph.get_edge(edge_model_name, edge_relation_name):
                             continue
-                        if graph.get_edge(field.relation, model.model):
+                        if graph.get_edge(edge_relation_name, edge_model_name):
                             continue
                         args['arrowtail'] = "inv"
                         args['arrowhead'] = "inv"
 
-                    edge = pydot.Edge(tail, head, **args)
+                    edge = pydot.Edge(str(tail), str(head), **args)
                     graph.add_edge(edge)
 
 ModelGraph()
