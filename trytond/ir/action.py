@@ -434,6 +434,7 @@ class ActionWizard(OSV):
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
     model = fields.Char('Model')
+    email = fields.Char('Email')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.wizard'
