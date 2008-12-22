@@ -53,6 +53,8 @@ class MenuitemTagHandler:
             if attributes.get(attr):
                 values[attr] = attributes.get(attr)
 
+        if attributes.get('active'):
+            values['active'] = bool(eval(attributes['active']))
 
         if values.get('parent'):
             values['parent'] = self.mh.get_id(values['parent'])
