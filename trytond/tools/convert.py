@@ -578,8 +578,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     # Fix for migration to unicode
                     old_values[key] = old_values[key].decode('utf-8')
 
-            # Check if values for this record has been modified in the
-            # db, if not it's ok to overwrite them.
             if model != db_model:
                 raise Exception("This record try to overwrite " \
                 "data with the wrong model: %s (module: %s)" % (fs_id, module))
