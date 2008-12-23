@@ -174,3 +174,5 @@ Here is the list of the tags:
         * ``action``: The xml id of the action linked to the menu.
 
         * ``groups``: A list of xml id of group, that have access to the menu, separated by commas.
+
+        * ``active``: A boolean telling if the menu is active or not.
