@@ -2466,7 +2466,7 @@ class ORM(object):
         for arg in args:
             if arg[1] not in OPERATORS:
                 raise Exception('ValidateError', 'Argument "%s" not supported' \
-                        % args[i][1])
+                        % arg[1])
         i = 0
         joins = []
         while i < len(args):
