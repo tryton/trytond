@@ -50,7 +50,7 @@ The following snippet gives a first idea of what can be done:
                                     'party', 'category', 'Categories')
   Party()
 
-Instantiating the class make it alive for the framework. Actually
+Instantiating the class makes it alive for the framework. Actually
 there will be only one instance per class and per database. So model
 instances are essentially accessors to the underlying table. Columns of
 the table correspond to the fields of the class. Rows of the table
@@ -192,7 +192,7 @@ Or one of these relation types:
      'Addresses')``. This correspond in the database to a foreign key
      (who's name is ``party``) from the ``relationship_address`` table
      to the table of the current model. A ``One2Many`` alone will not
-     work, it rely on the ``Many2One`` to create the foreign key.
+     work, it relies on the ``Many2One`` to create the foreign key.
 
    * ``Many2Many``: A relation from the current model to another one
      where many record of the current model can be linked to many
