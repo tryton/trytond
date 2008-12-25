@@ -51,7 +51,6 @@ field,"ir.action.act_window,search_value",0,Search Criteria,Suchkriterien,0
 field,"ir.action.act_window,src_model",0,Source model,Quellmodell,0
 field,"ir.action.act_window,usage",0,Action Usage,Gebrauch,0
 field,"ir.action.act_window.view,act_window",0,Action,Aktion,0
-field,"ir.action.act_window.view,multi",0,On multiple doc.,Auf mehreren Dokumenten,0
 field,"ir.action.act_window,views",0,Views,Sichten,0
 field,"ir.action.act_window.view,sequence",0,Sequence,Reihenfolge,0
 field,"ir.action.act_window,view_type",0,Type of view,Typ für Sichten,0
@@ -65,6 +64,7 @@ field,"ir.action,keywords",0,Keywords,Schlüsselworte,0
 field,"ir.action,name",0,Name,Name,0
 field,"ir.action.report,action",0,Action,Aktion,0
 field,"ir.action.report,direct_print",0,Direct Print,Direktdruck,0
+field,"ir.action.report,email",0,Email,E-Mail,0
 field,"ir.action.report,model",0,Model,Modell,0
 field,"ir.action.report,module",0,Module,Modul,0
 field,"ir.action.report,output_format",0,Output format,Ausgabeformat,0
@@ -81,6 +81,7 @@ field,"ir.action.url,action",0,Action,Aktion,0
 field,"ir.action.url,url",0,Action Url,URL,0
 field,"ir.action,usage",0,Usage,Gebrauch,0
 field,"ir.action.wizard,action",0,Action,Aktion,0
+field,"ir.action.wizard,email",0,Email,E-Mail,0
 field,"ir.action.wizard,model",0,Model,Modell,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Name,0
 field,"ir.attachment,collision",0,Collision,Kollision,0
@@ -155,6 +156,7 @@ field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Model Name,Modellname,0
 field,"ir.model,module",0,Module,Modul,0
 field,"ir.model,name",0,Model Description,Modell Beschreibung,0
+field,"ir.model.print_model_graph.init,level",0,Level,Ebene,0
 field,"ir.module.module,author",0,Author,Autor,0
 field,"ir.module.module.config_wizard.item,name",0,Name,Name,0
 field,"ir.module.module.config_wizard.item,sequence",0,Sequence,Reihenfolge,0
@@ -245,8 +247,6 @@ field,"ir.ui.view,type",0,View Type,Sichtentyp,0
 help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Die Sicht wird automatisch aufgefrischt,0
 help,"ir.action.act_window,limit",0,Default limit for the list view,Standardobergrenze für die Listenanscht,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Standardsuchwerte in der Listenansicht,0
-help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
-on the bottom toolbar of a form views.","Wenn gesetzt (true) , wird die Aktion auf der rechten Toolbar einer Formularansicht nicht dargestellt",0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Aktionsname als Fenstername benutzen,0
 help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Wird auch als Dateiendung verwendet,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definiert den Stil für den Bericht,0
@@ -277,6 +277,8 @@ model,"ir.action,name",act_default_form,Defaults,Standards,0
 model,"ir.action,name",act_export_form,Exports,Exporte,0
 model,"ir.action,name",act_translation_export,Export Translations,Übersetzungen exportieren,0
 model,"ir.action,name",act_model_fields_form,Fields,Felder,0
+model,"ir.action,name",report_model_graph,Graph,Graphik,0
+model,"ir.action,name",print_model_graph,Graph,Graphik,0
 model,"ir.action,name",act_lang_form,Languages,Sprachen,0
 model,"ir.action,name",act_menu_tree,Menu,Menü,0
 model,"ir.action,name",act_menu_form,Menus,Menüs,0
@@ -486,6 +488,7 @@ view,ir.model,0,Fields Description,Feld Beschreibung,0
 view,ir.model,0,Model Description,Modell Beschreibung,0
 view,ir.model.access,0,Access controls,Zugriffsberechtigungen,0
 view,ir.model.field,0,Fields,Felder,0
+view,ir.model.print_model_graph.init,0,Print Model Graph,Modellschaubild drucken,0
 view,ir.module.module,0,Cancel Installation,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
 view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
@@ -517,6 +520,7 @@ view,ir.rule.group,0,The rule is satisfied if at least one test is True,"Die Reg
 view,ir.sequence,0,${day},${day},0
 view,ir.sequence,0,Day:,Tag:,0
 view,ir.sequence,0,"Legend (for prefix, suffix)","Legende (für Präfix, Suffix)",0
+view,ir.sequence,0,"Legend (Placeholders for prefix, suffix)","Legende (Platzhalter für Präfix, Suffix)",0
 view,ir.sequence,0,${month},${month},0
 view,ir.sequence,0,Month:,Monat:,0
 view,ir.sequence,0,Sequences,Sequenzen,0
@@ -550,6 +554,8 @@ view,ir.ui.view,0,View,Sicht,0
 view,ir.ui.view_sc,0,Shortcut,Schnelltaste,0
 view,ir.ui.view_tree_width,0,Views Tree Width,Spaltenbreiten anzeigen,0
 view,ir.ui.view_tree_width,0,View Tree Width,Spaltenbreiten anzeigen,0
+wizard_button,"ir.model.print_model_graph,init,end",0,Cancel,Abbrechen,0
+wizard_button,"ir.model.print_model_graph,init,print",0,Print,Drucken,0
 wizard_button,"ir.module.module.config_wizard,first,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,OK,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Abbrechen,0
