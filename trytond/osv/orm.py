@@ -215,7 +215,7 @@ class BrowseRecord(object):
 
     def setLang(self, lang):
         self._context = self._context.copy()
-        prev_lang = self._context.get('language', 'en_US')
+        prev_lang = self._context.get('language') or 'en_US'
         self._context['language'] = lang
         for table in self._cache:
             for obj_id in self._cache[table]:
@@ -716,10 +716,10 @@ class ORM(object):
         error = self._error_messages.get(error, error)
 
         res = translation_obj._get_source(cursor, self._name, 'error',
-                context.get('language', 'en_US'), error)
+                context.get('language') or 'en_US', error)
         if not res:
             res = translation_obj._get_source(cursor, error, 'error',
-                    context.get('language', 'en_US'))
+                    context.get('language') or 'en_US')
         if not res:
             res = translation_obj._get_source(cursor, error, 'error',
                         'en_US')
@@ -738,10 +738,10 @@ class ORM(object):
                     error_description)
 
             res = translation_obj._get_source(cursor, self._name, 'error',
-                    context.get('language', 'en_US'), error_description)
+                    context.get('language') or 'en_US', error_description)
             if not res:
                 res = translation_obj._get_source(cursor, error_description,
-                        'error', context.get('language', 'en_US'))
+                        'error', context.get('language') or 'en_US')
             if not res:
                 res = translation_obj._get_source(cursor, error_description,
                         'error', 'en_US')
@@ -1163,7 +1163,7 @@ class ORM(object):
                 ids = [x['id'] for x in res]
                 res_trans = self.pool.get('ir.translation')._get_ids(cursor,
                         self._name + ',' + field, 'model',
-                        context.get('language', False) or 'en_US', ids)
+                        context.get('language') or 'en_US', ids)
                 for i in res:
                     i[field] = res_trans.get(i['id'], False) or i[field]
 
@@ -1643,7 +1643,7 @@ class ORM(object):
             if field in self._columns:
                 if self._columns[field]._classic_write:
                     if (not self._columns[field].translate) \
-                            or context.get('language', 'en_US') == 'en_US':
+                            or (context.get('language') or 'en_US') == 'en_US':
                         upd0.append('"' + field + '"=' + \
                                 self._columns[field]._symbol_set[0])
                         upd1.append(self._columns[field]._symbol_set[1](
@@ -1723,7 +1723,8 @@ class ORM(object):
                 if self._columns[field].translate:
                     self.pool.get('ir.translation')._set_ids(cursor, user,
                             self._name + ',' + field, 'model',
-                            context.get('language','en_US'), ids, vals[field])
+                            context.get('language') or 'en_US', ids,
+                            vals[field])
 
         # call the 'set' method of fields which are not classic_write
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
@@ -1940,9 +1941,9 @@ class ORM(object):
         trans_args = []
         for field in self._columns.keys():
             trans_args.append((self._name + ',' + field, 'field',
-                context.get('language', 'en_US'), None))
+                context.get('language') or 'en_US', None))
             trans_args.append((self._name + ',' + field, 'help',
-                context.get('language', 'en_US'), None))
+                context.get('language') or 'en_US', None))
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)) \
                         and ((hasattr(self._columns[field],
@@ -1953,7 +1954,8 @@ class ORM(object):
                     sel = self._columns[field].selection
                     for (key, val) in sel:
                         trans_args.append((self._name + ',' + field,
-                            'selection', context.get('language', 'en_US'), val))
+                            'selection', context.get('language') or 'en_US',
+                            val))
         translation_obj._get_sources(cursor, trans_args)
 
         for field in self._columns.keys():
@@ -2017,7 +2019,7 @@ class ORM(object):
                         for (key, val) in sel:
                             val2 = translation_obj._get_source(cursor,
                                     self._name + ',' + field, 'selection',
-                                    context.get('language', 'en_US'), val)
+                                    context.get('language') or 'en_US', val)
                             sel2.append((key, val2 or val))
                         sel = sel2
                     res[field]['selection'] = sel
@@ -2714,7 +2716,7 @@ class ORM(object):
                                 'AND (value ' + args[i][1] + ' %s ' \
                                     + oper +' value ' + args[i][1] + ' %s))'
                     query2 = [table._name + ',' + args[i][0],
-                            context.get('language', False) or 'en_US',
+                            context.get('language') or 'en_US',
                             'model', exprs[0] % args[i][2],
                             exprs[1] % args[i][2]]
                     query1 += ' UNION '
