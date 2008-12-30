@@ -111,9 +111,12 @@ class Sequence(OSV):
         if sequence_ids:
             sequence = self.browse(cursor, user, sequence_ids[0],
                     context=context)
-            self.write(cursor, user, sequence.id, {
-                'number_next': sequence.number_next + sequence.number_increment,
-                }, context=context)
+            # Use SQL query to bypass access rules
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET number_next = number_next + number_increment, ' \
+                        'write_uid = %s, ' \
+                        'write_date = NOW() ' \
+                    'WHERE id = %s AND active = True', (user, sequence.id,))
             if sequence.number_next:
                 return self._process(cursor, user, sequence.prefix, date=date,
                         context=context) + \
