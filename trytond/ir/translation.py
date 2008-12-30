@@ -106,29 +106,36 @@ class Translation(OSV, Cacheable):
         return res
 
     def _get_ids(self, cursor, name, ttype, lang, ids):
+        model_fields_obj = self.pool.get('ir.model.field')
+        model_obj = self.pool.get('ir.model')
+
         translations, to_fetch = {}, []
         name = unicode(name)
         ttype = unicode(ttype)
         lang = unicode(lang)
-        if name.split(',')[0] == 'ir.model.field':
-            model_fields_obj = self.pool.get('ir.model.field')
+        if name.split(',')[0] in ('ir.model.field', 'ir.model'):
             field_name = name.split(',')[1]
-            if field_name == 'field_description':
-                ttype = 'field'
+            if name.split(',')[0] == 'ir.model.field':
+                if field_name == 'field_description':
+                    ttype = u'field'
+                else:
+                    ttype = u'help'
+                records = model_fields_obj.browse(cursor, 0, ids)
             else:
-                ttype = 'help'
-            fields = model_fields_obj.read(cursor, 0, ids,
-                    ['model', 'name'])
+                ttype = u'model'
+                records = model_obj.browse(cursor, 0, ids)
 
             trans_args = []
-            for field in fields:
-                name = field['model'][1] + ',' + field['name']
+            for record in records:
+                if ttype in ('field', 'help'):
+                    name = record.model.model + ',' + record.name
                 trans_args.append((name, ttype, lang, None))
             self._get_sources(cursor, trans_args)
 
-            for field in fields:
-                name = field['model'][1] + ',' + field['name']
-                translations[field['id']] = self._get_source(cursor,
+            for record in records:
+                if ttype in ('field', 'help'):
+                    name = record.model.model + ',' + record.name
+                translations[record.id] = self._get_source(cursor,
                         name, ttype, lang)
             return translations
         for obj_id in ids:
@@ -159,15 +166,23 @@ class Translation(OSV, Cacheable):
         return translations
 
     def _set_ids(self, cursor, user, name, ttype, lang, ids, value):
+        model_fields_obj = self.pool.get('ir.model.field')
+        model_obj = self.pool.get('ir.model')
+
         model_name, field_name = name.split(',')
-        if model_name == 'ir.model.field':
-            model_fields_obj = self.pool.get('ir.model.field')
-            if field_name == 'field_description':
-                ttype = 'field'
+        if model_name in ('ir.model.field', 'ir.model'):
+            if model_name == 'ir.model.field':
+                if field_name == 'field_description':
+                    ttype = 'field'
+                else:
+                    ttype = 'help'
+                records = model_fields_obj.browse(cursor, user, ids)
             else:
-                ttype = 'help'
-            for field in model_fields_obj.browse(cursor, user, ids):
-                name = field.model + ',' + field.name
+                ttype = 'model'
+                records = model_obj.browse(cursor, user, ids)
+            for record in records:
+                if ttype in ('field', 'help'):
+                    name = record.model + ',' + record.name
                 ids2 = self.search(cursor, user, [
                     ('lang', '=', lang),
                     ('type', '=', ttype),
@@ -178,13 +193,13 @@ class Translation(OSV, Cacheable):
                         'name': name,
                         'lang': lang,
                         'type': ttype,
-                        'src': field[field_name],
+                        'src': record[field_name],
                         'value': value,
                         'fuzzy': False,
                         })
                 else:
                     self.write(cursor, user, ids, {
-                        'src': field[field_name],
+                        'src': record[field_name],
                         'value': value,
                         'fuzzy': False,
                         })
@@ -746,12 +761,17 @@ class TranslationClean(Wizard):
                     if model_name not in self.pool.object_name_list():
                         to_delete.append(translation.id)
                         continue
-                    model_obj = self.pool.get(model_name)
-                    if field_name not in model_obj._columns:
-                        to_delete.append(translation.id)
-                        continue
-                    field = model_obj._columns[field_name]
-                    if not hasattr(field, 'translate') or not field.translate:
+                    if translation.res_id:
+                        model_obj = self.pool.get(model_name)
+                        if field_name not in model_obj._columns:
+                            to_delete.append(translation.id)
+                            continue
+                        field = model_obj._columns[field_name]
+                        if not hasattr(field, 'translate') or \
+                                not field.translate:
+                            to_delete.append(translation.id)
+                            continue
+                    elif field_name not in ('name'):
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'odt':

@@ -346,8 +346,6 @@ class ORM(object):
         cursor.execute("SELECT id FROM ir_model WHERE model = %s",
                 (self._name,))
         if not cursor.rowcount:
-            # reference model in order to have a description
-            # of its fonctionnality in custom_report
             cursor.execute("INSERT INTO ir_model " \
                     "(model, name, info, module) VALUES (%s, %s, %s, %s)",
                     (self._name, self._description, self.__doc__,
@@ -362,6 +360,25 @@ class ORM(object):
                         'info = %s ' \
                     'WHERE id = %s',
                     (self._description, self.__doc__, model_id))
+
+        for name, src in [(self._name + ',name', self._description)]:
+            cursor.execute('SELECT id FROM ir_translation ' \
+                    'WHERE lang = %s ' \
+                        'AND type = %s ' \
+                        'AND name = %s ' \
+                        'AND res_id = %s',
+                    ('en_US', 'model', name, 0))
+            if not cursor.rowcount:
+                cursor.execute('INSERT INTO ir_translation ' \
+                        '(name, lang, type, src, value, module, fuzzy) ' \
+                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
+                        (name, 'en_US', 'model', src, '', module_name))
+            else:
+                trans_id = cursor.fetchone()[0]
+                cursor.execute('UPDATE ir_translation ' \
+                        'SET src = %s ' \
+                        'WHERE id = %s',
+                        (src, trans_id))
 
         cursor.execute('SELECT f.id AS id, f.name AS name, ' \
                     'f.field_description AS field_description, ' \
