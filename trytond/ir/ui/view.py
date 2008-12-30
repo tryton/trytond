@@ -181,18 +181,11 @@ class View(OSV):
 
     def _translate_view(self, element):
         strings = []
-        if element.get('string'):
-            string = element.get('string')
-            if string:
-                strings.append(string)
-        if element.get('sum'):
-            string = element.get('sum')
-            if string:
-                strings.append(string)
-        if element.get('confirm'):
-            string = element.get('confirm')
-            if string:
-                strings.append(string)
+        for attr in ('string', 'sum', 'confirm'):
+            if element.get(attr):
+                string = element.get(attr)
+                if string:
+                    strings.append(string)
         for child in element:
             strings.extend(self._translate_view(child))
         return strings
