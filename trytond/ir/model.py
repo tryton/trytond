@@ -39,11 +39,11 @@ class ModelField(OSV):
     relation = fields.Char('Model Relation')
     model = fields.Many2One('ir.model', 'Model', required=True,
        select=1, ondelete='cascade')
-    field_description = fields.Char('Field Description')
+    field_description = fields.Char('Field Description', translate=True)
     ttype = fields.Char('Field Type')
     groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
        'field_id', 'group_id', 'Groups')
-    help = fields.Text('Help')
+    help = fields.Text('Help', translate=True)
     module = fields.Char('Module',
        help="Module in which this field is defined")
 
