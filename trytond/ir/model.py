@@ -293,7 +293,9 @@ ModelData()
 
 
 class PrintModelGraphInit(WizardOSV):
+    'Print Model Graph Init'
     _name = 'ir.model.print_model_graph.init'
+    _description = __doc__
     level = fields.Integer('Level')
 
     def default_level(self, cursor, user, context=None):
