@@ -509,7 +509,9 @@ ModuleConfigWizardItem()
 
 
 class ModuleConfigWizardFirst(WizardOSV):
+    'Module Config Wizard First'
     _name = 'ir.module.module.config_wizard.first'
+    _description = __doc__
 
 ModuleConfigWizardFirst()
 
@@ -584,14 +586,18 @@ ModuleConfigWizard()
 
 
 class ModuleInstallUpgradeInit(WizardOSV):
+    'Module Install Upgrade Init'
     _name = 'ir.module.module.install_upgrade.init'
+    _description = __doc__
     module_info = fields.Text('Modules to update', readonly=True)
 
 ModuleInstallUpgradeInit()
 
 
 class ModuleInstallUpgradeStart(WizardOSV):
+    'Module Install Upgrade Start'
     _name = 'ir.module.module.install_upgrade.start'
+    _description = __doc__
 
 ModuleInstallUpgradeStart()
 
