@@ -339,8 +339,14 @@ def register_classes():
                 break
         elif os.path.isdir(OPJ(MODULES_PATH, module)):
             try:
-                imp.load_module(module, *imp.find_module(module,
-                    [MODULES_PATH]))
+                mod_file, pathname, description = imp.find_module(module,
+                        [MODULES_PATH])
+                try:
+                    imp.load_module(module, mod_file, pathname, description)
+                finally:
+                    if mod_file is not None:
+                        print "close"
+                        mod_file.close()
             except ImportError:
                 tb_s = ''
                 for line in traceback.format_exception(*sys.exc_info()):
@@ -362,7 +368,13 @@ def register_classes():
             ep = EGG_MODULES[module]
             mod_path = os.path.join(ep.dist.location,
                     *ep.module_name.split('.')[:-1])
-            imp.load_module(module, *imp.find_module(module, [mod_path]))
+            mod_file, pathname, description = imp.find_module(module,
+                    [mod_path])
+            try:
+                imp.load_module(module, mod_file, pathname, description)
+            finally:
+                if mod_file is not None:
+                    mod_file.close()
         else:
             logging.getLogger('init').error(
                     'Couldn\'t find module %s' % module)
