@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 # -*- coding: utf-8 -*-
 import logging
 import threading
@@ -256,8 +257,9 @@ class DB(Service):
 
     def list_lang(self):
         return [
+            ('cs_CZ', 'Čeština'),
             ('de_DE', 'Deutsch'),
             ('en_US', 'English'),
-            ('fr_FR', 'Français'),
             ('es_ES', 'Español'),
+            ('fr_FR', 'Français'),
         ]
