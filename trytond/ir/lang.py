@@ -90,10 +90,13 @@ class Lang(OSV):
                 return False
             if '%b' not in lang.date \
                     and '%B' not in lang.date \
-                    and '%m' not in lang.date:
+                    and '%m' not in lang.date \
+                    and '%-m' not in lang.date:
                 return False
             if '%d' not in lang.date \
-                    and '%j' not in lang.date:
+                    and '%-d' not in lang.date \
+                    and '%j' not in lang.date \
+                    and '%-j' not in lang.date:
                 return False
         return True
 
