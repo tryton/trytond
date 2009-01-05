@@ -308,7 +308,9 @@ User()
 
 
 class Warning(OSV):
+    'User Warning'
     _name = 'res.user.warning'
+    _description = __doc__
 
     user = fields.Many2One('res.user', 'User', required=True, select=1)
     name = fields.Char('Name', required=True, select=1)
@@ -341,7 +343,9 @@ Group()
 
 
 class UserConfigInit(WizardOSV):
+    'User Config Init'
     _name = 'res.user.config.init'
+    _description = __doc__
 
 UserConfigInit()
 
