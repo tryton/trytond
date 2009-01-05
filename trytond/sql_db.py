@@ -71,10 +71,15 @@ class FakeCursor(object):
 
         if self.sql_log:
             now = mdt.now()
-        if params:
-            res = self.cursor.execute(sql, params)
-        else:
-            res = self.cursor.execute(sql)
+        try:
+            if params:
+                res = self.cursor.execute(sql, params)
+            else:
+                res = self.cursor.execute(sql)
+        except:
+            logger = logging.getLogger('sql')
+            logger.error('Wrong SQL: ' + sql % tuple("'%s'" % x for x in params or []))
+            raise
         if self.sql_log:
             res_from = RE_FROM.match(sql.lower())
             if res_from:
