@@ -390,14 +390,33 @@ class Translation(OSV, Cacheable):
         reader = csv.reader(datas)
         for row in reader:
             break
+
+        id2translation = {}
+        key2ids = {}
+        module_translation_ids = self.search(cursor, user, [
+            ('lang', '=', lang),
+            ('module', '=', module),
+            ], context=context)
+        for translation in self.browse(cursor, user, module_translation_ids,
+                context=context):
+            if translation.type in ('odt', 'view', 'wizard_button',
+                    'selection', 'error'):
+                key = (translation.name, translation.res_id, translation.type,
+                        translation.src)
+            elif translation.type in ('field', 'model','help'):
+                key = (translation.name, translation.res_id, translation.type)
+            else:
+                raise Exception('Unknow translation type: %s' % translation.type)
+            key2ids.setdefault(key, []).append(translation.id)
+            id2translation[translation.id] = translation
+
         for row in reader:
-            ttype = row[0]
-            name = row[1]
-            res_id = row[2]
-            src = row[3]
-            value = row[4]
+            ttype = row[0].decode('utf-8')
+            name = row[1].decode('utf-8')
+            res_id = row[2].decode('utf-8')
+            src = row[3].decode('utf-8')
+            value = row[4].decode('utf-8')
             fuzzy = int(row[5])
-            ids = []
 
             model = name.split(',')[0]
             if model in fs_id2db_id:
@@ -409,24 +428,12 @@ class Translation(OSV, Cacheable):
                 continue
 
             if ttype in ('odt', 'view', 'wizard_button', 'selection', 'error'):
-                ids = self.search(cursor, user, [
-                    ('name', '=', name),
-                    ('res_id', '=', res_id),
-                    ('lang', '=', lang),
-                    ('type', '=', ttype),
-                    ('src', '=', src),
-                    ('module', '=', module),
-                    ], context=context)
+                key = (name, res_id, ttype, src)
             elif ttype in('field', 'model','help'):
-                ids = self.search(cursor, user, [
-                    ('name', '=', name),
-                    ('res_id', '=', res_id),
-                    ('lang', '=', lang),
-                    ('type', '=', ttype),
-                    ('module', '=', module),
-                    ], context=context)
+                key = (name, res_id, ttype)
             else:
                 raise Exception('Unknow translation type: %s' % ttype)
+            ids = key2ids.get(key, [])
 
             if not ids:
                 translation_ids.append(self.create(cursor, user, {
@@ -440,12 +447,12 @@ class Translation(OSV, Cacheable):
                     'module': module,
                     }, context=ctx))
             else:
-                cursor.execute('SELECT id FROM ir_translation ' \
-                        'WHERE (write_uid IS NULL OR write_uid = 0) ' \
-                            'AND id IN ' \
-                                '(' + ','.join(['%s' for x in ids]) + ')',
-                        ids)
-                ids2 = [x[0] for x in cursor.fetchall()]
+                ids2 = []
+                for translation_id in ids:
+                    translation = id2translation[translation_id]
+                    if not translation.write_uid and not translation.write_uid \
+                            and translation.value != value:
+                        ids2.append(translation.id)
                 if ids2:
                     self.write(cursor, user, ids2, {
                         'value': value,
