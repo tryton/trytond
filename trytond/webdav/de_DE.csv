@@ -19,5 +19,6 @@ model,"ir.ui.menu,name",menu_collection_tree,Collections,Sammlungen,0
 model,"ir.ui.menu,name",menu_collection_form,Edit Collections,Sammlungen bearbeiten,0
 model,"ir.ui.menu,name",menu_collection_form2,New Collection,Neue Sammlung,0
 model,"ir.ui.menu,name",menu_webdav,WebDAV,WebDAV,0
+model,"webdav.collection,name",0,Collection,Sammlung,0
 view,webdav.collection,0,Collection,Sammlung,0
 view,webdav.collection,0,Collections,Sammlungen,0

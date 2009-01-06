@@ -1,4 +1,115 @@
 type,name,res_id,src,value,fuzzy
+selection,"ir.action.act_window,view_type",0,Board,Infoseite,0
+selection,"ir.action.act_window,view_type",0,Form,Formular,0
+selection,"ir.action.act_window,view_type",0,Tree,Baum,0
+selection,"ir.action.keyword,keyword",0,Action form,Formularaktion,0
+selection,"ir.action.keyword,keyword",0,Action tree,Baumaktion,0
+selection,"ir.action.keyword,keyword",0,Form relate,Bezugsformular,0
+selection,"ir.action.keyword,keyword",0,Open Graph,Graph öffnen,0
+selection,"ir.action.keyword,keyword",0,Open tree,Baum öffnen,0
+selection,"ir.action.keyword,keyword",0,Print form,Formular drucken,0
+selection,"ir.cron,interval_type",0,Days,Tage,0
+selection,"ir.cron,interval_type",0,Hours,Stunden,0
+selection,"ir.cron,interval_type",0,Minutes,Minuten,0
+selection,"ir.cron,interval_type",0,Months,Monate,0
+selection,"ir.cron,interval_type",0,Weeks,Wochen,0
+selection,"ir.cron,interval_type",0,Work Days,Arbeitstage,0
+selection,"ir.lang,direction",0,Left-to-right,Links-nach-Rechts,0
+selection,"ir.lang,direction",0,Right-to-left,Rechts-nach-Links,0
+selection,"ir.module.module.config_wizard.item,state",0,Done,Erledigt,0
+selection,"ir.module.module.config_wizard.item,state",0,Open,Offen,0
+selection,"ir.module.module.dependency,state",0,Installed,Installiert,0
+selection,"ir.module.module.dependency,state",0,Not Installed,Nicht installiert,0
+selection,"ir.module.module.dependency,state",0,To be installed,Für die Installation vorgemerkt,0
+selection,"ir.module.module.dependency,state",0,To be removed,Für die Entfernung vorgemerkt,0
+selection,"ir.module.module.dependency,state",0,To be upgraded,Für die Aktualisierung vorgemerkt,0
+selection,"ir.module.module.dependency,state",0,Unknown,Unbekannt,0
+selection,"ir.module.module,state",0,Installed,Installiert,0
+selection,"ir.module.module,state",0,Not Installed,Nicht installiert,0
+selection,"ir.module.module,state",0,To be installed,Für die Installation vorgemerkt,0
+selection,"ir.module.module,state",0,To be removed,Für die Entfernung vorgemerkt,0
+selection,"ir.module.module,state",0,To be upgraded,Für die Aktualisierung vorgemerkt,0
+selection,"ir.rule,operator",0,<=,<=,0
+selection,"ir.rule,operator",0,<>,<>,0
+selection,"ir.rule,operator",0,=,=,0
+selection,"ir.rule,operator",0,>=,>=,0
+selection,"ir.rule,operator",0,child_of,untergeordnet von,0
+selection,"ir.rule,operator",0,in,in,0
+selection,"ir.translation,type",0,Error,Fehler,0
+selection,"ir.translation,type",0,Field,Feld,0
+selection,"ir.translation,type",0,Help,Hilfe,0
+selection,"ir.translation,type",0,Model,Modell,0
+selection,"ir.translation,type",0,ODT,ODT,0
+selection,"ir.translation,type",0,Selection,Auswahl,0
+selection,"ir.translation,type",0,View,Sicht,0
+selection,"ir.translation,type",0,Wizard Button,Wizardknopf,0
+selection,"ir.ui.menu,action",0,ir.action.act_window,ir.action.act_window,0
+selection,"ir.ui.menu,action",0,ir.action.report,ir.action.report,0
+selection,"ir.ui.menu,action",0,ir.action.url,ir.action.url,0
+selection,"ir.ui.menu,action",0,ir.action.wizard,ir.action.wizard,0
+selection,"ir.ui.menu,icon",0,tryton-accessories,tryton-accessories,0
+selection,"ir.ui.menu,icon",0,tryton-attachment,tryton-attachment,0
+selection,"ir.ui.menu,icon",0,tryton-calculator,tryton-calculator,0
+selection,"ir.ui.menu,icon",0,tryton-calendar,tryton-calendar,0
+selection,"ir.ui.menu,icon",0,tryton-clear,tryton-clear,0
+selection,"ir.ui.menu,icon",0,tryton-clock,tryton-clock,0
+selection,"ir.ui.menu,icon",0,tryton-close,tryton-close,0
+selection,"ir.ui.menu,icon",0,tryton-connect,tryton-connect,0
+selection,"ir.ui.menu,icon",0,tryton-copy,tryton-copy,0
+selection,"ir.ui.menu,icon",0,tryton-currency,tryton-currency,0
+selection,"ir.ui.menu,icon",0,tryton-delete,tryton-delete,0
+selection,"ir.ui.menu,icon",0,tryton-development,tryton-development,0
+selection,"ir.ui.menu,icon",0,tryton-dialog-error,tryton-dialog-error,0
+selection,"ir.ui.menu,icon",0,tryton-dialog-information,tryton-dialog-information,0
+selection,"ir.ui.menu,icon",0,tryton-dialog-warning,tryton-dialog-warning,0
+selection,"ir.ui.menu,icon",0,tryton-disconnect,tryton-disconnect,0
+selection,"ir.ui.menu,icon",0,tryton-executable,tryton-executable,0
+selection,"ir.ui.menu,icon",0,tryton-find,tryton-find,0
+selection,"ir.ui.menu,icon",0,tryton-find-replace,tryton-find-replace,0
+selection,"ir.ui.menu,icon",0,tryton-folder-new,tryton-folder-new,0
+selection,"ir.ui.menu,icon",0,tryton-folder-saved-search,tryton-folder-saved-search,0
+selection,"ir.ui.menu,icon",0,tryton-fullscreen,tryton-fullscreen,0
+selection,"ir.ui.menu,icon",0,tryton-go-home,tryton-go-home,0
+selection,"ir.ui.menu,icon",0,tryton-go-jump,tryton-go-jump,0
+selection,"ir.ui.menu,icon",0,tryton-go-next,tryton-go-next,0
+selection,"ir.ui.menu,icon",0,tryton-go-previous,tryton-go-previous,0
+selection,"ir.ui.menu,icon",0,tryton-graph,tryton-graph,0
+selection,"ir.ui.menu,icon",0,tryton-help,tryton-help,0
+selection,"ir.ui.menu,icon",0,tryton-image-missing,tryton-image-missing,0
+selection,"ir.ui.menu,icon",0,tryton-information,tryton-information,0
+selection,"ir.ui.menu,icon",0,tryton-list,tryton-list,0
+selection,"ir.ui.menu,icon",0,tryton-list-add,tryton-list-add,0
+selection,"ir.ui.menu,icon",0,tryton-list-remove,tryton-list-remove,0
+selection,"ir.ui.menu,icon",0,tryton-locale,tryton-locale,0
+selection,"ir.ui.menu,icon",0,tryton-lock,tryton-lock,0
+selection,"ir.ui.menu,icon",0,tryton-log-out,tryton-log-out,0
+selection,"ir.ui.menu,icon",0,tryton-mail-message-new,tryton-mail-message-new,0
+selection,"ir.ui.menu,icon",0,tryton-new,tryton-new,0
+selection,"ir.ui.menu,icon",0,tryton-noimage,tryton-noimage,0
+selection,"ir.ui.menu,icon",0,tryton-open,tryton-open,0
+selection,"ir.ui.menu,icon",0,tryton-package,tryton-package,0
+selection,"ir.ui.menu,icon",0,tryton-preferences,tryton-preferences,0
+selection,"ir.ui.menu,icon",0,tryton-preferences-system,tryton-preferences-system,0
+selection,"ir.ui.menu,icon",0,tryton-preferences-system-session,tryton-preferences-system-session,0
+selection,"ir.ui.menu,icon",0,tryton-presentation,tryton-presentation,0
+selection,"ir.ui.menu,icon",0,tryton-print,tryton-print,0
+selection,"ir.ui.menu,icon",0,tryton-readonly,tryton-readonly,0
+selection,"ir.ui.menu,icon",0,tryton-refresh,tryton-refresh,0
+selection,"ir.ui.menu,icon",0,tryton-save,tryton-save,0
+selection,"ir.ui.menu,icon",0,tryton-save-as,tryton-save-as,0
+selection,"ir.ui.menu,icon",0,tryton-spreadsheet,tryton-spreadsheet,0
+selection,"ir.ui.menu,icon",0,tryton-start-here,tryton-start-here,0
+selection,"ir.ui.menu,icon",0,tryton-system,tryton-system,0
+selection,"ir.ui.menu,icon",0,tryton-system-file-manager,tryton-system-file-manager,0
+selection,"ir.ui.menu,icon",0,tryton-tree,tryton-tree,0
+selection,"ir.ui.menu,icon",0,tryton-users,tryton-users,0
+selection,"ir.ui.menu,icon",0,tryton-web-browser,tryton-web-browser,0
+selection,"ir.ui.view,type",0,,,0
+selection,"ir.ui.view,type",0,Board,Infoseite,0
+selection,"ir.ui.view,type",0,Calendar,Kalender,0
+selection,"ir.ui.view,type",0,Form,Formular,0
+selection,"ir.ui.view,type",0,Graph,Diagramm,0
+selection,"ir.ui.view,type",0,Tree,Baum,0
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
@@ -268,6 +379,10 @@ help,"ir.rule.group,global_p",0,"Make the rule global
 so every users must follow this rule","Regel global setzen
 (Regel gilt für jeden Benutzer)",0
 help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,"Die Regel wird gültig bewertet, wenn wenigstens ein Test positiv ist (True)",0
+model,"ir.action.act_window,name",0,Action act window,Aktion aktives Fenster,0
+model,"ir.action.act_window.view,name",0,Action act window view,Aktion aktives Fenster Sicht,0
+model,"ir.action.keyword,name",0,Action keyword,Aktion Schlüsselwort,0
+model,"ir.action,name",0,Action,Aktion,0
 model,"ir.action,name",act_action_form,Actions,Aktionen,0
 model,"ir.action,name",act_attachment_form,Attachments,Anhänge,0
 model,"ir.action,name",act_translation_clean,Clean Translations,Übersetzungen bereinigen,0
@@ -304,8 +419,45 @@ model,"ir.action,name",act_view_sc_form,View Shortcuts,Schnelltasten anzeigen,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Spaltenbreiten anzeigen,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Fensteraktionen,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
+model,"ir.action.report,name",0,Action report,Aktion Bericht,0
 model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),ODF Dokumente (.odf),0
 model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,PDF Dokument,0
+model,"ir.action.report.outputformat,name",0,Report Output Format,Bericht Ausgabeformat,0
+model,"ir.action.url,name",0,Action URL,Aktion URL,0
+model,"ir.action.wizard,name",0,Action wizard,Aktion Wizard,0
+model,"ir.attachment,name",0,Attachment,Anhang,0
+model,"ir.cache,name",0,Cache,Cache,0
+model,"ir.cron,name",0,Cron,Cron,0
+model,"ir.date,name",0,Date,Datum,0
+model,"ir.default,name",0,Default,Standard,0
+model,"ir.export.line,name",0,Export line,Export Zeile,0
+model,"ir.export,name",0,Export,Export,0
+model,"ir.lang,name",0,Language,Sprache,0
+model,"ir.model.access,name",0,Model access,Modell Zugriff,0
+model,"ir.model.data,name",0,Model data,Modell Daten,0
+model,"ir.model.field,name",0,Model field,Modell Feld,0
+model,"ir.model,name",0,Model,Modell,0
+model,"ir.model.print_model_graph.init,name",0,Print Model Graph Init,Druck Modell Graph,0
+model,"ir.module.module.config_wizard.first,name",0,Module Config Wizard First,Konfigurationswizard Module Erster,0
+model,"ir.module.module.config_wizard.item,name",0,Config wizard to run after installing module,Konfigurationswizard nach Modulinstallation,0
+model,"ir.module.module.dependency,name",0,Module dependency,Modulabhängigkeit,0
+model,"ir.module.module.install_upgrade.init,name",0,Module Install Upgrade Init,Module Installation Aktualisierung Init,0
+model,"ir.module.module.install_upgrade.start,name",0,Module Install Upgrade Start,Module Installation Aktualisierung Start,0
+model,"ir.module.module,name",0,Module,Module,0
+model,"ir.property,name",0,Property,Eigenschaft,0
+model,"ir.rule.group,name",0,Rule group,Regel Gruppe,0
+model,"ir.rule,name",0,Rule,Regel,0
+model,"ir.sequence,name",0,Sequence,Sequenz,0
+model,"ir.sequence.strict,name",0,Sequence Strict,Sequenz Strikt,0
+model,"ir.sequence.type,name",0,Sequence type,Sequenz Typ,0
+model,"ir.translation.clean.init,name",0,Clean translation init,Übersetzung Säuberung Init,0
+model,"ir.translation.clean.start,name",0,Clean translation start,Übersetzung Säuberung Start,0
+model,"ir.translation.export.init,name",0,Export translation - language and module,Export Übersetzung Init,0
+model,"ir.translation.export.start,name",0,Export translation - file,Export Übersetzung Start,0
+model,"ir.translation,name",0,Translation,Übersetzung,0
+model,"ir.translation.set_report.init,name",0,Update Report Translation,Aktualisierung Übersetzung Bericht,0
+model,"ir.translation.set_report.start,name",0,Update Report Translation,Aktualisierung Übersetzung Bericht,0
+model,"ir.translation.update.init,name",0,Update translation - language,Aktualisierung Übersetzung Init,0
 model,"ir.ui.menu,name",menu_action,Actions,Aktionen,0
 model,"ir.ui.menu,name",menu_act_action,Actions,Aktionen,0
 model,"ir.ui.menu,name",menu_administration,Administration,Systemverwaltung,0
@@ -339,6 +491,7 @@ model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Übe
 model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Übersetzungen aktualisieren,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Übersetzungen,0
 model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
+model,"ir.ui.menu,name",0,UI menu,Programmoberfläche Menü,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,Programmoberfläche,0
 model,"ir.ui.menu,name",menu_view,Views,Sichten,0
@@ -346,117 +499,9 @@ model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Schnelltasten anzeigen,0
 model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Spaltenbreiten anzeigen,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Fensteraktionen,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Wizards,0
-selection,"ir.action.act_window,view_type",0,Board,Infoseite,0
-selection,"ir.action.act_window,view_type",0,Form,Formular,0
-selection,"ir.action.act_window,view_type",0,Tree,Baum,0
-selection,"ir.action.keyword,keyword",0,Action form,Formularaktion,0
-selection,"ir.action.keyword,keyword",0,Action tree,Baumaktion,0
-selection,"ir.action.keyword,keyword",0,Form relate,Bezugsformular,0
-selection,"ir.action.keyword,keyword",0,Open Graph,Graph öffnen,0
-selection,"ir.action.keyword,keyword",0,Open tree,Baum öffnen,0
-selection,"ir.action.keyword,keyword",0,Print form,Formular drucken,0
-selection,"ir.cron,interval_type",0,Days,Tage,0
-selection,"ir.cron,interval_type",0,Hours,Stunden,0
-selection,"ir.cron,interval_type",0,Minutes,Minuten,0
-selection,"ir.cron,interval_type",0,Months,Monate,0
-selection,"ir.cron,interval_type",0,Weeks,Wochen,0
-selection,"ir.cron,interval_type",0,Work Days,Arbeitstage,0
-selection,"ir.lang,direction",0,Left-to-right,Links-nach-Rechts,0
-selection,"ir.lang,direction",0,Right-to-left,Rechts-nach-Links,0
-selection,"ir.module.module.config_wizard.item,state",0,Done,Erledigt,0
-selection,"ir.module.module.config_wizard.item,state",0,Open,Offen,0
-selection,"ir.module.module.dependency,state",0,Installed,Installiert,0
-selection,"ir.module.module.dependency,state",0,Not Installed,Nicht installiert,0
-selection,"ir.module.module.dependency,state",0,To be installed,Für die Installation vorgemerkt,0
-selection,"ir.module.module.dependency,state",0,To be removed,Für die Entfernung vorgemerkt,0
-selection,"ir.module.module.dependency,state",0,To be upgraded,Für die Aktualisierung vorgemerkt,0
-selection,"ir.module.module.dependency,state",0,Unknown,Unbekannt,0
-selection,"ir.module.module,state",0,Installed,Installiert,0
-selection,"ir.module.module,state",0,Not Installed,Nicht installiert,0
-selection,"ir.module.module,state",0,To be installed,Für die Installation vorgemerkt,0
-selection,"ir.module.module,state",0,To be removed,Für die Entfernung vorgemerkt,0
-selection,"ir.module.module,state",0,To be upgraded,Für die Aktualisierung vorgemerkt,0
-selection,"ir.rule,operator",0,<=,<=,0
-selection,"ir.rule,operator",0,<>,<>,0
-selection,"ir.rule,operator",0,=,=,0
-selection,"ir.rule,operator",0,>=,>=,0
-selection,"ir.rule,operator",0,child_of,untergeordnet von,0
-selection,"ir.rule,operator",0,in,in,0
-selection,"ir.translation,type",0,Error,Fehler,0
-selection,"ir.translation,type",0,Field,Feld,0
-selection,"ir.translation,type",0,Help,Hilfe,0
-selection,"ir.translation,type",0,Model,Modell,0
-selection,"ir.translation,type",0,ODT,ODT,0
-selection,"ir.translation,type",0,Selection,Auswahl,0
-selection,"ir.translation,type",0,View,Sicht,0
-selection,"ir.translation,type",0,Wizard Button,Wizardknopf,0
-selection,"ir.ui.menu,action",0,ir.action.act_window,ir.action.act_window,0
-selection,"ir.ui.menu,action",0,ir.action.report,ir.action.report,0
-selection,"ir.ui.menu,action",0,ir.action.url,ir.action.url,0
-selection,"ir.ui.menu,action",0,ir.action.wizard,ir.action.wizard,0
-selection,"ir.ui.menu,icon",0,tryton-accessories,tryton-accessories,0
-selection,"ir.ui.menu,icon",0,tryton-attachment,tryton-attachment,0
-selection,"ir.ui.menu,icon",0,tryton-calculator,tryton-calculator,0
-selection,"ir.ui.menu,icon",0,tryton-calendar,tryton-calendar,0
-selection,"ir.ui.menu,icon",0,tryton-clear,tryton-clear,0
-selection,"ir.ui.menu,icon",0,tryton-clock,tryton-clock,0
-selection,"ir.ui.menu,icon",0,tryton-close,tryton-close,0
-selection,"ir.ui.menu,icon",0,tryton-connect,tryton-connect,0
-selection,"ir.ui.menu,icon",0,tryton-copy,tryton-copy,0
-selection,"ir.ui.menu,icon",0,tryton-currency,tryton-currency,0
-selection,"ir.ui.menu,icon",0,tryton-delete,tryton-delete,0
-selection,"ir.ui.menu,icon",0,tryton-development,tryton-development,0
-selection,"ir.ui.menu,icon",0,tryton-dialog-error,tryton-dialog-error,0
-selection,"ir.ui.menu,icon",0,tryton-dialog-information,tryton-dialog-information,0
-selection,"ir.ui.menu,icon",0,tryton-dialog-warning,tryton-dialog-warning,0
-selection,"ir.ui.menu,icon",0,tryton-disconnect,tryton-disconnect,0
-selection,"ir.ui.menu,icon",0,tryton-executable,tryton-executable,0
-selection,"ir.ui.menu,icon",0,tryton-find,tryton-find,0
-selection,"ir.ui.menu,icon",0,tryton-find-replace,tryton-find-replace,0
-selection,"ir.ui.menu,icon",0,tryton-folder-new,tryton-folder-new,0
-selection,"ir.ui.menu,icon",0,tryton-folder-saved-search,tryton-folder-saved-search,0
-selection,"ir.ui.menu,icon",0,tryton-fullscreen,tryton-fullscreen,0
-selection,"ir.ui.menu,icon",0,tryton-go-home,tryton-go-home,0
-selection,"ir.ui.menu,icon",0,tryton-go-jump,tryton-go-jump,0
-selection,"ir.ui.menu,icon",0,tryton-go-next,tryton-go-next,0
-selection,"ir.ui.menu,icon",0,tryton-go-previous,tryton-go-previous,0
-selection,"ir.ui.menu,icon",0,tryton-graph,tryton-graph,0
-selection,"ir.ui.menu,icon",0,tryton-help,tryton-help,0
-selection,"ir.ui.menu,icon",0,tryton-image-missing,tryton-image-missing,0
-selection,"ir.ui.menu,icon",0,tryton-information,tryton-information,0
-selection,"ir.ui.menu,icon",0,tryton-list,tryton-list,0
-selection,"ir.ui.menu,icon",0,tryton-list-add,tryton-list-add,0
-selection,"ir.ui.menu,icon",0,tryton-list-remove,tryton-list-remove,0
-selection,"ir.ui.menu,icon",0,tryton-locale,tryton-locale,0
-selection,"ir.ui.menu,icon",0,tryton-lock,tryton-lock,0
-selection,"ir.ui.menu,icon",0,tryton-log-out,tryton-log-out,0
-selection,"ir.ui.menu,icon",0,tryton-mail-message-new,tryton-mail-message-new,0
-selection,"ir.ui.menu,icon",0,tryton-new,tryton-new,0
-selection,"ir.ui.menu,icon",0,tryton-noimage,tryton-noimage,0
-selection,"ir.ui.menu,icon",0,tryton-open,tryton-open,0
-selection,"ir.ui.menu,icon",0,tryton-package,tryton-package,0
-selection,"ir.ui.menu,icon",0,tryton-preferences,tryton-preferences,0
-selection,"ir.ui.menu,icon",0,tryton-preferences-system,tryton-preferences-system,0
-selection,"ir.ui.menu,icon",0,tryton-preferences-system-session,tryton-preferences-system-session,0
-selection,"ir.ui.menu,icon",0,tryton-presentation,tryton-presentation,0
-selection,"ir.ui.menu,icon",0,tryton-print,tryton-print,0
-selection,"ir.ui.menu,icon",0,tryton-readonly,tryton-readonly,0
-selection,"ir.ui.menu,icon",0,tryton-refresh,tryton-refresh,0
-selection,"ir.ui.menu,icon",0,tryton-save,tryton-save,0
-selection,"ir.ui.menu,icon",0,tryton-save-as,tryton-save-as,0
-selection,"ir.ui.menu,icon",0,tryton-spreadsheet,tryton-spreadsheet,0
-selection,"ir.ui.menu,icon",0,tryton-start-here,tryton-start-here,0
-selection,"ir.ui.menu,icon",0,tryton-system,tryton-system,0
-selection,"ir.ui.menu,icon",0,tryton-system-file-manager,tryton-system-file-manager,0
-selection,"ir.ui.menu,icon",0,tryton-tree,tryton-tree,0
-selection,"ir.ui.menu,icon",0,tryton-users,tryton-users,0
-selection,"ir.ui.menu,icon",0,tryton-web-browser,tryton-web-browser,0
-selection,"ir.ui.view,type",0,,,0
-selection,"ir.ui.view,type",0,Board,Infoseite,0
-selection,"ir.ui.view,type",0,Calendar,Kalender,0
-selection,"ir.ui.view,type",0,Form,Formular,0
-selection,"ir.ui.view,type",0,Graph,Diagramm,0
-selection,"ir.ui.view,type",0,Tree,Baum,0
+model,"ir.ui.view,name",0,View,Sicht,0
+model,"ir.ui.view_sc,name",0,View shortcut,Schnelltaste,0
+model,"ir.ui.view_tree_width,name",0,View Tree Width,Sicht Spaltenbreite,0
 view,ir.action,0,Action,Aktion,0
 view,ir.action,0,Keyword,Schlüsselwort,0
 view,ir.action,0,Keywords,Schlüsselwörter,0
