@@ -1,4 +1,13 @@
 type,name,res_id,src,value,fuzzy
+selection,"workflow.activity,join_mode",0,And,Und,0
+selection,"workflow.activity,join_mode",0,Xor,Oder (exklusiv),0
+selection,"workflow.activity,kind",0,Dummy,Dummy,0
+selection,"workflow.activity,kind",0,Function,Funktion,0
+selection,"workflow.activity,kind",0,Stop All,Alles anhalten,0
+selection,"workflow.activity,kind",0,Subflow,Unterflow,0
+selection,"workflow.activity,split_mode",0,And,Und,0
+selection,"workflow.activity,split_mode",0,Or,Oder,0
+selection,"workflow.activity,split_mode",0,Xor,Oder (exklusiv),0
 error,workflow,0,No workflow defined!,Kein Workflow definiert!,0
 error,workflow.instance,0,No workflow instance defined!,Keine Workflowinstanz definiert!,0
 field,"workflow,activities",0,Activities,Aktivitäten,0
@@ -48,15 +57,12 @@ model,"ir.ui.menu,name",menu_transition_form,Transitions,Übergänge,0
 model,"ir.ui.menu,name",menu_workflow,Workflow,Workflow,0
 model,"ir.ui.menu,name",menu_workflow_form,Workflows,Workflows,0
 model,"ir.ui.menu,name",menu_workitem_form,Workitems,Elemente,0
-selection,"workflow.activity,join_mode",0,And,Und,0
-selection,"workflow.activity,join_mode",0,Xor,Oder (exklusiv),0
-selection,"workflow.activity,kind",0,Dummy,Dummy,0
-selection,"workflow.activity,kind",0,Function,Funktion,0
-selection,"workflow.activity,kind",0,Stop All,Alles anhalten,0
-selection,"workflow.activity,kind",0,Subflow,Unterflow,0
-selection,"workflow.activity,split_mode",0,And,Und,0
-selection,"workflow.activity,split_mode",0,Or,Oder,0
-selection,"workflow.activity,split_mode",0,Xor,Oder (exklusiv),0
+model,"workflow.activity,name",0,Workflow activity,Workflow Aktivität,0
+model,"workflow.instance,name",0,Workflow instance,Workflow Instanz,0
+model,"workflow,name",0,Workflow,Workflow,0
+model,"workflow.transition,name",0,Workflow transition,Workflow Übergang,0
+model,"workflow.trigger,name",0,Workflow trigger,Workflow Trigger,0
+model,"workflow.workitem,name",0,Workflow workitem,Workflow Element,0
 view,workflow,0,Workflow,Workflow,0
 view,workflow.activity,0,Activity,Aktivität,0
 view,workflow.activity,0,Transition,Übergang,0

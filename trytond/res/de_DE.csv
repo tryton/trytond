@@ -1,4 +1,18 @@
 type,name,res_id,src,value,fuzzy
+selection,"res.request.history,priority",0,High,Hoch,0
+selection,"res.request.history,priority",0,Low,Niedrig,0
+selection,"res.request.history,priority",0,Normal,Normal,0
+selection,"res.request.history,state",0,Chatting,Schreibt gerade...,0
+selection,"res.request.history,state",0,Closed,Geschlossen,0
+selection,"res.request.history,state",0,Draft,Entwurf,0
+selection,"res.request.history,state",0,Waiting,Wartend,0
+selection,"res.request,priority",0,High,Hoch,0
+selection,"res.request,priority",0,Low,Niedrig,0
+selection,"res.request,priority",0,Normal,Normal,0
+selection,"res.request,state",0,Chatting,Schreibt gerade...,0
+selection,"res.request,state",0,Closed,Geschlossen,0
+selection,"res.request,state",0,Draft,Entwurf,0
+selection,"res.request,state",0,Waiting,Wartend,0
 error,res.group,0,The name of the group must be unique!,Der Name der Gruppe kann nicht mehrfach vergeben werden!,0
 error,res.user,0,You can not have two users with the same login!,Der Name für einen Benutzer kann nur einmal vergeben werden!,0
 error,res.user,0,"You can not remove the root user
@@ -21,7 +35,7 @@ field,"res.request,body",0,Body,Anfrage,0
 field,"res.request,create_date",0,Creation date,Erstellungsdatum,0
 field,"res.request,create_uid",0,Creation user,Ersteller,0
 field,"res.request,date_sent",0,Date,Datum,0
-field,"res.request,history",0,History,Bisher geändert,0
+field,"res.request,history",0,History,Bisherige Anfragen,0
 field,"res.request.history,act_from",0,From,Von,0
 field,"res.request.history,act_to",0,To,An,0
 field,"res.request.history,body",0,Body,Nachricht,0
@@ -89,22 +103,16 @@ model,"ir.ui.menu,name",menu_request_form,Requests,Anfragen,0
 model,"ir.ui.menu,name",menu_res,Users,Benutzer,0
 model,"ir.ui.menu,name",menu_user_form,Users,Benutzer,0
 model,"res.group,name",group_admin,Administration,Administration Intern,0
+model,"res.group,name",0,Group,Gruppe,0
+model,"res.request.history,name",0,Request history,Bisherige Anfragen,0
+model,"res.request.link,name",0,Request link,Anfrage Verknüpfung,0
 model,"res.request.link,name",request_link_cron,Scheduler,Zeitplaner,0
+model,"res.request,name",0,Request,Anfrage,0
+model,"res.request.reference,name",0,Request Reference,Anfrage Verweis,0
+model,"res.user.config.init,name",0,res.user.config.init,Benutzerkonfiguration Init,0
 model,"res.user,name",user_admin,Administrator,Administrator,0
-selection,"res.request.history,priority",0,High,Hoch,0
-selection,"res.request.history,priority",0,Low,Niedrig,0
-selection,"res.request.history,priority",0,Normal,Normal,0
-selection,"res.request.history,state",0,Chatting,Schreibt gerade...,0
-selection,"res.request.history,state",0,Closed,Geschlossen,0
-selection,"res.request.history,state",0,Draft,Entwurf,0
-selection,"res.request.history,state",0,Waiting,Wartend,0
-selection,"res.request,priority",0,High,Hoch,0
-selection,"res.request,priority",0,Low,Niedrig,0
-selection,"res.request,priority",0,Normal,Normal,0
-selection,"res.request,state",0,Chatting,Schreibt gerade...,0
-selection,"res.request,state",0,Closed,Geschlossen,0
-selection,"res.request,state",0,Draft,Entwurf,0
-selection,"res.request,state",0,Waiting,Wartend,0
+model,"res.user,name",0,User,Benutzer,0
+model,"res.user.warning,name",0,res.user.warning,Benutzer Warnung,0
 view,ir.module.module,0,Cancel Installation,Vormerkung für Installation / Aktualisierung aufheben,0
 view,ir.module.module,0,Cancel Uninstallation,Deinstallation abbrechen,0
 view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisierung aufheben,0
