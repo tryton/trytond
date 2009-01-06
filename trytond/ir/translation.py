@@ -472,6 +472,9 @@ class Translation(OSV, Cacheable):
     def translation_export(self, cursor, user, lang, module, context=None):
         model_data_obj = self.pool.get('ir.model.data')
 
+        if context is None:
+            context = {}
+
         model_data_ids = model_data_obj.search(cursor, user, [
             ('module', '=', module),
             ], context=context)
@@ -485,6 +488,8 @@ class Translation(OSV, Cacheable):
         writer = csv.writer(buf, 'TRYTON')
         writer.writerow(HEADER)
 
+        ctx = context.copy()
+        ctx['language'] = 'en_US'
         translation_ids = self.search(cursor, user, [
             ('lang', '=', lang),
             ('module', '=', module),
@@ -493,7 +498,7 @@ class Translation(OSV, Cacheable):
                 ('name', 'ASC'),
                 ('src', 'ASC'),
                 ('res_id', 'ASC'),
-            ], context=context)
+            ], context=ctx)
         for translation in self.browse(cursor, user, translation_ids,
                 context=context):
             row = []
