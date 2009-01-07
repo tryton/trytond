@@ -241,7 +241,6 @@ class Translation(OSV, Cacheable):
             return trans
 
         if source:
-            source = source.strip().replace('\n',' ')
             cursor.execute('SELECT value ' \
                     'FROM ir_translation ' \
                     'WHERE lang = %s ' \
@@ -299,7 +298,6 @@ class Translation(OSV, Cacheable):
                 if clause:
                     clause += ' OR '
                 if source:
-                    source = source.strip().replace('\n',' ')
                     clause += '(lang = %s ' \
                             'AND type = %s ' \
                             'AND name = %s ' \
