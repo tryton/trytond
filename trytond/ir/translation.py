@@ -129,12 +129,16 @@ class Translation(OSV, Cacheable):
             for record in records:
                 if ttype in ('field', 'help'):
                     name = record.model.model + ',' + record.name
+                else:
+                    name = record.model + ',' + field_name
                 trans_args.append((name, ttype, lang, None))
             self._get_sources(cursor, trans_args)
 
             for record in records:
                 if ttype in ('field', 'help'):
                     name = record.model.model + ',' + record.name
+                else:
+                    name = record.model + ',' + field_name
                 translations[record.id] = self._get_source(cursor,
                         name, ttype, lang)
             return translations
@@ -249,7 +253,8 @@ class Translation(OSV, Cacheable):
                         'AND src = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
-                        'AND fuzzy = false',
+                        'AND fuzzy = false ' \
+                        'AND res_id = 0',
                     (lang, ttype, str(name), source))
         else:
             cursor.execute('SELECT value ' \
@@ -259,7 +264,8 @@ class Translation(OSV, Cacheable):
                         'AND name = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
-                        'AND fuzzy = false ',
+                        'AND fuzzy = false ' \
+                        'AND res_id = 0',
                     (lang, ttype, str(name)))
         res = cursor.fetchone()
         if res:
@@ -304,7 +310,8 @@ class Translation(OSV, Cacheable):
                             'AND src = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
-                            'AND fuzzy = false)'
+                            'AND fuzzy = false ' \
+                            'AND res_id = 0)'
                     value.extend((lang, ttype, str(name), source))
                 else:
                     clause += '(lang = %s ' \
@@ -312,7 +319,8 @@ class Translation(OSV, Cacheable):
                             'AND name = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
-                            'AND fuzzy = false)'
+                            'AND fuzzy = false ' \
+                            'AND res_id = 0)'
                     value.extend((lang, ttype, str(name)))
         if clause:
             cursor.execute('SELECT lang, type, name, src, value ' \
