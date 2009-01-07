@@ -374,7 +374,7 @@ help,"ir.model.data,db_id",0,The id of the record in the database.,Die ID des Da
 help,"ir.model.data,fs_id",0,The id of the record as known on the file system.,Die ID des Datensatzes wie im Dateisystem bekannt,0
 help,"ir.model.field,module",0,Module in which this field is defined,"Modul, in dem dieses Feld definiert ist",0
 help,"ir.model,module",0,Module in which this model is defined,"Modul, in dem dieses Modell definiert ist",0
-help,"ir.rule.group,default_p",0,Add this rule to all users by default,Diesen Regel als Standardregel für alle Benutzer festlegen,0
+help,"ir.rule.group,default_p",0,Add this rule to all users by default,Diese Regel als Standardregel für alle Benutzer festlegen,0
 help,"ir.rule.group,global_p",0,"Make the rule global 
 so every users must follow this rule","Regel global setzen
 (Regel gilt für jeden Benutzer)",0
