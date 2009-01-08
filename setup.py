@@ -53,5 +53,5 @@ setup(name=PACKAGE,
         'graphviz': ['pydot'],
         'timezone': ['pytz'],
     },
-    zip_safe = False,
+    zip_safe=False,
 )
