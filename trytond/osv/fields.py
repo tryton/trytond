@@ -54,7 +54,7 @@ class Column(object):
             domain=None, context='', states=None, priority=0,
             change_default=False, size=None, ondelete="SET NULL",
             translate=False, select=0, on_change=None, on_change_with=None,
-            **args):
+            depends=None, **args):
         self.states = states or {}
         self.string = string
         self.readonly = readonly
@@ -67,6 +67,7 @@ class Column(object):
         self.translate = translate
         self._domain = domain or []
         self._context = context
+        self.depends = depends or []
         if select not in (0, 1, 2):
             raise Exception('Error', 'Select must be one of 0, 1, 2')
         self.select = select

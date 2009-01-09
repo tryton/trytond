@@ -2184,6 +2184,18 @@ class ORM(object):
 
         fields_def = self.__view_look_dom(cursor, user, tree_root, type,
                 fields_width=fields_width, context=context)
+
+        for field_name in fields_def.keys():
+            if field_name in self._columns:
+                field = self._columns[field_name]
+            else:
+                field = self._inherit_fields[field_name][2]
+            for depend in field.depends:
+                fields_def.setdefault(depend, {})
+
+        if ('active' in self._columns) or ('active' in self._inherit_fields):
+            fields_def.setdefault('active', {'select': "2"})
+
         arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
         for field in fields_def:
