@@ -2160,6 +2160,8 @@ class ORM(object):
                     context)
             if result:
                 element.set('string', result)
+        if element.tag == 'tree' and element.get('sequence'):
+            fields_attrs.setdefault(element.get('sequence'), {})
 
         if childs:
             for field in element:
