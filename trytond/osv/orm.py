@@ -2193,10 +2193,10 @@ class ORM(object):
             else:
                 field = self._inherit_fields[field_name][2]
             for depend in field.depends:
-                fields_def.setdefault(depend, {})
+                fields_def.setdefault(depend, {'name': depend})
 
         if ('active' in self._columns) or ('active' in self._inherit_fields):
-            fields_def.setdefault('active', {'select': "2"})
+            fields_def.setdefault('active', {'name': 'active', 'select': "2"})
 
         arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
         fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
