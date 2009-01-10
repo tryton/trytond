@@ -2144,7 +2144,7 @@ class ORM(object):
 
         # translate view
         if ('language' in context) and not result:
-            for attr in ('string', 'sum', 'confirm'):
+            for attr in ('string', 'sum', 'confirm', 'help'):
                 if element.get(attr):
                     trans = translation_obj._get_source(cursor,
                             self._name, 'view', context['language'],
