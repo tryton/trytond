@@ -301,6 +301,7 @@ class Cache(object):
                     (value, last_time) = self._cache[cursor.dbname][key]
                     mintime = time.time() - self.timeout
                     if self.timeout <= 0 or mintime <= last_time:
+                        self._cache[cursor.dbname][key] = (value, time.time())
                         result = value
                         find = True
             finally:
