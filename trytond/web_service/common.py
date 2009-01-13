@@ -11,7 +11,6 @@ class Common(Service):
     def __init__(self, name="common"):
         Service.__init__(self, name)
         Service.join_group(self, "web-service")
-        Service.export_method(self, self.about)
         Service.export_method(self, self.login)
         Service.export_method(self, self.version)
         Service.export_method(self, self.timezone_get)
@@ -24,14 +23,6 @@ class Common(Service):
         logger.info("%s from '%s' using database '%s'" % (msg, login, database))
         Cache.resets(database)
         return res or False
-
-    def about(self):
-        return '''
-Tryton %s
-
-The whole source code is distributed under the terms of the
-GNU Public Licence v2.
-''' % (VERSION,)
 
     def version(self):
         '''
