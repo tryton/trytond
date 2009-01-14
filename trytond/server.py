@@ -253,20 +253,15 @@ class TrytonServer(object):
             import psyco
             psyco.full()
 
-        now = time.time() - 60
         while True:
-            if time.time() - now >= 60:
-                now = time.time()
-                for dbname in pooler.get_db_list():
-                    pool = pooler.get_pool(dbname)
-                    cron_obj = pool.get('ir.cron')
-                    thread = threading.Thread(
-                            target=cron_obj.pool_jobs,
-                            args=(dbname,), kwargs={})
-                    thread.start()
-                if time.time() - now >= 60:
-                    now = time.time()
-            time.sleep(1)
+            for dbname in pooler.get_db_list():
+                pool = pooler.get_pool(dbname)
+                cron_obj = pool.get('ir.cron')
+                thread = threading.Thread(
+                        target=cron_obj.pool_jobs,
+                        args=(dbname,), kwargs={})
+                thread.start()
+            time.sleep(60)
 
 if __name__ == "__main__":
     SERVER = TrytonServer()
