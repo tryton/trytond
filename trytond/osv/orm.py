@@ -2190,8 +2190,10 @@ class ORM(object):
         for field_name in fields_def.keys():
             if field_name in self._columns:
                 field = self._columns[field_name]
-            else:
+            elif field_name in self._inherit_fields:
                 field = self._inherit_fields[field_name][2]
+            else:
+                continue
             for depend in field.depends:
                 fields_def.setdefault(depend, {'name': depend})
 
