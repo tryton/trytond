@@ -4,7 +4,6 @@
 - Fix the order of views that inherits (must be the module dependency order)
 - Improve encoding of default properties
 - Use real view in get_preferences_fields_view of res.user
-- Add fields use in states and domain in fields_view_get
 - Add on one2many a domain per field of the relation
 - Use determined action name in workflow like for default value
 - Add check for index and constraint name lenght (limit 31)
