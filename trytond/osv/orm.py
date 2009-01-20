@@ -3001,15 +3001,41 @@ class ORM(object):
                     and self._columns[field_name].translate:
                 translation_table = 'ir_translation_%s_%s' % \
                         (table_name, field_name)
-                table_join = 'LEFT JOIN "ir_translation" ' \
-                        'AS "%s" ON ' \
-                        '(%s.res_id = %s.id ' \
-                            'AND %s.name = \'%s,%s\' ' \
-                            'AND %s.lang = %%s ' \
-                            'AND %s.type = \'model\')' % \
-                        (translation_table, translation_table, table_name,
-                                translation_table, self._name, field_name,
-                                translation_table, translation_table)
+                if self._name == 'ir.model':
+                    table_join = 'LEFT JOIN "ir_translation" ' \
+                            'AS "%s" ON ' \
+                            '(%s.name = ir_model.model||\',%s\' ' \
+                                'AND %s.lang = %%s ' \
+                                'AND %s.type = \'model\')' % \
+                            (translation_table, translation_table, field_name,
+                                    translation_table, translation_table)
+                elif self._name == 'ir.model.field':
+                    if field_name == 'field_description':
+                        ttype = 'field'
+                    else:
+                        ttype = 'help'
+                    table_join = 'LEFT JOIN "ir_model" ON ' \
+                            'ir_model.id = ir_model_field.model'
+                    if table_join not in tables:
+                        tables.append(table_join)
+                    table_join = 'LEFT JOIN "ir_translation" ' \
+                            'AS "%s" ON ' \
+                            '(%s.name = ir_model.model||\',\'||%s.name ' \
+                                'AND %s.lang = %%s ' \
+                                'AND %s.type = \'%s\')' % \
+                            (translation_table, translation_table, table_name,
+                                    translation_table, translation_table,
+                                    ttype)
+                else:
+                    table_join = 'LEFT JOIN "ir_translation" ' \
+                            'AS "%s" ON ' \
+                            '(%s.res_id = %s.id ' \
+                                'AND %s.name = \'%s,%s\' ' \
+                                'AND %s.lang = %%s ' \
+                                'AND %s.type = \'model\')' % \
+                            (translation_table, translation_table, table_name,
+                                    translation_table, self._name, field_name,
+                                    translation_table, translation_table)
                 if table_join not in tables:
                     tables.append(table_join)
                     tables_args[table_join] = [context.get('language') or 'en_US']
