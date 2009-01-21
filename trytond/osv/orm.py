@@ -2298,7 +2298,7 @@ class ORM(object):
                         'inherit, model ' \
                         'FROM ir_ui_view ' \
                         'WHERE model = %s AND type = %s' \
-                        'ORDER BY inherit DESC, priority',
+                        'ORDER BY inherit DESC, priority ASC, id ASC',
                         (self._name, view_type))
             sql_res = cursor.fetchone()
             if not sql_res:
@@ -2326,7 +2326,7 @@ class ORM(object):
                 cursor.execute('SELECT arch, domain, id FROM ir_ui_view ' \
                         'WHERE (inherit = %s AND model = %s) OR ' \
                             ' (id = %s AND inherit IS NOT NULL) '
-                        'ORDER BY priority',
+                        'ORDER BY priority ASC, id ASC',
                         (inherit_id, self._name, inherit_id))
                 sql_inherit = cursor.fetchall()
                 for (arch, domain, view_id) in sql_inherit:
