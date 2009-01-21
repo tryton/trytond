@@ -124,21 +124,27 @@ class UIMenu(OSV):
         return parent_path + menu.name
 
     def get_action(self, cursor, user, ids, name, arg, context=None):
+        action_keyword_obj = self.pool.get('ir.action.keyword')
+
+        if context is None:
+            context = {}
+        ctx = context.copy()
+        ctx['active_test'] = False
+
         res = {}
         for menu_id in ids:
             res[menu_id] = False
-        action_keyword_obj = self.pool.get('ir.action.keyword')
         action_keyword_ids = action_keyword_obj.search(cursor, user, [
             ('keyword', '=', 'tree_open'),
             ('model', 'in', [self._name + ',' + str(x) for x in ids]),
-            ], context=context)
+            ], context=ctx)
         for action_keyword in action_keyword_obj.browse(cursor, user,
                 action_keyword_ids, context=context):
             model_id = int(action_keyword.model.split(',')[1])
             action_obj = self.pool.get(action_keyword.action.type)
             action_id = action_obj.search(cursor, user, [
                 ('action', '=', action_keyword.action.id),
-                ], context=context)
+                ], context=ctx)
             if action_id:
                 action_id = action_id[0]
                 action_name = action_obj.name_get(cursor, user, action_id,

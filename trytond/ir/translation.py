@@ -600,7 +600,11 @@ class ReportTranslationSet(Wizard):
 
     def _set_report_translation(self, cursor, user, data, context):
         report_obj = self.pool.get('ir.action.report')
-        report_ids = report_obj.search(cursor, user, [], context=context)
+
+        ctx = context.copy()
+        ctx['active_test'] = False
+
+        report_ids = report_obj.search(cursor, user, [], context=ctxt)
 
         if not report_ids:
             return {}
@@ -746,6 +750,9 @@ class TranslationClean(Wizard):
         report_obj = self.pool.get('ir.action.report')
         pool_wizard = pooler.get_pool_wizard(cursor.dbname)
 
+        ctx = context.copy()
+        ctx['active_test'] = False
+
         offset = 0
         limit = cursor.IN_MAX
         while True:
@@ -795,7 +802,7 @@ class TranslationClean(Wizard):
                 elif translation.type == 'odt':
                     if not report_obj.search(cursor, user, [
                         ('report_name', '=', translation.name),
-                        ], context=context):
+                        ], context=ctx):
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'selection':
