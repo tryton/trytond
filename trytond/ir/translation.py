@@ -604,7 +604,7 @@ class ReportTranslationSet(Wizard):
         ctx = context.copy()
         ctx['active_test'] = False
 
-        report_ids = report_obj.search(cursor, user, [], context=ctxt)
+        report_ids = report_obj.search(cursor, user, [], context=ctx)
 
         if not report_ids:
             return {}
