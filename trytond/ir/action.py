@@ -17,6 +17,7 @@ class Action(OSV):
             'Keywords')
     groups = fields.Many2Many('res.group', 'ir_action_group_rel',
             'action_id', 'gid', 'Groups')
+    active = fields.Boolean('Active', select=2)
 
     def __init__(self):
         super(Action, self).__init__()
@@ -26,6 +27,9 @@ class Action(OSV):
 
     def default_usage(self, cursor, user, context=None):
         return False
+
+    def default_active(self, cursor, user, context=None):
+        return True
 
     def get_action_id(self, cursor, user, action_id, context=None):
         if self.search(cursor, user, [
