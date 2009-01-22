@@ -10,4 +10,3 @@
 - Change _constraint to pass a BrowseRecordList instead of a list of ids
 - Change action, menu on res.user into a Many2Many
 - Add order attribute on page tag
-- Allow to pass a context in xxx2xxx operation (it will allow to pass _timestamp)
