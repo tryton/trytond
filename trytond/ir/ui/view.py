@@ -150,13 +150,13 @@ class View(OSV):
         return True
 
     def delete(self, cursor, user, ids, context=None):
+        res = super(View, self).delete(cursor, user, ids, context=context)
         # Restart the cache
         for model in self.pool.object_name_list():
             try:
                 self.pool.get(model).fields_view_get(cursor.dbname)
             except:
                 pass
-        res = super(View, self).delete(cursor, user, ids, context=context)
         return res
 
     def create(self, cursor, user, vals, context=None):
