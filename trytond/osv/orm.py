@@ -1492,9 +1492,10 @@ class ORM(object):
                         ' > %s)'
                 args = []
                 for i in sub_ids:
-                    if context['_timestamp'].get(i):
+                    if context['_timestamp'].get(self._name + ',' + str(i)):
                         args.append(i)
-                        args.append(context['_timestamp'][i])
+                        args.append(context['_timestamp'][
+                            self._name + ',' +str(i)])
                 if args:
                     cursor.execute("SELECT id " \
                             'FROM "' + self._table + '" ' \
@@ -1503,7 +1504,9 @@ class ORM(object):
                     if cursor.rowcount:
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
-            del context['_timestamp']
+            for i in ids:
+                if context['_timestamp'].get(self._name + ',' + str(i)):
+                    del context['_timestamp'][self._name + ',' +str(i)]
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'delete', context=context)
@@ -1633,9 +1636,10 @@ class ORM(object):
                         ' > %s)'
                 args = []
                 for i in sub_ids:
-                    if context['_timestamp'].get(i):
+                    if context['_timestamp'].get(self._name + ',' + str(i)):
                         args.append(i)
-                        args.append(context['_timestamp'][i])
+                        args.append(context['_timestamp'][
+                            self._name + ',' +str(i)])
                 if args:
                     cursor.execute("SELECT id " \
                             'FROM "' + self._table + '" ' \
@@ -1644,7 +1648,9 @@ class ORM(object):
                     if cursor.rowcount:
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
-            del context['_timestamp']
+            for i in ids:
+                if context['_timestamp'].get(self._name + ',' + str(i)):
+                    del context['_timestamp'][self._name + ',' +str(i)]
 
         self.pool.get('ir.model.access').check(cursor, user, self._name,
                 'write', context=context)
