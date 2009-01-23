@@ -3053,7 +3053,8 @@ class ORM(object):
                 return order_by, tables, tables_args
 
             if field_name in self._columns \
-                    and self._columns[field_name]._type == 'selection':
+                    and self._columns[field_name]._type == 'selection' \
+                    and self._columns[field_name].order_field is None:
                 selections = self.fields_get(cursor, user, [field_name],
                         context=context)[field_name]['selection']
                 if not isinstance(selections, (tuple, list)):
