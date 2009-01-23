@@ -31,7 +31,7 @@ class Request(OSV):
     priority = fields.Selection(_PRIORITIES, 'Priority', states={
            'readonly': "(state in ('waiting', 'closed')) or " \
                    "(state == 'chatting' and act_from != _user)",
-           }, required=True)
+           }, required=True, order_field='priority')
     act_from = fields.Many2One('res.user', 'From', required=True,
        readonly=True)
     act_to = fields.Many2One('res.user', 'To', required=True,
