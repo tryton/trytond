@@ -1969,7 +1969,8 @@ class ORM(object):
 
         #Add translation to cache
         trans_args = []
-        for field in self._columns.keys():
+        for field in (x for x in self._columns.keys()
+                if ((not fields_names) or x in fields_names)):
             trans_args.append((self._name + ',' + field, 'field',
                 context.get('language') or 'en_US', None))
             trans_args.append((self._name + ',' + field, 'help',
@@ -1988,7 +1989,8 @@ class ORM(object):
                             val))
         translation_obj._get_sources(cursor, trans_args)
 
-        for field in self._columns.keys():
+        for field in (x for x in self._columns.keys()
+                if ((not fields_names) or x in fields_names)):
             res[field] = {'type': self._columns[field]._type}
             for arg in (
                     'string',
