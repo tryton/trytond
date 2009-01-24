@@ -525,8 +525,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 ('module', '=', self.module),
                 ('inherit', '=', False),
                 ], order=[('id', 'DESC')])
-        return [rec.fs_id for rec in self.modeldata_obj.browse(
-                self.cursor, self.user, module_data_ids)]
+        return set(rec.fs_id for rec in self.modeldata_obj.browse(
+                self.cursor, self.user, module_data_ids))
 
     def import_record(self, model, values, fs_id):
 
