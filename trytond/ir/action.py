@@ -234,12 +234,12 @@ class ActionReport(OSV):
     module = fields.Char('Module', readonly=True)
     email = fields.Char('Email')
 
-    def __init__(self):
-        super(ActionReport, self).__init__()
-        self._sql_constraints += [
-            ('report_name_uniq', 'unique (report_name)',
-                'The internal name must be unique!'),
-        ]
+    def _auto_init(self, cursor, module_name):
+        super(ActionReport, self)._auto_init(cursor, module_name)
+        table = table_handler(cursor, self._table, self._name, module_name)
+
+        # Migration from 1.0 report_name_uniq has been removed
+        table.drop_constraint('report_name_uniq')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.report'
