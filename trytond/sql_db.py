@@ -525,3 +525,17 @@ class table_handler:
                 (constraint, self.table_name, self.table_name,
                  ident, constraint,))
         self.update_definitions()
+
+    def drop_constraint(self, ident):
+        ident = self.table_name + "_" + ident
+        if ident not in self.constraint:
+            return
+        try:
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'DROP CONSTRAINT "%s"' % \
+                    (self.table_name, ident))
+        except:
+            logging.getLogger('init').warning(
+                'unable to drop \'%s\' constraint on table %s!' % \
+                (ident, self.table_name))
+        self.update_definitions()
