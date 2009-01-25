@@ -457,7 +457,8 @@ class Translation(OSV, Cacheable):
                 for translation_id in ids:
                     translation = id2translation[translation_id]
                     if not translation.write_uid and not translation.write_uid \
-                            and translation.value != value:
+                            and (translation.value != value \
+                            or translation.fuzzy != fuzzy):
                         ids2.append(translation.id)
                 if ids2:
                     self.write(cursor, user, ids2, {
