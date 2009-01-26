@@ -251,7 +251,7 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
                     tryton_parser.parse_xmlstream(
                         tools.file_open(OPJ(module, filename)))
 
-            modules_todo.append((module, tryton_parser.to_delete))
+            modules_todo.append((module, list(tryton_parser.to_delete)))
 
             for filename in package.datas.get('translation', []):
                 lang2 = os.path.splitext(filename)[0]
