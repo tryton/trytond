@@ -2020,7 +2020,8 @@ class ORM(object):
                         and getattr(self._columns[field], arg):
                     res[field][arg] = copy.copy(getattr(self._columns[field],
                         arg))
-            if isinstance(self._columns[field], fields.Function) \
+            if isinstance(self._columns[field],
+                    (fields.Function, fields.One2Many)) \
                     and not self._columns[field].order_field:
                 res[field]['sortable'] = False
 
