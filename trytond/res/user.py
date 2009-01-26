@@ -128,6 +128,14 @@ class User(OSV):
         self.pool.get('ir.rule').domain_get(cursor.dbname)
         # Restart the cache for get_groups
         self.get_groups(cursor.dbname)
+        # Restart the cache of check
+        self.pool.get('ir.model.access').check(cursor.dbname)
+        # Restart the cache
+        for model in self.pool.object_name_list():
+            try:
+                self.pool.get(model).fields_view_get(cursor.dbname)
+            except:
+                pass
         return res
 
     def delete(self, cursor, user, ids, context=None):
