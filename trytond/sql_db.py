@@ -539,3 +539,17 @@ class table_handler:
                 'unable to drop \'%s\' constraint on table %s!' % \
                 (ident, self.table_name))
         self.update_definitions()
+
+    def drop_column(self, column_name):
+        if column_name not in self.table:
+            return
+        try:
+            self.cursor.execute(
+                'ALTER TABLE "%s" DROP COLUMN "%s"' %
+                (self.table_name, column_name))
+
+        except:
+            logging.getLogger('init').warning(
+                'unable to drop \'%s\' column on table %s!' % \
+                (column_name, self.table_name))
+        self.update_definitions()
