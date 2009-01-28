@@ -3046,12 +3046,13 @@ class ORM(object):
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
                             '(%s.name = ir_model.model||\',%s\' ' \
+                                'AND %s.res_id = 0 ' \
                                 'AND %s.lang = %%s ' \
                                 'AND %s.type = \'model\' ' \
                                 'AND %s.fuzzy = false)' % \
                             (translation_table, translation_table, field_name,
                                     translation_table, translation_table,
-                                    translation_table)
+                                    translation_table, translation_table)
                 elif self._name == 'ir.model.field':
                     if field_name == 'field_description':
                         ttype = 'field'
@@ -3064,12 +3065,13 @@ class ORM(object):
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
                             '(%s.name = ir_model.model||\',\'||%s.name ' \
+                                'AND %s.res_id = 0 ' \
                                 'AND %s.lang = %%s ' \
                                 'AND %s.type = \'%s\' ' \
                                 'AND %s.fuzzy = false)' % \
                             (translation_table, translation_table, table_name,
                                     translation_table, translation_table,
-                                    ttype, translation_table)
+                                    translation_table, ttype, translation_table)
                 else:
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
