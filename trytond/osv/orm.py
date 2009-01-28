@@ -1480,6 +1480,20 @@ class ORM(object):
             return True
         if isinstance(ids, (int, long)):
             ids = [ids]
+        else:
+            # _update_tree works if only one record has changed
+            update_tree = False
+            for k in self._columns:
+                field = self._columns[k]
+                if isinstance(field, fields.Many2One) \
+                        and field._obj == self._name \
+                        and field.left and field.right:
+                    update_tree = True
+            if update_tree:
+                for object_id in ids:
+                    self.delete(cursor, user, object_id, context=context)
+                return True
+
         if self.table_query(context):
             return True
 
@@ -1568,9 +1582,11 @@ class ORM(object):
 
         for k in tree_ids.keys():
             field = self._columns[k]
-            for object_id in tree_ids[k]:
-                self._update_tree(cursor, user, object_id, k,
+            if len(tree_ids[k]) == 1:
+                self._update_tree(cursor, user, tree_ids[k][0], k,
                         field.left, field.right)
+            else:
+                self._rebuild_tree(cursor, 0, k, False, 0)
 
         return True
 
@@ -1626,6 +1642,19 @@ class ORM(object):
 
         if isinstance(ids, (int, long)):
             ids = [ids]
+        else:
+            # _update_tree works if only one record has changed
+            update_tree = False
+            for k in self._columns:
+                field = self._columns[k]
+                if isinstance(field, fields.Many2One) \
+                        and field._obj == self._name \
+                        and field.left and field.right:
+                    update_tree = True
+            if update_tree:
+                for object_id in ids:
+                    self.write(cursor, user, object_id, vals, context=context)
+                return True
 
         if context.get('_timestamp', False):
             for i in range(0, len(ids), cursor.IN_MAX):
@@ -1793,9 +1822,11 @@ class ORM(object):
                 if field.left in vals or field.right in vals:
                     raise Exception('ValidateError', 'You can not update fields: ' \
                             '"%s", "%s"' % (field.left, field.right))
-                for object_id in ids:
-                    self._update_tree(cursor, user, object_id, k,
+                if len(ids) == 1:
+                    self._update_tree(cursor, user, ids[0], k,
                             field.left, field.right)
+                else:
+                    self._rebuild_tree(cursor, 0, k, False, 0)
 
         # Restart rule cache
         if self.pool.get('ir.rule.group').search(cursor, 0, [
@@ -3396,8 +3427,13 @@ class ORM(object):
         if not cursor.rowcount:
             return
         old_left, old_right = cursor.fetchone()
+        if old_left == old_right:
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET "' + right + '" = "' + right + '" + 1 ' \
+                    'WHERE id = %s', (object_id,))
+            old_right += 1
 
-        next_right = 1
+        parent_right = 1
 
         cursor.execute('SELECT "' + field_name + '" ' \
                 'FROM "' + self._table + '" ' \
@@ -3420,30 +3456,41 @@ class ORM(object):
                 'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
                 (old_left, old_right))
         child_ids = [x[0] for x in cursor.fetchall()]
-        child_number = len(child_ids)
 
-        cursor.execute('UPDATE "' + self._table + '" ' \
-                'SET "' + left + '" = "' + left + '" + ' \
-                    + str(2 * child_number) + ' ' \
+        # ids for left update
+        cursor.execute('SELECT id FROM "' + self._table + '" ' \
                 'WHERE "' + left + '" >= %s ' \
-                    'AND NOT ("' + left + '" >= %s AND ' \
-                        '"' + right + '" <= %s)',
-                    (parent_right, old_left, old_right))
-        cursor.execute('UPDATE "' + self._table + '" ' \
-                'SET "' + right + '" = "' + right + '" + ' \
-                    + str(2 * child_number) + ' ' \
+                    'AND id NOT IN (' + ','.join(['%s' for x in child_ids]) + ')',
+                    [parent_right] + child_ids)
+        left_ids = [x[0] for x in cursor.fetchall()]
+
+        # ids for right update
+        cursor.execute('SELECT id FROM "' + self._table + '" ' \
                 'WHERE "' + right + '" >= %s ' \
-                    'AND NOT ("' + left + '" >= %s AND ' \
-                        '"' + right + '" <= %s)',
-                    (parent_right, old_left, old_right))
+                    'AND id NOT IN (' + ','.join(['%s' for x in child_ids]) + ')',
+                    [parent_right] + child_ids)
+        right_ids = [x[0] for x in cursor.fetchall()]
+
+        if left_ids:
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET "' + left + '" = "' + left + '" + ' \
+                        + str(old_right - old_left + 1) + ' ' \
+                    'WHERE id IN (' + ','.join(['%s' for x in left_ids]) + ')',
+                    left_ids)
+        if right_ids:
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET "' + right + '" = "' + right + '" + ' \
+                        + str(old_right - old_left + 1) + ' ' \
+                    'WHERE id IN (' + ','.join(['%s' for x in right_ids]) + ')',
+                    right_ids)
 
         cursor.execute('UPDATE "' + self._table + '" ' \
                 'SET "' + left + '" = "' + left + '" + ' \
                         + str(parent_right - old_left) + ', ' \
                     '"' + right + '" = "' + right + '" + ' \
-                        + str(parent_right - (old_left or -1)) + ' ' \
-                'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
-                (old_left, old_right))
+                        + str(parent_right - old_left) + ' ' \
+                'WHERE id IN (' + ','.join(['%s' for x in child_ids]) + ')',
+                child_ids)
 
         # Use root user to by-pass rules
         brother_ids = self.search(cursor, 0, [
@@ -3463,9 +3510,9 @@ class ORM(object):
 
             cursor.execute('UPDATE "' + self._table + '" ' \
                     'SET "' + left + '" = "' + left + '" + ' \
-                            + str(2 * child_number) + ', ' \
+                            + str(old_right - old_left + 1) + ', ' \
                         '"' + right + '" = "' + right + '" + ' \
-                            + str(2 * child_number) + ' ' \
+                            + str(old_right - old_left + 1) + ' ' \
                     'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
                     (next_left, current_left))
 
