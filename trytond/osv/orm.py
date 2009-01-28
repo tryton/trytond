@@ -2785,28 +2785,58 @@ class ORM(object):
                     oper = 'OR'
                     if args[i][1] in ('not like', 'not ilike', '!='):
                         oper = 'AND'
-                    query1 = '(SELECT res_id FROM ir_translation ' \
-                            'WHERE name = %s AND lang = %s ' \
-                                'AND type = %s ' \
-                                'AND fuzzy = false ' \
-                                'AND (value ' + args[i][1] + ' %s ' \
-                                    + oper +' value ' + args[i][1] + ' %s))'
-                    query2 = [table._name + ',' + args[i][0],
-                            context.get('language') or 'en_US',
-                            'model', exprs[0] % args[i][2],
-                            exprs[1] % args[i][2]]
-                    query1 += ' UNION '
+
+                    if self._name == 'ir.model':
+                        table_join = 'LEFT JOIN "ir_translation" ' \
+                                'ON (ir_translation.name = ' \
+                                        'ir_model.model||\',%s\' ' \
+                                    'AND ir_translation.res_id = 0' \
+                                    'AND ir_translation.lang = %%s ' \
+                                    'AND ir_translation.type = \'model\' ' \
+                                    'AND ir_translation.fuzzy = false)' % \
+                                (args[i][0],)
+                    elif self._name == 'ir.model.field':
+                        if args[i][0] == 'field_description':
+                            ttype = 'field'
+                        else:
+                            ttype = 'help'
+                        table_join = 'LEFT JOIN "ir_model" ' \
+                                'ON ir_model.id = ir_model_field.model ' \
+                                'LEFT JOIN "ir_translation" ' \
+                                'ON (ir_translation.name = ' \
+                                        'ir_model.model||\',\'||%s.name ' \
+                                    'AND ir_translation.res_id = 0' \
+                                    'AND ir_translation = %%s ' \
+                                    'AND ir_translation.type = \'%s\' ' \
+                                    'AND ir_translation.fuzzy = false)' % \
+                                (table._table, ttype)
+                    else:
+                        table_join = 'LEFT JOIN "ir_translation" ' \
+                                'ON (ir_translation.res_id = %s.id ' \
+                                    'AND ir_translation.name = \'%s,%s\' ' \
+                                    'AND ir_translation.lang = %%s ' \
+                                    'AND ir_translation.type = \'model\' ' \
+                                    'AND ir_translation.fuzzy = false)' % \
+                                (table._table, table._name, args[i][0])
+                    table_join_args = [context.get('language') or 'en_US']
+
                     table_query = ''
                     table_args = []
                     if table.table_query(context):
                         table_query, table_args = table.table_query(context)
                         table_query = '(' + table_query  + ') AS '
-                    query1 += '(SELECT id FROM ' + table_query + \
-                            '"' + table._table + '" ' \
-                            'WHERE ("' + args[i][0] + '" ' + \
-                            args[i][1] + ' %s ' + oper + ' "' + args[i][0] + '" ' + \
+
+                    trans_field = 'COALESCE(NULLIF(' \
+                            'ir_translation.value, \'\'), ' \
+                            + table._table + '.' + args[i][0] + ')'
+
+                    query1 = '(SELECT ' + table._table + '.id ' \
+                            'FROM ' + table_query + '"' + table._table + '" ' \
+                            + table_join + ' ' \
+                            'WHERE (' + trans_field + ' ' + \
+                            args[i][1] + ' %s ' + oper + ' ' + trans_field + ' ' + \
                             args[i][1] + ' %s))'
-                    query2 += table_args + [exprs[0] % args[i][2],
+                    query2 = table_args + table_join_args + [exprs[0] % args[i][2],
                             exprs[1] % args[i][2]]
                     args[i] = ('id', 'inselect', (query1, query2), table)
                 else:
