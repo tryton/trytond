@@ -1,3 +1,4 @@
+* Search on translated field will search only on translated value
 * Add active field on ir.action to allow better override of reports
 * Add depends attributes on Column
 * Make Modified Preorder Tree Traversal respects the default order of the model
