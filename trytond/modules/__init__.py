@@ -129,7 +129,7 @@ def create_graph(module_list, force=None):
     for module in module_list:
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
         mod_path = OPJ(MODULES_PATH, module)
-        if module in ('ir', 'workflow', 'res', 'webdav'):
+        if module in ('ir', 'workflow', 'res', 'webdav', 'tests'):
             root_path = os.path.dirname(os.path.dirname(__file__))
             tryton_file = OPJ(root_path, module, '__tryton__.py')
             mod_path = OPJ(root_path, module)
@@ -298,6 +298,7 @@ def get_module_list():
     module_list.add('workflow')
     module_list.add('res')
     module_list.add('webdav')
+    module_list.add('tests')
     return list(module_list)
 
 def register_classes():
@@ -305,13 +306,14 @@ def register_classes():
     import trytond.workflow
     import trytond.res
     import trytond.webdav
+    import trytond.tests
 
     for package in create_graph(get_module_list())[0]:
         module = package.name
         logging.getLogger('init').info(
             'module:%s:registering classes' % module)
 
-        if module in ('ir', 'workflow', 'res', 'webdav'):
+        if module in ('ir', 'workflow', 'res', 'webdav', 'tests'):
             MODULES.append(module)
             continue
 
