@@ -243,51 +243,34 @@ class User(OSV):
         self.write(cursor, 0, user, values_clean, context=context)
 
     def get_preferences_fields_view(self, cursor, user, context=None):
+        model_data_obj = self.pool.get('ir.model.data')
         lang_obj = self.pool.get('ir.lang')
-        res = {}
-        fields_names = self._preferences_fields + self._context_fields
-        fields_names.pop(fields_names.index('status_bar'))
-        fields = self.fields_get(cursor, user,
-                fields_names=fields_names, context=context)
 
-        xml = '<?xml version="1.0"?>' \
-                '<form string="%s" col="2">' % \
-                (self._description.decode('utf-8'),)
-        fields_keys = fields.keys()
-        fields_keys.sort(lambda x, y: cmp(fields_names.index(x), fields_names.index(y)))
-        for field in fields_keys:
-            if field == 'language':
-                xml += '<label name="%s"/><field name="%s" widget="selection"/>' % \
-                        (field.decode('utf-8'), field.decode('utf-8'))
-            elif field == 'language_direction':
-                pass
-            elif self._columns[field]._type == 'many2many':
-                xml += '<separator name="%s" colspan="2"/>' \
-                        '<field name="%s" colspan="2"/>' % \
-                        (field.decode('utf-8'), field.decode('utf-8'))
-            else:
-                xml += '<label name="%s"/><field name="%s"/>' % \
-                        (field.decode('utf-8'), field.decode('utf-8'))
-        xml += '</form>'
-        tree = etree.fromstring(xml)
-        arch, fields = self._view_look_dom_arch(cursor,
-                user, tree, 'form', context=context)
-        for field in fields:
+        model_data_ids = model_data_obj.search(cursor, user, [
+            ('fs_id', '=', 'user_view_form_preferences'),
+            ('module', '=', 'res'),
+            ('inherit', '=', False),
+            ], limit=1, context=context)
+        model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
+                context=context)
+        res = self.fields_view_get(cursor, user, view_id=model_data.db_id,
+                context=context)
+        res = copy.deepcopy(res)
+        for field in res['fields']:
             if field not in ('groups', 'language_direction'):
-                fields[field]['readonly'] = False
+                res['fields'][field]['readonly'] = False
             else:
-                fields[field]['readonly'] = True
-        res['arch'] = arch
-        if 'language' in fields:
-            del fields['language']['relation']
-            fields['language']['selection'] = []
+                res['fields'][field]['readonly'] = True
+        if 'language' in res['fields']:
+            del res['fields']['language']['relation']
+            res['fields']['language']['selection'] = []
             lang_ids = lang_obj.search(cursor, user, ['OR',
                 ('translatable', '=', True),
                 ('code', '=', 'en_US'),
                 ], context=None)
             for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
-                fields['language']['selection'].append((lang.code, lang.name))
-        res['fields'] = fields
+                res['fields']['language']['selection'].append(
+                        (lang.code, lang.name))
         return res
 
     def timezones(self, cursor, user, context=None):
