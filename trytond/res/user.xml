@@ -29,7 +29,6 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="password"/>
                             <label name="email"/>
                             <field name="email" widget="email"/>
-                            <!--field name="address_id"/-->
                             <newline/>
                             <label name="action"/>
                             <field name="action" required="1"/>
