@@ -82,7 +82,8 @@ def file_open(name, mode="r", subdir='modules'):
                 and (name.startswith('ir' + os.sep) \
                     or name.startswith('workflow' + os.sep) \
                     or name.startswith('res' + os.sep) \
-                    or name.startswith('webdav' + os.sep)):
+                    or name.startswith('webdav' + os.sep) \
+                    or name.startswith('tests' + os.sep)):
             name = os.path.join(root_path, name)
         else:
             name = os.path.join(root_path, subdir, name)
