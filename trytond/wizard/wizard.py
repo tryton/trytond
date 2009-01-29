@@ -301,10 +301,7 @@ class WizardOSV(OSV):
     _auto = False
 
     def auto_init(self, cursor, module_name):
-        self._field_create(cursor, module_name)
-
-    def init(self, cursor):
-        pass
+        self.init(cursor, module_name)
 
     def browse(self, cursor, user, select, context=None):
         pass
