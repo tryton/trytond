@@ -6,7 +6,6 @@ try:
 except ImportError:
     import StringIO
 from trytond.osv.fields import Integer
-import csv
 import os.path
 from trytond.netsvc import  LocalService
 from trytond.config import CONFIG
