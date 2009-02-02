@@ -187,13 +187,13 @@ def init_module_objects(cursor, module_name, obj_list):
     logging.getLogger('init').info(
         'module:%s:creating or updating database tables' % module_name)
     for obj in obj_list:
-        obj.auto_init(cursor, module_name)
+        obj.init(cursor, module_name)
 
 def init_module_wizards(cursor, module_name, wizard_list):
     logging.getLogger('init').info(
         'module:%s:creating or updating wizards' % module_name)
     for wizard in wizard_list:
-        wizard.auto_init(cursor, module_name)
+        wizard.init(cursor, module_name)
 
 def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
     if lang is None:

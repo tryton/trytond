@@ -60,8 +60,9 @@ class Translation(OSV, Cacheable):
         ]
         self._max_len = 10240
 
-    def _auto_init(self, cursor, module_name):
-        super(Translation, self)._auto_init(cursor, module_name)
+    def init(self, cursor, module_name):
+        super(Translation, self).init(cursor, module_name)
+
         cursor.execute('SELECT indexname FROM pg_indexes ' \
                 'WHERE indexname = ' \
                     '\'ir_translation_lang_type_name_index\'')

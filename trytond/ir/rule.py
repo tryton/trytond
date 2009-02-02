@@ -201,7 +201,7 @@ class Rule(OSV):
             clause_global.insert(0, 'AND')
             clause = ['AND', clause_global, clause]
 
-        query, val, _, _ = obj._where_calc(cursor, user,
+        query, val, _, _ = obj.search_domain(cursor, user,
                 clause, active_test=False, context=context)
 
         return query, val

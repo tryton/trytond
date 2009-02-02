@@ -145,10 +145,9 @@ class User(OSV):
             self.raise_user_error(cursor, 'rm_root', context=context)
         return super(User, self).delete(cursor, user, ids, context=context)
 
-    def read(self, cursor, user, ids, fields_names=None, context=None,
-            load='_classic_write'):
+    def read(self, cursor, user, ids, fields_names=None, context=None):
         res = super(User, self).read(cursor, user, ids, fields_names=fields_names,
-                context=context, load=load)
+                context=context)
         if isinstance(ids, (int, long)):
             if 'password' in res:
                 res['password'] = 'x' * 10

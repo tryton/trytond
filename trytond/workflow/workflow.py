@@ -141,8 +141,9 @@ class WorkflowInstance(OSV):
             'no_instance_defined': 'No workflow instance defined!',
             })
 
-    def _auto_init(self, cursor, module_name):
-        super(WorkflowInstance, self)._auto_init(cursor, module_name)
+    def init(self, cursor, module_name):
+        super(WorkflowInstance, self).init(cursor, module_name)
+
         cursor.execute('SELECT indexname FROM pg_indexes ' \
                 'WHERE indexname = ' \
                     '\'wkf_instance_res_id_res_type_state_index\'')
@@ -190,8 +191,9 @@ class WorkflowTrigger(OSV):
     workitem = fields.Many2One('workflow.workitem', 'Workitem',
        required=True, ondelete="cascade")
 
-    def _auto_init(self, cursor, module_name):
-        super(WorkflowTrigger, self)._auto_init(cursor, module_name)
+    def init(self, cursor, module_name):
+        super(WorkflowTrigger, self).init(cursor, module_name)
+
         cursor.execute('SELECT indexname FROM pg_indexes ' \
                 'WHERE indexname = \'wkf_trigger_res_id_model_index\'')
         if not cursor.fetchone():

@@ -78,7 +78,7 @@ class FakeCursor(object):
                 res = self.cursor.execute(sql)
         except:
             logger = logging.getLogger('sql')
-            logger.error('Wrong SQL: ' + sql % tuple("'%s'" % x for x in params or []))
+            logger.error('Wrong SQL: ' + sql % tuple("'%s'" % str(x) for x in params or []))
             raise
         if self.sql_log:
             res_from = RE_FROM.match(sql.lower())

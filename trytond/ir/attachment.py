@@ -127,11 +127,10 @@ class Attachment(OSV):
             model_access_obj.check(cursor, user, model_name, mode=mode,
                     context=context)
 
-    def read(self, cursor, user, ids, fields_names=None, context=None,
-            load='_classic_read'):
+    def read(self, cursor, user, ids, fields_names=None, context=None):
         self.check_access(cursor, user, ids, mode='read', context=context)
         return super(Attachment, self).read(cursor, user, ids,
-                fields_names=fields_names, context=context, load=load)
+                fields_names=fields_names, context=contex)
 
     def delete(self, cursor, user, ids, context=None):
         self.check_access(cursor, user, ids, mode='delete', context=context)

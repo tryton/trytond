@@ -61,8 +61,7 @@ class ModelField(OSV):
     def default_field_description(self, cursor, user, context=None):
         return 'No description available'
 
-    def read(self, cursor, user, ids, fields_names=None, context=None,
-            load='_classic_read'):
+    def read(self, cursor, user, ids, fields_names=None, context=None):
         translation_obj = self.pool.get('ir.translation')
 
         if context is None:
@@ -82,7 +81,7 @@ class ModelField(OSV):
                     to_delete.append('name')
 
         res = super(ModelField, self).read(cursor, user, ids,
-                fields_names=fields_names, context=context, load=load)
+                fields_names=fields_names, context=context)
 
         if context.get('language') \
                 and ('field_description' in fields_names \
