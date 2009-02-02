@@ -45,8 +45,8 @@ class View(OSV):
         })
         self._order.insert(0, ('priority', 'ASC'))
 
-    def _auto_init(self, cursor, module_name):
-        super(View, self)._auto_init(cursor, module_name)
+    def init(self, cursor, module_name):
+        super(View, self).init(cursor, module_name)
         table = table_handler(cursor, self._table, self._name, module_name)
 
         # Migration from 1.0 arch no more required

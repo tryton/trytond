@@ -12,6 +12,8 @@ class Model(object):
     _name = None
     _inherits = {}
     _description = ''
+    _rec_name = 'name'
+    _date_name = 'date'
     pool = None
     __columns = None
     __defaults = None
@@ -71,6 +73,24 @@ class Model(object):
             assert (k in self._columns) or (k in self._inherit_fields), \
             'Default function defined in %s but field %s does not exist!' % \
                 (self._name, k,)
+
+        for field_name in self._columns.keys() + self._inherit_fields.keys():
+            if field_name in self._columns:
+                field = self._columns[field_name]
+            else:
+                field = self._inherit_fields[field_name][2]
+            if isinstance(field, (fields.Selection, fields.Reference)) \
+                    and not isinstance(field.selection, (list, tuple)) \
+                    and field.selection not in self._rpc_allowed:
+                self._rpc_allowed.append(field.selection)
+            if field.on_change:
+                on_change = 'on_change_' + field_name
+                if on_change not in self._rpc_allowed:
+                    self._rpc_allowed.append(on_change)
+            if field.on_change_with:
+                on_change_with = 'on_change_with_' + field_name
+                if on_change_with not in self._rpc_allowed:
+                    self._rpc_allowed.append(on_change_with)
 
     def _inherits_reload(self):
         """
@@ -252,13 +272,16 @@ class Model(object):
         for trans in cursor.dictfetchall():
             trans_error[trans['src']] = trans
 
-        errors = self._error_messages.values()
+        errors = self._get_error_messages()
         for error in set(errors):
             if error not in trans_error:
                 cursor.execute('INSERT INTO ir_translation ' \
                         '(name, lang, type, src, value, module, fuzzy) ' \
                         'VALUES (%s, %s, %s, %s, %s, %s, false)',
                         (self._name, 'en_US', 'error', error, '', module_name))
+
+    def _get_error_messages(self):
+        return self._error_messages.values()
 
     def raise_user_error(self, cursor, error, error_args=None,
             error_description='', error_description_args=None,

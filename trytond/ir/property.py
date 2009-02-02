@@ -47,7 +47,7 @@ class Property(OSV):
             if value:
                 if value.split(',')[0]:
                     try:
-                        val = int(value.split(',')[1])
+                        val = int(value.split(',')[1].split(',')[0].strip('('))
                     except ValueError:
                         val = False
                 else:
@@ -80,7 +80,7 @@ class Property(OSV):
             if prop.value:
                 if prop.value.split(',')[0]:
                     try:
-                        val = int(prop.value.split(',')[1])
+                        val = int(prop.value.split(',')[1].split(',')[0].strip('('))
                     except ValueError:
                         val = False
                 else:
@@ -90,7 +90,7 @@ class Property(OSV):
                         val = prop.value.split(',')[1]
                     else:
                         raise Exception('Not implemented')
-            res[int(prop.res.split(',')[1])] = val
+            res[int(prop.res.split(',')[1].split(',')[0].strip('('))] = val
 
         if field.ttype == 'many2one':
             obj = self.pool.get(field.relation)
@@ -116,6 +116,7 @@ class Property(OSV):
             ('name', '=', name),
             ('model.model', '=', model),
             ], limit=1, context=context)[0]
+        field = model_field_obj.browse(cursor, user, field_id, context=context)
 
         property_ids = self.search(cursor, user, [
             ('field', '=', field_id),
@@ -129,8 +130,23 @@ class Property(OSV):
             ], limit=1, context=context)
         default_val = False
         if default_id:
-            default_val = self.browse(cursor, user, default_id[0],
+            value = self.browse(cursor, user, default_id[0],
                     context=context).value
+            val = False
+            if value:
+                if value.split(',')[0]:
+                    try:
+                        val = int(value.split(',')[1].split(',')[0].strip('('))
+                    except ValueError:
+                        val = False
+                else:
+                    if field.ttype == 'numeric':
+                        val = Decimal(value.split(',')[1])
+                    elif field.ttype in ('char', 'selection'):
+                        val = value.split(',')[1]
+                    else:
+                        raise Exception('Not implemented')
+            default_val = val
 
         res = False
         if (val != default_val):

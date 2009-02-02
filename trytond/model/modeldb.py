@@ -1,0 +1,1475 @@
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
+
+from trytond.model import ModelStorage, OPERATORS
+from trytond.osv import fields
+from trytond.sql_db import table_handler
+from trytond.netsvc import LocalService
+import datetime
+
+
+class ModelDB(ModelStorage):
+    """
+    Define a model with storage in database in Tryton.
+    """
+    _table = None # The name of the table in database
+    _order = None
+    _order_name = None # Use to force order field when sorting on Many2One
+    _sequence = None
+    _sql = ''
+    _auto = True #XXX to remove when module will use the new models
+
+    def __init__(self):
+        super(ModelDB, self).__init__()
+        self._sql_constraints = []
+        self._order = [('id', 'ASC')]
+        self._sql_error_messages = {}
+
+        if not self._table:
+            self._table = self._name.replace('.', '_')
+
+        if not self._sequence:
+            self._sequence = self._table+'_id_seq'
+
+    def init(self, cursor, module_name):
+        super(ModelDB, self).init(cursor, module_name)
+
+        if not self._auto or self.table_query():
+            return
+
+        # create/update table in the database
+        table = table_handler(cursor, self._table, self._name, module_name)
+        logs = (
+            ('create_date', 'timestamp', 'TIMESTAMP',
+                fields.DateTime._symbol_set, lambda *a: datetime.datetime.now()),
+            ('write_date', 'timestamp', 'TIMESTAMP',
+                fields.DateTime._symbol_set, None),
+            ('create_uid', 'int4',
+             'INTEGER REFERENCES res_user ON DELETE SET NULL',
+             fields.Integer._symbol_set, lambda *a: 0),
+            ('write_uid', 'int4',
+             'INTEGER REFERENCES res_user ON DELETE SET NULL',
+             fields.Integer._symbol_set, None),
+            )
+        for log in logs:
+            table.add_raw_column(log[0], (log[1], log[2]), log[3],
+                    default_fun=log[4], migrate=False)
+        for field_name, field in self._columns.iteritems():
+            default_fun = None
+            if field_name in (
+                    'id',
+                    'write_uid',
+                    'write_date',
+                    'create_uid',
+                    'create_date',
+                    ):
+                continue
+
+            if field._classic_write:
+                if field_name in self._defaults:
+                    default_fun = self._defaults[field_name]
+
+                    def unpack_wrapper(fun):
+                        def unpack_result(*a):
+                            try: # XXX ugly hack: some default fct try
+                                 # to access the non-existing table
+                                result = fun(*a)
+                            except:
+                                return None
+                            clean_results = self._clean_defaults(
+                                {field_name: result})
+                            return clean_results[field_name]
+                        return unpack_result
+                    default_fun = unpack_wrapper(default_fun)
+
+                table.add_raw_column(field_name, field.sql_type(),
+                        field._symbol_set, default_fun, field.size)
+
+                if isinstance(field, (fields.Integer, fields.Float)):
+                    table.db_default(field_name, 0)
+
+                if isinstance(field, fields.Many2One):
+                    if field._obj in ('res.user', 'res.group'):
+                        ref = field._obj.replace('.','_')
+                    else:
+                        ref = self.pool.get(field._obj)._table
+                    table.add_fk(field_name, ref, field.ondelete)
+
+                table.index_action(
+                        field_name, action=field.select and 'add' or 'remove')
+
+                required = field.required
+                if isinstance(field, (fields.Integer, fields.Float,
+                    fields.Boolean)):
+                    required = True
+                table.not_null_action(
+                    field_name, action=required and 'add' or 'remove')
+
+            elif isinstance(field, fields.Many2Many):
+                if field._obj in ('res.user', 'res.group'):
+                    ref = field._obj.replace('.','_')
+                else:
+                    ref = self.pool.get(field._obj)._table
+                table.add_m2m(field_name, ref, field._rel, field.origin,
+                        field.target, field.ondelete_origin,
+                        field.ondelete_target)
+
+            elif not isinstance(field, (fields.One2Many, fields.Function)):
+                raise Exception('Unknow field type !')
+
+        for field_name, field in self._columns.iteritems():
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                self._rebuild_tree(cursor, 0, field_name, False, 0)
+
+        for ident, constraint, msg in self._sql_constraints:
+            table.add_constraint(ident, constraint)
+
+    def _get_error_messages(self):
+        res = super(ModelDB, self)._get_error_messages()
+        res += self._sql_error_messages.values()
+        for _, _, error in self._sql_constraints:
+            res.append(error)
+        return res
+
+    def table_query(self, context=None):
+        '''
+        Return None if the model is a real table in the database
+        or return a tuple with the SQL query and the arguments.
+
+        :param context: the context
+        :return: None or a tuple with a SQL query and arguments
+        '''
+        return None
+
+    def create(self, cursor, user, values, context=None):
+        if self.table_query(context):
+            return False
+
+        values = values.copy()
+
+        # Clean values
+        for key in ('create_uid', 'create_date', 'id'):
+            if key in values:
+                del values[key]
+
+        # Get default values
+        default = []
+        avoid_table = []
+        for (i, j) in self._inherits.items():
+            if j in values:
+                avoid_table.append(i)
+        for i in self._columns.keys(): # + self._inherit_fields.keys():
+            if not i in values \
+                    and i not in ('create_uid', 'create_date',
+                            'write_uid', 'write_date'):
+                default.append(i)
+        for i in self._inherit_fields.keys():
+            if (not i in values) \
+                    and (not self._inherit_fields[i][0] in avoid_table):
+                default.append(i)
+
+        if len(default):
+            defaults = self.default_get(cursor, user, default, context)
+            values.update(self._clean_defaults(defaults))
+
+        # Get new id
+        cursor.execute("SELECT NEXTVAL('" + self._sequence + "')")
+        (id_new,) = cursor.fetchone()
+
+        (upd0, upd1, upd2) = ('', '', [])
+        upd_todo = []
+
+        # Create inherits
+        tocreate = {}
+        for i in self._inherits:
+            if self._inherits[i] not in values:
+                tocreate[i] = {}
+
+        for i in values.keys():
+            if i in self._inherit_fields:
+                (inherits, col, col_detail) = self._inherit_fields[i]
+                tocreate[inherits][i] = values[i]
+                #XXX add check if field is not also on base model
+                del values[i]
+
+        for inherits in tocreate:
+            inherits_obj = self.pool.get(inherits)
+            inherits_id = inherits_obj.create(cursor, user, tocreate[inherits],
+                    context=context)
+            upd0 += ',' + self._inherits[inherits]
+            upd1 += ',%s'
+            upd2.append(inherits_id)
+
+        # Insert record
+        for field in values:
+            if self._columns[field]._classic_write:
+                upd0 = upd0 + ',"' + field + '"'
+                upd1 = upd1 + ',' + self._columns[field]._symbol_set[0]
+                upd2.append(self._columns[field]._symbol_set[1](values[field]))
+            else:
+                upd_todo.append(field)
+            if field in self._columns \
+                    and hasattr(self._columns[field], 'selection') \
+                    and values[field]:
+                if self._columns[field]._type == 'reference':
+                    val = values[field].split(',')[0]
+                else:
+                    val = values[field]
+                if isinstance(self._columns[field].selection, (tuple, list)):
+                    if val not in dict(self._columns[field].selection):
+                        raise Exception('ValidateError',
+                        'The value "%s" for the field "%s" ' \
+                                'is not in the selection' % \
+                                (val, field))
+                else:
+                    if val not in dict(getattr(self,
+                        self._columns[field].selection)(
+                        cursor, user, context=context)):
+                        raise Exception('ValidateError',
+                        'The value "%s" for the field "%s" ' \
+                                'is not in the selection' % \
+                                (val, field))
+        upd0 += ', create_uid, create_date'
+        upd1 += ', %s, now()'
+        upd2.append(user)
+        cursor.execute('INSERT INTO "' + self._table + '" ' \
+                '(id' + upd0 + ') ' \
+                'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
+
+        upd_todo.sort(lambda x, y: self._columns[x].priority - \
+                self._columns[y].priority)
+        for field in upd_todo:
+            self._columns[field].set(cursor, self, id_new, field, values[field],
+                    user=user, context=context)
+
+        self._validate(cursor, user, [id_new], context=context)
+
+        # Check for Modified Preorder Tree Traversal
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                self._update_tree(cursor, user, id_new, k, field.left, field.right)
+
+        wf_service = LocalService("workflow")
+        wf_service.trg_create(user, self._name, id_new, cursor, context=context)
+        return id_new
+
+    def read(self, cursor, user, ids, fields_names=None, context=None):
+        rule_obj = self.pool.get('ir.rule')
+        translation_obj = self.pool.get('ir.translation')
+        super(ModelDB, self).read(cursor, user, ids,
+                fields_names=fields_names, context=context)
+
+        if context is None:
+            context = {}
+
+        if not fields_names:
+            fields_names = list(set(self._columns.keys() \
+                    + self._inherit_fields.keys()))
+
+        int_id = False
+        if isinstance(ids, (int, long)):
+            int_id = True
+            ids = [ids]
+
+        if not ids:
+            return []
+
+        # construct a clause for the rules :
+        domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
+                context=context)
+
+        # all inherited fields + all non inherited fields
+        # for which the attribute whose name is in load is True
+        fields_pre = [x for x in fields_names if (x in self._columns \
+                and getattr(self._columns[x], '_classic_write')) or \
+                (x == '_timestamp')] + \
+                self._inherits.values()
+
+        res = []
+        table_query = ''
+        table_args = []
+        if self.table_query(context):
+            table_query, table_args = self.table_query(context)
+            table_query = '(' + table_query + ') AS '
+        if len(fields_pre) :
+            fields_pre2 = [(x in ('create_date', 'write_date')) \
+                    and ('date_trunc(\'second\', ' + x + ') as ' + x) \
+                    or '"' + x + '"' for x in fields_pre \
+                    if x != '_timestamp']
+            if '_timestamp' in fields_pre:
+                if not self.table_query(context):
+                    fields_pre2 += ['(CASE WHEN write_date IS NOT NULL ' \
+                            'THEN write_date ELSE create_date END) ' \
+                            'AS _timestamp']
+                else:
+                    fields_pre2 += ['now()::timestamp AS _timestamp']
+
+            if len(ids) > cursor.IN_MAX:
+                cursor.execute('SELECT id ' \
+                        'FROM ' + table_query + '"' + self._table + '" ' \
+                        'ORDER BY ' + \
+                        ','.join([self._table + '.' + x[0] + ' ' + x[1]
+                            for x in self._order]), table_args)
+                i = 0
+                ids_sorted = {}
+                for row in cursor.fetchall():
+                    ids_sorted[row[0]] = i
+                    i += 1
+                ids = ids[:]
+                ids.sort(lambda x, y: ids_sorted[x] - ids_sorted[y])
+
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
+                if domain1:
+                    cursor.execute(('SELECT ' + \
+                            ','.join(fields_pre2 + ['id']) + \
+                            ' FROM ' + table_query + '\"' + self._table +'\" ' \
+                            'WHERE id IN ' \
+                                '(' + ','.join(['%s' for x in sub_ids]) + ')'\
+                            ' AND (' + domain1 + ') ORDER BY ' + \
+                            ','.join([self._table + '.' + x[0] + ' ' + x[1] \
+                            for x in self._order])),
+                            table_args + sub_ids + domain2)
+                    if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        raise Exception('AccessError',
+                                'You try to bypass an access rule ' \
+                                        '(Document type: %s).' % \
+                                        self._description)
+                else:
+                    cursor.execute('SELECT ' + \
+                            ','.join(fields_pre2 + ['id']) + \
+                            ' FROM ' + table_query + '\"' + self._table + '\" ' \
+                            'WHERE id IN ' \
+                                '(' + ','.join(['%s' for x in sub_ids]) + ')'\
+                            ' ORDER BY ' + \
+                            ','.join([self._table + '.' + x[0] + ' ' + x[1] \
+                            for x in self._order]), table_args + sub_ids)
+                res.extend(cursor.dictfetchall())
+        else:
+            res = [{'id': x} for x in ids]
+
+        for field in fields_pre:
+            if field == '_timestamp':
+                continue
+            if self._columns[field].translate:
+                ids = [x['id'] for x in res]
+                res_trans = translation_obj._get_ids(cursor,
+                        self._name + ',' + field, 'model',
+                        context.get('language') or 'en_US', ids)
+                for i in res:
+                    i[field] = res_trans.get(i['id'], False) or i[field]
+
+        for table in self._inherits:
+            field = self._inherits[table]
+            inherits_fields = list(
+                    set(self._inherit_fields.keys()).intersection(
+                    set(fields_names)).difference(
+                        set(self._columns.keys())))
+            if not inherits_fields:
+                continue
+            res2 = self.pool.get(table).read(cursor, user,
+                    [x[field] for x in res], fields_names=inherits_fields,
+                    context=context)
+
+            res3 = {}
+            for i in res2:
+                res3[i['id']] = i
+                del i['id']
+
+            for record in res:
+                record.update(res3[record[field]])
+                if field not in fields_names:
+                    del record[field]
+
+        ids = [x['id'] for x in res]
+
+        # all non inherited fields for which there is a get attribute
+        fields_post = [x for x in fields_names if x in self._columns \
+                and hasattr(self._columns[x], 'get')]
+        func_fields = {}
+        for field in fields_post:
+            if isinstance(self._columns[field], fields.Function) \
+                    and not isinstance(self._columns[field], fields.Property):
+                key = (self._columns[field]._fnct, self._columns[field]._arg)
+                func_fields.setdefault(key, [])
+                func_fields[key].append(field)
+                continue
+            # get the value of that field for all records/ids
+            res2 = self._columns[field].get(cursor, self, ids, field, user,
+                    context=context, values=res)
+            for record in res:
+                record[field] = res2[record['id']]
+        for i in func_fields:
+            field_list = func_fields[i]
+            field = field_list[0]
+            res2 = self._columns[field].get(cursor, self, ids, field_list, user,
+                    context=context, values=res)
+            for field in res2:
+                for record in res:
+                    record[field] = res2[field][record['id']]
+
+        if int_id:
+            return res[0]
+        return res
+
+    def write(self, cursor, user, ids, values, context=None):
+        super(ModelDB, self).write(cursor, user, ids, values, context=context)
+
+        if context is None:
+            context = {}
+
+        if not ids:
+            return True
+
+        if self.table_query(context):
+            return True
+
+        values = values.copy()
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        else:
+            # _update_tree works if only one record has changed
+            update_tree = False
+            for k in self._columns:
+                field = self._columns[k]
+                if isinstance(field, fields.Many2One) \
+                        and field._obj == self._name \
+                        and field.left and field.right:
+                    update_tree = True
+            if update_tree:
+                for object_id in ids:
+                    self.write(cursor, user, object_id, values, context=context)
+                return True
+
+        if context.get('_timestamp', False):
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
+                clause = '(id = %s AND ' \
+                        '(CASE WHEN write_date IS NOT NULL ' \
+                        'THEN write_date ELSE create_date END) ' \
+                        ' > %s)'
+                args = []
+                for i in sub_ids:
+                    if context['_timestamp'].get(self._name + ',' + str(i)):
+                        args.append(i)
+                        args.append(context['_timestamp'][
+                            self._name + ',' +str(i)])
+                if args:
+                    cursor.execute("SELECT id " \
+                            'FROM "' + self._table + '" ' \
+                            'WHERE ' + ' OR '.join(
+                                [clause for x in range(len(args)/2)]), args)
+                    if cursor.rowcount:
+                        raise Exception('ConcurrencyException',
+                                'Records were modified in the meanwhile')
+            for i in ids:
+                if context['_timestamp'].get(self._name + ',' + str(i)):
+                    del context['_timestamp'][self._name + ',' +str(i)]
+
+
+        if 'write_uid' in values:
+            del values['write_uid']
+        if 'write_date' in values:
+            del values['write_date']
+        if 'id' in values:
+            del values['id']
+
+        upd0 = []
+        upd1 = []
+        upd_todo = []
+        updend = []
+        direct = []
+        for field in values:
+            if field in self._columns:
+                if self._columns[field]._classic_write:
+                    if (not self._columns[field].translate) \
+                            or (context.get('language') or 'en_US') == 'en_US':
+                        upd0.append('"' + field + '"=' + \
+                                self._columns[field]._symbol_set[0])
+                        upd1.append(self._columns[field]._symbol_set[1](
+                            values[field]))
+                    direct.append(field)
+                else:
+                    upd_todo.append(field)
+            else:
+                updend.append(field)
+            if field in self._columns \
+                    and hasattr(self._columns[field], 'selection') \
+                    and values[field]:
+                if self._columns[field]._type == 'reference':
+                    val = values[field].split(',')[0]
+                else:
+                    val = values[field]
+                if isinstance(self._columns[field].selection, (tuple, list)):
+                    if val not in dict(self._columns[field].selection):
+                        raise Exception('ValidateError',
+                        'The value "%s" for the field "%s" ' \
+                                'is not in the selection' % \
+                                (val, field))
+                else:
+                    if val not in dict(getattr(self,
+                        self._columns[field].selection)(
+                        cursor, user, context=context)):
+                        raise Exception('ValidateError',
+                        'The value "%s" for the field "%s" ' \
+                                'is not in the selection' % \
+                                (val, field))
+
+        upd0.append('write_uid = %s')
+        upd0.append('write_date = now()')
+        upd1.append(user)
+
+        if len(upd0):
+            domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor,
+                    user, self._name, context=context)
+            if domain1:
+                domain1 = ' AND (' + domain1 + ') '
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
+                ids_str = ','.join(['%s' for x in sub_ids])
+                if domain1:
+                    cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                            'WHERE id IN (' + ids_str + ') ' + domain1,
+                            sub_ids + domain2)
+                    if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        raise Exception('AccessError',
+                                'You try to bypass an access rule ' \
+                                        '(Document type: %s).' % \
+                                        self._description)
+                else:
+                    cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                            'WHERE id IN (' + ids_str + ')', sub_ids)
+                    if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        raise Exception('AccessError',
+                                'You try to bypass an access rule ' \
+                                        '(Document type: %s).' % \
+                                        self._description)
+                if domain1:
+                    cursor.execute('UPDATE "' + self._table + '" ' \
+                            'SET ' + ','.join(upd0) + ' ' \
+                            'WHERE id IN (' + ids_str + ') ' + domain1,
+                            upd1 + sub_ids + domain2)
+                else:
+                    cursor.execute('UPDATE "' + self._table + '" ' \
+                            'SET ' + ','.join(upd0) + ' ' \
+                            'WHERE id IN (' + ids_str + ') ', upd1 + sub_ids)
+
+            for field in direct:
+                if self._columns[field].translate:
+                    self.pool.get('ir.translation')._set_ids(cursor, user,
+                            self._name + ',' + field, 'model',
+                            context.get('language') or 'en_US', ids,
+                            values[field])
+
+        # call the 'set' method of fields which are not classic_write
+        upd_todo.sort(lambda x, y: self._columns[x].priority - \
+                self._columns[y].priority)
+        for field in upd_todo:
+            for select_id in ids:
+                self._columns[field].set(cursor, self, select_id, field,
+                        values[field], user, context=context)
+
+        for table in self._inherits:
+            col = self._inherits[table]
+            nids = []
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
+                ids_str = ','.join(['%s' for x in sub_ids])
+                cursor.execute('SELECT DISTINCT "' + col + '" ' \
+                        'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
+                        sub_ids)
+                nids.extend([x[0] for x in cursor.fetchall()])
+
+            values2 = {}
+            for val in updend:
+                if self._inherit_fields[val][0] == table:
+                    values2[val] = values[val]
+            self.pool.get(table).write(cursor, user, nids, values2,
+                    context=context)
+
+        self._validate(cursor, user, ids, context=context)
+
+        # Check for Modified Preorder Tree Traversal
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                if field.left in values or field.right in values:
+                    raise Exception('ValidateError', 'You can not update fields: ' \
+                            '"%s", "%s"' % (field.left, field.right))
+                if len(ids) == 1:
+                    self._update_tree(cursor, user, ids[0], k,
+                            field.left, field.right)
+                else:
+                    self._rebuild_tree(cursor, 0, k, False, 0)
+
+        wf_service = LocalService("workflow")
+        for obj_id in ids:
+            wf_service.trg_write(user, self._name, obj_id, cursor,
+                    context=context)
+        return True
+
+    def delete(self, cursor, user, ids, context=None):
+        super(ModelDB, self).delete(cursor, user, ids, context=context)
+
+        if context is None:
+            context = {}
+
+        if not ids:
+            return True
+
+        if self.table_query(context):
+            return True
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+
+        if context.get('_timestamp', False):
+            for i in range(0, len(ids), cursor.IN_MAX):
+                sub_ids = ids[i:i + cursor.IN_MAX]
+                clause = '(id = %s AND ' \
+                        '(CASE WHEN write_date IS NOT NULL ' \
+                        'THEN write_date ELSE create_date END) ' \
+                        ' > %s)'
+                args = []
+                for i in sub_ids:
+                    if context['_timestamp'].get(self._name + ',' + str(i)):
+                        args.append(i)
+                        args.append(context['_timestamp'][
+                            self._name + ',' +str(i)])
+                if args:
+                    cursor.execute("SELECT id " \
+                            'FROM "' + self._table + '" ' \
+                            'WHERE ' + ' OR '.join(
+                                [clause for x in range(len(args)/2)]), args)
+                    if cursor.rowcount:
+                        raise Exception('ConcurrencyException',
+                                'Records were modified in the meanwhile')
+            for i in ids:
+                if context['_timestamp'].get(self._name + ',' + str(i)):
+                    del context['_timestamp'][self._name + ',' +str(i)]
+
+
+        #TODO use search
+        cursor.execute(
+            "SELECT id FROM wkf_instance "\
+                "WHERE res_id IN (" + ",".join(["%s" for i in ids]) + ") "\
+                "AND res_type = %s AND state != 'complete'",
+            ids + [self._name])
+        if cursor.rowcount != 0:
+            self.raise_user_error(cursor, 'delete_workflow_record',
+                    context=context)
+
+        wf_service = LocalService("workflow")
+        for obj_id in ids:
+            wf_service.trg_delete(user, self._name, obj_id, cursor,
+                    context=context)
+
+        tree_ids = {}
+        for k in self._columns:
+            field = self._columns[k]
+            if isinstance(field, fields.Many2One) \
+                    and field._obj == self._name \
+                    and field.left and field.right:
+                cursor.execute('SELECT id FROM "' + self._table + '" '\
+                        'WHERE "' + k + '" IN (' \
+                            + ','.join(['%s' for x in ids]) + ')',
+                            ids)
+                tree_ids[k] = [x[0] for x in cursor.fetchall()]
+
+        domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
+                self._name, context=context)
+        if domain1:
+            domain1 = ' AND (' + domain1 + ') '
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
+            str_d = ','.join(('%s',) * len(sub_ids))
+            if domain1:
+                cursor.execute('SELECT id FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ') ' + domain1,
+                        sub_ids + domain2)
+                if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                    raise Exception('AccessError',
+                            'You try to bypass an access rule ' \
+                                '(Document type: %s).' % self._description)
+
+            if domain1:
+                cursor.execute('DELETE FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ') ' + domain1,
+                        sub_ids + domain2)
+            else:
+                cursor.execute('DELETE FROM "'+self._table+'" ' \
+                        'WHERE id IN (' + str_d + ')', sub_ids)
+
+        for k in tree_ids.keys():
+            field = self._columns[k]
+            if len(tree_ids[k]) == 1:
+                self._update_tree(cursor, user, tree_ids[k][0], k,
+                        field.left, field.right)
+            else:
+                self._rebuild_tree(cursor, 0, k, False, 0)
+
+        return True
+
+    def search(self, cursor, user, domain, offset=0, limit=None, order=None,
+            context=None, count=False, query_string=False):
+        rule_obj = self.pool.get('ir.rule')
+
+        # Get domain clauses
+        qu1, qu2, tables, tables_args = self.search_domain(cursor, user,
+                domain, context=context)
+
+        # Get order by
+        order_by = []
+        for field, otype in (order or self._order):
+            if otype.upper() not in ('DESC', 'ASC'):
+                raise Exception('Error', 'Wrong order type (%s)!' % otype)
+            order_by2, tables2, tables2_args = self._order_calc(cursor, user,
+                    field, otype, context=context)
+            order_by += order_by2
+            for table in tables2:
+                if table not in tables:
+                    tables.append(table)
+                    if tables2_args.get(table):
+                        tables_args.extend(tables2_args.get(table))
+
+        order_by = ','.join(order_by)
+
+        # Get limit
+        limit_str = limit and (type(limit) in (float, int, long))\
+                    and ' LIMIT %d' % limit or ''
+
+        # Get offset
+        offset_str = offset and (type(offset) in (float, int, long))\
+                     and ' OFFSET %d' % offset or ''
+
+        # construct a clause for the rules :
+        domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
+                context=context)
+        if domain1:
+            if qu1:
+                qu1 += ' AND ' + domain1
+            else:
+                qu1 = domain1
+            qu2 += domain2
+
+        if count:
+            cursor.execute('SELECT COUNT(%s.id) FROM ' % self._table +
+                    ' '.join(tables) + ' WHERE ' + (qu1 or 'True') +
+                    limit_str + offset_str, tables_args + qu2)
+            res = cursor.fetchall()
+            return res[0][0]
+        # execute the "main" query to fetch the ids we were searching for
+        query_str = 'SELECT %s.id FROM ' % self._table + \
+                ' '.join(tables) + ' WHERE ' + (qu1 or 'True') + \
+                ' ORDER BY ' + order_by + limit_str + offset_str
+        if query_string:
+            return (query_str, tables_args + qu2)
+        cursor.execute(query_str, tables_args + qu2)
+        res = cursor.fetchall()
+        return [x[0] for x in res]
+
+    def search_domain(self, cursor, user, domain, active_test=True, context=None):
+        '''
+        Return SQL clause and arguments for the domain
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param domain: a domain like in search
+        :param active_test: a boolean to add 'active' test
+        :param context: the context
+        :return: a tuple with
+            - a SQL clause string
+            - a list of arguments for the SQL clause
+            - a list a tables used in the SQL clause
+            - a list of arguments for the tables
+        '''
+        domain = self._search_domain_active(domain, active_test=active_test,
+                context=context)
+
+        table_query = ''
+        tables_args = []
+        if self.table_query(context):
+            table_query, tables_args = self.table_query(context)
+            table_query = '(' + table_query + ') AS '
+
+        tables = [table_query + '"' + self._table + '"']
+
+        qu1, qu2 = self.__search_domain_oper(cursor, user, domain, tables,
+                tables_args, context=context)
+        return qu1, qu2, tables, tables_args
+
+    def __search_domain_oper(self, cursor, user, domain, tables, tables_args,
+            context=None):
+        operator = 'AND'
+        if len(domain) and isinstance(domain[0], basestring):
+            if domain[0] not in ('AND', 'OR'):
+                raise Exception('ValidateError', 'Operator "%s" not supported' \
+                        % domain[0])
+            operator = domain[0]
+            domain = domain[1:]
+        tuple_args = []
+        list_args = []
+        for arg in domain:
+            #add test for xmlrpc that doesn't handle tuple
+            if isinstance(arg, tuple) \
+                    or (isinstance(arg, list) and len(arg) > 2 \
+                    and arg[1] in OPERATORS):
+                tuple_args.append(tuple(arg))
+            elif isinstance(arg, list):
+                list_args.append(arg)
+
+        qu1, qu2 = self.__search_domain_calc(cursor, user,
+                tuple_args, tables, tables_args, context=context)
+        if len(qu1):
+            qu1 = (' ' + operator + ' ').join(qu1)
+        else:
+            qu1 = ''
+
+        for domain2 in list_args:
+            qu1b, qu2b = self.__search_domain_oper(cursor, user, domain2,
+                    tables, tables_args, context=context)
+            if not qu1b:
+                qu1b = 'true'
+            if qu1 and qu1b:
+                qu1 += ' ' + operator + ' ' + qu1b
+            elif qu1b:
+                qu1 = qu1b
+            qu2 += qu2b
+        if qu1:
+            qu1 = '(' + qu1 + ')'
+        return qu1, qu2
+
+    def __search_domain_calc(self, cursor, user, domain, tables, tables_args,
+            context=None):
+        if context is None:
+            context = {}
+        domain = domain[:]
+
+        for arg in domain:
+            if arg[1] not in OPERATORS:
+                raise Exception('ValidateError', 'Argument "%s" not supported' \
+                        % arg[1])
+        i = 0
+        joins = []
+        while i < len(domain):
+            table = self
+            fargs = domain[i][0].split('.', 1)
+            if fargs[0] in self._inherit_fields:
+                itable = self.pool.get(self._inherit_fields[fargs[0]][0])
+                table_query = ''
+                table_arg = []
+                if itable.table_query(context):
+                    table_query, table_args = self.table_query(context)
+                    table_query = '(' + table_query + ') AS '
+                table_join = 'LEFT JOIN ' + table_query + \
+                        '"' + itable._table + '" ON ' \
+                        '%s.id = %s.%s' % (itable._table, self._table,
+                                self._inherits[itable._name])
+                if table_join not in tables:
+                    tables.append(table_join)
+                    tables_args += table_arg
+            field = table._columns.get(fargs[0], False)
+            if not field:
+                if not fargs[0] in self._inherit_fields:
+                    raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
+                            'exist on "%s"' % (fargs[0], self._name))
+                table = self.pool.get(self._inherit_fields[fargs[0]][0])
+                field = table._columns.get(fargs[0], False)
+            if len(fargs) > 1:
+                if field._type == 'many2one':
+                    domain[i] = (fargs[0], 'inselect',
+                            self.pool.get(field._obj).search(cursor, user,
+                                [(fargs[1], domain[i][1], domain[i][2])],
+                                context=context, query_string=True), table)
+                    i += 1
+                    continue
+                else:
+                    raise Exception('ValidateError', 'Clause on field "%s" ' \
+                            'doesn\'t work on "%s"' % (domain[i][0], self._name))
+            if field._properties:
+                arg = [domain.pop(i)]
+                j = i
+                while j < len(domain):
+                    if domain[j][0] == arg[0][0]:
+                        arg.append(domain.pop(j))
+                    else:
+                        j += 1
+                if field._fnct_search:
+                    domain.extend(field.search(cursor, user, table,
+                        arg[0][0], arg, context=context))
+            elif field._type == 'one2many':
+                field_obj = self.pool.get(field._obj)
+
+                if isinstance(domain[i][2], basestring):
+                    # get the ids of the records of the "distant" resource
+                    ids2 = [x[0] for x in field_obj.name_search(cursor, user,
+                        domain[i][2], [], domain[i][1], context=context)]
+                else:
+                    ids2 = domain[i][2]
+
+                table_query = ''
+                table_args = []
+                if field_obj.table_query(context):
+                    table_query, table_args = field_obj.table_query(context)
+                    table_query = '(' + table_query + ') AS '
+
+                if ids2 == True or ids2 == False:
+                    query1 = 'SELECT "' + field._field + '" ' \
+                            'FROM ' + table_query + '"' + field_obj._table + '" ' \
+                            'WHERE "' + field._field + '" IS NOT NULL'
+                    query2 = table_args
+                    clause = 'inselect'
+                    if ids2 == False:
+                        clause = 'notinselect'
+                    domain[i] = ('id', clause, (query1, query2))
+                elif not ids2:
+                    domain[i] = ('id', '=', '0')
+                else:
+                    if len(ids2) < cursor.IN_MAX:
+                        query1 = 'SELECT "' + field._field + '" ' \
+                                'FROM ' + table_query + '"' + field_obj._table + '" ' \
+                                'WHERE id IN (' + \
+                                    ','.join(['%s' for x in ids2]) + ')'
+                        query2 = table_args + ids2
+                        domain[i] = ('id', 'inselect', (query1, query2))
+                    else:
+                        ids3 = []
+                        for i in range(0, len(ids2), cursor.IN_MAX):
+                            sub_ids2 = ids2[i:i + cursor.IN_MAX]
+                            cursor.execute(
+                                'SELECT "' + field._field + \
+                                '" FROM ' + table_query + '"' + field_obj._table + '" ' \
+                                'WHERE id IN (' + \
+                                    ','.join(['%s' for x in sub_ids2]) + ')',
+                                table_args + sub_ids2)
+
+                            ids3.extend([x[0] for x in cursor.fetchall()])
+
+                        domain[i] = ('id', 'in', ids3)
+                i += 1
+            elif field._type == 'many2many':
+                # XXX must find a solution for long id list
+                if domain[i][1] in ('child_of', 'not child_of'):
+                    if isinstance(domain[i][2], basestring):
+                        ids2 = [x[0] for x in self.pool.get(
+                        field._obj).name_search(cursor, user, domain[i][2], [],
+                            'like', context=context)]
+                    elif isinstance(domain[i][2], (int, long)):
+                        ids2 = [domain[i][2]]
+                    else:
+                        ids2 = domain[i][2]
+
+                    def _rec_get(ids, table, parent):
+                        if not ids:
+                            return []
+                        ids2 = table.search(cursor, user,
+                                [(parent, 'in', ids), (parent, '!=', False)],
+                                context=context)
+                        return ids + _rec_get(ids2, table, parent)
+
+                    if field._obj != table._name:
+                        if len(domain[i]) != 4:
+                            raise Exception('Error', 'Programming error: ' \
+                                    'child_of on field "%s" is not allowed!' % \
+                                    (domain[i][0],))
+                        ids2 = self.pool.get(field._obj).search(cursor, user,
+                                [(domain[i][3], 'child_of', ids2)],
+                                context=context)
+                        query1 = 'SELECT "' + field.origin + '" ' \
+                                'FROM "' + field._rel + '" ' \
+                                'WHERE "' + field.target + '" IN (' + \
+                                    ','.join(['%s' for x in ids2]) + ') ' \
+                                    'AND "' + field.origin + '" IS NOT NULL'
+                        query2 = [str(x) for x in ids2]
+                        if domain[i][1] == 'child_of':
+                            domain[i] = ('id', 'inselect', (query1, query2))
+                        else:
+                            domain[i] = ('id', 'notinselect', (query1, query2))
+                    else:
+                        if domain[i][1] == 'child_of':
+                            domain[i] = ('id', 'in', ids2 + _rec_get(ids2,
+                                table, domain[i][0]))
+                        else:
+                            domain[i] = ('id', 'not in', ids2 + _rec_get(ids2,
+                                table, domain[i][0]))
+                else:
+                    if isinstance(domain[i][2], basestring):
+                        res_ids = [x[0] for x in self.pool.get(field._obj
+                            ).name_search(cursor, user, domain[i][2], [],
+                                domain[i][1], context=context)]
+                    else:
+                        res_ids = domain[i][2]
+                    if res_ids == True or res_ids == False:
+                        query1 = 'SELECT "' + field.origin + '" ' \
+                                'FROM "' + field._rel + '" '\
+                                'WHERE "' + field.origin + '" IS NOT NULL'
+                        query2 = []
+                        clause = 'inselect'
+                        if res_ids == False:
+                            clause = 'notinselect'
+                        domain[i] = ('id', clause, (query1, query2))
+                    elif not res_ids:
+                        domain[i] = ('id', '=', '0')
+                    else:
+                        query1 = 'SELECT "' + field.origin + '" ' \
+                                'FROM "' + field._rel + '" ' \
+                                'WHERE "' + field.target + '" IN (' + \
+                                    ','.join(['%s' for x in res_ids]) + ')'
+                        query2 = [str(x) for x in res_ids]
+                        domain[i] = ('id', 'inselect', (query1, query2))
+                i += 1
+
+            elif field._type == 'many2one':
+                # XXX must find a solution for long id list
+                if domain[i][1] in ('child_of', 'not child_of'):
+                    if isinstance(domain[i][2], basestring):
+                        ids2 = [x[0] for x in self.pool.get(
+                            field._obj).name_search(cursor, user, domain[i][2],
+                                [], 'like', context=context)]
+                    elif isinstance(domain[i][2], (int, long)):
+                        ids2 = [domain[i][2]]
+                    else:
+                        ids2 = domain[i][2]
+
+                    def _rec_get(ids, table, parent):
+                        if not ids:
+                            return []
+                        ids2 = table.search(cursor, user,
+                                [(parent, 'in', ids), (parent, '!=', False)],
+                                context=context)
+                        return ids + _rec_get(ids2, table, parent)
+
+                    if field._obj != table._name:
+                        if len(domain[i]) != 4:
+                            raise Exception('Error', 'Programming error: ' \
+                                    'child_of on field "%s" is not allowed!' % \
+                                    (domain[i][0],))
+                        ids2 = self.pool.get(field._obj).search(cursor, user,
+                                [(domain[i][3], 'child_of', ids2)],
+                                context=context)
+                        if domain[i][1] == 'child_of':
+                            domain[i] = (domain[i][0], 'in', ids2, table)
+                        else:
+                            domain[i] = (domain[i][0], 'not in', ids2, table)
+                    else:
+                        if field.left and field.right:
+                            cursor.execute('SELECT "' + field.left + '", ' \
+                                        '"' + field.right + '" ' + \
+                                    'FROM "' + self._table + '" ' + \
+                                    'WHERE id IN ' + \
+                                        '(' + ','.join(['%s' for x in ids2]) + ')',
+                                        ids2)
+                            clause = 'false '
+                            for left, right in cursor.fetchall():
+                                clause += 'OR '
+                                clause += '( "' + field.left + '" >= ' + \
+                                        str(left) + ' ' + \
+                                        'AND "' + field.right + '" <= ' + \
+                                        str(right) + ')'
+
+                            query = 'SELECT id FROM "' + self._table + '" ' + \
+                                    'WHERE ' + clause
+                            if domain[i][1] == 'child_of':
+                                domain[i] = ('id', 'inselect', (query, []))
+                            else:
+                                domain[i] = ('id', 'notinselect', (query, []))
+                        else:
+                            if domain[i][1] == 'child_of':
+                                domain[i] = ('id', 'in', ids2 + _rec_get(
+                                    ids2, table, domain[i][0]), table)
+                            else:
+                                domain[i] = ('id', 'not in', ids2 + _rec_get(
+                                    ids2, table, domain[i][0]), table)
+                else:
+                    if isinstance(domain[i][2], basestring):
+                        res_ids = self.pool.get(field._obj).name_search(cursor,
+                                user, domain[i][2], [], domain[i][1],
+                                context=context)
+                        domain[i] = (domain[i][0], 'in', [x[0] for x in res_ids],
+                                table)
+                    else:
+                        domain[i] += (table,)
+                i += 1
+            else:
+                if field.translate:
+                    exprs = ['%s', '%s']
+                    if domain[i][1] in ('like', 'ilike', 'not like', 'not ilike'):
+                        exprs = ['%% %s%%', '%s%%']
+                    oper = 'OR'
+                    if domain[i][1] in ('not like', 'not ilike', '!='):
+                        oper = 'AND'
+
+                    if self._name == 'ir.model':
+                        table_join = 'LEFT JOIN "ir_translation" ' \
+                                'ON (ir_translation.name = ' \
+                                        'ir_model.model||\',%s\' ' \
+                                    'AND ir_translation.res_id = 0' \
+                                    'AND ir_translation.lang = %%s ' \
+                                    'AND ir_translation.type = \'model\' ' \
+                                    'AND ir_translation.fuzzy = false)' % \
+                                (domain[i][0],)
+                    elif self._name == 'ir.model.field':
+                        if domain[i][0] == 'field_description':
+                            ttype = 'field'
+                        else:
+                            ttype = 'help'
+                        table_join = 'LEFT JOIN "ir_model" ' \
+                                'ON ir_model.id = ir_model_field.model ' \
+                                'LEFT JOIN "ir_translation" ' \
+                                'ON (ir_translation.name = ' \
+                                        'ir_model.model||\',\'||%s.name ' \
+                                    'AND ir_translation.res_id = 0' \
+                                    'AND ir_translation = %%s ' \
+                                    'AND ir_translation.type = \'%s\' ' \
+                                    'AND ir_translation.fuzzy = false)' % \
+                                (table._table, ttype)
+                    else:
+                        table_join = 'LEFT JOIN "ir_translation" ' \
+                                'ON (ir_translation.res_id = %s.id ' \
+                                    'AND ir_translation.name = \'%s,%s\' ' \
+                                    'AND ir_translation.lang = %%s ' \
+                                    'AND ir_translation.type = \'model\' ' \
+                                    'AND ir_translation.fuzzy = false)' % \
+                                (table._table, table._name, domain[i][0])
+                    table_join_args = [context.get('language') or 'en_US']
+
+                    table_query = ''
+                    table_args = []
+                    if table.table_query(context):
+                        table_query, table_args = table.table_query(context)
+                        table_query = '(' + table_query  + ') AS '
+
+                    trans_field = 'COALESCE(NULLIF(' \
+                            'ir_translation.value, \'\'), ' \
+                            + table._table + '.' + domain[i][0] + ')'
+
+                    query1 = '(SELECT ' + table._table + '.id ' \
+                            'FROM ' + table_query + '"' + table._table + '" ' \
+                            + table_join + ' ' \
+                            'WHERE (' + trans_field + ' ' + \
+                            domain[i][1] + ' %s ' + oper + ' ' + trans_field + ' ' + \
+                            domain[i][1] + ' %s))'
+                    query2 = table_args + table_join_args + [exprs[0] % domain[i][2],
+                            exprs[1] % domain[i][2]]
+                    domain[i] = ('id', 'inselect', (query1, query2), table)
+                else:
+                    domain[i] += (table,)
+                i += 1
+        domain.extend(joins)
+
+        qu1, qu2 = [], []
+        for arg in domain:
+            table = self
+            if len(arg) > 3:
+                table = arg[3]
+            if arg[1] in ('inselect', 'notinselect'):
+                clause = 'IN'
+                if arg[1] == 'notinselect':
+                    clause = 'NOT IN'
+                qu1.append('(%s.%s %s (%s))' % (table._table, arg[0], clause,
+                    arg[2][0]))
+                qu2 += arg[2][1]
+            elif arg[1] in ('in', 'not in'):
+                if len(arg[2]) > 0:
+                    todel = []
+                    for xitem in range(len(arg[2])):
+                        if arg[2][xitem] == False \
+                                and isinstance(arg[2][xitem],bool):
+                            todel.append(xitem)
+                    arg2 = arg[2][:]
+                    for xitem in todel[::-1]:
+                        del arg2[xitem]
+                    #TODO fix max_stack_depth
+                    if len(arg2):
+                        if arg[0] == 'id':
+                            qu1.append(('(%s.id ' + arg[1] + ' (%s))') % \
+                                    (table._table,
+                                        ','.join(['%s'] * len(arg2)),))
+                        else:
+                            qu1.append(('(%s.%s ' + arg[1] + ' (%s))') % \
+                                    (table._table, arg[0], ','.join(
+                                        [table._columns[arg[0]].\
+                                                _symbol_set[0]] * len(arg2))))
+                        if todel:
+                            if table._columns[arg[0]]._type == 'boolean':
+                                if arg[1] == 'in':
+                                    qu1[-1] = '(' + qu1[-1] + ' OR ' \
+                                            '%s.%s = false)' % \
+                                            (table._table, arg[0])
+                                else:
+                                    qu1[-1] = '(' + qu1[-1] + ' OR ' \
+                                            '%s.%s != false)' % \
+                                            (table._table, arg[0])
+                            else:
+                                if arg[1] == 'in':
+                                    qu1[-1] = '(' + qu1[-1] + ' OR ' \
+                                            '%s.%s IS NULL)' % \
+                                            (table._table, arg[0])
+                                else:
+                                    qu1[-1] = '(' + qu1[-1] + ' OR ' \
+                                            '%s.%s IS NOT NULL)' % \
+                                            (table._table, arg[0])
+                        qu2 += arg2
+                    elif todel:
+                        if table._columns[arg[0]]._type == 'boolean':
+                            if arg[1] == 'in':
+                                qu1.append('(%s.%s = false)' % \
+                                        (table._table, arg[0]))
+                            else:
+                                qu1.append('(%s.%s != false)' % \
+                                        (table._table, arg[0]))
+                        else:
+                            if arg[1] == 'in':
+                                qu1.append('(%s.%s IS NULL)' % \
+                                        (table._table, arg[0]))
+                            else:
+                                qu1.append('(%s.%s IS NOT NULL)' % \
+                                        (table._table, arg[0]))
+                else:
+                    if arg[1] == 'in':
+                        qu1.append(' false')
+                    else:
+                        qu1.append(' true')
+            else:
+                if (arg[2] is False) and (arg[1] == '='):
+                    if table._columns[arg[0]]._type == 'boolean':
+                        qu1.append('(%s.%s = false)' % \
+                                (table._table, arg[0]))
+                    else:
+                        qu1.append('(%s.%s IS NULL)' % \
+                                (table._table, arg[0]))
+                elif (arg[2] is False) and (arg[1] == '!='):
+                    qu1.append('(%s.%s IS NOT NULL)' % \
+                            (table._table, arg[0]))
+                else:
+                    if arg[0] == 'id':
+                        qu1.append('(%s.%s %s %%s)' % \
+                                (table._table, arg[0], arg[1]))
+                        qu2.append(arg[2])
+                    else:
+                        add_null = False
+                        if arg[1] in ('like', 'ilike', 'not like', 'not ilike'):
+                            qu2.append('%% %s%%' % arg[2])
+                            qu2.append('%s%%' % arg[2])
+                            if not arg[2]:
+                                add_null = True
+                        else:
+                            if arg[0] in table._columns:
+                                qu2.append(table._columns[arg[0]].\
+                                        _symbol_set[1](arg[2]))
+                        if arg[0] in table._columns:
+                            if arg[1] in ('like', 'ilike'):
+                                qu1.append('(%s.%s %s %s OR %s.%s %s %s)' % \
+                                        (table._table, arg[0], arg[1], '%s',
+                                            table._table, arg[0], arg[1], '%s'))
+                            elif arg[1] in ('not like', 'not ilike'):
+                                qu1.append('(%s.%s %s %s AND %s.%s %s %s)' % \
+                                        (table._table, arg[0], arg[1], '%s',
+                                            table._table, arg[0], arg[1], '%s'))
+                            else:
+                                qu1.append('(%s.%s %s %s)' % (table._table,
+                                    arg[0], arg[1],
+                                    table._columns[arg[0]]._symbol_set[0]))
+                        else:
+                            if arg[1] in ('like', 'ilike'):
+                                qu1.append('(%s.%s %s \'%s\' or %s.%s %s \'%s\')' % \
+                                        (table._table, arg[0], arg[1], arg[2],
+                                            table._table, arg[0], arg[1], arg[2]))
+                            elif arg[1] in ('not like', 'not ilike'):
+                                qu1.append('(%s.%s %s \'%s\' and %s.%s %s \'%s\')' % \
+                                        (table._table, arg[0], arg[1], arg[2],
+                                            table._table, arg[0], arg[1], arg[2]))
+                            else:
+                                qu1.append('(%s.%s %s \'%s\')' % \
+                                        (table._table, arg[0], arg[1], arg[2]))
+
+                        if add_null:
+                            qu1[-1] = '('+qu1[-1]+' OR '+arg[0]+' is null)'
+
+        return qu1, qu2
+
+    def _order_calc(self, cursor, user, field, otype, context=None):
+        order_by = []
+        tables = []
+        tables_args = {}
+        field_name = None
+        table_name = None
+        link_field = None
+
+        if context is None:
+            context = {}
+
+        if field in self._columns:
+            table_name = self._table
+
+            if self._columns[field]._classic_write:
+                field_name = field
+
+            if self._columns[field].order_field:
+                field_name = self._columns[field].order_field
+
+            if isinstance(self._columns[field], fields.Many2One):
+                obj = self.pool.get(self._columns[field]._obj)
+                table_name = obj._table
+                link_field = field
+                field_name = None
+
+                if obj._rec_name in obj._columns:
+                    field_name = obj._rec_name
+
+                if obj._order_name in obj._columns:
+                    field_name = obj._order_name
+
+                if field_name:
+                    order_by, tables, tables_args = obj._order_calc(cursor,
+                            user, field_name, otype, context=context)
+                    if table_name == self._table:
+                        table_join = 'LEFT JOIN "' + table_name + '" AS ' \
+                                '"' + table_name + '.' + link_field + '" ON ' \
+                                '"%s.%s".id = %s.%s' % (table_name, link_field,
+                                        self._table, link_field)
+                        for i in range(len(order_by)):
+                            if table_name in order_by[i]:
+                                order_by[i] = order_by[i].replace(table_name,
+                                        '"' + table_name + '.' + \
+                                                link_field + '"')
+                    else:
+                        table_join = 'LEFT JOIN "' + table_name + '" ON ' \
+                                '%s.id = %s.%s' % (table_name, self._table,
+                                        link_field)
+                    if table_join not in tables:
+                        tables.insert(0, table_join)
+                    return order_by, tables, tables_args
+
+                obj2 = None
+                if obj._rec_name in obj._inherit_fields.keys():
+                    obj2 = self.pool.get(
+                            obj._inherit_fields[obj._rec_name][0])
+                    field_name = obj._rec_name
+
+                if obj._order_name in obj._inherit_fields.keys():
+                    obj2 = self.pool.get(
+                            obj._inherit_fields[obj._order_name][0])
+                    field_name = obj._order_name
+
+                if obj2 and field_name:
+                    table_name2 = obj2._table
+                    link_field2 = obj._inherits[obj2._name]
+                    order_by, tables, tables_args = obj2._order_calc(cursor,
+                            user, field_name, otype, context=context)
+
+                    table_join = 'LEFT JOIN "' + table_name + '" ON ' \
+                            '%s.id = %s.%s' % \
+                            (table_name, self._table, link_field)
+                    if table_join not in tables:
+                        tables.insert(0, table_join)
+
+                    table_join2 = 'LEFT JOIN "' + table_name2 + '" ON ' \
+                            '%s.id = %s.%s' % \
+                            (table_name2, obj._table, link_field2)
+                    if table_join2 not in tables:
+                        tables.insert(1, table_join2)
+                    return order_by, tables, tables_args
+
+            if field_name in self._columns \
+                    and self._columns[field_name].translate:
+                translation_table = 'ir_translation_%s_%s' % \
+                        (table_name, field_name)
+                if self._name == 'ir.model':
+                    table_join = 'LEFT JOIN "ir_translation" ' \
+                            'AS "%s" ON ' \
+                            '(%s.name = ir_model.model||\',%s\' ' \
+                                'AND %s.res_id = 0 ' \
+                                'AND %s.lang = %%s ' \
+                                'AND %s.type = \'model\' ' \
+                                'AND %s.fuzzy = false)' % \
+                            (translation_table, translation_table, field_name,
+                                    translation_table, translation_table,
+                                    translation_table, translation_table)
+                elif self._name == 'ir.model.field':
+                    if field_name == 'field_description':
+                        ttype = 'field'
+                    else:
+                        ttype = 'help'
+                    table_join = 'LEFT JOIN "ir_model" ON ' \
+                            'ir_model.id = ir_model_field.model'
+                    if table_join not in tables:
+                        tables.append(table_join)
+                    table_join = 'LEFT JOIN "ir_translation" ' \
+                            'AS "%s" ON ' \
+                            '(%s.name = ir_model.model||\',\'||%s.name ' \
+                                'AND %s.res_id = 0 ' \
+                                'AND %s.lang = %%s ' \
+                                'AND %s.type = \'%s\' ' \
+                                'AND %s.fuzzy = false)' % \
+                            (translation_table, translation_table, table_name,
+                                    translation_table, translation_table,
+                                    translation_table, ttype, translation_table)
+                else:
+                    table_join = 'LEFT JOIN "ir_translation" ' \
+                            'AS "%s" ON ' \
+                            '(%s.res_id = %s.id ' \
+                                'AND %s.name = \'%s,%s\' ' \
+                                'AND %s.lang = %%s ' \
+                                'AND %s.type = \'model\' ' \
+                                'AND %s.fuzzy = false)' % \
+                            (translation_table, translation_table, table_name,
+                                    translation_table, self._name, field_name,
+                                    translation_table, translation_table,
+                                    translation_table)
+                if table_join not in tables:
+                    tables.append(table_join)
+                    tables_args[table_join] = [context.get('language') or 'en_US']
+                order_by.append('COALESCE(NULLIF(' \
+                        + translation_table + '.value, \'\'), ' \
+                        + table_name + '.' + field_name + ') ' + otype)
+                return order_by, tables, tables_args
+
+            if field_name in self._columns \
+                    and self._columns[field_name]._type == 'selection' \
+                    and self._columns[field_name].order_field is None:
+                selections = self.fields_get(cursor, user, [field_name],
+                        context=context)[field_name]['selection']
+                if not isinstance(selections, (tuple, list)):
+                    selections = getattr(self,
+                            self._columns[field_name].selection)(cursor,
+                                    user, context=context)
+                order = 'CASE ' + table_name + '.' + field_name
+                for selection in selections:
+                    order += ' WHEN \'%s\' THEN \'%s\'' % selection
+                order += ' ELSE ' + table_name + '.' + field_name + ' END'
+                order_by.append(order + ' ' + otype)
+                return order_by, tables, tables_args
+
+            if field_name:
+                if '%(table)s' in field_name or '%(order)s' in field_name:
+                    order_by.append(field_name % {
+                        'table': table_name,
+                        'order': otype,
+                        })
+                else:
+                    order_by.append(table_name + '.' + field_name + ' ' + otype)
+                return order_by, tables, tables_args
+
+        if field in self._inherit_fields.keys():
+            obj = self.pool.get(self._inherit_fields[field][0])
+            table_name = obj._table
+            link_field = self._inherits[obj._name]
+            order_by, tables, tables_args = obj._order_calc(cursor, user, field,
+                    otype, context=context)
+            table_join = 'LEFT JOIN "' + table_name + '" ON ' \
+                    '%s.id = %s.%s' % \
+                    (table_name, self._table, link_field)
+            if table_join not in tables:
+                tables.insert(0, table_join)
+            return order_by, tables, tables_args
+
+        raise Exception('Error', 'Wrong field name (%s) in order!' % field)

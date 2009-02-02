@@ -148,7 +148,7 @@ class Wizard(object):
         super(Wizard, self).__init__()
         self._error_messages = {}
 
-    def auto_init(self, cursor, module_name):
+    def init(self, cursor, module_name):
         for state in self.states.keys():
             if self.states[state]['result']['type'] == 'form':
                 for i, button in enumerate(
@@ -300,9 +300,6 @@ class WizardOSV(OSV):
             ]
     _auto = False
 
-    def auto_init(self, cursor, module_name):
-        self.init(cursor, module_name)
-
     def browse(self, cursor, user, select, context=None):
         pass
 
@@ -313,8 +310,7 @@ class WizardOSV(OSV):
             current_module=None, noupdate=False, context=None):
         pass
 
-    def read(self, cursor, ids, fields_names=None, context=None,
-            load='_classic_read'):
+    def read(self, cursor, ids, fields_names=None, context=None):
         pass
 
     def delete(self, cursor, user, ids, context=None):

@@ -48,7 +48,6 @@ class Column(object):
     _symbol_c = '%s'
     _symbol_f = _symbol_f
     _symbol_set = (_symbol_c, _symbol_f)
-    _symbol_get = None
 
     def __init__(self, string='unknown', required=False, readonly=False,
             domain=None, context='', states=None, priority=0,
@@ -77,13 +76,6 @@ class Column(object):
         for i in args:
             if args[i]:
                 setattr(self, i, args[i])
-
-    def set(self, cursor, obj, obj_id, name, value, user=None, context=None):
-        raise Exception('undefined get method!')
-
-    def get(self, cursor, obj, ids, name, user=None, offset=0, context=None,
-            values=None):
-        raise Exception('undefined get method!')
 
     def sql_type(self):
         raise Exception('undefined sql_type method!')
@@ -254,7 +246,6 @@ class Binary(Column):
     _symbol_c = '%s'
     _symbol_f = lambda symb: symb and psycopg2.Binary(symb) or None
     _symbol_set = (_symbol_c, _symbol_f)
-    _symbol_get = lambda self, symb: symb and str(symb) or None
 
     def sql_type(self):
         return ('bytea', 'bytea')
@@ -303,10 +294,14 @@ class Many2One(Column):
             res[i['id']] = i[name]
         for i in ids:
             res.setdefault(i, '')
-        obj = obj.pool.get(self._obj)
+        try:
+            obj = obj.pool.get(self._obj)
+        except KeyError:
+            return res
         obj_names = {}
         for obj_id, name in obj.name_get(cursor, user,
-                [ x for x in res.values() if x],
+                [isinstance(x, (list, tuple)) and x[0] or x
+                    for x in res.values() if x],
                 context=context):
             obj_names[obj_id] = name
 
@@ -388,9 +383,9 @@ class One2Many(Column):
             ids2 = ids2[offset:]
         if self._limit:
             ids2 = ids2[:self._limit]
-        for i in obj.pool.get(self._obj)._read_flat(cursor, user, ids2,
-                [self._field], context=context, load='_classic_write'):
-            res[i[self._field]].append( i['id'] )
+        for i in obj.pool.get(self._obj).read(cursor, user, ids2,
+                [self._field], context=context):
+            res[i[self._field][0]].append( i['id'] )
         return res
 
     def set(self, cursor, obj, obj_id, field, values, user=None, context=None):
