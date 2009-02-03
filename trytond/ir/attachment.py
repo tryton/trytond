@@ -130,7 +130,7 @@ class Attachment(OSV):
     def read(self, cursor, user, ids, fields_names=None, context=None):
         self.check_access(cursor, user, ids, mode='read', context=context)
         return super(Attachment, self).read(cursor, user, ids,
-                fields_names=fields_names, context=contex)
+                fields_names=fields_names, context=context)
 
     def delete(self, cursor, user, ids, context=None):
         self.check_access(cursor, user, ids, mode='delete', context=context)
