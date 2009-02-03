@@ -5,7 +5,6 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
-from trytond.osv.fields import Integer
 import os.path
 from trytond.netsvc import  LocalService
 from trytond.config import CONFIG
@@ -194,7 +193,7 @@ class RecordTagHandler:
             eval_attr = attributes.get('eval', '')
 
             if search_attr:
-                search_model = self.model._columns[field_name]._obj
+                search_model = self.model._columns[field_name].model_name
                 f_obj = self.mh.pool.get(search_model)
                 answer = f_obj.browse(
                     self.mh.cursor, self.mh.user,
