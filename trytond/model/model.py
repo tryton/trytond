@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from trytond.osv import fields
+from trytond.model import fields
 import copy
 
 
@@ -28,7 +28,7 @@ class Model(object):
         for attr in dir(self):
             if attr in ('_columns', '_defaults'):
                 continue
-            if isinstance(getattr(self, attr), fields.Column):
+            if isinstance(getattr(self, attr), fields.Field):
                 res[attr] = getattr(self, attr)
         self.__columns = res
         return res
@@ -200,10 +200,12 @@ class Model(object):
                             "relation, help, module) " \
                         "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                         (model_id, field_name, field.string, field._type,
-                            field._obj or '', field.help, module_name))
+                            hasattr(field, 'model_name') and field.model_name or '',
+                            field.help, module_name))
             elif fields[field_name]['field_description'] != field.string \
                     or fields[field_name]['ttype'] != field._type \
-                    or fields[field_name]['relation'] != (field._obj or '') \
+                    or fields[field_name]['relation'] != \
+                        (hasattr(field, 'model_name') and field.model_name or '') \
                     or fields[field_name]['help'] != field.help:
                 cursor.execute('UPDATE ir_model_field ' \
                         'SET field_description = %s, ' \
@@ -211,7 +213,8 @@ class Model(object):
                             'relation = %s, ' \
                             'help = %s ' \
                         'WHERE id = %s ',
-                        (field.string, field._type, field._obj or '',
+                        (field.string, field._type,
+                            hasattr(field, 'model_name') and field.model_name or '',
                             field.help, fields[field_name]['id']))
             trans_name = self._name + ',' + field_name
             if trans_name not in trans_fields:
@@ -426,7 +429,7 @@ class Model(object):
                             self._name)
                     if self._columns[field]._type in ('many2one',) \
                             and value[field]:
-                        obj = self.pool.get(self._columns[field]._obj)
+                        obj = self.pool.get(self._columns[field].model_name)
                         if isinstance(value[field], (int, long)) \
                                 and hasattr(obj, 'name_get'):
                             value[field] = obj.name_get(cursor, user,
@@ -442,7 +445,7 @@ class Model(object):
                 fld_def = (field in self._columns) and self._columns[field] \
                         or self._inherit_fields[field][2]
                 if fld_def._type in ('many2one',):
-                    obj = self.pool.get(fld_def._obj)
+                    obj = self.pool.get(fld_def.model_name)
                     if not hasattr(obj, 'search') \
                             or not obj.search(cursor, user, [
                                 ('id', '=', field_value),
@@ -453,7 +456,7 @@ class Model(object):
                         field_value = obj.name_get(cursor, user, field_value,
                                 context=context)[0]
                 if fld_def._type in ('many2many'):
-                    obj = self.pool.get(fld_def._obj)
+                    obj = self.pool.get(fld_def.model_name)
                     field_value2 = []
                     for i in range(len(field_value)):
                         if not hasattr(obj, 'search') \
@@ -464,14 +467,15 @@ class Model(object):
                         field_value2.append(field_value[i])
                     field_value = field_value2
                 if fld_def._type in ('one2many'):
-                    obj = self.pool.get(fld_def._obj)
+                    obj = self.pool.get(fld_def.model_name)
                     field_value2 = []
                     for i in range(len(field_value or [])):
                         field_value2.append({})
                         for field2 in field_value[i]:
                             if obj._columns[field2]._type \
                                     in ('many2one',):
-                                obj2 = self.pool.get(obj._columns[field2]._obj)
+                                obj2 = self.pool.get(
+                                        obj._columns[field2].model_name)
                                 if not hasattr(obj2, 'search') \
                                         or not obj2.search(cursor, user, [
                                             ('id', '=', field_value[i][field2]),
@@ -520,7 +524,7 @@ class Model(object):
                     val.update(getattr(self, 'on_change_' + field)(cursor, user,
                         [], args, context=context))
                 if self._columns[field]._type in ('one2many',):
-                    obj = self.pool.get(self._columns[field]._obj)
+                    obj = self.pool.get(self._columns[field].model_name)
                     for val2 in res[field]:
                         val2.update(obj._default_on_change(cursor, user,
                             val2, context=context))
@@ -648,12 +652,13 @@ class Model(object):
                     'many2many',
                     'many2one',
                     ):
-                res[field]['relation'] = copy.copy(self._columns[field]._obj)
-                res[field]['domain'] = copy.copy(self._columns[field]._domain)
-                res[field]['context'] = copy.copy(self._columns[field]._context)
-            if res[field]['type'] == 'one2many':
+                res[field]['relation'] = copy.copy(self._columns[field].model_name)
+                res[field]['domain'] = copy.copy(self._columns[field].domain)
+                res[field]['context'] = copy.copy(self._columns[field].context)
+            if res[field]['type'] == 'one2many' \
+                    and hasattr(self._columns[field], 'field'):
                 res[field]['relation_field'] = copy.copy(
-                        self._columns[field]._field)
+                        self._columns[field].field)
 
         if fields_names:
             # filter out fields which aren't in the fields_names list

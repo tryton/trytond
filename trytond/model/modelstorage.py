@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from trytond.model import Model
-from trytond.osv import fields
+from trytond.model import fields
 from trytond.model.browse import BrowseRecordList, BrowseRecord, BrowseRecordNull
 from trytond.model.browse import EvalEnvironment
 import datetime
@@ -789,9 +789,9 @@ class ModelStorage(Model):
         for field_name, field in self._columns.iteritems():
             # validate domain
             if field._type in ('many2one', 'many2many', 'one2many') \
-                    and field._domain:
-                relation_obj = self.pool.get(field._obj)
-                if isinstance(field._domain, basestring):
+                    and field.domain:
+                relation_obj = self.pool.get(field.model_name)
+                if isinstance(field.domain, basestring):
                     ctx = context.copy()
                     ctx.update(ctx_pref)
                     for record in records:
@@ -801,7 +801,7 @@ class ModelStorage(Model):
                         env['time'] = time
                         env['context'] = context
                         env['active_id'] = record.id
-                        domain = eval(field._domain, env)
+                        domain = eval(field.domain, env)
                         relation_ids = []
                         if record[field_name]:
                             if field._type in ('many2one',):
@@ -832,7 +832,7 @@ class ModelStorage(Model):
                         find_ids = relation_obj.search(cursor, user, [
                             'AND',
                             [('id', 'in', relation_ids)],
-                            field._domain,
+                            field.domain,
                             ], context=context)
                         if not set(relation_ids) == set(find_ids):
                             self.raise_user_error(cursor,
@@ -853,9 +853,6 @@ class ModelStorage(Model):
                         env['active_id'] = record.id
                         required = eval(field.states['required'], env)
                         if required and not record[field_name]:
-                            print record[field_name]
-                            print field_name
-                            print field.states['required']
                             self.raise_user_error(cursor,
                                     'required_validation_record',
                                     error_args=get_error_args(field_name),
@@ -880,7 +877,7 @@ class ModelStorage(Model):
                 else:
                     vals[field] = defaults[field]
             elif fld_def._type in ('one2many',):
-                obj = self.pool.get(self._columns[field]._obj)
+                obj = self.pool.get(self._columns[field].model_name)
                 vals[field] = []
                 for defaults2 in defaults[field]:
                     vals2 = obj._clean_defaults(defaults2)

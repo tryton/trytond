@@ -2,9 +2,10 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model import ModelStorage, OPERATORS
-from trytond.osv import fields
+from trytond.model import fields
 from trytond.sql_db import table_handler
 from trytond.netsvc import LocalService
+from trytond.backend import FIELDS
 import datetime
 
 
@@ -39,20 +40,22 @@ class ModelDB(ModelStorage):
 
         # create/update table in the database
         table = table_handler(cursor, self._table, self._name, module_name)
+        datetime_field = FIELDS['datetime']
+        integer_field = FIELDS['integer']
         logs = (
-            ('create_date', 'timestamp', 'TIMESTAMP',
-                fields.DateTime._symbol_set, lambda *a: datetime.datetime.now()),
-            ('write_date', 'timestamp', 'TIMESTAMP',
-                fields.DateTime._symbol_set, None),
-            ('create_uid', 'int4',
-             'INTEGER REFERENCES res_user ON DELETE SET NULL',
-             fields.Integer._symbol_set, lambda *a: 0),
-            ('write_uid', 'int4',
-             'INTEGER REFERENCES res_user ON DELETE SET NULL',
-             fields.Integer._symbol_set, None),
+            ('create_date', datetime_field.sql_type(None), datetime_field.symbol_c,
+                datetime_field.symbol_f, lambda *a: datetime.datetime.now()),
+            ('write_date', datetime_field.sql_type(None), datetime_field.symbol_c,
+                datetime_field.symbol_f, None),
+            ('create_uid', (integer_field.sql_type(None)[0],
+             'INTEGER REFERENCES res_user ON DELETE SET NULL',),
+             integer_field.symbol_c, integer_field.symbol_f, lambda *a: 0),
+            ('write_uid', (integer_field.sql_type(None)[0],
+             'INTEGER REFERENCES res_user ON DELETE SET NULL'),
+             integer_field.symbol_c, integer_field.symbol_f, None),
             )
         for log in logs:
-            table.add_raw_column(log[0], (log[1], log[2]), log[3],
+            table.add_raw_column(log[0], log[1], (log[2], log[3]),
                     default_fun=log[4], migrate=False)
         for field_name, field in self._columns.iteritems():
             default_fun = None
@@ -65,7 +68,7 @@ class ModelDB(ModelStorage):
                     ):
                 continue
 
-            if field._classic_write:
+            if not hasattr(field, 'set'):
                 if field_name in self._defaults:
                     default_fun = self._defaults[field_name]
 
@@ -82,17 +85,20 @@ class ModelDB(ModelStorage):
                         return unpack_result
                     default_fun = unpack_wrapper(default_fun)
 
-                table.add_raw_column(field_name, field.sql_type(),
-                        field._symbol_set, default_fun, field.size)
+                table.add_raw_column(field_name,
+                        FIELDS[field._type].sql_type(field),
+                        (FIELDS[field._type].symbol_c,
+                            FIELDS[field._type].symbol_f), default_fun,
+                        hasattr(field, 'size') and field.size or None)
 
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
 
                 if isinstance(field, fields.Many2One):
-                    if field._obj in ('res.user', 'res.group'):
-                        ref = field._obj.replace('.','_')
+                    if field.model_name in ('res.user', 'res.group'):
+                        ref = field.model_name.replace('.','_')
                     else:
-                        ref = self.pool.get(field._obj)._table
+                        ref = self.pool.get(field.model_name)._table
                     table.add_fk(field_name, ref, field.ondelete)
 
                 table.index_action(
@@ -106,12 +112,12 @@ class ModelDB(ModelStorage):
                     field_name, action=required and 'add' or 'remove')
 
             elif isinstance(field, fields.Many2Many):
-                if field._obj in ('res.user', 'res.group'):
-                    ref = field._obj.replace('.','_')
+                if field.model_name in ('res.user', 'res.group'):
+                    ref = field.model_name.replace('.','_')
                 else:
-                    ref = self.pool.get(field._obj)._table
-                table.add_m2m(field_name, ref, field._rel, field.origin,
-                        field.target, field.ondelete_origin,
+                    ref = self.pool.get(field.model_name)._table
+                table.add_m2m(field_name, ref, field.relation_name,
+                        field.origin, field.target, field.ondelete_origin,
                         field.ondelete_target)
 
             elif not isinstance(field, (fields.One2Many, fields.Function)):
@@ -119,7 +125,7 @@ class ModelDB(ModelStorage):
 
         for field_name, field in self._columns.iteritems():
             if isinstance(field, fields.Many2One) \
-                    and field._obj == self._name \
+                    and field.model_name == self._name \
                     and field.left and field.right:
                 self._rebuild_tree(cursor, 0, field_name, False, 0)
 
@@ -204,14 +210,16 @@ class ModelDB(ModelStorage):
 
         # Insert record
         for field in values:
-            if self._columns[field]._classic_write:
+            if not hasattr(self._columns[field], 'set'):
                 upd0 = upd0 + ',"' + field + '"'
-                upd1 = upd1 + ',' + self._columns[field]._symbol_set[0]
-                upd2.append(self._columns[field]._symbol_set[1](values[field]))
+                upd1 = upd1 + ',' + FIELDS[self._columns[field]._type].symbol_c
+                upd2.append(FIELDS[self._columns[field]._type].symbol_f(
+                    values[field]))
             else:
                 upd_todo.append(field)
             if field in self._columns \
                     and hasattr(self._columns[field], 'selection') \
+                    and self._columns[field].selection \
                     and values[field]:
                 if self._columns[field]._type == 'reference':
                     val = values[field].split(',')[0]
@@ -241,8 +249,8 @@ class ModelDB(ModelStorage):
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
-            self._columns[field].set(cursor, self, id_new, field, values[field],
-                    user=user, context=context)
+            self._columns[field].set(cursor, user, id_new, self, field, values[field],
+                    context=context)
 
         self._validate(cursor, user, [id_new], context=context)
 
@@ -250,7 +258,7 @@ class ModelDB(ModelStorage):
         for k in self._columns:
             field = self._columns[k]
             if isinstance(field, fields.Many2One) \
-                    and field._obj == self._name \
+                    and field.model_name == self._name \
                     and field.left and field.right:
                 self._update_tree(cursor, user, id_new, k, field.left, field.right)
 
@@ -284,9 +292,8 @@ class ModelDB(ModelStorage):
                 context=context)
 
         # all inherited fields + all non inherited fields
-        # for which the attribute whose name is in load is True
         fields_pre = [x for x in fields_names if (x in self._columns \
-                and getattr(self._columns[x], '_classic_write')) or \
+                and not hasattr(self._columns[x], 'set')) or \
                 (x == '_timestamp')] + \
                 self._inherits.values()
 
@@ -395,20 +402,20 @@ class ModelDB(ModelStorage):
         for field in fields_post:
             if isinstance(self._columns[field], fields.Function) \
                     and not isinstance(self._columns[field], fields.Property):
-                key = (self._columns[field]._fnct, self._columns[field]._arg)
+                key = (self._columns[field].fnct, self._columns[field].arg)
                 func_fields.setdefault(key, [])
                 func_fields[key].append(field)
                 continue
             # get the value of that field for all records/ids
-            res2 = self._columns[field].get(cursor, self, ids, field, user,
-                    context=context, values=res)
+            res2 = self._columns[field].get(cursor, user, ids, self, field,
+                    values=res, context=context)
             for record in res:
                 record[field] = res2[record['id']]
         for i in func_fields:
             field_list = func_fields[i]
             field = field_list[0]
-            res2 = self._columns[field].get(cursor, self, ids, field_list, user,
-                    context=context, values=res)
+            res2 = self._columns[field].get(cursor, user, ids, self, field_list,
+                    values=res, context=context)
             for field in res2:
                 for record in res:
                     record[field] = res2[field][record['id']]
@@ -439,7 +446,7 @@ class ModelDB(ModelStorage):
             for k in self._columns:
                 field = self._columns[k]
                 if isinstance(field, fields.Many2One) \
-                        and field._obj == self._name \
+                        and field.model_name == self._name \
                         and field.left and field.right:
                     update_tree = True
             if update_tree:
@@ -487,12 +494,12 @@ class ModelDB(ModelStorage):
         direct = []
         for field in values:
             if field in self._columns:
-                if self._columns[field]._classic_write:
+                if not hasattr(self._columns[field], 'set'):
                     if (not self._columns[field].translate) \
                             or (context.get('language') or 'en_US') == 'en_US':
                         upd0.append('"' + field + '"=' + \
-                                self._columns[field]._symbol_set[0])
-                        upd1.append(self._columns[field]._symbol_set[1](
+                                FIELDS[self._columns[field]._type].symbol_c)
+                        upd1.append(FIELDS[self._columns[field]._type].symbol_f(
                             values[field]))
                     direct.append(field)
                 else:
@@ -501,6 +508,7 @@ class ModelDB(ModelStorage):
                 updend.append(field)
             if field in self._columns \
                     and hasattr(self._columns[field], 'selection') \
+                    and self._columns[field].selection \
                     and values[field]:
                 if self._columns[field]._type == 'reference':
                     val = values[field].split(',')[0]
@@ -572,8 +580,8 @@ class ModelDB(ModelStorage):
                 self._columns[y].priority)
         for field in upd_todo:
             for select_id in ids:
-                self._columns[field].set(cursor, self, select_id, field,
-                        values[field], user, context=context)
+                self._columns[field].set(cursor, user, select_id, self, field,
+                        values[field], context=context)
 
         for table in self._inherits:
             col = self._inherits[table]
@@ -599,7 +607,7 @@ class ModelDB(ModelStorage):
         for k in self._columns:
             field = self._columns[k]
             if isinstance(field, fields.Many2One) \
-                    and field._obj == self._name \
+                    and field.model_name == self._name \
                     and field.left and field.right:
                 if field.left in values or field.right in values:
                     raise Exception('ValidateError', 'You can not update fields: ' \
@@ -676,7 +684,7 @@ class ModelDB(ModelStorage):
         for k in self._columns:
             field = self._columns[k]
             if isinstance(field, fields.Many2One) \
-                    and field._obj == self._name \
+                    and field.model_name == self._name \
                     and field.left and field.right:
                 cursor.execute('SELECT id FROM "' + self._table + '" '\
                         'WHERE "' + k + '" IN (' \
@@ -886,7 +894,7 @@ class ModelDB(ModelStorage):
             if len(fargs) > 1:
                 if field._type == 'many2one':
                     domain[i] = (fargs[0], 'inselect',
-                            self.pool.get(field._obj).search(cursor, user,
+                            self.pool.get(field.model_name).search(cursor, user,
                                 [(fargs[1], domain[i][1], domain[i][2])],
                                 context=context, query_string=True), table)
                     i += 1
@@ -894,7 +902,7 @@ class ModelDB(ModelStorage):
                 else:
                     raise Exception('ValidateError', 'Clause on field "%s" ' \
                             'doesn\'t work on "%s"' % (domain[i][0], self._name))
-            if field._properties:
+            if hasattr(field, 'search'):
                 arg = [domain.pop(i)]
                 j = i
                 while j < len(domain):
@@ -902,11 +910,10 @@ class ModelDB(ModelStorage):
                         arg.append(domain.pop(j))
                     else:
                         j += 1
-                if field._fnct_search:
-                    domain.extend(field.search(cursor, user, table,
-                        arg[0][0], arg, context=context))
+                domain.extend(field.search(cursor, user, table,
+                    arg[0][0], arg, context=context))
             elif field._type == 'one2many':
-                field_obj = self.pool.get(field._obj)
+                field_obj = self.pool.get(field.model_name)
 
                 if isinstance(domain[i][2], basestring):
                     # get the ids of the records of the "distant" resource
@@ -922,9 +929,9 @@ class ModelDB(ModelStorage):
                     table_query = '(' + table_query + ') AS '
 
                 if ids2 == True or ids2 == False:
-                    query1 = 'SELECT "' + field._field + '" ' \
+                    query1 = 'SELECT "' + field.field + '" ' \
                             'FROM ' + table_query + '"' + field_obj._table + '" ' \
-                            'WHERE "' + field._field + '" IS NOT NULL'
+                            'WHERE "' + field.field + '" IS NOT NULL'
                     query2 = table_args
                     clause = 'inselect'
                     if ids2 == False:
@@ -934,7 +941,7 @@ class ModelDB(ModelStorage):
                     domain[i] = ('id', '=', '0')
                 else:
                     if len(ids2) < cursor.IN_MAX:
-                        query1 = 'SELECT "' + field._field + '" ' \
+                        query1 = 'SELECT "' + field.field + '" ' \
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in ids2]) + ')'
@@ -945,7 +952,7 @@ class ModelDB(ModelStorage):
                         for i in range(0, len(ids2), cursor.IN_MAX):
                             sub_ids2 = ids2[i:i + cursor.IN_MAX]
                             cursor.execute(
-                                'SELECT "' + field._field + \
+                                'SELECT "' + field.field + \
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
                                     ','.join(['%s' for x in sub_ids2]) + ')',
@@ -960,7 +967,7 @@ class ModelDB(ModelStorage):
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
-                        field._obj).name_search(cursor, user, domain[i][2], [],
+                        field.model_name).name_search(cursor, user, domain[i][2], [],
                             'like', context=context)]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
@@ -975,16 +982,16 @@ class ModelDB(ModelStorage):
                                 context=context)
                         return ids + _rec_get(ids2, table, parent)
 
-                    if field._obj != table._name:
+                    if field.model_name != table._name:
                         if len(domain[i]) != 4:
                             raise Exception('Error', 'Programming error: ' \
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
-                        ids2 = self.pool.get(field._obj).search(cursor, user,
+                        ids2 = self.pool.get(field.model_name).search(cursor, user,
                                 [(domain[i][3], 'child_of', ids2)],
                                 context=context)
                         query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + field._rel + '" ' \
+                                'FROM "' + field.relation_name + '" ' \
                                 'WHERE "' + field.target + '" IN (' + \
                                     ','.join(['%s' for x in ids2]) + ') ' \
                                     'AND "' + field.origin + '" IS NOT NULL'
@@ -1002,14 +1009,14 @@ class ModelDB(ModelStorage):
                                 table, domain[i][0]))
                 else:
                     if isinstance(domain[i][2], basestring):
-                        res_ids = [x[0] for x in self.pool.get(field._obj
+                        res_ids = [x[0] for x in self.pool.get(field.model_name
                             ).name_search(cursor, user, domain[i][2], [],
                                 domain[i][1], context=context)]
                     else:
                         res_ids = domain[i][2]
                     if res_ids == True or res_ids == False:
                         query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + field._rel + '" '\
+                                'FROM "' + field.relation_name + '" '\
                                 'WHERE "' + field.origin + '" IS NOT NULL'
                         query2 = []
                         clause = 'inselect'
@@ -1020,7 +1027,7 @@ class ModelDB(ModelStorage):
                         domain[i] = ('id', '=', '0')
                     else:
                         query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + field._rel + '" ' \
+                                'FROM "' + field.relation_name + '" ' \
                                 'WHERE "' + field.target + '" IN (' + \
                                     ','.join(['%s' for x in res_ids]) + ')'
                         query2 = [str(x) for x in res_ids]
@@ -1032,7 +1039,7 @@ class ModelDB(ModelStorage):
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
-                            field._obj).name_search(cursor, user, domain[i][2],
+                            field.model_name).name_search(cursor, user, domain[i][2],
                                 [], 'like', context=context)]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
@@ -1047,12 +1054,12 @@ class ModelDB(ModelStorage):
                                 context=context)
                         return ids + _rec_get(ids2, table, parent)
 
-                    if field._obj != table._name:
+                    if field.model_name != table._name:
                         if len(domain[i]) != 4:
                             raise Exception('Error', 'Programming error: ' \
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
-                        ids2 = self.pool.get(field._obj).search(cursor, user,
+                        ids2 = self.pool.get(field.model_name).search(cursor, user,
                                 [(domain[i][3], 'child_of', ids2)],
                                 context=context)
                         if domain[i][1] == 'child_of':
@@ -1090,7 +1097,7 @@ class ModelDB(ModelStorage):
                                     ids2, table, domain[i][0]), table)
                 else:
                     if isinstance(domain[i][2], basestring):
-                        res_ids = self.pool.get(field._obj).name_search(cursor,
+                        res_ids = self.pool.get(field.model_name).name_search(cursor,
                                 user, domain[i][2], [], domain[i][1],
                                 context=context)
                         domain[i] = (domain[i][0], 'in', [x[0] for x in res_ids],
@@ -1194,10 +1201,11 @@ class ModelDB(ModelStorage):
                                     (table._table,
                                         ','.join(['%s'] * len(arg2)),))
                         else:
+                            symbol_c = FIELDS[table._columns[arg[0]]._type]\
+                                    .symbol_c
                             qu1.append(('(%s.%s ' + arg[1] + ' (%s))') % \
                                     (table._table, arg[0], ','.join(
-                                        [table._columns[arg[0]].\
-                                                _symbol_set[0]] * len(arg2))))
+                                        [symbol_c] * len(arg2))))
                         if todel:
                             if table._columns[arg[0]]._type == 'boolean':
                                 if arg[1] == 'in':
@@ -1263,8 +1271,8 @@ class ModelDB(ModelStorage):
                                 add_null = True
                         else:
                             if arg[0] in table._columns:
-                                qu2.append(table._columns[arg[0]].\
-                                        _symbol_set[1](arg[2]))
+                                qu2.append(FIELDS[table._columns[arg[0]]._type].\
+                                        symbol_f(arg[2]))
                         if arg[0] in table._columns:
                             if arg[1] in ('like', 'ilike'):
                                 qu1.append('(%s.%s %s %s OR %s.%s %s %s)' % \
@@ -1276,8 +1284,8 @@ class ModelDB(ModelStorage):
                                             table._table, arg[0], arg[1], '%s'))
                             else:
                                 qu1.append('(%s.%s %s %s)' % (table._table,
-                                    arg[0], arg[1],
-                                    table._columns[arg[0]]._symbol_set[0]))
+                                    arg[0], arg[1], FIELDS[table._columns[
+                                        arg[0]]._type].symbol_c))
                         else:
                             if arg[1] in ('like', 'ilike'):
                                 qu1.append('(%s.%s %s \'%s\' or %s.%s %s \'%s\')' % \
@@ -1310,14 +1318,14 @@ class ModelDB(ModelStorage):
         if field in self._columns:
             table_name = self._table
 
-            if self._columns[field]._classic_write:
+            if not hasattr(self._columns[field], 'set'):
                 field_name = field
 
             if self._columns[field].order_field:
                 field_name = self._columns[field].order_field
 
             if isinstance(self._columns[field], fields.Many2One):
-                obj = self.pool.get(self._columns[field]._obj)
+                obj = self.pool.get(self._columns[field].model_name)
                 table_name = obj._table
                 link_field = field
                 field_name = None

@@ -12,6 +12,7 @@ import version
 from config import CONFIG
 import logging
 from trytond.security import Session
+from trytond.backend.postgresql import *
 
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
@@ -410,9 +411,11 @@ class table_handler:
         rtable = table_handler(
             self.cursor, relation_table, object_name=None,
             module_name= self.module_name)
-        from osv.fields import Integer
-        rtable.add_raw_column(rtable_from, ('int4', 'int4'), Integer._symbol_set)
-        rtable.add_raw_column(rtable_to, ('int4', 'int4'), Integer._symbol_set)
+        integer = FIELDS['integer']
+        rtable.add_raw_column(rtable_from, integer.sql_type(None),
+                (integer.symbol_c, integer.symbol_f))
+        rtable.add_raw_column(rtable_to,  integer.sql_type(None),
+                (integer.symbol_c, integer.symbol_f))
         rtable.add_fk(rtable_from, self.table_name, on_delete=on_delete_from)
         rtable.add_fk(rtable_to, other_table, on_delete=on_delete_to)
         rtable.not_null_action(rtable_from)
