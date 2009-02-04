@@ -230,12 +230,13 @@ class ModelStorage(Model):
                 if self._inherits[i] in data:
                     del data[self._inherits[i]]
 
-        new_ids = []
+        new_ids = {}
         datas = self.read(cursor, user, ids, context=context)
         fields = self.fields_get(cursor, user, context=context)
         for data in datas:
+            data_id = data['id']
             convert_data(fields, data)
-            new_ids.append(self.create(cursor, user, data, context=context))
+            new_ids[data_id] = self.create(cursor, user, data, context=context)
 
         fields_translate = {}
         for field_name, field in fields.iteritems():
@@ -264,10 +265,10 @@ class ModelStorage(Model):
                     for data in datas:
                         data_id = data['id']
                         convert_data(fields_translate, data)
-                        self.write(cursor, user, data_id, data, context=ctx)
+                        self.write(cursor, user, new_ids[data_id], data, context=ctx)
         if int_id:
-            return new_ids[0]
-        return new_ids
+            return new_ids.values()[0]
+        return new_ids.values()
 
     def search(self, cursor, user, domain, offset=0, limit=None, order=None,
             context=None, count=False):
