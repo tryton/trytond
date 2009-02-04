@@ -3,9 +3,8 @@
 
 from trytond.model import ModelStorage, OPERATORS
 from trytond.model import fields
-from trytond.sql_db import table_handler
 from trytond.netsvc import LocalService
-from trytond.backend import FIELDS
+from trytond.backend import FIELDS, TableHandler
 import datetime
 
 
@@ -39,7 +38,7 @@ class ModelDB(ModelStorage):
             return
 
         # create/update table in the database
-        table = table_handler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self._table, self._name, module_name)
         datetime_field = FIELDS['datetime']
         integer_field = FIELDS['integer']
         logs = (

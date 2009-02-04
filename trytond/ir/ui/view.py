@@ -6,7 +6,7 @@ from difflib import SequenceMatcher
 import os
 import logging
 from lxml import etree
-from trytond.sql_db import table_handler
+from trytond.backend import TableHandler
 
 
 class View(OSV):
@@ -47,14 +47,10 @@ class View(OSV):
 
     def init(self, cursor, module_name):
         super(View, self).init(cursor, module_name)
-        table = table_handler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self._table, self._name, module_name)
 
         # Migration from 1.0 arch no more required
-        if 'arch' in table.table:
-            if table.table['arch']['notnull']:
-                cursor.execute('ALTER TABLE "' + self._table + '" ' \
-                        'ALTER COLUMN "arch" ' \
-                        'DROP NOT NULL')
+        table.not_null_action('arch', action='remove')
 
     def default_arch(self, cursor, user, context=None):
         return '<?xml version="1.0"?>'

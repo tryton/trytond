@@ -3,7 +3,7 @@
 "Action"
 from trytond.osv import fields, OSV
 from trytond.tools import file_open
-from trytond.sql_db import table_handler
+from trytond.backend import TableHandler
 
 
 class Action(OSV):
@@ -236,7 +236,7 @@ class ActionReport(OSV):
 
     def init(self, cursor, module_name):
         super(ActionReport, self).init(cursor, module_name)
-        table = table_handler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self._table, self._name, module_name)
 
         # Migration from 1.0 report_name_uniq has been removed
         table.drop_constraint('report_name_uniq')
@@ -418,12 +418,10 @@ class ActionActWindowView(OSV):
 
     def init(self, cursor, module_name):
         super(ActionActWindowView, self).init(cursor, module_name)
-        table = table_handler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self._table, self._name, module_name)
 
         # Migration from 1.0 remove multi
-        if 'multi' in table.table:
-            cursor.execute('ALTER TABLE "' + self._table + '" ' \
-                    'DROP COLUMN multi')
+        table.drop_column('multi')
 
 ActionActWindowView()
 
