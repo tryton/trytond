@@ -5,12 +5,11 @@ import logging
 import threading
 from trytond.netsvc import Service
 from trytond import security
-from trytond import sql_db
+from trytond.backend import Database
 from trytond import pooler
 from trytond import tools
 import base64
 import os
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import sha
 
 
@@ -33,23 +32,30 @@ class DB(Service):
         res = False
         logger = logging.getLogger('web-service')
 
-        database = sql_db.db_connect('template1')
-        cursor = database.cursor()
-        cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        database = Database().connect()
+        cursor = database.cursor(autocommit=True)
         try:
             try:
-                cursor.execute('CREATE DATABASE "' + db_name + '" '\
-                        'TEMPLATE template0 ENCODING \'unicode\'')
+                database.create(cursor, db_name)
                 cursor.commit()
                 cursor.close()
+                database.close()
 
-                cursor = sql_db.db_connect(db_name).cursor()
-                sql_db.init_db(cursor)
+                database = Database(db_name).connect()
+                cursor = database.cursor()
+                database.init(cursor)
                 cursor.commit()
                 cursor.close()
+                database.close()
+
                 cursor = None
+                database = None
+
                 pool = pooler.get_pool(db_name, update_module=True, lang=[lang])
-                cursor = sql_db.db_connect(db_name).cursor()
+                database = Database(db_name).connect()
+                cursor = database.cursor()
+
+                #XXX replace with model write
                 if lang != 'en_US':
                     cursor.execute('UPDATE ir_lang ' \
                             'SET translatable = True ' \
@@ -79,6 +85,8 @@ class DB(Service):
         finally:
             if cursor:
                 cursor.close()
+            if database:
+                database.close()
         return res
 
     def drop(self, password, db_name):
@@ -86,12 +94,11 @@ class DB(Service):
         pooler.close_db(db_name)
         logger = logging.getLogger('web-service')
 
-        database = sql_db.db_connect('template1')
-        cursor = database.cursor()
-        cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        database = Database().connect()
+        cursor = database.cursor(autocommit=True)
         try:
             try:
-                cursor.execute('DROP DATABASE "' + db_name + '"')
+                database.drop(cursor, db_name)
                 cursor.commit()
             except:
                 logger.error('DROP DB: %s failed' % (db_name,))
@@ -104,6 +111,7 @@ class DB(Service):
                 logger.info('DROP DB: %s' % (db_name))
         finally:
             cursor.close()
+            database.close()
         return True
 
     def dump(self, password, db_name):
@@ -146,13 +154,12 @@ class DB(Service):
                 'RESTORE DB: %s doesn\'t work with password' % (db_name,))
             raise Exception, "Couldn't restore database with password"
 
-        database = sql_db.db_connect('template1')
-        cursor = database.cursor()
-        cursor.conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        cursor.execute('CREATE DATABASE "' + db_name + '" ' \
-                'TEMPLATE template0 ENCODING \'unicode\'')
+        database = Database().connect()
+        cursor = database.cursor(autocommit=True)
+        database.create(cursor, db_name)
         cursor.commit()
         cursor.close()
+        database.close()
 
         cmd = ['pg_restore']
         if tools.CONFIG['db_user']:
@@ -190,62 +197,21 @@ class DB(Service):
 
     def db_exist(self, db_name):
         try:
-            database = sql_db.db_connect(db_name)
+            database = Database(db_name).connect()
             cursor = database.cursor()
             cursor.close()
+            database.close()
             return True
         except:
             return False
 
     def list(self):
-        database = sql_db.db_connect('template1')
+        database = Database().connect()
         try:
             cursor = database.cursor()
-            db_user = tools.CONFIG["db_user"]
-            if not db_user and os.name == 'posix':
-                import pwd
-                db_user = pwd.getpwuid(os.getuid())[0]
-            if not db_user:
-                cursor.execute("SELECT usename " \
-                        "FROM pg_user " \
-                        "WHERE usesysid = (" \
-                            "SELECT datdba " \
-                            "FROM pg_database " \
-                            "WHERE datname = %s)",
-                            (tools.CONFIG["db_name"],))
-                res = cursor.fetchone()
-                db_user = res and res[0]
-            if db_user:
-                cursor.execute("SELECT datname " \
-                        "FROM pg_database " \
-                        "WHERE datdba = (" \
-                            "SELECT usesysid " \
-                            "FROM pg_user " \
-                            "WHERE usename=%s) " \
-                            "AND datname not in " \
-                                "('template0', 'template1', 'postgres') " \
-                        "ORDER BY datname",
-                                (db_user,))
-            else:
-                cursor.execute("SELECT datname " \
-                        "FROM pg_database " \
-                        "WHERE datname not in " \
-                            "('template0', 'template1','postgres') " \
-                        "ORDER BY datname")
-            res = []
-            for db_name, in cursor.fetchall():
-                database = pooler.get_db_only(db_name, verbose=False,
-                        blocking=False)
-                if not database:
-                    continue
-                cursor2 = database.cursor()
-                if not cursor2.test():
-                    cursor2.close()
-                    pooler.close_db(db_name)
-                else:
-                    cursor2.close()
-                    res.append(db_name)
+            res = database.list(cursor)
             cursor.close()
+            database.close()
         except:
             res = []
         return res

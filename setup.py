@@ -17,7 +17,7 @@ setup(name=PACKAGE,
             VERSION.rsplit('.', 1)[0] + '/',
     packages=find_packages(exclude=['*.modules.*', 'modules.*', 'modules']),
     package_data={
-        'trytond': ['init.sql'],
+        'trytond.backend.postgresql': ['init.sql'],
         'trytond.ir': ['*.xml', '*.csv'],
         'trytond.ir.module': ['*.xml'],
         'trytond.ir.ui': ['*.xml', '*.rng', '*.rnc'],

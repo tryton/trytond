@@ -7,7 +7,7 @@ from xml import dom
 from trytond.osv import OSV
 from trytond.config import CONFIG
 import sys
-from trytond.sql_db import IntegrityError
+from trytond.backend import DatabaseIntegrityError
 import traceback
 import logging
 
@@ -42,7 +42,7 @@ class WizardService(Service):
                         traceback.format_exception(*sys.exc_info()))
                 logging.getLogger("web-service").error(
                     'Exception in call: ' + tb_s)
-            if isinstance(exception, IntegrityError):
+            if isinstance(exception, DatabaseIntegrityError):
                 pool = pooler.get_pool(cursor.dbname)
                 for key in pool._sql_errors.keys():
                     if key in exception[0]:

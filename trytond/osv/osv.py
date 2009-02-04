@@ -5,9 +5,9 @@
 from orm import ORM
 from trytond.netsvc import Service, LocalService
 from trytond import pooler
+from trytond.backend import DatabaseIntegrityError
 import copy
 import sys
-from trytond.sql_db import IntegrityError
 import traceback
 from trytond.tools import Cache, find_language_context
 import time
@@ -54,7 +54,7 @@ class OSVService(Service):
                         traceback.format_exception(*sys.exc_info()))
                 logger = logging.getLogger("web-service")
                 logger.error('Exception in call: \n' + tb_s)
-            if isinstance(exception, IntegrityError):
+            if isinstance(exception, DatabaseIntegrityError):
                 for key in self._sql_errors.keys():
                     if key in exception[0]:
                         msg = self._sql_errors[key]
@@ -105,7 +105,7 @@ class OSVService(Service):
                         traceback.format_exception(*sys.exc_info()))
                 logger = logging.getLogger()
                 logger.error('Exception in call: \n' + tb_s)
-            if isinstance(exception, IntegrityError):
+            if isinstance(exception, DatabaseIntegrityError):
                 for key in self._sql_errors.keys():
                     if key in exception[0]:
                         raise Exception('UserError', 'Constraint Error',
