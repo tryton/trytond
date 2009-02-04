@@ -12,7 +12,7 @@ import netsvc
 import time
 import psycopg2
 import pooler
-import sql_db
+from backend import Database
 import config
 from config import CONFIG
 import web_service
@@ -98,7 +98,7 @@ class TrytonServer(object):
             if CONFIG['init']:
                 if not cursor.test():
                     self.logger.info("init db")
-                    sql_db.init_db(cursor)
+                    Database.init(cursor)
                     init[db_name] = True
                 cursor.commit()
                 cursor.close()

@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.sql_db import db_connect
+from trytond.backend import Database
 import logging
 from threading import RLock
 
@@ -25,7 +25,7 @@ def get_db_and_pool(db_name, update_module=False, wizard=False, report=False,
         else:
             logging.getLogger('pooler').info(
                 'Connecting to %s' % (db_name))
-            database = db_connect(db_name)
+            database = Database(db_name).connect()
             cursor = database.cursor()
             if not cursor.test():
                 raise Exception('UserError', 'Invalid database!')
@@ -105,7 +105,8 @@ def get_db_only(db_name, verbose=True, blocking=True):
             if verbose:
                 logging.getLogger('pooler').info(
                     'Connecting to %s' % (db_name))
-            database = db_connect(db_name)
+            database = Database(db_name)
+            database.connect()
             _DB[db_name] = database
     finally:
         lock.release()
