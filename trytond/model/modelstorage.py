@@ -192,6 +192,8 @@ class ModelStorage(Model):
                         context)
 
         def convert_data(fields, data):
+            data = data.copy()
+            data_o2m = {}
             for field_name in fields:
                 ftype = fields[field_name]['type']
 
@@ -214,13 +216,9 @@ class ModelStorage(Model):
                     except:
                         pass
                 elif ftype in ('one2many',):
-                    res = []
-                    rel = self.pool.get(fields[field_name]['relation'])
                     if data[field_name]:
-                        data[field_name] = [('add', rel.copy(cursor, user,
-                            data[field_name], context=context))]
-                    else:
-                        data[field_name] = False
+                        data_o2m[field_name] = data[field_name]
+                    data[field_name] = False
                 elif ftype == 'many2many':
                     if data[field_name]:
                         data[field_name] = [('set', data[field_name])]
@@ -229,14 +227,21 @@ class ModelStorage(Model):
             for i in self._inherits:
                 if self._inherits[i] in data:
                     del data[self._inherits[i]]
+            return data, data_o2m
 
         new_ids = {}
         datas = self.read(cursor, user, ids, context=context)
         fields = self.fields_get(cursor, user, context=context)
         for data in datas:
             data_id = data['id']
-            convert_data(fields, data)
+            data, data_o2m = convert_data(fields, data)
             new_ids[data_id] = self.create(cursor, user, data, context=context)
+            for field_name in data_o2m:
+                relation_model = self.pool.get(fields[field_name]['relation'])
+                relation_field = fields[field_name]['relation_field']
+                relation_model.copy(cursor, user, data_o2m[field_name],
+                        default={relation_field: new_ids[data_id]},
+                        context=context)
 
         fields_translate = {}
         for field_name, field in fields.iteritems():
@@ -264,7 +269,7 @@ class ModelStorage(Model):
                             context=ctx)
                     for data in datas:
                         data_id = data['id']
-                        convert_data(fields_translate, data)
+                        data, _ = convert_data(fields_translate, data)
                         self.write(cursor, user, new_ids[data_id], data, context=ctx)
         if int_id:
             return new_ids.values()[0]

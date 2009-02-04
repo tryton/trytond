@@ -1,3 +1,4 @@
+* copy on ModelStorage copies one2many directly on the right record
 * Search on translated field will search only on translated value
 * Add active field on ir.action to allow better override of reports
 * Add depends attributes on Column
