@@ -64,6 +64,76 @@ class Database(DatabaseInterface):
         cursor.execute('DROP DATABASE "' + database_name + '"')
 
     @staticmethod
+    def dump(database_name):
+        from trytond.tools import exec_pg_command_pipe
+        if CONFIG['db_password']:
+            raise Exception('Couldn\'t dump database with password!')
+        cmd = ['pg_dump', '--format=c']
+        if CONFIG['db_user']:
+            cmd.append('--username=' + CONFIG['db_user'])
+        if CONFIG['db_host']:
+            cmd.append('--host=' + CONFIG['db_host'])
+        if CONFIG['db_port']:
+            cmd.append('--port=' + CONFIG['db_port'])
+        cmd.append(database_name)
+
+        stdin, stdout = exec_pg_command_pipe(*tuple(cmd))
+        stdin.close()
+        data = stdout.read()
+        res = stdout.close()
+        if res:
+            raise Exception('Couldn\'t dump database!')
+        return data
+
+    @staticmethod
+    def restore(database_name, data):
+        from trytond.tools import exec_pg_command_pipe
+        if CONFIG['db_password']:
+            raise Exception('"Couldn\'t restore database with password!')
+
+        database = Database().connect()
+        cursor = database.cursor(autocommit=True)
+        database.create(cursor, database_name)
+        cursor.commit()
+        cursor.close()
+        database.close()
+
+        cmd = ['pg_restore']
+        if CONFIG['db_user']:
+            cmd.append('--username=' + CONFIG['db_user'])
+        if CONFIG['db_host']:
+            cmd.append('--host=' + CONFIG['db_host'])
+        if CONFIG['db_port']:
+            cmd.append('--port=' + CONFIG['db_port'])
+        cmd.append('--dbname=' + database_name)
+        args2 = tuple(cmd)
+
+        if os.name == "nt":
+            tmpfile = (os.environ['TMP'] or 'C:\\') + os.tmpnam()
+            file(tmpfile, 'wb').write(data)
+            args2 = list(args2)
+            args2.append(' ' + tmpfile)
+            args2 = tuple(args2)
+
+        stdin, stdout = exec_pg_command_pipe(*args2)
+        if not os.name == "nt":
+            stdin.write(data)
+        stdin.close()
+        res = stdout.close()
+        if res:
+            raise Exception('Couldn\'t restore database')
+
+        database = Database(database_name).connect()
+        cursor = database.cursor()
+        if not cursor.test():
+            cursor.close()
+            database.close()
+            raise Exception('Couldn\'t restore database!')
+        cursor.close()
+        database.close()
+        return True
+
+    @staticmethod
     def list(cursor):
         db_user = CONFIG['db_user']
         if not db_user and os.name == 'posix':
@@ -75,7 +145,7 @@ class Database(DatabaseInterface):
                         "SELECT datdba " \
                         "FROM pg_database " \
                         "WHERE datname = %s)",
-                        (tools.CONFIG["db_name"],))
+                        (CONFIG["db_name"],))
             res = cursor.fetchone()
             db_user = res and res[0]
         if db_user:

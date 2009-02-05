@@ -115,83 +115,19 @@ class DB(Service):
         return True
 
     def dump(self, password, db_name):
-        security.check_super(password)
         logger = logging.getLogger('web-service')
-
-        if tools.CONFIG['db_password']:
-            logger.error('DUMP DB: %s doesn\'t work with password' % (db_name,))
-            raise Exception, "Couldn't dump database with password"
-
-        cmd = ['pg_dump', '--format=c']
-        if tools.CONFIG['db_user']:
-            cmd.append('--username=' + tools.CONFIG['db_user'])
-        if tools.CONFIG['db_host']:
-            cmd.append('--host=' + tools.CONFIG['db_host'])
-        if tools.CONFIG['db_port']:
-            cmd.append('--port=' + tools.CONFIG['db_port'])
-        cmd.append(db_name)
-
-        stdin, stdout = tools.exec_pg_command_pipe(*tuple(cmd))
-        stdin.close()
-        data = stdout.read()
-        res = stdout.close()
-        if res:
-            logger.error('DUMP DB: %s failed\n%s' % (db_name, data))
-            raise Exception, "Couldn't dump database"
+        security.check_super(password)
+        data = Database.dump(db_name)
         logger.info('DUMP DB: %s' % (db_name))
         return base64.encodestring(data)
 
     def restore(self, password, db_name, data):
-        security.check_super(password)
         logger = logging.getLogger('web-service')
-
+        security.check_super(password)
         if self.db_exist(db_name):
-            logger.warning('RESTORE DB: %s already exists' % (db_name,))
-            raise Exception, "Database already exists"
-
-        if tools.CONFIG['db_password']:
-            logger.error(
-                'RESTORE DB: %s doesn\'t work with password' % (db_name,))
-            raise Exception, "Couldn't restore database with password"
-
-        database = Database().connect()
-        cursor = database.cursor(autocommit=True)
-        database.create(cursor, db_name)
-        cursor.commit()
-        cursor.close()
-        database.close()
-
-        cmd = ['pg_restore']
-        if tools.CONFIG['db_user']:
-            cmd.append('--username=' + tools.CONFIG['db_user'])
-        if tools.CONFIG['db_host']:
-            cmd.append('--host=' + tools.CONFIG['db_host'])
-        if tools.CONFIG['db_port']:
-            cmd.append('--port=' + tools.CONFIG['db_port'])
-        cmd.append('--dbname=' + db_name)
-        args2 = tuple(cmd)
-
-        buf = base64.decodestring(data)
-        if os.name == "nt":
-            tmpfile = (os.environ['TMP'] or 'C:\\') + os.tmpnam()
-            file(tmpfile, 'wb').write(buf)
-            args2 = list(args2)
-            args2.append(' ' + tmpfile)
-            args2 = tuple(args2)
-        stdin, stdout = tools.exec_pg_command_pipe(*args2)
-        if not os.name == "nt":
-            stdin.write(base64.decodestring(data))
-        stdin.close()
-        res = stdout.close()
-        if res:
-            raise Exception, "Couldn't restore database"
-        cursor = pooler.get_db_only(db_name, verbose=False).cursor()
-        if not cursor.test():
-            cursor.close()
-            pooler.close_db(db_name)
-            raise Exception, "Couldn't restore database"
-        cursor.close()
-        pooler.close_db(db_name)
+            raise Exception("Database already exists!")
+        data = base64.decodestring(data)
+        Database.restore(db_name, data)
         logger.info('RESTORE DB: %s' % (db_name))
         return True
 
