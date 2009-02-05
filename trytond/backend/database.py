@@ -52,6 +52,26 @@ class DatabaseInterface(object):
         raise
 
     @staticmethod
+    def dump(database_name):
+        '''
+        Dump a database
+
+        :param database_name: the database name
+        :return: the dump
+        '''
+        raise
+
+    @staticmethod
+    def restore(database_name, data):
+        '''
+        Restore a database
+
+        :param database_name: the database name
+        :param data: the data
+        :return: True if succeed
+        '''
+
+    @staticmethod
     def list(cursor):
         '''
         Get the list of database
