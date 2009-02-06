@@ -11,6 +11,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2.extensions import register_type, register_adapter
 from psycopg2.extensions import UNICODE, AsIs
 from psycopg2 import IntegrityError as DatabaseIntegrityError
+from psycopg2 import OperationalError as DatabaseOperationalError
 import time
 import logging
 import re

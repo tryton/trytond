@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 DatabaseIntegrityError = None
+DatabaseOperationalError = None
 
 class DatabaseInterface(object):
     '''
