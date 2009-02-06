@@ -10,7 +10,6 @@ logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
 import sys, os, signal
 import netsvc
 import time
-import psycopg2
 import pooler
 from backend import Database
 import config
@@ -29,6 +28,7 @@ import sha
 import logging
 import logging.handlers
 import threading
+from trytond.backend import DatabaseOperationalError
 
 
 class TrytonServer(object):
@@ -91,7 +91,7 @@ class TrytonServer(object):
             init[db_name] = False
             try:
                 cursor = pooler.get_db_only(db_name).cursor()
-            except psycopg2.OperationalError:
+            except DatabaseOperationalError:
                 self.logger.error("could not connect to database '%s'!" % db_name,)
                 continue
 
@@ -111,7 +111,7 @@ class TrytonServer(object):
         for db_name in CONFIG["db_name"]:
             try:
                 cursor = pooler.get_db_only(db_name).cursor()
-            except psycopg2.OperationalError:
+            except DatabaseOperationalError:
                 self.logger.error("could not connect to database '%s'!" % db_name,)
                 continue
             if not cursor.test():
