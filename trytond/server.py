@@ -142,54 +142,28 @@ class TrytonServer(object):
 
         # Launch Server
         if CONFIG['xmlrpc']:
-            interface = CONFIG["interface"]
-            try:
-                port = int(CONFIG["xmlport"])
-            except:
-                self.logger.error("invalid port '%s'!" % (CONFIG["xmlport"],))
-                logging.shutdown()
-                sys.exit(1)
-
-            httpd = netsvc.HttpDaemon(interface, port, CONFIG['secure_xmlrpc'])
-
-            xml_gw = netsvc.XmlRpc.RpcGateway('web-service')
-            httpd.attach("/xmlrpc", xml_gw )
+            httpd = netsvc.HttpDaemon(CONFIG['interface'], CONFIG['xmlport'],
+                    CONFIG['secure_xmlrpc'])
             logging.getLogger("web-service").info(
-                "starting XML-RPC" + \
-                        (CONFIG['secure_xmlrpc'] and ' Secure' or '') + \
-                        " services, port " + str(port))
+                "starting XML-RPC%s protocol, port %d" % \
+                        (CONFIG['secure_xmlrpc'] and ' Secure' or '',
+                            CONFIG['xmlport']))
 
         if CONFIG['netrpc']:
-            interface = CONFIG["interface"]
-            try:
-                port = int(CONFIG["netport"])
-            except:
-                self.logger.error("invalid port '%s'!" % (CONFIG["netport"],))
-                logging.shutdown()
-                sys.exit(1)
-
-            netrpcd = NetRPCServerThread(interface, port,
+            netrpcd = NetRPCServerThread(CONFIG['interface'], CONFIG['netport'],
                     CONFIG['secure_netrpc'])
             logging.getLogger("web-service").info(
-                "starting netrpc" + \
-                        (CONFIG['secure_netrpc']  and ' Secure' or '') + \
-                        " service, port " + str(port))
+                "starting NetRPC%s protocol, port %d" % \
+                        (CONFIG['secure_netrpc']  and ' Secure' or '',
+                            CONFIG['netport']))
 
         if CONFIG['webdav']:
-            interface = CONFIG['interface']
-            try:
-                port = int(CONFIG['webdavport'])
-            except:
-                self.logger.error("invalid port '%s'!" % (CONFIG['webdavport'],))
-                logging.shutdown()
-                sys.exit(1)
-
-            webdavd = netsvc.WebDAVServerThread(interface, port,
-                    CONFIG['secure_webdav'])
+            webdavd = netsvc.WebDAVServerThread(CONFIG['interface'],
+                    CONFIG['webdavport'], CONFIG['secure_webdav'])
             logging.getLogger("web-service").info(
-                    'starting webdav' + \
-                            (CONFIG['secure_webdav'] and ' Secure' or '') + \
-                            ' service, port ' + str(port))
+                    "starting WebDAV%s protocol, port %d" % \
+                            (CONFIG['secure_webdav'] and ' Secure' or '',
+                                CONFIG['webdavport']))
 
         threads = []
 

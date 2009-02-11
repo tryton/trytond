@@ -12,17 +12,6 @@ import traceback
 import select
 import BaseHTTPServer
 from trytond.protocols.sslsocket import SSLSocket
-
-_SERVICE = {}
-_GROUP = {}
-_RES = {}
-
-LOG_DEBUG = 'debug'
-LOG_INFO = 'info'
-LOG_WARNING = 'warn'
-LOG_ERROR = 'error'
-LOG_CRITICAL = 'critical'
-
 from config import CONFIG
 
 # convert decimal to float before marshalling:
@@ -65,7 +54,7 @@ class GenericXMLRPCRequestHandler:
 
 class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
-    rpc_paths = map(lambda s: '/xmlrpc/%s' % s, _SERVICE)
+    rpc_paths = None
 
 
 class SecureXMLRPCRequestHandler(SimpleXMLRPCRequestHandler):
@@ -123,9 +112,6 @@ class HttpDaemon(threading.Thread):
             if ipv6:
                 server_class = SimpleThreadedXMLRPCServer6
         self.server = server_class((interface, port), handler_class, 0)
-
-    def attach(self, path, gateway):
-        pass
 
     def stop(self):
         self.running = False
