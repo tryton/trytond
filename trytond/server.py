@@ -60,7 +60,7 @@ class TrytonServer(object):
                 msg = reverse + logging.getLevelName(level) + reset
                 logging.addLevelName(level, msg)
 
-        self.logger = logging.getLogger("init")
+        self.logger = logging.getLogger("server")
 
         if CONFIG.configfile:
             self.logger.info('using %s as configuration file' % \
@@ -144,26 +144,23 @@ class TrytonServer(object):
         if CONFIG['xmlrpc']:
             httpd = netsvc.HttpDaemon(CONFIG['interface'], CONFIG['xmlport'],
                     CONFIG['secure_xmlrpc'])
-            logging.getLogger("web-service").info(
-                "starting XML-RPC%s protocol, port %d" % \
-                        (CONFIG['secure_xmlrpc'] and ' Secure' or '',
-                            CONFIG['xmlport']))
+            self.logger.info("starting XML-RPC%s protocol, port %d" % \
+                    (CONFIG['secure_xmlrpc'] and ' Secure' or '',
+                        CONFIG['xmlport']))
 
         if CONFIG['netrpc']:
             netrpcd = NetRPCServerThread(CONFIG['interface'], CONFIG['netport'],
                     CONFIG['secure_netrpc'])
-            logging.getLogger("web-service").info(
-                "starting NetRPC%s protocol, port %d" % \
-                        (CONFIG['secure_netrpc']  and ' Secure' or '',
-                            CONFIG['netport']))
+            self.logger.info("starting NetRPC%s protocol, port %d" % \
+                    (CONFIG['secure_netrpc']  and ' Secure' or '',
+                        CONFIG['netport']))
 
         if CONFIG['webdav']:
             webdavd = netsvc.WebDAVServerThread(CONFIG['interface'],
                     CONFIG['webdavport'], CONFIG['secure_webdav'])
-            logging.getLogger("web-service").info(
-                    "starting WebDAV%s protocol, port %d" % \
-                            (CONFIG['secure_webdav'] and ' Secure' or '',
-                                CONFIG['webdavport']))
+            self.logger.info("starting WebDAV%s protocol, port %d" % \
+                    (CONFIG['secure_webdav'] and ' Secure' or '',
+                        CONFIG['webdavport']))
 
         threads = []
 
@@ -183,7 +180,7 @@ class TrytonServer(object):
                 os.unlink(CONFIG['pidfile'])
             for thread in threads:
                 thread.join()
-            logging.getLogger('web-service').info('stop server')
+            logging.getLogger('server').info('stopped')
             logging.shutdown()
             sys.exit(0)
 
@@ -200,7 +197,7 @@ class TrytonServer(object):
         if hasattr(signal, 'SIGUSR1'):
             signal.signal(signal.SIGUSR1, handler)
 
-        self.logger.info('the server is running, waiting for connections...')
+        self.logger.info('waiting for connections...')
         if CONFIG['netrpc']:
             netrpcd.start()
         if CONFIG['xmlrpc']:
