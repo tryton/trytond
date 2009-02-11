@@ -7,10 +7,12 @@ import logging
 format='[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
 datefmt='%a %b %d %H:%M:%S %Y'
 logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
+import logging.handlers
 import sys, os, signal
 import netsvc
 import time
 from trytond.backend import Database, DatabaseOperationalError
+from trytond.protocols.netrpc import NetRPCServerThread
 from config import CONFIG
 from trytond.modules import register_classes
 import mx.DateTime
@@ -21,8 +23,6 @@ if not hasattr(mx.DateTime, 'strptime'):
 
 from getpass import getpass
 import sha
-import logging
-import logging.handlers
 import threading
 from pool import Pool
 
@@ -168,7 +168,7 @@ class TrytonServer(object):
                 logging.shutdown()
                 sys.exit(1)
 
-            tinysocket = netsvc.TinySocketServerThread(interface, port,
+            netrpcd = NetRPCServerThread(interface, port,
                     CONFIG['secure_netrpc'])
             logging.getLogger("web-service").info(
                 "starting netrpc" + \
@@ -200,7 +200,7 @@ class TrytonServer(object):
                         Pool(db_name).init()
                     return
             if CONFIG['netrpc']:
-                tinysocket.stop()
+                netrpcd.stop()
             if CONFIG['xmlrpc']:
                 httpd.stop()
             if CONFIG['webdav']:
@@ -228,7 +228,7 @@ class TrytonServer(object):
 
         self.logger.info('the server is running, waiting for connections...')
         if CONFIG['netrpc']:
-            tinysocket.start()
+            netrpcd.start()
         if CONFIG['xmlrpc']:
             httpd.start()
         if CONFIG['webdav']:
