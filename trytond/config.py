@@ -8,11 +8,11 @@ class ConfigManager(object):
         self.options = {
             'interface': '',
             'netrpc': True,
-            'netport': '8070',
+            'netport': 8070,
             'xmlrpc': False,
-            'xmlport': '8069',
+            'xmlport': 8069,
             'webdav': False,
-            'webdavport': '8080',
+            'webdavport': 8080,
             'db_host': False,
             'db_port': False,
             'db_name': False,
@@ -124,6 +124,11 @@ class ConfigManager(object):
                     value = True
                 if value == 'False' or value == 'false':
                     value = False
+                if name in ('netport', 'xmlport', 'webdavport'):
+                    try:
+                        value = int(value)
+                    except:
+                        continue
                 self.options[name] = value
         except IOError:
             pass
