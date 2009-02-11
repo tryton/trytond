@@ -6,7 +6,6 @@ try:
 except ImportError:
     import StringIO
 import os.path
-from trytond.netsvc import  LocalService
 from trytond.config import CONFIG
 from trytond.version import VERSION
 import time
@@ -416,7 +415,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         try:
             self.sax_parser.parse(source)
         except:
-            logging.getLogger("init").error(
+            logging.getLogger("convert").error(
                 "Error while parsing xml file:\n" +\
                     self.current_state()
                 )
@@ -441,7 +440,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 pass
 
             else:
-                logging.getLogger("init").info("Tag "+ name + " not supported")
+                logging.getLogger("convert").info("Tag "+ name + " not supported")
                 return
         else:
             self.taghandler.startElement(name, attributes)
@@ -666,7 +665,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 try:
                     db_field = self._clean_value(key, db_val, object_ref)
                 except Unhandled_field:
-                    logging.getLogger("init").info(
+                    logging.getLogger("convert").info(
                         'Field %s on %s : integrity not tested.'%(key, model))
                     to_update[key] = values[key]
                     continue
@@ -697,7 +696,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # if they are not false in a boolean context (ie None,
                 # False, {} or [])
                 if db_field != expected_value and (db_field or expected_value):
-                    logging.getLogger("init").warning(
+                    logging.getLogger("convert").warning(
                         "Field %s of %s@%s not updated (id: %s), because "\
                         "it has changed since the last update"% \
                         (key, db_id, model, fs_id))
@@ -890,7 +889,6 @@ def post_import(cursor, pool, module, to_delete):
     """
 
     user = 0
-    wf_service = LocalService("workflow")
     mdata_delete = []
     modeldata_obj = pool.get("ir.model.data")
     transition_delete = []
@@ -927,8 +925,10 @@ def post_import(cursor, pool, module, to_delete):
                         "act_from = %s " \
                     "WHERE act_to = %s", (db_id, db_id))
             # ... and force the record to follow them:
-            for wkf_model,wkf_model_id in wkf_todo:
-                wf_service.trg_write(user, wkf_model, wkf_model_id, cursor)
+            for wkf_model, wkf_model_id in wkf_todo:
+                model_obj = pool.get(wkf_model)
+                #XXX must perhaps use workflow_trigger_trigger?
+                model_obj.workflow_trigger_write(cursor, user, wkf_model_id)
 
             # Collect the ids of these transition in model_data
             cursor.execute(
@@ -942,10 +942,11 @@ def post_import(cursor, pool, module, to_delete):
             cursor.execute("DELETE FROM wkf_transition " \
                     "WHERE act_to = %s", (db_id,))
 
-            wf_service.trg_write(user, model, db_id, cursor)
+            model_obj = pool.get(model)
+            model_obj.workflow_trigger_write(cursor, user, db_id)
 
 
-        logging.getLogger("init").info(
+        logging.getLogger("convert").info(
                 'Deleting %s@%s' % (db_id, model))
         try:
             # Deletion of the record
@@ -955,7 +956,7 @@ def post_import(cursor, pool, module, to_delete):
             cursor.commit()
         except Exception, exception:
             cursor.rollback()
-            logging.getLogger("init").error(
+            logging.getLogger("convert").error(
                 'Could not delete id: %d of model %s\n' \
                     'There should be some relation ' \
                     'that points to this resource\n' \
@@ -966,7 +967,7 @@ def post_import(cursor, pool, module, to_delete):
 
     transition_obj = pool.get('workflow.transition')
     for mdata_id, db_id in transition_delete:
-        logging.getLogger("init").info(
+        logging.getLogger("convert").info(
             'Deleting %s@workflow.transition' % (db_id,))
         try:
             transition_obj.delete(cursor, user, db_id)
@@ -974,7 +975,7 @@ def post_import(cursor, pool, module, to_delete):
             cursor.commit()
         except:
             cursor.rollback()
-            logging.getLogger("init").error(
+            logging.getLogger("convert").error(
                 'Could not delete id: %d of model workflow.transition'% (db_id,))
 
     # Clean model_data:

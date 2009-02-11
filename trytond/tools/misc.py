@@ -9,7 +9,7 @@ import inspect
 from trytond.config import CONFIG
 import socket
 import zipfile
-from trytond import pooler
+from trytond.backend import Database
 from threading import Lock, local
 import logging
 try:
@@ -224,12 +224,14 @@ def sms_send(user, password, api_id, text, to):
     urllib.urlopen("http://196.7.150.220/http/sendmsg", params)
     return True
 
-def find_language_context(args):
+def find_language_context(args, kargs=None):
+    if kargs is None:
+        kargs = {}
     res = 'en_US'
     for arg in args:
         if isinstance(arg, dict):
             res = arg.get('language', 'en_US')
-    return res
+    return kargs.get('context', {}).get('language', res)
 
 
 class Cache(object):
@@ -326,7 +328,8 @@ class Cache(object):
     def clean(dbname):
         if not CONFIG['multi_server']:
             return
-        cursor = pooler.get_db(dbname).cursor()
+        database = Database(dbname).connect()
+        cursor = database.cursor()
         try:
             cursor.execute('SELECT "timestamp", "name" FROM ir_cache')
             timestamps = {}
@@ -361,7 +364,8 @@ class Cache(object):
     def resets(dbname):
         if not CONFIG['multi_server']:
             return
-        cursor = pooler.get_db(dbname).cursor()
+        database = Database(dbname).connect()
+        cursor = database.cursor()
         Cache._resets_lock.acquire()
         Cache._resets.setdefault(dbname, set())
         try:

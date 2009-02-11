@@ -1,5 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from trytond.backend import Database
 import os, sys, imp
 import itertools
 from sets import Set
@@ -125,6 +126,7 @@ def create_graph(module_list, force=None):
         force = []
     graph = Graph()
     packages = []
+    logger = logging.getLogger('modules')
 
     for module in module_list:
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
@@ -142,13 +144,11 @@ def create_graph(module_list, force=None):
             try:
                 info = eval(tools.file_open(tryton_file, subdir='').read())
             except:
-                logging.getLogger('init').error(
-                    'module:%s:eval file %s' % (module, tryton_file))
+                logger.error('%s:eval file %s' % (module, tryton_file))
                 raise
             packages.append((module, info.get('depends', []), info))
         elif module != 'all':
-            logging.getLogger('init').error(
-                'module:%s:Module not found!' % (module,))
+            logger.error('%s:Module not found!' % (module,))
 
     current, later = Set([x[0] for x in packages]), Set()
     while packages and current > later:
@@ -179,26 +179,14 @@ def create_graph(module_list, force=None):
         if package not in later:
             continue
         missings = [x for x in deps if x not in graph]
-        logging.getLogger('init').error(
-            'module:%s:Unmet dependency %s' % (package, missings))
+        logger.error('%s:Unmet dependency %s' % (package, missings))
     return graph, packages, later
 
-def init_module_objects(cursor, module_name, obj_list):
-    logging.getLogger('init').info(
-        'module:%s:creating or updating database tables' % module_name)
-    for obj in obj_list:
-        obj.init(cursor, module_name)
-
-def init_module_wizards(cursor, module_name, wizard_list):
-    logging.getLogger('init').info(
-        'module:%s:creating or updating wizards' % module_name)
-    for wizard in wizard_list:
-        wizard.init(cursor, module_name)
-
-def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
+def load_module_graph(cursor, graph, pool, lang=None):
     if lang is None:
         lang = ['en_US']
     modules_todo = []
+    logger = logging.getLogger('modules')
 
     modules = [x.name for x in graph]
     cursor.execute('SELECT name, state FROM ir_module_module ' \
@@ -212,18 +200,19 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
         module = package.name
         if module not in MODULES:
             continue
-        logging.getLogger('init').info('module:%s' % module)
+        logger.info(module)
         sys.stdout.flush()
-        modules = pool.instanciate(module)
-        wizards = pool_wizard.instanciate(module, pool)
-        reports = pool_report.instanciate(module, pool)
+        objects = pool.instanciate(module)
         package_state = module2state.get(module, 'uninstalled')
         idref = {}
         if hasattr(package, 'init') \
                 or hasattr(package, 'update') \
                 or (package_state in ('to install', 'to upgrade')):
-            init_module_objects(cursor, module, modules)
-            init_module_wizards(cursor, module, wizards)
+
+            for type in objects.keys():
+                for obj in objects[type]:
+                    logger.info('%s:init %s' % (module, obj._name))
+                    obj.init(cursor, module)
 
             #Instanciate a new parser for the package:
             tryton_parser = tools.TrytondXmlHandler(
@@ -235,8 +224,7 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
                 mode = 'update'
                 if hasattr(package, 'init') or package_state == 'to install':
                     mode = 'init'
-                logging.getLogger('init').info(
-                    'module:%s:loading %s' % (module, filename))
+                logger.info('%s:loading %s' % (module, filename))
                 ext = os.path.splitext(filename)[1]
                 if ext == '.sql':
                     if mode == 'init':
@@ -260,11 +248,9 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
                 try:
                     trans_file = tools.file_open(OPJ(module, filename))
                 except IOError:
-                    logging.getLogger('init').error(
-                        'module:%s:file %s not found!' % (module, filename))
+                    logger.error('%s:file %s not found!' % (module, filename))
                     continue
-                logging.getLogger('init').info(
-                    'module:%s:loading %s' % (module, filename))
+                logger.info('%s:loading %s' % (module, filename))
                 translation_obj = pool.get('ir.translation')
                 translation_obj.translation_import(cursor, 0, lang2, module,
                                                    trans_file)
@@ -272,8 +258,22 @@ def load_module_graph(cursor, graph, pool, pool_wizard, pool_report, lang=None):
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))
             module2state[package.name] = 'installed'
-        cursor.commit()
 
+        # Create missing reports
+        from trytond.report import Report
+        report_obj = pool.get('ir.action.report')
+        report_ids = report_obj.search(cursor, 0, [
+            ('module', '=', module),
+            ])
+        report_names = [x._name for x in objects['report']]
+        for report in report_obj.browse(cursor, 0, report_ids):
+            report_name = report.report_name
+            if report_name not in report_names:
+                report = object.__new__(Report)
+                report._name = report_name
+                pool.add(report, type='report')
+
+        cursor.commit()
 
     # Vacuum :
     while modules_todo:
@@ -308,10 +308,11 @@ def register_classes():
     import trytond.webdav
     import trytond.tests
 
+    logger = logging.getLogger('modules')
+
     for package in create_graph(get_module_list())[0]:
         module = package.name
-        logging.getLogger('init').info(
-            'module:%s:registering classes' % module)
+        logger.info('%s:registering classes' % module)
 
         if module in ('ir', 'workflow', 'res', 'webdav', 'tests'):
             MODULES.append(module)
@@ -336,8 +337,7 @@ def register_classes():
                     import pdb
                     traceb = sys.exc_info()[2]
                     pdb.post_mortem(traceb)
-                logging.getLogger('init').error(
-                    'Couldn\'t import module %s:\n%s' % (module, tb_s))
+                logger.error('Couldn\'t import module %s:\n%s' % (module, tb_s))
                 break
         elif os.path.isdir(OPJ(MODULES_PATH, module)):
             try:
@@ -347,7 +347,6 @@ def register_classes():
                     imp.load_module(module, mod_file, pathname, description)
                 finally:
                     if mod_file is not None:
-                        print "close"
                         mod_file.close()
             except ImportError:
                 tb_s = ''
@@ -363,8 +362,7 @@ def register_classes():
                     import pdb
                     traceb = sys.exc_info()[2]
                     pdb.post_mortem(traceb)
-                logging.getLogger('init').error(
-                    'Couldn\'t import module %s:\n%s' % (module, tb_s))
+                logger.error('Couldn\'t import module %s:\n%s' % (module, tb_s))
                 break
         elif module in EGG_MODULES:
             ep = EGG_MODULES[module]
@@ -378,18 +376,17 @@ def register_classes():
                 if mod_file is not None:
                     mod_file.close()
         else:
-            logging.getLogger('init').error(
-                    'Couldn\'t find module %s' % module)
+            logger.error('Couldn\'t find module %s' % module)
             break
         MODULES.append(module)
 
-def load_modules(database, pool, pool_wizard, pool_report, update_module=False,
-        lang=None):
+def load_modules(database_name, pool, update=False, lang=None):
     res = True
+    database = Database(database_name).connect()
     cursor = database.cursor()
     try:
         force = []
-        if update_module:
+        if update:
             if 'all' in CONFIG['init']:
                 cursor.execute("SELECT name FROM ir_module_module")
             else:
@@ -400,7 +397,7 @@ def load_modules(database, pool, pool_wizard, pool_report, update_module=False,
             cursor.execute("SELECT name FROM ir_module_module " \
                     "WHERE state IN ('installed', 'to upgrade', 'to remove')")
         module_list = [name for (name,) in cursor.fetchall()]
-        if update_module:
+        if update:
             for module in CONFIG['init'].keys():
                 if CONFIG['init'][module]:
                     module_list.append(module)
@@ -410,13 +407,12 @@ def load_modules(database, pool, pool_wizard, pool_report, update_module=False,
         graph = create_graph(module_list, force)[0]
 
         try:
-            load_module_graph(cursor, graph, pool, pool_wizard, pool_report,
-                    lang)
+            load_module_graph(cursor, graph, pool, lang)
         except:
             cursor.rollback()
             raise
 
-        if update_module:
+        if update:
             cursor.execute("SELECT name FROM ir_module_module " \
                     "WHERE state IN ('to remove')")
             if cursor.rowcount:

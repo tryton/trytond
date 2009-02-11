@@ -3,7 +3,7 @@
 
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
-from trytond.security import Session
+from trytond.session import Session
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extensions import cursor
 from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE
@@ -25,11 +25,21 @@ RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
 
 class Database(DatabaseInterface):
 
+    _databases = {}
+    _connpool = None
+
+    def __new__(cls, database_name='template1'):
+        if database_name in cls._databases:
+            return cls._databases[database_name]
+        return DatabaseInterface.__new__(cls, database_name)
+
     def __init__(self, database_name='template1'):
         super(Database, self).__init__(database_name=database_name)
-        self._connpool = None
+        self._databases.setdefault(database_name, self)
 
     def connect(self):
+        if self._connpool is not None:
+            return self
         host = CONFIG['db_host'] and "host=%s" % CONFIG['db_host'] or ''
         port = CONFIG['db_port'] and "port=%s" % CONFIG['db_port'] or ''
         name = "dbname=%s" % self.database_name
@@ -97,7 +107,6 @@ class Database(DatabaseInterface):
         database.create(cursor, database_name)
         cursor.commit()
         cursor.close()
-        database.close()
 
         cmd = ['pg_restore']
         if CONFIG['db_user']:
@@ -128,10 +137,8 @@ class Database(DatabaseInterface):
         cursor = database.cursor()
         if not cursor.test():
             cursor.close()
-            database.close()
             raise Exception('Couldn\'t restore database!')
         cursor.close()
-        database.close()
         return True
 
     @staticmethod
@@ -176,7 +183,6 @@ class Database(DatabaseInterface):
             if cursor2.test():
                 res.append(db_name)
             cursor2.close()
-            database.close()
         return res
 
     @staticmethod
@@ -281,13 +287,13 @@ class Cursor(CursorInterface):
             if res_from:
                 self.sql_from_log.setdefault(res_from.group(1), [0, 0])
                 self.sql_from_log[res_from.group(1)][0] += 1
-                self.sql_from_log[res_from.group(1)][1] += mdt.now() - now
+                self.sql_from_log[res_from.group(1)][1] += time.time() - now
                 self.count['from'] += 1
             res_into = RE_INTO.match(sql.lower())
             if res_into:
                 self.sql_into_log.setdefault(res_into.group(1), [0, 0])
                 self.sql_into_log[res_into.group(1)][0] += 1
-                self.sql_into_log[res_into.group(1)][1] += mdt.now() - now
+                self.sql_into_log[res_into.group(1)][1] += time.time() - now
                 self.count['into'] += 1
         return res
 
@@ -301,9 +307,9 @@ class Cursor(CursorInterface):
         logs.sort(lambda x, y: cmp(x[1][1], y[1][1]))
         amount = 0
         for log in logs:
-            logger.info("table:", log[0], ":", str(log[1][1]), "/", log[1][0])
+            logger.info("table:%s:%f/%d" % (log[0], log[1][1], log[1][0]))
             amount += log[1][1]
-        logger.info("SUM:%s/%d"% (amount, self.count[sql_type]))
+        logger.info("SUM:%s/%d" % (amount, self.count[sql_type]))
 
     def close(self):
         if self.sql_log:
@@ -317,6 +323,7 @@ class Cursor(CursorInterface):
         # collected as fast as they should). The problem is probably due in
         # part because browse records keep a reference to the cursor.
         del self.cursor
+        #if id(self._conn) in self._connpool._rused:
         self._connpool.putconn(self._conn)
 
     def commit(self):

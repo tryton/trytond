@@ -1,7 +1,6 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
-"Report"
-from trytond.netsvc import Service
-from trytond import pooler
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
+from trytond.pool import Pool
 import copy
 import xml
 from xml import dom
@@ -32,101 +31,6 @@ from trytond.backend import DatabaseIntegrityError
 import inspect
 import mx.DateTime
 import logging
-
-MODULE_LIST = []
-MODULE_CLASS_LIST = {}
-
-
-class ReportService(Service):
-
-    def __init__(self):
-        self.object_name_pool = {}
-        self.module_obj_list = {}
-        Service.__init__(self, 'report_proxy')
-        Service.join_group(self, 'web-service')
-        Service.export_method(self, self.execute)
-
-    def execute_cr(self, cursor, user, report_name, ids, datas, context=None):
-        try:
-            report = pooler.get_pool_report(cursor.dbname).get(report_name)
-            if not report:
-                report = Report.create_instance(self, 'report', pooler.get_pool(cursor.dbname))
-                report._name = report_name
-                self.add(report._name, report)
-            res = report.execute(cursor, user, ids, datas, context)
-            return res
-        except Exception, exception:
-            if CONFIG['verbose'] or (exception.args \
-                    and str(exception.args[0]) not in \
-                    ('NotLogged', 'ConcurrencyException', 'UserError',
-                            'UserWarning')):
-                tb_s = reduce(lambda x, y: x+y,
-                        traceback.format_exception(*sys.exc_info()))
-                logging.getLogger("web-service").error(
-                    'Exception in call: ' + tb_s)
-            if isinstance(exception, DatabaseIntegrityError):
-                pool = pooler.get_pool(cursor.dbname)
-                for key in pool._sql_errors.keys():
-                    if key in exception[0]:
-                        msg = pool._sql_errors[key]
-                        cursor2 = pooler.get_db(cursor.dbname).cursor()
-                        if context is None:
-                            context = {}
-                        try:
-                            cursor2.execute('SELECT value ' \
-                                    'FROM ir_translation ' \
-                                    'WHERE lang=%s ' \
-                                        'AND type=%s ' \
-                                        'AND src=%s',
-                                    (context.get('language', 'en_US'), 'error',
-                                        msg))
-                            if cursor2.rowcount:
-                                res = cursor2.fetchone()[0]
-                                if res:
-                                    msg = res
-                        finally:
-                            cursor2.close()
-                        raise Exception('UserError', 'Constraint Error',
-                                msg)
-            raise
-
-    def execute(self, dbname, user, report_name, ids, datas, context=None):
-        cursor = pooler.get_db(dbname).cursor()
-        pool = pooler.get_pool_report(dbname)
-        try:
-            try:
-                res = pool.execute_cr(cursor, user, report_name, ids, datas, context)
-                cursor.commit()
-            except Exception:
-                cursor.rollback()
-                raise
-        finally:
-            cursor.close()
-        return res
-
-    def add(self, name, object_name_inst):
-        """
-        adds a new obj instance to the obj pool.
-        if it already existed, the instance is replaced
-        """
-        if self.object_name_pool.has_key(name):
-            del self.object_name_pool[name]
-        self.object_name_pool[name] = object_name_inst
-
-        module = str(object_name_inst.__class__)[6:]
-        module = module[:len(module)-1]
-        module = module.split('.')[0][2:]
-        self.module_obj_list.setdefault(module, []).append(object_name_inst)
-
-    def get(self, name):
-        return self.object_name_pool.get(name, None)
-
-    def instanciate(self, module, pool_obj):
-        res = []
-        class_list = MODULE_CLASS_LIST.get(module, [])
-        for klass in class_list:
-            res.append(klass.create_instance(self, module, pool_obj))
-        return res
 
 PARENTS = {
     'table-row': 1,
@@ -166,38 +70,15 @@ class TranslateFactory:
 
 class Report(object):
     _name = ""
+    _rpc_allowed = [
+        'execute',
+    ]
 
     def __new__(cls):
-        for module in cls.__module__.split('.'):
-            if module != 'trytond' and module != 'modules':
-                break
-        if not hasattr(cls, '_module'):
-            cls._module = module
-        MODULE_CLASS_LIST.setdefault(cls._module, []).append(cls)
-        if module not in MODULE_LIST:
-            MODULE_LIST.append(cls._module)
-        return None
+        Pool.register(cls, type='report')
 
-    def create_instance(cls, pool, module, pool_obj):
-        """
-        try to apply inheritancy at the instanciation level and
-        put objs in the pool var
-        """
-        if pool.get(cls._name):
-            parent_class = pool.get(cls._name).__class__
-            cls = type(cls._name, (cls, parent_class), {})
-
-        obj = object.__new__(cls)
-        obj.__init__(pool, pool_obj)
-        return obj
-
-    create_instance = classmethod(create_instance)
-
-    def __init__(self, pool, pool_obj):
-        if self._name:
-            pool.add(self._name, self)
-        self.pool = pool_obj
-        super(Report, self).__init__()
+    def init(self, cursor, module_name):
+        pass
 
     def execute(self, cursor, user, ids, datas, context=None):
         if context is None:

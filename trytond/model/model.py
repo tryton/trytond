@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model import fields
+from trytond.pool import Pool
 import copy
 
 
@@ -14,7 +15,7 @@ class Model(object):
     _description = ''
     _rec_name = 'name'
     _date_name = 'date'
-    pool = None
+    pool = None #XXX change to avoid collision with field
     __columns = None
     __defaults = None
 
@@ -52,6 +53,9 @@ class Model(object):
         return res
 
     _defaults = property(fget=_getdefaults)
+
+    def __new__(cls):
+        Pool.register(cls, type='model')
 
     def __init__(self):
         super(Model, self).__init__()
@@ -107,7 +111,8 @@ class Model(object):
                         self.pool.get(model)._inherit_fields[field_name][2])
         self._inherit_fields = res
         # Update objects that uses this one to update their _inherits fields
-        for obj in self.pool.object_name_pool.values():
+        for obj_name in self.pool.object_name_list():
+            obj = self.pool.get(obj_name)
             if self._name in obj._inherits:
                 obj._inherits_reload()
 

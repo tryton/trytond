@@ -1,7 +1,6 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
-"Wizard"
-from trytond.netsvc import Service
-from trytond import pooler
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
+from trytond.pool import Pool
 import copy
 from xml import dom
 from trytond.osv import OSV
@@ -10,143 +9,28 @@ import sys
 from trytond.backend import DatabaseIntegrityError
 import traceback
 import logging
-
-MODULE_LIST = []
-MODULE_CLASS_LIST = {}
-
-
-class WizardService(Service):
-
-    def __init__(self):
-        self.object_name_pool = {}
-        self.module_obj_list = {}
-        Service.__init__(self, 'wizard_proxy')
-        Service.join_group(self, 'web-service')
-        Service.export_method(self, self.execute)
-
-    def execute_cr(self, cursor, user, wizard_name, data, state='init',
-            context=None):
-        try:
-            wizard = pooler.get_pool_wizard(cursor.dbname).get(wizard_name)
-            if not wizard:
-                raise Exception('Error',
-                        'Wizard %s doesn\'t exist' % str(wizard_name))
-            res = wizard.execute(cursor, user, data, state, context)
-            return res
-        except Exception, exception:
-            if CONFIG['verbose'] or (exception.args \
-                    and str(exception.args[0]) not in \
-                    ('NotLogged', 'ConcurrencyException', 'UserError',
-                            'UserWarning')):
-                tb_s = reduce(lambda x, y: x+y,
-                        traceback.format_exception(*sys.exc_info()))
-                logging.getLogger("web-service").error(
-                    'Exception in call: ' + tb_s)
-            if isinstance(exception, DatabaseIntegrityError):
-                pool = pooler.get_pool(cursor.dbname)
-                for key in pool._sql_errors.keys():
-                    if key in exception[0]:
-                        msg = pool._sql_errors[key]
-                        cursor2 = pooler.get_db(cursor.dbname).cursor()
-                        if context is None:
-                            context = {}
-                        try:
-                            cursor2.execute('SELECT value ' \
-                                    'FROM ir_translation ' \
-                                    'WHERE lang=%s ' \
-                                        'AND type=%s ' \
-                                        'AND src=%s',
-                                    (context.get('language', 'en_US'), 'error',
-                                        msg))
-                            if cursor2.rowcount:
-                                res = cursor2.fetchone()[0]
-                                if res:
-                                    msg = res
-                        finally:
-                            cursor2.close()
-                        raise Exception('UserError', 'Constraint Error',
-                                msg)
-            raise
-
-    def execute(self, dbname, user, wizard_name, data, state='init',
-            context=None):
-        cursor = pooler.get_db(dbname).cursor()
-        pool = pooler.get_pool_wizard(dbname)
-        try:
-            try:
-                res = pool.execute_cr(cursor, user, wizard_name, data, state,
-                        context)
-                cursor.commit()
-            except Exception:
-                cursor.rollback()
-                raise
-        finally:
-            cursor.close()
-        return res
-
-    def object_name_list(self):
-        return self.object_name_pool.keys()
-
-    def add(self, name, object_name_inst):
-        """
-        adds a new obj instance to the obj pool.
-        if it already existed, the instance is replaced
-        """
-        if self.object_name_pool.has_key(name):
-            del self.object_name_pool[name]
-        self.object_name_pool[name] = object_name_inst
-
-        module = str(object_name_inst.__class__)[6:]
-        module = module[:len(module)-1]
-        module = module.split('.')[0][2:]
-        self.module_obj_list.setdefault(module, []).append(object_name_inst)
-
-    def get(self, name):
-        return self.object_name_pool.get(name, None)
-
-    def instanciate(self, module, pool_obj):
-        res = []
-        class_list = MODULE_CLASS_LIST.get(module, [])
-        for klass in class_list:
-            res.append(klass.create_instance(self, module, pool_obj))
-        return res
+from threading import Lock
+from random import randint
+from sys import maxint
 
 
 class Wizard(object):
     _name = ""
     states = {}
+    _rpc_allowed = [
+        'create',
+        'delete',
+        'execute',
+    ]
 
     def __new__(cls):
-        for module in cls.__module__.split('.'):
-            if module != 'trytond' and module != 'modules':
-                break
-        if not hasattr(cls, '_module'):
-            cls._module = module
-        MODULE_CLASS_LIST.setdefault(cls._module, []).append(cls)
-        if module not in MODULE_LIST:
-            MODULE_LIST.append(cls._module)
-        return None
-
-    def create_instance(cls, pool, module, pool_obj):
-        """
-        try to apply inheritancy at the instanciation level and
-        put objs in the pool var
-        """
-        if pool.get(cls._name):
-            parent_class = pool.get(cls._name).__class__
-            cls = type(cls._name, (cls, parent_class), {})
-
-        obj = object.__new__(cls)
-        pool.add(obj._name, obj)
-        obj.pool = pool_obj
-        obj.__init__()
-        return obj
-
-    create_instance = classmethod(create_instance)
+        Pool.register(cls, type='wizard')
 
     def __init__(self):
         super(Wizard, self).__init__()
         self._error_messages = {}
+        self._lock = Lock()
+        self._datas = {}
 
     def init(self, cursor, module_name):
         for state in self.states.keys():
@@ -225,11 +109,34 @@ class Wizard(object):
             raise Exception('UserError', error, error_description)
         raise Exception('UserError', error)
 
-    def execute(self, cursor, user, data, state='init', context=None):
+    def create(self, cursor, user):
+        self._lock.acquire()
+        wiz_id = 0
+        while True:
+            wiz_id = randint(0, maxint)
+            if wiz_id not in self._datas:
+                break
+        self._datas[wiz_id] = {'user': user, '_wiz_id': wiz_id}
+        self._lock.release()
+        return wiz_id
+
+    def delete(self, cursor, user, wiz_id):
+        if self._datas[wiz_id]['user'] != user:
+            raise Exception('AccessDenied')
+        self._lock.acquire()
+        del self._datas[wiz_id]
+        self._lock.release()
+
+    def execute(self, cursor, user, wiz_id, data, state='init', context=None):
+        translation_obj = self.pool.get('ir.translation')
         if context is None:
             context = {}
         res = {}
-        translation_obj = self.pool.get('ir.translation')
+
+        if self._datas[wiz_id]['user'] != user:
+            raise Exception('AccessDenied')
+        self._datas[wiz_id].update(data)
+        data = self._datas[wiz_id]
 
         state_def = self.states[state]
         result_def = state_def.get('result', {})
@@ -286,7 +193,8 @@ class Wizard(object):
                     data, context)
             if next_state == 'end':
                 return {'type': 'state', 'state': 'end'}
-            return self.execute(cursor, user, data, next_state, context)
+            return self.execute(cursor, user, wiz_id, data, next_state,
+                    context=context)
         return res
 
 class WizardOSV(OSV):

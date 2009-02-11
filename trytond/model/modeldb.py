@@ -3,7 +3,6 @@
 
 from trytond.model import ModelStorage, OPERATORS
 from trytond.model import fields
-from trytond.netsvc import LocalService
 from trytond.backend import FIELDS, TableHandler
 import datetime
 
@@ -260,9 +259,6 @@ class ModelDB(ModelStorage):
                     and field.model_name == self._name \
                     and field.left and field.right:
                 self._update_tree(cursor, user, id_new, k, field.left, field.right)
-
-        wf_service = LocalService("workflow")
-        wf_service.trg_create(user, self._name, id_new, cursor, context=context)
         return id_new
 
     def read(self, cursor, user, ids, fields_names=None, context=None):
@@ -616,11 +612,6 @@ class ModelDB(ModelStorage):
                             field.left, field.right)
                 else:
                     self._rebuild_tree(cursor, 0, k, False, 0)
-
-        wf_service = LocalService("workflow")
-        for obj_id in ids:
-            wf_service.trg_write(user, self._name, obj_id, cursor,
-                    context=context)
         return True
 
     def delete(self, cursor, user, ids, context=None):
@@ -672,11 +663,6 @@ class ModelDB(ModelStorage):
             ids + [self._name])
         if cursor.rowcount != 0:
             self.raise_user_error(cursor, 'delete_workflow_record',
-                    context=context)
-
-        wf_service = LocalService("workflow")
-        for obj_id in ids:
-            wf_service.trg_delete(user, self._name, obj_id, cursor,
                     context=context)
 
         tree_ids = {}

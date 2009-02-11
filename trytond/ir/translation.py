@@ -13,7 +13,6 @@ import csv
 from trytond.osv import fields, OSV, Cacheable
 from trytond.wizard import Wizard, WizardOSV
 from trytond import tools
-from trytond import pooler
 
 TRANSLATION_TYPE = [
     ('field', 'Field'),
@@ -749,7 +748,6 @@ class TranslationClean(Wizard):
         translation_obj = self.pool.get('ir.translation')
         model_data_obj = self.pool.get('ir.model.data')
         report_obj = self.pool.get('ir.action.report')
-        pool_wizard = pooler.get_pool_wizard(cursor.dbname)
 
         ctx = context.copy()
         ctx['active_test'] = False
@@ -842,7 +840,7 @@ class TranslationClean(Wizard):
                     except ValueError:
                         to_delete.append(translation.id)
                         continue
-                    wizard = pool_wizard.get(wizard_name)
+                    wizard = self.pool.get(wizard_name, type='wizard')
                     if not wizard:
                         to_delete.append(translation.id)
                         continue
@@ -894,8 +892,8 @@ class TranslationClean(Wizard):
                         if translation.src not in errors:
                             to_delete.append(translation.id)
                             continue
-                    elif model_name in pool_wizard.object_name_list():
-                        wizard_obj = pool_wizard.get(model_name)
+                    elif model_name in self.pool.object_name_list(type='wizard'):
+                        wizard_obj = self.pool.get(model_name, type='wizard')
                         errors = wizard_obj._error_messages.values()
                         if translation.src not in errors:
                             to_delete.append(translation.id)

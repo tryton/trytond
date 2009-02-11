@@ -2,9 +2,9 @@
 "Workflow"
 import os
 from trytond.osv import fields, OSV
-from trytond.netsvc import LocalService
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
+import expr
 import base64
 
 
@@ -27,18 +27,6 @@ class Workflow(OSV):
 
     def default_on_create(self, cursor, user, context=None):
         return 1
-
-    def write(self, cursor, user, ids, vals, context=None):
-        wf_service = LocalService("workflow")
-        wf_service.clear_cache(cursor)
-        return super(Workflow, self).write(cursor, user, ids, vals,
-                context=context)
-
-    def create(self, cursor, user, vals, context=None):
-        wf_service = LocalService("workflow")
-        wf_service.clear_cache(cursor)
-        return super(Workflow, self).create(cursor, user, vals,
-                context=context)
 
 Workflow()
 
@@ -82,6 +70,9 @@ class WorkflowActivity(OSV):
     in_transitions = fields.One2Many('workflow.transition', 'act_to',
        'Incoming transitions')
 
+    #TODO add a _constraint on subflow without action
+    #to have the same model than the workflow
+
     def default_kind(self, cursor, user, context=None):
         return 'dummy'
 
@@ -115,6 +106,8 @@ class WorkflowTransition(OSV):
        required=True, select=1, ondelete='cascade')
     act_to = fields.Many2One('workflow.activity', 'Destination Activity',
        required=True, select=1, ondelete='cascade')
+    instances = fields.Many2Many('workflow.instance', 'wkf_witm_trans',
+            'trans_id', 'inst_id', ondelete_target='CASCADE')
 
     def default_condition(self, cursor, user, context=None):
         return 'True'
@@ -134,12 +127,18 @@ class WorkflowInstance(OSV):
     res_id = fields.Integer('Resource ID', required=True, select=1)
     res_type = fields.Char('Resource Model', required=True, select=1)
     state = fields.Char('State', required=True, select=1)
+    overflows = fields.One2Many('workflow.workitem', 'subflow',
+            'Overflow')
+    transitions = fields.Many2Many('workflow.instance', 'wkf_witm_trans',
+            'inst_id', 'trans_id', ondelete_target='CASCADE')
+    workitems = fields.One2Many('workflow.workitem', 'instance', 'Workitems')
 
     def __init__(self):
         super(WorkflowInstance, self).__init__()
         self._error_messages.update({
             'no_instance_defined': 'No workflow instance defined!',
             })
+        #TODO add a constraint to have only one active instance by resource
 
     def init(self, cursor, module_name):
         super(WorkflowInstance, self).init(cursor, module_name)
@@ -159,6 +158,74 @@ class WorkflowInstance(OSV):
                         'wkf_instance_res_id_workflow_index ' \
                     'ON wkf_instance (res_id, workflow)')
 
+    def create(self, cursor, user, values, context=None):
+        activity_obj = self.pool.get('workflow.activity')
+        workitem_obj = self.pool.get('workflow.workitem')
+
+        instance_id = super(WorkflowInstance, self).create(cursor, user, values,
+                context=context)
+
+        if 'workflow' in values:
+            activity_ids = activity_obj.search(cursor, 0, [
+                ('flow_start', '=', True),
+                ('workflow', '=', values['workflow']),
+                ], context=context)
+            for activity_id in activity_ids:
+                workitem_obj.create(cursor, user, {
+                    'activity': activity_id,
+                    'instance': instance_id,
+                    'state': 'active',
+                    }, context=context)
+        instance = self.browse(cursor, user, instance_id, context=context)
+        self.update(cursor, user, instance, context=context)
+        return instance_id
+
+    def update(self, cursor, user, instance, context=None):
+        '''
+        '''
+        workitem_obj = self.pool.get('workflow.workitem')
+        for workitem in instance.workitems:
+            workitem_obj.process(cursor, user, workitem, context=context)
+        return self._update_end(cursor, user, instance, context=context)
+
+    def validate(self, cursor, user, instance, signal, force_running=False,
+            context=None):
+        '''
+        '''
+        workitem_obj = self.pool.get('workflow.workitem')
+        for workitem in instance.workitems:
+            workitem_obj.process(cursor, user, workitem, signal=signal,
+                    force_running=force_running, context=context)
+        return self._update_end(cursor, user, instance, context=context)
+
+    def _update_end(self, cursor, user, instance, context=None):
+        workitem_obj = self.pool.get('workflow.workitem')
+        res = True
+        for workitem in instance.workitems:
+            if (workitem.state != 'complete') \
+                    or not workitem.activity.flow_stop:
+                res = False
+                break
+        if res:
+            act_names = set()
+            for workitem in instance.workitems:
+                act_names.add(workitem.activity.name)
+            self.write(cursor, 0, instance.id, {
+                'state': 'complete',
+                }, context=context)
+            workitem_ids = workitem_obj.search(cursor, 0, [
+                ('subflow', '=', instance.id),
+                ], context=context)
+            workitem_obj.write(cursor, 0, workitem_ids, {
+                'state': 'complete',
+                }, context=context)
+            for workitem in workitem_obj.browse(cursor, user,
+                    workitem_ids, context=context):
+                for act_name in act_names:
+                    self.validate(cursor, user, workitem.instance,
+                            signal='subflow.' + act_name, context=context)
+        return res
+
 WorkflowInstance()
 
 
@@ -175,6 +242,195 @@ class WorkflowWorkitem(OSV):
     instance = fields.Many2One('workflow.instance', 'Instance',
        required=True, ondelete="cascade", select=1)
     state = fields.Char('State', select=1)
+
+    def create(self, cursor, user, values, context=None):
+        workitem_id = super(WorkflowWorkitem, self).create(cursor, user, values,
+                context=context)
+        workitem = self.browse(cursor, 0, workitem_id, context=context)
+        self.process(cursor, user, workitem, context=context)
+        return workitem_id
+
+    def process(self, cursor, user, workitem, signal=None, force_running=False,
+            context=None):
+        '''
+        Process a workitem
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param workitem: a BrowseRecord of the workflow.workitem
+        :param signal: the signal
+        :param force_running: a boolean
+        :param context: the context
+        '''
+        trigger_obj = self.pool.get('workflow.trigger')
+        activity = workitem.activity
+        triggers = False
+        if workitem.state == 'active':
+            triggers = True
+            if not self._execute(cursor, user, workitem, activity,
+                    context=context):
+                return False
+        elif workitem.state == 'running':
+            pass
+
+        if workitem.state == 'complete' or force_running:
+            res = self._split_test(cursor, user, workitem, activity.split_mode,
+                    signal, context=context)
+            triggers = triggers and not res
+
+        if triggers:
+            for transition in activity.out_transitions:
+                if transition.trigger_model:
+                    ids = expr.eval_expr(cursor, user,
+                            workitem.instance.res_type,
+                            workitem.instance.res_id,
+                            transition.trigger_expr_id, context=context)
+                    for res_id in ids:
+                        trigger_obj.create(cursor, 0, {
+                            'model': transition.trigger_model,
+                            'res_id': workitem.instance.res_id,
+                            'instance': workitem.instance.id,
+                            'workitem': workitem.id,
+                            }, context=context)
+        return True
+
+    def _state_set(self, cursor, user, workitem, state):
+        self.write(cursor, user, workitem.id, {
+            'state': state,
+            })
+        #XXX must be changed with a cache reset on BrowseRecord
+        workitem._data[workitem.id]['state'] = state
+
+    def _execute(self, cursor, user, workitem, activity, context=None):
+        instance_obj = self.pool.get('workflow.instance')
+        #send a signal to overflow
+        if (workitem.state == 'active') and activity.signal_send:
+            for overflow in workitem.overflows:
+                overflow.instance.workflow
+                instance_obj.validate(cursor, user, overflow.instance,
+                        activity.signal_send, force_running=True,
+                        context=context)
+
+        if activity.kind == 'dummy':
+            if workitem.state == 'active':
+                self._state_set(cursor, user, workitem, 'complete')
+        elif activity.kind == 'function':
+            if workitem.state == 'active':
+                self._state_set(cursor, user, workitem, 'running')
+                expr.execute(cursor, user, workitem.instance.res_type,
+                        workitem.instance.res_id, activity,
+                        context=context)
+                self._state_set(cursor, user, workitem, 'complete')
+        elif activity.kind == 'stopall':
+            if workitem.state == 'active':
+                self._state_set(cursor, user, workitem, 'running')
+                #XXX check if delete must not be replace by _state_set 'complete'
+                self.delete(cursor, 0,
+                        self.search(cursor, user, [
+                            ('instance', '=', workitem.instance.id),
+                            ('id', '!=', workitem.id),
+                            ], context=context), context=context)
+                if activity.action:
+                    expr.execute(cursor, user, workitem.instance.res_type,
+                            workitem.instance.res_id, activity,
+                            context=context)
+                self._state_set(cursor, user, workitem, 'complete')
+        elif activity.kind == 'subflow':
+            if workitem.state == 'active':
+                self._state_set(cursor, workitem, 'running')
+                if activity.action:
+                    id_new = expr.execute(cursor, user,
+                            workitem.instance.res_type,
+                            workitem.instance.res_id, activity,
+                            context=context)
+                    if not id_new:
+                        self.delete(cursor, 0, workitem.id, context=context)
+                        return False
+                    instance_id = instance_obj.search(cursor, 0, [
+                        ('res_id', '=', id_new),
+                        ('workflow', '=', activity.subflow.id),
+                        ], limit=1, context=context)[0]
+                else:
+                    instance_id = instance_obj.create(cursor, user, {
+                        'res_type': workitem.instance.res_type,
+                        'res_id': workitem.instance.res_id,
+                        'workflow': activity.subflow.id,
+                        }, context=context)
+                self.write(cursor, user, workitem.id, {
+                    'subflow': instance_id,
+                    }, context=context)
+                #XXX must be changed with a cache reset on BrowseRecord
+                workitem._data[workitem.id]['subflow'] = instance_id
+            elif workitem.state == 'running':
+                if workitem.subflow.state == 'complete':
+                    self._state_set(cursor, user, workitem, 'complete')
+        return True
+
+    def _split_test(self, cursor, user, workitem, split_mode, signal=None,
+            context=None):
+        instance_obj = self.pool.get('workflow.instance')
+        test = False
+        transitions = []
+        if split_mode == 'XOR' or split_mode == 'OR':
+            for transition in workitem.activity.out_transitions:
+                if expr.check(cursor, user, workitem.instance.res_type,
+                        workitem.instance.res_id, transition, signal,
+                        context=context):
+                    test = True
+                    transitions.append(transition)
+                    if split_mode == 'XOR':
+                        break
+        else:
+            test = True
+            for transition in workitem.activity.out_transitions:
+                if not expr.check(cursor, user, workitem.instance.res_type,
+                        workitem.instance.res_id, transition, signal,
+                        context=context):
+                    test = False
+                    break
+                if transition.id not in \
+                        [x.id for x in workitem.instance.transitions]:
+                    transitions.append(transition)
+        if test and len(transitions):
+            instance_obj.write(cursor, 0, workitem.instance.id, {
+                'transitions': [('add', [x.id for x in transitions])],
+                }, context=context)
+            self.delete(cursor, 0, workitem.id, context=context)
+            for transition in transitions:
+                self._join_test(cursor, user, transition, workitem.instance,
+                        context=context)
+            return True
+        return False
+
+    def _join_test(self, cursor, user, transition, instance, context=None):
+        instance_obj = self.pool.get('workflow.instance')
+        activity = transition.act_to
+        if activity.join_mode == 'XOR':
+            self.create(cursor, user, {
+                'activity': activity.id,
+                'instance': instance.id,
+                'state': 'active',
+                }, context=context)
+            instance_obj.write(cursor, 0, instance.id, {
+                'transitions': [('unlink', transition.id)],
+                }, context=context)
+        else:
+            delete = True
+            for transition in activity.in_transitions:
+                if instance.id not in \
+                        [x.id for x in transition.instances]:
+                    delete = False
+                    break
+            if delete:
+                instance_obj.write(cursor, 0, instance.id, {
+                    'transitions': [('unlink', [x.id
+                        for x in activity.in_transitions])],
+                    }, context=context)
+                self.create(cursor, user, {
+                    'activity': activity.id,
+                    'instance': instance.id,
+                    'state': 'active',
+                    }, context=context)
 
 WorkflowWorkitem()
 

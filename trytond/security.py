@@ -1,36 +1,19 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import pooler
+from trytond.backend import Database
+from trytond.session import Session
 from config import CONFIG
 import sha
 import time
-import random
 
-
-class Session(int):
-
-    def __init__(self, x):
-        super(Session, self).__init__(x)
-        self.__data = {
-            'session': str(random.random()),
-            'timestamp': time.time(),
-        }
-
-    def __getattr__(self, name):
-        return self.__data[name]
-
-    def __getitem__(self, name):
-        return self.__data[name]
-
-    def reset_timestamp(self):
-        self.__data['timestamp'] = time.time()
 
 _USER_CACHE = {}
 _USER_TRY = {}
 
 def login(dbname, loginname, password, cache=True):
     _USER_TRY.setdefault(dbname, {})
-    cursor = pooler.get_db(dbname).cursor()
+    database = Database(dbname).connect()
+    cursor = database.cursor()
     password_sha = sha.new(password).hexdigest()
     cursor.execute('SELECT id, password, active FROM res_user '
         'WHERE login = %s', (loginname,))

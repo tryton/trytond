@@ -10,12 +10,8 @@ logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
 import sys, os, signal
 import netsvc
 import time
-import pooler
-from backend import Database
-import config
+from trytond.backend import Database, DatabaseOperationalError
 from config import CONFIG
-import web_service
-import wkf_service
 from trytond.modules import register_classes
 import mx.DateTime
 
@@ -28,7 +24,7 @@ import sha
 import logging
 import logging.handlers
 import threading
-from trytond.backend import DatabaseOperationalError
+from pool import Pool
 
 
 class TrytonServer(object):
@@ -71,26 +67,16 @@ class TrytonServer(object):
                     CONFIG.configfile)
         self.logger.info('initialising distributed objects services')
 
-        self.dispatcher = netsvc.Dispatcher()
-        self.dispatcher.monitor(signal.SIGINT)
-
-        web_service.DB()
-        web_service.Common()
-        web_service.Object()
-        web_service.Wizard()
-        web_service.Report()
-
-        wkf_service.WorkflowService()
-
     def run(self):
         "Run the server and never return"
 
-        update_module = False
+        update = False
         init = {}
         for db_name in CONFIG["db_name"]:
             init[db_name] = False
             try:
-                cursor = pooler.get_db_only(db_name).cursor()
+                database = Database(db_name).connect()
+                cursor = database.cursor()
             except DatabaseOperationalError:
                 self.logger.error("could not connect to database '%s'!" % db_name,)
                 continue
@@ -102,7 +88,6 @@ class TrytonServer(object):
                     init[db_name] = True
                 cursor.commit()
                 cursor.close()
-                pooler.close_db(db_name)
             elif not cursor.test():
                 self.logger.error("'%s' is not a Tryton database!" % db_name)
 
@@ -110,22 +95,19 @@ class TrytonServer(object):
 
         for db_name in CONFIG["db_name"]:
             try:
-                cursor = pooler.get_db_only(db_name).cursor()
+                cursor = Database(db_name).connect().cursor()
             except DatabaseOperationalError:
                 self.logger.error("could not connect to database '%s'!" % db_name,)
                 continue
             if not cursor.test():
                 cursor.close()
-                pooler.close_db(db_name)
                 continue
             cursor.execute('SELECT code FROM ir_lang ' \
                     'WHERE translatable = True')
             lang = [x[0] for x in cursor.fetchall()]
             cursor.close()
-            pooler.close_db(db_name)
-            update_module = bool(CONFIG['init'] or CONFIG['update'])
-            pooler.get_db_and_pool(db_name, update_module=update_module,
-                    lang=lang)
+            update = bool(CONFIG['init'] or CONFIG['update'])
+            Pool(db_name).init(update=update, lang=lang)
 
         for kind in ('init', 'update'):
             CONFIG[kind] = {}
@@ -144,16 +126,16 @@ class TrytonServer(object):
                         continue
                     break
 
-                cursor = pooler.get_db_only(db_name).cursor()
+                database = Database(db_name).connect()
+                cursor = database.cursor()
                 cursor.execute('UPDATE res_user ' \
                         'SET password = %s ' \
                         'WHERE login = \'admin\'',
                         (sha.new(password).hexdigest(),))
                 cursor.commit()
                 cursor.close()
-                pooler.close_db(db_name)
 
-        if update_module:
+        if update:
             self.logger.info('Update/Init succeed!')
             logging.shutdown()
             sys.exit(0)
@@ -212,8 +194,8 @@ class TrytonServer(object):
         def handler(signum, frame):
             if hasattr(signal, 'SIGUSR1'):
                 if signum == signal.SIGUSR1:
-                    for db_name in pooler.get_db_list():
-                        pooler.restart_pool(db_name)
+                    for db_name in Database.connected_list():
+                        Pool(db_name).init()
                     return
             if CONFIG['netrpc']:
                 tinysocket.stop()
@@ -247,15 +229,14 @@ class TrytonServer(object):
             httpd.start()
         if CONFIG['webdav']:
             webdavd.start()
-        #DISPATCHER.run()
 
         if CONFIG['psyco']:
             import psyco
             psyco.full()
 
         while True:
-            for dbname in pooler.get_db_list():
-                pool = pooler.get_pool(dbname)
+            for dbname in Pool.database_list():
+                pool = Pool(dbname)
                 cron_obj = pool.get('ir.cron')
                 thread = threading.Thread(
                         target=cron_obj.pool_jobs,

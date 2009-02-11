@@ -34,7 +34,8 @@ class DBTestCase(unittest.TestCase):
         '''
         Create database.
         '''
-        SOCK.send(('db', 'create', ADMIN_PASSWORD, DB_NAME, 'en_US', PASSWORD))
+        SOCK.send((None, None, None, 'common', 'db', 'create', DB_NAME,
+            ADMIN_PASSWORD, 'en_US', PASSWORD))
         res = SOCK.receive()
         self.assert_(res)
 
@@ -42,7 +43,7 @@ class DBTestCase(unittest.TestCase):
         '''
         List databases.
         '''
-        SOCK.send(('db', 'list'))
+        SOCK.send((None, None, None, 'common', 'db', 'list'))
         res = SOCK.receive()
         self.assert_(DB_NAME in res)
 
@@ -206,14 +207,14 @@ class RPCFunction(object):
         self.func_name = func_name
 
     def __call__(self, *args):
-        SOCK.send(('object', 'execute', DB_NAME, USER, SESSION, self.name,
-            self.func_name) + args)
+        SOCK.send((DB_NAME, USER, SESSION, 'model', self.name, self.func_name) \
+                + args)
         res = SOCK.receive()
         return res
 
 def login():
     global USER, SESSION, CONTEXT
-    SOCK.send(('common', 'login', DB_NAME, USERNAME, PASSWORD))
+    SOCK.send((DB_NAME, USERNAME, PASSWORD, 'common', 'db', 'login'))
     USER, SESSION = SOCK.receive()
     user = RPCProxy('res.user')
     context = user.get_preferences(True, {})
@@ -233,15 +234,17 @@ def install_module(name):
 
     module.button_install(module_ids, CONTEXT)
 
-    SOCK.send(('wizard', 'create', DB_NAME, USER, SESSION,
-        'ir.module.module.install_upgrade'))
+    SOCK.send((DB_NAME, USER, SESSION, 'wizard',
+        'ir.module.module.install_upgrade', 'create'))
     wiz_id = SOCK.receive()
 
-    SOCK.send(('wizard', 'execute', DB_NAME, USER, SESSION, wiz_id, {},
-        'start', CONTEXT))
+    SOCK.send((DB_NAME, USER, SESSION, 'wizard',
+        'ir.module.module.install_upgrade', 'execute', wiz_id, {}, 'start',
+        CONTEXT))
     SOCK.receive()
 
-    SOCK.send(('wizard', 'delete', DB_NAME, USER, SESSION, wiz_id))
+    SOCK.send((DB_NAME, USER, SESSION, 'wizard',
+        'ir.module.module.install_upgrade', 'delete', wiz_id))
     SOCK.receive()
 
 def suite():

@@ -8,7 +8,7 @@ SPEC: Execute "model.function(*eval(args))" periodically
 """
 
 from mx import DateTime
-from trytond import pooler
+from trytond.backend import Database
 from trytond.osv import fields, OSV
 import datetime
 import traceback
@@ -147,43 +147,53 @@ class Cron(OSV):
 
     def pool_jobs(self, db_name):
         now = DateTime.now()
-        cursor = pooler.get_db(db_name).cursor()
-        cursor.execute('LOCK TABLE ir_cron')
-        cursor.execute('SELECT * FROM ir_cron ' \
-                'WHERE numbercall <> 0 ' \
-                    'AND active ' \
-                    'AND nextcall <= now() ' \
-                    'AND NOT running ' \
-                    'ORDER BY priority')
-        crons = cursor.dictfetchall()
+        try:
+            database = Database(db_name).connect()
+            cursor = database.cursor()
+        except:
+            return
+        try:
+            try:
+                cursor.execute('LOCK TABLE ir_cron')
+                cursor.execute('SELECT * FROM ir_cron ' \
+                        'WHERE numbercall <> 0 ' \
+                            'AND active ' \
+                            'AND nextcall <= now() ' \
+                            'AND NOT running ' \
+                            'ORDER BY priority')
+                crons = cursor.dictfetchall()
 
-        for cron in crons:
-            cursor.execute('UPDATE ir_cron SET running = True ' \
-                               'WHERE id = %s' % cron['id'])
-            nextcall = DateTime.strptime(str(cron['nextcall']),
-                                         '%Y-%m-%d %H:%M:%S')
-            numbercall = cron['numbercall']
-            done = False
+                for cron in crons:
+                    cursor.execute('UPDATE ir_cron SET running = True ' \
+                                       'WHERE id = %s' % cron['id'])
+                    nextcall = DateTime.strptime(str(cron['nextcall']),
+                                                 '%Y-%m-%d %H:%M:%S')
+                    numbercall = cron['numbercall']
+                    done = False
 
-            while nextcall < now and numbercall:
-                if numbercall > 0:
-                    numbercall -= 1
-                if not done or cron['doall']:
-                    self._callback(cursor, cron)
-                if numbercall:
-                    nextcall += _INTERVALTYPES[cron['interval_type']](
-                            cron['interval_number'])
-                done = True
+                    while nextcall < now and numbercall:
+                        if numbercall > 0:
+                            numbercall -= 1
+                        if not done or cron['doall']:
+                            self._callback(cursor, cron)
+                        if numbercall:
+                            nextcall += _INTERVALTYPES[cron['interval_type']](
+                                    cron['interval_number'])
+                        done = True
 
-            addsql = ''
-            if not numbercall:
-                addsql = ', active=False'
-            cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
-                        "running = False, numbercall = %s" + addsql + " " \
-                        "WHERE id = %s",
-                        (nextcall.strftime('%Y-%m-%d %H:%M:%S'),
-                            numbercall, cron['id']))
-            cursor.commit()
+                    addsql = ''
+                    if not numbercall:
+                        addsql = ', active=False'
+                    cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
+                                "running = False, numbercall = %s" + addsql + " " \
+                                "WHERE id = %s",
+                                (nextcall.strftime('%Y-%m-%d %H:%M:%S'),
+                                    numbercall, cron['id']))
+                    cursor.commit()
+            except Exception, e:
+                cursor.rollback()
+                raise
+        finally:
+            cursor.close()
 
-        cursor.close()
 Cron()
