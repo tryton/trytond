@@ -5,8 +5,6 @@ import base64
 import time
 from trytond.osv import fields, OSV
 from trytond.version import PACKAGE, VERSION, WEBSITE
-from trytond import pooler
-from trytond.pooler import get_pool_report
 from trytond.report import Report
 
 
@@ -464,13 +462,9 @@ class Collection(OSV):
                 report = report_obj.browse(cursor, user, report_id,
                         context=context)
                 if report.report_name:
-                    reportsvc = get_pool_report(cursor.dbname)
-                    report_svc = reportsvc.get(report.report_name)
-                    if not report_svc:
-                        report_svc = Report.create_instance(reportsvc,
-                                'report', pooler.get_pool(cursor.dbname))
-                        report_svc._name = report.report_name
-                    val = report_svc.execute(cursor, user, [object_id],
+                    report_obj = self.pool.get(report.report_name,
+                            type='report')
+                    val = report_obj.execute(cursor, user, [object_id],
                             {'id': object_id, 'ids': [object_id]},
                             context=context)
                     return base64.decodestring(val[1])

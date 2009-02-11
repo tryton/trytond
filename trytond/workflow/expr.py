@@ -1,5 +1,6 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
-from trytond import pooler
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
+from trytond.pool import Pool
 
 
 class EnvCall(object):
@@ -28,7 +29,7 @@ class Env(dict):
         self.model = model
         self.obj_id = obj_id
         self.context = context
-        self.obj = pooler.get_pool(cursor.dbname).get(model)
+        self.obj = Pool(cursor.dbname).get(model)
         self.browse = self.obj.browse(cursor, user, obj_id)
         self.columns = self.obj._columns.keys() + \
                 self.obj._inherit_fields.keys()
@@ -45,11 +46,8 @@ class Env(dict):
         else:
             return super(Env, self).__getitem__(key)
 
-def eval_expr(cursor, ident, action, context=None):
+def eval_expr(cursor, user, model, obj_id, action, context=None):
     res = False
-    user = ident[0]
-    model = ident[1]
-    obj_id = ident[2]
     env = Env(cursor, user, model, obj_id, context=context)
     for line in action.split('\n'):
         if line == 'True':
@@ -60,19 +58,39 @@ def eval_expr(cursor, ident, action, context=None):
             res = eval(line, env)
     return res
 
-def execute(cursor, ident, activity, context=None):
-    return eval_expr(cursor, ident, activity['action'], context=context)
+def execute(cursor, user, model, obj_id, activity, context=None):
+    '''
+    Execute
 
-def check(cursor, ident, transition, signal, context=None):
-    res = True
-    if transition['signal']:
-        res = (signal == transition['signal'])
-
-    user = ident[0]
-    if transition['group'] and user != 0:
-        user_obj = pooler.get_pool(cursor.dbname).get('res.user')
-        user_groups = user_obj.get_groups(cursor, user, context=context)
-        res = res and transition['group'] in user_groups
-    res = res and eval_expr(cursor, ident, transition['condition'],
+    :param cursor: the database cursor
+    :param user: the user id
+    :param model: the model name
+    :param obj_id: the record id
+    :param activity: a BrowseRecord of workflow.activity
+    :param context: the context
+    '''
+    return eval_expr(cursor, user, model, obj_id, activity.action,
             context=context)
+
+def check(cursor, user, model, obj_id, transition, signal, context=None):
+    '''
+    Check
+
+    :param cursor: the database cursor
+    :param user: the user id
+    :param model: the model name
+    :param obj_id: the record id
+    :param transition: a BrowseRecord of workflow.transition
+    :param context: the context
+    '''
+    res = True
+    if transition.signal:
+        res = (signal == transition.signal)
+
+    if transition.group and user != 0:
+        user_obj = Pool(cursor.dbname).get('res.user')
+        user_groups = user_obj.get_groups(cursor, user, context=context)
+        res = res and transition.group.id in user_groups
+    res = res and eval_expr(cursor, user, model, obj_id,
+            transition.condition, context=context)
     return res

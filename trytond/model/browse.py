@@ -83,10 +83,10 @@ class BrowseRecord(object):
                         'does not exist in model "%s"!' \
                         % (name, self._model._name))
 
-            if not hasattr(col, 'set'):
+            if not hasattr(col, 'get'):
                 # gen the list of "local" (ie not inherited)
                 ffields = [x for x in self._model._columns.items() \
-                        if not hasattr(x[1], 'set') \
+                        if not hasattr(x[1], 'get') \
                         and x[0] not in self._data[self._id] \
                         and ((not x[1].translate \
                                 and x[1]._type not in ('text', 'binary')) \
@@ -95,8 +95,7 @@ class BrowseRecord(object):
                 inherits = [(x[0], x[1][2]) for x in \
                         self._model._inherit_fields.items()]
                 # complete the field list with the inherited fields
-                # which are classic or many2one
-                ffields += [x for x in inherits if not hasattr(x[1], 'set') \
+                ffields += [x for x in inherits if not hasattr(x[1], 'get') \
                         and x[0] not in self._data[self._id] \
                         and ((not x[1].translate \
                                 and x[1]._type not in ('text', 'binary')) \

@@ -10,7 +10,8 @@ from trytond.osv import fields, OSV
 import trytond.tools as tools
 from trytond.modules import MODULES_PATH, create_graph, get_module_list
 from trytond.wizard import Wizard, WizardOSV
-from trytond.pooler import get_db, restart_pool
+from trytond.backend import Database
+from trytond.pool import Pool
 
 VER_REGEXP = re.compile(
     "^(\\d+)((\\.\\d+)*)([a-z]?)((_(pre|p|beta|alpha|rc)\\d*)*)(-r(\\d+))?$")
@@ -621,20 +622,28 @@ class ModuleInstallUpgrade(Wizard):
         module_obj = self.pool.get('ir.module.module')
         lang_obj = self.pool.get('ir.lang')
         dbname = cursor.dbname
-        db = get_db(dbname)
+        db = Database(dbname).connect()
         cursor = db.cursor()
-        module_ids = module_obj.search(cursor, user, [
-            ('state', 'in', ['to upgrade', 'to remove', 'to install']),
-            ], context=context)
-        lang_ids = lang_obj.search(cursor, user, [
-            ('translatable', '=', True),
-            ], context=context)
-        lang = [x.code for x in lang_obj.browse(cursor, user, lang_ids,
-            context=context)]
-        cursor.commit()
-        cursor.close()
+        try:
+            module_ids = module_obj.search(cursor, user, [
+                ('state', 'in', ['to upgrade', 'to remove', 'to install']),
+                ], context=context)
+            lang_ids = lang_obj.search(cursor, user, [
+                ('translatable', '=', True),
+                ], context=context)
+            lang = [x.code for x in lang_obj.browse(cursor, user, lang_ids,
+                context=context)]
+        finally:
+            cursor.commit()
+            cursor.close()
         if module_ids:
-            restart_pool(dbname, update_module=True, lang=lang)
+            pool = Pool(dbname)
+            pool.init(update=True, lang=lang)
+            new_wizard = pool.get('ir.module.module.install_upgrade',
+                    type='wizard')
+            new_wizard._lock.acquire()
+            new_wizard._datas[data['_wiz_id']] = self._datas[data['_wiz_id']]
+            new_wizard._lock.release()
         return {}
 
     states = {

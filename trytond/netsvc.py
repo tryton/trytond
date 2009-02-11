@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 import time
 import threading
 import SimpleXMLRPCServer, signal, sys, xmlrpclib
@@ -50,74 +51,6 @@ class SSLSocket(object):
         return getattr(self.socket, name)
 
 
-class Service(object):
-    _serviceEndPointID = 0
-
-    def __init__(self, name=None):
-        if name is None:
-            return
-        _SERVICE[name] = self
-        self.__name = name
-        self.method = {}
-        self.exportedmethods = None
-        self._response_process = None
-        self._response_process_id = None
-
-    def join_group(self, name):
-        if not name in _GROUP:
-            _GROUP[name] = {}
-        _GROUP[name][self.__name] = self
-
-    def export_method(self, method):
-        if callable(method):
-            self.method[method.__name__] = method
-
-
-class LocalService(Service):
-
-    def __init__(self, name):
-        super(LocalService, self).__init__()
-        self.__name = name
-        service = _SERVICE[name]
-        self.service = service
-        for method in service.method:
-            setattr(self, method, service.method[method])
-
-
-class ServiceUnavailable(Exception):
-    pass
-
-def service_exist(name):
-    return (name in _SERVICE) and bool(_SERVICE[name])
-
-
-class RpcGateway(object):
-
-    def __init__(self, name):
-        self.name = name
-
-
-class Dispatcher(object):
-
-    def __init__(self):
-        pass
-
-    def monitor(self, sig):
-        pass
-
-    def run(self):
-        pass
-
-
-class XmlRpc(object):
-
-
-    class RpcGateway(object):
-
-        def __init__(self, name):
-            self.name = name
-
-
 #-- XMLRPC Handler
 
 class GenericXMLRPCRequestHandler:
@@ -127,10 +60,11 @@ class GenericXMLRPCRequestHandler:
         logging.getLogger('web-service').info(
             'connection from %s:%d' % (host, port))
         try:
-            name = self.path.split("/")[-1]
-            service = LocalService(name)
-            meth = getattr(service, method)
-            res = meth(*params)
+            from protocols.dispatcher import dispatch
+            database_name, object_type, object_name = self.path.split("/")[-3:]
+            args = (database_name, params[0], params[1], object_type,
+                    object_name, method) + params[2:]
+            res = dispatch(*args)
             return res
         except:
             tb_s = ''
@@ -277,9 +211,8 @@ class TinySocketClientThread(threading.Thread):
                     'connection from %s:%d' % (host, port))
                 first = False
             try:
-                service = LocalService(msg[0])
-                method = getattr(service, msg[1])
-                res = method(*msg[2:])
+                from protocols.dispatcher import dispatch
+                res = dispatch(*msg)
                 pysocket.send(res)
             except Exception, exception:
                 tb_s = ''

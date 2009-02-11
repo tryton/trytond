@@ -895,3 +895,26 @@ class ModelStorage(Model):
             else:
                 vals[field] = defaults[field]
         return vals
+
+    def workflow_trigger_trigger(self, cursor, user, ids, context=None):
+        '''
+        Trigger trigger event
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: a list of id or an id
+        :param context: the context
+        '''
+        trigger_obj = self.pool.get('workflow.trigger')
+        instance_obj = self.pool.get('workflow.instance')
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+
+        trigger_ids = trigger_obj.search(cursor, 0, [
+            ('res_id', 'in', ids),
+            ('model', '=', self._name),
+            ], context=context)
+        for trigger in trigger_obj.browse(cursor, 0, trigger_ids,
+                context=context):
+            instance_obj.update(cursor, user, trigger.instance, context=context)

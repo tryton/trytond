@@ -90,6 +90,7 @@ class DatabaseInterface(object):
         '''
         raise
 
+
 class CursorInterface(object):
     '''
     Define generic interface for database cursor
