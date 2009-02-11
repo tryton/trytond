@@ -135,7 +135,7 @@ class Pool(object):
             res[_type] = []
             for cls in self.classes[_type].get(module, []):
                 if cls._name in self._pool[self.database_name][_type].keys():
-                    parent_cls = self.get(cls._name).__class__
+                    parent_cls = self.get(cls._name, type=_type).__class__
                     cls = type(cls._name, (cls, parent_cls), {})
                 obj = object.__new__(cls)
                 self.add(obj, type=_type)
