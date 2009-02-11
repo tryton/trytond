@@ -241,6 +241,8 @@ class TrytonServer(object):
         while True:
             for dbname in Pool.database_list():
                 pool = Pool(dbname)
+                if 'ir.cron' not in pool.object_name_list():
+                    continue
                 cron_obj = pool.get('ir.cron')
                 thread = threading.Thread(
                         target=cron_obj.pool_jobs,
