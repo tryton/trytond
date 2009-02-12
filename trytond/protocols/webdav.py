@@ -1,7 +1,18 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import urlparse
+from trytond.protocols.sslsocket import SSLSocket
+from trytond.config import CONFIG
+from trytond.security import login
+from trytond.version import PACKAGE, VERSION, WEBSITE
+from trytond.tools.misc import Cache, LocalDict
+from trytond.backend import Database
+from trytond.pool import Pool
+import threading
+import SocketServer
 import socket
+import os
+import BaseHTTPServer
+import urlparse
 import base64
 import time
 from DAV import AuthServer, WebDAVServer, iface
@@ -9,13 +20,7 @@ from DAV.errors import *
 from DAV.constants import COLLECTION, OBJECT
 from DAV.utils import get_uriparentpath, get_urifilename, quote_uri
 from DAV.davcmd import copyone, copytree, moveone, movetree, delone, deltree
-from netsvc import SSLSocket
-import security
-from version import PACKAGE, VERSION, WEBSITE
-from tools.misc import Cache, LocalDict
 import urllib
-from trytond.backend import Database
-from trytond.pool import Pool
 
 # Local int for multi-thread
 import sys
@@ -52,6 +57,77 @@ if DAV_VERSION == '0.8':
         DAV = DAV()
 
     WebDAVServer.DAVRequestHandler._config = _Config()
+
+
+class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
+        BaseHTTPServer.HTTPServer):
+
+    max_children = CONFIG['max_thread']
+
+    def server_bind(self):
+        self.socket.setsockopt(socket.SOL_SOCKET,
+                socket.SO_REUSEADDR, 1)
+        BaseHTTPServer.HTTPServer.server_bind(self)
+
+
+class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
+
+    def __init__(self, server_address, HandlerClass):
+        BaseThreadedHTTPServer.__init__(self, server_address, HandlerClass)
+        self.socket = SSLSocket(socket.socket(self.address_family,
+                                              self.socket_type))
+        self.server_bind()
+        self.server_activate()
+
+
+class WebDAVServerThread(threading.Thread):
+
+    def __init__(self, interface, port, secure=False):
+        threading.Thread.__init__(self)
+        self.secure = secure
+        self.running = False
+        ipv6 = False
+        if socket.has_ipv6:
+            try:
+                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+                ipv6 = True
+            except:
+                pass
+        if secure:
+            handler_class = SecureWebDAVAuthRequestHandler
+            server_class = SecureThreadedHTTPServer
+            if ipv6:
+                server_class = SecureThreadedHTTPServer6
+        else:
+            handler_class = WebDAVAuthRequestHandler
+            server_class = BaseThreadedHTTPServer
+            if ipv6:
+                server_class = BaseThreadedHTTPServer6
+        handler_class.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
+        self.server = server_class((interface, port), handler_class)
+
+    def stop(self):
+        self.running = False
+        if os.name != 'nt':
+            if hasattr(socket, 'SHUT_RDWR'):
+                self.server.socket.shutdown(socket.SHUT_RDWR)
+            else:
+                self.server.socket.shutdown(2)
+        self.server.socket.close()
+
+    def run(self):
+        self.running = True
+        while self.running:
+            self.server.handle_request()
+        return True
+
+
+class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
+    address_family = socket.AF_INET6
+
+
+class SecureThreadedHTTPServer6(SecureThreadedHTTPServer):
+    address_family = socket.AF_INET6
 
 
 class TrytonDAVInterface(iface.dav_interface):
@@ -353,7 +429,7 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         dbname = self.path.split('/', 2)[1]
         if not dbname:
             return 1
-        USER_ID = security.login(dbname, user, password, cache=False)
+        USER_ID = login(dbname, user, password, cache=False)
         Cache.clean(dbname)
         Cache.resets(dbname)
         if int(USER_ID):

@@ -9,7 +9,6 @@ datefmt='%a %b %d %H:%M:%S %Y'
 logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
 import logging.handlers
 import sys, os, signal
-import netsvc
 import time
 from trytond.backend import Database, DatabaseOperationalError
 from config import CONFIG
@@ -157,7 +156,8 @@ class TrytonServer(object):
                         CONFIG['netport']))
 
         if CONFIG['webdav']:
-            webdavd = netsvc.WebDAVServerThread(CONFIG['interface'],
+            from trytond.protocols.webdav import WebDAVServerThread
+            webdavd = WebDAVServerThread(CONFIG['interface'],
                     CONFIG['webdavport'], CONFIG['secure_webdav'])
             self.logger.info("starting WebDAV%s protocol, port %d" % \
                     (CONFIG['secure_webdav'] and ' Secure' or '',
