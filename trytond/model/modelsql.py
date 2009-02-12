@@ -7,7 +7,7 @@ from trytond.backend import FIELDS, TableHandler
 import datetime
 
 
-class ModelDB(ModelStorage):
+class ModelSQL(ModelStorage):
     """
     Define a model with storage in database in Tryton.
     """
@@ -19,7 +19,7 @@ class ModelDB(ModelStorage):
     _auto = True #XXX to remove when module will use the new models
 
     def __init__(self):
-        super(ModelDB, self).__init__()
+        super(ModelSQL, self).__init__()
         self._sql_constraints = []
         self._order = [('id', 'ASC')]
         self._sql_error_messages = {}
@@ -31,7 +31,7 @@ class ModelDB(ModelStorage):
             self._sequence = self._table+'_id_seq'
 
     def init(self, cursor, module_name):
-        super(ModelDB, self).init(cursor, module_name)
+        super(ModelSQL, self).init(cursor, module_name)
 
         if not self._auto or self.table_query():
             return
@@ -131,7 +131,7 @@ class ModelDB(ModelStorage):
             table.add_constraint(ident, constraint)
 
     def _get_error_messages(self):
-        res = super(ModelDB, self)._get_error_messages()
+        res = super(ModelSQL, self)._get_error_messages()
         res += self._sql_error_messages.values()
         for _, _, error in self._sql_constraints:
             res.append(error)
@@ -264,7 +264,7 @@ class ModelDB(ModelStorage):
     def read(self, cursor, user, ids, fields_names=None, context=None):
         rule_obj = self.pool.get('ir.rule')
         translation_obj = self.pool.get('ir.translation')
-        super(ModelDB, self).read(cursor, user, ids,
+        super(ModelSQL, self).read(cursor, user, ids,
                 fields_names=fields_names, context=context)
 
         if context is None:
@@ -420,7 +420,7 @@ class ModelDB(ModelStorage):
         return res
 
     def write(self, cursor, user, ids, values, context=None):
-        super(ModelDB, self).write(cursor, user, ids, values, context=context)
+        super(ModelSQL, self).write(cursor, user, ids, values, context=context)
 
         if context is None:
             context = {}
@@ -615,7 +615,7 @@ class ModelDB(ModelStorage):
         return True
 
     def delete(self, cursor, user, ids, context=None):
-        super(ModelDB, self).delete(cursor, user, ids, context=context)
+        super(ModelSQL, self).delete(cursor, user, ids, context=context)
 
         if context is None:
             context = {}
