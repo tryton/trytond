@@ -152,7 +152,7 @@ def email_send(email_from, email_to, subject, body, email_cc=None,
                 msg.as_string())
         smtp.quit()
     except Exception, exp:
-        logging.getLogger("web-service").error(str(exp))
+        logging.getLogger("tools.email_send").error(str(exp))
     return True
 
 def email_send_attach(email_from, email_to, subject, body, email_cc=None,
@@ -206,7 +206,7 @@ def email_send_attach(email_from, email_to, subject, body, email_cc=None,
                 msg.as_string())
         smtp.quit()
     except Exception, exp:
-        logging.getLogger("web-service").error(str(exp))
+        logging.getLogger("tools.email_send_attach").error(str(exp))
 
     return True
 
