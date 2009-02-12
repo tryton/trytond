@@ -47,8 +47,8 @@ class NetRPCClientThread(threading.Thread):
                 return False
             if first:
                 host, port = self.sock.getpeername()[:2]
-                logging.getLogger('web-service').info(
-                    'connection from %s:%d' % (host, port))
+                logging.getLogger('netrpc').info('connection from %s:%d' % \
+                        (host, port))
                 first = False
             try:
                 res = dispatch(*msg)
