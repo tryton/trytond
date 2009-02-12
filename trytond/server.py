@@ -141,7 +141,8 @@ class TrytonServer(object):
 
         # Launch Server
         if CONFIG['xmlrpc']:
-            httpd = netsvc.HttpDaemon(CONFIG['interface'], CONFIG['xmlport'],
+            from trytond.protocols.xmlrpc import HttpDaemon
+            httpd = HttpDaemon(CONFIG['interface'], CONFIG['xmlport'],
                     CONFIG['secure_xmlrpc'])
             self.logger.info("starting XML-RPC%s protocol, port %d" % \
                     (CONFIG['secure_xmlrpc'] and ' Secure' or '',
