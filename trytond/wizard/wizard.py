@@ -1,12 +1,12 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from trytond.pool import Pool
+from trytond.model import ModelView
+from trytond.config import CONFIG
+from trytond.backend import DatabaseIntegrityError
+import sys
 import copy
 from xml import dom
-from trytond.osv import OSV
-from trytond.config import CONFIG
-import sys
-from trytond.backend import DatabaseIntegrityError
 import traceback
 import logging
 from threading import Lock
@@ -197,52 +197,6 @@ class Wizard(object):
                     context=context)
         return res
 
-class WizardOSV(OSV):
-    """
-    Object to use for wizard state
-    """
-    _protected = [
-            'default_get',
-            'fields_get',
-            'fields_view_get',
-            ]
-    _auto = False
 
-    def browse(self, cursor, user, select, context=None):
-        pass
-
-    def export_data(self, cursor, user, ids, fields_name, context=None):
-        pass
-
-    def import_data(self, cursor, fields_names, datas, mode='init',
-            current_module=None, noupdate=False, context=None):
-        pass
-
-    def read(self, cursor, ids, fields_names=None, context=None):
-        pass
-
-    def delete(self, cursor, user, ids, context=None):
-        pass
-
-    def write(self, cursor, user, ids, vals, context=None):
-        pass
-
-    def create(self, cursor, user, vals, context=None):
-        pass
-
-    def search_count(self, cursor, user, args, context=None):
-        pass
-
-    def search(self, cursor, user, args, offset=0, limit=None, order=None,
-            context=None, count=False, query_string=False):
-        pass
-
-    def name_get(self, cursor, user, ids, context=None):
-        pass
-
-    def name_search(self, cursor, user, name='', args=None, operator='ilike',
-            context=None, limit=80):
-        pass
-
-    def copy(self, cursor, user, object_id, default=None, context=None):
-        pass
+class WizardOSV(ModelView):
+    pass
