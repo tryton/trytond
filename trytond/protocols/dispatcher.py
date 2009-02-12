@@ -136,7 +136,7 @@ def create(database_name, password, lang, admin_password):
     '''
     security.check_super(password)
     res = False
-    logger = logging.getLogger('web-service')
+    logger = logging.getLogger('database')
 
     database = Database().connect()
     cursor = database.cursor(autocommit=True)
@@ -195,7 +195,7 @@ def create(database_name, password, lang, admin_password):
 def drop(database_name, password):
     security.check_super(password)
     Database(database_name).close()
-    logger = logging.getLogger('web-service')
+    logger = logging.getLogger('database')
 
     database = Database().connect()
     cursor = database.cursor(autocommit=True)
@@ -217,14 +217,14 @@ def drop(database_name, password):
     return True
 
 def dump(database_name, password):
-    logger = logging.getLogger('web-service')
+    logger = logging.getLogger('database')
     security.check_super(password)
     data = Database.dump(database_name)
     logger.info('DUMP DB: %s' % (database_name))
     return base64.encodestring(data)
 
 def restore(database_name, password, data):
-    logger = logging.getLogger('web-service')
+    logger = logging.getLogger('database')
     security.check_super(password)
     try:
         database = Database().connect()
