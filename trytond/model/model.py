@@ -177,14 +177,15 @@ class Model(object):
             fields[field['name']] = field
 
         # Prefetch field translations
-        cursor.execute('SELECT id, name, src, type FROM ir_translation ' \
-                'WHERE lang = %s ' \
-                    'AND type IN (%s, %s, %s) ' \
-                    'AND name IN ' \
-                        '(' + ','.join(['%s' for x in self._columns]) + ')',
-                        ('en_US', 'field', 'help', 'selection') + \
-                                tuple([self._name + ',' + x \
-                                    for x in self._columns]))
+        if self._columns:
+            cursor.execute('SELECT id, name, src, type FROM ir_translation ' \
+                    'WHERE lang = %s ' \
+                        'AND type IN (%s, %s, %s) ' \
+                        'AND name IN ' \
+                            '(' + ','.join(['%s' for x in self._columns]) + ')',
+                            ('en_US', 'field', 'help', 'selection') + \
+                                    tuple([self._name + ',' + x \
+                                        for x in self._columns]))
         trans_fields = {}
         trans_help = {}
         trans_selection = {}
