@@ -12,7 +12,6 @@ import sys, os, signal
 import netsvc
 import time
 from trytond.backend import Database, DatabaseOperationalError
-from trytond.protocols.netrpc import NetRPCServerThread
 from config import CONFIG
 from trytond.modules import register_classes
 import mx.DateTime
@@ -149,6 +148,7 @@ class TrytonServer(object):
                         CONFIG['xmlport']))
 
         if CONFIG['netrpc']:
+            from trytond.protocols.netrpc import NetRPCServerThread
             netrpcd = NetRPCServerThread(CONFIG['interface'], CONFIG['netport'],
                     CONFIG['secure_netrpc'])
             self.logger.info("starting NetRPC%s protocol, port %d" % \
