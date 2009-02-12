@@ -185,6 +185,10 @@ class ModelAccess(OSV):
             raise_exception=True, context=None):
         assert mode in ['read', 'write', 'create', 'delete'], \
                 'Invalid access mode for security'
+        model_obj = self.pool.get(model_name)
+        if hasattr(model_obj, 'table_query') \
+                and model_obj.table_query(context):
+            return False
         if user == 0:
             return True
         cursor.execute('SELECT MAX(CASE WHEN perm_'+mode+' THEN 1 else 0 END) '

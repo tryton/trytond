@@ -556,8 +556,6 @@ class Model(object):
                 fields_names, context))
         write_access = model_access_obj.check(cursor, user, self._name, 'write',
                 raise_exception=False, context=context)
-        if self.table_query(context):
-            write_access = False
 
         #Add translation to cache
         trans_args = []
