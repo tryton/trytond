@@ -292,15 +292,26 @@ class ActionReport(OSV):
             res[report.id] = data
         return res
 
-    def copy(self, cursor, user, object_id, default=None, context=None):
+    def copy(self, cursor, user, ids, default=None, context=None):
         if default is None:
             default = {}
-        report = self.browse(cursor, user, object_id, context=context)
-        if report.report:
-            default['report_content'] = False
-        default['report_name'] = report.report_name + '.copy'
-        return super(ActionReport, self).copy(cursor, user, object_id,
-                default=default, context=context)
+
+        int_id = False
+        if isinstance(ids, (int, long)):
+            int_id = True
+            ids = [ids]
+
+        new_ids = []
+        reports = self.browse(cursor, user, ids, context=context)
+        for report in reports:
+            if report.report:
+                default['report_content'] = False
+            default['report_name'] = report.report_name
+            new_ids.append(super(ActionReport, self).copy(cursor, user,
+                report.id, default=default, context=context))
+        if int_id:
+            return new_ids[0]
+        return new_ids
 
     def write(self, cursor, user, ids, vals, context=None):
         if context is None:
