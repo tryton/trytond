@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.modules import load_modules
 from threading import RLock
+import logging
 
 
 class Pool(object):
@@ -69,6 +70,8 @@ class Pool(object):
         :param update: a boolean to proceed to update
         :param lang: a list of language code to be updated
         '''
+        logger = logging.getLogger('pool')
+        logger.info('init pool for "%s"' % self.database_name)
         self._lock.acquire()
         lock = self._locks.setdefault(self.database_name, RLock())
         self._lock.release()
