@@ -40,6 +40,8 @@ class Database(DatabaseInterface):
     def connect(self):
         if self._connpool is not None:
             return self
+        logger = logging.getLogger('database')
+        logger.info('connect to "%s"' % self.database_name)
         host = CONFIG['db_host'] and "host=%s" % CONFIG['db_host'] or ''
         port = CONFIG['db_port'] and "port=%s" % CONFIG['db_port'] or ''
         name = "dbname=%s" % self.database_name
