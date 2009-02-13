@@ -265,7 +265,7 @@ def load_module_graph(cursor, graph, pool, lang=None):
         report_ids = report_obj.search(cursor, 0, [
             ('module', '=', module),
             ])
-        report_names = [x._name for x in objects['report']]
+        report_names = pool.object_name_list(type='report')
         for report in report_obj.browse(cursor, 0, report_ids):
             report_name = report.report_name
             if report_name not in report_names:
