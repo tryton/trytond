@@ -622,14 +622,15 @@ class ReportTranslationSet(Wizard):
             for trans in cursor.dictfetchall():
                 trans_reports[trans['src']] = trans
 
+            content = None
             try:
-                content = report.report_content
+                content = base64.decodestring(report.report_content)
             except:
                 continue
             if not content:
                 continue
 
-            content_io = StringIO.StringIO(report.report_content)
+            content_io = StringIO.StringIO(content)
             content_z = zipfile.ZipFile(content_io, mode='r')
 
             content_xml = content_z.read('content.xml')
@@ -642,7 +643,7 @@ class ReportTranslationSet(Wizard):
 
             style_content = None
             try:
-                style_content = report.style_content
+                style_content = base64.decodestring(report.style_content)
             except:
                 pass
 
