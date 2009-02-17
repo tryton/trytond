@@ -186,6 +186,7 @@ class WorkflowInstance(OSV):
         workitem_obj = self.pool.get('workflow.workitem')
         for workitem in instance.workitems:
             workitem_obj.process(cursor, user, workitem, context=context)
+        instance = self.browse(cursor, user, instance.id, context=context)
         return self._update_end(cursor, user, instance, context=context)
 
     def validate(self, cursor, user, instance, signal, force_running=False,
@@ -196,6 +197,7 @@ class WorkflowInstance(OSV):
         for workitem in instance.workitems:
             workitem_obj.process(cursor, user, workitem, signal=signal,
                     force_running=force_running, context=context)
+        instance = self.browse(cursor, user, instance.id, context=context)
         return self._update_end(cursor, user, instance, context=context)
 
     def _update_end(self, cursor, user, instance, context=None):
