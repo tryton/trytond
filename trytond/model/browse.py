@@ -118,18 +118,11 @@ class BrowseRecord(object):
                         continue
                     model = self._model.pool.get(j.model_name)
                     if j._type in ('many2one',):
-                        if data[i]:
-                            if isinstance(data[i][0], (list, tuple)):
-                                ids2 = data[i][0][0]
-                            else:
-                                ids2 = data[i][0]
-                        else:
-                            ids2 = data[i]
-                        if ids2 is False:
+                        if not data[i]:
                             data[i] = BrowseRecordNull()
                         else:
                             data[i] = BrowseRecord(self._cursor, self._user,
-                                    ids2, model, self._cache,
+                                    data[i], model, self._cache,
                                     context=self._context)
                     elif j._type in ('one2many', 'many2many') and len(data[i]):
                         data[i] = BrowseRecordList([BrowseRecord(self._cursor,

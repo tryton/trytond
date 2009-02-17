@@ -433,13 +433,13 @@ class Model(object):
                     property_obj = self.pool.get('ir.property')
                     value[field] = property_obj.get(cursor, user, field,
                             self._name)
-                    if self._columns[field]._type in ('many2one',) \
-                            and value[field]:
-                        obj = self.pool.get(self._columns[field].model_name)
-                        if isinstance(value[field], (int, long)) \
-                                and hasattr(obj, 'name_get'):
-                            value[field] = obj.name_get(cursor, user,
-                                    value[field], context=context)[0]
+                if self._columns[field]._type in ('many2one',) \
+                        and value.get(field):
+                    obj = self.pool.get(self._columns[field].model_name)
+                    if 'rec_name' in obj._columns:
+                        value[field + '.rec_name'] = obj.browse(cursor,
+                                user, value[field],
+                                context=context).rec_name
 
         # get the default values set by the user and override the default
         # values defined in the object
@@ -457,10 +457,10 @@ class Model(object):
                                 ('id', '=', field_value),
                                 ]):
                         continue
-                    if isinstance(field_value, (int, long)) \
-                            and hasattr(obj, 'name_get'):
-                        field_value = obj.name_get(cursor, user, field_value,
-                                context=context)[0]
+                    if 'rec_name' in obj._columns:
+                        value[field + '.rec_name'] = obj.browse(cursor,
+                                user, field_value,
+                                context=context).rec_name
                 if fld_def._type in ('many2many'):
                     obj = self.pool.get(fld_def.model_name)
                     field_value2 = []
@@ -487,13 +487,11 @@ class Model(object):
                                             ('id', '=', field_value[i][field2]),
                                             ]):
                                     continue
-                                if isinstance(field_value[i][field2],
-                                        (int, long)) \
-                                        and hasattr(obj2, 'name_get'):
-                                    field_value[i][field2] = obj2.name_get(
-                                            cursor, user,
-                                            field_value[i][field2],
-                                            context=context)[0]
+                                if 'rec_name' in obj2._columns:
+                                    field_value[i][field2 + '.rec_name'] = \
+                                            obj2.browse(cursor, user,
+                                                    field_value[i][field2],
+                                                    context=context).rec_name
                             # TODO add test for many2many and one2many
                             field_value2[i][field2] = field_value[i][field2]
                     field_value = field_value2

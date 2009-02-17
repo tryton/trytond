@@ -250,14 +250,14 @@ class Collection(OSV):
                     return res
                 model_ids = model_obj.search(cursor, user,
                         eval(collection.domain or "[]"), context=context)
-                for child_id, child_name in model_obj.name_get(cursor, user,
+                for child in model_obj.browse(cursor, user,
                         model_ids, context=context):
-                    if '/' in child_name:
+                    if '/' in child.rec_name:
                         continue
-                    res.append(child_name + '-' + str(child_id))
+                    res.append(child.rec_name + '-' + str(child.id))
                     if cache is not None:
                         cache.setdefault(model_obj._name, {})
-                        cache[model_obj._name][child_id] = {}
+                        cache[model_obj._name][child.id] = {}
                 return res
             else:
                 for child in collection.childs:

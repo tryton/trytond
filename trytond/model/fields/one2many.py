@@ -25,7 +25,7 @@ class One2Many(Field):
                     [(self.field, 'in', sub_ids)], context=context)
         for i in model.pool.get(self.model_name).read(cursor, user, ids2,
                 [self.field], context=context):
-            res[i[self.field][0]].append( i['id'] )
+            res[i[self.field]].append(i['id'])
         return res
 
     def set(self, cursor, user, record_id, model, name, values, context=None):

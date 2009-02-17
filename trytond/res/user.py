@@ -157,18 +157,19 @@ class User(OSV):
                     val['password'] = 'x' * 10
         return res
 
-    def name_search(self, cursor, user, name='', args=None, operator='ilike',
-            context=None, limit=80):
-        if args is None:
-            args = []
-        ids = []
-        if name:
-            ids = self.search(cursor, user, [('login', '=', name)] + args,
-                    limit=limit, context=context)
-        if not ids:
-            ids = self.search(cursor, user, [('name', operator, name)] + args,
-                    limit=limit, context=context)
-        return self.name_get(cursor, user, ids, context=context)
+    def search_rec_name(self, cursor, user, name, args, context=None):
+        args2 = []
+        i = 0
+        while i < len(args):
+            ids = self.search(cursor, user, [
+                ('login', '=', args[i][2]),
+                ], context=context)
+            if len(ids) == 1:
+                args2.append(('id', '=', ids[0]))
+            else:
+                args2.append((self._rec_name, args[i][1], args[i][2]))
+            i += 1
+        return args2
 
     def copy(self, cursor, user, ids, default=None, context=None):
         if default is None:

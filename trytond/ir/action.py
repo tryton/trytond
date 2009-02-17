@@ -257,8 +257,7 @@ class ActionReport(OSV):
             ('format', '=', 'odt'),
             ], limit=1, context=context)
         if formats:
-            return format_obj.name_get(cursor, user, formats[0],
-                    context=context)[0]
+            return formats[0]
         return False
 
     def default_module(self, cursor, user, context=None):
