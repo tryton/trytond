@@ -148,8 +148,9 @@ class UIMenu(OSV):
                 ], context=ctx)
             if action_id:
                 action_id = action_id[0]
-                action_name = action_obj.name_get(cursor, user, action_id,
-                        context=context)[0][1]
+                action = action_obj.browse(cursor, user, action_id,
+                        context=context)
+                action_name = action.rec_name
             else:
                 action_id = 0
                 action_name = ''

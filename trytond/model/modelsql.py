@@ -286,9 +286,17 @@ class ModelSQL(ModelStorage):
         domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
                 context=context)
 
+        fields_related = {}
+        for field_name in fields_names:
+            if '.' in field_name:
+                field, field_related = field_name.split('.', 1)
+                fields_related.setdefault(field, [])
+                fields_related[field].append(field_related)
+
         # all inherited fields + all non inherited fields
-        fields_pre = [x for x in fields_names if (x in self._columns \
-                and not hasattr(self._columns[x], 'set')) or \
+        fields_pre = [x for x in fields_names + fields_related.keys() \
+                if (x in self._columns and \
+                not hasattr(self._columns[x], 'set')) or \
                 (x == '_timestamp')] + \
                 self._inherits.values()
 
@@ -370,12 +378,19 @@ class ModelSQL(ModelStorage):
             field = self._inherits[table]
             inherits_fields = list(
                     set(self._inherit_fields.keys()).intersection(
-                    set(fields_names)).difference(
+                    set(fields_names + fields_related.keys())).difference(
                         set(self._columns.keys())))
             if not inherits_fields:
                 continue
+            inherit_related_fields = []
+            for inherit_field in inherits_fields:
+                if inherit_field in fields_related:
+                    for field_related in fields_related[inherit_field]:
+                        inherit_related_fields.append(
+                                inherit_field + '.' + field_related)
             res2 = self.pool.get(table).read(cursor, user,
-                    [x[field] for x in res], fields_names=inherits_fields,
+                    [x[field] for x in res],
+                    fields_names=inherits_fields + inherit_related_fields,
                     context=context)
 
             res3 = {}
@@ -385,13 +400,14 @@ class ModelSQL(ModelStorage):
 
             for record in res:
                 record.update(res3[record[field]])
-                if field not in fields_names:
+                if field not in fields_names + fields_related.keys():
                     del record[field]
 
         ids = [x['id'] for x in res]
 
         # all non inherited fields for which there is a get attribute
-        fields_post = [x for x in fields_names if x in self._columns \
+        fields_post = [x for x in fields_names + fields_related.keys() \
+                if x in self._columns \
                 and hasattr(self._columns[x], 'get')]
         func_fields = {}
         for field in fields_post:
@@ -414,6 +430,65 @@ class ModelSQL(ModelStorage):
             for field in res2:
                 for record in res:
                     record[field] = res2[field][record['id']]
+
+        to_del = []
+        fields_related2values = {}
+        for field in fields_related.keys():
+            if field not in fields_names:
+                to_del.append(field)
+            if field not in self._columns:
+                continue
+            fields_related2values.setdefault(field, {})
+            if self._columns[field]._type == 'many2one':
+                obj = self.pool.get(self._columns[field].model_name)
+                for record in obj.read(cursor, user, [x[field] for x in res
+                    if x[field]], fields_related[field], context=context):
+                    record_id = record['id']
+                    del record['id']
+                    fields_related2values[field][record_id] = record
+            elif self._columns[field]._type == 'reference':
+                for record in res:
+                    if not record[field]:
+                        continue
+                    model_name, record_id = record[field].split(',', 1)
+                    if not model_name:
+                        continue
+                    record_id = int(record_id)
+                    if not record_id:
+                        continue
+                    obj = self.pool.get(model_name)
+                    record2 = obj.read(cursor, user, record_id,
+                            fields_related[field], context=context)
+                    del record2['id']
+                    fields_related2values[field][record_id] = record2
+
+        if to_del or fields_related.keys():
+            for record in res:
+                for field in fields_related.keys():
+                    if field not in self._columns:
+                        continue
+                    for related in fields_related[field]:
+                        if self._columns[field]._type == 'many2one':
+                            if record[field]:
+                                record[field + '.' + related] = \
+                                        fields_related2values[field][
+                                                record[field]][related]
+                            else:
+                                record[field + '.' + related] = False
+                        elif self._columns[field]._type == 'reference':
+                            if record[field]:
+                                model_name, record_id = record[field].split(
+                                        ',', 1)
+                                if not model_name:
+                                    continue
+                                record_id = int(record_id)
+                                if not record_id:
+                                    continue
+                                record[field + '.' + related] = \
+                                        fields_related2values[field][
+                                                record_id][related]
+                for field in to_del:
+                    del record[field]
 
         if int_id:
             return res[0]
@@ -902,8 +977,9 @@ class ModelSQL(ModelStorage):
 
                 if isinstance(domain[i][2], basestring):
                     # get the ids of the records of the "distant" resource
-                    ids2 = [x[0] for x in field_obj.name_search(cursor, user,
-                        domain[i][2], [], domain[i][1], context=context)]
+                    ids2 = [x[0] for x in field_obj.search(cursor, user, [
+                        ('rec_name', domain[i][1], domain[i][2]),
+                        ], context=context)]
                 else:
                     ids2 = domain[i][2]
 
@@ -951,9 +1027,10 @@ class ModelSQL(ModelStorage):
                 # XXX must find a solution for long id list
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
-                        ids2 = [x[0] for x in self.pool.get(
-                        field.model_name).name_search(cursor, user, domain[i][2], [],
-                            'like', context=context)]
+                        field_obj = self.pool.get(field.model_name)
+                        ids2 = [x[0] for x in field_obj.search(cursor, user, [
+                            ('rec_name', 'ilike', domain[i][2]),
+                            ], context=context)]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
                     else:
@@ -994,9 +1071,10 @@ class ModelSQL(ModelStorage):
                                 table, domain[i][0]))
                 else:
                     if isinstance(domain[i][2], basestring):
-                        res_ids = [x[0] for x in self.pool.get(field.model_name
-                            ).name_search(cursor, user, domain[i][2], [],
-                                domain[i][1], context=context)]
+                        field_obj = self.pool.get(field.model_name)
+                        res_ids = [x[0] for x in field_obj.search(cursor, user, [
+                            ('rec_name', domain[i][1], domain[i][2]),
+                            ], context=context)]
                     else:
                         res_ids = domain[i][2]
                     if res_ids == True or res_ids == False:
@@ -1023,9 +1101,10 @@ class ModelSQL(ModelStorage):
                 # XXX must find a solution for long id list
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
-                        ids2 = [x[0] for x in self.pool.get(
-                            field.model_name).name_search(cursor, user, domain[i][2],
-                                [], 'like', context=context)]
+                        field_obj = self.pool.get(field.model_name)
+                        ids2 = [x[0] for x in field_obj.search(cursor, user, [
+                            ('rec_name', 'like', domain[i][2]),
+                            ], context=context)]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
                     else:
@@ -1082,11 +1161,11 @@ class ModelSQL(ModelStorage):
                                     ids2, table, domain[i][0]), table)
                 else:
                     if isinstance(domain[i][2], basestring):
-                        res_ids = self.pool.get(field.model_name).name_search(cursor,
-                                user, domain[i][2], [], domain[i][1],
-                                context=context)
-                        domain[i] = (domain[i][0], 'in', [x[0] for x in res_ids],
-                                table)
+                        field_obj = self.pool.get(field.model_name)
+                        res_ids = field_obj.search(cursor, user, [
+                            (field_obj._rec_name, domain[i][1], domain[i][2]),
+                            ], context=context)
+                        domain[i] = (domain[i][0], 'in', res_ids, table)
                     else:
                         domain[i] += (table,)
                 i += 1

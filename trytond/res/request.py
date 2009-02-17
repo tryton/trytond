@@ -59,8 +59,7 @@ class Request(OSV):
            'History', readonly=True)
 
     def default_act_from(self, cursor, user, context=None):
-        user_obj = self.pool.get('res.user')
-        return user_obj.name_get(cursor, user, user, context=context)[0]
+        return user
 
     def default_state(self, cursor, user, context=None):
         return 'draft'
@@ -207,12 +206,10 @@ class RequestHistory(OSV):
         return 'No Name'
 
     def default_act_from(self, cursor, user, context=None):
-        user_obj = self.pool.get('res.user')
-        return user_obj.name_get(cursor, user, user, context=context)[0]
+        return user
 
     def default_act_to(self, cursor, user, context=None):
-        user_obj = self.pool.get('res.user')
-        return user_obj.name_get(cursor, user, user, context=context)[0]
+        return user
 
     def default_date_sent(self, cursor, user, context=None):
         return datetime.datetime.now()

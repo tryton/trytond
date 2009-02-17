@@ -38,6 +38,8 @@ class ModelStorage(Model):
     create_date = fields.DateTime('Create Date', required=True, readonly=True)
     write_uid = fields.Many2One('res.user', 'Write User', readonly=True)
     write_date = fields.DateTime('Write Date', readonly=True)
+    rec_name = fields.Function('get_rec_name', type='char', string='Name',
+            fnct_search='search_rec_name')
 
     def __init__(self):
         super(ModelStorage, self).__init__()
@@ -50,8 +52,6 @@ class ModelStorage(Model):
             'search',
             'search_count',
             'search_read',
-            'name_get',
-            'name_search',
             'export_data',
             'import_data',
         ]
@@ -343,6 +343,8 @@ class ModelStorage(Model):
         ids = self.search(cursor, user, domain, offset=offset, limit=limit,
                 order=order, context=context)
         if limit == 1:
+            if not ids:
+                return []
             ids = ids[0]
         return self.read(cursor, user, ids, fields_names=fields_names,
                 context=context)
@@ -379,46 +381,43 @@ class ModelStorage(Model):
             return domain
         return process(domain)
 
-    def name_get(self, cursor, user, ids, context=None):
+    def get_rec_name(self, cursor, user, ids, name, arg, context=None):
         '''
-        Return a list of tuple for each ids.
-        The tuple contains the id and the name of the record.
+        Return a dictionary with id as key and rec_name as value.
+        It is used by the Function field rec_name
 
         :param cursor: the database cursor
         :param user: the user id
-        :param ids: a list of ids or an id
+        :param ids: a list of ids
+        :param name: the name of the Function field
+        :param arg: the argument of the Function field
         :param context: the context
-        :return: a list of tuple for each ids
+        :return: a dictionary
         '''
         if not ids:
-            return []
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        return [(r['id'], unicode(r[self._rec_name])) for r in self.read(cursor,
-            user, ids, [self._rec_name], context=context)]
+            return {}
+        res = {}
+        for record in self.browse(cursor, user, ids, context=context):
+            res[record.id] = unicode(record[self._rec_name])
+        return res
 
-    def name_search(self, cursor, user, name='', args=None, operator='ilike',
-            context=None, limit=None):
+    def search_rec_name(self, cursor, user, name, args, context=None):
         '''
-        Return a list of tuple like in name_get
-            where the name and the domain match.
+        Return a list of arguments for search on rec_name
 
         :param cursor: the database cursor
         :param user: the user id
-        :param name: the name searched
-        :param args: a domain like in search
-        :param operator: the operator to use to compare name with _rec_name
+        :param name: the name of the Function field
+        :param args: the list of arguments
         :param context: the context
-        :param limit: a integer to limit the result
-        :return: a list of tuple for each ids like in name_get
+        :return: a list of arguments
         '''
-        if args is None:
-            args = []
-        if name:
-            args = ['AND', args, (self._rec_name, operator, name)]
-        ids = self.search(cursor, user, args, limit=limit, context=context)
-        res = self.name_get(cursor, user, ids, context=context)
-        return res
+        args2 = []
+        i = 0
+        while i < len(args):
+            args2.append((self._rec_name, args[i][1], args[i][2]))
+            i += 1
+        return args2
 
     def browse(self, cursor, user, ids, context=None):
         '''
@@ -588,9 +587,10 @@ class ModelStorage(Model):
                         if line[i]:
                             relation = \
                                     fields_def[field[len(prefix)]]['relation']
-                            res2 = self.pool.get(relation).name_search(cursor,
-                                    user, line[i], [], operator='=')
-                            res = (res2 and res2[0][0]) or False
+                            relation_obj = self.pool.get(relation)
+                            res = relation_obj.search(cursor, user, [
+                                ('rec_name', '=', line[i]),
+                                ], limit=1, context=context)
                             if not res:
                                 warning += ('Relation not found: ' + line[i] + \
                                         ' on ' + relation + ' !\n')
@@ -603,17 +603,18 @@ class ModelStorage(Model):
                             relation = \
                                     fields_def[field[len(prefix)]]['relation']
                             for word in line[i].split(','):
-                                res2 = self.pool.get(relation).name_search(
-                                        cursor, user, word, [], operator='=')
-                                res3 = (res2 and res2[0][0]) or False
-                                if not res3:
+                                relation_obj = self.pool.get(relation)
+                                res2 = relation_obj.search(cursor, user, [
+                                    ('rec_name', '=', word),
+                                    ], limit=1, context=context)
+                                if not res2:
                                     warning += ('Relation not found: ' + \
                                             line[i] + ' on '+relation + ' !\n')
                                     logger.warning(
                                         'Relation not found: ' + line[i] + \
                                                     ' on '+relation + ' !\n')
                                 else:
-                                    res.append(res3)
+                                    res.append(res2)
                             if len(res):
                                 res = [('set', res)]
                     else:

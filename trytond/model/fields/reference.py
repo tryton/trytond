@@ -46,14 +46,5 @@ class Reference(Field):
                     ('id', '=', ref_id),
                     ], context=ctx):
                 ref_id = False
-            if ref_id:
-                ref_name = ref_obj.name_get(cursor, user, ref_id,
-                        context=context)
-                if ref_name:
-                    ref_name = ref_name[0][1]
-                else:
-                    ref_name = ''
-            else:
-                ref_name = ''
-            res[i] = ref_model + ',(' + str(ref_id) + ',"' + ref_name + '")'
+            res[i] = ref_model + ',' + str(ref_id)
         return res

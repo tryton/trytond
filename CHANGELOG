@@ -1,3 +1,5 @@
+* Allow to use related fields (many2one and reference) in read
+* Use rec_name function field instead of name_get and name_search
 * Use a new Pool for objects
 * Move workflow in ModelWorkflow and the workflow module
 * Remove Service and LocalService objects
