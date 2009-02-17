@@ -176,6 +176,9 @@ class ModelSQL(ModelStorage):
 
         if len(default):
             defaults = self.default_get(cursor, user, default, context)
+            for field in defaults.keys():
+                if '.' in field:
+                    del defaults[field]
             values.update(self._clean_defaults(defaults))
 
         # Get new id

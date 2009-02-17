@@ -172,6 +172,8 @@ class Wizard(object):
             default_values = obj.default_get(cursor, user, fields.keys(),
                     context=context)
             for field in default_values.keys():
+                if '.' in field:
+                    continue
                 fields[field]['value'] = default_values[field]
 
             # translate buttons
