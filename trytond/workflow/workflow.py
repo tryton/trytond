@@ -290,7 +290,7 @@ class WorkflowWorkitem(OSV):
                     for res_id in ids:
                         trigger_obj.create(cursor, 0, {
                             'model': transition.trigger_model,
-                            'res_id': workitem.instance.res_id,
+                            'res_id': res_id,
                             'instance': workitem.instance.id,
                             'workitem': workitem.id,
                             }, context=context)
