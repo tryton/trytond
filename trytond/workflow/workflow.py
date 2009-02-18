@@ -308,7 +308,6 @@ class WorkflowWorkitem(OSV):
         #send a signal to overflow
         if (workitem.state == 'active') and activity.signal_send:
             for overflow in workitem.overflows:
-                overflow.instance.workflow
                 instance_obj.validate(cursor, user, overflow.instance,
                         activity.signal_send, force_running=True,
                         context=context)
