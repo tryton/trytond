@@ -103,6 +103,17 @@ class BrowseRecord(object):
             # otherwise we fetch only that field
             else:
                 ffields = [(name, col)]
+
+            # add datetime_field
+            for i, j in ffields:
+                if j._type == 'many2one' and hasattr(j, 'datetime_field') \
+                        and j.datetime_field:
+                    if j.datetime_field in self._model._columns:
+                        col = self._model._columns[j.datetime_field]
+                    else:
+                        col = self._model._inherit_fields[j.datetime_field][2]
+                    ffields.append((j.datetime_field, col))
+
             ids = [x for x in self._data.keys() \
                     if not self._data[x].has_key(name)]
             # read the data
@@ -121,9 +132,13 @@ class BrowseRecord(object):
                         if not data[i]:
                             data[i] = BrowseRecordNull()
                         else:
+                            ctx = self._context
+                            if hasattr(j, 'datetime_field') and j.datetime_field:
+                                ctx = self._context.copy()
+                                ctx['_datetime'] = data[j.datetime_field]
                             data[i] = BrowseRecord(self._cursor, self._user,
                                     data[i], model, self._cache,
-                                    context=self._context)
+                                    context=ctx)
                     elif j._type in ('one2many', 'many2many') and len(data[i]):
                         data[i] = BrowseRecordList([BrowseRecord(self._cursor,
                             self._user,

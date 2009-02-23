@@ -28,9 +28,9 @@ class Reference(Field):
             ref_model, ref_id = res[i].split(',', 1)
             if not ref_model:
                 continue
-            ref_obj = model.pool.get(ref_model)
-            if not ref_obj:
+            if ref_model not in model.pool.object_name_list():
                 continue
+            ref_obj = model.pool.get(ref_model)
             try:
                 ref_id = eval(ref_id)
             except:

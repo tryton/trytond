@@ -7,7 +7,8 @@ class TableHandlerInterface(object):
     Define generic interface to handle database table
     '''
 
-    def __init__(self, cursor, table_name, object_name=None, module_name=None):
+    def __init__(self, cursor, table_name, object_name=None, module_name=None,
+            history=False):
         super(TableHandlerInterface, self).__init__()
         self.cursor = cursor
         self.table_name = table_name
