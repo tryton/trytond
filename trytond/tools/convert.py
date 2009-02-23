@@ -942,9 +942,6 @@ def post_import(cursor, pool, module, to_delete):
             cursor.execute("DELETE FROM wkf_transition " \
                     "WHERE act_to = %s", (db_id,))
 
-            model_obj = pool.get(model)
-            model_obj.workflow_trigger_write(cursor, user, db_id)
-
 
         logging.getLogger("convert").info(
                 'Deleting %s@%s' % (db_id, model))
