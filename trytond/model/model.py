@@ -595,6 +595,7 @@ class Model(object):
                     'add_remove',
                     'on_change_with',
                     'sort',
+                    'datetime_field',
                     ):
                 if getattr(self._columns[field], arg, None) != None:
                     res[field][arg] = copy.copy(getattr(self._columns[field],
