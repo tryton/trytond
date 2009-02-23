@@ -103,7 +103,7 @@ class ModelStorage(Model):
         :param context: the context
         :return: a list of dictionnary or a dictionnary if ids is an id
             the dictionnaries will have fields names as key
-            and fields value as value
+            and fields value as value. The list will not be in the same order.
         '''
         model_access_obj = self.pool.get('ir.model.access')
 

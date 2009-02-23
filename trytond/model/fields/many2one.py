@@ -8,9 +8,10 @@ class Many2One(Field):
     _type = 'many2one'
 
     def __init__(self, model_name, string='', left=None, right=None,
-            ondelete='SET NULL', **args):
+            ondelete='SET NULL', datetime_field=None, **args):
         super(Many2One, self).__init__(string=string, **args)
         self.model_name = model_name
         self.left = left
         self.right = right
         self.ondelete = ondelete
+        self.datetime_field = datetime_field
