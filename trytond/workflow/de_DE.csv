@@ -10,11 +10,13 @@ field,"workflow.activity,join_mode",0,Join Mode,Verbindungsmodus,0
 field,"workflow.activity,kind",0,Kind,Art,0
 field,"workflow.activity,name",0,Name,Name,0
 field,"workflow.activity,out_transitions",0,Outgoing transitions,Ausgehende Übergänge,0
+field,"workflow.activity,rec_name",0,Name,Name,0
 field,"workflow.activity,signal_send",0,Signal (subflow.*),Signal (subflow.*),0
 field,"workflow.activity,split_mode",0,Split Mode,Geteilter Modus,0
 field,"workflow.activity,subflow",0,Subflow,Unterflow,0
 field,"workflow.activity,workflow",0,Workflow,Workflow,0
 field,"workflow.instance,overflows",0,Overflow,Überlauf,0
+field,"workflow.instance,rec_name",0,Name,Name,0
 field,"workflow.instance,res_id",0,Resource ID,ID Ressource,0
 field,"workflow.instance,res_type",0,Resource Model,Modell Ressource,0
 field,"workflow.instance,state",0,State,Status,0
@@ -25,20 +27,24 @@ field,"workflow.instance,workitems",0,Workitems,Elemente,0
 field,"workflow,name",0,Name,Name,0
 field,"workflow,on_create",0,On Create,Bei der Erstellung,0
 field,"workflow,osv",0,Resource Model,Modell Ressource,0
+field,"workflow,rec_name",0,Name,Name,0
 field,"workflow.transition,act_from",0,Source Activity,Quelle der Aktivität,0
 field,"workflow.transition,act_to",0,Destination Activity,Bestimmung der Aktivität,0
 field,"workflow.transition,condition",0,Condition,Bedingung,0
 field,"workflow.transition,group",0,Group Required,Erforderliche Gruppe,0
 field,"workflow.transition,instances",0,,,0
+field,"workflow.transition,rec_name",0,Name,Name,0
 field,"workflow.transition,signal",0,Signal (button Name),Signal (Name des Knopfes),0
 field,"workflow.transition,trigger_expr_id",0,Trigger Expr ID,ID des Auslöseausdrucks,0
 field,"workflow.transition,trigger_model",0,Trigger Type,Typ Auslöser,0
 field,"workflow.trigger,instance",0,Destination Instance,Bestimmungsinstanz,0
 field,"workflow.trigger,model",0,Model,Modell,0
+field,"workflow.trigger,rec_name",0,Name,Name,0
 field,"workflow.trigger,res_id",0,Resource ID,ID Ressource,0
 field,"workflow.trigger,workitem",0,Workitem,Element,0
 field,"workflow.workitem,activity",0,Activity,Aktivität,0
 field,"workflow.workitem,instance",0,Instance,Instanz,0
+field,"workflow.workitem,rec_name",0,Name,Name,0
 field,"workflow.workitem,state",0,State,Status,0
 field,"workflow.workitem,subflow",0,Subflow,Unterflow,0
 model,"ir.action,name",act_activity_form,Activities,Aktivitäten,0
