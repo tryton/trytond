@@ -85,6 +85,7 @@ class ModelSQL(ModelStorage):
                     'write_date',
                     'create_uid',
                     'create_date',
+                    'rec_name',
                     ):
                 continue
 
