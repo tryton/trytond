@@ -23,9 +23,9 @@ class Action(OSV):
 
     def __init__(self):
         super(Action, self).__init__()
-        self._rpc_allowed += [
-                'get_action_id',
-            ]
+        self._rpc.update({
+            'get_action_id': False,
+        })
 
     def default_usage(self, cursor, user, context=None):
         return False
@@ -75,7 +75,7 @@ class ActionKeyword(OSV):
 
     def __init__(self):
         super(ActionKeyword, self).__init__()
-        self._rpc_allowed.append('get_keyword')
+        self._rpc.update({'get_keyword': False})
         self._constraints += [
             ('check_wizard_model', 'wrong_wizard_model'),
         ]

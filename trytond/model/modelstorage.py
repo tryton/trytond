@@ -43,18 +43,18 @@ class ModelStorage(Model):
 
     def __init__(self):
         super(ModelStorage, self).__init__()
-        self._rpc_allowed += [
-            'create',
-            'read',
-            'write',
-            'delete',
-            'copy',
-            'search',
-            'search_count',
-            'search_read',
-            'export_data',
-            'import_data',
-        ]
+        self._rpc.update({
+            'create': True,
+            'read': False,
+            'write': True,
+            'delete': True,
+            'copy': True,
+            'search': False,
+            'search_count': False,
+            'search_read': False,
+            'export_data': False,
+            'import_data': True,
+        })
         self._constraints = []
 
     def default_create_uid(self, cursor, user, context=None):

@@ -59,10 +59,10 @@ class Model(object):
 
     def __init__(self):
         super(Model, self).__init__()
-        self._rpc_allowed = [
-            'default_get',
-            'fields_get',
-        ]
+        self._rpc = {
+            'default_get': False,
+            'fields_get': False,
+        }
         self._inherit_fields = []
         self._error_messages = {}
         # reinit the cache on _columns and _defaults
@@ -85,16 +85,16 @@ class Model(object):
                 field = self._inherit_fields[field_name][2]
             if isinstance(field, (fields.Selection, fields.Reference)) \
                     and not isinstance(field.selection, (list, tuple)) \
-                    and field.selection not in self._rpc_allowed:
-                self._rpc_allowed.append(field.selection)
+                    and field.selection not in self._rpc:
+                self._rpc[field.selection] = False
             if field.on_change:
                 on_change = 'on_change_' + field_name
-                if on_change not in self._rpc_allowed:
-                    self._rpc_allowed.append(on_change)
+                if on_change not in self._rpc:
+                    self._rpc[on_change] = False
             if field.on_change_with:
                 on_change_with = 'on_change_with_' + field_name
-                if on_change_with not in self._rpc_allowed:
-                    self._rpc_allowed.append(on_change_with)
+                if on_change_with not in self._rpc:
+                    self._rpc[on_change_with] = False
 
     def _inherits_reload(self):
         """

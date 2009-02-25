@@ -70,15 +70,14 @@ class TranslateFactory:
 
 class Report(object):
     _name = ""
-    _rpc_allowed = [
-        'execute',
-    ]
 
     def __new__(cls):
         Pool.register(cls, type='report')
 
     def init(self, cursor, module_name):
-        pass
+        self._rpc = {
+            'execute': False,
+        }
 
     def execute(self, cursor, user, ids, datas, context=None):
         if context is None:

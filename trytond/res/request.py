@@ -72,12 +72,12 @@ class Request(OSV):
 
     def __init__(self):
         super(Request, self).__init__()
-        self._rpc_allowed += [
-            'request_send',
-            'request_reply',
-            'request_close',
-            'request_get',
-        ]
+        self._rpc.update({
+            'request_send': True,
+            'request_reply': True,
+            'request_close': True,
+            'request_get': False,
+        })
         self._order.insert(0, ('priority', 'DESC'))
         self._order.insert(1, ('trigger_date', 'DESC'))
         self._order.insert(2, ('create_date', 'DESC'))
