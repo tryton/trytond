@@ -9,6 +9,9 @@ class Selection(Field):
 
     def __init__(self, selection, string='', sort=True, translate=True, **args):
         super(Selection, self).__init__(string=string, **args)
-        self.selection = selection
+        if hasattr(selection, 'copy'):
+            self.selection = selection.copy()
+        else:
+            self.selection = selection
         self.sort = sort
         self.translate_selection = translate
