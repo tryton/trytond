@@ -17,17 +17,17 @@ from sys import maxint
 class Wizard(object):
     _name = ""
     states = {}
-    _rpc_allowed = [
-        'create',
-        'delete',
-        'execute',
-    ]
 
     def __new__(cls):
         Pool.register(cls, type='wizard')
 
     def __init__(self):
         super(Wizard, self).__init__()
+        self._rpc = {
+            'create': True,
+            'delete': True,
+            'execute': True,
+        }
         self._error_messages = {}
         self._lock = Lock()
         self._datas = {}

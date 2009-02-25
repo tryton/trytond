@@ -37,11 +37,11 @@ class User(OSV):
 
     def __init__(self):
         super(User, self).__init__()
-        self._rpc_allowed += [
-            'get_preferences',
-            'set_preferences',
-            'get_preferences_fields_view',
-        ]
+        self._rpc.update({
+            'get_preferences': False,
+            'set_preferences': True,
+            'get_preferences_fields_view': False,
+        })
         self._sql_constraints += [
             ('login_key', 'UNIQUE (login)',
                 'You can not have two users with the same login!')

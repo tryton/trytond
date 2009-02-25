@@ -202,7 +202,7 @@ class ViewShortcut(OSV):
 
     def __init__(self):
         super(ViewShortcut, self).__init__()
-        self._rpc_allowed.append('get_sc')
+        self._rpc.update({'get_sc': False})
         self._order.insert(0, ('sequence', 'ASC'))
 
     def get_sc(self, cursor, user, user_id, model='ir.ui.menu', context=None):
@@ -232,9 +232,9 @@ class ViewTreeWidth(OSV):
 
     def __init__(self):
         super(ViewTreeWidth, self).__init__()
-        self._rpc_allowed += [
-            'set_width',
-        ]
+        self._rpc.update({
+            'set_width': True,
+        })
 
     def delete(self, cursor, user, ids, context=None):
         if isinstance(ids, (int, long)):

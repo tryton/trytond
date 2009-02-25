@@ -69,9 +69,7 @@ class ModelView(Model):
 
     def __init__(self):
         super(ModelView, self).__init__()
-        self._rpc_allowed += [
-            'fields_view_get',
-        ]
+        self._rpc['fields_view_get'] = False
 
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
             context=None, toolbar=False, hexmd5=None):

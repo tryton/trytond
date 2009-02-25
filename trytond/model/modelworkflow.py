@@ -11,9 +11,9 @@ class ModelWorkflow(ModelStorage):
 
     def __init__(self):
         super(ModelWorkflow, self).__init__()
-        self._rpc_allowed += [
-            'workflow_trigger_validate',
-            ]
+        self._rpc.update({
+            'workflow_trigger_validate': True,
+        })
 
     def create(self, cursor, user, values, context=None):
         res = super(ModelWorkflow, self).create(cursor, user, values,

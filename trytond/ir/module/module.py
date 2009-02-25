@@ -151,15 +151,15 @@ class Module(OSV):
                 'The name of the module must be unique!'),
         ]
         self._order.insert(0, ('name', 'ASC'))
-        self._rpc_allowed += [
-            'button_install',
-            'button_install_cancel',
-            'button_uninstall',
-            'button_uninstall_cancel',
-            'button_upgrade',
-            'button_upgrade_cancel',
-            'button_update_translations',
-        ]
+        self._rpc.update({
+            'button_install': True,
+            'button_install_cancel': True,
+            'button_uninstall': True,
+            'button_uninstall_cancel': True,
+            'button_upgrade': True,
+            'button_upgrade_cancel': True,
+            'button_update_translations': True,
+        })
         self._error_messages.update({
             'delete_state': 'You can not remove a module that is installed ' \
                     'or will be installed',

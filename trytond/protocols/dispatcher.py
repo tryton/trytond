@@ -82,12 +82,13 @@ def dispatch(database_name, user, session, object_type, object_name, method,
             if not database_name in database_list:
                 pool.init()
             obj = pool.get(object_name, type=object_type)
-            if method not in obj._rpc_allowed:
+            if method not in obj._rpc:
                 raise Exception('Error', 'Calling method %s on ' \
                         'object %s is not allowed!' % (method, object_name))
 
             res = getattr(obj, method)(cursor, user, *args, **kargs)
-            cursor.commit()
+            if obj._rpc[method]:
+                cursor.commit()
         except Exception, exception:
             if CONFIG['verbose'] or (exception.args \
                     and str(exception.args[0]) not in \

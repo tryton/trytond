@@ -22,7 +22,10 @@ class Default(OSV):
 
     def __init__(self):
         super(Default, self).__init__()
-        self._rpc_allowed += ['get_default', 'set_default']
+        self._rpc.update({
+            'get_default': False,
+            'set_default': True,
+        })
 
     def get_default(self, cursor, user, model, clause, context=None):
         res = {}
