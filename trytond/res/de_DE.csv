@@ -10,6 +10,7 @@ field,"res.group,id",0,ID,ID,0
 field,"res.group,menu_access",0,Access Menu,Menü Berechtigungen,0
 field,"res.group,model_access",0,Access Model,Rechteverwaltung,0
 field,"res.group,name",0,Name,Gruppenname,0
+field,"res.group,rec_name",0,Name,Name,0
 field,"res.group,rule_groups",0,Rules,Rollen,0
 field,"res.group,users",0,Users,Benutzer,0
 field,"res.group,write_date",0,Last modification date,Zuletzt geändert am,0
@@ -32,6 +33,7 @@ field,"res.request.history,id",0,ID,ID,0
 field,"res.request.history,name",0,Summary,Zusammenfassung,0
 field,"res.request.history,number_references",0,References,Verweise,0
 field,"res.request.history,priority",0,Priority,Priorität,0
+field,"res.request.history,rec_name",0,Name,Name,0
 field,"res.request.history,request",0,Request,Anfrage,0
 field,"res.request.history,state",0,State,Status,0
 field,"res.request.history,subject",0,Subject,Betreff,0
@@ -44,11 +46,14 @@ field,"res.request.link,id",0,ID,ID,0
 field,"res.request.link,model",0,Model,Modell,0
 field,"res.request.link,name",0,Name,Name,0
 field,"res.request.link,priority",0,Priority,Dringlichkeit,0
+field,"res.request.link,rec_name",0,Name,Name,0
 field,"res.request.link,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.request.link,write_uid",0,Last modification by,Zuletzt geändert von,0
 field,"res.request,name",0,Subject,Betreff,0
 field,"res.request,number_references",0,Number of References,Anzahl Verweise,0
 field,"res.request,priority",0,Priority,Dringlichkeit,0
+field,"res.request,rec_name",0,Name,Name,0
+field,"res.request.reference,rec_name",0,Name,Name,0
 field,"res.request.reference,reference",0,Reference,Verweis,0
 field,"res.request.reference,request",0,,,0
 field,"res.request,references",0,References,Verweise,0
@@ -69,12 +74,14 @@ field,"res.user,login",0,Login,Benutzername,0
 field,"res.user,menu",0,Menu Action,Menüaktion,0
 field,"res.user,name",0,Name,Name,0
 field,"res.user,password",0,Password,Passwort,0
+field,"res.user,rec_name",0,Name,Name,0
 field,"res.user,rule_groups",0,Rules,Rollen,0
 field,"res.user,signature",0,Signature,Signatur,0
 field,"res.user,status_bar",0,Status Bar,Status Anzeige,0
 field,"res.user,timezone",0,Timezone,Zeitzone,0
 field,"res.user.warning,always",0,Always,Immer,0
 field,"res.user.warning,name",0,Name,Name,0
+field,"res.user.warning,rec_name",0,Name,Name,0
 field,"res.user,warnings",0,Warnings,Warnungen,0
 field,"res.user.warning,user",0,User,Benutzer,0
 field,"res.user,write_date",0,Last modification date,Zuletzt geändert am,0
