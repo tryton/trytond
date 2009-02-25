@@ -72,7 +72,7 @@ class Cron(OSV):
         return 5
 
     def default_user(self, cursor, user, context=None):
-        return user
+        return int(user)
 
     def default_interval_number(self, cursor, user, context=None):
         return 1
