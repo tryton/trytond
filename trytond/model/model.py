@@ -451,6 +451,8 @@ class Model(object):
                 fld_def = (field in self._columns) and self._columns[field] \
                         or self._inherit_fields[field][2]
                 if fld_def._type in ('many2one',):
+                    if not isinstance(field_value, (int, long)):
+                        continue
                     obj = self.pool.get(fld_def.model_name)
                     if not hasattr(obj, 'search') \
                             or not obj.search(cursor, user, [
@@ -462,6 +464,8 @@ class Model(object):
                                 user, field_value,
                                 context=context).rec_name
                 if fld_def._type in ('many2many'):
+                    if not isinstance(field_value, list):
+                        continue
                     obj = self.pool.get(fld_def.model_name)
                     field_value2 = []
                     for i in range(len(field_value)):
@@ -473,6 +477,8 @@ class Model(object):
                         field_value2.append(field_value[i])
                     field_value = field_value2
                 if fld_def._type in ('one2many'):
+                    if not isinstance(field_value, list):
+                        continue
                     obj = self.pool.get(fld_def.model_name)
                     field_value2 = []
                     for i in range(len(field_value or [])):
