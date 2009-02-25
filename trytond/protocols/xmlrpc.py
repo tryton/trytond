@@ -123,8 +123,6 @@ class HttpDaemon(threading.Thread):
         self.server.socket.close()
 
     def run(self):
-        self.server.register_introspection_functions()
-
         self.running = True
         while self.running:
             self.server.handle_request()
