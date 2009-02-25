@@ -642,7 +642,7 @@ wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Aktu
 wizard_button,"ir.module.module.install_upgrade,start,menu",0,Ok,OK,0
 wizard_button,"ir.translation.clean,init,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.translation.clean,init,start",0,Start,Start,0
-wizard_button,"ir.translation.clean,start,end",0,Ok,Ok,0
+wizard_button,"ir.translation.clean,start,end",0,Ok,OK,0
 wizard_button,"ir.translation.export,init,end",0,Cancel,Abbrechen,0
 wizard_button,"ir.translation.export,init,start",0,Start Export,Export starten,0
 wizard_button,"ir.translation.export,start,end",0,Close,Schließen,0
