@@ -3,7 +3,6 @@ error,delete_workflow_record,0,You cannot delete a record with a running workflo
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
-error,ir.action.report,0,The internal name must be unique!,Der interne Name kann nicht mehrfach vergeben werden!,0
 error,ir.attachment,0,Error! You can not create attachments with the same name!,Fehler! Anhänge müssen unterschiedliche Namen aufweisen!,0
 error,ir.cron,0,Scheduled action failed,Geplante Aktion fehlgeschlagen,0
 error,ir.cron,0,"The following action failed to execute properly: ""%s""
@@ -47,11 +46,13 @@ field,"ir.action.act_window,auto_refresh",0,Auto-Refresh,Automatisches Auffrisch
 field,"ir.action.act_window,context",0,Context Value,Kontext,0
 field,"ir.action.act_window,domain",0,Domain Value,Domain,0
 field,"ir.action.act_window,limit",0,Limit,Begrenzung,0
+field,"ir.action.act_window,rec_name",0,Name,Name,0
 field,"ir.action.act_window,res_model",0,Model,Modell,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Suchkriterien,0
 field,"ir.action.act_window,src_model",0,Source model,Quellmodell,0
 field,"ir.action.act_window,usage",0,Action Usage,Gebrauch,0
 field,"ir.action.act_window.view,act_window",0,Action,Aktion,0
+field,"ir.action.act_window.view,rec_name",0,Name,Name,0
 field,"ir.action.act_window,views",0,Views,Sichten,0
 field,"ir.action.act_window.view,sequence",0,Sequence,Reihenfolge,0
 field,"ir.action.act_window,view_type",0,Type of view,Typ für Sichten,0
@@ -61,8 +62,10 @@ field,"ir.action,groups",0,Groups,Gruppen,0
 field,"ir.action.keyword,action",0,Action,Aktion,0
 field,"ir.action.keyword,keyword",0,Keyword,Schlüsselwort,0
 field,"ir.action.keyword,model",0,Model,Modell,0
+field,"ir.action.keyword,rec_name",0,Name,Name,0
 field,"ir.action,keywords",0,Keywords,Schlüsselworte,0
 field,"ir.action,name",0,Name,Name,0
+field,"ir.action,rec_name",0,Name,Name,0
 field,"ir.action.report,action",0,Action,Aktion,0
 field,"ir.action.report,direct_print",0,Direct Print,Direktdruck,0
 field,"ir.action.report,email",0,Email,E-Mail,0
@@ -71,6 +74,8 @@ field,"ir.action.report,module",0,Module,Modul,0
 field,"ir.action.report,output_format",0,Output format,Ausgabeformat,0
 field,"ir.action.report.outputformat,format",0,Internal Format Name,Interner Name des Formats,0
 field,"ir.action.report.outputformat,name",0,Name,Name,0
+field,"ir.action.report.outputformat,rec_name",0,Name,Name,0
+field,"ir.action.report,rec_name",0,Name,Name,0
 field,"ir.action.report,report",0,Path,Pfad,0
 field,"ir.action.report,report_content",0,Content,Inhalt,0
 field,"ir.action.report,report_content_data",0,Content,Inhalt,0
@@ -79,11 +84,13 @@ field,"ir.action.report,style",0,Style,Stil,0
 field,"ir.action.report,style_content",0,Style,Stil,0
 field,"ir.action,type",0,Type,Typ,0
 field,"ir.action.url,action",0,Action,Aktion,0
+field,"ir.action.url,rec_name",0,Name,Name,0
 field,"ir.action.url,url",0,Action Url,URL,0
 field,"ir.action,usage",0,Usage,Gebrauch,0
 field,"ir.action.wizard,action",0,Action,Aktion,0
 field,"ir.action.wizard,email",0,Email,E-Mail,0
 field,"ir.action.wizard,model",0,Model,Modell,0
+field,"ir.action.wizard,rec_name",0,Name,Name,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Name,0
 field,"ir.attachment,collision",0,Collision,Kollision,0
 field,"ir.attachment,datas",0,Datas,Daten,0
@@ -92,9 +99,11 @@ field,"ir.attachment,description",0,Description,Beschreibung,0
 field,"ir.attachment,digest",0,Digest,Zusammenfassung,0
 field,"ir.attachment,link",0,Link,Verknüpfung,0
 field,"ir.attachment,name",0,Attachment Name,Name Anhang,0
+field,"ir.attachment,rec_name",0,Name,Name,0
 field,"ir.attachment,res_id",0,Resource ID,ID Ressource,0
 field,"ir.attachment,res_model",0,Resource Model,Modell Ressource,0
 field,"ir.cache,name",0,Name,Name,0
+field,"ir.cache,rec_name",0,Name,Name,0
 field,"ir.cache,timestamp",0,Timestamp,Zeitstempel,0
 field,"ir.cron,active",0,Active,Aktiv,0
 field,"ir.cron,args",0,Arguments,Argumente,0
@@ -107,18 +116,23 @@ field,"ir.cron,name",0,Name,Name,0
 field,"ir.cron,nextcall",0,Next call date,Nächster Aufruf,0
 field,"ir.cron,numbercall",0,Number of calls,Anzahl Aufrufe,0
 field,"ir.cron,priority",0,Priority,Priorität,0
+field,"ir.cron,rec_name",0,Name,Name,0
 field,"ir.cron,request_user",0,Request User,Fehlermeldung an,0
 field,"ir.cron,running",0,Running,Wird zur Zeit ausgeführt,0
 field,"ir.cron,user",0,Execution User,Benutzer,0
+field,"ir.date,rec_name",0,Name,Name,0
 field,"ir.default,clause",0,Clause,Klausel,0
 field,"ir.default,field",0,Field,Feld,0
 field,"ir.default,model",0,Model,Modell,0
+field,"ir.default,rec_name",0,Name,Name,0
 field,"ir.default,user",0,User,Benutzer,0
 field,"ir.default,value",0,Value,Wert,0
 field,"ir.export,export_fields",0,Export Id,Export ID,0
 field,"ir.export.line,export",0,Exportation,Export,0
 field,"ir.export.line,name",0,Field name,Feldname,0
+field,"ir.export.line,rec_name",0,Name,Name,0
 field,"ir.export,name",0,Export name,Name Export,0
+field,"ir.export,rec_name",0,Name,Name,0
 field,"ir.export,resource",0,Resource,Ressource,0
 field,"ir.lang,active",0,Active,Aktiv,0
 field,"ir.lang,code",0,Code,Code,0
@@ -127,6 +141,7 @@ field,"ir.lang,decimal_point",0,Decimal Separator,Dezimalpunkt,0
 field,"ir.lang,direction",0,Direction,Richtung,0
 field,"ir.lang,grouping",0,Grouping,Gruppierung,0
 field,"ir.lang,name",0,Name,Name,0
+field,"ir.lang,rec_name",0,Name,Name,0
 field,"ir.lang,thousands_sep",0,Thousands Separator,Tausendertrennzeichen,0
 field,"ir.lang,translatable",0,Translatable,Übersetzbar,0
 field,"ir.model.access,description",0,Description,Beschreibung,0
@@ -136,6 +151,7 @@ field,"ir.model.access,perm_create",0,Create Access,Erstellen,0
 field,"ir.model.access,perm_delete",0,Delete Permission,Löschen,0
 field,"ir.model.access,perm_read",0,Read Access,Lesen,0
 field,"ir.model.access,perm_write",0,Write Access,Schreiben,0
+field,"ir.model.access,rec_name",0,Name,Name,0
 field,"ir.model.data,date_init",0,Init Date,Initialdatum,0
 field,"ir.model.data,date_update",0,Update Date,Aktualisierungsdatum,0
 field,"ir.model.data,db_id",0,Resource ID,ID Ressource,0
@@ -143,6 +159,7 @@ field,"ir.model.data,fs_id",0,Identifier on File System,Identifikator im Dateisy
 field,"ir.model.data,inherit",0,Inherit,Vererbung,0
 field,"ir.model.data,model",0,Model,Modell,0
 field,"ir.model.data,module",0,Module,Modul,0
+field,"ir.model.data,rec_name",0,Name,Name,0
 field,"ir.model.data,values",0,Values,Werte,0
 field,"ir.model.field,field_description",0,Field Description,Beschreibung,0
 field,"ir.model.field,groups",0,Groups,Gruppen,0
@@ -150,6 +167,7 @@ field,"ir.model.field,help",0,Help,Hilfe,0
 field,"ir.model.field,model",0,Model,Modell,0
 field,"ir.model.field,module",0,Module,Modul,0
 field,"ir.model.field,name",0,Name,Name,0
+field,"ir.model.field,rec_name",0,Name,Name,0
 field,"ir.model.field,relation",0,Model Relation,Beziehung Modell,0
 field,"ir.model,fields",0,Fields,Felder,0
 field,"ir.model.field,ttype",0,Field Type,Feldtyp,0
@@ -158,23 +176,28 @@ field,"ir.model,model",0,Model Name,Modellname,0
 field,"ir.model,module",0,Module,Modul,0
 field,"ir.model,name",0,Model Description,Modell Beschreibung,0
 field,"ir.model.print_model_graph.init,level",0,Level,Ebene,0
+field,"ir.model,rec_name",0,Name,Name,0
 field,"ir.module.module,author",0,Author,Autor,0
 field,"ir.module.module.config_wizard.item,name",0,Name,Name,0
+field,"ir.module.module.config_wizard.item,rec_name",0,Name,Name,0
 field,"ir.module.module.config_wizard.item,sequence",0,Sequence,Reihenfolge,0
 field,"ir.module.module.config_wizard.item,state",0,State,Status,0
 field,"ir.module.module,dependencies",0,Dependencies,Abhängigkeiten,0
 field,"ir.module.module.dependency,module",0,Module,Modul,0
 field,"ir.module.module.dependency,name",0,Name,Name,0
+field,"ir.module.module.dependency,rec_name",0,Name,Name,0
 field,"ir.module.module.dependency,state",0,State,Status,0
 field,"ir.module.module,description",0,Description,Beschreibung,0
 field,"ir.module.module.install_upgrade.init,module_info",0,Modules to update,Zu aktualisierende Module,0
 field,"ir.module.module,name",0,Name,Name,0
+field,"ir.module.module,rec_name",0,Name,Name,0
 field,"ir.module.module,shortdesc",0,Short description,Kurzbeschreibung,0
 field,"ir.module.module,state",0,State,Status,0
 field,"ir.module.module,version",0,Version,Version,0
 field,"ir.module.module,website",0,Website,Website,0
 field,"ir.property,field",0,Field,Feld,0
 field,"ir.property,name",0,Name,Name,0
+field,"ir.property,rec_name",0,Name,Name,0
 field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Wert,0
 field,"ir.rule,field",0,Field,Feld,0
@@ -183,10 +206,12 @@ field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Gruppen,0
 field,"ir.rule.group,model",0,Model,Modell,0
 field,"ir.rule.group,name",0,Name,Name,0
+field,"ir.rule.group,rec_name",0,Name,Name,0
 field,"ir.rule.group,rules",0,Tests,Tests,0
 field,"ir.rule.group,users",0,Users,Benutzer,0
 field,"ir.rule,operand",0,Operand,Operand,0
 field,"ir.rule,operator",0,Operator,Operator,0
+field,"ir.rule,rec_name",0,Name,Name,0
 field,"ir.rule,rule_group",0,Group,Gruppe,0
 field,"ir.sequence,active",0,Active,Aktiv,0
 field,"ir.sequence,code",0,Sequence Type,Typ Sequenz,0
@@ -195,6 +220,7 @@ field,"ir.sequence,number_increment",0,Increment Number,Schrittweite,0
 field,"ir.sequence,number_next",0,Next Number,Nächste Nummer,0
 field,"ir.sequence,padding",0,Number padding,Feste Länge (Vornullen),0
 field,"ir.sequence,prefix",0,Prefix,Präfix,0
+field,"ir.sequence,rec_name",0,Name,Name,0
 field,"ir.sequence.strict,active",0,Active,Aktiv,0
 field,"ir.sequence.strict,code",0,Sequence Type,Typ Strikte Sequenz,0
 field,"ir.sequence.strict,name",0,Sequence Name,Name Sequenz,0
@@ -202,10 +228,12 @@ field,"ir.sequence.strict,number_increment",0,Increment Number,Schrittweite,0
 field,"ir.sequence.strict,number_next",0,Next Number,Nächste Zahl,0
 field,"ir.sequence.strict,padding",0,Number padding,Feste Länge (Vornullen),0
 field,"ir.sequence.strict,prefix",0,Prefix,Präfix,0
+field,"ir.sequence.strict,rec_name",0,Name,Name,0
 field,"ir.sequence.strict,suffix",0,Suffix,Suffix,0
 field,"ir.sequence,suffix",0,Suffix,Suffix,0
 field,"ir.sequence.type,code",0,Sequence Code,Code Sequenztyp,0
 field,"ir.sequence.type,name",0,Sequence Name,Name Sequenz,0
+field,"ir.sequence.type,rec_name",0,Name,Name,0
 field,"ir.translation.export.init,lang",0,Language,Sprache,0
 field,"ir.translation.export.init,module",0,Module,Modul,0
 field,"ir.translation.export.start,file",0,File,Datei,0
@@ -214,6 +242,7 @@ field,"ir.translation,lang",0,Language,Sprache,0
 field,"ir.translation,model",0,Model,Modell,0
 field,"ir.translation,module",0,Module,Modul,0
 field,"ir.translation,name",0,Field Name,Feldname,0
+field,"ir.translation,rec_name",0,Name,Name,0
 field,"ir.translation,res_id",0,Resource ID,ID Ressource,0
 field,"ir.translation,src",0,Source,Quelle,0
 field,"ir.translation,type",0,Type,Typ,0
@@ -227,6 +256,7 @@ field,"ir.ui.menu,groups",0,Groups,Gruppen,0
 field,"ir.ui.menu,icon",0,Icon,Icon,0
 field,"ir.ui.menu,name",0,Menu,Menü,0
 field,"ir.ui.menu,parent",0,Parent Menu,Übergeordnet (Menü),0
+field,"ir.ui.menu,rec_name",0,Name,Name,0
 field,"ir.ui.menu,sequence",0,Sequence,Sequenz,0
 field,"ir.ui.view,arch",0,View Architecture,Architektur Sicht,0
 field,"ir.ui.view,domain",0,Domain,Domain,0
@@ -235,13 +265,16 @@ field,"ir.ui.view,inherit",0,Inherited View,Vererbte Sicht,0
 field,"ir.ui.view,model",0,Model,Modell,0
 field,"ir.ui.view,module",0,Module,Modul,0
 field,"ir.ui.view,priority",0,Priority,Priorität,0
+field,"ir.ui.view,rec_name",0,Name,Name,0
 field,"ir.ui.view_sc,name",0,Shortcut Name,Name Schnelltaste,0
+field,"ir.ui.view_sc,rec_name",0,Name,Name,0
 field,"ir.ui.view_sc,res_id",0,Resource Ref.,Ref. Ressource,0
 field,"ir.ui.view_sc,resource",0,Resource Name,Name Ressource,0
 field,"ir.ui.view_sc,sequence",0,Sequence,Sequenz,0
 field,"ir.ui.view_sc,user_id",0,User Ref.,Benutzer,0
 field,"ir.ui.view_tree_width,field",0,Field,Feld,0
 field,"ir.ui.view_tree_width,model",0,Model,Modell,0
+field,"ir.ui.view_tree_width,rec_name",0,Name,Name,0
 field,"ir.ui.view_tree_width,user",0,User,Benutzer,0
 field,"ir.ui.view_tree_width,width",0,Width,Breite,0
 field,"ir.ui.view,type",0,View Type,Sichtentyp,0
