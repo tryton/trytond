@@ -74,10 +74,13 @@ class Report(object):
     def __new__(cls):
         Pool.register(cls, type='report')
 
-    def init(self, cursor, module_name):
+    def __init__(self):
         self._rpc = {
             'execute': False,
         }
+
+    def init(self, cursor, module_name):
+        pass
 
     def execute(self, cursor, user, ids, datas, context=None):
         if context is None:
