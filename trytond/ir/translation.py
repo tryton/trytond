@@ -697,9 +697,11 @@ class ReportTranslationSet(Wizard):
                 cursor.execute('DELETE FROM ir_translation ' \
                         'WHERE name = %s ' \
                             'AND type = %s ' \
+                            'AND module = %s ' \
                             'AND src NOT IN ' \
                                 '(' + ','.join(['%s' for x in strings]) + ')',
-                        (report.report_name, 'odt') + tuple(strings))
+                        (report.report_name, 'odt', report.module) + \
+                                tuple(strings))
         return {}
 
 ReportTranslationSet()
