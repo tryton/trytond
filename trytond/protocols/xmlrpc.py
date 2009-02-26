@@ -27,9 +27,25 @@ class GenericXMLRPCRequestHandler:
         host, port = self.client_address[:2]
         logging.getLogger('xmlrpc').info('connection from %s:%d' % (host, port))
         try:
-            database_name, object_type, object_name = self.path.split("/")[-3:]
-            args = (database_name, params[0], params[1], object_type,
-                    object_name, method) + params[2:]
+            database_name = self.path[1:]
+            method_list = method.split('.')
+            object_type = method_list[0]
+            object_name = '.'.join(method_list[1:-1])
+            method = method_list[-1]
+            if object_type == 'system' and method == 'getCapabilities':
+                return {
+                    'introspect': {
+                        'specUrl': 'http://xmlrpc-c.sourceforge.net/' \
+                                'xmlrpc-c/introspection.html',
+                        'specVersion': 1,
+                    },
+                }
+            if object_type == 'system':
+                args = (database_name, None, None, object_type, None,
+                        method) + params
+            else:
+                args = (database_name, params[0], params[1], object_type,
+                        object_name, method) + params[2:]
             res = dispatch(*args)
             return res
         except:

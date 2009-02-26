@@ -13,6 +13,7 @@ import time
 import sys
 import sha
 import base64
+import pydoc
 
 def dispatch(database_name, user, session, object_type, object_name, method,
         *args, **kargs):
@@ -65,6 +66,30 @@ def dispatch(database_name, user, session, object_type, object_name, method,
         elif method == 'dump':
             return dump(*args, **kargs)
         return
+    elif object_type == 'system':
+        database = Database(database_name).connect()
+        database_list = Pool.database_list()
+        pool = Pool(database_name)
+        if not database_name in database_list:
+            pool.init()
+        if method == 'listMethods':
+            res = []
+            for type in ('model', 'wizard', 'report'):
+                for object_name in pool.object_name_list(type=type):
+                    obj = pool.get(object_name, type=type)
+                    for method in obj._rpc:
+                        res.append(type + '.' + object_name + '.' + method)
+            return res
+        elif method == 'methodSignature':
+            return 'signatures not supported'
+        elif method == 'methodHelp':
+            res = []
+            args_list = args[0].split('.')
+            object_type = args_list[0]
+            object_name = '.'.join(args_list[1:-1])
+            method = args_list[-1]
+            obj = pool.get(object_name, type=object_type)
+            return pydoc.getdoc(getattr(obj, method))
 
     database = Database(database_name).connect()
     cursor = database.cursor()
