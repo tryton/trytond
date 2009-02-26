@@ -272,6 +272,7 @@ def load_module_graph(cursor, graph, pool, lang=None):
                 report = object.__new__(Report)
                 report._name = report_name
                 pool.add(report, type='report')
+                report.__init__()
 
         cursor.commit()
 
