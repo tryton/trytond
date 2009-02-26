@@ -1064,7 +1064,9 @@ class TranslationExportInit(WizardOSV):
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [], context=context)
+        lang_ids = lang_obj.search(cursor, user, [
+            ('translatable', '=', True),
+            ], context=context)
         langs = lang_obj.browse(cursor, user, lang_ids, context=context)
         res = [(lang.code, lang.name) for lang in langs]
         return res
