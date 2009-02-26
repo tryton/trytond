@@ -617,7 +617,7 @@ class ReportTranslationSet(Wizard):
                         'AND type = %s ' \
                         'AND name = %s ' \
                         'AND module = %s',
-                    ('en_US', 'odt', report.report_name, report.module))
+                    ('en_US', 'odt', report.report_name, report.module or ''))
             trans_reports = {}
             for trans in cursor.dictfetchall():
                 trans_reports[trans['src']] = trans
