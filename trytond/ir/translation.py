@@ -1071,7 +1071,9 @@ class TranslationExportInit(WizardOSV):
 
     def get_module(self, cursor, user, context):
         module_obj = self.pool.get('ir.module.module')
-        module_ids = module_obj.search(cursor, user, [], context=context)
+        module_ids = module_obj.search(cursor, user, [
+            ('state', 'in', ['installed', 'to upgrade', 'to remove']),
+            ], context=context)
         modules = module_obj.browse(cursor, user, module_ids, context=context)
         res =  [(module.name, module.name) for module in modules]
         return res
