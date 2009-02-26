@@ -13,6 +13,8 @@ import csv
 from trytond.osv import fields, OSV, Cacheable
 from trytond.wizard import Wizard, WizardOSV
 from trytond import tools
+from trytond.tools import file_open
+import os
 
 TRANSLATION_TYPE = [
     ('field', 'Field'),
@@ -622,24 +624,26 @@ class ReportTranslationSet(Wizard):
             for trans in cursor.dictfetchall():
                 trans_reports[trans['src']] = trans
 
-            content = None
-            try:
-                content = base64.decodestring(report.report_content)
-            except:
-                continue
-            if not content:
-                continue
+            strings = []
 
-            content_io = StringIO.StringIO(content)
-            content_z = zipfile.ZipFile(content_io, mode='r')
+            odt_content = ''
+            if report.report:
+                odt_content = file_open(report.report.replace('/', os.sep),
+                        mode='rb').read()
+            for content in (report.report_content_data, odt_content):
+                if not content:
+                    continue
 
-            content_xml = content_z.read('content.xml')
-            document = dom.minidom.parseString(content_xml)
-            strings = self._translate_report(document.documentElement)
+                content_io = StringIO.StringIO(content)
+                content_z = zipfile.ZipFile(content_io, mode='r')
 
-            style_xml = content_z.read('styles.xml')
-            document = dom.minidom.parseString(style_xml)
-            strings += self._translate_report(document.documentElement)
+                content_xml = content_z.read('content.xml')
+                document = dom.minidom.parseString(content_xml)
+                strings = self._translate_report(document.documentElement)
+
+                style_xml = content_z.read('styles.xml')
+                document = dom.minidom.parseString(style_xml)
+                strings += self._translate_report(document.documentElement)
 
             style_content = None
             try:
