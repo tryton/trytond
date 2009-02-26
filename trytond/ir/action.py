@@ -236,8 +236,16 @@ class ActionReport(OSV):
     module = fields.Char('Module', readonly=True)
     email = fields.Char('Email')
 
+    def __init__(self):
+        super(ActionReport, self).__init__()
+        self._sql_constraints += [
+            ('report_name_module_uniq', 'UNIQUE(report_name, module)',
+                'The internal name must be unique by module!'),
+        ]
+
     def init(self, cursor, module_name):
         super(ActionReport, self).init(cursor, module_name)
+
         table = TableHandler(cursor, self._table, self._name, module_name)
 
         # Migration from 1.0 report_name_uniq has been removed
