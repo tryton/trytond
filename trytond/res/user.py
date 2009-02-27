@@ -204,7 +204,13 @@ class User(OSV):
             fields = self._preferences_fields + self._context_fields
         for field in fields:
             if self._columns[field]._type in ('many2one',):
-                res[field] = user[field].id
+                if field == 'language':
+                    if user.language:
+                        res['language'] = user.language.code
+                    else:
+                        res['language'] = 'en_US'
+                else:
+                    res[field] = user[field].id
             elif self._columns[field]._type in ('one2many', 'many2many'):
                 res[field] = [x.id for x in user[field]]
             else:
@@ -255,6 +261,16 @@ class User(OSV):
                 res['fields'][field]['readonly'] = False
             else:
                 res['fields'][field]['readonly'] = True
+        if 'language' in res['fields']:
+            del res['fields']['language']['relation']
+            res['fields']['language']['selection'] = []
+            lang_ids = lang_obj.search(cursor, user, ['OR',
+                ('translatable', '=', True),
+                ('code', '=', 'en_US'),
+                ], context=None)
+            for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
+                res['fields']['language']['selection'].append(
+                        (lang.code, lang.name))
         return res
 
     def timezones(self, cursor, user, context=None):
