@@ -15,8 +15,8 @@ import sha
 import base64
 import pydoc
 
-def dispatch(database_name, user, session, object_type, object_name, method,
-        *args, **kargs):
+def dispatch(host, port, protocol, database_name, user, session, object_type,
+        object_name, method, *args, **kargs):
 
     if object_type == 'common':
         if method == 'login':
@@ -24,8 +24,8 @@ def dispatch(database_name, user, session, object_type, object_name, method,
             Cache.clean(database_name)
             logger = logging.getLogger('dispatcher')
             msg = res and 'successful login' or 'bad login or password'
-            logger.info('%s from \'%s\' using database \'%s\'' % \
-                    (msg, user, database_name))
+            logger.info('%s \'%s\' from %s:%d using %s on database \'%s\'' % \
+                    (msg, user, host, port, protocol, database_name))
             Cache.resets(database_name)
             return res or False
         elif method == 'version':
@@ -108,8 +108,9 @@ def dispatch(database_name, user, session, object_type, object_name, method,
                 pool.init()
             obj = pool.get(object_name, type=object_type)
             if method not in obj._rpc:
-                raise Exception('Error', 'Calling method %s on ' \
-                        'object %s is not allowed!' % (method, object_name))
+                raise Exception('Calling method %s on ' \
+                        '%s %s is not allowed!' % \
+                        (method, object_type, object_name))
 
             res = getattr(obj, method)(cursor, user, *args, **kargs)
             if obj._rpc[method]:
@@ -122,7 +123,10 @@ def dispatch(database_name, user, session, object_type, object_name, method,
                 tb_s = reduce(lambda x, y: x + y,
                         traceback.format_exception(*sys.exc_info()))
                 logger = logging.getLogger('dispatcher')
-                logger.error('Exception in call: \n' + tb_s)
+                logger.error('Exception calling method %s on ' \
+                        '%s %s from %s@%s:%d/%s:\n' % \
+                        (method, object_type, object_name, user, host, port,
+                            database_name) + tb_s)
             if isinstance(exception, DatabaseIntegrityError):
                 for key in pool._sql_errors.keys():
                     if key in exception[0]:
