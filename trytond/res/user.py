@@ -263,6 +263,7 @@ class User(OSV):
                 res['fields'][field]['readonly'] = True
         if 'language' in res['fields']:
             del res['fields']['language']['relation']
+            res['fields']['language']['type'] = 'selection'
             res['fields']['language']['selection'] = []
             lang_ids = lang_obj.search(cursor, user, ['OR',
                 ('translatable', '=', True),
