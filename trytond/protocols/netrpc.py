@@ -9,7 +9,6 @@ import select
 import traceback
 import socket
 import time
-import logging
 import sys
 
 
@@ -29,7 +28,6 @@ class NetRPCClientThread(threading.Thread):
             self.sock.close()
             self.threads.remove(self)
             return False
-        first = True
         timeout = 0
         while self.running:
             (rlist, wlist, xlist) = select.select([self.sock], [], [], 1)
@@ -45,13 +43,9 @@ class NetRPCClientThread(threading.Thread):
                 pysocket.disconnect()
                 self.threads.remove(self)
                 return False
-            if first:
-                host, port = self.sock.getpeername()[:2]
-                logging.getLogger('netrpc').info('connection from %s:%d' % \
-                        (host, port))
-                first = False
+            host, port = self.sock.getpeername()[:2]
             try:
-                res = dispatch(*msg)
+                res = dispatch(host, port, 'NetRPC', *msg)
                 pysocket.send(res)
             except Exception, exception:
                 tb_s = ''

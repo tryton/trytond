@@ -10,7 +10,6 @@ import threading
 import traceback
 import socket
 import sys
-import logging
 import os
 
 # convert decimal to float before marshalling:
@@ -25,7 +24,6 @@ class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
         host, port = self.client_address[:2]
-        logging.getLogger('xmlrpc').info('connection from %s:%d' % (host, port))
         try:
             database_name = self.path[1:]
             method_list = method.split('.')
@@ -41,11 +39,11 @@ class GenericXMLRPCRequestHandler:
                     },
                 }
             if object_type == 'system':
-                args = (database_name, None, None, object_type, None,
-                        method) + params
+                args = (host, port, 'XML-RPC', database_name, None, None,
+                        object_type, None, method) + params
             else:
-                args = (database_name, params[0], params[1], object_type,
-                        object_name, method) + params[2:]
+                args = (host, port, 'XML-RPC', database_name, params[0], params[1],
+                        object_type, object_name, method) + params[2:]
             res = dispatch(*args)
             return res
         except:
