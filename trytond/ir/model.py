@@ -1,15 +1,15 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "model"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import Cache
 from trytond.report import Report
-from trytond.wizard import Wizard, WizardOSV
+from trytond.wizard import Wizard
 import time
 import base64
 
 
-class Model(OSV):
+class Model(ModelSQL, ModelView):
     "Model"
     _name = 'ir.model'
     _description = __doc__
@@ -31,7 +31,7 @@ class Model(OSV):
 
 Model()
 
-class ModelField(OSV):
+class ModelField(ModelSQL, ModelView):
     "Model field"
     _name = 'ir.model.field'
     _description = __doc__
@@ -138,7 +138,7 @@ class ModelField(OSV):
 ModelField()
 
 
-class ModelAccess(OSV):
+class ModelAccess(ModelSQL, ModelView):
     "Model access"
     _name = 'ir.model.access'
     _description = __doc__
@@ -260,7 +260,7 @@ class ModelAccess(OSV):
 ModelAccess()
 
 
-class ModelData(OSV):
+class ModelData(ModelSQL, ModelView):
     "Model data"
     _name = 'ir.model.data'
     _description = __doc__
@@ -313,7 +313,7 @@ class ModelData(OSV):
 ModelData()
 
 
-class PrintModelGraphInit(WizardOSV):
+class PrintModelGraphInit(ModelView):
     'Print Model Graph Init'
     _name = 'ir.model.print_model_graph.init'
     _description = __doc__

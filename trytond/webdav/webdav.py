@@ -3,12 +3,12 @@
 import os
 import base64
 import time
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from trytond.version import PACKAGE, VERSION, WEBSITE
 from trytond.report import Report
 
 
-class Collection(OSV):
+class Collection(ModelSQL, ModelView):
     "Collection"
     _name = "webdav.collection"
     _description = __doc__
@@ -562,7 +562,7 @@ class Collection(OSV):
 Collection()
 
 
-class Attachment(OSV):
+class Attachment(ModelSQL, ModelView):
     _name = 'ir.attachment'
 
     def __init__(self):

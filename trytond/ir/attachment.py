@@ -1,13 +1,13 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "Attachment"
+from trytond.model import ModelView, ModelSQL, fields
+from trytond.config import CONFIG
 import os
 import md5
 import base64
-from trytond.osv import fields, OSV
-from trytond.config import CONFIG
 
-class Attachment(OSV):
+class Attachment(ModelSQL, ModelView):
     "Attachment"
     _name = 'ir.attachment'
     _description = __doc__

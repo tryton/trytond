@@ -1,10 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "Exports"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 
 
-class Export(OSV):
+class Export(ModelSQL, ModelView):
     "Export"
     _name = "ir.export"
     _description = __doc__
@@ -16,7 +16,7 @@ class Export(OSV):
 Export()
 
 
-class ExportLine(OSV):
+class ExportLine(ModelSQL, ModelView):
     "Export line"
     _name = 'ir.export.line'
     _description = __doc__

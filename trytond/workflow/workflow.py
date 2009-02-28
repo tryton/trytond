@@ -1,14 +1,14 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Workflow"
 import os
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
 import expr
 import base64
 
 
-class Workflow(OSV):
+class Workflow(ModelSQL, ModelView):
     "Workflow"
     _name = "workflow"
     _table = "wkf"
@@ -31,7 +31,7 @@ class Workflow(OSV):
 Workflow()
 
 
-class WorkflowActivity(OSV):
+class WorkflowActivity(ModelSQL, ModelView):
     "Workflow activity"
     _name = "workflow.activity"
     _table = "wkf_activity"
@@ -91,7 +91,7 @@ class WorkflowActivity(OSV):
 WorkflowActivity()
 
 
-class WorkflowTransition(OSV):
+class WorkflowTransition(ModelSQL, ModelView):
     "Workflow transition"
     _table = "wkf_transition"
     _name = "workflow.transition"
@@ -115,7 +115,7 @@ class WorkflowTransition(OSV):
 WorkflowTransition()
 
 
-class WorkflowInstance(OSV):
+class WorkflowInstance(ModelSQL, ModelView):
     "Workflow instance"
     _table = "wkf_instance"
     _name = "workflow.instance"
@@ -231,7 +231,7 @@ class WorkflowInstance(OSV):
 WorkflowInstance()
 
 
-class WorkflowWorkitem(OSV):
+class WorkflowWorkitem(ModelSQL, ModelView):
     "Workflow workitem"
     _table = "wkf_workitem"
     _name = "workflow.workitem"
@@ -436,7 +436,7 @@ class WorkflowWorkitem(OSV):
 WorkflowWorkitem()
 
 
-class WorkflowTrigger(OSV):
+class WorkflowTrigger(ModelSQL, ModelView):
     "Workflow trigger"
     _table = "wkf_trigger"
     _name = "workflow.trigger"

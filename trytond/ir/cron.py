@@ -7,9 +7,9 @@ SPEC: Execute "model.function(*eval(args))" periodically
    max_repeat  : number of execution or NULL if endlessly
 """
 
-from mx import DateTime
 from trytond.backend import Database
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
+from mx import DateTime
 import datetime
 import traceback
 import sys
@@ -23,7 +23,7 @@ _INTERVALTYPES = {
     'minutes': lambda interval: DateTime.RelativeDateTime(minutes=interval),
 }
 
-class Cron(OSV):
+class Cron(ModelSQL, ModelView):
     "Cron"
     _name = "ir.cron"
     _description = __doc__

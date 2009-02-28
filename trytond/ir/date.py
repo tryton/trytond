@@ -1,11 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level
 #of this repository contains the full copyright notices and license terms.
-
-from trytond.osv import OSV, fields
+from trytond.model import Model
 import datetime
 
 
-class Date(OSV):
+class Date(Model):
     'Date'
     _name = 'ir.date'
     _description = __doc__

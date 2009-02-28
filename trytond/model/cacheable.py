@@ -1,19 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.model import ModelView, ModelSQL
-from trytond.backend import DatabaseIntegrityError
-import copy
-import sys
-import traceback
-from trytond.tools import Cache, find_language_context
-import time
+from trytond.tools import Cache
 from threading import Lock
-from trytond.config import CONFIG
-import logging
-
-
-class OSV(ModelSQL, ModelView):
-    pass
+import time
 
 
 class Cacheable(object):

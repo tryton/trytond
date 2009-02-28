@@ -198,7 +198,3 @@ class Wizard(object):
             return self.execute(cursor, user, wiz_id, data, next_state,
                     context=context)
         return res
-
-
-class WizardOSV(ModelView):
-    pass
