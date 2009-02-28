@@ -1,10 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Lang"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 import time
 
 
-class Lang(OSV):
+class Lang(ModelSQL, ModelView):
     "Language"
     _name = "ir.lang"
     _description = __doc__

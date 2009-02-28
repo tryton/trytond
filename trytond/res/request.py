@@ -1,6 +1,7 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Request"
-from trytond.osv import OSV, fields
+from trytond.model import ModelView, ModelSQL, fields
 import time
 import datetime
 
@@ -17,7 +18,7 @@ _PRIORITIES = [
     ('2', 'High'),
 ]
 
-class Request(OSV):
+class Request(ModelSQL, ModelView):
     "Request"
     _name = 'res.request'
     _table = 'res_request'
@@ -157,7 +158,7 @@ class Request(OSV):
 Request()
 
 
-class RequestLink(OSV):
+class RequestLink(ModelSQL, ModelView):
     "Request link"
     _name = 'res.request.link'
     _description = __doc__
@@ -180,7 +181,7 @@ class RequestLink(OSV):
 RequestLink()
 
 
-class RequestHistory(OSV):
+class RequestHistory(ModelSQL, ModelView):
     "Request history"
     _name = 'res.request.history'
     _description = __doc__
@@ -220,7 +221,7 @@ class RequestHistory(OSV):
 RequestHistory()
 
 
-class RequestReference(OSV):
+class RequestReference(ModelSQL, ModelView):
     "Request Reference"
     _name = 'res.request.reference'
     _description = __doc__

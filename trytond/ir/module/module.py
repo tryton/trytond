@@ -6,10 +6,10 @@ import re
 import zipfile
 import urllib
 import zipimport
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 import trytond.tools as tools
 from trytond.modules import MODULES_PATH, create_graph, get_module_list
-from trytond.wizard import Wizard, WizardOSV
+from trytond.wizard import Wizard
 from trytond.backend import Database
 from trytond.pool import Pool
 
@@ -124,7 +124,7 @@ def vercmp(ver1, ver2):
     return revision1 - revision2
 
 
-class Module(OSV):
+class Module(ModelSQL, ModelView):
     "Module"
     _name = "ir.module.module"
     _description = __doc__
@@ -444,7 +444,7 @@ class Module(OSV):
 Module()
 
 
-class ModuleDependency(OSV):
+class ModuleDependency(ModelSQL, ModelView):
     "Module dependency"
     _name = "ir.module.module.dependency"
     _description = __doc__
@@ -485,7 +485,7 @@ class ModuleDependency(OSV):
 ModuleDependency()
 
 
-class ModuleConfigWizardItem(OSV):
+class ModuleConfigWizardItem(ModelSQL, ModelView):
     "Config wizard to run after installing module"
     _name = 'ir.module.module.config_wizard.item'
     _description = __doc__
@@ -509,7 +509,7 @@ class ModuleConfigWizardItem(OSV):
 ModuleConfigWizardItem()
 
 
-class ModuleConfigWizardFirst(WizardOSV):
+class ModuleConfigWizardFirst(ModelView):
     'Module Config Wizard First'
     _name = 'ir.module.module.config_wizard.first'
     _description = __doc__
@@ -586,7 +586,7 @@ class ModuleConfigWizard(Wizard):
 ModuleConfigWizard()
 
 
-class ModuleInstallUpgradeInit(WizardOSV):
+class ModuleInstallUpgradeInit(ModelView):
     'Module Install Upgrade Init'
     _name = 'ir.module.module.install_upgrade.init'
     _description = __doc__
@@ -595,7 +595,7 @@ class ModuleInstallUpgradeInit(WizardOSV):
 ModuleInstallUpgradeInit()
 
 
-class ModuleInstallUpgradeStart(WizardOSV):
+class ModuleInstallUpgradeStart(ModelView):
     'Module Install Upgrade Start'
     _name = 'ir.module.module.install_upgrade.start'
     _description = __doc__

@@ -1,13 +1,13 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "Default"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from decimal import Decimal
 import mx.DateTime
 import datetime
 
 
-class Default(OSV):
+class Default(ModelSQL, ModelView):
     "Default"
     _name = 'ir.default'
     _description = __doc__

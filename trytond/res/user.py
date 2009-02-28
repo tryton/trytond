@@ -2,13 +2,13 @@
 #this repository contains the full copyright notices and license terms.
 "User"
 import copy
-from trytond.osv import fields, OSV
-from trytond.wizard import Wizard, WizardOSV
+from trytond.model import ModelView, ModelSQL, fields
+from trytond.wizard import Wizard
 from lxml import etree
 from trytond.tools import Cache
 
 
-class User(OSV):
+class User(ModelSQL, ModelView):
     "User"
     _name = "res.user"
     _description = __doc__
@@ -299,7 +299,7 @@ class User(OSV):
 User()
 
 
-class Warning(OSV):
+class Warning(ModelSQL, ModelView):
     'User Warning'
     _name = 'res.user.warning'
     _description = __doc__
@@ -325,7 +325,7 @@ class Warning(OSV):
 Warning()
 
 
-class Group(OSV):
+class Group(ModelSQL, ModelView):
     _name = 'res.group'
     users = fields.Many2Many(
         'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users',
@@ -334,7 +334,7 @@ class Group(OSV):
 Group()
 
 
-class UserConfigInit(WizardOSV):
+class UserConfigInit(ModelView):
     'User Config Init'
     _name = 'res.user.config.init'
     _description = __doc__

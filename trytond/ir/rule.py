@@ -1,11 +1,11 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Rule"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import Cache
 import time
 
 
-class RuleGroup(OSV):
+class RuleGroup(ModelSQL, ModelView):
     "Rule group"
     _name = 'ir.rule.group'
     _description = __doc__
@@ -64,7 +64,7 @@ class RuleGroup(OSV):
 RuleGroup()
 
 
-class Rule(OSV):
+class Rule(ModelSQL, ModelView):
     "Rule"
     _name = 'ir.rule'
     _rec_name = 'field'

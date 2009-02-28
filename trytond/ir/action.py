@@ -1,14 +1,14 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "Action"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import file_open
 from trytond.backend import TableHandler
 import base64
 import os
 
 
-class Action(OSV):
+class Action(ModelSQL, ModelView):
     "Action"
     _name = 'ir.action'
     _description = __doc__
@@ -57,7 +57,7 @@ class Action(OSV):
 Action()
 
 
-class ActionKeyword(OSV):
+class ActionKeyword(ModelSQL, ModelView):
     "Action keyword"
     _name = 'ir.action.keyword'
     _description = __doc__
@@ -200,7 +200,7 @@ class ActionKeyword(OSV):
 ActionKeyword()
 
 
-class ActionReportOutputFormat(OSV):
+class ActionReportOutputFormat(ModelSQL, ModelView):
     "Output formats for reports"
     _name = 'ir.action.report.outputformat'
     _description = "Report Output Format"
@@ -211,7 +211,7 @@ class ActionReportOutputFormat(OSV):
 ActionReportOutputFormat()
 
 
-class ActionReport(OSV):
+class ActionReport(ModelSQL, ModelView):
     "Action report"
     _name = 'ir.action.report'
     _sequence = 'ir_action_id_seq'
@@ -350,7 +350,7 @@ class ActionReport(OSV):
 ActionReport()
 
 
-class ActionActWindow(OSV):
+class ActionActWindow(ModelSQL, ModelView):
     "Action act window"
     _name = 'ir.action.act_window'
     _sequence = 'ir_action_id_seq'
@@ -425,7 +425,7 @@ class ActionActWindow(OSV):
 ActionActWindow()
 
 
-class ActionActWindowView(OSV):
+class ActionActWindowView(ModelSQL, ModelView):
     "Action act window view"
     _name = 'ir.action.act_window.view'
     _rec_name = 'view'
@@ -450,7 +450,7 @@ class ActionActWindowView(OSV):
 ActionActWindowView()
 
 
-class ActionWizard(OSV):
+class ActionWizard(ModelSQL, ModelView):
     "Action wizard"
     _name = 'ir.action.wizard'
     _sequence = 'ir_action_id_seq'
@@ -481,7 +481,7 @@ class ActionWizard(OSV):
 ActionWizard()
 
 
-class ActionURL(OSV):
+class ActionURL(ModelSQL, ModelView):
     "Action URL"
     _name = 'ir.action.url'
     _sequence = 'ir_action_id_seq'

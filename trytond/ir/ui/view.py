@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "View"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from difflib import SequenceMatcher
 import os
 import logging
@@ -9,7 +9,7 @@ from lxml import etree
 from trytond.backend import TableHandler
 
 
-class View(OSV):
+class View(ModelSQL, ModelView):
     "View"
     _name = 'ir.ui.view'
     _description = __doc__
@@ -189,7 +189,7 @@ class View(OSV):
 View()
 
 
-class ViewShortcut(OSV):
+class ViewShortcut(ModelSQL, ModelView):
     "View shortcut"
     _name = 'ir.ui.view_sc'
     _description = __doc__
@@ -219,7 +219,7 @@ class ViewShortcut(OSV):
 ViewShortcut()
 
 
-class ViewTreeWidth(OSV):
+class ViewTreeWidth(ModelSQL, ModelView):
     "View Tree Width"
     _name = 'ir.ui.view_tree_width'
     _description = __doc__

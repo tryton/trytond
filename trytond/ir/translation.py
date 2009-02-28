@@ -10,8 +10,9 @@ from xml import dom
 from xml.dom import minidom
 from difflib import SequenceMatcher
 import csv
-from trytond.osv import fields, OSV, Cacheable
-from trytond.wizard import Wizard, WizardOSV
+from trytond.model import ModelView, ModelSQL, fields
+from trytond.model.cacheable import Cacheable
+from trytond.wizard import Wizard
 from trytond import tools
 from trytond.tools import file_open
 import os
@@ -36,7 +37,7 @@ class TRYTON(csv.excel):
 csv.register_dialect("TRYTON", TRYTON)
 
 
-class Translation(OSV, Cacheable):
+class Translation(ModelSQL, ModelView, Cacheable):
     "Translation"
     _name = "ir.translation"
     _description = __doc__
@@ -539,7 +540,7 @@ class Translation(OSV, Cacheable):
 Translation()
 
 
-class ReportTranslationSetInit(WizardOSV):
+class ReportTranslationSetInit(ModelView):
     "Update Report Translation"
     _name = 'ir.translation.set_report.init'
     _description = __doc__
@@ -547,7 +548,7 @@ class ReportTranslationSetInit(WizardOSV):
 ReportTranslationSetInit()
 
 
-class ReportTranslationSetStart(WizardOSV):
+class ReportTranslationSetStart(ModelView):
     "Update Report Translation"
     _name = 'ir.translation.set_report.start'
     _description = __doc__
@@ -707,7 +708,7 @@ class ReportTranslationSet(Wizard):
 ReportTranslationSet()
 
 
-class TranslationCleanInit(WizardOSV):
+class TranslationCleanInit(ModelView):
     'Clean translation init'
     _name = 'ir.translation.clean.init'
     _description = __doc__
@@ -715,7 +716,7 @@ class TranslationCleanInit(WizardOSV):
 TranslationCleanInit()
 
 
-class TranslationCleanStart(WizardOSV):
+class TranslationCleanStart(ModelView):
     'Clean translation start'
     _name = 'ir.translation.clean.start'
     _description = __doc__
@@ -924,7 +925,7 @@ class TranslationClean(Wizard):
 TranslationClean()
 
 
-class TranslationUpdateInit(WizardOSV):
+class TranslationUpdateInit(ModelView):
     "Update translation - language"
     _name = 'ir.translation.update.init'
     _description = __doc__
@@ -1053,7 +1054,7 @@ class TranslationUpdate(Wizard):
 TranslationUpdate()
 
 
-class TranslationExportInit(WizardOSV):
+class TranslationExportInit(ModelView):
     "Export translation - language and module"
     _name = 'ir.translation.export.init'
     _description = __doc__
@@ -1083,7 +1084,7 @@ class TranslationExportInit(WizardOSV):
 TranslationExportInit()
 
 
-class TranslationExportStart(WizardOSV):
+class TranslationExportStart(ModelView):
     "Export translation - file"
     _description = __doc__
     _name = 'ir.translation.export.start'

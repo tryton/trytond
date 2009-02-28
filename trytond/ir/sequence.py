@@ -1,11 +1,11 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import time
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 from string import Template
 
 
-class SequenceType(OSV):
+class SequenceType(ModelSQL, ModelView):
     "Sequence type"
     _name = 'ir.sequence.type'
     _description = __doc__
@@ -15,7 +15,7 @@ class SequenceType(OSV):
 SequenceType()
 
 
-class Sequence(OSV):
+class Sequence(ModelSQL, ModelView):
     "Sequence"
     _name = 'ir.sequence'
     _description = __doc__

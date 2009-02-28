@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "UI menu"
-from trytond.osv import fields, OSV
+from trytond.model import ModelView, ModelSQL, fields
 
 def one_in(i, j):
     """Check the presence of an element of setA in setB
@@ -72,7 +72,7 @@ ICONS = [(x, x) for x in [
 ]]
 
 
-class UIMenu(OSV):
+class UIMenu(ModelSQL, ModelView):
     "UI menu"
     _name = 'ir.ui.menu'
     _description = __doc__
