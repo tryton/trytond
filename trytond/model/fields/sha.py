@@ -5,4 +5,7 @@ from trytond.model.fields.field import Field
 
 
 class Sha(Field):
+    '''
+    Define a sha field (``unicode``) of len 40.
+    '''
     _type = 'sha'

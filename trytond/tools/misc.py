@@ -322,6 +322,7 @@ class Cache(object):
                     self.lock.release()
             return result
 
+        cached_result.__doc__ = function.__doc__
         return cached_result
 
     @staticmethod

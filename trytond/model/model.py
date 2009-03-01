@@ -9,12 +9,20 @@ import copy
 class Model(object):
     """
     Define a model in Tryton.
+
+    :_name: a unique string to reference the model across all the platform.
+    :_inherits:
+    :_description: a non technical description string.
+    :_rpc: a dictionary with method name allowed to be called remotely and
+        a boolean as value that defines if it must be called in a commited
+        transaction.
+    :_error_messages: a dictionary mapping keywords to an error message. Eg.:
+
+        ``{'recursive_categories': 'You can not create recursive categories!'}``
     """
     _name = None
     _inherits = {}
     _description = ''
-    _rec_name = 'name'
-    _date_name = 'date'
     pool = None #XXX change to avoid collision with field
     __columns = None
     __defaults = None

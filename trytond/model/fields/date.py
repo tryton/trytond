@@ -5,12 +5,21 @@ from trytond.model.fields.field import Field
 
 
 class Date(Field):
+    '''
+    Define a date field (``date``)
+    '''
     _type = 'date'
 
 
 class DateTime(Field):
+    '''
+    Define a datetime field (``datetime``)
+    '''
     _type = 'datetime'
 
 
 class Time(Field):
+    '''
+    Define a time field (``time``)
+    '''
     _type = 'time'

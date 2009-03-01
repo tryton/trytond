@@ -5,12 +5,36 @@ from trytond.model.fields.field import Field
 
 
 class Many2Many(Field):
+    '''
+    Define many2many field (``list``)
+    '''
     _type = 'many2many'
 
     def __init__(self, model_name, relation_name, origin, target, string='',
             order=None, ondelete_origin='CASCADE', ondelete_target='RESTRICT',
-            **args):
-        super(Many2Many, self).__init__(string=string, **args)
+            help='', required=False, readonly=False, domain=None, states=None,
+            priority=0, change_default=False, translate=False, select=0,
+            on_change=None, on_change_with=None, depends=None, order_field=None,
+            context=None):
+        '''
+        :param model_name: The name of the targeted model.
+        :param relation_name: The name of the table that store the link.
+        :param origin: The name of the field to store origin ids.
+        :param target: The name of the field to store target ids.
+        :param order:  a list of tuple that are constructed like this:
+            ``('field name', 'DESC|ASC')``
+            it allow to specify the order of result
+        :param ondelete_origin: Define the behavior of the origin record when
+            the target record is deleted. (``CASCADE``, ``NO ACTION``, ``RESTRICT``,
+            ``SET DEFAULT``, ``SET NULL``)
+        :param ondelete_target: Same as ondelete_origin but for the target.
+        '''
+        super(Many2Many, self).__init__(string=string, help=help,
+                required=required, readonly=readonly, domain=domain,
+                states=states, priority=priority, change_default=change_default,
+                translate=translate, select=select, on_change=on_change,
+                on_change_with=on_change_with, depends=depends,
+                order_field=order_field, context=context)
         self.model_name = model_name
         self.relation_name = relation_name
         self.origin = origin
@@ -18,8 +42,21 @@ class Many2Many(Field):
         self.order = order
         self.ondelete_origin = ondelete_origin
         self.ondelete_target = ondelete_target
+    __init__.__doc__ += Field.__init__.__doc__
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):
+        '''
+        Return target records ordered.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: a list of ids
+        :param model: a string with the name of the model
+        :param name: a string with the name of the field
+        :param values: a dictionary with the readed values
+        :param context: the context
+        :return: a dictionary with ids as key and values as value
+        '''
         if values is None:
             values = {}
         res = {}
@@ -51,6 +88,24 @@ class Many2Many(Field):
         return res
 
     def set(self, cursor, user, record_id, model, name, values, context=None):
+        '''
+        Set the values.
+
+        :param cursor: The database cursor
+        :param user: The user id
+        :param record_id: The record id
+        :param model: A string with the name of the model
+        :param name: A string with the name of the field
+        :param values: A list of tuple:
+            (``create``, ``{<field name>: value}``),
+            (``write``, ``<ids>``, ``{<field name>: value}``),
+            (``delete``, ``<ids>``),
+            (``unlink``, ``<ids>``),
+            (``add``, ``<ids>``),
+            (``unlink_all``),
+            (``set``, ``<ids>``)
+        :param context: The context
+        '''
         if not values:
             return
         model = model.pool.get(self.model_name)
