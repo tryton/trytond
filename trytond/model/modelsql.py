@@ -10,13 +10,31 @@ import datetime
 class ModelSQL(ModelStorage):
     """
     Define a model with storage in database in Tryton.
+
+    :_table: The name of the database table which is mapped to the class.
+        If not set the value of ``_name`` is used with dots converted to
+        underscores.
+    :_order: A tuple defining by default how the record are returned when searching.
+        E.g.:
+
+        ``[('name', 'ASC'), 'age', 'DESC']``
+    :_order_name: The name of the field (or an SQL statement) on which the records
+         must be sorted when sorting on this model from an other one.
+    :_sequence: The  name of the sequence in the database that increments the
+        ``id`` field.
+    :_history_table:
+    :_sql_constraints: A list of constraints that are added on the table. E.g.:
+
+        ``('constrain_name, sql_constraint, 'error_msg')`` where
+        ``'constrain_name'`` is the name of the SQL constraint for the database,
+        ``sql_constraint`` is the actual SQL constraint and
+        ``'error_msg'`` is one of the key of ``_error_messages``.
+    :_sql_error_messages:  Like ``_error_messages`` for ``_sql_constraints``.
     """
     _table = None # The name of the table in database
     _order = None
     _order_name = None # Use to force order field when sorting on Many2One
     _sequence = None
-    _sql = ''
-    _auto = True #XXX to remove when module will use the new models
     _history_table = None
 
     def __init__(self):
@@ -34,7 +52,7 @@ class ModelSQL(ModelStorage):
     def init(self, cursor, module_name):
         super(ModelSQL, self).init(cursor, module_name)
 
-        if not self._auto or self.table_query():
+        if self.table_query():
             return
 
         # create/update table in the database

@@ -5,4 +5,7 @@ from trytond.model.fields.float import Float
 
 
 class Numeric(Float):
+    '''
+    Define a numeric field (``decimal``)
+    '''
     _type = 'numeric'

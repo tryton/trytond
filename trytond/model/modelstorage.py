@@ -26,11 +26,27 @@ OPERATORS = (
 )
 
 
-
 class ModelStorage(Model):
     """
     Define a model with storage capability in Tryton.
+
+    :_rec_name: The name of the main field of the model.
+        By default the field ``name``.
+    :id: An Integer field for unique identifier.
+    :create_uid: A Many2One that points to the
+        user who created the record.
+    :create_date: A Date field for date of creation of the record.
+    :write_uid: A Many2One that points to the user who writed the record.
+    :write_date: A Date field for date of last write of the record.
+    :rec_name: A Function field that return the rec_name of the record.
+    :__constraints: A list of constraints that each record must respect.
+        Each item of this list is a couple ``('function_name', 'error_keyword')``,
+        where ``'function_name'`` is the name of a method of the same class,
+        which should return a boolean value (``False`` when the constraint is
+        violated). ``error_keyword`` must be one of the key of
+        ``_sql_error_messages``.
     """
+    _rec_name = 'name'
 
     id = fields.Integer('ID', readonly=True)
     create_uid = fields.Many2One('res.user', 'Create User', required=True,
@@ -284,18 +300,18 @@ class ModelStorage(Model):
         :param user: the user id
         :param domain: a list of tuples or lists
             lists are construct like this:
-                ['operator', args, args, ...]
-                operator can be 'AND' or 'OR', if it is missing the default
-                value will be 'AND'
+            ``['operator', args, args, ...]``
+            operator can be 'AND' or 'OR', if it is missing the default
+            value will be 'AND'
             tuples are construct like this:
-                ('field name', 'operator', value)
-                field name: is a field name from the model or a relational field
-                    by using '.' as separator.
-                operator must be in OPERATORS
+            ``('field name', 'operator', value)``
+            field name: is a field name from the model or a relational field
+            by using '.' as separator.
+            operator must be in OPERATORS
         :param offset: an integer to specify the offset for the result
         :param limit: an integer to specify the number of result
         :param order: a list of tuple that are constructed like this:
-            ('field name', 'DESC|ASC')
+            ``('field name', 'DESC|ASC')``
             it allow to specify the order of result
         :param context: the context
         :param count: a boolean to return only the len of the result

@@ -21,7 +21,6 @@ class View(ModelSQL, ModelView):
         ('tree','Tree'),
         ('form','Form'),
         ('graph', 'Graph'),
-        ('calendar', 'Calendar'),
         ('board', 'Board'),
         ], 'View Type', select=1)
     arch = fields.Text('View Architecture')

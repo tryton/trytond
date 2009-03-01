@@ -86,12 +86,11 @@ class ModelView(Model):
         :param hexmd5: if fill, the function will return True if the result
             have the same md5
         :return: a dictionnary with keys:
-            - model: the model name
-            - arch: the xml description of the view
-            - fields: a dictionnary with the definition of each fields
-                in the view
-            - toolbar: a dictionnary with the keyword action definitions
-            - md5: the check sum of the dictionnary without this checksum
+           - model: the model name
+           - arch: the xml description of the view
+           - fields: a dictionnary with the definition of each fields in the view
+           - toolbar: a dictionnary with the keyword action definitions
+           - md5: the check sum of the dictionnary without this checksum
         '''
 
         if context is None:
@@ -177,11 +176,6 @@ class ModelView(Model):
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
                 '''<tree string="%s"><field name="%s"/></tree>''' \
                 % (self._description, field)
-            elif view_type == 'calendar':
-                xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
-                '''<calendar string="%s" date_start="%s">''' \
-                '''<field name="%s"/></calendar>''' \
-                % (self._description, self._date_name, self._rec_name)
             else:
                 xml = ''
             result['type'] = view_type
@@ -218,7 +212,7 @@ class ModelView(Model):
             return True
         return result
 
-    fields_view_get = Cache('orm.fields_view_get')(fields_view_get)
+    fields_view_get = Cache('modelview.fields_view_get')(fields_view_get)
 
     def view_header_get(self, cursor, user, value, view_type='form',
             context=None):

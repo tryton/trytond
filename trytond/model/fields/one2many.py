@@ -5,16 +5,46 @@ from trytond.model.fields.field import Field
 
 
 class One2Many(Field):
+    '''
+    Define one2many field (``list``)
+    '''
     _type = 'one2many'
 
-    def __init__(self, model_name, field, string='', order_field=None,
-            add_remove=None, **args):
-        super(One2Many, self).__init__(string=string, **args)
+    def __init__(self, model_name, field, string='', add_remove=None, help='',
+            required=False, readonly=False, domain=None, states=None,
+            priority=0, change_default=False, translate=False, select=0,
+            on_change=None, on_change_with=None, depends=None, order_field=None,
+            context=None):
+        '''
+        :param model_name: The name of the targeted model.
+        :param field: The name of the field that handle the reverse many2one.
+        :param add_remove: A list that defines a domain for the add/remove.
+            See domain on ModelStorage.search.
+        '''
+        super(One2Many, self).__init__(string=string, help=help,
+                required=required, readonly=readonly, domain=domain,
+                states=states, priority=priority, change_default=change_default,
+                translate=translate, select=select, on_change=on_change,
+                on_change_with=on_change_with, depends=depends,
+                order_field=order_field, context=context)
         self.model_name = model_name
         self.field = field
         self.add_remove = add_remove
+    __init__.__doc__ += Field.__init__.__doc__
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):
+        '''
+        Return target records ordered by the default order of the model.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: a list of ids
+        :param model: a string with the name of the model
+        :param name: a string with the name of the field
+        :param values: a dictionary with the readed values
+        :param context: the context
+        :return: a dictionary with ids as key and values as value
+        '''
         res = {}
         for i in ids:
             res[i] = []
@@ -31,6 +61,24 @@ class One2Many(Field):
         return res
 
     def set(self, cursor, user, record_id, model, name, values, context=None):
+        '''
+        Set the values.
+
+        :param cursor: The database cursor
+        :param user: The user id
+        :param record_id: The record id
+        :param model: A string with the name of the model
+        :param name: A string with the name of the field
+        :param values: A list of tuple:
+            (``create``, ``{<field name>: value}``),
+            (``write``, ``<ids>``, ``{<field name>: value}``),
+            (``delete``, ``<ids>``),
+            (``unlink``, ``<ids>``),
+            (``add``, ``<ids>``),
+            (``unlink_all``),
+            (``set``, ``<ids>``)
+        :param context: The context
+        '''
         if not values:
             return
         model = model.pool.get(self.model_name)

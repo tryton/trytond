@@ -5,9 +5,24 @@ from trytond.model.fields.field import Field
 
 
 class Binary(Field):
+    '''
+    Define a binary field (``str``)
+    '''
     _type = 'binary'
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):
+        '''
+        Convert the binary value into ``str``
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: a list of ids
+        :param model: a string with the name of the model
+        :param name: a string with the name of the field
+        :param values: a dictionary with the readed values
+        :param context: the context
+        :return: a dictionary with ids as key and values as value
+        '''
         if values is None:
             values = {}
         res = {}

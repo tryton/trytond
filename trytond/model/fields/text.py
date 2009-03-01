@@ -5,4 +5,7 @@ from trytond.model.fields.char import Char
 
 
 class Text(Char):
+    '''
+    Define a text field (``unicode``)
+    '''
     _type = 'text'

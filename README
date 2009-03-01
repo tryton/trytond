@@ -22,7 +22,7 @@ Package Contents
       sphinx documentation in reStructuredText.
       To generate the HTML:
 
-        python doc/build.py
+        sphinx-build doc/ doc/
 
   etc/
       Configuration files.
