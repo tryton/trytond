@@ -130,7 +130,7 @@ class TableHandler(TableHandlerInterface):
                 'ALTER COLUMN "' + column_name + '" SET DEFAULT %s',
                 (value,))
 
-    def add_raw_column(self, column_name, column_type, symbol_set,
+    def add_raw_column(self, column_name, column_type, column_format,
             default_fun=None, field_size=None, migrate=True):
         if self.column_exist(column_name):
             if not migrate:
@@ -185,8 +185,8 @@ class TableHandler(TableHandlerInterface):
             if default_fun is not None:
                 default = default_fun(self.cursor, 0, {})
             self.cursor.execute('UPDATE "' + self.table_name + '" '\
-                                'SET "' + column_name + '" = ' + symbol_set[0],
-                                (symbol_set[1](default),))
+                                'SET "' + column_name + '" = %s',
+                                (column_format(default),))
 
         self._update_definitions()
 
@@ -199,9 +199,9 @@ class TableHandler(TableHandlerInterface):
             module_name= self.module_name)
         integer = FIELDS['integer']
         rtable.add_raw_column(rtable_from, integer.sql_type(None),
-                (integer.symbol_c, integer.symbol_f))
+                integer.sql_format)
         rtable.add_raw_column(rtable_to,  integer.sql_type(None),
-                (integer.symbol_c, integer.symbol_f))
+                integer.sql_format)
         rtable.add_fk(rtable_from, self.table_name, on_delete=on_delete_from)
         rtable.add_fk(rtable_to, other_table, on_delete=on_delete_to)
         rtable.not_null_action(rtable_from)
