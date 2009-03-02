@@ -5,10 +5,9 @@ import psycopg2
 
 
 class Field(object):
-    symbol_c = '%s'
 
     @staticmethod
-    def symbol_f(value):
+    def sql_format(value):
         if value is None or value == False:
             return None
         elif isinstance(value, str):
@@ -25,7 +24,7 @@ class Field(object):
 class Boolean(Field):
 
     @staticmethod
-    def symbol_f(value):
+    def sql_format(value):
         return value and 'True' or 'False'
 
     @staticmethod
@@ -36,7 +35,7 @@ class Boolean(Field):
 class Integer(Field):
 
     @staticmethod
-    def symbol_f(value):
+    def sql_format(value):
         return int(value or 0)
 
     @staticmethod
@@ -64,7 +63,7 @@ class Char(Field):
 class Sha(Field):
 
     @staticmethod
-    def symbol_f(value):
+    def sql_format(value):
         return value and sha.new(value).hexdigest() or ''
 
     @staticmethod
@@ -82,7 +81,7 @@ class Text(Field):
 class Float(Field):
 
     @staticmethod
-    def symbol_f(value):
+    def sql_format(value):
         return float(value or 0.0)
 
     @staticmethod
@@ -121,7 +120,7 @@ class Time(Field):
 class Binary(Field):
 
     @staticmethod
-    def symbol_f(value):
+    def sql_format(value):
         return value and psycopg2.Binary(value) or None
 
     @staticmethod
@@ -146,7 +145,7 @@ class Reference(Field):
 class Many2One(Field):
 
     @staticmethod
-    def symbol_f(value):
+    def sql_format(value):
         return value and int(value) or None
 
     @staticmethod

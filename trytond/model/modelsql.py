@@ -63,35 +63,35 @@ class ModelSQL(ModelStorage):
         datetime_field = FIELDS['datetime']
         integer_field = FIELDS['integer']
         logs = (
-            ('create_date', datetime_field.sql_type(None), datetime_field.symbol_c,
-                datetime_field.symbol_f, lambda *a: datetime.datetime.now()),
-            ('write_date', datetime_field.sql_type(None), datetime_field.symbol_c,
-                datetime_field.symbol_f, None),
+            ('create_date', datetime_field.sql_type(None),
+                datetime_field.sql_format, lambda *a: datetime.datetime.now()),
+            ('write_date', datetime_field.sql_type(None),
+                datetime_field.sql_format, None),
             ('create_uid', (integer_field.sql_type(None)[0],
              'INTEGER REFERENCES res_user ON DELETE SET NULL',),
-             integer_field.symbol_c, integer_field.symbol_f, lambda *a: 0),
+             integer_field.sql_format, lambda *a: 0),
             ('write_uid', (integer_field.sql_type(None)[0],
              'INTEGER REFERENCES res_user ON DELETE SET NULL'),
-             integer_field.symbol_c, integer_field.symbol_f, None),
+             integer_field.sql_format, None),
             )
         for log in logs:
-            table.add_raw_column(log[0], log[1], (log[2], log[3]),
-                    default_fun=log[4], migrate=False)
+            table.add_raw_column(log[0], log[1], log[2],
+                    default_fun=log[3], migrate=False)
         if self._history_table:
             history_logs = (
                     ('create_date', datetime_field.sql_type(None),
-                        datetime_field.symbol_c, datetime_field.symbol_f),
+                        datetime_field.sql_format),
                     ('write_date', datetime_field.sql_type(None),
-                        datetime_field.symbol_c, datetime_field.symbol_f),
+                        datetime_field.sql_format),
                     ('create_uid', (integer_field.sql_type(None)[0],
                      'INTEGER REFERENCES res_user ON DELETE SET NULL',),
-                     integer_field.symbol_c, integer_field.symbol_f),
+                     integer_field.sql_format),
                     ('write_uid', (integer_field.sql_type(None)[0],
                      'INTEGER REFERENCES res_user ON DELETE SET NULL'),
-                     integer_field.symbol_c, integer_field.symbol_f),
+                     integer_field.sql_format),
                     )
             for log in history_logs:
-                history_table.add_raw_column(log[0], log[1], (log[2], log[3]),
+                history_table.add_raw_column(log[0], log[1], log[2],
                         migrate=False)
             history_table.index_action('id', action='add')
 
@@ -126,14 +126,12 @@ class ModelSQL(ModelStorage):
 
                 table.add_raw_column(field_name,
                         FIELDS[field._type].sql_type(field),
-                        (FIELDS[field._type].symbol_c,
-                            FIELDS[field._type].symbol_f), default_fun,
+                        FIELDS[field._type].sql_format, default_fun,
                         hasattr(field, 'size') and field.size or None)
                 if self._history_table:
                     history_table.add_raw_column(field_name,
                             FIELDS[field._type].sql_type(field),
-                            (FIELDS[field._type].symbol_c,
-                                FIELDS[field._type].symbol_f))
+                            FIELDS[field._type].sql_format)
 
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
@@ -274,8 +272,8 @@ class ModelSQL(ModelStorage):
         for field in values:
             if not hasattr(self._columns[field], 'set'):
                 upd0 = upd0 + ',"' + field + '"'
-                upd1 = upd1 + ',' + FIELDS[self._columns[field]._type].symbol_c
-                upd2.append(FIELDS[self._columns[field]._type].symbol_f(
+                upd1 = upd1 + ', %s'
+                upd2.append(FIELDS[self._columns[field]._type].sql_format(
                     values[field]))
             else:
                 upd_todo.append(field)
@@ -662,10 +660,9 @@ class ModelSQL(ModelStorage):
                 if not hasattr(self._columns[field], 'set'):
                     if (not self._columns[field].translate) \
                             or (context.get('language') or 'en_US') == 'en_US':
-                        upd0.append(('"' + field + '"',
-                                FIELDS[self._columns[field]._type].symbol_c))
-                        upd1.append(FIELDS[self._columns[field]._type].symbol_f(
-                            values[field]))
+                        upd0.append(('"' + field + '"', '%s'))
+                        upd1.append(FIELDS[self._columns[field]._type]\
+                                .sql_format(values[field]))
                     direct.append(field)
                 else:
                     upd_todo.append(field)
@@ -1408,11 +1405,9 @@ class ModelSQL(ModelStorage):
                                     (table._table,
                                         ','.join(['%s'] * len(arg2)),))
                         else:
-                            symbol_c = FIELDS[table._columns[arg[0]]._type]\
-                                    .symbol_c
                             qu1.append(('(%s.%s ' + arg[1] + ' (%s))') % \
                                     (table._table, arg[0], ','.join(
-                                        [symbol_c] * len(arg2))))
+                                        ['%s'] * len(arg2))))
                         if todel:
                             if table._columns[arg[0]]._type == 'boolean':
                                 if arg[1] == 'in':
@@ -1479,7 +1474,7 @@ class ModelSQL(ModelStorage):
                         else:
                             if arg[0] in table._columns:
                                 qu2.append(FIELDS[table._columns[arg[0]]._type].\
-                                        symbol_f(arg[2]))
+                                        sql_format(arg[2]))
                         if arg[0] in table._columns:
                             if arg[1] in ('like', 'ilike'):
                                 qu1.append('(%s.%s %s %s OR %s.%s %s %s)' % \
@@ -1490,9 +1485,8 @@ class ModelSQL(ModelStorage):
                                         (table._table, arg[0], arg[1], '%s',
                                             table._table, arg[0], arg[1], '%s'))
                             else:
-                                qu1.append('(%s.%s %s %s)' % (table._table,
-                                    arg[0], arg[1], FIELDS[table._columns[
-                                        arg[0]]._type].symbol_c))
+                                qu1.append('(%s.%s %s %%s)' % (table._table,
+                                    arg[0], arg[1]))
                         else:
                             if arg[1] in ('like', 'ilike'):
                                 qu1.append('(%s.%s %s \'%s\' or %s.%s %s \'%s\')' % \
