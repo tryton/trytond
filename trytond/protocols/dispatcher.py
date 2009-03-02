@@ -126,7 +126,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 logger.error('Exception calling method %s on ' \
                         '%s %s from %s@%s:%d/%s:\n' % \
                         (method, object_type, object_name, user, host, port,
-                            database_name) + tb_s)
+                            database_name) + tb_s.decode('utf-8'))
             if isinstance(exception, DatabaseIntegrityError):
                 for key in pool._sql_errors.keys():
                     if key in exception[0]:
