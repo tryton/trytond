@@ -328,8 +328,7 @@ class Fs2bdAccessor:
     def reset_browsercord(self, module, model_name, ids=None):
         if module not in self.fetched_modules:
             return
-        if model_name not in self.browserecord[module]:
-            return
+        self.browserecord[module].setdefault(model_name, {})
         model_obj = self.pool.get(model_name)
         if not ids:
             object_ids = self.browserecord[module][model_name].keys()
@@ -584,7 +583,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 db_id = object_ref.create(cursor, user, values,
                         context={'module': module})
 
-                object = object_ref.browse(cursor, user, db_id)
+                # reset_browsercord
+                self.fs2db.reset_browsercord(module, object_ref._name, db_id)
+
+                object = self.fs2db.get_browserecord(module, object_ref._name, db_id)
                 for table, field_name, field in object_ref._inherit_fields.values():
                     inherit_db_ids[table] = object[field_name].id
 
@@ -881,7 +883,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             self.fs2db.set(module, fs_id, {
                     "db_id": db_id, "model": model,
                     "id": mdata_id, "values": str(values)})
-
+            self.fs2db.reset_browsercord(module, model, db_id)
 
 def post_import(cursor, pool, module, to_delete):
     """
