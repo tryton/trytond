@@ -123,6 +123,29 @@ class UIMenu(ModelSQL, ModelView):
             parent_path = ''
         return parent_path + menu.name
 
+    def search(self, cursor, user, domain, offset=0, limit=None, order=None,
+            context=None, count=False, query_string=False):
+        res = super(UIMenu, self).search(cursor, user, domain, offset=offset,
+                limit=limit, order=order, context=context, count=count,
+                query_string=query_string)
+        if query_string:
+            return res
+
+        def check_menu(res):
+            if not res:
+                return []
+            menus = self.browse(cursor, user, res, context=context)
+            parent_ids = [x.parent.id for x in menus if x.parent]
+            parent_ids = self.search(cursor, user, [
+                ('id', 'in', parent_ids),
+                ], context=context)
+            parent_ids = check_menu(parent_ids)
+            return [x.id for x in menus
+                    if (x.parent.id in parent_ids) or not x.parent]
+
+        res = check_menu(res)
+        return res
+
     def get_action(self, cursor, user, ids, name, arg, context=None):
         action_keyword_obj = self.pool.get('ir.action.keyword')
 
