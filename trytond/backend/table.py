@@ -90,7 +90,7 @@ class TableHandlerInterface(object):
         '''
         Add/remove an index
 
-        :param column_name: the column name
+        :param column_name: the column name or a list of column name
         :param action: 'add' or 'remove'
         '''
         raise

@@ -231,22 +231,24 @@ class TableHandler(TableHandlerInterface):
         self._update_definitions()
 
     def index_action(self, column_name, action='add'):
-        index_name = "%s_%s_index" % (self.table_name, column_name)
+        if isinstance(column_name, basestring):
+            column_name = [column_name]
+        index_name = self.table_name + "_" + '_'.join(column_name) + "_index"
 
         if action == 'add':
             if index_name in self._indexes:
                 return
             self.cursor.execute('CREATE INDEX "' + index_name + '" ' \
-                               'ON "' + self.table_name + '" ("' + column_name + '")')
+                               'ON "' + self.table_name + '" ( ' + \
+                               ','.join(['"' + x + '"' for x in column_name]) + \
+                               ')')
             self._update_definitions()
         elif action == 'remove':
-            if self._field2module.get(column_name) != self.module_name:
-                return
+            if len(column_name) == 1:
+                if self._field2module.get(column_name[0]) != self.module_name:
+                    return
 
-            self.cursor.execute("SELECT * FROM pg_indexes " \
-                                "WHERE indexname = '%s'" %
-                           (index_name,))
-            if self.cursor.rowcount:
+            if index_name in self._indexes:
                 self.cursor.execute('DROP INDEX "%s" ' % (index_name,))
                 self._update_definitions()
         else:
