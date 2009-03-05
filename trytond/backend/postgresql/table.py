@@ -28,6 +28,12 @@ class TableHandler(TableHandlerInterface):
                 self.cursor.execute('CREATE TABLE "%s" ' \
                         '(id INTEGER)' % self.table_name)
         self._update_definitions()
+        if 'id' not in self._columns:
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'ADD COLUMN id SERIAL NOT NULL' % self.table_name)
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'ADD PRIMARY KEY(id)' % self.table_name)
+            self._update_definitions()
 
     @staticmethod
     def table_exist(cursor, table_name):
