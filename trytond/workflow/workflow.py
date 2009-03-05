@@ -4,6 +4,7 @@ import os
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
+from trytond.backend import TableHandler
 import expr
 import base64
 
@@ -143,20 +144,9 @@ class WorkflowInstance(ModelSQL, ModelView):
     def init(self, cursor, module_name):
         super(WorkflowInstance, self).init(cursor, module_name)
 
-        cursor.execute('SELECT indexname FROM pg_indexes ' \
-                'WHERE indexname = ' \
-                    '\'wkf_instance_res_id_res_type_state_index\'')
-        if not cursor.fetchone():
-            cursor.execute('CREATE INDEX ' \
-                        'wkf_instance_res_id_res_type_state_index ' \
-                    'ON wkf_instance (res_id, res_type, state)')
-        cursor.execute('SELECT indexname FROM pg_indexes ' \
-                'WHERE indexname = ' \
-                    '\'wkf_instance_res_id_workflow_index\'')
-        if not cursor.fetchone():
-            cursor.execute('CREATE INDEX ' \
-                        'wkf_instance_res_id_workflow_index ' \
-                    'ON wkf_instance (res_id, workflow)')
+        table = TableHandler(cursor, self._table, self._name, module_name)
+        table.index_action(['res_id', 'res_type', 'state'], 'add')
+        table.index_action(['res_id', 'workflow'], 'add')
 
     def create(self, cursor, user, values, context=None):
         activity_obj = self.pool.get('workflow.activity')
@@ -463,12 +453,8 @@ class WorkflowTrigger(ModelSQL, ModelView):
     def init(self, cursor, module_name):
         super(WorkflowTrigger, self).init(cursor, module_name)
 
-        cursor.execute('SELECT indexname FROM pg_indexes ' \
-                'WHERE indexname = \'wkf_trigger_res_id_model_index\'')
-        if not cursor.fetchone():
-            cursor.execute('CREATE INDEX wkf_trigger_res_id_model_index ' \
-                    'ON wkf_trigger (res_id, model)')
-            cursor.commit()
+        table = TableHandler(cursor, self._table, self._name, module_name)
+        table.index_action(['res_id', 'model'], 'add')
 
 WorkflowTrigger()
 
