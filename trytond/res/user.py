@@ -20,9 +20,9 @@ class User(ModelSQL, ModelView):
     action = fields.Many2One('ir.action', 'Home Action')
     menu = fields.Many2One('ir.action', 'Menu Action',
             domain=[('usage','=','menu')], required=True)
-    groups = fields.Many2Many('res.group', 'res_group_user_rel',
-       'uid', 'gid', 'Groups', ondelete_target='CASCADE')
-    rule_groups = fields.Many2Many('ir.rule.group', 'user_rule_group_rel',
+    groups = fields.Many2Many('res.user-res.group',
+       'uid', 'gid', 'Groups')
+    rule_groups = fields.Many2Many('ir.rule.group-res.user',
        'user_id', 'rule_group_id', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     language = fields.Many2One('ir.lang', 'Language',
@@ -299,6 +299,26 @@ class User(ModelSQL, ModelView):
 User()
 
 
+class UserGroup(ModelSQL):
+    'User - Group'
+    _name = 'res.user-res.group'
+    _table = 'res_group_user_rel'
+    uid = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=1,
+            required=True)
+    gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE', select=1,
+            required=True)
+
+UserGroup()
+
+
+class Group(ModelSQL, ModelView):
+    "Group"
+    _name = "res.group"
+    users = fields.Many2Many('res.user-res.group', 'gid', 'uid', 'Users')
+
+Group()
+
+
 class Warning(ModelSQL, ModelView):
     'User Warning'
     _name = 'res.user.warning'
@@ -323,15 +343,6 @@ class Warning(ModelSQL, ModelView):
         return False
 
 Warning()
-
-
-class Group(ModelSQL, ModelView):
-    _name = 'res.group'
-    users = fields.Many2Many(
-        'res.user', 'res_group_user_rel', 'gid', 'uid', 'Users',
-        ondelete_target='CASCADE')
-
-Group()
 
 
 class UserConfigInit(ModelView):

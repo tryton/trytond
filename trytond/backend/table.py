@@ -76,25 +76,6 @@ class TableHandlerInterface(object):
         '''
         raise
 
-    def add_m2m(self, column_name, other_table, relation_table, rtable_from,
-            rtable_to, on_delete_from, on_delete_to):
-        '''
-        Add a many2many
-
-        :param column_name: the column name
-        :param other_table: the name of the other table
-        :param relation_table: the name of the table for the relation
-        :param rtable_from: the column name in the relation table
-            for this table
-        :param rtable_to: the column name in the relation table
-            for the other table
-        :param on_delete_from: the "on delete" for the column
-            in the relation table for this table
-        :param on_delete_to: the "on delete" for the column
-            in the relation table for the other table
-        '''
-        raise
-
     def add_fk(self, column_name, reference, on_delete=None):
         '''
         Add a foreign key

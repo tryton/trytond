@@ -10,24 +10,19 @@ class Many2Many(Field):
     '''
     _type = 'many2many'
 
-    def __init__(self, model_name, relation_name, origin, target, string='',
-            order=None, ondelete_origin='CASCADE', ondelete_target='RESTRICT',
+    def __init__(self, relation_name, origin, target, string='', order=None,
             help='', required=False, readonly=False, domain=None, states=None,
             priority=0, change_default=False, translate=False, select=0,
             on_change=None, on_change_with=None, depends=None, order_field=None,
             context=None):
         '''
-        :param model_name: The name of the targeted model.
-        :param relation_name: The name of the table that store the link.
+        :param relation_name: The name of the relation model
+            or the name of the target model for ModelView only.
         :param origin: The name of the field to store origin ids.
         :param target: The name of the field to store target ids.
         :param order:  a list of tuple that are constructed like this:
             ``('field name', 'DESC|ASC')``
             it allow to specify the order of result
-        :param ondelete_origin: Define the behavior of the origin record when
-            the target record is deleted. (``CASCADE``, ``NO ACTION``, ``RESTRICT``,
-            ``SET DEFAULT``, ``SET NULL``)
-        :param ondelete_target: Same as ondelete_origin but for the target.
         '''
         super(Many2Many, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
@@ -35,13 +30,10 @@ class Many2Many(Field):
                 translate=translate, select=select, on_change=on_change,
                 on_change_with=on_change_with, depends=depends,
                 order_field=order_field, context=context)
-        self.model_name = model_name
         self.relation_name = relation_name
         self.origin = origin
         self.target = target
         self.order = order
-        self.ondelete_origin = ondelete_origin
-        self.ondelete_target = ondelete_target
     __init__.__doc__ += Field.__init__.__doc__
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):
@@ -64,27 +56,20 @@ class Many2Many(Field):
             return res
         for i in ids:
             res[i] = []
-        ids_s = ','.join([str(x) for x in ids])
-        model = model.pool.get(self.model_name)
 
-        domain1, domain2 = model.pool.get('ir.rule').domain_get(cursor,
-                user, model._name, context=context)
-        if domain1:
-            domain1 = ' and ' + domain1
+        relation_obj = model.pool.get(self.relation_name)
 
-        #TODO fix order: can have many fields
-        cursor.execute('SELECT ' + self.relation_name + '.' + self.target + ', ' + \
-                    self.relation_name + '.' + self.origin + ' ' \
-                'FROM "' + self.relation_name + '" , "' + model._table + '" ' \
-                'WHERE ' + \
-                    self.relation_name + '.' + self.origin + ' IN (' + ids_s + ') ' \
-                    'AND ' + self.relation_name + '.' + self.target + ' = ' + \
-                        model._table + '.id ' + domain1 + \
-                ' ORDER BY ' + \
-                ','.join([model._table + '.' + x[0] + ' ' + x[1] \
-                for x in (self.order or model._order)]), domain2)
-        for i in cursor.fetchall():
-            res[i[1]].append(i[0])
+        relation_ids = []
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
+            relation_ids += relation_obj.search(cursor, user, [
+                (self.origin, 'in', sub_ids),
+                (self.target + '.id', '!=', False),
+                ], order=self.order, context=context)
+
+        for relation in relation_obj.browse(cursor, user, relation_ids,
+                context=context):
+            res[relation[self.origin].id].append(relation[self.target].id)
         return res
 
     def set(self, cursor, user, record_id, model, name, values, context=None):
@@ -108,17 +93,18 @@ class Many2Many(Field):
         '''
         if not values:
             return
-        model = model.pool.get(self.model_name)
+        relation_obj = model.pool.get(self.relation_name)
+        target_obj = self.get_target(model.pool)
         for act in values:
             if act[0] == 'create':
-                idnew = model.create(cursor, user, act[1], context=context)
-                cursor.execute('INSERT INTO "' + self.relation_name + '" ' \
-                        '(' + self.origin + ', ' + self.target + ') ' \
-                        'VALUES (%s, %s)', (record_id, idnew))
+                relation_obj.create(cursor, user, {
+                    self.origin: record_id,
+                    self.target: [('create', act[1])],
+                    }, context=context)
             elif act[0] == 'write':
-                model.write(cursor, user, act[1] , act[2], context=context)
+                target_obj.write(cursor, user, act[1] , act[2], context=context)
             elif act[0] == 'delete':
-                model.delete(cursor, user, act[1], context=context)
+                target_obj.delete(cursor, user, act[1], context=context)
             elif act[0] == 'unlink':
                 if isinstance(act[1], (int, long)):
                     ids = [act[1]]
@@ -126,11 +112,14 @@ class Many2Many(Field):
                     ids = list(act[1])
                 if not ids:
                     continue
-                cursor.execute('DELETE FROM "' + self.relation_name + '" ' \
-                        'WHERE "' + self.origin + '" = %s ' \
-                            'AND "'+ self.target + '" IN (' \
-                                + ','.join(['%s' for x in ids]) + ')',
-                        [record_id] + ids)
+                relation_ids = []
+                for i in range(0, len(ids), cursor.IN_MAX):
+                    sub_ids = ids[i:i + cursor.IN_MAX]
+                    relation_ids += relation_obj.search(cursor, user, [
+                        (self.origin, '=', record_id),
+                        (self.target, 'in', sub_ids),
+                        ], context=context)
+                relation_obj.delete(cursor, user, relation_ids, context=context)
             elif act[0] == 'add':
                 if isinstance(act[1], (int, long)):
                     ids = [act[1]]
@@ -138,46 +127,61 @@ class Many2Many(Field):
                     ids = list(act[1])
                 if not ids:
                     continue
-                cursor.execute('SELECT "' + self.target + '" ' \
-                        'FROM "' + self.relation_name + '" ' \
-                        'WHERE "' + self.origin + '" = %s ' \
-                            'AND "' + self.target + '" IN (' + \
-                                ','.join(['%s' for x in ids]) + ')',
-                        [record_id] + ids)
                 existing_ids = []
-                for row in cursor.fetchall():
-                    existing_ids.append(row[0])
+                for i in range(0, len(ids), cursor.IN_MAX):
+                    sub_ids = ids[i:i + cursor.IN_MAX]
+                    relation_ids = relation_obj.search(cursor, user, [
+                        (self.origin, '=', record_id),
+                        (self.target, 'in', sub_ids),
+                        ], context=context)
+                    for relation in relation_obj.browse(cursor, user,
+                            relation_ids, context=context):
+                        existing_ids.append(relation[self.target].id)
                 new_ids = [x for x in ids if x not in existing_ids]
                 for new_id in new_ids:
-                    cursor.execute('INSERT INTO "' + self.relation_name + '" ' \
-                            '("' + self.origin + '", "' + self.target + '") ' \
-                            'VALUES (%s, %s)', (record_id, new_id))
+                    relation_obj.create(cursor, user, {
+                        self.origin: record_id,
+                        self.target: new_id,
+                        }, context=context)
             elif act[0] == 'unlink_all':
-                cursor.execute('UPDATE "' + self.relation_name + '" ' \
-                        'SET "' + self.target + '" = NULL ' \
-                        'WHERE "' + self.target + '" = %s', (record_id,))
+                ids = relation_obj.search(cursor, user, [
+                    (self.origin, '=', record_id),
+                    (self.target + '.id', '!=', False),
+                    ], context=context)
+                relation_obj.delete(cursor, user, ids, context=context)
             elif act[0] == 'set':
                 if not act[1]:
                     ids = []
                 else:
                     ids = list(act[1])
-                domain1, domain2 = model.pool.get('ir.rule').domain_get(cursor,
-                        user, model._name, context=context)
-                if domain1:
-                    domain1 = ' AND ' + domain1
-                cursor.execute('DELETE FROM "' + self.relation_name + '" ' \
-                        'WHERE "' + self.origin + '" = %s ' \
-                            'AND "' + self.target + '" IN (' \
-                            'SELECT ' + self.relation_name + '.' + self.target + ' ' \
-                            'FROM "' + self.relation_name + '", "' + model._table + '" ' \
-                            'WHERE ' + self.relation_name + '.' + self.origin + ' = %s ' \
-                                'AND ' + self.relation_name + '.' + self.target + ' = ' + \
-                                model._table + '.id ' + domain1 + ')',
-                                [record_id, record_id] + domain2)
+                ids2 = relation_obj.search(cursor, user, [
+                    (self.origin, '=', record_id),
+                    (self.target + '.id', '!=', False),
+                    ], context=context)
+                relation_obj.delete(cursor, user, ids2, context=context)
 
                 for new_id in ids:
-                    cursor.execute('INSERT INTO "' + self.relation_name + '" ' \
-                            '("' + self.origin + '", "' + self.target + '") ' \
-                            'VALUES (%s, %s)', (record_id, new_id))
+                    relation_obj.create(cursor, user, {
+                        self.origin: record_id,
+                        self.target: new_id,
+                        }, context=context)
             else:
                 raise Exception('Bad arguments')
+
+    def get_target(self, pool):
+        '''
+        Return the target model
+
+        :param pool: The pool
+        :return: A Model
+        '''
+        relation_obj = pool.get(self.relation_name)
+        if not self.target:
+            return relation_obj
+        if self.target in relation_obj._columns:
+            target_obj = pool.get(
+                    relation_obj._columns[self.target].model_name)
+        else:
+            target_obj = pool.get(
+                    relation_obj._inherit_fields[self.target][2].model_name)
+        return target_obj

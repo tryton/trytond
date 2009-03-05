@@ -17,8 +17,8 @@ class Action(ModelSQL, ModelView):
     usage = fields.Char('Usage')
     keywords = fields.One2Many('ir.action.keyword', 'action',
             'Keywords')
-    groups = fields.Many2Many('res.group', 'ir_action_group_rel',
-            'action_id', 'gid', 'Groups')
+    groups = fields.Many2Many('ir.action-res.group', 'action_id', 'gid',
+            'Groups')
     active = fields.Boolean('Active', select=2)
 
     def __init__(self):

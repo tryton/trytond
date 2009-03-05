@@ -153,17 +153,8 @@ class ModelSQL(ModelStorage):
                 table.not_null_action(
                     field_name, action=required and 'add' or 'remove')
 
-            elif isinstance(field, fields.Many2Many):
-                #TODO handle history
-                if field.model_name in ('res.user', 'res.group'):
-                    ref = field.model_name.replace('.','_')
-                else:
-                    ref = self.pool.get(field.model_name)._table
-                table.add_m2m(field_name, ref, field.relation_name,
-                        field.origin, field.target, field.ondelete_origin,
-                        field.ondelete_target)
-
-            elif not isinstance(field, (fields.One2Many, fields.Function)):
+            elif not isinstance(field, (fields.One2Many, fields.Function,
+                fields.Many2Many)):
                 raise Exception('Unknow field type !')
 
         for field_name, field in self._columns.iteritems():
@@ -1165,10 +1156,13 @@ class ModelSQL(ModelStorage):
                 i += 1
             elif field._type == 'many2many':
                 # XXX must find a solution for long id list
+                if hasattr(field, 'model_name'):
+                    target_obj = self.pool.get(field.model_name)
+                else:
+                    target_obj = field.get_target(self.pool)
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
-                        field_obj = self.pool.get(field.model_name)
-                        ids2 = [x[0] for x in field_obj.search(cursor, user, [
+                        ids2 = [x[0] for x in target_obj.search(cursor, user, [
                             ('rec_name', 'ilike', domain[i][2]),
                             ], context=context)]
                     elif isinstance(domain[i][2], (int, long)):
@@ -1184,12 +1178,12 @@ class ModelSQL(ModelStorage):
                                 context=context)
                         return ids + _rec_get(ids2, table, parent)
 
-                    if field.model_name != table._name:
+                    if target_obj._name != table._name:
                         if len(domain[i]) != 4:
                             raise Exception('Error', 'Programming error: ' \
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
-                        ids2 = self.pool.get(field.model_name).search(cursor, user,
+                        ids2 = target_obj.search(cursor, user,
                                 [(domain[i][3], 'child_of', ids2)],
                                 context=context)
                         query1 = 'SELECT "' + field.origin + '" ' \
@@ -1211,15 +1205,16 @@ class ModelSQL(ModelStorage):
                                 table, domain[i][0]))
                 else:
                     if isinstance(domain[i][2], basestring):
-                        field_obj = self.pool.get(field.model_name)
-                        res_ids = [x[0] for x in field_obj.search(cursor, user, [
-                            ('rec_name', domain[i][1], domain[i][2]),
+                        res_ids = [x[0] for x in target_obj.search(cursor, user,
+                            [
+                                ('rec_name', domain[i][1], domain[i][2]),
                             ], context=context)]
                     else:
                         res_ids = domain[i][2]
                     if res_ids == True or res_ids == False:
+                        relation_obj = self.pool.get(field.relation_name)
                         query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + field.relation_name + '" '\
+                                'FROM "' + relation_obj._table + '" '\
                                 'WHERE "' + field.origin + '" IS NOT NULL'
                         query2 = []
                         clause = 'inselect'
@@ -1229,8 +1224,9 @@ class ModelSQL(ModelStorage):
                     elif not res_ids:
                         domain[i] = ('id', '=', '0')
                     else:
+                        relation_obj = self.pool.get(field.relation_name)
                         query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + field.relation_name + '" ' \
+                                'FROM "' + relation_obj._table + '" ' \
                                 'WHERE "' + field.target + '" IN (' + \
                                     ','.join(['%s' for x in res_ids]) + ')'
                         query2 = [str(x) for x in res_ids]

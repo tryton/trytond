@@ -106,8 +106,8 @@ class WorkflowTransition(ModelSQL, ModelView):
        required=True, select=1, ondelete='cascade')
     act_to = fields.Many2One('workflow.activity', 'Destination Activity',
        required=True, select=1, ondelete='cascade')
-    instances = fields.Many2Many('workflow.instance', 'wkf_witm_trans',
-            'trans_id', 'inst_id', ondelete_target='CASCADE')
+    instances = fields.Many2Many('workflow.transition-workflow.instance',
+            'trans_id', 'inst_id')
 
     def default_condition(self, cursor, user, context=None):
         return 'True'
@@ -129,8 +129,8 @@ class WorkflowInstance(ModelSQL, ModelView):
     state = fields.Char('State', required=True, select=1)
     overflows = fields.One2Many('workflow.workitem', 'subflow',
             'Overflow')
-    transitions = fields.Many2Many('workflow.instance', 'wkf_witm_trans',
-            'inst_id', 'trans_id', ondelete_target='CASCADE')
+    transitions = fields.Many2Many('workflow.transition-workflow.instance',
+            'inst_id', 'trans_id')
     workitems = fields.One2Many('workflow.workitem', 'instance', 'Workitems')
 
     def __init__(self):
@@ -229,6 +229,18 @@ class WorkflowInstance(ModelSQL, ModelView):
         return res
 
 WorkflowInstance()
+
+
+class WorkflowTransitionInstance(ModelSQL):
+    "Workflow Transition - Instance"
+    _name = 'workflow.transition-workflow.instance'
+    _table = 'wkf_witm_trans'
+    trans_id = fields.Many2One('workflow.transition', 'Transition',
+            ondelete='CASCADE', select=1, required=True)
+    inst_id = fields.Many2One('workflow.instance', 'Instance',
+            ondelete='CASCADE', select=1, required=True)
+
+WorkflowTransitionInstance()
 
 
 class WorkflowWorkitem(ModelSQL, ModelView):

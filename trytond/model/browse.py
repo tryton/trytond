@@ -123,11 +123,13 @@ class BrowseRecord(object):
             # create browse records for 'remote' models
             for data in datas:
                 for i, j in ffields:
-                    if not hasattr(j, 'model_name') \
-                            or not (j.model_name in \
-                            self._model.pool.object_name_list()):
-                        continue
-                    model = self._model.pool.get(j.model_name)
+                    model = None
+                    if hasattr(j, 'model_name'):
+                        if j.model_name not in self._model.pool.object_name_list():
+                            continue
+                        model = self._model.pool.get(j.model_name)
+                    elif hasattr(j, 'get_target'):
+                        model = j.get_target(self._model.pool)
                     if j._type in ('many2one',):
                         if not data[i]:
                             data[i] = BrowseRecordNull()
