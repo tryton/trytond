@@ -941,17 +941,17 @@ class ModelSQL(ModelStorage):
             qu2 += domain2
 
         if count:
-            cursor.execute('SELECT COUNT(%s.id) FROM ' % self._table +
+            cursor.execute('SELECT COUNT("%s".id) FROM ' % self._table +
                     ' '.join(tables) + ' WHERE ' + (qu1 or 'True') +
                     limit_str + offset_str, tables_args + qu2)
             res = cursor.fetchall()
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
-        select_field = self._table + '.id'
+        select_field = '"' + self._table + '".id'
         if self._history_table and context.get('_datetime') \
                 and not query_string:
-            select_field += ', COALESCE(' + self._table + '.write_date, ' + \
-                    self._table + '.create_date)'
+            select_field += ', COALESCE("' + self._table + '".write_date, "' + \
+                    self._table + '".create_date)'
         query_str = 'SELECT ' + select_field + ' FROM ' + \
                 ' '.join(tables) + ' WHERE ' + (qu1 or 'True') + \
                 ' ORDER BY ' + order_by + limit_str + offset_str
@@ -1009,8 +1009,8 @@ class ModelSQL(ModelStorage):
         if self._history_table and context.get('_datetime'):
             if qu1:
                 qu1 += ' AND'
-            qu1 += ' (COALESCE(' + self._table + '.write_date, ' + \
-                    self._table + '.create_date) <= %s)'
+            qu1 += ' (COALESCE("' + self._table + '".write_date, "' + \
+                    self._table + '".create_date) <= %s)'
             qu2 += [context['_datetime']]
         return qu1, qu2, tables, tables_args
 
@@ -1079,7 +1079,7 @@ class ModelSQL(ModelStorage):
                     table_query = '(' + table_query + ') AS '
                 table_join = 'LEFT JOIN ' + table_query + \
                         '"' + itable._table + '" ON ' \
-                        '%s.id = %s.%s' % (itable._table, self._table,
+                        '"%s".id = "%s".%s' % (itable._table, self._table,
                                 self._inherits[itable._name])
                 if table_join not in tables:
                     tables.append(table_join)
@@ -1360,9 +1360,9 @@ class ModelSQL(ModelStorage):
 
                     trans_field = 'COALESCE(NULLIF(' \
                             'ir_translation.value, \'\'), ' \
-                            + table._table + '.' + domain[i][0] + ')'
+                            + '"' + table._table + '".' + domain[i][0] + ')'
 
-                    query1 = '(SELECT ' + table._table + '.id ' \
+                    query1 = '(SELECT "' + table._table + '".id ' \
                             'FROM ' + table_query + '"' + table._table + '" ' \
                             + table_join + ' ' \
                             'WHERE (' + trans_field + ' ' + \
@@ -1385,7 +1385,7 @@ class ModelSQL(ModelStorage):
                 clause = 'IN'
                 if arg[1] == 'notinselect':
                     clause = 'NOT IN'
-                qu1.append('(%s.%s %s (%s))' % (table._table, arg[0], clause,
+                qu1.append('("%s".%s %s (%s))' % (table._table, arg[0], clause,
                     arg[2][0]))
                 qu2 += arg[2][1]
             elif arg[1] in ('in', 'not in'):
@@ -1401,47 +1401,47 @@ class ModelSQL(ModelStorage):
                     #TODO fix max_stack_depth
                     if len(arg2):
                         if arg[0] == 'id':
-                            qu1.append(('(%s.id ' + arg[1] + ' (%s))') % \
+                            qu1.append(('("%s".id ' + arg[1] + ' (%s))') % \
                                     (table._table,
                                         ','.join(['%s'] * len(arg2)),))
                         else:
-                            qu1.append(('(%s.%s ' + arg[1] + ' (%s))') % \
+                            qu1.append(('("%s".%s ' + arg[1] + ' (%s))') % \
                                     (table._table, arg[0], ','.join(
                                         ['%s'] * len(arg2))))
                         if todel:
                             if table._columns[arg[0]]._type == 'boolean':
                                 if arg[1] == 'in':
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '%s.%s = false)' % \
+                                            '"%s".%s = false)' % \
                                             (table._table, arg[0])
                                 else:
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '%s.%s != false)' % \
+                                            '"%s".%s != false)' % \
                                             (table._table, arg[0])
                             else:
                                 if arg[1] == 'in':
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '%s.%s IS NULL)' % \
+                                            '"%s".%s IS NULL)' % \
                                             (table._table, arg[0])
                                 else:
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '%s.%s IS NOT NULL)' % \
+                                            '"%s".%s IS NOT NULL)' % \
                                             (table._table, arg[0])
                         qu2 += arg2
                     elif todel:
                         if table._columns[arg[0]]._type == 'boolean':
                             if arg[1] == 'in':
-                                qu1.append('(%s.%s = false)' % \
+                                qu1.append('("%s".%s = false)' % \
                                         (table._table, arg[0]))
                             else:
-                                qu1.append('(%s.%s != false)' % \
+                                qu1.append('("%s".%s != false)' % \
                                         (table._table, arg[0]))
                         else:
                             if arg[1] == 'in':
-                                qu1.append('(%s.%s IS NULL)' % \
+                                qu1.append('("%s".%s IS NULL)' % \
                                         (table._table, arg[0]))
                             else:
-                                qu1.append('(%s.%s IS NOT NULL)' % \
+                                qu1.append('("%s".%s IS NOT NULL)' % \
                                         (table._table, arg[0]))
                 else:
                     if arg[1] == 'in':
@@ -1451,17 +1451,17 @@ class ModelSQL(ModelStorage):
             else:
                 if (arg[2] is False) and (arg[1] == '='):
                     if table._columns[arg[0]]._type == 'boolean':
-                        qu1.append('(%s.%s = false)' % \
+                        qu1.append('("%s".%s = false)' % \
                                 (table._table, arg[0]))
                     else:
-                        qu1.append('(%s.%s IS NULL)' % \
+                        qu1.append('("%s".%s IS NULL)' % \
                                 (table._table, arg[0]))
                 elif (arg[2] is False) and (arg[1] == '!='):
-                    qu1.append('(%s.%s IS NOT NULL)' % \
+                    qu1.append('("%s".%s IS NOT NULL)' % \
                             (table._table, arg[0]))
                 else:
                     if arg[0] == 'id':
-                        qu1.append('(%s.%s %s %%s)' % \
+                        qu1.append('("%s".%s %s %%s)' % \
                                 (table._table, arg[0], arg[1]))
                         qu2.append(arg[2])
                     else:
@@ -1477,32 +1477,32 @@ class ModelSQL(ModelStorage):
                                         sql_format(arg[2]))
                         if arg[0] in table._columns:
                             if arg[1] in ('like', 'ilike'):
-                                qu1.append('(%s.%s %s %s OR %s.%s %s %s)' % \
+                                qu1.append('("%s".%s %s %s OR "%s".%s %s %s)' % \
                                         (table._table, arg[0], arg[1], '%s',
                                             table._table, arg[0], arg[1], '%s'))
                             elif arg[1] in ('not like', 'not ilike'):
-                                qu1.append('(%s.%s %s %s AND %s.%s %s %s)' % \
+                                qu1.append('("%s".%s %s %s AND "%s".%s %s %s)' % \
                                         (table._table, arg[0], arg[1], '%s',
                                             table._table, arg[0], arg[1], '%s'))
                             else:
-                                qu1.append('(%s.%s %s %%s)' % (table._table,
+                                qu1.append('("%s".%s %s %%s)' % (table._table,
                                     arg[0], arg[1]))
                         else:
                             if arg[1] in ('like', 'ilike'):
-                                qu1.append('(%s.%s %s \'%s\' or %s.%s %s \'%s\')' % \
+                                qu1.append('("%s".%s %s \'%s\' or "%s".%s %s \'%s\')' % \
                                         (table._table, arg[0], arg[1], arg[2],
                                             table._table, arg[0], arg[1], arg[2]))
                             elif arg[1] in ('not like', 'not ilike'):
-                                qu1.append('(%s.%s %s \'%s\' and %s.%s %s \'%s\')' % \
+                                qu1.append('("%s".%s %s \'%s\' and "%s".%s %s \'%s\')' % \
                                         (table._table, arg[0], arg[1], arg[2],
                                             table._table, arg[0], arg[1], arg[2]))
                             else:
-                                qu1.append('(%s.%s %s \'%s\')' % \
+                                qu1.append('("%s".%s %s \'%s\')' % \
                                         (table._table, arg[0], arg[1], arg[2]))
 
                         if add_null:
                             qu1[-1] = '(' + qu1[-1] + ' OR ' + \
-                                    table._table + '.' + arg[0] +' IS NULL)'
+                                    '"' + table._table + '".' + arg[0] +' IS NULL)'
 
         return qu1, qu2
 
@@ -1544,7 +1544,7 @@ class ModelSQL(ModelStorage):
                     if table_name == self._table:
                         table_join = 'LEFT JOIN "' + table_name + '" AS ' \
                                 '"' + table_name + '.' + link_field + '" ON ' \
-                                '"%s.%s".id = %s.%s' % (table_name, link_field,
+                                '"%s.%s".id = "%s".%s' % (table_name, link_field,
                                         self._table, link_field)
                         for i in range(len(order_by)):
                             if table_name in order_by[i]:
@@ -1553,7 +1553,7 @@ class ModelSQL(ModelStorage):
                                                 link_field + '"')
                     else:
                         table_join = 'LEFT JOIN "' + table_name + '" ON ' \
-                                '%s.id = %s.%s' % (table_name, self._table,
+                                '"%s".id = "%s".%s' % (table_name, self._table,
                                         link_field)
                     if table_join not in tables:
                         tables.insert(0, table_join)
@@ -1577,13 +1577,13 @@ class ModelSQL(ModelStorage):
                             user, field_name, otype, context=context)
 
                     table_join = 'LEFT JOIN "' + table_name + '" ON ' \
-                            '%s.id = %s.%s' % \
+                            '"%s".id = "%s".%s' % \
                             (table_name, self._table, link_field)
                     if table_join not in tables:
                         tables.insert(0, table_join)
 
                     table_join2 = 'LEFT JOIN "' + table_name2 + '" ON ' \
-                            '%s.id = %s.%s' % \
+                            '"%s".id = "%s".%s' % \
                             (table_name2, obj._table, link_field2)
                     if table_join2 not in tables:
                         tables.insert(1, table_join2)
@@ -1596,11 +1596,11 @@ class ModelSQL(ModelStorage):
                 if self._name == 'ir.model':
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
-                            '(%s.name = ir_model.model||\',%s\' ' \
-                                'AND %s.res_id = 0 ' \
-                                'AND %s.lang = %%s ' \
-                                'AND %s.type = \'model\' ' \
-                                'AND %s.fuzzy = false)' % \
+                            '("%s".name = ir_model.model||\',%s\' ' \
+                                'AND "%s".res_id = 0 ' \
+                                'AND "%s".lang = %%s ' \
+                                'AND "%s".type = \'model\' ' \
+                                'AND "%s".fuzzy = false)' % \
                             (translation_table, translation_table, field_name,
                                     translation_table, translation_table,
                                     translation_table, translation_table)
@@ -1615,22 +1615,22 @@ class ModelSQL(ModelStorage):
                         tables.append(table_join)
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
-                            '(%s.name = ir_model.model||\',\'||%s.name ' \
-                                'AND %s.res_id = 0 ' \
-                                'AND %s.lang = %%s ' \
-                                'AND %s.type = \'%s\' ' \
-                                'AND %s.fuzzy = false)' % \
+                            '("%s".name = ir_model.model||\',\'||%s.name ' \
+                                'AND "%s".res_id = 0 ' \
+                                'AND "%s".lang = %%s ' \
+                                'AND "%s".type = \'%s\' ' \
+                                'AND "%s".fuzzy = false)' % \
                             (translation_table, translation_table, table_name,
                                     translation_table, translation_table,
                                     translation_table, ttype, translation_table)
                 else:
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
-                            '(%s.res_id = %s.id ' \
-                                'AND %s.name = \'%s,%s\' ' \
-                                'AND %s.lang = %%s ' \
-                                'AND %s.type = \'model\' ' \
-                                'AND %s.fuzzy = false)' % \
+                            '("%s".res_id = %s.id ' \
+                                'AND "%s".name = \'%s,%s\' ' \
+                                'AND "%s".lang = %%s ' \
+                                'AND "%s".type = \'model\' ' \
+                                'AND "%s".fuzzy = false)' % \
                             (translation_table, translation_table, table_name,
                                     translation_table, self._name, field_name,
                                     translation_table, translation_table,
@@ -1666,7 +1666,7 @@ class ModelSQL(ModelStorage):
                         'order': otype,
                         })
                 else:
-                    order_by.append(table_name + '.' + field_name + ' ' + otype)
+                    order_by.append('"' + table_name + '".' + field_name + ' ' + otype)
                 return order_by, tables, tables_args
 
         if field in self._inherit_fields.keys():
@@ -1676,7 +1676,7 @@ class ModelSQL(ModelStorage):
             order_by, tables, tables_args = obj._order_calc(cursor, user, field,
                     otype, context=context)
             table_join = 'LEFT JOIN "' + table_name + '" ON ' \
-                    '%s.id = %s.%s' % \
+                    '"%s".id = "%s".%s' % \
                     (table_name, self._table, link_field)
             if table_join not in tables:
                 tables.insert(0, table_join)
