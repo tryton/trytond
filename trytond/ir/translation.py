@@ -15,6 +15,7 @@ from trytond.model.cacheable import Cacheable
 from trytond.wizard import Wizard
 from trytond import tools
 from trytond.tools import file_open
+from trytond.backend import TableHandler
 import os
 
 TRANSLATION_TYPE = [
@@ -65,20 +66,9 @@ class Translation(ModelSQL, ModelView, Cacheable):
     def init(self, cursor, module_name):
         super(Translation, self).init(cursor, module_name)
 
-        cursor.execute('SELECT indexname FROM pg_indexes ' \
-                'WHERE indexname = ' \
-                    '\'ir_translation_lang_type_name_index\'')
-        if not cursor.rowcount:
-            cursor.execute('CREATE INDEX ' \
-                    'ir_translation_lang_type_name_index ' \
-                    'ON ir_translation (lang, type, name)')
-        cursor.execute('SELECT indexname FROM pg_indexes ' \
-                'WHERE indexname = ' \
-                    '\'ir_translation_lang_type_name_src_index\'')
-        if not cursor.rowcount:
-            cursor.execute('CREATE INDEX ' \
-                    'ir_translation_lang_type_name_src_index ' \
-                    'ON ir_translation (lang, type, name, src)')
+        table = TableHandler(cursor, self._table, self._name, module_name)
+        table.index_action(['lang', 'type', 'name'], 'add')
+        table.index_action(['lang', 'type', 'name', 'src'], 'add')
 
     def default_fuzzy(self, cursor, user, context=None):
         return False
