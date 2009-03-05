@@ -54,7 +54,7 @@ class BrowseRecord(object):
         self._id = record_id
         self._model = model
         self._model_name = self._model._name
-        self._context = context
+        self._context = context or {}
         self._language_cache = {}
 
         cache.setdefault(model._name, {})
