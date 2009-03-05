@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Group"
 from trytond.model import ModelView, ModelSQL, fields
 
@@ -10,10 +11,10 @@ class Group(ModelSQL, ModelView):
     name = fields.Char('Name', required=True, select=1, translate=True)
     model_access = fields.One2Many('ir.model.access', 'group',
        'Access Model')
-    rule_groups = fields.Many2Many('ir.rule.group', 'group_rule_group_rel',
+    rule_groups = fields.Many2Many('ir.rule.group-res.group',
        'group_id', 'rule_group_id', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
-    menu_access = fields.Many2Many('ir.ui.menu', 'ir_ui_menu_group_rel',
+    menu_access = fields.Many2Many('ir.ui.menu-res.group',
        'gid', 'menu_id', 'Access Menu')
 
     def __init__(self):

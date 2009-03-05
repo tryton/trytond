@@ -80,8 +80,8 @@ class UIMenu(ModelSQL, ModelView):
     sequence = fields.Integer('Sequence')
     childs = fields.One2Many('ir.ui.menu', 'parent','Childs')
     parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1)
-    groups = fields.Many2Many('res.group', 'ir_ui_menu_group_rel',
-       'menu_id', 'gid', 'Groups', ondelete_target='CASCADE')
+    groups = fields.Many2Many('ir.ui.menu-res.group',
+       'menu_id', 'gid', 'Groups')
     complete_name = fields.Function('get_full_name',
        string='Complete Name', type='char', order_field='name')
     icon = fields.Selection(ICONS, 'Icon', translate=False)

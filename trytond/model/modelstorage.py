@@ -813,7 +813,10 @@ class ModelStorage(Model):
             # validate domain
             if field._type in ('many2one', 'many2many', 'one2many') \
                     and field.domain:
-                relation_obj = self.pool.get(field.model_name)
+                if field._type in ('many2one', 'one2many'):
+                    relation_obj = self.pool.get(field.model_name)
+                else:
+                    relation_obj = field.get_target(self.pool)
                 if isinstance(field.domain, basestring):
                     ctx = context.copy()
                     ctx.update(ctx_pref)

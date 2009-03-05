@@ -285,11 +285,14 @@ class ModelView(Model):
                     attrs = {}
                     try:
                         if element.get(attr) in self._columns:
-                            relation = self._columns[element.get(
-                                attr)].model_name
+                            field = self._columns[element.get(attr)]
                         else:
-                            relation = self._inherit_fields[element.get(
-                                attr)][2].model_name
+                            field = self._inherit_fields[element.get(
+                                attr)][2]
+                        if hasattr(field, 'model_name'):
+                            relation = field.model_name
+                        else:
+                            relation = field.get_target(self.pool)._name
                     except:
                         relation = False
                     if relation and element.tag == 'field':

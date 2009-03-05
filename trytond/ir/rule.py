@@ -19,9 +19,9 @@ class RuleGroup(ModelSQL, ModelView):
             help="Add this rule to all users by default")
     rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
             help="The rule is satisfied if at least one test is True")
-    groups = fields.Many2Many('res.group', 'group_rule_group_rel',
+    groups = fields.Many2Many('ir.rule.group-res.group',
             'rule_group_id', 'group_id', 'Groups')
-    users = fields.Many2Many('res.user', 'user_rule_group_rel',
+    users = fields.Many2Many('ir.rule.group-res.user',
             'rule_group_id', 'user_id', 'Users')
 
     def __init__(self):

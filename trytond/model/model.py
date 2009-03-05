@@ -208,18 +208,21 @@ class Model(object):
 
         for field_name in self._columns:
             field = self._columns[field_name]
+            relation = ''
+            if hasattr(field, 'model_name'):
+                relation = field.model_name
+            elif hasattr(field, 'relation_name'):
+                relation = field.relation_name
             if field_name not in fields:
                 cursor.execute("INSERT INTO ir_model_field " \
                         "(model, name, field_description, ttype, " \
                             "relation, help, module) " \
                         "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                         (model_id, field_name, field.string, field._type,
-                            hasattr(field, 'model_name') and field.model_name or '',
-                            field.help, module_name))
+                            relation, field.help, module_name))
             elif fields[field_name]['field_description'] != field.string \
                     or fields[field_name]['ttype'] != field._type \
-                    or fields[field_name]['relation'] != \
-                        (hasattr(field, 'model_name') and field.model_name or '') \
+                    or fields[field_name]['relation'] != relation \
                     or fields[field_name]['help'] != field.help:
                 cursor.execute('UPDATE ir_model_field ' \
                         'SET field_description = %s, ' \
@@ -227,8 +230,7 @@ class Model(object):
                             'relation = %s, ' \
                             'help = %s ' \
                         'WHERE id = %s ',
-                        (field.string, field._type,
-                            hasattr(field, 'model_name') and field.model_name or '',
+                        (field.string, field._type, relation,
                             field.help, fields[field_name]['id']))
             trans_name = self._name + ',' + field_name
             if trans_name not in trans_fields:
@@ -474,7 +476,7 @@ class Model(object):
                 if fld_def._type in ('many2many'):
                     if not isinstance(field_value, list):
                         continue
-                    obj = self.pool.get(fld_def.model_name)
+                    obj = fld_def.get_target(self.pool)
                     field_value2 = []
                     for i in range(len(field_value)):
                         if not hasattr(obj, 'search') \
@@ -669,7 +671,12 @@ class Model(object):
                     'many2many',
                     'many2one',
                     ):
-                res[field]['relation'] = copy.copy(self._columns[field].model_name)
+                if hasattr(self._columns[field], 'model_name'):
+                    relation = copy.copy(self._columns[field].model_name)
+                else:
+                    relation = copy.copy(self._columns[field].get_target(
+                        self.pool)._name)
+                res[field]['relation'] = relation
                 res[field]['domain'] = copy.copy(self._columns[field].domain)
                 res[field]['context'] = copy.copy(self._columns[field].context)
             if res[field]['type'] == 'one2many' \

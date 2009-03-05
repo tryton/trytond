@@ -31,6 +31,7 @@ class Model(ModelSQL, ModelView):
 
 Model()
 
+
 class ModelField(ModelSQL, ModelView):
     "Model field"
     _name = 'ir.model.field'
@@ -41,8 +42,8 @@ class ModelField(ModelSQL, ModelView):
        select=1, ondelete='cascade')
     field_description = fields.Char('Field Description', translate=True)
     ttype = fields.Char('Field Type')
-    groups = fields.Many2Many('res.group', 'ir_model_field_group_rel',
-       'field_id', 'group_id', 'Groups')
+    groups = fields.Many2Many('ir.model.field-res.group', 'field_id',
+            'group_id', 'Groups')
     help = fields.Text('Help', translate=True)
     module = fields.Char('Module',
        help="Module in which this field is defined")

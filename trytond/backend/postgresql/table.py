@@ -196,25 +196,6 @@ class TableHandler(TableHandlerInterface):
 
         self._update_definitions()
 
-    def add_m2m(self, column_name, other_table, relation_table, rtable_from,
-            rtable_to, on_delete_from, on_delete_to):
-        if not self.table_exist(self.cursor, other_table):
-            raise Exception("table %s not found"%other_table)
-        rtable = TableHandler(
-            self.cursor, relation_table, object_name=None,
-            module_name= self.module_name)
-        integer = FIELDS['integer']
-        rtable.add_raw_column(rtable_from, integer.sql_type(None),
-                integer.sql_format)
-        rtable.add_raw_column(rtable_to,  integer.sql_type(None),
-                integer.sql_format)
-        rtable.add_fk(rtable_from, self.table_name, on_delete=on_delete_from)
-        rtable.add_fk(rtable_to, other_table, on_delete=on_delete_to)
-        rtable.not_null_action(rtable_from)
-        rtable.not_null_action(rtable_to)
-        rtable.index_action(rtable_from, 'add')
-        rtable.index_action(rtable_to, 'add')
-
     def add_fk(self, column_name, reference, on_delete=None):
         on_delete_code = {
             'RESTRICT': 'r',
