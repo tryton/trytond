@@ -22,7 +22,7 @@ class ModelSQL(ModelStorage):
          must be sorted when sorting on this model from an other one.
     :_sequence: The  name of the sequence in the database that increments the
         ``id`` field.
-    :_history_table:
+    :_history: A boolean to historize record change.
     :_sql_constraints: A list of constraints that are added on the table. E.g.:
 
         ``('constrain_name, sql_constraint, 'error_msg')`` where
@@ -35,7 +35,7 @@ class ModelSQL(ModelStorage):
     _order = None
     _order_name = None # Use to force order field when sorting on Many2One
     _sequence = None
-    _history_table = None
+    _history = False
 
     def __init__(self):
         super(ModelSQL, self).__init__()
@@ -45,6 +45,9 @@ class ModelSQL(ModelStorage):
 
         if not self._table:
             self._table = self._name.replace('.', '_')
+
+        assert self._table[-9:] != '__history', \
+                'Model _table %s cannot end with "__history"' % self._table
 
         if not self._sequence:
             self._sequence = self._table+'_id_seq'
@@ -57,9 +60,9 @@ class ModelSQL(ModelStorage):
 
         # create/update table in the database
         table = TableHandler(cursor, self._table, self._name, module_name)
-        if self._history_table:
-            history_table = TableHandler(cursor, self._history_table, None,
-                    module_name, history=True)
+        if self._history:
+            history_table = TableHandler(cursor, self._table + '__history',
+                    None, module_name, history=True)
         datetime_field = FIELDS['datetime']
         integer_field = FIELDS['integer']
         logs = (
@@ -77,7 +80,7 @@ class ModelSQL(ModelStorage):
         for log in logs:
             table.add_raw_column(log[0], log[1], log[2],
                     default_fun=log[3], migrate=False)
-        if self._history_table:
+        if self._history:
             history_logs = (
                     ('create_date', datetime_field.sql_type(None),
                         datetime_field.sql_format),
@@ -128,7 +131,7 @@ class ModelSQL(ModelStorage):
                         FIELDS[field._type].sql_type(field),
                         FIELDS[field._type].sql_format, default_fun,
                         hasattr(field, 'size') and field.size or None)
-                if self._history_table:
+                if self._history:
                     history_table.add_raw_column(field_name,
                             FIELDS[field._type].sql_type(field),
                             FIELDS[field._type].sql_format)
@@ -166,18 +169,18 @@ class ModelSQL(ModelStorage):
         for ident, constraint, msg in self._sql_constraints:
             table.add_constraint(ident, constraint)
 
-        if self._history_table:
+        if self._history:
             cursor.execute('SELECT id FROM "' + self._table + '"')
             if cursor.rowcount:
-                cursor.execute('SELECT id FROM "' + self._history_table + '"')
+                cursor.execute('SELECT id FROM "' + self._table + '__history"')
                 if not cursor.rowcount:
                     columns = ['"' + str(x) + '"' for x in self._columns
                             if not hasattr(self._columns[x], 'set')]
-                    cursor.execute('INSERT INTO "' + self._history_table + '" '\
+                    cursor.execute('INSERT INTO "' + self._table + '__history" '\
                             '(' + ','.join(columns) + ') ' \
                             'SELECT ' + ','.join(columns) + \
                             ' FROM "' + self._table + '"')
-                    cursor.execute('UPDATE "' + self._history_table + '" ' \
+                    cursor.execute('UPDATE "' + self._table + '__history" ' \
                             'SET write_date = NULL')
 
     def _get_error_messages(self):
@@ -303,8 +306,8 @@ class ModelSQL(ModelStorage):
             self._columns[field].set(cursor, user, id_new, self, field, values[field],
                     context=context)
 
-        if self._history_table:
-            cursor.execute('INSERT INTO "' + self._history_table + '" ' \
+        if self._history:
+            cursor.execute('INSERT INTO "' + self._table + '__history" ' \
                     '(id' + upd0 + ') ' \
                     'SELECT id' + upd0 + ' ' \
                     'FROM "' + self._table + '" ' \
@@ -383,9 +386,9 @@ class ModelSQL(ModelStorage):
         history_clause = ''
         history_limit = ''
         history_args = []
-        if self._history_table and context.get('_datetime') and not table_query:
+        if self._history and context.get('_datetime') and not table_query:
             in_max = 1
-            table_query = self._history_table + ' AS '
+            table_query = '"' + self._table + '__history" AS '
             history_clause = ' AND (COALESCE(write_date, create_date) <= %s)'
             history_order = ' ORDER BY COALESCE(write_date, create_date) DESC'
             history_limit = ' LIMIT 1'
@@ -737,11 +740,11 @@ class ModelSQL(ModelStorage):
                 self._columns[field].set(cursor, user, select_id, self, field,
                         values[field], context=context)
 
-        if self._history_table:
+        if self._history:
             columns = ['"' + str(x) + '"' for x in self._columns
                     if not hasattr(self._columns[x], 'set')]
             for obj_id in ids:
-                cursor.execute('INSERT INTO "' + self._history_table + '" ' \
+                cursor.execute('INSERT INTO "' + self._table + '__history" ' \
                         '(' + ','.join(columns) + ') ' \
                         'SELECT ' + ','.join(columns) + ' ' + \
                         'FROM "' + self._table + '" ' \
@@ -870,9 +873,9 @@ class ModelSQL(ModelStorage):
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ')', sub_ids)
 
-        if self._history_table:
+        if self._history:
             for obj_id in ids:
-                cursor.execute('INSERT INTO "' + self._history_table + '" ' \
+                cursor.execute('INSERT INTO "' + self._table + '__history" ' \
                         '(id, write_uid, write_date) VALUES (%s, %s, now())',
                         (obj_id, user))
 
@@ -939,7 +942,7 @@ class ModelSQL(ModelStorage):
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
         select_field = '"' + self._table + '".id'
-        if self._history_table and context.get('_datetime') \
+        if self._history and context.get('_datetime') \
                 and not query_string:
             select_field += ', COALESCE("' + self._table + '".write_date, "' + \
                     self._table + '".create_date)'
@@ -950,7 +953,7 @@ class ModelSQL(ModelStorage):
             return (query_str, tables_args + qu2)
         cursor.execute(query_str, tables_args + qu2)
 
-        if self._history_table and context.get('_datetime'):
+        if self._history and context.get('_datetime'):
             res = []
             ids_date = {}
             for row in cursor.fetchall():
@@ -990,14 +993,14 @@ class ModelSQL(ModelStorage):
             table_query, tables_args = self.table_query(context)
             table_query = '(' + table_query + ') AS '
 
-        if self._history_table and context.get('_datetime'):
-            table_query = self._history_table + ' AS '
+        if self._history and context.get('_datetime'):
+            table_query = self._table + '__history AS '
 
         tables = [table_query + '"' + self._table + '"']
 
         qu1, qu2 = self.__search_domain_oper(cursor, user, domain, tables,
                 tables_args, context=context)
-        if self._history_table and context.get('_datetime'):
+        if self._history and context.get('_datetime'):
             if qu1:
                 qu1 += ' AND'
             qu1 += ' (COALESCE("' + self._table + '".write_date, "' + \
