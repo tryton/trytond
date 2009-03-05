@@ -853,6 +853,10 @@ class TranslationClean(Wizard):
                     except ValueError:
                         to_delete.append(translation.id)
                         continue
+                    if wizard_name not in \
+                            self.pool.object_name_list(type='wizard'):
+                        to_delete.append(translation.id)
+                        continue
                     wizard = self.pool.get(wizard_name, type='wizard')
                     if not wizard:
                         to_delete.append(translation.id)
