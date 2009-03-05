@@ -151,20 +151,22 @@ class Translation(ModelSQL, ModelView, Cacheable):
             else:
                 to_fetch.append(obj_id)
         if to_fetch:
-            cursor.execute('SELECT res_id, value ' \
-                    'FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type = %s ' \
-                        'AND name = %s ' \
-                        'AND value != \'\' ' \
-                        'AND value IS NOT NULL ' \
-                        'AND fuzzy = false ' \
-                        'AND res_id in (' + \
-                            ','.join([str(x) for x in to_fetch]) + ')',
-                    (lang, ttype, name))
-            for res_id, value in cursor.fetchall():
-                self.add(cursor, (lang, ttype, name, res_id), value)
-                translations[res_id] = value
+            for i in range(0, len(to_fetch), cursor.IN_MAX):
+                sub_to_fetch = to_fetch[i:i + cursor.IN_MAX]
+                cursor.execute('SELECT res_id, value ' \
+                        'FROM ir_translation ' \
+                        'WHERE lang = %s ' \
+                            'AND type = %s ' \
+                            'AND name = %s ' \
+                            'AND value != \'\' ' \
+                            'AND value IS NOT NULL ' \
+                            'AND fuzzy = false ' \
+                            'AND res_id in (' + \
+                                ','.join([str(x) for x in sub_to_fetch]) + ')',
+                        (lang, ttype, name))
+                for res_id, value in cursor.fetchall():
+                    self.add(cursor, (lang, ttype, name, res_id), value)
+                    translations[res_id] = value
         for res_id in ids:
             if res_id not in translations:
                 self.add(cursor, (lang, ttype, name, res_id), False)
@@ -284,8 +286,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
         Return a dict with the translations.
         '''
         res = {}
-        clause = ''
-        value = []
+        clause = []
         if len(args) > cursor.IN_MAX:
             for i in range(0, len(args), cursor.IN_MAX):
                 sub_args = args[i:i + cursor.IN_MAX]
@@ -303,36 +304,37 @@ class Translation(ModelSQL, ModelView, Cacheable):
             else:
                 res[(name, ttype, lang, source)] = False
                 self.add(cursor, (lang, ttype, name, source), False)
-                if clause:
-                    clause += ' OR '
                 if source:
-                    clause += '(lang = %s ' \
+                    clause += [('(lang = %s ' \
                             'AND type = %s ' \
                             'AND name = %s ' \
                             'AND src = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
                             'AND fuzzy = false ' \
-                            'AND res_id = 0)'
-                    value.extend((lang, ttype, str(name), source))
+                            'AND res_id = 0)',
+                            (lang, ttype, str(name), source))]
                 else:
-                    clause += '(lang = %s ' \
+                    clause += [('(lang = %s ' \
                             'AND type = %s ' \
                             'AND name = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
                             'AND fuzzy = false ' \
-                            'AND res_id = 0)'
-                    value.extend((lang, ttype, str(name)))
+                            'AND res_id = 0)',
+                            (lang, ttype, str(name)))]
         if clause:
-            cursor.execute('SELECT lang, type, name, src, value ' \
-                    'FROM ir_translation ' \
-                    'WHERE ' + clause, value)
-            for lang, ttype, name, source, value in cursor.fetchall():
-                if (name, ttype, lang, source) not in args:
-                    source = None
-                res[(name, ttype, lang, source)] = value
-                self.add(cursor, (lang, ttype, name, source), value)
+            for i in range(0, len(clause), cursor.IN_MAX):
+                sub_clause = clause[i:i + cursor.IN_MAX]
+                cursor.execute('SELECT lang, type, name, src, value ' \
+                        'FROM ir_translation ' \
+                        'WHERE ' + ' OR '.join([x[0] for x in sub_clause]),
+                        reduce(lambda x, y: x + y, [x[1] for x in sub_clause]))
+                for lang, ttype, name, source, value in cursor.fetchall():
+                    if (name, ttype, lang, source) not in args:
+                        source = None
+                    res[(name, ttype, lang, source)] = value
+                    self.add(cursor, (lang, ttype, name, source), value)
         return res
 
     def delete(self, cursor, user, ids, context=None):
@@ -470,12 +472,15 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 translation_ids += ids
 
         if translation_ids:
-            cursor.execute('DELETE FROM ir_translation ' \
-                    'WHERE module = %s ' \
-                        'AND lang = %s ' \
-                        'AND id NOT IN ' \
-                        '(' + ','.join(['%s' for x in translation_ids]) + ')',
-                    (module, lang) + tuple(translation_ids))
+            for i in range(0, len(translation_ids), cursor.IN_MAX):
+                sub_translation_ids = translation_ids[i:i + cursor.IN_MAX]
+                cursor.execute('DELETE FROM ir_translation ' \
+                        'WHERE module = %s ' \
+                            'AND lang = %s ' \
+                            'AND id NOT IN (' + \
+                            ','.join(['%s' for x in sub_translation_ids]) + \
+                            ')',
+                        (module, lang) + tuple(sub_translation_ids))
         return len(translation_ids)
 
     def translation_export(self, cursor, user, lang, module, context=None):
