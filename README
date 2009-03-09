@@ -20,7 +20,7 @@ Package Contents
 
   doc/
       sphinx documentation in reStructuredText.
-      To generate the HTML:
+      To generate the HTML (trytond module must be in PYTHONPATH):
 
         sphinx-build doc/ doc/
 
