@@ -282,7 +282,7 @@ class Cursor(CursorInterface):
                 res = self.cursor.execute(sql)
         except:
             logger = logging.getLogger('sql')
-            logger.error('Wrong SQL: ' + self.cursor.query)
+            logger.error('Wrong SQL: ' + (self.cursor.query or ''))
             raise
         if self.sql_log:
             res_from = RE_FROM.match(sql.lower())
