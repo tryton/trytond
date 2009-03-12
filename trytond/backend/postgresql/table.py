@@ -183,16 +183,17 @@ class TableHandler(TableHandlerInterface):
         self.cursor.execute('ALTER TABLE "%s" ADD COLUMN "%s" %s' %
                        (self.table_name, column_name, column_type))
 
-        # check if table is non-empty:
-        self.cursor.execute('SELECT 1 FROM "%s" limit 1' % self.table_name)
-        if self.cursor.rowcount:
-            # Populate column with default values:
-            default = None
-            if default_fun is not None:
-                default = default_fun(self.cursor, 0, {})
-            self.cursor.execute('UPDATE "' + self.table_name + '" '\
-                                'SET "' + column_name + '" = %s',
-                                (column_format(default),))
+        if column_format:
+            # check if table is non-empty:
+            self.cursor.execute('SELECT 1 FROM "%s" limit 1' % self.table_name)
+            if self.cursor.rowcount:
+                # Populate column with default values:
+                default = None
+                if default_fun is not None:
+                    default = default_fun(self.cursor, 0, {})
+                self.cursor.execute('UPDATE "' + self.table_name + '" '\
+                                    'SET "' + column_name + '" = %s',
+                                    (column_format(default),))
 
         self._update_definitions()
 
