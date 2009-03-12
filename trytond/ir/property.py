@@ -132,21 +132,21 @@ class Property(ModelSQL, ModelView):
         if default_id:
             value = self.browse(cursor, user, default_id[0],
                     context=context).value
-            val = False
+            default_val = False
             if value:
                 if value.split(',')[0]:
                     try:
-                        val = int(value.split(',')[1].split(',')[0].strip('('))
+                        default_val = int(value.split(',')[1].split(',')[0].strip('('))
                     except ValueError:
-                        val = False
+                        default_val = False
                 else:
                     if field.ttype == 'numeric':
-                        val = Decimal(value.split(',')[1])
+                        default_val = Decimal(value.split(',')[1])
                     elif field.ttype in ('char', 'selection'):
-                        val = value.split(',')[1]
+                        default_val = value.split(',')[1]
                     else:
                         raise Exception('Not implemented')
-            default_val = val
+
 
         res = False
         if (val != default_val):
