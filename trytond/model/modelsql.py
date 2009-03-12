@@ -133,8 +133,7 @@ class ModelSQL(ModelStorage):
                         hasattr(field, 'size') and field.size or None)
                 if self._history:
                     history_table.add_raw_column(field_name,
-                            FIELDS[field._type].sql_type(field),
-                            FIELDS[field._type].sql_format)
+                            FIELDS[field._type].sql_type(field), None)
 
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
@@ -170,6 +169,10 @@ class ModelSQL(ModelStorage):
             table.add_constraint(ident, constraint)
 
         if self._history:
+            for column_name in table._columns:
+                if not history_table.column_exist(column_name):
+                    history_table.add_raw_column(column_name,
+                            table._columns[column_name], None)
             cursor.execute('SELECT id FROM "' + self._table + '"')
             if cursor.rowcount:
                 cursor.execute('SELECT id FROM "' + self._table + '__history"')
