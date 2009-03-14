@@ -1006,6 +1006,25 @@ class TranslationUpdate(Wizard):
                         'AND lang = %s',
                     (row['src'], row['name'], row['res_id'], row['type'],
                         data['form']['lang']))
+
+        cursor.execute('SELECT src, MAX(value) AS value FROM ir_translation ' \
+                'WHERE lang = %s ' \
+                    'AND src IN (' \
+                        'SELECT src FROM ir_translation ' \
+                        'WHERE value = \'\' OR value IS NULL ' \
+                            'AND lang = %s) '
+                    'AND value != \'\' AND value IS NOT NULL ' \
+                'GROUP BY src', (data['form']['lang'], data['form']['lang']))
+
+        for row in cursor.dictfetchall():
+            cursor.execute('UPDATE ir_translation ' \
+                    'SET fuzzy = True, ' \
+                        'value = %s ' \
+                    'WHERE src = %s ' \
+                        'AND (value = \'\' OR value IS NULL) ' \
+                        'AND lang = %s', (row['value'], row['src'],
+                            data['form']['lang']))
+
         cursor.execute('UPDATE ir_translation ' \
                 'SET fuzzy = False ' \
                 'WHERE (value = \'\' OR value IS NULL) ' \
