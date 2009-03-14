@@ -152,6 +152,8 @@ class RecordTagHandler:
         self.mh = master_handler
         # stock xml_id parsed in one module
         self.xml_ids = []
+        self.model = None
+        self.xml_id = None
 
 
     def startElement(self, name, attributes):
