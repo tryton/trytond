@@ -121,7 +121,6 @@ field,"ir.cron,rec_name",0,Name,Name,0
 field,"ir.cron,request_user",0,Request User,Fehlermeldung an,0
 field,"ir.cron,running",0,Running,Wird zur Zeit ausgeführt,0
 field,"ir.cron,user",0,Execution User,Benutzer,0
-field,"ir.date,rec_name",0,Name,Name,0
 field,"ir.default,clause",0,Clause,Klausel,0
 field,"ir.default,field",0,Field,Feld,0
 field,"ir.default,model",0,Model,Modell,0
@@ -533,7 +532,6 @@ selection,"ir.ui.menu,icon",0,tryton-users,tryton-users,0
 selection,"ir.ui.menu,icon",0,tryton-web-browser,tryton-web-browser,0
 selection,"ir.ui.view,type",0,,,0
 selection,"ir.ui.view,type",0,Board,Infoseite,0
-selection,"ir.ui.view,type",0,Calendar,Kalender,0
 selection,"ir.ui.view,type",0,Form,Formular,0
 selection,"ir.ui.view,type",0,Graph,Diagramm,0
 selection,"ir.ui.view,type",0,Tree,Baum,0
