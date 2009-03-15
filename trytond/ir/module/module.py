@@ -159,6 +159,7 @@ class Module(ModelSQL, ModelView):
             'button_upgrade': True,
             'button_upgrade_cancel': True,
             'button_update_translations': True,
+            'on_write': False,
         })
         self._error_messages.update({
             'delete_state': 'You can not remove a module that is installed ' \
@@ -208,6 +209,36 @@ class Module(ModelSQL, ModelView):
                     ):
                 self.raise_user_error(cursor, 'delete_state', context=context)
         return super(Module, self).delete(cursor, user, ids, context=context)
+
+    def on_write(self, cursor, user, ids, context=None):
+        res = []
+        graph, packages, later = create_graph(get_module_list())
+        for module in self.browse(cursor, user, ids, context=context):
+            if module.name not in graph:
+                continue
+            def get_parents(name, graph):
+                parents = []
+                for node in graph:
+                    if graph[name] in node.childs:
+                        if node.name not in parents:
+                            parents.append(node.name)
+                for parent in parents:
+                    for parent2 in get_parents(parent, graph):
+                        if parent2 not in parents:
+                            parents.append(parent2)
+                return parents
+            dependencies = get_parents(module.name, graph)
+            def get_childs(name, graph):
+                childs = [x.name for x in graph[name].childs]
+                childs2 = []
+                for child in childs:
+                    childs2 += get_childs(child, graph)
+                return childs + childs2
+            dependencies += get_childs(module.name, graph)
+            res += self.search(cursor, user, [
+                ('name', 'in', dependencies),
+                ], context=context)
+        return list({}.fromkeys(res))
 
     def state_install(self, cursor, user, ids, context=None):
         graph, packages, later = create_graph(get_module_list())
