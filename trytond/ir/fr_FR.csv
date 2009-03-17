@@ -3,7 +3,7 @@ error,delete_workflow_record,0,You cannot delete a record with a running workflo
 error,delete_xml_record,0,You are not allowed to delete this record.,Vous n'êtes pas authorisé à supprimer cet enregistrement,0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","La valeur du champ ""%s"" de ""%s"" ne respecte pas son domaine.",0
 error,ir.action.keyword,0,Wrong wizard model!,Mauvais modèle de wizard,0
-error,ir.action.report,0,The internal name must be unique!,Le nom interne doit être unique,0
+error,ir.action.report,0,The internal name must be unique by module!,Le nom interne doit être unique par module !,0
 error,ir.attachment,0,Error! You can not create attachments with the same name!,Erreur ! Vous ne pouvez pas créer des pièces jointes avec le même nom.,0
 error,ir.cron,0,Scheduled action failed,L'action planifiée a échoué,0
 error,ir.cron,0,"The following action failed to execute properly: ""%s""
@@ -41,18 +41,20 @@ error,ir.ui.view,0,Invalid XML for View!,L'xml de la vue n'est pas valide !,0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Le champ ""%s"" de ""%s"" est requis.",0
 error,write_xml_record,0,You are not allowed to modify this record.,Vous n'êtes pas autorisé à modifier cet enregistrement.,0
 error,xml_record_desc,0,This record is part of the base configuration.,Cet enregistrement fait partie de la configuration de base.,0
+field,"ir.action,active",0,Active,Actif,0
 field,"ir.action.act_window,action",0,Action,Action,0
 field,"ir.action.act_window,act_window_views",0,Views,Vues,0
 field,"ir.action.act_window,auto_refresh",0,Auto-Refresh,Auto-rafraîchissement,0
 field,"ir.action.act_window,context",0,Context Value,Valeur contextuelle,0
 field,"ir.action.act_window,domain",0,Domain Value,Valeur du domaine,0
 field,"ir.action.act_window,limit",0,Limit,Limite,0
+field,"ir.action.act_window,rec_name",0,Name,Nom,0
 field,"ir.action.act_window,res_model",0,Model,Modèle,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Critères de recherche,0
 field,"ir.action.act_window,src_model",0,Source model,Modèle source,0
 field,"ir.action.act_window,usage",0,Action Usage,Utilisation,0
 field,"ir.action.act_window.view,act_window",0,Action,Action,0
-field,"ir.action.act_window.view,multi",0,On multiple doc.,Sur plusieurs doc.,0
+field,"ir.action.act_window.view,rec_name",0,Name,Nom,0
 field,"ir.action.act_window,views",0,Views,Vues,0
 field,"ir.action.act_window.view,sequence",0,Sequence,Séquence,0
 field,"ir.action.act_window,view_type",0,Type of view,Type de vue,0
@@ -62,15 +64,20 @@ field,"ir.action,groups",0,Groups,Groupes,0
 field,"ir.action.keyword,action",0,Action,Action,0
 field,"ir.action.keyword,keyword",0,Keyword,Mot-clé,0
 field,"ir.action.keyword,model",0,Model,Modèle,0
+field,"ir.action.keyword,rec_name",0,Name,Nom,0
 field,"ir.action,keywords",0,Keywords,Mots-clés,0
 field,"ir.action,name",0,Name,Nom,0
+field,"ir.action,rec_name",0,Name,Nom,0
 field,"ir.action.report,action",0,Action,Action,0
 field,"ir.action.report,direct_print",0,Direct Print,Imprimer directement,0
+field,"ir.action.report,email",0,Email,E-mail,0
 field,"ir.action.report,model",0,Model,Modèle,0
 field,"ir.action.report,module",0,Module,Module,0
 field,"ir.action.report,output_format",0,Output format,Format de sortie,0
 field,"ir.action.report.outputformat,format",0,Internal Format Name,Nom du format interne,0
 field,"ir.action.report.outputformat,name",0,Name,Nom,0
+field,"ir.action.report.outputformat,rec_name",0,Name,Nom,0
+field,"ir.action.report,rec_name",0,Name,Nom,0
 field,"ir.action.report,report",0,Path,Chemin,0
 field,"ir.action.report,report_content",0,Content,Contenu,0
 field,"ir.action.report,report_content_data",0,Content,Contenu,0
@@ -79,10 +86,13 @@ field,"ir.action.report,style",0,Style,Style,0
 field,"ir.action.report,style_content",0,Style,Style,0
 field,"ir.action,type",0,Type,Type,0
 field,"ir.action.url,action",0,Action,Action,0
+field,"ir.action.url,rec_name",0,Name,Nom,0
 field,"ir.action.url,url",0,Action Url,Url,0
 field,"ir.action,usage",0,Usage,Utilisation,0
 field,"ir.action.wizard,action",0,Action,Action,0
+field,"ir.action.wizard,email",0,Email,E-mail,0
 field,"ir.action.wizard,model",0,Model,Modèle,0
+field,"ir.action.wizard,rec_name",0,Name,Nom,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Nom du wizard,0
 field,"ir.attachment,collision",0,Collision,Collision,0
 field,"ir.attachment,datas",0,Datas,Données,0
@@ -91,9 +101,11 @@ field,"ir.attachment,description",0,Description,Description,0
 field,"ir.attachment,digest",0,Digest,Empreinte,0
 field,"ir.attachment,link",0,Link,Lien,0
 field,"ir.attachment,name",0,Attachment Name,Nom de la pièce jointe,0
+field,"ir.attachment,rec_name",0,Name,Nom,0
 field,"ir.attachment,res_id",0,Resource ID,ID de la ressource,0
 field,"ir.attachment,res_model",0,Resource Model,Modèle de la ressource,0
 field,"ir.cache,name",0,Name,Nom,0
+field,"ir.cache,rec_name",0,Name,Nom,0
 field,"ir.cache,timestamp",0,Timestamp,Estampille,0
 field,"ir.cron,active",0,Active,Actif,0
 field,"ir.cron,args",0,Arguments,Arguments,0
@@ -106,18 +118,22 @@ field,"ir.cron,name",0,Name,Nom,0
 field,"ir.cron,nextcall",0,Next call date,Date d'appel suivant,0
 field,"ir.cron,numbercall",0,Number of calls,Nombre d'appels,0
 field,"ir.cron,priority",0,Priority,Priorité,0
+field,"ir.cron,rec_name",0,Name,Nom,0
 field,"ir.cron,request_user",0,Request User,Requête utilisateur,0
 field,"ir.cron,running",0,Running,En cours,0
 field,"ir.cron,user",0,Execution User,Utilisateur,0
 field,"ir.default,clause",0,Clause,Clause,0
 field,"ir.default,field",0,Field,Champ,0
 field,"ir.default,model",0,Model,Modèle,0
+field,"ir.default,rec_name",0,Name,Nom,0
 field,"ir.default,user",0,User,Utilisateur,0
 field,"ir.default,value",0,Value,Valeur,0
 field,"ir.export,export_fields",0,Export Id,Id d'exportation,0
 field,"ir.export.line,export",0,Exportation,Exportation,0
 field,"ir.export.line,name",0,Field name,Champ du nom,0
+field,"ir.export.line,rec_name",0,Name,Nom,0
 field,"ir.export,name",0,Export name,Nom de l'exportation,0
+field,"ir.export,rec_name",0,Name,Nom,0
 field,"ir.export,resource",0,Resource,Ressource,0
 field,"ir.lang,active",0,Active,Actif,0
 field,"ir.lang,code",0,Code,Code,0
@@ -126,6 +142,7 @@ field,"ir.lang,decimal_point",0,Decimal Separator,Séparateur de décimale,0
 field,"ir.lang,direction",0,Direction,Direction,0
 field,"ir.lang,grouping",0,Grouping,Groupement,0
 field,"ir.lang,name",0,Name,Nom,0
+field,"ir.lang,rec_name",0,Name,Nom,0
 field,"ir.lang,thousands_sep",0,Thousands Separator,Séparateur des centaines,0
 field,"ir.lang,translatable",0,Translatable,Traduisible,0
 field,"ir.model.access,description",0,Description,Description,0
@@ -135,6 +152,7 @@ field,"ir.model.access,perm_create",0,Create Access,Accès en creation,0
 field,"ir.model.access,perm_delete",0,Delete Permission,Permission de suppression,0
 field,"ir.model.access,perm_read",0,Read Access,Accès en lecture,0
 field,"ir.model.access,perm_write",0,Write Access,Accès en écriture,0
+field,"ir.model.access,rec_name",0,Name,Nom,0
 field,"ir.model.data,date_init",0,Init Date,Date d'initialisation,0
 field,"ir.model.data,date_update",0,Update Date,Date de mis à jour,0
 field,"ir.model.data,db_id",0,Resource ID,ID de la ressource,0
@@ -142,6 +160,7 @@ field,"ir.model.data,fs_id",0,Identifier on File System,Identifiant sur le syst�
 field,"ir.model.data,inherit",0,Inherit,Hérité,0
 field,"ir.model.data,model",0,Model,Modèle,0
 field,"ir.model.data,module",0,Module,Module,0
+field,"ir.model.data,rec_name",0,Name,Nom,0
 field,"ir.model.data,values",0,Values,Valeurs,0
 field,"ir.model.field,field_description",0,Field Description,Champ de description,0
 field,"ir.model.field,groups",0,Groups,Groupes,0
@@ -149,6 +168,7 @@ field,"ir.model.field,help",0,Help,Aide,0
 field,"ir.model.field,model",0,Model,Modèle,0
 field,"ir.model.field,module",0,Module,Module,0
 field,"ir.model.field,name",0,Name,Nom,0
+field,"ir.model.field,rec_name",0,Name,Nom,0
 field,"ir.model.field,relation",0,Model Relation,Relation du modèle,0
 field,"ir.model,fields",0,Fields,Champs,0
 field,"ir.model.field,ttype",0,Field Type,Champ du type,0
@@ -156,23 +176,29 @@ field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Model Name,Nom de l'objet,0
 field,"ir.model,module",0,Module,Module,0
 field,"ir.model,name",0,Model Description,Nom du modèle,0
+field,"ir.model.print_model_graph.init,level",0,Level,Niveau,0
+field,"ir.model,rec_name",0,Name,Nom,0
 field,"ir.module.module,author",0,Author,Auteur,0
 field,"ir.module.module.config_wizard.item,name",0,Name,Nom,0
+field,"ir.module.module.config_wizard.item,rec_name",0,Name,Nom,0
 field,"ir.module.module.config_wizard.item,sequence",0,Sequence,Séquence,0
 field,"ir.module.module.config_wizard.item,state",0,State,État,0
 field,"ir.module.module,dependencies",0,Dependencies,Dépendances,0
 field,"ir.module.module.dependency,module",0,Module,Module,0
 field,"ir.module.module.dependency,name",0,Name,Nom,0
+field,"ir.module.module.dependency,rec_name",0,Name,Nom,0
 field,"ir.module.module.dependency,state",0,State,État,0
 field,"ir.module.module,description",0,Description,Description,0
 field,"ir.module.module.install_upgrade.init,module_info",0,Modules to update,Modules à mettre à jours,0
 field,"ir.module.module,name",0,Name,Nom,0
+field,"ir.module.module,rec_name",0,Name,Nom,0
 field,"ir.module.module,shortdesc",0,Short description,Description courte,0
 field,"ir.module.module,state",0,State,État,0
 field,"ir.module.module,version",0,Version,Version,0
 field,"ir.module.module,website",0,Website,Site web,0
 field,"ir.property,field",0,Field,Champ,0
 field,"ir.property,name",0,Name,Nom,0
+field,"ir.property,rec_name",0,Name,Nom,0
 field,"ir.property,res",0,Resource,Ressource,0
 field,"ir.property,value",0,Value,Valeur,0
 field,"ir.rule,field",0,Field,Champ,0
@@ -181,29 +207,34 @@ field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Groupes,0
 field,"ir.rule.group,model",0,Model,Modèle,0
 field,"ir.rule.group,name",0,Name,Nom,0
+field,"ir.rule.group,rec_name",0,Name,Nom,0
 field,"ir.rule.group,rules",0,Tests,Tests,0
 field,"ir.rule.group,users",0,Users,Utilisateurs,0
 field,"ir.rule,operand",0,Operand,Opérande,0
 field,"ir.rule,operator",0,Operator,Opérateur,0
+field,"ir.rule,rec_name",0,Name,Nom,0
 field,"ir.rule,rule_group",0,Group,Groupe,0
 field,"ir.sequence,active",0,Active,Actif,0
-field,"ir.sequence,code",0,Sequence Code,Code de la séquence,0
+field,"ir.sequence,code",0,Sequence Type,Type de séquence,0
 field,"ir.sequence,name",0,Sequence Name,Nom de la séquence,0
 field,"ir.sequence,number_increment",0,Increment Number,Nombre d'incrément,0
 field,"ir.sequence,number_next",0,Next Number,Numéro suivant,0
 field,"ir.sequence,padding",0,Number padding,Nombre de chiffres,0
 field,"ir.sequence,prefix",0,Prefix,Préfixe,0
+field,"ir.sequence,rec_name",0,Name,Nom,0
 field,"ir.sequence.strict,active",0,Active,Actif,0
-field,"ir.sequence.strict,code",0,Sequence Code,Code,0
+field,"ir.sequence.strict,code",0,Sequence Type,Type de séquence,0
 field,"ir.sequence.strict,name",0,Sequence Name,Nom,0
 field,"ir.sequence.strict,number_increment",0,Increment Number,Incrément,0
 field,"ir.sequence.strict,number_next",0,Next Number,Nombre suivant,0
 field,"ir.sequence.strict,padding",0,Number padding,Nombre de chiffes,0
 field,"ir.sequence.strict,prefix",0,Prefix,Préfixe,0
+field,"ir.sequence.strict,rec_name",0,Name,Nom,0
 field,"ir.sequence.strict,suffix",0,Suffix,Suffixe,0
 field,"ir.sequence,suffix",0,Suffix,Suffixe,0
 field,"ir.sequence.type,code",0,Sequence Code,Code de la séquence,0
 field,"ir.sequence.type,name",0,Sequence Name,Nom de la séquence,0
+field,"ir.sequence.type,rec_name",0,Name,Nom,0
 field,"ir.translation.export.init,lang",0,Language,Langue,0
 field,"ir.translation.export.init,module",0,Module,Module,0
 field,"ir.translation.export.start,file",0,File,Fichier,0
@@ -212,6 +243,7 @@ field,"ir.translation,lang",0,Language,Langue,0
 field,"ir.translation,model",0,Model,Modèle,0
 field,"ir.translation,module",0,Module,Module,0
 field,"ir.translation,name",0,Field Name,Champ du nom,0
+field,"ir.translation,rec_name",0,Name,Nom,0
 field,"ir.translation,res_id",0,Resource ID,ID de la ressource,0
 field,"ir.translation,src",0,Source,Source,0
 field,"ir.translation,type",0,Type,Type,0
@@ -225,29 +257,31 @@ field,"ir.ui.menu,groups",0,Groups,Groupes,0
 field,"ir.ui.menu,icon",0,Icon,Icône,0
 field,"ir.ui.menu,name",0,Menu,Menu,0
 field,"ir.ui.menu,parent",0,Parent Menu,Menu parent,0
+field,"ir.ui.menu,rec_name",0,Name,Nom,0
 field,"ir.ui.menu,sequence",0,Sequence,Séquence,0
 field,"ir.ui.view,arch",0,View Architecture,Architecture de la vue,0
+field,"ir.ui.view,domain",0,Domain,Domaine,0
 field,"ir.ui.view,field_childs",0,Childs Field,Champs enfants,0
 field,"ir.ui.view,inherit",0,Inherited View,Vue héritée,0
 field,"ir.ui.view,model",0,Model,Modèle,0
 field,"ir.ui.view,module",0,Module,Module,0
 field,"ir.ui.view,priority",0,Priority,Priorité,0
+field,"ir.ui.view,rec_name",0,Name,Nom,0
 field,"ir.ui.view_sc,name",0,Shortcut Name,Nom du raccourcis,0
+field,"ir.ui.view_sc,rec_name",0,Name,Nom,0
 field,"ir.ui.view_sc,res_id",0,Resource Ref.,Réf. de la ressource,0
 field,"ir.ui.view_sc,resource",0,Resource Name,Nom de la ressource,0
 field,"ir.ui.view_sc,sequence",0,Sequence,Séquence,0
 field,"ir.ui.view_sc,user_id",0,User Ref.,Réf. utilisateur,0
 field,"ir.ui.view_tree_width,field",0,Field,Champ,0
 field,"ir.ui.view_tree_width,model",0,Model,Modèle,0
+field,"ir.ui.view_tree_width,rec_name",0,Name,Nom,0
 field,"ir.ui.view_tree_width,user",0,User,Utilisateur,0
 field,"ir.ui.view_tree_width,width",0,Width,Largeur,0
 field,"ir.ui.view,type",0,View Type,Type de vue,0
 help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Ajoute un auto-rafraîchissement sur la vue,0
 help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par défaut pour la vue liste,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Critères de recherche par défaut pour la vue liste,0
-help,"ir.action.act_window.view,multi",0,"If set to true, the action will not be displayed 
-on the bottom toolbar of a form views.","Si positionné sur vrai, l'action ne sera pas affichée
-sur la barre du bas des vues formulaires",0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Utiliser le nom de l'action comme nom de la fenêtre,0
 help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Utiliser aussi comme extension de fichier.,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Définit le style à appliquer sur le rapport.,0
@@ -268,6 +302,10 @@ help,"ir.rule.group,default_p",0,Add this rule to all users by default,Ajouter c
 help,"ir.rule.group,global_p",0,"Make the rule global 
 so every users must follow this rule",Rend la règle globale de sorte que tout utilisateur doive la respecter,0
 help,"ir.rule.group,rules",0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
+model,"ir.action.act_window,name",0,Action act window,Action ouvrir fenêtre,0
+model,"ir.action.act_window.view,name",0,Action act window view,Action ouvrir fenêtre vue,0
+model,"ir.action.keyword,name",0,Action keyword,Action de mots clés,0
+model,"ir.action,name",0,Action,Action,0
 model,"ir.action,name",act_action_form,Actions,Actions,0
 model,"ir.action,name",act_attachment_form,Attachments,Attachements,0
 model,"ir.action,name",act_translation_clean,Clean Translations,Nettoyer les traductions,0
@@ -277,6 +315,8 @@ model,"ir.action,name",act_default_form,Defaults,Valeurs par défaut,0
 model,"ir.action,name",act_export_form,Exports,Exports,0
 model,"ir.action,name",act_translation_export,Export Translations,Exporter les traductions,0
 model,"ir.action,name",act_model_fields_form,Fields,Champs,0
+model,"ir.action,name",report_model_graph,Graph,Graphique,0
+model,"ir.action,name",print_model_graph,Graph,Graphique,0
 model,"ir.action,name",act_lang_form,Languages,Langues,0
 model,"ir.action,name",act_menu_tree,Menu,Menu,0
 model,"ir.action,name",act_menu_form,Menus,Menus,0
@@ -302,8 +342,45 @@ model,"ir.action,name",act_view_sc_form,View Shortcuts,Raccourcis,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Largeur de la vue arbre,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Actions de la fenêtre,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
+model,"ir.action.report,name",0,Action report,Action rapport,0
 model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),Documents ODF (.odt),0
 model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,Document PDF,0
+model,"ir.action.report.outputformat,name",0,Report Output Format,Format de sortie de rapport,0
+model,"ir.action.url,name",0,Action URL,Action URL,0
+model,"ir.action.wizard,name",0,Action wizard,Action assistant,0
+model,"ir.attachment,name",0,Attachment,Pièce jointe,0
+model,"ir.cache,name",0,Cache,Cache,0
+model,"ir.cron,name",0,Cron,Cron,0
+model,"ir.date,name",0,Date,Date,0
+model,"ir.default,name",0,Default,Défaut,0
+model,"ir.export.line,name",0,Export line,Ligne d'export,0
+model,"ir.export,name",0,Export,Export,0
+model,"ir.lang,name",0,Language,Langue,0
+model,"ir.model.access,name",0,Model access,Accès de modèle,0
+model,"ir.model.data,name",0,Model data,Données de modèle,0
+model,"ir.model.field,name",0,Model field,Champ de modèle,0
+model,"ir.model,name",0,Model,Modèle,0
+model,"ir.model.print_model_graph.init,name",0,Print Model Graph Init,Imprimer le graphique de modèle - Init,0
+model,"ir.module.module.config_wizard.first,name",0,Module Config Wizard First,Assistant de configuration de module - Première,0
+model,"ir.module.module.config_wizard.item,name",0,Config wizard to run after installing module,Assistant de configuration à éxécuter après l'installation de module,0
+model,"ir.module.module.dependency,name",0,Module dependency,Dépendance de module,0
+model,"ir.module.module.install_upgrade.init,name",0,Module Install Upgrade Init,Installation Mise à jour de module - Init,0
+model,"ir.module.module.install_upgrade.start,name",0,Module Install Upgrade Start,Installation Mise à jour de module - Début,0
+model,"ir.module.module,name",0,Module,Module,0
+model,"ir.property,name",0,Property,Propriété,0
+model,"ir.rule.group,name",0,Rule group,Groupe de règle,0
+model,"ir.rule,name",0,Rule,Règle,0
+model,"ir.sequence,name",0,Sequence,Séquence,0
+model,"ir.sequence.strict,name",0,Sequence Strict,Séquence stricte,0
+model,"ir.sequence.type,name",0,Sequence type,Type de séquence,0
+model,"ir.translation.clean.init,name",0,Clean translation init,Netoyer les traductions - Init,0
+model,"ir.translation.clean.start,name",0,Clean translation start,Netoyer les traductions - Début,0
+model,"ir.translation.export.init,name",0,Export translation - language and module,Export de traduction - langue et module,0
+model,"ir.translation.export.start,name",0,Export translation - file,Export de traduction - Fichier,0
+model,"ir.translation,name",0,Translation,Traduction,0
+model,"ir.translation.set_report.init,name",0,Update Report Translation,Mise à jour des traductions de rapport,0
+model,"ir.translation.set_report.start,name",0,Update Report Translation,Mise à jour des traductions de rapport,0
+model,"ir.translation.update.init,name",0,Update translation - language,Mise à jour des traductions - Langue,0
 model,"ir.ui.menu,name",menu_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_act_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_administration,Administration,Administration,0
@@ -337,6 +414,7 @@ model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Mett
 model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traductions,0
 model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
+model,"ir.ui.menu,name",0,UI menu,Menu de l'IU,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,UI,0
 model,"ir.ui.menu,name",menu_view,Views,Vues,0
@@ -344,6 +422,9 @@ model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Raccourcis de la vue,0
 model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Largeur des vues arbres,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Actions de la fenêtre,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Wizards,0
+model,"ir.ui.view,name",0,View,Vue,0
+model,"ir.ui.view_sc,name",0,View shortcut,Vue raccourci,0
+model,"ir.ui.view_tree_width,name",0,View Tree Width,Largeur de vue arbre,0
 selection,"ir.action.act_window,view_type",0,Board,Tableau,0
 selection,"ir.action.act_window,view_type",0,Form,Formulaire,0
 selection,"ir.action.act_window,view_type",0,Tree,Arbre,0
@@ -451,7 +532,6 @@ selection,"ir.ui.menu,icon",0,tryton-users,,0
 selection,"ir.ui.menu,icon",0,tryton-web-browser,,0
 selection,"ir.ui.view,type",0,,,0
 selection,"ir.ui.view,type",0,Board,Tableau,0
-selection,"ir.ui.view,type",0,Calendar,Calendrier,0
 selection,"ir.ui.view,type",0,Form,Formulaire,0
 selection,"ir.ui.view,type",0,Graph,Graphique,0
 selection,"ir.ui.view,type",0,Tree,Arbre,0
@@ -486,6 +566,7 @@ view,ir.model,0,Fields Description,Champs de description,0
 view,ir.model,0,Model Description,Description du modèle,0
 view,ir.model.access,0,Access controls,Contrôles d'accès,0
 view,ir.model.field,0,Fields,Champs,0
+view,ir.model.print_model_graph.init,0,Print Model Graph,Imprimer le graphique de modèle,0
 view,ir.module.module,0,Cancel Install,Annuler l'installation,0
 view,ir.module.module,0,Cancel Installation,Annuler l'installation,0
 view,ir.module.module,0,Cancel Uninstall,Annuler la désinstallation,0
@@ -521,6 +602,7 @@ view,ir.rule.group,0,The rule is satisfied if at least one test is True,La règl
 view,ir.sequence,0,${day},,0
 view,ir.sequence,0,Day:,Jour:,0
 view,ir.sequence,0,"Legend (for prefix, suffix)","Légende (pour préfixe, suffixe)",0
+view,ir.sequence,0,"Legend (Placeholders for prefix, suffix)","Légende (charactère pour le préfixe, le suffixe)",0
 view,ir.sequence,0,${month},,0
 view,ir.sequence,0,Month:,Mois :,0
 view,ir.sequence,0,Sequences,Séquences,0
@@ -555,8 +637,10 @@ view,ir.ui.view,0,View,Vue,0
 view,ir.ui.view_sc,0,Shortcut,Raccourcis,0
 view,ir.ui.view_tree_width,0,Views Tree Width,Largeurs des Vues Arbres,0
 view,ir.ui.view_tree_width,0,View Tree Width,Largeur de Vue Arbre,0
+wizard_button,"ir.model.print_model_graph,init,end",0,Cancel,Annuler,0
+wizard_button,"ir.model.print_model_graph,init,print",0,Print,Imprimer,0
 wizard_button,"ir.module.module.config_wizard,first,end",0,Cancel,Annuler,0
-wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,Valider,0
+wizard_button,"ir.module.module.config_wizard,first,wizard",0,Ok,Ok,0
 wizard_button,"ir.module.module.install_upgrade,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.module.module.install_upgrade,init,start",0,Start Upgrade,Démarrer la mis à jour,0
 wizard_button,"ir.module.module.install_upgrade,start,menu",0,Ok,Ok,0
