@@ -345,7 +345,7 @@ class Cursor(CursorInterface):
                 "'ir_ui_menu', "
                 "'res_user', "
                 "'res_group', "
-                "'res_group_user_rel', "
+                "'res_user-res_group', "
                 "'wkf', "
                 "'wkf_activity', "
                 "'wkf_transition', "

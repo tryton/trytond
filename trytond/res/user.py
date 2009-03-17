@@ -6,6 +6,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.wizard import Wizard
 from lxml import etree
 from trytond.tools import Cache
+from trytond.backend import TableHandler
 
 
 class User(ModelSQL, ModelView):
@@ -302,12 +303,18 @@ User()
 class UserGroup(ModelSQL):
     'User - Group'
     _name = 'res.user-res.group'
-    _table = 'res_group_user_rel'
     _description = __doc__
     uid = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=1,
             required=True)
     gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE', select=1,
             required=True)
+
+    def init(self, cursor, module_name):
+        # Migration from 1.0 table name change
+        TableHandler.table_rename(cursor, 'res_group_user_rel', self._table)
+        TableHandler.sequence_rename(cursor, 'res_group_user_rel_id_seq',
+                self._sequence)
+        super(UserGroup, self).init(cursor, module_name)
 
 UserGroup()
 
