@@ -21,7 +21,6 @@ _PRIORITIES = [
 class Request(ModelSQL, ModelView):
     "Request"
     _name = 'res.request'
-    _table = 'res_request'
     _description = __doc__
     create_date = fields.DateTime('Created date', readonly=True)
     name = fields.Char('Subject', states={
