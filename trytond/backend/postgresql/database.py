@@ -338,14 +338,12 @@ class Cursor(CursorInterface):
         self.cursor.execute("SELECT relname " \
                 "FROM pg_class " \
                 "WHERE relkind = 'r' AND relname in (" \
-                "'inherit', "
                 "'ir_model', "
                 "'ir_model_field', "
                 "'ir_ui_view', "
                 "'ir_ui_menu', "
                 "'res_user', "
                 "'res_group', "
-                "'res_user-res_group', "
                 "'wkf', "
                 "'wkf_activity', "
                 "'wkf_transition', "
