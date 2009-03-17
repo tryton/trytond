@@ -246,7 +246,7 @@ class ActionReport(ModelSQL, ModelView):
     def init(self, cursor, module_name):
         super(ActionReport, self).init(cursor, module_name)
 
-        table = TableHandler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self, module_name)
 
         # Migration from 1.0 report_name_uniq has been removed
         table.drop_constraint('report_name_uniq')
@@ -442,7 +442,7 @@ class ActionActWindowView(ModelSQL, ModelView):
 
     def init(self, cursor, module_name):
         super(ActionActWindowView, self).init(cursor, module_name)
-        table = TableHandler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self, module_name)
 
         # Migration from 1.0 remove multi
         table.drop_column('multi')

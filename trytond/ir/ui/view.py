@@ -46,7 +46,7 @@ class View(ModelSQL, ModelView):
 
     def init(self, cursor, module_name):
         super(View, self).init(cursor, module_name)
-        table = TableHandler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self, module_name)
 
         # Migration from 1.0 arch no more required
         table.not_null_action('arch', action='remove')

@@ -7,13 +7,23 @@ class TableHandlerInterface(object):
     Define generic interface to handle database table
     '''
 
-    def __init__(self, cursor, table_name, object_name=None, module_name=None,
-            history=False):
+    def __init__(self, cursor, model, module_name=None, history=False):
+        '''
+        :param cursor: the database cursor
+        :param model: the Model linked to the table
+        :param module_name: the module name
+        :param history: a boolean to define if it is a history table
+        '''
         super(TableHandlerInterface, self).__init__()
         self.cursor = cursor
-        self.table_name = table_name
-        self.object_name = object_name
+        if history:
+            self.table_name = model._table + '__history'
+        else:
+            self.table_name = model._table
+        self.object_name = model._name
+        self.sequence_name = model._sequence
         self.module_name = module_name
+        self.history = history
 
     @staticmethod
     def table_exist(cursor, table_name):

@@ -66,7 +66,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
     def init(self, cursor, module_name):
         super(Translation, self).init(cursor, module_name)
 
-        table = TableHandler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self, module_name)
         table.index_action(['lang', 'type', 'name'], 'add')
         table.index_action(['lang', 'type', 'name', 'src'], 'add')
 

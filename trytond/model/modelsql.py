@@ -59,10 +59,9 @@ class ModelSQL(ModelStorage):
             return
 
         # create/update table in the database
-        table = TableHandler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self, module_name)
         if self._history:
-            history_table = TableHandler(cursor, self._table + '__history',
-                    None, module_name, history=True)
+            history_table = TableHandler(cursor, self, module_name, history=True)
         datetime_field = FIELDS['datetime']
         integer_field = FIELDS['integer']
         logs = (
