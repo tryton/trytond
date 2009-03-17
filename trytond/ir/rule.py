@@ -136,17 +136,24 @@ class Rule(ModelSQL, ModelView):
             return self.domain_get(cursor, context['user'], model_name,
                     context=ctx)
 
-        cursor.execute("SELECT r.id FROM ir_rule r " \
-                "JOIN (ir_rule_group g " \
-                    "JOIN ir_model m ON (g.model = m.id)) " \
+        rule_group_obj = self.pool.get('ir.rule.group')
+        model_obj = self.pool.get('ir.model')
+        rule_group_user_obj = self.pool.get('ir.rule.group-res.user')
+        rule_group_group_obj = self.pool.get('ir.rule.group-res.group')
+        user_group_obj = self.pool.get('res.user-res.group')
+
+        cursor.execute('SELECT r.id FROM "' + self._table + '" r ' \
+                'JOIN ("' + rule_group_obj._table + '" g ' \
+                    'JOIN "' + model_obj._table + '" m ON (g.model = m.id)) ' \
                     "ON (g.id = r.rule_group) " \
                 "WHERE m.model = %s "
                     "AND (g.id IN (" \
-                            "SELECT rule_group_id FROM user_rule_group_rel " \
+                            'SELECT rule_group_id ' \
+                            'FROM "' + rule_group_user_obj._table + '" ' \
                                 "WHERE user_id = %s " \
                             "UNION SELECT rule_group_id " \
-                                "FROM group_rule_group_rel g_rel " \
-                                "JOIN res_group_user_rel u_rel " \
+                            'FROM "' + rule_group_group_obj._table + '" g_rel ' \
+                                'JOIN "' + user_group_obj._table + '" u_rel ' \
                                     "ON (g_rel.group_id = u_rel.gid) " \
                                 "WHERE u_rel.uid = %s) " \
                         "OR default_p " \
@@ -178,17 +185,19 @@ class Rule(ModelSQL, ModelView):
         val = []
 
         # Test if there is no rule_group that have no rule
-        cursor.execute("""SELECT g.id FROM
-            ir_rule_group g
-                JOIN ir_model m ON (g.model = m.id)
-            WHERE m.model = %s
-                AND (g.id NOT IN (SELECT rule_group FROM ir_rule))
-                AND (g.id IN (SELECT rule_group_id FROM user_rule_group_rel
-                    WHERE user_id = %s
-                    UNION SELECT rule_group_id FROM group_rule_group_rel g_rel
-                        JOIN res_group_user_rel u_rel
-                            ON g_rel.group_id = u_rel.gid
-                        WHERE u_rel.uid = %s))""", (model_name, user, user))
+        cursor.execute('SELECT g.id FROM "' + rule_group_obj._table + '" g ' \
+                'JOIN "' + model_obj._table + '" m ON (g.model = m.id) ' \
+            'WHERE m.model = %s ' \
+                'AND (g.id NOT IN (SELECT rule_group ' \
+                        'FROM "' + self._table + '")) ' \
+                'AND (g.id IN (SELECT rule_group_id ' \
+                        'FROM "' + rule_group_user_obj._table + '" ' \
+                        'WHERE user_id = %s ' \
+                        'UNION SELECT rule_group_id ' \
+                        'FROM "' + rule_group_group_obj._table + '" g_rel ' \
+                            'JOIN "' + user_group_obj._table + '" u_rel ' \
+                                'ON g_rel.group_id = u_rel.gid ' \
+                        'WHERE u_rel.uid = %s))', (model_name, user, user))
         if cursor.rowcount:
             group_id = cursor.fetchone()[0]
             clause[group_id] = []
