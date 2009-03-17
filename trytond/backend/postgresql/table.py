@@ -42,6 +42,26 @@ class TableHandler(TableHandlerInterface):
                        (table_name,))
         return bool(cursor.rowcount)
 
+    @staticmethod
+    def table_rename(cursor, old_name, new_name):
+        if TableHandler.table_exist(cursor, old_name) and \
+                not TableHandler.table_exist(cursor, new_name):
+            cursor.execute('ALTER TABLE "%s" RENAME TO "%s"' % \
+                    (old_name, new_name))
+
+    @staticmethod
+    def sequence_exist(cursor, sequence_name):
+        cursor.execute('SELECT relname FROM pg_class ' \
+                'WHERE relkind = \'S\' and relname = %s', (sequence_name,))
+        return bool(cursor.rowcount)
+
+    @staticmethod
+    def sequence_rename(cursor, old_name, new_name):
+        if TableHandler.sequence_exist(cursor, old_name) and \
+                not TableHandler.sequence_exist(cursor, new_name):
+            cursor.execute('ALTER TABLE "%s" RENAME TO "%s"' % \
+                    (old_name, new_name))
+
     def column_exist(self, column_name):
         return column_name in self._columns
 

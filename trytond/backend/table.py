@@ -26,6 +26,39 @@ class TableHandlerInterface(object):
         '''
         raise
 
+    @staticmethod
+    def table_rename(cursor, old_name, new_name):
+        '''
+        Rename table
+
+        :param cursor: the database cursor
+        :param old_name: the old table name
+        :param new_name: the new table name
+        '''
+        raise
+
+    @staticmethod
+    def sequence_exist(cursor, sequence_name):
+        '''
+        Sequence exist
+
+        :param cursor: the database cursor
+        :param sequence_name: the sequence name
+        :return: a boolean
+        '''
+        raise
+
+    @staticmethod
+    def sequence_rename(cursor, old_name, new_name):
+        '''
+        Rename sequence
+
+        :param cursor: the database cursor
+        :param old_name: the old sequence name
+        :param new_name: the new sequence name
+        '''
+        raise
+
     def column_exist(self, column_name):
         '''
         Column exist
