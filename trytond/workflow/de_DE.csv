@@ -65,7 +65,7 @@ model,"workflow.activity,name",0,Workflow activity,Workflow Aktivität,0
 model,"workflow.instance,name",0,Workflow instance,Workflow Instanz,0
 model,"workflow,name",0,Workflow,Workflow,0
 model,"workflow.transition,name",0,Workflow transition,Workflow Übergang,0
-model,"workflow.transition-workflow.instance,name",0,workflow.transition-workflow.instance,workflow.transition-workflow.instance,0
+model,"workflow.transition-workflow.instance,name",0,Workflow Transition - Instance,Workflow Übergang - Instanz,0
 model,"workflow.trigger,name",0,Workflow trigger,Workflow Trigger,0
 model,"workflow.workitem,name",0,Workflow workitem,Workflow Element,0
 selection,"workflow.activity,join_mode",0,And,Und,0
