@@ -8,31 +8,34 @@ import logging
 
 class TableHandler(TableHandlerInterface):
 
-    def __init__(self, cursor, table_name, object_name=None, module_name=None,
-            history=False):
-        super(TableHandler, self).__init__(cursor, table_name,
-                object_name=object_name, module_name=module_name)
+    def __init__(self, cursor, model, module_name=None, history=False):
+        super(TableHandler, self).__init__(cursor, model,
+                module_name=module_name)
         self._columns = {}
         self._constraints = []
         self._fk_deltypes = {}
         self._indexes = {}
         self._field2module = {}
 
+        # Create sequence if necessary
+        if not self.history and \
+                not self.sequence_exist(self.cursor, self.sequence_name):
+            self.cursor.execute('CREATE SEQUENCE "%s"' % self.sequence_name)
+
         # Create new table if necessary
         if not self.table_exist(self.cursor, self.table_name):
-            if not history:
-                self.cursor.execute('CREATE TABLE "%s" ' \
-                                "(id SERIAL NOT NULL, " \
-                                "PRIMARY KEY(id))"% self.table_name)
-            else:
-                self.cursor.execute('CREATE TABLE "%s" ' \
-                        '(id INTEGER)' % self.table_name)
+            self.cursor.execute('CREATE TABLE "%s" ' \
+                    '(id INTEGER NOT NULL)' % self.table_name)
+            if not self.history:
+                self.cursor.execute('ALTER TABLE "%s" ' \
+                        'ADD PRIMARY KEY(id)' % self.table_name)
         self._update_definitions()
         if 'id' not in self._columns:
             self.cursor.execute('ALTER TABLE "%s" ' \
-                    'ADD COLUMN id SERIAL NOT NULL' % self.table_name)
-            self.cursor.execute('ALTER TABLE "%s" ' \
-                    'ADD PRIMARY KEY(id)' % self.table_name)
+                    'ADD COLUMN id INTEGER NOT NULL' % self.table_name)
+            if not self.history:
+                self.cursor.execute('ALTER TABLE "%s" ' \
+                        'ADD PRIMARY KEY(id)' % self.table_name)
             self._update_definitions()
 
     @staticmethod

@@ -144,7 +144,7 @@ class WorkflowInstance(ModelSQL, ModelView):
     def init(self, cursor, module_name):
         super(WorkflowInstance, self).init(cursor, module_name)
 
-        table = TableHandler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self, module_name)
         table.index_action(['res_id', 'res_type', 'state'], 'add')
         table.index_action(['res_id', 'workflow'], 'add')
 
@@ -454,7 +454,7 @@ class WorkflowTrigger(ModelSQL, ModelView):
     def init(self, cursor, module_name):
         super(WorkflowTrigger, self).init(cursor, module_name)
 
-        table = TableHandler(cursor, self._table, self._name, module_name)
+        table = TableHandler(cursor, self, module_name)
         table.index_action(['res_id', 'model'], 'add')
 
 WorkflowTrigger()
