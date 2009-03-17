@@ -303,6 +303,7 @@ class UserGroup(ModelSQL):
     'User - Group'
     _name = 'res.user-res.group'
     _table = 'res_group_user_rel'
+    _description = __doc__
     uid = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=1,
             required=True)
     gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE', select=1,
