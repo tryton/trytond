@@ -225,6 +225,7 @@ class WorkflowTransitionInstance(ModelSQL):
     "Workflow Transition - Instance"
     _name = 'workflow.transition-workflow.instance'
     _table = 'wkf_witm_trans'
+    _description = __doc__
     trans_id = fields.Many2One('workflow.transition', 'Transition',
             ondelete='CASCADE', select=1, required=True)
     inst_id = fields.Many2One('workflow.instance', 'Instance',

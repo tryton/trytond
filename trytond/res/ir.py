@@ -7,6 +7,7 @@ class UIMenuGroup(ModelSQL):
     "UI Menu - Group"
     _name = 'ir.ui.menu-res.group'
     _table = 'ir_ui_menu_group_rel'
+    _description = __doc__
     menu_id = fields.Many2One('ir.ui.menu', 'Menu', ondelete='RESTRICT',
             select=1, required=True)
     gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
@@ -19,6 +20,7 @@ class ActionGroup(ModelSQL):
     "Action - Group"
     _name = 'ir.action-res.group'
     _table = 'ir_action_group_rel'
+    _description = __doc__
     action_id = fields.Many2One('ir.action', 'Action', ondelete='RESTRICT',
             select=1, required=True)
     gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
@@ -31,6 +33,7 @@ class ModelFieldGroup(ModelSQL):
     "Model Field Group Rel"
     _name = 'ir.model.field-res.group'
     _table = 'ir_model_field_group_rel'
+    _description = __doc__
     field_id = fields.Many2One('ir.model.field', 'Model Field',
             ondelete='RESTRICT', select=1, required=True)
     group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
@@ -43,6 +46,7 @@ class RuleGroupGroup(ModelSQL):
     "Rule Group - Group"
     _name = 'ir.rule.group-res.group'
     _table = 'group_rule_group_rel'
+    _description = __doc__
     rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
             ondelete='RESTRICT', select=1, required=True)
     group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
@@ -55,6 +59,7 @@ class RuleGroupUser(ModelSQL):
     "Rule Group - User"
     _name = 'ir.rule.group-res.user'
     _table = 'user_rule_group_rel'
+    _description = __doc__
     rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
             ondelete='RESTRICT', select=1, required=True)
     user_id = fields.Many2One('res.user', 'User', ondelete='CASCADE',
