@@ -103,7 +103,7 @@ CREATE TABLE res_group (
     primary key(id)
 );
 
-CREATE TABLE res_group_user_rel (
+CREATE TABLE "res_user-res_group" (
 	uid integer NOT NULL references res_user on delete cascade,
 	gid integer NOT NULL references res_group on delete cascade
 );
