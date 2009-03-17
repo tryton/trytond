@@ -192,11 +192,13 @@ class ModelAccess(ModelSQL, ModelView):
             return False
         if user == 0:
             return True
+        ir_model_obj = self.pool.get('ir.model')
+        user_group_obj = self.pool.get('res.user-res.group')
         cursor.execute('SELECT MAX(CASE WHEN perm_'+mode+' THEN 1 else 0 END) '
             'FROM ir_model_access a '
-                'JOIN ir_model m '
+                'JOIN "' + ir_model_obj._table + '" m '
                     'ON (a.model = m.id) '
-                'JOIN res_group_user_rel gu '
+                'JOIN "' + user_group_obj._table + '" gu '
                     'ON (gu.gid = a.group) '
             'WHERE m.model = %s AND gu.uid = %s', (model_name, user,))
         row = cursor.fetchall()
