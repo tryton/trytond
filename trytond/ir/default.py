@@ -45,8 +45,6 @@ class Default(ModelSQL, ModelView):
                 test_clause = False
                 continue
             break
-        ctx = {}
-        ctx['Decimal'] = Decimal
         for default in self.browse(cursor, user, default_ids, context=context):
             if default.field.name not in res:
                 if default.field.ttype in ('reference', 'char', 'sha', 'text',
