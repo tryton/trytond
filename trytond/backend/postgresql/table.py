@@ -10,7 +10,7 @@ class TableHandler(TableHandlerInterface):
 
     def __init__(self, cursor, model, module_name=None, history=False):
         super(TableHandler, self).__init__(cursor, model,
-                module_name=module_name)
+                module_name=module_name, history=history)
         self._columns = {}
         self._constraints = []
         self._fk_deltypes = {}
