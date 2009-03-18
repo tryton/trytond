@@ -359,7 +359,6 @@ class ActionActWindow(ModelSQL, ModelView):
     domain = fields.Char('Domain Value')
     context = fields.Char('Context Value')
     res_model = fields.Char('Model')
-    src_model = fields.Char('Source model')
     view_type = fields.Selection([
         ('tree','Tree'),
         ('form','Form'),
