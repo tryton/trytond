@@ -37,6 +37,11 @@ class TableHandler(TableHandlerInterface):
                 self.cursor.execute('ALTER TABLE "%s" ' \
                         'ADD PRIMARY KEY(id)' % self.table_name)
             self._update_definitions()
+        if self.history and not '__id' in self._columns:
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'ADD COLUMN __id SERIAL NOT NULL' % self.table_name)
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'ADD PRIMARY KEY(__id)' % self.table_name)
 
     @staticmethod
     def table_exist(cursor, table_name):
