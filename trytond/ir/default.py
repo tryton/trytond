@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 "Default"
 from trytond.model import ModelView, ModelSQL, fields
+from trytond.tools import Cache
 from decimal import Decimal
 import mx.DateTime
 import datetime
@@ -70,6 +71,8 @@ class Default(ModelSQL, ModelView):
                     res[default.field.name] = eval(default.value)
         return res
 
+    get_default = Cache('ir_default.get_default')(get_default)
+
     def set_default(self, cursor, user, model, field, clause, value,
             user_default, context=None):
         model_obj = self.pool.get('ir.model')
@@ -95,5 +98,23 @@ class Default(ModelSQL, ModelView):
             'clause': clause,
             'user': user_default,
             }, context=context)
+
+    def create(self, cursor, user, vals, context=None):
+        res = super(Default, self).create(cursor, user, vals, context=context)
+        # Restart the cache for get_default method
+        self.get_default(cursor.dbname)
+        return res
+
+    def write(self, cursor, user, ids, vals, context=None):
+        res = super(Default, self).write(cursor, user, ids, vals, context=context)
+        # Restart the cache for get_default method
+        self.get_default(cursor.dbname)
+        return res
+
+    def delete(self, cursor, user, ids, context=None):
+        res = super(Default, self).delete(cursor, user, ids, context=context)
+        # Restart the cache for get_default method
+        self.get_default(cursor.dbname)
+        return res
 
 Default()
