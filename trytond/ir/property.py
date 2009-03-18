@@ -101,6 +101,15 @@ class Property(ModelSQL, ModelView):
                     res[res_id] = False
         return res
 
+    def _set_values(self, cursor, user, name, model, res_id, val, field_id,
+            context=None):
+        return {
+            'name': name,
+            'value': val,
+            'res': model + ',' + str(res_id),
+            'field': field_id,
+        }
+
     def set(self, cursor, user, name, model, res_id, val, context=None):
         """
         Set property value for res_id
@@ -150,12 +159,9 @@ class Property(ModelSQL, ModelView):
 
         res = False
         if (val != default_val):
-            res = self.create(cursor, 0, {
-                'name': name,
-                'value': val,
-                'res': model + ',' + str(res_id),
-                'field': field_id,
-            }, context=ctx)
+            vals = self._set_values(cursor, user, name, model, res_id, val,
+                    field_id, context=context)
+            res = self.create(cursor, 0, vals, context=ctx)
         return res
 
 Property()
