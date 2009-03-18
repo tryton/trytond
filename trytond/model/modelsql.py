@@ -171,7 +171,9 @@ class ModelSQL(ModelStorage):
             for column_name in table._columns:
                 if not history_table.column_exist(column_name):
                     history_table.add_raw_column(column_name,
-                            table._columns[column_name], None)
+                            (table._columns[column_name]['typname'],
+                                table._columns[column_name]['typname']),
+                                None)
             cursor.execute('SELECT id FROM "' + self._table + '"')
             if cursor.rowcount:
                 cursor.execute('SELECT id FROM "' + self._table + '__history"')
