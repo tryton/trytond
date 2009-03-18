@@ -1191,8 +1191,9 @@ class ModelSQL(ModelStorage):
                         ids2 = target_obj.search(cursor, user,
                                 [(domain[i][3], 'child_of', ids2)],
                                 context=context)
+                        relation_obj = self.pool.get(field.relation_name)
                         query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + field.relation_name + '" ' \
+                                'FROM "' + relation_obj._table + '" ' \
                                 'WHERE "' + field.target + '" IN (' + \
                                     ','.join(['%s' for x in ids2]) + ') ' \
                                     'AND "' + field.origin + '" IS NOT NULL'
