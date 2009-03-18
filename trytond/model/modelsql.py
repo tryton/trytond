@@ -205,6 +205,7 @@ class ModelSQL(ModelStorage):
         return None
 
     def create(self, cursor, user, values, context=None):
+        super(ModelSQL, self).create(cursor, user, values, context=context)
         if self.table_query(context):
             return False
 
