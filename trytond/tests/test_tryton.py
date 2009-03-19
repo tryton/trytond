@@ -68,6 +68,8 @@ class MPTTTestCase(unittest.TestCase):
             ('parent', '=', parent_id),
             ], 0, None, None, CONTEXT)
         childs = self.mptt.read(child_ids, ['left', 'right'], CONTEXT)
+        childs.sort(lambda x, y: cmp(child_ids.index(x['id']),
+            child_ids.index(y['id'])))
         for child in childs:
             if child['left'] <= left:
                 raise Exception('Record (%d): left %d <= parent left %d' % \
