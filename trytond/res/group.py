@@ -30,6 +30,8 @@ class Group(ModelSQL, ModelView):
         self.pool.get('ir.rule').domain_get(cursor.dbname)
         # Restart the cache for get_groups
         self.pool.get('res.user').get_groups(cursor.dbname)
+        # Restart the cache for get_preferences
+        self.pool.get('res.user').get_preferences(cursor.dbname)
         return res
 
 Group()

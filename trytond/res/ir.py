@@ -97,3 +97,15 @@ class RuleGroupUser(ModelSQL):
         super(RuleGroupUser, self).init(cursor, module_name)
 
 RuleGroupUser()
+
+
+class Lang(ModelSQL, ModelView):
+    _name = 'ir.lang'
+
+    def write(self, cursor, user, ids, vals, context=None):
+        res = super(Lang, self).write(cursor, user, ids, vals, context=context)
+        # Restart the cache for get_preferences
+        self.pool.get('res.user').get_preferences(cursor.dbname)
+        return res
+
+Lang()
