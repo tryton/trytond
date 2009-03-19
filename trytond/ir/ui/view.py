@@ -26,7 +26,7 @@ class View(ModelSQL, ModelView):
     arch = fields.Text('View Architecture')
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
             ondelete='CASCADE')
-    field_childs = fields.Char('Childs Field', states={
+    field_childs = fields.Char('Children Field', states={
         'invisible': "type != 'tree'",
         })
     module = fields.Char('Module', readonly=True)
