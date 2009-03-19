@@ -417,7 +417,8 @@ class Model(object):
                         context=context)
                 raise Exception('UserWarning', warning_name, warning)
 
-    def default_get(self, cursor, user, fields_names, context=None):
+    def default_get(self, cursor, user, fields_names, context=None,
+            with_rec_name=True):
         '''
         Return a dict with the default values for each fields_names.
 
@@ -425,6 +426,7 @@ class Model(object):
         :param user: the user id
         :param fields_names: a list of fields names
         :param context: the context
+        :param with_rec_name: a boolean to add rec_name value
         :return: a dictionnary with field name as key
             and default value as value
         '''
@@ -432,7 +434,7 @@ class Model(object):
         # get the default values for the inherited fields
         for i in self._inherits.keys():
             value.update(self.pool.get(i).default_get(cursor, user,
-                fields_names, context=context))
+                fields_names, context=context, with_rec_name=with_rec_name))
 
         # get the default values defined in the object
         for field in fields_names:
@@ -443,8 +445,9 @@ class Model(object):
                     property_obj = self.pool.get('ir.property')
                     value[field] = property_obj.get(cursor, user, field,
                             self._name)
-                if self._columns[field]._type in ('many2one',) \
-                        and value.get(field):
+                if with_rec_name and \
+                        self._columns[field]._type in ('many2one',) and \
+                        value.get(field):
                     obj = self.pool.get(self._columns[field].model_name)
                     if 'rec_name' in obj._columns:
                         value[field + '.rec_name'] = obj.browse(cursor,
@@ -469,7 +472,7 @@ class Model(object):
                                 ('id', '=', field_value),
                                 ]):
                         continue
-                    if 'rec_name' in obj._columns:
+                    if with_rec_name and 'rec_name' in obj._columns:
                         value[field + '.rec_name'] = obj.browse(cursor,
                                 user, field_value,
                                 context=context).rec_name
@@ -503,7 +506,8 @@ class Model(object):
                                             ('id', '=', field_value[i][field2]),
                                             ]):
                                     continue
-                                if 'rec_name' in obj2._columns:
+                                if with_rec_name and \
+                                        'rec_name' in obj2._columns:
                                     field_value[i][field2 + '.rec_name'] = \
                                             obj2.browse(cursor, user,
                                                     field_value[i][field2],

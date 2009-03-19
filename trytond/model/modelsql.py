@@ -233,7 +233,8 @@ class ModelSQL(ModelStorage):
                 default.append(i)
 
         if len(default):
-            defaults = self.default_get(cursor, user, default, context)
+            defaults = self.default_get(cursor, user, default, context=context,
+                    with_rec_name=False)
             for field in defaults.keys():
                 if '.' in field:
                     del defaults[field]
