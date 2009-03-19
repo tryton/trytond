@@ -15,7 +15,7 @@ class Collection(ModelSQL, ModelView):
     name = fields.Char('Name', size=128, required=True, select=1)
     parent = fields.Many2One('webdav.collection', 'Parent',
        ondelete='restrict', domain=[('model', '=', False)])
-    childs = fields.One2Many('webdav.collection', 'parent', 'Childs')
+    childs = fields.One2Many('webdav.collection', 'parent', 'Children')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain', size=250)
 

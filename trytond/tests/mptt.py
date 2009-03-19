@@ -14,7 +14,7 @@ class MPTT(ModelSQL, ModelView):
             left="left", right="right")
     left = fields.Integer('Left', required=True, select=1)
     right = fields.Integer('Right', required=True, select=1)
-    childs = fields.One2Many('tests.mptt', 'parent', 'Childs')
+    childs = fields.One2Many('tests.mptt', 'parent', 'Children')
 
     def __init__(self):
         super(MPTT, self).__init__()
