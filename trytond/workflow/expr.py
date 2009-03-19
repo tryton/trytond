@@ -83,14 +83,14 @@ def check(cursor, user, model, obj_id, transition, signal, context=None):
     :param transition: a BrowseRecord of workflow.transition
     :param context: the context
     '''
-    res = True
     if transition.signal:
-        res = (signal == transition.signal)
+        if signal != transition.signal:
+            return False
 
     if transition.group and user != 0:
         user_obj = Pool(cursor.dbname).get('res.user')
         user_groups = user_obj.get_groups(cursor, user, context=context)
-        res = res and transition.group.id in user_groups
-    res = res and eval_expr(cursor, user, model, obj_id,
-            transition.condition, context=context)
-    return res
+        if transition.group.id not in user_groups:
+            return False
+    return eval_expr(cursor, user, model, obj_id, transition.condition,
+            context=context)
