@@ -441,6 +441,9 @@ class Model(object):
             if field in self._defaults:
                 value[field] = self._defaults[field](cursor, user, context)
             if field in self._columns:
+                if self._columns[field]._type == 'boolean' and \
+                        not field in value:
+                    value[field] = False
                 if isinstance(self._columns[field], fields.Property):
                     property_obj = self.pool.get('ir.property')
                     value[field] = property_obj.get(cursor, user, field,
