@@ -129,6 +129,8 @@ class User(ModelSQL, ModelView):
         self.pool.get('ir.rule').domain_get(cursor.dbname)
         # Restart the cache for get_groups
         self.get_groups(cursor.dbname)
+        # Restart the cache for get_preferences
+        self.get_preferences(cursor.dbname)
         # Restart the cache of check
         self.pool.get('ir.model.access').check(cursor.dbname)
         # Restart the cache
@@ -196,9 +198,9 @@ class User(ModelSQL, ModelView):
             return new_ids[0]
         return new_ids
 
-    def get_preferences(self, cursor, user, context_only=False, context=None):
+    def _get_preferences(self, cursor, user_id, user, context_only=False,
+            context=None):
         res = {}
-        user = self.browse(cursor, 0, user, context=context)
         if context_only:
             fields = self._context_fields
         else:
@@ -225,6 +227,14 @@ class User(ModelSQL, ModelView):
                 'thousands_sep': user.language.thousands_sep,
             }
         return res
+
+    def get_preferences(self, cursor, user_id, context_only=False, context=None):
+        user = self.browse(cursor, 0, user_id, context=context)
+        res = self._get_preferences(cursor, user_id, user,
+                context_only=context_only, context=context)
+        return res
+
+    get_preferences = Cache('res_user.get_preferences')(get_preferences)
 
     def set_preferences(self, cursor, user, values, context=None):
         lang_obj = self.pool.get('ir.lang')
