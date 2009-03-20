@@ -110,8 +110,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">domain_validation_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The value of the field "%s" on "%s" is not valid with his domain.</field>
-            <field name="value">The value of the field "%s" on "%s" is not valid with his domain.</field>
+            <field name="src">The value of the field "%s" on "%s" is not valid according to its domain.</field>
+            <field name="value">The value of the field "%s" on "%s" is not valid according to its domain.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
