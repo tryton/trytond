@@ -152,11 +152,6 @@ class ModelStorage(Model):
             self.raise_user_error(cursor, 'write_xml_record',
                                   error_description='xml_record_desc',
                                   context=context)
-        # Restart rule cache
-        if rule_group_obj.search(cursor, 0, [
-            ('model.model', '=', self._name),
-            ], context=context):
-            rule_obj.domain_get(cursor.dbname)
         return False
 
     def delete(self, cursor, user, ids, context=None):
