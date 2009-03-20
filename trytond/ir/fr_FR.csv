@@ -1,7 +1,7 @@
 type,name,res_id,src,value,fuzzy
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Vous ne pouvez pas supprimer un enregistrement avec un workflow actif.,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Vous n'êtes pas authorisé à supprimer cet enregistrement,0
-error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","La valeur du champ ""%s"" de ""%s"" ne respecte pas son domaine.",0
+error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","La valeur du champ ""%s"" de ""%s"" n'est pas valide suivant son domaine.",0
 error,ir.action.keyword,0,Wrong wizard model!,Mauvais modèle de wizard,0
 error,ir.action.report,0,The internal name must be unique by module!,Le nom interne doit être unique par module !,0
 error,ir.attachment,0,Error! You can not create attachments with the same name!,Erreur ! Vous ne pouvez pas créer des pièces jointes avec le même nom.,0
