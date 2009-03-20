@@ -251,7 +251,7 @@ field,"ir.translation.update.init,lang",0,Language,Langue,0
 field,"ir.translation,value",0,Translation Value,Traduction,0
 field,"ir.ui.menu,action",0,Action,Action,0
 field,"ir.ui.menu,active",0,Active,Actif,0
-field,"ir.ui.menu,childs",0,Childs,Enfants,0
+field,"ir.ui.menu,childs",0,Children,Enfants,0
 field,"ir.ui.menu,complete_name",0,Complete Name,Nom complet,0
 field,"ir.ui.menu,groups",0,Groups,Groupes,0
 field,"ir.ui.menu,icon",0,Icon,Icône,0
@@ -261,7 +261,7 @@ field,"ir.ui.menu,rec_name",0,Name,Nom,0
 field,"ir.ui.menu,sequence",0,Sequence,Séquence,0
 field,"ir.ui.view,arch",0,View Architecture,Architecture de la vue,0
 field,"ir.ui.view,domain",0,Domain,Domaine,0
-field,"ir.ui.view,field_childs",0,Childs Field,Champs enfants,0
+field,"ir.ui.view,field_childs",0,Children Field,Champs enfants,0
 field,"ir.ui.view,inherit",0,Inherited View,Vue héritée,0
 field,"ir.ui.view,model",0,Model,Modèle,0
 field,"ir.ui.view,module",0,Module,Module,0
