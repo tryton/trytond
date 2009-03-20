@@ -18,8 +18,7 @@ class TableHandler(TableHandlerInterface):
         self._field2module = {}
 
         # Create sequence if necessary
-        if not self.history and \
-                not self.sequence_exist(self.cursor, self.sequence_name):
+        if not self.sequence_exist(self.cursor, self.sequence_name):
             self.cursor.execute('CREATE SEQUENCE "%s"' % self.sequence_name)
 
         # Create new table if necessary
@@ -39,9 +38,17 @@ class TableHandler(TableHandlerInterface):
             self._update_definitions()
         if self.history and not '__id' in self._columns:
             self.cursor.execute('ALTER TABLE "%s" ' \
-                    'ADD COLUMN __id SERIAL NOT NULL' % self.table_name)
+                    'ADD COLUMN __id INTEGER NOT NULL' % self.table_name)
             self.cursor.execute('ALTER TABLE "%s" ' \
                     'ADD PRIMARY KEY(__id)' % self.table_name)
+        if self.history:
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'ALTER __id SET DEFAULT nextval(\'%s\')' % (self.table_name,
+                        self.sequence_name))
+        else:
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'ALTER id SET DEFAULT nextval(\'%s\')' % (self.table_name,
+                        self.sequence_name))
 
     @staticmethod
     def table_exist(cursor, table_name):
