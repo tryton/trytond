@@ -21,7 +21,10 @@ class TableHandlerInterface(object):
         else:
             self.table_name = model._table
         self.object_name = model._name
-        self.sequence_name = model._sequence
+        if history:
+            self.sequence_name = self.table_name + '___id_seq'
+        else:
+            self.sequence_name = model._sequence
         self.module_name = module_name
         self.history = history
 
