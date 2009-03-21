@@ -1,6 +1,7 @@
 type,name,res_id,src,value,fuzzy
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
+error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","Der Wert von Feld ""%s"" in ""%s"" ist für seine Domain nicht gültig!",0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique by module!,Der interne Name kann pro Modul nur einmal vergeben werden!,0
@@ -50,7 +51,6 @@ field,"ir.action.act_window,limit",0,Limit,Begrenzung,0
 field,"ir.action.act_window,rec_name",0,Name,Name,0
 field,"ir.action.act_window,res_model",0,Model,Modell,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Suchkriterien,0
-field,"ir.action.act_window,src_model",0,Source model,Quellmodell,0
 field,"ir.action.act_window,usage",0,Action Usage,Gebrauch,0
 field,"ir.action.act_window.view,act_window",0,Action,Aktion,0
 field,"ir.action.act_window.view,rec_name",0,Name,Name,0
@@ -250,7 +250,7 @@ field,"ir.translation.update.init,lang",0,Language,Sprache,0
 field,"ir.translation,value",0,Translation Value,Übersetzung,0
 field,"ir.ui.menu,action",0,Action,Aktion,0
 field,"ir.ui.menu,active",0,Active,Aktiv,0
-field,"ir.ui.menu,childs",0,Childs,Untergeordnet (Menüs),0
+field,"ir.ui.menu,childs",0,Children,Untergeordnet (Menüs),0
 field,"ir.ui.menu,complete_name",0,Complete Name,Vollständiger Name,0
 field,"ir.ui.menu,groups",0,Groups,Gruppen,0
 field,"ir.ui.menu,icon",0,Icon,Icon,0
@@ -260,7 +260,7 @@ field,"ir.ui.menu,rec_name",0,Name,Name,0
 field,"ir.ui.menu,sequence",0,Sequence,Sequenz,0
 field,"ir.ui.view,arch",0,View Architecture,Architektur Sicht,0
 field,"ir.ui.view,domain",0,Domain,Domain,0
-field,"ir.ui.view,field_childs",0,Childs Field,Untergeordnetes Feld,0
+field,"ir.ui.view,field_childs",0,Children Field,Untergeordnetes Feld,0
 field,"ir.ui.view,inherit",0,Inherited View,Vererbte Sicht,0
 field,"ir.ui.view,model",0,Model,Modell,0
 field,"ir.ui.view,module",0,Module,Modul,0
@@ -538,6 +538,7 @@ selection,"ir.ui.view,type",0,Tree,Baum,0
 view,ir.action,0,Action,Aktion,0
 view,ir.action,0,Keyword,Schlüsselwort,0
 view,ir.action,0,Keywords,Schlüsselwörter,0
+view,ir.action.act_window,0,General,Allgemein,0
 view,ir.action.act_window,0,Keyword,Schlüsselwort,0
 view,ir.action.act_window,0,Keywords,Schlüsselwörter,0
 view,ir.action.act_window,0,Open a Window,Ein Fenster öffnen,0
