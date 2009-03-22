@@ -226,7 +226,7 @@ class RequestReference(ModelSQL, ModelView):
     _description = __doc__
     _rec_name = 'reference'
 
-    request = fields.Many2One('res.request', required=True,
+    request = fields.Many2One('res.request', 'Request', required=True,
             ondelete="CASCADE", select=1)
     reference = fields.Reference('Reference', selection='links_get',
             required=True)
