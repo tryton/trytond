@@ -436,7 +436,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             ids = key2ids.get(key, [])
 
             if not ids:
-                translation_ids.append(self.create(cursor, user, {
+                translation_ids.append(self.create(cursor, 0, {
                     'name': name,
                     'res_id': res_id,
                     'lang': lang,
@@ -960,7 +960,7 @@ class TranslationUpdate(Wizard):
                     ' \'selection\', \'error\')',
                 (data['form']['lang'],))
         for row in cursor.dictfetchall():
-            translation_obj.create(cursor, user, {
+            translation_obj.create(cursor, 0, {
                 'name': row['name'],
                 'res_id': row['res_id'],
                 'lang': data['form']['lang'],
@@ -978,7 +978,7 @@ class TranslationUpdate(Wizard):
                     'AND type in (\'field\', \'model\', \'help\')',
                 (data['form']['lang'],))
         for row in cursor.dictfetchall():
-            translation_obj.create(cursor, user, {
+            translation_obj.create(cursor, 0, {
                 'name': row['name'],
                 'res_id': row['res_id'],
                 'lang': data['form']['lang'],
