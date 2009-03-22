@@ -416,7 +416,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             res_id = row[2].decode('utf-8')
             src = row[3].decode('utf-8')
             value = row[4].decode('utf-8')
-            fuzzy = int(row[5])
+            fuzzy = bool(int(row[5]))
 
             model = name.split(',')[0]
             if model in fs_id2db_id:
