@@ -1022,6 +1022,7 @@ class TranslationUpdate(Wizard):
                         'value = %s ' \
                     'WHERE src = %s ' \
                         'AND (value = \'\' OR value IS NULL) ' \
+                        'AND (write_uid IS NULL OR write_uid = 0) ' \
                         'AND lang = %s', (row['value'], row['src'],
                             data['form']['lang']))
 
