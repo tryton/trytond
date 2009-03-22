@@ -450,7 +450,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 ids2 = []
                 for translation_id in ids:
                     translation = id2translation[translation_id]
-                    if not translation.write_uid and not translation.write_uid \
+                    if not translation.write_uid \
                             and (translation.value != value \
                             or translation.fuzzy != fuzzy):
                         ids2.append(translation.id)
