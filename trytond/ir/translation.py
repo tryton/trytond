@@ -455,7 +455,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             or translation.fuzzy != fuzzy):
                         ids2.append(translation.id)
                 if ids2:
-                    self.write(cursor, user, ids2, {
+                    self.write(cursor, 0, ids2, {
                         'value': value,
                         'fuzzy': fuzzy,
                         }, context=ctx)
