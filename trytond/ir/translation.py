@@ -1012,7 +1012,7 @@ class TranslationUpdate(Wizard):
                     'AND src IN (' \
                         'SELECT src FROM ir_translation ' \
                         'WHERE (value = \'\' OR value IS NULL) ' \
-                            'AND lang = %s) '
+                            'AND lang = %s) ' \
                     'AND value != \'\' AND value IS NOT NULL ' \
                 'GROUP BY src', (data['form']['lang'], data['form']['lang']))
 
