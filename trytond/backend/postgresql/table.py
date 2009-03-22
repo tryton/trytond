@@ -23,22 +23,26 @@ class TableHandler(TableHandlerInterface):
 
         # Create new table if necessary
         if not self.table_exist(self.cursor, self.table_name):
-            self.cursor.execute('CREATE TABLE "%s" ' \
-                    '(id INTEGER NOT NULL)' % self.table_name)
-            if not self.history:
-                self.cursor.execute('ALTER TABLE "%s" ' \
-                        'ADD PRIMARY KEY(id)' % self.table_name)
+            self.cursor.execute('CREATE TABLE "%s" ()' % self.table_name)
+
         self._update_definitions()
         if 'id' not in self._columns:
-            self.cursor.execute('ALTER TABLE "%s" ' \
-                    'ADD COLUMN id INTEGER NOT NULL' % self.table_name)
             if not self.history:
                 self.cursor.execute('ALTER TABLE "%s" ' \
+                        'ADD COLUMN id INTEGER ' \
+                            'DEFAULT nextval(\'%s\') NOT NULL' % \
+                            (self.table_name, self.sequence_name))
+                self.cursor.execute('ALTER TABLE "%s" ' \
                         'ADD PRIMARY KEY(id)' % self.table_name)
+            else:
+                self.cursor.execute('ALTER TABLE "%s" ' \
+                        'ADD COLUMN id INTEGER' % self.table_name)
             self._update_definitions()
         if self.history and not '__id' in self._columns:
             self.cursor.execute('ALTER TABLE "%s" ' \
-                    'ADD COLUMN __id INTEGER NOT NULL' % self.table_name)
+                    'ADD COLUMN __id INTEGER ' \
+                        'DEFAULT nextval(\'%s\') NOT NULL' % \
+                        (self.table_name, self.sequence_name))
             self.cursor.execute('ALTER TABLE "%s" ' \
                     'ADD PRIMARY KEY(__id)' % self.table_name)
         if self.history:
@@ -49,6 +53,7 @@ class TableHandler(TableHandlerInterface):
             self.cursor.execute('ALTER TABLE "%s" ' \
                     'ALTER id SET DEFAULT nextval(\'%s\')' % (self.table_name,
                         self.sequence_name))
+        self._update_definitions()
 
     @staticmethod
     def table_exist(cursor, table_name):
