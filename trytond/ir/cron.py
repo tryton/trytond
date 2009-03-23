@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 """
 SPEC: Execute "model.function(*eval(args))" periodically
    date        : date to execute the job or NULL if directly
@@ -44,7 +45,7 @@ class Cron(ModelSQL, ModelView):
        ('months', 'Months'),
        ], 'Interval Unit')
     numbercall = fields.Integer('Number of calls', select=1,
-       help='Number of time the function is called,\n' \
+       help='Number of times the function is called,\n' \
                'a negative number indicates that the function ' \
                'will always be called')
     doall = fields.Boolean('Repeat missed')

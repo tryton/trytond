@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "WebDAV"
 import os
 import base64
@@ -33,8 +34,8 @@ class Collection(ModelSQL, ModelView):
             'recursive_collections': 'You can not create recursive ' \
                     'collections!',
             'collection_file_name': 'You can not create a collection\n' \
-                    'with the same name of an existing file\n'
-                    'inside the same collection!',
+                    'in a collection with the name of an ' \
+                    'existing file!',
         })
         self.ext2mime = {
             '.png': 'image/png',
@@ -572,8 +573,8 @@ class Attachment(ModelSQL, ModelView):
         ]
         self._error_messages.update({
             'collection_attachment_name': 'You can not create a attachment\n' \
-                    'on a collection that have the same name\n' \
-                    'than a child collection!',
+                    'in a collection with the name\n' \
+                    'of an existing child collection!',
         })
 
     def check_collection(self, cursor, user, ids):
