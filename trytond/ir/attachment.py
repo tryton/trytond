@@ -28,7 +28,7 @@ class Attachment(ModelSQL, ModelView):
         self._sql_constraints += [
             ('res_model_res_id_name',
                 'UNIQUE (res_model, res_id, name)',
-                'Error! You can not create attachments with the same name!'),
+                'The names of attachments must be unique by record!'),
         ]
 
     def default_collision(self, cursor, user, context=None):
