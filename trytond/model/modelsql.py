@@ -1104,12 +1104,6 @@ class ModelSQL(ModelStorage):
                             'doesn\'t work on "%s"' % (domain[i][0], self._name))
             if hasattr(field, 'search'):
                 arg = [domain.pop(i)]
-                j = i
-                while j < len(domain):
-                    if domain[j][0] == arg[0][0]:
-                        arg.append(domain.pop(j))
-                    else:
-                        j += 1
                 domain.extend(field.search(cursor, user, table,
                     arg[0][0], arg, context=context))
             elif field._type == 'one2many':
