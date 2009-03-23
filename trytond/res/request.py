@@ -22,7 +22,6 @@ class Request(ModelSQL, ModelView):
     "Request"
     _name = 'res.request'
     _description = __doc__
-    create_date = fields.DateTime('Created date', readonly=True)
     name = fields.Char('Subject', states={
        'readonly': "(state in ('waiting', 'closed')) or " \
                "(state == 'chatting' and act_from != _user)",
