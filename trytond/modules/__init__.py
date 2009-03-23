@@ -321,50 +321,16 @@ def register_classes():
 
         if os.path.isfile(OPJ(MODULES_PATH, module + '.zip')):
             mod_path = OPJ(MODULES_PATH, module + '.zip')
-            try:
-                zimp = zipimport.zipimporter(mod_path)
-                zimp.load_module(module)
-            except zipimport.ZipImportError:
-                tb_s = ''
-                for line in traceback.format_exception(*sys.exc_info()):
-                    try:
-                        line = line.encode('utf-8', 'ignore')
-                    except:
-                        continue
-                    tb_s += line
-                for path in sys.path:
-                    tb_s = tb_s.replace(path, '')
-                if CONFIG['debug_mode']:
-                    import pdb
-                    traceb = sys.exc_info()[2]
-                    pdb.post_mortem(traceb)
-                logger.error('Couldn\'t import module %s:\n%s' % (module, tb_s))
-                break
+            zimp = zipimport.zipimporter(mod_path)
+            zimp.load_module(module)
         elif os.path.isdir(OPJ(MODULES_PATH, module)):
+            mod_file, pathname, description = imp.find_module(module,
+                    [MODULES_PATH])
             try:
-                mod_file, pathname, description = imp.find_module(module,
-                        [MODULES_PATH])
-                try:
-                    imp.load_module(module, mod_file, pathname, description)
-                finally:
-                    if mod_file is not None:
-                        mod_file.close()
-            except ImportError:
-                tb_s = ''
-                for line in traceback.format_exception(*sys.exc_info()):
-                    try:
-                        line = line.encode('utf-8', 'ignore')
-                    except:
-                        continue
-                    tb_s += line
-                for path in sys.path:
-                    tb_s = tb_s.replace(path, '')
-                if CONFIG['debug_mode']:
-                    import pdb
-                    traceb = sys.exc_info()[2]
-                    pdb.post_mortem(traceb)
-                logger.error('Couldn\'t import module %s:\n%s' % (module, tb_s))
-                break
+                imp.load_module(module, mod_file, pathname, description)
+            finally:
+                if mod_file is not None:
+                    mod_file.close()
         elif module in EGG_MODULES:
             ep = EGG_MODULES[module]
             mod_path = os.path.join(ep.dist.location,
@@ -377,8 +343,7 @@ def register_classes():
                 if mod_file is not None:
                     mod_file.close()
         else:
-            logger.error('Couldn\'t find module %s' % module)
-            break
+            raise Exception('Couldn\'t find module %s' % module)
         MODULES.append(module)
 
 def load_modules(database_name, pool, update=False, lang=None):
