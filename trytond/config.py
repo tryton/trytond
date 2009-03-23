@@ -104,13 +104,15 @@ class ConfigManager(object):
         init = {}
         if opt.init and self.options.get('db_name'):
             for i in opt.init.split(','):
-                init[i] = 1
+                if i != 'tests':
+                    init[i] = 1
         self.options['init'] = init
 
         update = {}
         if opt.update and self.options.get('db_name'):
             for i in opt.update.split(','):
-                update[i] = 1
+                if i != 'tests':
+                    update[i] = 1
         self.options['update'] = update
 
     def load(self):
