@@ -168,12 +168,7 @@ class ModelSQL(ModelStorage):
             table.add_constraint(ident, constraint)
 
         if self._history:
-            for column_name in table._columns:
-                if not history_table.column_exist(column_name):
-                    history_table.add_raw_column(column_name,
-                            (table._columns[column_name]['typname'],
-                                table._columns[column_name]['typname']),
-                                None)
+            self._update_history_table(cursor)
             cursor.execute('SELECT id FROM "' + self._table + '"')
             if cursor.rowcount:
                 cursor.execute('SELECT id FROM "' + self._table + '__history"')
@@ -186,6 +181,17 @@ class ModelSQL(ModelStorage):
                             ' FROM "' + self._table + '"')
                     cursor.execute('UPDATE "' + self._table + '__history" ' \
                             'SET write_date = NULL')
+
+    def _update_history_table(self, cursor):
+        if self._history:
+            table = TableHandler(cursor, self)
+            history_table = TableHandler(cursor, self, history=True)
+            for column_name in table._columns:
+                if not history_table.column_exist(column_name):
+                    history_table.add_raw_column(column_name,
+                            (table._columns[column_name]['typname'],
+                                table._columns[column_name]['typname']),
+                                None)
 
     def _get_error_messages(self):
         res = super(ModelSQL, self)._get_error_messages()
