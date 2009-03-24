@@ -1,11 +1,12 @@
 type,name,res_id,src,value,fuzzy
 error,ir.attachment,0,"You can not create a attachment
-on a collection that have the same name
-than a child collection!",Ein Anhang kann nicht unter dem selben Namen wie eine untergeordnete Sammlung gespeichert werden,0
+in a collection with the name
+of an existing child collection!","Ein Anhang kann nicht mit dem Namen einer in der Sammlung
+bereits existierenden Untersammlung angelegt werden!",0
 error,webdav.collection,0,The collection name must be unique inside a collection!,Der Name einer Sammlung kann in einer Sammlung nicht mehrfach vergeben werden,0
 error,webdav.collection,0,"You can not create a collection
-with the same name of an existing file
-inside the same collection!",Es kann keine Sammlung mit dem Namen einer bereits in der Sammlung existierenden Datei angelegt werden!,0
+in a collection with the name of an existing file!","Eine Sammlung kann nicht mit dem Namen einer in der Sammlung
+bereits existierenden Datei angelegt werden!",0
 error,webdav.collection,0,You can not create recursive collections!,Die Anlage rekursiver Sammlungen ist nicht möglich!,0
 field,"webdav.collection,childs",0,Children,Untergeordnet (WebDAV Sammlungen),0
 field,"webdav.collection,domain",0,Domain,Domain,0
