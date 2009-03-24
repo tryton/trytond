@@ -70,6 +70,11 @@ class TrytonServer(object):
 
         update = False
         init = {}
+
+        if not CONFIG["db_name"] \
+                and bool(CONFIG['init'] or CONFIG['update']):
+            raise Exception('Missing database option!')
+
         for db_name in CONFIG["db_name"]:
             init[db_name] = False
             database = Database(db_name).connect()

@@ -102,14 +102,14 @@ class ConfigManager(object):
         self.options['db_name'] = db_name
 
         init = {}
-        if opt.init and self.options.get('db_name'):
+        if opt.init:
             for i in opt.init.split(','):
                 if i != 'tests':
                     init[i] = 1
         self.options['init'] = init
 
         update = {}
-        if opt.update and self.options.get('db_name'):
+        if opt.update:
             for i in opt.update.split(','):
                 if i != 'tests':
                     update[i] = 1
