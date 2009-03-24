@@ -104,11 +104,11 @@ class TrytonServer(object):
         for db_name in CONFIG['db_name']:
             if init[db_name]:
                 while True:
-                    password = getpass('Admin Password for %s:' % db_name)
-                    password2 = getpass('Admin Password Confirmation:')
+                    password = getpass('Admin Password for %s: ' % db_name)
+                    password2 = getpass('Admin Password Confirmation: ')
                     if password != password2:
-                        sys.stderr.write('Admin Password Confirmation doesn\'t match ' \
-                                'Admin Password!\n')
+                        sys.stderr.write('Admin Password Confirmation ' \
+                                'doesn\'t match Admin Password!\n')
                         continue
                     if not password:
                         sys.stderr.write('Admin Password is required!\n')
