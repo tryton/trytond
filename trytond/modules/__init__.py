@@ -186,6 +186,7 @@ def load_module_graph(cursor, graph, pool, lang=None):
     if lang is None:
         lang = ['en_US']
     modules_todo = []
+    models_to_update_history = set()
     logger = logging.getLogger('modules')
 
     modules = [x.name for x in graph]
@@ -213,6 +214,9 @@ def load_module_graph(cursor, graph, pool, lang=None):
                 for obj in objects[type]:
                     logger.info('%s:init %s' % (module, obj._name))
                     obj.init(cursor, module)
+            for model in objects['model']:
+                if hasattr(model, '_history'):
+                    models_to_update_history.add(model._name)
 
             #Instanciate a new parser for the package:
             tryton_parser = tools.TrytondXmlHandler(
@@ -275,6 +279,12 @@ def load_module_graph(cursor, graph, pool, lang=None):
                 report.__init__()
 
         cursor.commit()
+
+    for model_name in models_to_update_history:
+        model = pool.get(model_name)
+        if model._history:
+            logger.info('history:update %s' % model._name)
+            model._update_history_table(cursor)
 
     # Vacuum :
     while modules_todo:
