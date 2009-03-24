@@ -70,7 +70,7 @@ field,"res.request,priority",0,Priority,Dringlichkeit,0
 field,"res.request,rec_name",0,Name,Name,0
 field,"res.request.reference,rec_name",0,Name,Name,0
 field,"res.request.reference,reference",0,Reference,Verweis,0
-field,"res.request.reference,request",0,,,0
+field,"res.request.reference,request",0,Request,Anfrage,0
 field,"res.request,references",0,References,Verweise,0
 field,"res.request,state",0,State,Status,0
 field,"res.request,trigger_date",0,Trigger Date,Gültig ab,0
