@@ -121,6 +121,8 @@ class Wizard(object):
         return wiz_id
 
     def delete(self, cursor, user, wiz_id):
+        if wiz_id not in self._datas:
+            return
         if self._datas[wiz_id]['user'] != user:
             raise Exception('AccessDenied')
         self._lock.acquire()
