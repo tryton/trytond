@@ -5,7 +5,7 @@ error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique by module!,Der interne Name kann pro Modul nur einmal vergeben werden!,0
-error,ir.attachment,0,Error! You can not create attachments with the same name!,Fehler! Anhänge müssen unterschiedliche Namen aufweisen!,0
+error,ir.attachment,0,The names of attachments must be unique by record!,Die Namen für Anhänge können pro Datensatz nur einmal vergeben werden!,0
 error,ir.cron,0,Scheduled action failed,Geplante Aktion fehlgeschlagen,0
 error,ir.cron,0,"The following action failed to execute properly: ""%s""
  Traceback: 
@@ -127,11 +127,11 @@ field,"ir.default,model",0,Model,Modell,0
 field,"ir.default,rec_name",0,Name,Name,0
 field,"ir.default,user",0,User,Benutzer,0
 field,"ir.default,value",0,Value,Wert,0
-field,"ir.export,export_fields",0,Export Id,Export ID,0
-field,"ir.export.line,export",0,Exportation,Export,0
-field,"ir.export.line,name",0,Field name,Feldname,0
+field,"ir.export,export_fields",0,Fields,Export ID,0
+field,"ir.export.line,export",0,Export,Export,0
+field,"ir.export.line,name",0,Name,Feldname,0
 field,"ir.export.line,rec_name",0,Name,Name,0
-field,"ir.export,name",0,Export name,Name Export,0
+field,"ir.export,name",0,Name,Name Export,0
 field,"ir.export,rec_name",0,Name,Name,0
 field,"ir.export,resource",0,Resource,Ressource,0
 field,"ir.lang,active",0,Active,Aktiv,0
@@ -284,7 +284,7 @@ help,"ir.action.act_window,search_value",0,Default search criteria for the list 
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Aktionsname als Fenstername benutzen,0
 help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Wird auch als Dateiendung verwendet,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definiert den Stil für den Bericht,0
-help,"ir.cron,numbercall",0,"Number of time the function is called,
+help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Anzahl der Funktionsaufrufe
 (eine negative Zahl bewirkt, dass die Funktion immer aufgerufen wird)",0
 help,"ir.cron,priority",0,"0=Very Urgent
