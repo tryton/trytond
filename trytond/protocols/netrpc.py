@@ -8,7 +8,6 @@ import threading
 import select
 import traceback
 import socket
-import time
 import sys
 
 
@@ -120,7 +119,7 @@ class NetRPCServerThread(threading.Thread):
             try:
                 thread = self.threads[0]
                 thread.stop()
-                time.sleep(0.001) #sleep to let thread running
+                thread.join()
             except:
                 pass
         try:
