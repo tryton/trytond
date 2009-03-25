@@ -1105,11 +1105,18 @@ class ModelSQL(ModelStorage):
                 field = table._columns.get(fargs[0], False)
             if len(fargs) > 1:
                 if field._type == 'many2one':
-                    domain[i] = (fargs[0], 'inselect',
-                            self.pool.get(field.model_name).search(cursor, user,
-                                [(fargs[1], domain[i][1], domain[i][2])],
-                                context=context, query_string=True), table)
-                    i += 1
+                    if hasattr(field, 'search'):
+                        domain.extend([(fargs[0], 'in',
+                                self.pool.get(field.model_name).search(cursor, user,
+                                    [(fargs[1], domain[i][1], domain[i][2])],
+                                    context=context))])
+                        domain.pop(i)
+                    else:
+                        domain[i] = (fargs[0], 'inselect',
+                                self.pool.get(field.model_name).search(cursor, user,
+                                    [(fargs[1], domain[i][1], domain[i][2])],
+                                    context=context, query_string=True), table)
+                        i += 1
                     continue
                 else:
                     raise Exception('ValidateError', 'Clause on field "%s" ' \
