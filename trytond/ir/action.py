@@ -180,11 +180,8 @@ class ActionKeyword(ModelSQL, ModelView):
                 context=context):
             try:
                 action_obj = self.pool.get(action_keyword.action.type)
-            except Exception, exception:
-                if exception.args \
-                        and exception.args[0] == 'AccessError':
-                    continue
-                raise
+            except:
+                continue
             action_id = action_obj.search(cursor, user, [
                 ('action', '=', action_keyword.action.id),
                 ], context=context)
