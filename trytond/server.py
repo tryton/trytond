@@ -159,8 +159,6 @@ class TrytonServer(object):
                     (CONFIG['secure_webdav'] and ' Secure' or '',
                         CONFIG['webdavport']))
 
-        threads = []
-
         def handler(signum, frame):
             if hasattr(signal, 'SIGUSR1'):
                 if signum == signal.SIGUSR1:
@@ -175,7 +173,9 @@ class TrytonServer(object):
                 webdavd.stop()
             if CONFIG['pidfile']:
                 os.unlink(CONFIG['pidfile'])
-            for thread in threads:
+            for thread in threading.enumerate():
+                if thread == threading.currentThread():
+                    continue
                 thread.join()
             logging.getLogger('server').info('stopped')
             logging.shutdown()
@@ -216,11 +216,7 @@ class TrytonServer(object):
                         target=cron_obj.pool_jobs,
                         args=(dbname,), kwargs={})
                 thread.start()
-                threads.append(thread)
             time.sleep(60)
-            for thread in threads[:]:
-                if not thread.isAlive():
-                    threads.remove(thread)
 
 if __name__ == "__main__":
     SERVER = TrytonServer()
