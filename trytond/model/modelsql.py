@@ -429,9 +429,6 @@ class ModelSQL(ModelStorage):
                             ' AND (' + domain1 + ') ' + history_order + \
                             history_limit,
                             table_args + sub_ids + history_args + domain2)
-                    if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                        self.raise_user_error(cursor, 'access_error',
-                                self._description, context=context)
                 else:
                     cursor.execute('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
@@ -440,6 +437,19 @@ class ModelSQL(ModelStorage):
                                 '(' + ','.join(['%s' for x in sub_ids]) + ')' + \
                             history_clause + history_order + history_limit,
                             table_args + sub_ids + history_args)
+                if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                    if domain1:
+                        cursor.execute('SELECT id FROM ' + \
+                                table_query + '\"' + self._table + '\" ' \
+                                'WHERE id IN ' \
+                                '(' + ','.join(['%s' for x in sub_ids]) + ')' + \
+                                history_clause + history_order + history_limit,
+                                table_args + sub_ids + history_args)
+                        if cursor.rowcount == len({}.fromkeys(sub_ids)):
+                            self.raise_user_error(cursor, 'access_error',
+                                    self._description, context=context)
+                    self.raise_user_error(cursor, 'read_error',
+                            self._description, context=context)
                 res.extend(cursor.dictfetchall())
         else:
             res = [{'id': x} for x in ids]
@@ -710,15 +720,18 @@ class ModelSQL(ModelStorage):
                 cursor.execute('SELECT id FROM "' + self._table + '" ' \
                         'WHERE id IN (' + ids_str + ') ' + domain1,
                         sub_ids + domain2)
-                if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                    self.raise_user_error(cursor, 'access_error',
-                            self._description, context=context)
             else:
                 cursor.execute('SELECT id FROM "' + self._table + '" ' \
                         'WHERE id IN (' + ids_str + ')', sub_ids)
-                if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                    self.raise_user_error(cursor, 'access_error',
+            if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                if domain1:
+                    cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                            'WHERE id IN (' + ids_str + ')', sub_ids)
+                    if cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        self.raise_user_error(cursor, 'access_error',
                             self._description, context=context)
+                self.raise_user_error(cursor, 'write_error',
+                        self._description, context=context)
             if domain1:
                 cursor.execute('UPDATE "' + self._table + '" ' \
                         'SET ' + \
