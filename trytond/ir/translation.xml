@@ -128,8 +128,32 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">access_error</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">You try to bypass an access rule (Document type: %s).</field>
-            <field name="value">You try to bypass an access rule (Document type: %s).</field>
+            <field name="src">You try to bypass an access rule!
+(Document type: %s)</field>
+            <field name="value">You try to bypass an access rule!
+(Document type: %s)</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
+        <record model="ir.translation" id="translation_read_error">
+            <field name="name">read_error</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">You try to read records that don't exist anymore!
+(Document type: %s)</field>
+            <field name="value">You try to read records that don't exist anymore!
+(Document type: %s)</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
+        <record model="ir.translation" id="translation_write_error">
+            <field name="name">write_error</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">You try to write on records that don't exist anymore!
+(Document type: %s)</field>
+            <field name="value">You try to write on records that don't exist anymore!
+(Document type: %s)</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
