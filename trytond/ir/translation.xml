@@ -124,6 +124,15 @@ this repository contains the full copyright notices and license terms. -->
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
+        <record model="ir.translation" id="translation_access_error">
+            <field name="name">access_error</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">You try to bypass an access rule (Document type: %s).</field>
+            <field name="value">You try to bypass an access rule (Document type: %s).</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
 
         <record model="ir.ui.view" id="act_translation_set_report_init_view_form">
             <field name="model">ir.translation.set_report.init</field>

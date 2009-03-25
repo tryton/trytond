@@ -430,10 +430,8 @@ class ModelSQL(ModelStorage):
                             history_limit,
                             table_args + sub_ids + history_args + domain2)
                     if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                        raise Exception('AccessError',
-                                'You try to bypass an access rule ' \
-                                        '(Document type: %s).' % \
-                                        self._description)
+                        self.raise_user_error(cursor, 'access_error',
+                                self._description, context=context)
                 else:
                     cursor.execute('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
@@ -713,18 +711,14 @@ class ModelSQL(ModelStorage):
                         'WHERE id IN (' + ids_str + ') ' + domain1,
                         sub_ids + domain2)
                 if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                    raise Exception('AccessError',
-                            'You try to bypass an access rule ' \
-                                    '(Document type: %s).' % \
-                                    self._description)
+                    self.raise_user_error(cursor, 'access_error',
+                            self._description, context=context)
             else:
                 cursor.execute('SELECT id FROM "' + self._table + '" ' \
                         'WHERE id IN (' + ids_str + ')', sub_ids)
                 if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                    raise Exception('AccessError',
-                            'You try to bypass an access rule ' \
-                                    '(Document type: %s).' % \
-                                    self._description)
+                    self.raise_user_error(cursor, 'access_error',
+                            self._description, context=context)
             if domain1:
                 cursor.execute('UPDATE "' + self._table + '" ' \
                         'SET ' + \
@@ -873,9 +867,8 @@ class ModelSQL(ModelStorage):
                         'WHERE id IN (' + str_d + ') ' + domain1,
                         sub_ids + domain2)
                 if not cursor.rowcount == len({}.fromkeys(sub_ids)):
-                    raise Exception('AccessError',
-                            'You try to bypass an access rule ' \
-                                '(Document type: %s).' % self._description)
+                    self.raise_user_error(cursor, 'access_error',
+                            self._description, context=context)
 
             if domain1:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
