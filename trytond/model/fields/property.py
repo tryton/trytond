@@ -11,7 +11,7 @@ class Property(Function):
     Define property field that is stored in ir.property (any)
     '''
 
-    def __init__(self, type='float',  model_name=None, selection=None,
+    def __init__(self, type='float', model_name=None, selection=None,
             digits=None, relation=None, add_remove=None, string='', help='',
             required=False, readonly=False, domain=None, states=None, priority=0,
             change_default=False, translate=False, select=0, on_change=None,
@@ -83,6 +83,9 @@ class Property(Function):
         :return: New list of domain.
         '''
         rule_obj = model.pool.get('ir.rule')
+        property_obj = model.pool.get('ir.property')
+        model_obj = model.pool.get('ir.model')
+        field_obj = model.pool.get('ir.model.field')
 
         field_class = backend.FIELDS[self._type]
         if not field_class:
@@ -103,21 +106,23 @@ class Property(Function):
 
         #Fetch res ids that comply with the domain
         cursor.execute(
-            "SELECT cast(split_part(ir_property.res,',',2) as integer), ir_property.id "\
-            "FROM ir_property "\
-                "JOIN ir_model_field on (ir_model_field.id = ir_property.field) "\
-                "JOIN ir_model on (ir_model.id = ir_model_field.model) "\
-            "WHERE "\
-              "CASE WHEN "\
-                "ir_model.model = %s AND ir_model_field.name = %s AND " \
+            "SELECT cast(split_part(ir_property.res,',',2) as integer), " + \
+                '"' + property_obj._table + '".id '\
+            'FROM "' + property_obj._table + '" '\
+                'JOIN "' + field_obj._table + '" on ("' + field_obj._table + '"'+ \
+                      '.id = "' + property_obj._table + '".field) '\
+                'JOIN "' + model_obj._table +'" on ("' + model_obj._table + \
+                      '".id = "' + field_obj._table + '".model) '\
+            'WHERE '\
+              'CASE WHEN "' +\
+                model_obj._table + '".model = %s AND "' + field_obj._table + '".name = %s AND ' \
                 + property_query + \
-              " THEN "  + \
+              ' THEN '  + \
                 conditions + \
-              " ELSE "\
-                "FALSE "\
-              "END",
+              ' ELSE '\
+                'FALSE '\
+              'END',
             [model._name, name] + property_val + cond_args)
-
 
         props = cursor.fetchall()
         default = None
@@ -132,16 +137,16 @@ class Property(Function):
         #Fetch the res ids that doesn't use the default value
         cursor.execute(
             "SELECT cast(split_part(res,',',2) as integer) "\
-            "FROM ir_property "\
-            "WHERE " \
-              + property_query + " AND res is not null",
+            'FROM "' + property_obj._table +'"'\
+            'WHERE ' \
+              + property_query + ' AND res is not null',
             property_val)
 
         if not cursor.rowcount:
             return [('id', 'in', [x[0] for x in props])]
 
         else:
-            other_ids = [int(x[0]) for x in cursor.fetchall()]
+            other_ids = [x[0] for x in cursor.fetchall()]
 
             res_ids = model.search(
                 cursor, user,
