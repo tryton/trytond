@@ -106,7 +106,7 @@ class Property(Function):
 
         #Fetch res ids that comply with the domain
         cursor.execute(
-            "SELECT cast(split_part(ir_property.res,',',2) as integer), " + \
+            'SELECT cast(split_part("' + property_obj._table + '".res,\',\',2) as integer), ' + \
                 '"' + property_obj._table + '".id '\
             'FROM "' + property_obj._table + '" '\
                 'JOIN "' + field_obj._table + '" on ("' + field_obj._table + '"'+ \
