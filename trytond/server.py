@@ -63,6 +63,8 @@ class TrytonServer(object):
         if CONFIG.configfile:
             self.logger.info('using %s as configuration file' % \
                     CONFIG.configfile)
+        else:
+            self.logger.info('using default configuration')
         self.logger.info('initialising distributed objects services')
 
     def run(self):
