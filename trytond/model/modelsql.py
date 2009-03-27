@@ -1640,7 +1640,7 @@ class ModelSQL(ModelStorage):
                 if self._name == 'ir.model':
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
-                            '("%s".name = ir_model.model||\',%s\' ' \
+                            '("%s".name = "ir_model".model||\',%s\' ' \
                                 'AND "%s".res_id = 0 ' \
                                 'AND "%s".lang = %%s ' \
                                 'AND "%s".type = \'model\' ' \
@@ -1659,7 +1659,7 @@ class ModelSQL(ModelStorage):
                         tables.append(table_join)
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
-                            '("%s".name = ir_model.model||\',\'||%s.name ' \
+                            '("%s".name = "ir_model".model||\',\'||%s.name ' \
                                 'AND "%s".res_id = 0 ' \
                                 'AND "%s".lang = %%s ' \
                                 'AND "%s".type = \'%s\' ' \
