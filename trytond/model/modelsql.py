@@ -1616,8 +1616,9 @@ class ModelSQL(ModelStorage):
 
                     table_join2 = 'LEFT JOIN "' + table_name2 + '" AS ' \
                             '"' + table_name2 + '.' + link_field2 + '" ON ' \
-                            '"%s.%s".id = "%s".%s' % \
-                            (table_name2, link_field2, obj._table, link_field2)
+                            '"%s.%s".id = "%s.%s".%s' % \
+                            (table_name2, link_field2, table_name, link_field,
+                                    link_field2)
                     for i in range(len(order_by)):
                         if table_name2 in order_by[i]:
                             order_by[i] = order_by[i].replace(table_name2,
