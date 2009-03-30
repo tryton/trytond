@@ -3,7 +3,8 @@ error,res.group,0,The name of the group must be unique!,Der Name der Gruppe kann
 error,res.user,0,You can not have two users with the same login!,Der Name für einen Benutzer kann nur einmal vergeben werden!,0
 error,res.user,0,"You can not remove the root user
 as it is used internally for resources
-created by the system (updates, module installation, ...)","Der Benutzer root kann nicht gelöscht werden, da er intern für Systemverwaltungsaufgaben (Updates, Modulinstallation, ...) verwendet wird",0
+created by the system (updates, module installation, ...)","Der Benutzer root kann nicht gelöscht werden, da er für interne Systemverwaltungsaufgaben
+(Updates, Modulinstallation, ...) benötigt wird!",0
 field,"ir.action-res.group,action_id",0,Action,Aktion,0
 field,"ir.action-res.group,gid",0,Group,Gruppe,0
 field,"ir.action-res.group,rec_name",0,Name,Name,0
