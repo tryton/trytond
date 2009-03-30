@@ -167,7 +167,8 @@ def create_graph(module_list, force=None):
             node.datas = datas
             for kind in ('init', 'update'):
                 if (package in CONFIG[kind]) \
-                        or ('all' in CONFIG[kind]) \
+                        or (('all' in CONFIG[kind]) \
+                            and (package != 'tests')) \
                         or (kind in force):
                     setattr(node, kind, True)
         else:
@@ -364,7 +365,8 @@ def load_modules(database_name, pool, update=False, lang=None):
         force = []
         if update:
             if 'all' in CONFIG['init']:
-                cursor.execute("SELECT name FROM ir_module_module")
+                cursor.execute("SELECT name FROM ir_module_module " \
+                        "WHERE name != \'tests\'")
             else:
                 cursor.execute("SELECT name FROM ir_module_module " \
                         "WHERE state IN ('installed', 'to install', " \
