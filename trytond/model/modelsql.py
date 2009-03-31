@@ -1290,7 +1290,7 @@ class ModelSQL(ModelStorage):
                         else:
                             domain[i] = (domain[i][0], 'not in', ids2, table)
                     else:
-                        if field.left and field.right:
+                        if field.left and field.right and ids2:
                             cursor.execute('SELECT "' + field.left + '", ' \
                                         '"' + field.right + '" ' + \
                                     'FROM "' + self._table + '" ' + \
