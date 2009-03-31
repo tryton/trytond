@@ -1,6 +1,6 @@
 type,name,res_id,src,value,fuzzy
 error,access_error,0,"You try to bypass an access rule!
-(Document type: %s)","Keine Zugriffsberechtigung!
+(Document type: %s)","Fehlende Zugriffsberechtigung!
 (Dokumententyp: %s)",0
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
@@ -42,11 +42,11 @@ error,ir.sequence.strict,0,Missing sequence!,Fehlende Sequenz!,0
 error,ir.translation,0,Translation must be unique,Übersetzung kann nicht mehrfach vergeben werden!,0
 error,ir.ui.view,0,Invalid XML for View!,Ungültiges XML für Ansicht!,0
 error,read_error,0,"You try to read records that don't exist anymore!
-(Document type: %s)","Leseversuch von nicht mehr existenten Datensätzen!
+(Document type: %s)","Leseversuch von nicht mehr vorhandenen Datensätzen!
 (Dokumententyp: %s)",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
 error,write_error,0,"You try to write on records that don't exist anymore!
-(Document type: %s)","Schreibversuch auf nicht mehr existente Datensätze!
+(Document type: %s)","Schreibversuch auf nicht mehr vorhandene Datensätze!
 (Dokumententyp: %s)",0
 error,write_xml_record,0,You are not allowed to modify this record.,Keine Berechtigung für die Änderung dieses Datensatzes,0
 error,xml_record_desc,0,This record is part of the base configuration.,Dieser Datensatz ist Teil der Basiskonfiguration,0
