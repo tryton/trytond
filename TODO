@@ -10,3 +10,4 @@
 - Change action, menu on res.user into a Many2Many
 - Add order attribute on page tag
 - Handle HTTP compression for XML-RPC
+- Find the on_change method for inherited fields
