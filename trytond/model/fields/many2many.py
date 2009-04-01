@@ -67,9 +67,9 @@ class Many2Many(Field):
                 (self.target + '.id', '!=', False),
                 ], order=self.order, context=context)
 
-        for relation in relation_obj.browse(cursor, user, relation_ids,
-                context=context):
-            res[relation[self.origin].id].append(relation[self.target].id)
+        for relation in relation_obj.read(cursor, user, relation_ids,
+                [self.origin, self.target], context=context):
+            res[relation[self.origin]].append(relation[self.target])
         return res
 
     def set(self, cursor, user, record_id, model, name, values, context=None):
