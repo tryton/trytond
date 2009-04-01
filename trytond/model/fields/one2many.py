@@ -10,8 +10,8 @@ class One2Many(Field):
     '''
     _type = 'one2many'
 
-    def __init__(self, model_name, field, string='', add_remove=None, help='',
-            required=False, readonly=False, domain=None, states=None,
+    def __init__(self, model_name, field, string='', add_remove=None, order=None,
+            help='', required=False, readonly=False, domain=None, states=None,
             priority=0, change_default=False, translate=False, select=0,
             on_change=None, on_change_with=None, depends=None, order_field=None,
             context=None):
@@ -20,6 +20,9 @@ class One2Many(Field):
         :param field: The name of the field that handle the reverse many2one.
         :param add_remove: A list that defines a domain for the add/remove.
             See domain on ModelStorage.search.
+        :param order:  a list of tuple that are constructed like this:
+            ``('field name', 'DESC|ASC')``
+            it allow to specify the order of result
         '''
         super(One2Many, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
@@ -30,11 +33,12 @@ class One2Many(Field):
         self.model_name = model_name
         self.field = field
         self.add_remove = add_remove
+        self.order = order
     __init__.__doc__ += Field.__init__.__doc__
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):
         '''
-        Return target records ordered by the default order of the model.
+        Return target records ordered.
 
         :param cursor: the database cursor
         :param user: the user id
@@ -52,7 +56,9 @@ class One2Many(Field):
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
             ids2 += model.pool.get(self.model_name).search(cursor, user,
-                    [(self.field, 'in', sub_ids)], context=context)
+                    [(self.field, 'in', sub_ids)], order=self.order,
+                    context=context)
+
         for i in model.pool.get(self.model_name).read(cursor, user, ids2,
                 [self.field], context=context):
             res[i[self.field]].append(i['id'])
