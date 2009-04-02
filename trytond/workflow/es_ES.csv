@@ -10,31 +10,44 @@ field,"workflow.activity,join_mode",0,Join Mode,Modo unión,0
 field,"workflow.activity,kind",0,Kind,Tipo,0
 field,"workflow.activity,name",0,Name,Nombre,0
 field,"workflow.activity,out_transitions",0,Outgoing transitions,Transiciones de Salida,0
+field,"workflow.activity,rec_name",0,Name,Nombre,0
 field,"workflow.activity,signal_send",0,Signal (subflow.*),Señal (subflujo.*),0
 field,"workflow.activity,split_mode",0,Split Mode,Modo dividido,0
 field,"workflow.activity,subflow",0,Subflow,Subflujo,0
 field,"workflow.activity,workflow",0,Workflow,Flujo de trabajo,0
+field,"workflow.instance,overflows",0,Overflow,Desbordamiento,0
+field,"workflow.instance,rec_name",0,Name,Nombre,0
 field,"workflow.instance,res_id",0,Resource ID,Identificador del Recurso,0
 field,"workflow.instance,res_type",0,Resource Model,Modelo del Recurso,0
 field,"workflow.instance,state",0,State,Estado,0
+field,"workflow.instance,transitions",0,,,0
 field,"workflow.instance,uid",0,User ID,Identificación del Usuario,0
 field,"workflow.instance,workflow",0,Workflow,Flujo de trabajo,0
+field,"workflow.instance,workitems",0,Workitems,Objetos de trabajo,0
 field,"workflow,name",0,Name,Nombre,0
 field,"workflow,on_create",0,On Create,Al Crear,0
 field,"workflow,osv",0,Resource Model,Modelo del Recurso,0
+field,"workflow,rec_name",0,Name,Nombre,0
 field,"workflow.transition,act_from",0,Source Activity,Actividad Fuente,0
 field,"workflow.transition,act_to",0,Destination Activity,Actividad destino,0
 field,"workflow.transition,condition",0,Condition,Condición,0
 field,"workflow.transition,group",0,Group Required,Se requiere grupo,0
+field,"workflow.transition,instances",0,,,0
+field,"workflow.transition,rec_name",0,Name,Nombre,0
 field,"workflow.transition,signal",0,Signal (button Name),Señal (Nombre del botón),0
 field,"workflow.transition,trigger_expr_id",0,Trigger Expr ID,Identificador de la expresión de activación,0
 field,"workflow.transition,trigger_model",0,Trigger Type,Tipo de Activación,0
+field,"workflow.transition-workflow.instance,inst_id",0,Instance,Instancia,0
+field,"workflow.transition-workflow.instance,rec_name",0,Name,Nombre,0
+field,"workflow.transition-workflow.instance,trans_id",0,Transition,Transición,0
 field,"workflow.trigger,instance",0,Destination Instance,Instancia destino,0
 field,"workflow.trigger,model",0,Model,Modelo,0
+field,"workflow.trigger,rec_name",0,Name,Nombre,0
 field,"workflow.trigger,res_id",0,Resource ID,Identificador del Recurso,0
 field,"workflow.trigger,workitem",0,Workitem,Objeto de trabajo,0
 field,"workflow.workitem,activity",0,Activity,Actividad,0
 field,"workflow.workitem,instance",0,Instance,Instancia,0
+field,"workflow.workitem,rec_name",0,Name,Nombre,0
 field,"workflow.workitem,state",0,State,Estado,0
 field,"workflow.workitem,subflow",0,Subflow,Subflujo,0
 model,"ir.action,name",act_activity_form,Activities,Actividades,0
@@ -48,6 +61,13 @@ model,"ir.ui.menu,name",menu_transition_form,Transitions,Transiciones,0
 model,"ir.ui.menu,name",menu_workflow,Workflow,Flujo de trabajo,0
 model,"ir.ui.menu,name",menu_workflow_form,Workflows,Flujos de trabajo,0
 model,"ir.ui.menu,name",menu_workitem_form,Workitems,Objetos de trabajo,0
+model,"workflow.activity,name",0,Workflow activity,Actividad de flujo de trabajo,0
+model,"workflow.instance,name",0,Workflow instance,Instancia de Flujo de trabajo,0
+model,"workflow,name",0,Workflow,Flujo de Trabajo,0
+model,"workflow.transition,name",0,Workflow transition,Transición de flujo de trabajo,0
+model,"workflow.transition-workflow.instance,name",0,Workflow Transition - Instance,Transición de flujo de trabajo - Instancia,0
+model,"workflow.trigger,name",0,Workflow trigger,Disparador de flujo de trabajo,0
+model,"workflow.workitem,name",0,Workflow workitem,elemento de flujo de trabajo,0
 selection,"workflow.activity,join_mode",0,And,Y,0
 selection,"workflow.activity,join_mode",0,Xor,Xor,0
 selection,"workflow.activity,kind",0,Dummy,Objeto ficticio,0
