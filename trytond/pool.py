@@ -40,7 +40,8 @@ class Pool(object):
             self._pool[database_name].setdefault(type, {})
         self._pools.setdefault(database_name, self)
         lock.release()
-        self._sql_errors = {}
+        if not hasattr(self, '_sql_errors'):
+            self._sql_errors = {}
 
     @staticmethod
     def register(cls, type='model'):
