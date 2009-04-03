@@ -450,9 +450,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 ids2 = []
                 for translation_id in ids:
                     translation = id2translation[translation_id]
-                    if not translation.write_uid \
-                            and (translation.value != value \
-                            or translation.fuzzy != fuzzy):
+                    if translation.value != value \
+                            or translation.fuzzy != fuzzy:
                         ids2.append(translation.id)
                 if ids2:
                     self.write(cursor, 0, ids2, {
@@ -1025,7 +1024,6 @@ class TranslationUpdate(Wizard):
                         'value = %s ' \
                     'WHERE src = %s ' \
                         'AND (value = \'\' OR value IS NULL) ' \
-                        'AND (write_uid IS NULL OR write_uid = 0) ' \
                         'AND lang = %s', (row['value'], row['src'],
                             data['form']['lang']))
 
