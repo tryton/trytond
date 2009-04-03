@@ -888,6 +888,9 @@ class TranslationClean(Wizard):
                             'delete_workflow_record',
                             'domain_validation_record',
                             'required_validation_record',
+                            'access_error',
+                            'read_error',
+                            'write_error',
                             ):
                         continue
                     if model_name in self.pool.object_name_list():
