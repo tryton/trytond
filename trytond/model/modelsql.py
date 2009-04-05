@@ -475,6 +475,10 @@ class ModelSQL(ModelStorage):
                     set(fields_names + fields_related.keys() + datetime_fields)
                     ).difference(set(self._columns.keys())))
             if not inherits_fields:
+                for record in res:
+                    if field not in fields_names + fields_related.keys() + \
+                            datetime_fields:
+                        del record[field]
                 continue
             inherit_related_fields = []
             for inherit_field in inherits_fields:
