@@ -408,8 +408,11 @@ class ModelStorage(Model):
         if not ids:
             return {}
         res = {}
+        rec_name = self._rec_name
+        if rec_name not in self._columns:
+            rec_name = 'id'
         for record in self.browse(cursor, user, ids, context=context):
-            res[record.id] = unicode(record[self._rec_name])
+            res[record.id] = unicode(record[rec_name])
         return res
 
     def search_rec_name(self, cursor, user, name, args, context=None):
