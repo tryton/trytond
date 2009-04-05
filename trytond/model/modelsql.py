@@ -262,9 +262,12 @@ class ModelSQL(ModelStorage):
         for i in values.keys():
             if i in self._inherit_fields:
                 (inherits, col, col_detail) = self._inherit_fields[i]
+                if i in self._columns and isinstance(col_detail, fields.Function):
+                    continue
+                tocreate.setdefault(inherits, {})
                 tocreate[inherits][i] = values[i]
-                #XXX add check if field is not also on base model
-                del values[i]
+                if i not in self._columns:
+                    del values[i]
 
         for inherits in tocreate:
             inherits_obj = self.pool.get(inherits)
