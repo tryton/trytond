@@ -235,14 +235,14 @@ class ModelStorage(Model):
                         data[field_name] = [('set', data[field_name])]
             if 'id' in data:
                 del data['id']
-            for i in self._inherits:
-                if self._inherits[i] in data:
-                    del data[self._inherits[i]]
             return data, data_o2m
 
         new_ids = {}
-        datas = self.read(cursor, user, ids, context=context)
-        fields = self.fields_get(cursor, user, context=context)
+        fields_names = self._columns.keys()
+        datas = self.read(cursor, user, ids, fields_names=fields_names,
+                context=context)
+        fields = self.fields_get(cursor, user, fields_names=fields_names,
+                context=context)
         for data in datas:
             data_id = data['id']
             data, data_o2m = convert_data(fields, data)
@@ -258,9 +258,6 @@ class ModelStorage(Model):
         for field_name, field in fields.iteritems():
             if field_name in self._columns and \
                     self._columns[field_name].translate:
-                fields_translate[field_name] = field
-            elif field_name in self._inherit_fields and \
-                    self._inherit_fields[field_name][2].translate:
                 fields_translate[field_name] = field
 
         if fields_translate:
