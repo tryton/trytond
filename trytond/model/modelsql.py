@@ -244,6 +244,9 @@ class ModelSQL(ModelStorage):
             for field in defaults.keys():
                 if '.' in field:
                     del defaults[field]
+                if field in ('create_uid', 'create_date',
+                        'write_uid', 'write_date'):
+                    del defaults[field]
             values.update(self._clean_defaults(defaults))
 
         # Get new id
