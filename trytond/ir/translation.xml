@@ -157,6 +157,15 @@ this repository contains the full copyright notices and license terms. -->
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
+        <record model="ir.translation" id="translation_required_field">
+            <field name="name">required_field</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">The field "%s" on "%s" is required.</field>
+            <field name="value">The field "%s" on "%s" is required.</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
 
         <record model="ir.ui.view" id="act_translation_set_report_init_view_form">
             <field name="model">ir.translation.set_report.init</field>

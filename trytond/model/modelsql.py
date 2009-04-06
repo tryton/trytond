@@ -4,6 +4,7 @@
 from trytond.model import ModelStorage, OPERATORS
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
+from trytond.backend import DatabaseIntegrityError, Database
 import datetime
 
 
@@ -267,7 +268,6 @@ class ModelSQL(ModelStorage):
                 (inherits, col, col_detail) = self._inherit_fields[i]
                 if i in self._columns and isinstance(col_detail, fields.Function):
                     continue
-                tocreate.setdefault(inherits, {})
                 tocreate[inherits][i] = values[i]
                 if i not in self._columns:
                     del values[i]
@@ -276,9 +276,7 @@ class ModelSQL(ModelStorage):
             inherits_obj = self.pool.get(inherits)
             inherits_id = inherits_obj.create(cursor, user, tocreate[inherits],
                     context=context)
-            upd0 += ',' + self._inherits[inherits]
-            upd1 += ',%s'
-            upd2.append(inherits_id)
+            values[self._inherits[inherits]] = inherits_id
 
         # Insert record
         for field in values:
@@ -314,9 +312,27 @@ class ModelSQL(ModelStorage):
         upd0 += ', create_uid, create_date'
         upd1 += ', %s, now()'
         upd2.append(user)
-        cursor.execute('INSERT INTO "' + self._table + '" ' \
-                '(id' + upd0 + ') ' \
-                'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
+        try:
+            cursor.execute('INSERT INTO "' + self._table + '" ' \
+                    '(id' + upd0 + ') ' \
+                    'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
+        except DatabaseIntegrityError:
+            database = Database(cursor.database_name).connect()
+            cursor2 = database.cursor()
+            try:
+                for field_name in self._columns:
+                    field = self._columns[field_name]
+                    # Check required fields
+                    if field.required \
+                            and field_name not in ('create_uid', 'create_date'):
+                        if not values.get(field_name):
+                            self.raise_user_error(cursor2, 'required_field',
+                                    error_args=self._get_error_args(
+                                        cursor2, user, field_name,
+                                        context=context), context=context)
+            finally:
+                cursor2.close()
+            raise
 
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
@@ -742,17 +758,32 @@ class ModelSQL(ModelStorage):
                             self._description, context=context)
                 self.raise_user_error(cursor, 'write_error',
                         self._description, context=context)
-            if domain1:
-                cursor.execute('UPDATE "' + self._table + '" ' \
-                        'SET ' + \
-                        ','.join([x[0] + ' = ' + x[1] for x in upd0]) + ' ' \
-                        'WHERE id IN (' + ids_str + ') ' + domain1,
-                        upd1 + sub_ids + domain2)
-            else:
+            try:
                 cursor.execute('UPDATE "' + self._table + '" ' \
                         'SET ' + \
                         ','.join([x[0] + ' = '+ x[1] for x in upd0]) + ' ' \
                         'WHERE id IN (' + ids_str + ') ', upd1 + sub_ids)
+            except DatabaseIntegrityError:
+                database = Database(cursor.database_name).connect()
+                cursor2 = database.cursor()
+                try:
+                    for field_name in values:
+                        if field_name in self._columns:
+                            field = self._columns[field_name]
+                            # Check required fields
+                            if field.required \
+                                    and field_name not in \
+                                    ('create_uid', 'create_date'):
+                                if not values[field_name]:
+                                    self.raise_user_error(cursor2,
+                                            'required_field',
+                                            error_args=self._get_error_args(
+                                                cursor2, user, field_name,
+                                                context=context),
+                                            context=context)
+                finally:
+                    cursor2.close()
+                raise
 
         for field in direct:
             if self._columns[field].translate:
