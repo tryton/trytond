@@ -890,6 +890,7 @@ class TranslationClean(Wizard):
                             'access_error',
                             'read_error',
                             'write_error',
+                            'required_field',
                             ):
                         continue
                     if model_name in self.pool.object_name_list():
