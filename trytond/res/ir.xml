@@ -404,37 +404,37 @@
                 <![CDATA[
                     <data>
                         <xpath
-                            expr="/form/notebook/page/group/button[@name=&quot;button_install&quot;]"
+                            expr="/form/group/button[@name=&quot;button_install&quot;]"
                             position="replace">
                             <button string="Mark for Installation" name="button_install"
                                 type="object" states="{'invisible': '''state != 'uninstalled' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
                         </xpath>
                         <xpath
-                            expr="/form/notebook/page/group/button[@name=&quot;button_install_cancel&quot;]"
+                            expr="/form/group/button[@name=&quot;button_install_cancel&quot;]"
                             position="replace">
                             <button string="Cancel Installation" name="button_install_cancel"
                                 type="object" states="{'invisible': '''state != 'to install' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
                         </xpath>
                         <xpath
-                            expr="/form/notebook/page/group/button[@name=&quot;button_uninstall&quot;]"
+                            expr="/form/group/button[@name=&quot;button_uninstall&quot;]"
                             position="replace">
                             <button string="Mark for Uninstallation (beta)" name="button_uninstall"
                                 type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': ''' %(res.group_admin)d not in groups or True'''}"/>
                         </xpath>
                         <xpath
-                            expr="/form/notebook/page/group/button[@name=&quot;button_uninstall_cancel&quot;]"
+                            expr="/form/group/button[@name=&quot;button_uninstall_cancel&quot;]"
                             position="replace">
                             <button string="Cancel Uninstallation" name="button_uninstall_cancel"
                                 type="object" states="{'invisible': '''state != 'to remove' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
                         </xpath>
                         <xpath
-                            expr="/form/notebook/page/group/button[@name=&quot;button_upgrade&quot;]"
+                            expr="/form/group/button[@name=&quot;button_upgrade&quot;]"
                             position="replace">
                             <button string="Mark for Upgrade" name="button_upgrade"
                                 type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
                         </xpath>
                         <xpath
-                            expr="/form/notebook/page/group/button[@name=&quot;button_upgrade_cancel&quot;]"
+                            expr="/form/group/button[@name=&quot;button_upgrade_cancel&quot;]"
                             position="replace">
                             <button string="Cancel Upgrade" name="button_upgrade_cancel"
                                 type="object" states="{'invisible': '''state != 'to upgrade' ''', 'readonly': ''' %(res.group_admin)d not in groups '''}"/>
