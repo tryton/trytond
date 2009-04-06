@@ -767,6 +767,24 @@ class ModelStorage(Model):
                     return False
         return True
 
+    def _get_error_args(self, cursor, user, field_name, context=None):
+        model_field_obj = self.pool.get('ir.model.field')
+        error_args = (field_name, self._name)
+        if model_field_obj:
+            model_field_ids = model_field_obj.search(cursor,
+                    user, [
+                        ('name', '=', field_name),
+                        ('model.model', '=', self._name),
+                        ], context=context, limit=1)
+            if model_field_ids:
+                model_field = model_field_obj.browse(cursor,
+                        user, model_field_ids[0],
+                        context=context)
+                error_args = (model_field.field_description,
+                        model_field.model.name)
+        return error_args
+
+
     def _validate(self, cursor, user, ids, context=None):
         if context is None:
             context = {}
@@ -784,23 +802,6 @@ class ModelStorage(Model):
             user_obj = self.pool.get('res.user')
             ctx_pref = user_obj.get_preferences(cursor, user,
                 context_only=True, context=context)
-
-        def get_error_args(field_name):
-            model_field_obj = self.pool.get('ir.model.field')
-            error_args = (field_name, self._name)
-            if model_field_obj:
-                model_field_ids = model_field_obj.search(cursor,
-                        user, [
-                            ('name', '=', field_name),
-                            ('model.model', '=', self._name),
-                            ], context=context, limit=1)
-                if model_field_ids:
-                    model_field = model_field_obj.browse(cursor,
-                            user, model_field_ids[0],
-                            context=context)
-                    error_args = (model_field.field_description,
-                            model_field.model.name)
-            return error_args
 
         context.update(ctx_pref)
         records = self.browse(cursor, user, ids, context=context)
@@ -838,7 +839,8 @@ class ModelStorage(Model):
                                     ], context=context):
                             self.raise_user_error(cursor,
                                     'domain_validation_record',
-                                    error_args=get_error_args(field_name),
+                                    error_args=self._get_error_args(cursor,
+                                        user, field_name, context=context),
                                     context=context)
                 else:
                     relation_ids = []
@@ -858,7 +860,8 @@ class ModelStorage(Model):
                         if not set(relation_ids) == set(find_ids):
                             self.raise_user_error(cursor,
                                     'domain_validation_record',
-                                    error_args=get_error_args(field_name),
+                                    error_args=self._get_error_args(cursor,
+                                        user, field_name, context=context),
                                     context=context)
             # validate states required
             if field.states and 'required' in field.states:
@@ -876,7 +879,8 @@ class ModelStorage(Model):
                         if required and not record[field_name]:
                             self.raise_user_error(cursor,
                                     'required_validation_record',
-                                    error_args=get_error_args(field_name),
+                                    error_args=self._get_error_args(cursor,
+                                        user, field_name, context=context),
                                     context=context)
                 else:
                     if field.states['required']:
@@ -884,7 +888,8 @@ class ModelStorage(Model):
                             if not record[field_name]:
                                 self.raise_user_error(cursor,
                                         'required_validation_record',
-                                        error_args=get_error_args(field_name),
+                                        error_args=self._get_error_args(cursor,
+                                            user, field_name, context=context),
                                         context=context)
 
     def _clean_defaults(self, defaults):
