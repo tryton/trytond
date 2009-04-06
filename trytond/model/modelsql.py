@@ -330,6 +330,17 @@ class ModelSQL(ModelStorage):
                                     error_args=self._get_error_args(
                                         cursor2, user, field_name,
                                         context=context), context=context)
+                    if isinstance(field, fields.Many2One) \
+                            and values.get(field_name):
+                        model_obj = self.pool.get(field.model_name)
+                        if not model_obj.search(cursor2, 0, [
+                            ('id', '=', values[field_name]),
+                            ], context=context):
+                            self.raise_user_error(cursor2,
+                                    'foreign_model_missing',
+                                    error_args=self._get_error_args(
+                                        cursor2, user, field_name,
+                                        context=context), context=context)
             finally:
                 cursor2.close()
             raise
@@ -768,19 +779,31 @@ class ModelSQL(ModelStorage):
                 cursor2 = database.cursor()
                 try:
                     for field_name in values:
-                        if field_name in self._columns:
-                            field = self._columns[field_name]
-                            # Check required fields
-                            if field.required \
-                                    and field_name not in \
-                                    ('create_uid', 'create_date'):
-                                if not values[field_name]:
-                                    self.raise_user_error(cursor2,
-                                            'required_field',
-                                            error_args=self._get_error_args(
-                                                cursor2, user, field_name,
-                                                context=context),
-                                            context=context)
+                        if field_name not in self._columns:
+                            continue
+                        field = self._columns[field_name]
+                        # Check required fields
+                        if field.required \
+                                and field_name not in \
+                                ('create_uid', 'create_date'):
+                            if not values[field_name]:
+                                self.raise_user_error(cursor2,
+                                        'required_field',
+                                        error_args=self._get_error_args(
+                                            cursor2, user, field_name,
+                                            context=context),
+                                        context=context)
+                        if isinstance(field, fields.Many2One) \
+                                and values[field_name]:
+                            model_obj = self.pool.get(field.model_name)
+                            if not model_obj.search(cursor2, 0, [
+                                ('id', '=', values[field_name]),
+                                ], context=context):
+                                self.raise_user_error(cursor2,
+                                        'foreign_model_missing',
+                                        error_args=self._get_error_args(
+                                            cursor2, user, field_name,
+                                            context=context), context=context)
                 finally:
                     cursor2.close()
                 raise
