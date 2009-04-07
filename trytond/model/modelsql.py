@@ -915,17 +915,6 @@ class ModelSQL(ModelStorage):
                 if context['_timestamp'].get(self._name + ',' + str(i)):
                     del context['_timestamp'][self._name + ',' +str(i)]
 
-
-        #TODO use search
-        cursor.execute(
-            "SELECT id FROM wkf_instance "\
-                "WHERE res_id IN (" + ",".join(["%s" for i in ids]) + ") "\
-                "AND res_type = %s AND state != 'complete'",
-            ids + [self._name])
-        if cursor.rowcount != 0:
-            self.raise_user_error(cursor, 'delete_workflow_record',
-                    context=context)
-
         tree_ids = {}
         for k in self._columns:
             field = self._columns[k]

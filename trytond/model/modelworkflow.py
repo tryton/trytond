@@ -28,6 +28,18 @@ class ModelWorkflow(ModelStorage):
         return res
 
     def delete(self, cursor, user, ids, context=None):
+        instance_obj = self.pool.get('workflow.instance')
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+
+        if instance_obj.search(cursor, 0, [
+            ('res_id', 'in', ids),
+            ('res_type', '=', self._name),
+            ('state', '!=', 'complete'),
+            ], context=context):
+            self.raise_user_error(cursor, 'delete_workflow_record',
+                    context=context)
         res = super(ModelWorkflow, self).delete(cursor, user, ids,
                 context=context)
         self.workflow_trigger_delete(cursor, user, ids, context=context)
