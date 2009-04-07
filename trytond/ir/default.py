@@ -16,7 +16,7 @@ class Default(ModelSQL, ModelView):
     model = fields.Many2One('ir.model', 'Model', required=True,
        ondelete='CASCADE')
     field = fields.Many2One('ir.model.field', 'Field', required=True,
-       ondelete='CASCADE')
+       ondelete='CASCADE', domain="[('model', '=', model)]")
     value = fields.Text('Value')
     clause = fields.Text('Clause')
     user = fields.Many2One('res.user', 'User', ondelete='CASCADE')
@@ -82,6 +82,7 @@ class Default(ModelSQL, ModelView):
             ], context=context)[0]
         field_id = field_obj.search(cursor, user, [
             ('name', '=', field),
+            ('model', '=', model_id),
             ], context=context)[0]
         default_ids = self.search(cursor, user, [
             ('model', '=', model_id),
