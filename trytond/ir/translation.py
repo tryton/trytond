@@ -891,6 +891,8 @@ class TranslationClean(Wizard):
                             'read_error',
                             'write_error',
                             'required_field',
+                            'foreign_model_missing',
+                            'foreign_model_exist',
                             ):
                         continue
                     if model_name in self.pool.object_name_list():

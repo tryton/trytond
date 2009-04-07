@@ -884,6 +884,12 @@ class ModelSQL(ModelStorage):
         if isinstance(ids, (int, long)):
             ids = [ids]
 
+        if context.get('_delete') and context['_delete'].get(self._name):
+            ids = ids[:]
+            for del_id in context['_delete'][self._name]:
+                for i in range(ids.count(del_id)):
+                    ids.remove(del_id)
+
         if context.get('_timestamp', False):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
@@ -932,10 +938,34 @@ class ModelSQL(ModelStorage):
                             ids)
                 tree_ids[k] = [x[0] for x in cursor.fetchall()]
 
+        foreign_keys_tocheck = []
+        foreign_keys_toupdate = []
+        foreign_keys_todelete = []
+        for model_name in self.pool.object_name_list():
+            model = self.pool.get(model_name)
+            for field_name, field in model._columns.iteritems():
+                if isinstance(field, fields.Many2One) \
+                        and field.model_name == self._name:
+                    if field.ondelete == 'CASCADE':
+                        foreign_keys_todelete.append((model, field_name))
+                    elif field.ondelete == 'SET NULL':
+                        if field.required:
+                            foreign_keys_tocheck.append((model, field_name))
+                        else:
+                            foreign_keys_toupdate.append((model, field_name))
+                    else:
+                        foreign_keys_tocheck.append((model, field_name))
+
+        delete_ctx = context.copy()
+        delete_ctx.setdefault('_delete', {})
+        delete_ctx['_delete'].setdefault(self._name, set())
+        delete_ctx['_delete'][self._name].update(ids)
+
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
                 self._name, context=context)
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
+
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
             str_d = ','.join(('%s',) * len(sub_ids))
@@ -947,13 +977,53 @@ class ModelSQL(ModelStorage):
                     self.raise_user_error(cursor, 'access_error',
                             self._description, context=context)
 
-            if domain1:
-                cursor.execute('DELETE FROM "'+self._table+'" ' \
-                        'WHERE id IN (' + str_d + ') ' + domain1,
-                        sub_ids + domain2)
-            else:
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
+            str_d = ','.join(('%s',) * len(sub_ids))
+
+            for model, field_name in foreign_keys_toupdate:
+                if not hasattr(model, 'search') \
+                        or not hasattr(model, 'write'):
+                    continue
+                model_ids = model.search(cursor, 0, [
+                    (field_name, 'in', sub_ids),
+                    ], context=context)
+                if model_ids:
+                    model.write(cursor, user, model_ids, {
+                        field_name: False,
+                        }, context=context)
+
+            for model, field_name in foreign_keys_todelete:
+                if not hasattr(model, 'search') \
+                        or not hasattr(model, 'delete'):
+                    continue
+                model_ids = model.search(cursor, 0, [
+                    (field_name, 'in', sub_ids),
+                    ], context=context)
+                if model_ids:
+                    model.delete(cursor, user, model_ids, context=delete_ctx)
+
+            try:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ')', sub_ids)
+            except DatabaseIntegrityError:
+                database = Database(cursor.database_name).connect()
+                cursor2 = database.cursor()
+                try:
+                    for model, field_name in foreign_keys_tocheck:
+                        if model.search(cursor2, 0, [
+                            (field_name, 'in', sub_ids),
+                            ], context=context):
+                            error_args = []
+                            error_args.append(self._get_error_args(cursor2,
+                                user, 'id', context=context)[1])
+                            error_args.extend(list(model._get_error_args(cursor2,
+                                user, field_name, context=context)))
+                            self.raise_user_error(cursor2, 'foreign_model_exist',
+                                    error_args=tuple(error_args), context=context)
+                finally:
+                    cursor2.close()
+                raise
 
         if self._history:
             for obj_id in ids:
