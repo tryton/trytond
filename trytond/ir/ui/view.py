@@ -196,7 +196,7 @@ class ViewShortcut(ModelSQL, ModelView):
     res_id = fields.Integer('Resource Ref.', required=True)
     sequence = fields.Integer('Sequence')
     user_id = fields.Many2One('res.user', 'User Ref.', required=True,
-       ondelete='cascade')
+       ondelete='CASCADE')
     resource = fields.Char('Resource Name', required=True)
 
     def __init__(self):

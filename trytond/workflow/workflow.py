@@ -39,7 +39,7 @@ class WorkflowActivity(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name', required=True, translate=True)
     workflow = fields.Many2One('workflow', 'Workflow', required=True,
-       select=1, ondelete='cascade')
+       select=1, ondelete='CASCADE')
     split_mode = fields.Selection([
        ('XOR', 'Xor'),
        ('OR', 'Or'),
@@ -104,9 +104,9 @@ class WorkflowTransition(ModelSQL, ModelView):
     group = fields.Many2One('res.group', 'Group Required')
     condition = fields.Char('Condition', required=True)
     act_from = fields.Many2One('workflow.activity', 'Source Activity',
-       required=True, select=1, ondelete='cascade')
+       required=True, select=1, ondelete='CASCADE')
     act_to = fields.Many2One('workflow.activity', 'Destination Activity',
-       required=True, select=1, ondelete='cascade')
+       required=True, select=1, ondelete='CASCADE')
     instances = fields.Many2Many('workflow.transition-workflow.instance',
             'trans_id', 'inst_id')
 
@@ -122,7 +122,7 @@ class WorkflowInstance(ModelSQL, ModelView):
     _name = "workflow.instance"
     _rec_name = 'res_type'
     _description = __doc__
-    workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict",
+    workflow = fields.Many2One('workflow', 'Workflow', ondelete="RESTRICT",
             select=1)
     uid = fields.Integer('User ID')
     res_id = fields.Integer('Resource ID', required=True, select=1)
@@ -241,11 +241,11 @@ class WorkflowWorkitem(ModelSQL, ModelView):
     _rec_name = 'state'
     _description = __doc__
     activity = fields.Many2One('workflow.activity', 'Activity',
-       required=True, ondelete="cascade", select=1)
+       required=True, ondelete="CASCADE", select=1)
     subflow = fields.Many2One('workflow.instance', 'Subflow',
-       ondelete="cascade", select=1)
+       ondelete="CASCADE", select=1)
     instance = fields.Many2One('workflow.instance', 'Instance',
-       required=True, ondelete="cascade", select=1)
+       required=True, ondelete="CASCADE", select=1)
     state = fields.Char('State', select=1)
 
     def create(self, cursor, user, values, context=None):
@@ -447,9 +447,9 @@ class WorkflowTrigger(ModelSQL, ModelView):
     res_id = fields.Integer('Resource ID')
     model = fields.Char('Model')
     instance = fields.Many2One('workflow.instance',
-       'Destination Instance', ondelete="cascade")
+       'Destination Instance', ondelete="CASCADE")
     workitem = fields.Many2One('workflow.workitem', 'Workitem',
-       required=True, ondelete="cascade")
+       required=True, ondelete="CASCADE")
 
     def init(self, cursor, module_name):
         super(WorkflowTrigger, self).init(cursor, module_name)
