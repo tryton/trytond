@@ -165,7 +165,10 @@ class TrytonDAVInterface(iface.dav_interface):
             return res
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
         pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         try:
             collection_obj = pool.get('webdav.collection')
             if uri[-1:] != '/':
@@ -205,9 +208,12 @@ class TrytonDAVInterface(iface.dav_interface):
             res += '</body>'
             res += '</html>'
             return res
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.get_data(cursor, int(USER_ID), dburi,
@@ -220,9 +226,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             try:
@@ -240,9 +249,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             try:
@@ -260,9 +272,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return COLLECTION
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.get_resourcetype(cursor, int(USER_ID), dburi,
@@ -278,9 +293,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return '0'
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.get_contentlength(cursor, int(USER_ID), dburi,
@@ -293,9 +311,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or self.is_collection(uri):
             return "text/html"
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.get_contenttype(cursor, int(USER_ID), dburi,
@@ -308,9 +329,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return time.time()
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.get_creationdate(cursor, int(USER_ID), dburi,
@@ -323,9 +347,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return time.time()
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.get_lastmodified(cursor, int(USER_ID), dburi,
@@ -338,9 +365,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             try:
@@ -358,9 +388,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        pool = Pool(dbname)
         database = Database(dbname).connect()
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             try:
@@ -378,9 +411,12 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return 1
-        pool = Pool(dbname)
         database = Database(dbname)
         cursor = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.exists(cursor, int(USER_ID), dburi, cache=CACHE)
