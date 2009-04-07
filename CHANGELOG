@@ -1,3 +1,5 @@
+* Add delete of foreign keys with ondelete CASCADE
+* Add write for foreign keys with ondelete SET NULL
 * Add datetime_field on Many2One to use a specific _datetime when reading the related record
 * Use _datetime in context to read record value at specific datetime
 * Add _history_table on ModelSQL to historize change on records
