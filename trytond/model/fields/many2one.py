@@ -22,8 +22,7 @@ class Many2One(Field):
             See http://en.wikipedia.org/wiki/Tree_traversal
         :param right: The name ofthe field to store the right value. See left
         :param ondelete: Define the behavior of the record when the target
-            record is deleted. (``CASCADE``, ``NO ACTION``, ``RESTRICT``,
-            ``SET DEFAULT``, ``SET NULL``)
+            record is deleted. (``CASCADE``, ``RESTRICT``, ``SET NULL``)
         :param datetime_field: The name of the field that contains the datetime
             value to read the target record.
         '''
@@ -41,6 +40,8 @@ class Many2One(Field):
         self.model_name = model_name
         self.left = left
         self.right = right
+        if ondelete not in ('CASCADE', 'RESTRICT', 'SET NULL'):
+            raise Exception('Bad arguments')
         self.ondelete = ondelete
         self.datetime_field = datetime_field
     __init__.__doc__ += Field.__init__.__doc__

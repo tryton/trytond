@@ -14,12 +14,12 @@ class Default(ModelSQL, ModelView):
     _description = __doc__
     _rec_name = 'value'
     model = fields.Many2One('ir.model', 'Model', required=True,
-       ondelete='cascade')
+       ondelete='CASCADE')
     field = fields.Many2One('ir.model.field', 'Field', required=True,
-       ondelete='cascade')
+       ondelete='CASCADE')
     value = fields.Text('Value')
     clause = fields.Text('Clause')
-    user = fields.Many2One('res.user', 'User', ondelete='cascade')
+    user = fields.Many2One('res.user', 'User', ondelete='CASCADE')
 
     def __init__(self):
         super(Default, self).__init__()

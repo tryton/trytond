@@ -82,7 +82,7 @@ class Rule(ModelSQL, ModelView):
        ], 'Operator', required=True, translate=False)
     operand = fields.Selection('get_operand','Operand', required=True)
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=2,
-       required=True, ondelete="cascade")
+       required=True, ondelete="CASCADE")
 
     def _operand_get(self, cursor, user, obj_name='', level=3, recur=None, root_tech='', root=''):
         res = {}
