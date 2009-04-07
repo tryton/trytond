@@ -6,6 +6,8 @@ error,delete_workflow_record,0,You cannot delete a record with a running workflo
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","Der Wert von Feld ""%s"" in ""%s"" ist für seine Domain nicht gültig!",0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
+error,foreign_model_exist,0,"Could not delete ""%s"" records because they are used on field ""%s"" of ""%s"".","""%s"" Datensätze konnten nicht gelöscht werden, weil sie in Feld ""%s"" in ""%s"" verwendet werden.",0
+error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist.","Der Wert von Feld ""%s"" in ""%s"" existiert nicht.",0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique by module!,Der interne Name kann pro Modul nur einmal vergeben werden!,0
 error,ir.attachment,0,The names of attachments must be unique by record!,Die Namen für Anhänge können pro Datensatz nur einmal vergeben werden!,0
@@ -44,6 +46,7 @@ error,ir.ui.view,0,Invalid XML for View!,Ungültiges XML für Ansicht!,0
 error,read_error,0,"You try to read records that don't exist anymore!
 (Document type: %s)","Leseversuch von nicht mehr vorhandenen Datensätzen!
 (Dokumententyp: %s)",0
+error,required_field,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
 error,write_error,0,"You try to write on records that don't exist anymore!
 (Document type: %s)","Schreibversuch auf nicht mehr vorhandene Datensätze!
