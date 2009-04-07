@@ -406,7 +406,8 @@ class ModelStorage(Model):
             return {}
         res = {}
         rec_name = self._rec_name
-        if rec_name not in self._columns:
+        if rec_name not in self._columns \
+                and rec_name not in self._inherit_fields.keys():
             rec_name = 'id'
         for record in self.browse(cursor, user, ids, context=context):
             res[record.id] = unicode(record[rec_name])
