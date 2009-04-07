@@ -127,26 +127,6 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                         '%s %s from %s@%s:%d/%s:\n' % \
                         (method, object_type, object_name, user, host, port,
                             database_name) + tb_s.decode('utf-8', 'ignore'))
-            if isinstance(exception, DatabaseIntegrityError):
-                for key in pool._sql_errors.keys():
-                    if key in exception[0]:
-                        msg = pool._sql_errors[key]
-                        cursor2 = database.cursor()
-                        try:
-                            cursor2.execute('SELECT value ' \
-                                    'FROM ir_translation ' \
-                                    'WHERE lang=%s ' \
-                                        'AND type=%s ' \
-                                        'AND src=%s',
-                                    (find_language_context(args, kargs),
-                                        'error', msg))
-                            if cursor2.rowcount:
-                                res = cursor2.fetchone()[0]
-                                if res:
-                                    msg = res
-                        finally:
-                            cursor2.close()
-                        raise Exception('UserError', 'Constraint Error', msg)
             cursor.rollback()
             raise
     finally:

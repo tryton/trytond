@@ -316,7 +316,7 @@ class ModelSQL(ModelStorage):
             cursor.execute('INSERT INTO "' + self._table + '" ' \
                     '(id' + upd0 + ') ' \
                     'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
-        except DatabaseIntegrityError:
+        except DatabaseIntegrityError, exception:
             database = Database(cursor.database_name).connect()
             cursor2 = database.cursor()
             try:
@@ -341,6 +341,12 @@ class ModelSQL(ModelStorage):
                                     error_args=self._get_error_args(
                                         cursor2, user, field_name,
                                         context=context), context=context)
+                for name, _, error in self._sql_constraints:
+                    if name in exception[0]:
+                        self.raise_user_error(cursor2, error, context=context)
+                for name, error in self._sql_error_messages:
+                    if name in exception[0]:
+                        self.raise_user_error(cursor2, error, context=context)
             finally:
                 cursor2.close()
             raise
@@ -774,7 +780,7 @@ class ModelSQL(ModelStorage):
                         'SET ' + \
                         ','.join([x[0] + ' = '+ x[1] for x in upd0]) + ' ' \
                         'WHERE id IN (' + ids_str + ') ', upd1 + sub_ids)
-            except DatabaseIntegrityError:
+            except DatabaseIntegrityError, exception:
                 database = Database(cursor.database_name).connect()
                 cursor2 = database.cursor()
                 try:
@@ -804,6 +810,14 @@ class ModelSQL(ModelStorage):
                                         error_args=self._get_error_args(
                                             cursor2, user, field_name,
                                             context=context), context=context)
+                    for name, _, error in self._sql_constraints:
+                        if name in exception[0]:
+                            self.raise_user_error(cursor2, error,
+                                    context=context)
+                    for name, error in self._sql_error_messages:
+                        if name in exception[0]:
+                            self.raise_user_error(cursor2, error,
+                                    context=context)
                 finally:
                     cursor2.close()
                 raise
@@ -1010,6 +1024,14 @@ class ModelSQL(ModelStorage):
                                 user, field_name, context=context)))
                             self.raise_user_error(cursor2, 'foreign_model_exist',
                                     error_args=tuple(error_args), context=context)
+                    for name, _, error in self._sql_constraints:
+                        if name in exception[0]:
+                            self.raise_user_error(cursor2, error,
+                                    context=context)
+                    for name, error in self._sql_error_messages:
+                        if name in exception[0]:
+                            self.raise_user_error(cursor2, error,
+                                    context=context)
                 finally:
                     cursor2.close()
                 raise

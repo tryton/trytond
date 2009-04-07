@@ -40,8 +40,6 @@ class Pool(object):
             self._pool[database_name].setdefault(type, {})
         self._pools.setdefault(database_name, self)
         lock.release()
-        if not hasattr(self, '_sql_errors'):
-            self._sql_errors = {}
 
     @staticmethod
     def register(cls, type='model'):
@@ -145,11 +143,4 @@ class Pool(object):
                 self.add(obj, type=_type)
                 obj.__init__()
                 res[_type].append(obj)
-
-                if hasattr(obj, '_sql_constraints'):
-                    for key, _, msg in obj._sql_constraints:
-                        self._sql_errors[obj._table + '_' + key] = msg
-                if hasattr(obj, '_sql_error_messages'):
-                    for key, msg in obj._sql_error_messages.iteritems():
-                        self._sql_errors[obj._table + '_' + key] = msg
         return res
