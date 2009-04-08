@@ -7,7 +7,7 @@ import time
 class Session(int):
 
     def __init__(self, x):
-        super(Session, self).__init__(x)
+        super(Session, self).__init__()
         self.__data = {
             'session': str(random.random()),
             'timestamp': time.time(),

@@ -20,7 +20,11 @@ if not hasattr(mx.DateTime, 'strptime'):
             time.strptime(x, y))
 
 from getpass import getpass
-import sha
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import sha
 import threading
 from pool import Pool
 
@@ -124,10 +128,13 @@ class TrytonServer(object):
 
                 database = Database(db_name).connect()
                 cursor = database.cursor()
+                if hashlib:
+                    password = hashlib.sha1(password).hexdigest()
+                else:
+                    password = sha.new(password).hexdigest()
                 cursor.execute('UPDATE res_user ' \
                         'SET password = %s ' \
-                        'WHERE login = \'admin\'',
-                        (sha.new(password).hexdigest(),))
+                        'WHERE login = \'admin\'', (password,))
                 cursor.commit()
                 cursor.close()
 

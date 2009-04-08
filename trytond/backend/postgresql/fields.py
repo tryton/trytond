@@ -1,6 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import sha
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import sha
 import psycopg2
 
 
@@ -64,7 +68,10 @@ class Sha(Field):
 
     @staticmethod
     def sql_format(value):
-        return value and sha.new(value).hexdigest() or ''
+        if hashlib:
+            return value and hashlib.sha1(value).hexdigest() or ''
+        else:
+            return value and sha.new(value).hexdigest() or ''
 
     @staticmethod
     def sql_type(field):

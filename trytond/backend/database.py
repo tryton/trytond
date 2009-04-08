@@ -9,7 +9,10 @@ class DatabaseInterface(object):
     Define generic interface for database connection
     '''
 
-    def __init__(self, database_name=None):
+    def __new__(cls, database_name=''):
+        return object.__new__(cls)
+
+    def __init__(self, database_name=''):
         self.database_name = database_name
 
     def connect(self):

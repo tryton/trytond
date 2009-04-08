@@ -3,7 +3,6 @@
 from trytond.backend import Database
 import os, sys, imp
 import itertools
-from sets import Set
 from trytond.config import CONFIG
 import trytond.tools as tools
 import zipfile
@@ -37,7 +36,7 @@ class Graph(dict):
 
     def __iter__(self):
         level = 0
-        done = Set(self.keys())
+        done = set(self.keys())
         while done:
             level_modules = [(name, module) for name, module in self.items() \
                     if module.depth==level]
@@ -150,7 +149,7 @@ def create_graph(module_list, force=None):
         elif module != 'all':
             logger.error('%s:Module not found!' % (module,))
 
-    current, later = Set([x[0] for x in packages]), Set()
+    current, later = set([x[0] for x in packages]), set()
     while packages and current > later:
         package, deps, datas = packages[0]
 
