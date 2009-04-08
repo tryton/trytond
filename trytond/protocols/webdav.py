@@ -45,7 +45,7 @@ if DAV_VERSION == '0.6':
     Document.Document = Document
 
 # Fix for unset _config in DAVRequestHandler
-if DAV_VERSION == '0.8':
+if not hasattr(WebDAVServer.DAVRequestHandler, '_config'):
 
 
     class DAV:
