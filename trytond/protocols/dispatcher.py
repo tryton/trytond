@@ -11,7 +11,11 @@ import traceback
 import logging
 import time
 import sys
-import sha
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import sha
 import base64
 import pydoc
 
@@ -179,10 +183,13 @@ def create(database_name, password, lang, admin_password):
                     'SET language = ' \
                         '(SELECT id FROM ir_lang WHERE code = %s LIMIT 1) '\
                     'WHERE login <> \'root\'', (lang,))
+            if hashlib:
+                admin_password = hashlib.sha1(admin_password).hexdigest()
+            else:
+                admin_password = sha.new(admin_password).hexdigest()
             cursor.execute('UPDATE res_user ' \
                     'SET password = %s ' \
-                    'WHERE login = \'admin\'',
-                    (sha.new(admin_password).hexdigest(),))
+                    'WHERE login = \'admin\'', (admin_password,))
             module_obj = pool.get('ir.module.module')
             if module_obj:
                 module_obj.update_list(cursor, 0)

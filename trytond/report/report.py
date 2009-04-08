@@ -15,7 +15,6 @@ import zipfile
 import time
 import os
 import datetime
-import md5
 from base64 import decodestring
 
 import warnings

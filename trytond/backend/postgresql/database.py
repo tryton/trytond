@@ -31,7 +31,7 @@ class Database(DatabaseInterface):
     def __new__(cls, database_name='template1'):
         if database_name in cls._databases:
             return cls._databases[database_name]
-        return DatabaseInterface.__new__(cls, database_name)
+        return DatabaseInterface.__new__(cls, database_name=database_name)
 
     def __init__(self, database_name='template1'):
         super(Database, self).__init__(database_name=database_name)

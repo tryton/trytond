@@ -3,7 +3,11 @@
 from trytond.backend import Database
 from trytond.session import Session
 from config import CONFIG
-import sha
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import sha
 import time
 
 
@@ -14,7 +18,10 @@ def login(dbname, loginname, password, cache=True):
     _USER_TRY.setdefault(dbname, {})
     database = Database(dbname).connect()
     cursor = database.cursor()
-    password_sha = sha.new(password).hexdigest()
+    if hashlib:
+        password_sha = hashlib.sha1(password).hexdigest()
+    else:
+        password_sha = sha.new(password).hexdigest()
     cursor.execute('SELECT id, password, active FROM res_user '
         'WHERE login = %s', (loginname,))
     if cursor.rowcount:

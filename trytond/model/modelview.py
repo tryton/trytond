@@ -3,7 +3,11 @@
 from trytond.model import Model
 from trytond.tools import Cache
 from lxml import etree
-import md5
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import md5
 import copy
 
 def _find(tree, element):
@@ -207,7 +211,10 @@ class ModelView(Model):
             }
 
         # Compute md5
-        result['md5'] = md5.new(str(result)).hexdigest()
+        if hashlib:
+            result['md5'] = hashlib.md5(str(result)).hexdigest()
+        else:
+            result['md5'] = md5.new(str(result)).hexdigest()
         if hexmd5 == result['md5']:
             return True
         return result
