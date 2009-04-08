@@ -525,7 +525,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     value = translation[field] or ''
                     value = value.encode('utf-8')
                     row.append(value)
-            writer.writerow(row)
+            if len(row) == len(HEADER):
+                writer.writerow(row)
 
         file_data = buf.getvalue()
         buf.close()
