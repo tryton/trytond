@@ -32,10 +32,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Record rules">
-                    <field name="model"/>
-                    <field name="name"/>
-                    <field name="global_p"/>
-                    <field name="default_p"/>
+                    <field name="model" select="1"/>
+                    <field name="name" select="2"/>
+                    <field name="global_p" select="1"/>
+                    <field name="default_p" select="1"/>
                 </tree>
               ]]>
             </field>
