@@ -789,6 +789,12 @@ class ModelStorage(Model):
     def _validate(self, cursor, user, ids, context=None):
         if context is None:
             context = {}
+
+        if user == 0 and context.get('user'):
+            ctx = context.copy()
+            del ctx['user']
+            return self._validate(cursor, context['user'], ids, context=ctx)
+
         context = context.copy()
         field_error = []
         field_err_str = []
