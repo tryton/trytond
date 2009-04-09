@@ -572,7 +572,7 @@ class Attachment(ModelSQL, ModelView):
             ('check_collection', 'collection_attachment_name'),
         ]
         self._error_messages.update({
-            'collection_attachment_name': 'You can not create a attachment\n' \
+            'collection_attachment_name': 'You can not create an attachment\n' \
                     'in a collection with the name\n' \
                     'of an existing child collection!',
         })

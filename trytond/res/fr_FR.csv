@@ -21,8 +21,8 @@ field,"ir.rule.group-res.user,user_id",0,User,Utilisateur,0
 field,"ir.ui.menu-res.group,gid",0,Group,Groupe,0
 field,"ir.ui.menu-res.group,menu_id",0,Menu,Menu,0
 field,"ir.ui.menu-res.group,rec_name",0,Name,Nom,0
-field,"res.group,menu_access",0,Access Menu,Accès aux Menus,0
-field,"res.group,model_access",0,Access Model,Accès aus Modèles,0
+field,"res.group,menu_access",0,Access Menu,Accès aux menus,0
+field,"res.group,model_access",0,Access Model,Accès aux modèles,0
 field,"res.group,name",0,Name,Nom,0
 field,"res.group,rec_name",0,Name,Nom,0
 field,"res.group,rule_groups",0,Rules,Règles,0
@@ -54,7 +54,7 @@ field,"res.request,priority",0,Priority,Priorité,0
 field,"res.request,rec_name",0,Name,Nom,0
 field,"res.request.reference,rec_name",0,Name,Nom,0
 field,"res.request.reference,reference",0,Reference,Référence,0
-field,"res.request.reference,request",0,,inconnu,0
+field,"res.request.reference,request",0,Request,Demande,0
 field,"res.request,references",0,References,Références,0
 field,"res.request,state",0,State,État,0
 field,"res.request,trigger_date",0,Trigger Date,Date de déclenchement,0
@@ -74,7 +74,7 @@ field,"res.user-res.group,rec_name",0,Name,Nom,0
 field,"res.user-res.group,uid",0,User,Utilisateur,0
 field,"res.user,rule_groups",0,Rules,Règles,0
 field,"res.user,signature",0,Signature,Signature,0
-field,"res.user,status_bar",0,Status Bar,Barre d'État,0
+field,"res.user,status_bar",0,Status Bar,Barre d'état,0
 field,"res.user,timezone",0,Timezone,Fuseau Horaire,0
 field,"res.user.warning,always",0,Always,Toujours,0
 field,"res.user.warning,name",0,Name,Nom,0

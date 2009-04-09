@@ -1,10 +1,12 @@
 type,name,res_id,src,value,fuzzy
-error,ir.attachment,0,"You can not create a attachment
-on a collection that have the same name
-than a child collection!","Vous ne pouvez pas créer un attachement
-sur une collection qui a le même nom
-qu'une collection enfant !",0
+error,ir.attachment,0,"You can not create an attachment
+in a collection with the name
+of an existing child collection!","Vous ne pouvez pas créer une pièce jointe
+à une collection dont le nom
+est celui d'une collection enfant !",0
 error,webdav.collection,0,The collection name must be unique inside a collection!,Le nom de collection doit être unique au sein d'une collection !,0
+error,webdav.collection,0,"You can not create a collection
+in a collection with the name of an existing file!",,0
 error,webdav.collection,0,"You can not create a collection
 with the same name of an existing file
 inside the same collection!","Vous ne pouvez pas créer une collection

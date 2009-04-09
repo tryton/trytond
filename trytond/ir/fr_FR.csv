@@ -1,10 +1,16 @@
 type,name,res_id,src,value,fuzzy
+error,access_error,0,"You try to bypass an access rule!
+(Document type: %s)","Vous essayez d'enfreindre une règle d'accès
+(Type du document: %s)",0
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Vous ne pouvez pas supprimer un enregistrement avec un workflow actif.,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Vous n'êtes pas authorisé à supprimer cet enregistrement,0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","La valeur du champ ""%s"" de ""%s"" n'est pas valide suivant son domaine.",0
-error,ir.action.keyword,0,Wrong wizard model!,Mauvais modèle de wizard,0
+error,foreign_model_exist,0,"Could not delete ""%s"" records because they are used on field ""%s"" of ""%s"".","Impossible de supprimer les enregistrements ""%s"" car ils sont utilisé dans le champ ""%s"" de ""%s"".",0
+error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist.","La valeur du champ ""%s"" de ""%s"" est absente.",0
+error,ir.action.keyword,0,Wrong wizard model!,Mauvais modèle d'assistant,0
 error,ir.action.report,0,The internal name must be unique by module!,Le nom interne doit être unique par module !,0
 error,ir.attachment,0,Error! You can not create attachments with the same name!,Erreur ! Vous ne pouvez pas créer des pièces jointes avec le même nom.,0
+error,ir.attachment,0,The names of attachments must be unique by record!,Les noms des pièces jointes d'un même enregistrement doivent être unique !,0
 error,ir.cron,0,Scheduled action failed,L'action planifiée a échoué,0
 error,ir.cron,0,"The following action failed to execute properly: ""%s""
  Traceback: 
@@ -19,15 +25,15 @@ error,ir.lang,0,decimal_point and thousands_sep must be different!,decimal_point
 error,ir.lang,0,Invalid Grouping!,Groupement incorrect !,0
 error,ir.lang,0,The date format is not valid!,Le format de date est incorrect !,0
 error,ir.model,0,The model must be unique!,Le modèle doit être unique !,0
-error,ir.model.access,0,Only on record by model and group is allowed!,Seul un enregistrement par modèle et par groupe est autorise,0
+error,ir.model.access,0,Only on record by model and group is allowed!,Seul un enregistrement par modèle et par groupe est autorisé,0
 error,ir.model.access,0,You can not create this kind of document! (%s),Vous ne pouvez pas créer ce type de document ! (%s),0
 error,ir.model.access,0,You can not delete this document! (%s),Vous ne pouvez pas supprimer ce document ! (%s),0
 error,ir.model.access,0,You can not read this document! (%s),Vous ne pouvez pas lire ce document ! (%s),0
 error,ir.model.access,0,You can not write in this document! (%s),Vous ne pouvez pas écrire dans ce document ! (%s),0
 error,ir.model.data,0,"The triple (fs_id, module, model) must be unique!","Le triplet (fs_id, module, model) doit être unique !",0
-error,ir.model.field,0,The field name in model must be unique!,Le champ du nom doit être unique sur le modèle !,0
+error,ir.model.field,0,The field name in model must be unique!,Le nom du champ doit être unique sur le modèle !,0
 error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Dépendences %s manquante pour le module ""%s""",0
-error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Les modules que vous essayez de déinstaller dépendent de modules installés :,0
+error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Les modules que vous essayez de dés-installer dépendent de modules installés :,0
 error,ir.module.module,0,The name of the module must be unique!,Le nom du module doit être unique,0
 error,ir.module.module,0,You can not remove a module that is installed or will be installed,Vous ne pouvez pas supprimer un module qui est installé ou qui le sera,0
 error,ir.module.module.dependency,0,Dependency must be unique by module!,Une dépendance doit être unique par module !,0
@@ -38,7 +44,14 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,Prefixe/suffixe non valide !,0
 error,ir.sequence.strict,0,Missing sequence!,Séquence manquante !,0
 error,ir.translation,0,Translation must be unique,La traduction doit être unique,0
 error,ir.ui.view,0,Invalid XML for View!,L'xml de la vue n'est pas valide !,0
+error,read_error,0,"You try to read records that don't exist anymore!
+(Document type: %s)","Vous essayez de lire un enregistrement qui n'existe plus !
+(Type du document: %s)",0
+error,required_field,0,"The field ""%s"" on ""%s"" is required.","Le champ ""%s"" de ""%s"" est requis.",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Le champ ""%s"" de ""%s"" est requis.",0
+error,write_error,0,"You try to write on records that don't exist anymore!
+(Document type: %s)","Vous essayez d'écrire sur un enregistrement qui n'existe plus !
+(Type du document: %s)",0
 error,write_xml_record,0,You are not allowed to modify this record.,Vous n'êtes pas autorisé à modifier cet enregistrement.,0
 error,xml_record_desc,0,This record is part of the base configuration.,Cet enregistrement fait partie de la configuration de base.,0
 field,"ir.action,active",0,Active,Actif,0
@@ -93,7 +106,7 @@ field,"ir.action.wizard,action",0,Action,Action,0
 field,"ir.action.wizard,email",0,Email,E-mail,0
 field,"ir.action.wizard,model",0,Model,Modèle,0
 field,"ir.action.wizard,rec_name",0,Name,Nom,0
-field,"ir.action.wizard,wiz_name",0,Wizard name,Nom du wizard,0
+field,"ir.action.wizard,wiz_name",0,Wizard name,Nom de l'assistant,0
 field,"ir.attachment,collision",0,Collision,Collision,0
 field,"ir.attachment,datas",0,Datas,Données,0
 field,"ir.attachment,datas_size",0,Datas size,Taille des données,0
@@ -128,11 +141,11 @@ field,"ir.default,model",0,Model,Modèle,0
 field,"ir.default,rec_name",0,Name,Nom,0
 field,"ir.default,user",0,User,Utilisateur,0
 field,"ir.default,value",0,Value,Valeur,0
-field,"ir.export,export_fields",0,Export Id,Id d'exportation,0
-field,"ir.export.line,export",0,Exportation,Exportation,0
-field,"ir.export.line,name",0,Field name,Champ du nom,0
+field,"ir.export,export_fields",0,Fields,Champs,0
+field,"ir.export.line,export",0,Export,Exportation,0
+field,"ir.export.line,name",0,Name,Nom,0
 field,"ir.export.line,rec_name",0,Name,Nom,0
-field,"ir.export,name",0,Export name,Nom de l'exportation,0
+field,"ir.export,name",0,Name,Nom,0
 field,"ir.export,rec_name",0,Name,Nom,0
 field,"ir.export,resource",0,Resource,Ressource,0
 field,"ir.lang,active",0,Active,Actif,0
@@ -242,7 +255,7 @@ field,"ir.translation,fuzzy",0,Fuzzy,Floue,0
 field,"ir.translation,lang",0,Language,Langue,0
 field,"ir.translation,model",0,Model,Modèle,0
 field,"ir.translation,module",0,Module,Module,0
-field,"ir.translation,name",0,Field Name,Champ du nom,0
+field,"ir.translation,name",0,Field Name,Nom du champ,0
 field,"ir.translation,rec_name",0,Name,Nom,0
 field,"ir.translation,res_id",0,Resource ID,ID de la ressource,0
 field,"ir.translation,src",0,Source,Source,0
@@ -285,7 +298,7 @@ help,"ir.action.act_window,search_value",0,Default search criteria for the list 
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Utiliser le nom de l'action comme nom de la fenêtre,0
 help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Utiliser aussi comme extension de fichier.,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Définit le style à appliquer sur le rapport.,0
-help,"ir.cron,numbercall",0,"Number of time the function is called,
+help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Nombre de fois que la fonction est appelée,
 une valeur négative indique que la fonction sera toujours appelée.",0
 help,"ir.cron,priority",0,"0=Very Urgent
@@ -309,7 +322,7 @@ model,"ir.action,name",0,Action,Action,0
 model,"ir.action,name",act_action_form,Actions,Actions,0
 model,"ir.action,name",act_attachment_form,Attachments,Attachements,0
 model,"ir.action,name",act_translation_clean,Clean Translations,Nettoyer les traductions,0
-model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Élements du wizard de configuration,0
+model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Élements de l'assistant de configuration,0
 model,"ir.action,name",act_property_form_default,Default Properties,Propriétés par défaut,0
 model,"ir.action,name",act_default_form,Defaults,Valeurs par défaut,0
 model,"ir.action,name",act_export_form,Exports,Exports,0
@@ -341,7 +354,7 @@ model,"ir.action,name",act_view_form,Views,Vues,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Raccourcis,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Largeur de la vue arbre,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Actions de la fenêtre,0
-model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
+model,"ir.action,name",act_action_wizard_form,Wizards,Assistants,0
 model,"ir.action.report,name",0,Action report,Action rapport,0
 model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),Documents ODF (.odt),0
 model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,Document PDF,0
@@ -386,7 +399,7 @@ model,"ir.ui.menu,name",menu_act_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_administration,Administration,Administration,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Pièces jointes,0
 model,"ir.ui.menu,name",menu_translation_clean,Clean Translations,Nettoyer les traductions,0
-model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Élements du wizard de configuration,0
+model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Élements de l'assistant de configuration,0
 model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Propriétés par default,0
 model,"ir.ui.menu,name",menu_default_form,Defaults,Valeurs par défaut,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exportations,0
@@ -408,7 +421,7 @@ model,"ir.ui.menu,name",menu_cron_form,Scheduled Actions,Actions planifiées,0
 model,"ir.ui.menu,name",menu_scheduler,Scheduler,Planificateur,0
 model,"ir.ui.menu,name",menu_sequences,Sequences,Séquence,0
 model,"ir.ui.menu,name",menu_sequence_form,Sequences,Séquences,0
-model,"ir.ui.menu,name",menu_sequence_strict_form,Sequences Strict,Séquences Strictes,0
+model,"ir.ui.menu,name",menu_sequence_strict_form,Sequences Strict,Séquences strictes,0
 model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de la séquence,0
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Mettre à jours les traductions des rapports,0
 model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Synchroniser les traductions,0
@@ -421,7 +434,7 @@ model,"ir.ui.menu,name",menu_view,Views,Vues,0
 model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Raccourcis de la vue,0
 model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Largeur des vues arbres,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Actions de la fenêtre,0
-model,"ir.ui.menu,name",menu_action_wizard,Wizards,Wizards,0
+model,"ir.ui.menu,name",menu_action_wizard,Wizards,Assistants,0
 model,"ir.ui.view,name",0,View,Vue,0
 model,"ir.ui.view_sc,name",0,View shortcut,Vue raccourci,0
 model,"ir.ui.view_tree_width,name",0,View Tree Width,Largeur de vue arbre,0
@@ -468,7 +481,7 @@ selection,"ir.translation,type",0,Model,Modèle,0
 selection,"ir.translation,type",0,ODT,ODT,0
 selection,"ir.translation,type",0,Selection,Sélection,0
 selection,"ir.translation,type",0,View,Vue,0
-selection,"ir.translation,type",0,Wizard Button,Button de wizard,0
+selection,"ir.translation,type",0,Wizard Button,Bouton de l'assistant,0
 selection,"ir.ui.menu,action",0,ir.action.act_window,,0
 selection,"ir.ui.menu,action",0,ir.action.report,,0
 selection,"ir.ui.menu,action",0,ir.action.url,,0
@@ -538,6 +551,7 @@ selection,"ir.ui.view,type",0,Tree,Arbre,0
 view,ir.action,0,Action,Action,0
 view,ir.action,0,Keyword,Mot-clè,0
 view,ir.action,0,Keywords,Mots-clès,0
+view,ir.action.act_window,0,General,Général,0
 view,ir.action.act_window,0,Keyword,Mot-clè,0
 view,ir.action.act_window,0,Keywords,Mots-clès,0
 view,ir.action.act_window,0,Open a Window,Ouvrir un fenêtre,0
@@ -550,7 +564,7 @@ view,ir.action.report,0,Report xml,Rapport xml,0
 view,ir.action.url,0,URL,URL,0
 view,ir.action.wizard,0,Keyword,Mot-clè,0
 view,ir.action.wizard,0,Keywords,Mots-clès,0
-view,ir.action.wizard,0,Wizard,Wizard,0
+view,ir.action.wizard,0,Wizard,Assistant,0
 view,ir.attachment,0,Attachments,Pièces jointes,0
 view,ir.cron,0,Action to trigger,Action à suivre,0
 view,ir.cron,0,Scheduled Action,Action planifiée,0
@@ -582,17 +596,17 @@ view,ir.module.module,0,Modules,Modules,0
 view,ir.module.module,0,Uninstall (beta),Désinstaller (béta),0
 view,ir.module.module,0,Upgrade,Mettre à jour,0
 view,ir.module.module.config_wizard.first,0,depending on the modules you have installed.,en fonction des modules installé.,0
-view,ir.module.module.config_wizard.first,0,Module Configuration Wizard,Wizard de Configuration de Module,0
-view,ir.module.module.config_wizard.first,0,Welcome to the module configuration wizard!,Bienvenu dans le Wizard de Configuration de Module !,0
+view,ir.module.module.config_wizard.first,0,Module Configuration Wizard,Assistant de Configuration de module,0
+view,ir.module.module.config_wizard.first,0,Welcome to the module configuration wizard!,Bienvenu dans l'assistant de configuration de module !,0
 view,ir.module.module.config_wizard.first,0,You will be able to configure your installation,Vous pourrez configurer votre installation,0
-view,ir.module.module.config_wizard.item,0,Config Wizard Items,Élements du Wizard de Configuration,0
+view,ir.module.module.config_wizard.item,0,Config Wizard Items,Élements de l'assistant de configuration,0
 view,ir.module.module.install_upgrade.init,0,Note that this operation my take a few minutes.,"Attention, cette opération peut prendre plusieurs minutes.",0
 view,ir.module.module.install_upgrade.init,0,System Upgrade,Mis à jour du système,0
 view,ir.module.module.install_upgrade.init,0,Your system will be upgraded.,Votre système sera mis à jour.,0
 view,ir.module.module.install_upgrade.start,0,System upgrade done,Mis à jour du système faite,0
 view,ir.module.module.install_upgrade.start,0,The modules have been upgraded / installed !,Les modules ont été mis à jour / installés !,0
 view,ir.module.module.install_upgrade.start,0,We suggest you to reload the menu tab (Ctrl+t Ctrl+r).,Nous vous suggérons de recharger l'onglet du menu (Ctrl+t Ctrl+r),0
-view,ir.module.module.install_upgrade.start,0,You may have to reinstall some language pack.,Vous devriez réinstaller quelque langue.,0
+view,ir.module.module.install_upgrade.start,0,You may have to reinstall some language pack.,Vous pourriez avoir à réinstaller quelque langue.,0
 view,ir.property,0,Properties,Propriétés,0
 view,ir.property,0,Property,Propriété,0
 view,ir.rule,0,Test,Test,0
@@ -626,17 +640,17 @@ view,ir.translation.export.init,0,Export Translation,Exporter les traductions,0
 view,ir.translation.export.start,0,Export Translation,Exporter les traductions,0
 view,ir.translation.set_report.init,0,Set Report Translations,Mettre à jours les traductions des rapports,0
 view,ir.translation.set_report.init,0,Synchronize Report Translations?,Synchroniser les tradcutions des rapports ?,0
-view,ir.translation.set_report.init,0,Update Report Translations,Mettre à Jour les Traductions des Rapports,0
-view,ir.translation.set_report.init,0,Update Report Translations?,Mettre à Jour les Traductions des Rapports ?,0
+view,ir.translation.set_report.init,0,Update Report Translations,Mettre à jour les traductions des rapports,0
+view,ir.translation.set_report.init,0,Update Report Translations?,Mettre à jour les traductions des rapports ?,0
 view,ir.translation.set_report.start,0,Set Report Translations,Mettre à jours les traductions des rapports,0
 view,ir.translation.set_report.start,0,Set Translations Succeed!,Traductions réussies,0
 view,ir.translation.update.init,0,Synchronize Translations,Synchroniser les traductions,0
-view,ir.translation.update.init,0,Update Translations,Mettre à Jour les Traductions,0
+view,ir.translation.update.init,0,Update Translations,Mettre à jour les traductions,0
 view,ir.ui.menu,0,Menu,Menu,0
 view,ir.ui.view,0,View,Vue,0
 view,ir.ui.view_sc,0,Shortcut,Raccourcis,0
-view,ir.ui.view_tree_width,0,Views Tree Width,Largeurs des Vues Arbres,0
-view,ir.ui.view_tree_width,0,View Tree Width,Largeur de Vue Arbre,0
+view,ir.ui.view_tree_width,0,Views Tree Width,Largeurs des vues arbres,0
+view,ir.ui.view_tree_width,0,View Tree Width,Largeur de vue arbre,0
 wizard_button,"ir.model.print_model_graph,init,end",0,Cancel,Annuler,0
 wizard_button,"ir.model.print_model_graph,init,print",0,Print,Imprimer,0
 wizard_button,"ir.module.module.config_wizard,first,end",0,Cancel,Annuler,0

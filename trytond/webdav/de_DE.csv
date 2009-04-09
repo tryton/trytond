@@ -1,5 +1,5 @@
 type,name,res_id,src,value,fuzzy
-error,ir.attachment,0,"You can not create a attachment
+error,ir.attachment,0,"You can not create an attachment
 in a collection with the name
 of an existing child collection!","Ein Anhang kann nicht mit dem Namen einer in der Sammlung
 bereits existierenden Untersammlung angelegt werden!",0
