@@ -139,6 +139,8 @@ class WorkflowInstance(ModelSQL, ModelView):
         self._error_messages.update({
             'no_instance_defined': 'No workflow instance defined!',
             })
+        for i in ('create', 'write', 'delete', 'copy'):
+            del self._rpc[i]
         #TODO add a constraint to have only one active instance by resource
 
     def init(self, cursor, module_name):
@@ -147,6 +149,13 @@ class WorkflowInstance(ModelSQL, ModelView):
         table = TableHandler(cursor, self, module_name)
         table.index_action(['res_id', 'res_type', 'state'], 'add')
         table.index_action(['res_id', 'workflow'], 'add')
+
+    def fields_get(self, cursor, user, fields_names=None, context=None):
+        res = super(WorkflowInstance, self).fields_get(cursor, user,
+                fields_names=fields_names, context=context)
+        for field in res:
+            res[field]['readonly'] = True
+        return res
 
     def create(self, cursor, user, values, context=None):
         activity_obj = self.pool.get('workflow.activity')
@@ -231,6 +240,18 @@ class WorkflowTransitionInstance(ModelSQL):
     inst_id = fields.Many2One('workflow.instance', 'Instance',
             ondelete='CASCADE', select=1, required=True)
 
+    def __init__(self):
+        super(WorkflowTransitionInstance, self).__init__()
+        for i in ('create', 'write', 'delete', 'copy'):
+            del self._rpc[i]
+
+    def fields_get(self, cursor, user, fields_names=None, context=None):
+        res = super(WorkflowTransitionInstance, self).fields_get(cursor, user,
+                fields_names=fields_names, context=context)
+        for field in res:
+            res[field]['readonly'] = True
+        return res
+
 WorkflowTransitionInstance()
 
 
@@ -247,6 +268,18 @@ class WorkflowWorkitem(ModelSQL, ModelView):
     instance = fields.Many2One('workflow.instance', 'Instance',
        required=True, ondelete="CASCADE", select=1)
     state = fields.Char('State', select=1)
+
+    def __init__(self):
+        super(WorkflowWorkitem, self).__init__()
+        for i in ('create', 'write', 'delete', 'copy'):
+            del self._rpc[i]
+
+    def fields_get(self, cursor, user, fields_names=None, context=None):
+        res = super(WorkflowWorkitem, self).fields_get(cursor, user,
+                fields_names=fields_names, context=context)
+        for field in res:
+            res[field]['readonly'] = True
+        return res
 
     def create(self, cursor, user, values, context=None):
         workitem_id = super(WorkflowWorkitem, self).create(cursor, user, values,
@@ -451,11 +484,23 @@ class WorkflowTrigger(ModelSQL, ModelView):
     workitem = fields.Many2One('workflow.workitem', 'Workitem',
        required=True, ondelete="CASCADE")
 
+    def __init__(self):
+        super(WorkflowTrigger, self).__init__()
+        for i in ('create', 'write', 'delete', 'copy'):
+            del self._rpc[i]
+
     def init(self, cursor, module_name):
         super(WorkflowTrigger, self).init(cursor, module_name)
 
         table = TableHandler(cursor, self, module_name)
         table.index_action(['res_id', 'model'], 'add')
+
+    def fields_get(self, cursor, user, fields_names=None, context=None):
+        res = super(WorkflowTrigger, self).fields_get(cursor, user,
+                fields_names=fields_names, context=context)
+        for field in res:
+            res[field]['readonly'] = True
+        return res
 
 WorkflowTrigger()
 
