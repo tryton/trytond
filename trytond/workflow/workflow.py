@@ -161,7 +161,7 @@ class WorkflowInstance(ModelSQL, ModelView):
                 ('workflow', '=', values['workflow']),
                 ], context=context)
             for activity_id in activity_ids:
-                workitem_obj.create(cursor, 0, {
+                workitem_obj.create(cursor, user, {
                     'activity': activity_id,
                     'instance': instance_id,
                     'state': 'active',
@@ -300,7 +300,7 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         return True
 
     def _state_set(self, cursor, user, workitem, state):
-        self.write(cursor, 0, workitem.id, {
+        self.write(cursor, user, workitem.id, {
             'state': state,
             })
         #XXX must be changed with a cache reset on BrowseRecord
@@ -355,12 +355,12 @@ class WorkflowWorkitem(ModelSQL, ModelView):
                         ('workflow', '=', activity.subflow.id),
                         ], limit=1, context=context)[0]
                 else:
-                    instance_id = instance_obj.create(cursor, 0, {
+                    instance_id = instance_obj.create(cursor, user, {
                         'res_type': workitem.instance.res_type,
                         'res_id': workitem.instance.res_id,
                         'workflow': activity.subflow.id,
                         }, context=context)
-                self.write(cursor, 0, workitem.id, {
+                self.write(cursor, user, workitem.id, {
                     'subflow': instance_id,
                     }, context=context)
                 #XXX must be changed with a cache reset on BrowseRecord
@@ -410,7 +410,7 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         instance_obj = self.pool.get('workflow.instance')
         activity = transition.act_to
         if activity.join_mode == 'XOR':
-            self.create(cursor, 0, {
+            self.create(cursor, user, {
                 'activity': activity.id,
                 'instance': instance.id,
                 'state': 'active',
@@ -430,7 +430,7 @@ class WorkflowWorkitem(ModelSQL, ModelView):
                     'transitions': [('unlink', [x.id
                         for x in activity.in_transitions])],
                     }, context=context)
-                self.create(cursor, 0, {
+                self.create(cursor, user, {
                     'activity': activity.id,
                     'instance': instance.id,
                     'state': 'active',
