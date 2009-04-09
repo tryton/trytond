@@ -1,5 +1,5 @@
 type,name,res_id,src,value,fuzzy
-error,ir.attachment,0,"You can not create a attachment
+error,ir.attachment,0,"You can not create an attachment
 in a collection with the name
 of an existing child collection!",No puede crear un adjunto en una colección con el nombre de una colección hija con tal nombre!,0
 error,webdav.collection,0,The collection name must be unique inside a collection!,El nombre de la colección dentro de una colección debe ser único!,0
