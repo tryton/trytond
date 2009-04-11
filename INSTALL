@@ -12,8 +12,8 @@ Prerequisites
  * Optional: pywebdav (http://sourceforge.net/projects/pywebdav/)
  * Optional: pydot (http://code.google.com/p/pydot/)
  * Optional: pytz (http://pytz.sourceforge.net/)
- * Optional: openoffice.interact
-    (http://pypi.python.org/pypi/openoffice.interact/)
+ * Optional: openoffice-python
+    (http://pypi.python.org/pypi/openoffice-python/)
  * Optional: sphinx (http://sphinx.pocoo.org/)
 
 Installation
