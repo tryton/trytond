@@ -584,7 +584,8 @@ class ReportTranslationSet(Wizard):
 
         if node.nodeType in (node.CDATA_SECTION_NODE, node.TEXT_NODE):
             if node.parentNode \
-                    and node.parentNode.tagName == 'text:placeholder':
+                    and node.parentNode.tagName in ('text:placeholder',
+                            'text:page-number', 'text:page-count'):
                 return strings
 
             if node.nodeValue:
