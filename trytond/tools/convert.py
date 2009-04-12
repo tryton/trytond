@@ -544,6 +544,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'as in module.reference_id' % (fs_id)
 
             module, fs_id = fs_id.split('.')
+            if not self.fs2db.get(module, fs_id):
+                raise Exception('Reference to %s.%s not found' % \
+                        (module, fs_id))
 
         object_ref = self.pool.get(model)
 
