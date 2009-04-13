@@ -158,7 +158,7 @@ class ModelAccess(ModelSQL, ModelView):
         super(ModelAccess, self).__init__()
         self._sql_constraints += [
             ('model_group_uniq', 'UNIQUE("model", "group")',
-                'Only on record by model and group is allowed!'),
+                'Only one record by model and group is allowed!'),
         ]
         self._error_messages.update({
             'read': 'You can not read this document! (%s)',
