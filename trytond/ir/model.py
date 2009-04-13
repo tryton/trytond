@@ -151,7 +151,7 @@ class ModelAccess(ModelSQL, ModelView):
     perm_read = fields.Boolean('Read Access')
     perm_write = fields.Boolean('Write Access')
     perm_create = fields.Boolean('Create Access')
-    perm_delete = fields.Boolean('Delete Permission')
+    perm_delete = fields.Boolean('Delete Access')
     description = fields.Text('Description')
 
     def __init__(self):
