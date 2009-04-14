@@ -213,6 +213,10 @@ class ModelSQL(ModelStorage):
 
     def create(self, cursor, user, values, context=None):
         super(ModelSQL, self).create(cursor, user, values, context=context)
+
+        if context is None:
+            context = {}
+
         if self.table_query(context):
             return False
 
@@ -333,9 +337,15 @@ class ModelSQL(ModelStorage):
                     if isinstance(field, fields.Many2One) \
                             and values.get(field_name):
                         model_obj = self.pool.get(field.model_name)
-                        if not model_obj.search(cursor2, 0, [
+                        create_records = context.get('_create_records', {})\
+                                .get(field.model_name, set())
+                        delete_records = context.get('_delete_records', {})\
+                                .get(field.model_name, set())
+                        if not ((model_obj.search(cursor2, 0, [
                             ('id', '=', values[field_name]),
-                            ], context=context):
+                            ], context=context) \
+                                    or values[field_name] in create_records) \
+                                and values[field_name] not in delete_records):
                             self.raise_user_error(cursor2,
                                     'foreign_model_missing',
                                     error_args=self._get_error_args(
@@ -373,6 +383,10 @@ class ModelSQL(ModelStorage):
                     and field.model_name == self._name \
                     and field.left and field.right:
                 self._update_tree(cursor, user, id_new, k, field.left, field.right)
+
+        context.setdefault('_create_records', {})
+        context['_create_records'].setdefault(self._name, set())
+        context['_create_records'][self._name].add(id_new)
         return id_new
 
     def read(self, cursor, user, ids, fields_names=None, context=None):
@@ -802,9 +816,15 @@ class ModelSQL(ModelStorage):
                         if isinstance(field, fields.Many2One) \
                                 and values[field_name]:
                             model_obj = self.pool.get(field.model_name)
-                            if not model_obj.search(cursor2, 0, [
+                            create_records = context.get('_create_records', {})\
+                                    .get(field.model_name, set())
+                            delete_records = context.get('_delete_records', {})\
+                                    .get(field.model_name, set())
+                            if not ((model_obj.search(cursor2, 0, [
                                 ('id', '=', values[field_name]),
-                                ], context=context):
+                                ], context=context) \
+                                        or values[field_name] in create_records) \
+                                    and values[field_name] not in delete_records):
                                 self.raise_user_error(cursor2,
                                         'foreign_model_missing',
                                         error_args=self._get_error_args(
@@ -1006,6 +1026,9 @@ class ModelSQL(ModelStorage):
                 if model_ids:
                     model.delete(cursor, user, model_ids, context=delete_ctx)
 
+            context.setdefault('_delete_records', {})
+            context['_delete_records'].setdefault(self._name, set())
+            context['_delete_records'][self._name].update(sub_ids)
             try:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ')', sub_ids)
