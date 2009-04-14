@@ -15,7 +15,7 @@
 * Add depends attributes on Column
 * Make Modified Preorder Tree Traversal respects the default order of the model
 * Add replace_attributes for xpath tag
-* Add email paramter on report action
+* Add email parameter on report action
 * Allow to inherit views from an other model
 * Add user warnings
 * Allow to use a list of id for copy method
