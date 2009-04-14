@@ -23,5 +23,6 @@ Provides concepts and administration of users and internal communication.
         'fr_FR.csv',
         'de_DE.csv',
         'es_ES.csv',
+        'es_CO.csv',
     ],
 }

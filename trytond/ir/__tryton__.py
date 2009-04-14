@@ -33,5 +33,6 @@ Provides concepts and administration of models, actions, sequences, localization
         'fr_FR.csv',
         'de_DE.csv',
         'es_ES.csv',
+        'es_CO.csv',
     ],
 }
