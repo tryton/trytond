@@ -24,7 +24,7 @@ error,ir.lang,0,decimal_point and thousands_sep must be different!,Dezimalpunkt 
 error,ir.lang,0,Invalid Grouping!,Ungültige Gruppierung,0
 error,ir.lang,0,The date format is not valid!,Ungültiges Datumsformat,0
 error,ir.model,0,The model must be unique!,Das Modell kann nicht mehrfach vergeben werden!,0
-error,ir.model.access,0,Only on record by model and group is allowed!,Nur ein Datensatz pro Modell und Gruppe möglich,0
+error,ir.model.access,0,Only one record by model and group is allowed!,Nur ein Datensatz pro Modell und Gruppe möglich!,0
 error,ir.model.access,0,You can not create this kind of document! (%s),Keine Berechtigung für die Erstellung dieser Dokumentenart! (%s) ,0
 error,ir.model.access,0,You can not delete this document! (%s),Keine Berechtigung für die Löschung dieses Dokuments! (%s),0
 error,ir.model.access,0,You can not read this document! (%s),Keine Leseberechtigung für dieses Dokument! (%s),0
@@ -160,7 +160,7 @@ field,"ir.model.access,description",0,Description,Beschreibung,0
 field,"ir.model.access,group",0,Group,Gruppe,0
 field,"ir.model.access,model",0,Model,Modell,0
 field,"ir.model.access,perm_create",0,Create Access,Erstellen,0
-field,"ir.model.access,perm_delete",0,Delete Permission,Löschen,0
+field,"ir.model.access,perm_delete",0,Delete Access,Löschen,0
 field,"ir.model.access,perm_read",0,Read Access,Lesen,0
 field,"ir.model.access,perm_write",0,Write Access,Schreiben,0
 field,"ir.model.access,rec_name",0,Name,Name,0
