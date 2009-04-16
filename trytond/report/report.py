@@ -194,7 +194,7 @@ class Report(object):
                 data = data.getvalue()
         os.close(fd)
         os.remove(path)
-        output_format = report.output_format.format
+        output_format = report.extension
         if output_format == 'pdf':
             data = self.convert_pdf(data)
         return (output_format, data)

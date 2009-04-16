@@ -180,3 +180,14 @@ class TableHandlerInterface(object):
             if it is not possible to remove the column
         '''
         raise
+
+    @staticmethod
+    def dropTable(cursor, model, table, cascade=False):
+        '''
+        Remove a table and clean ir_model_data from the given model.
+
+        :param model: the model name
+        :param table: the table name
+        :param cascade: a boolean to add "CASCADE" to the delete query
+        '''
+        raise

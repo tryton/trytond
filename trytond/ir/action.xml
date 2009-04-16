@@ -82,8 +82,8 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="report"/>
                     <label name="report_content"/>
                     <field name="report_content"/>
-                    <label name="output_format"/>
-                    <field name="output_format" widget="selection"/>
+                    <label name="extension"/>
+                    <field name="extension"/>
                     <label name="style"/>
                     <field name="style"/>
                     <label name="direct_print"/>
@@ -141,18 +141,6 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <menuitem parent="menu_action"
             action="act_action_report_form" id="menu_action_report_form"/>
-
-        <!-- Report output formats -->
-        <record model="ir.action.report.outputformat"
-            id="action_report_outputformat_odt">
-            <field name="format">odt</field>
-            <field name="name">ODF Textdocuments (.odt)</field>
-        </record>
-        <record model="ir.action.report.outputformat"
-            id="action_report_outputformat_pdf">
-            <field name="format">pdf</field>
-            <field name="name">PDF Document</field>
-        </record>
 
         <record model="ir.ui.view" id="action_act_window_view_form">
             <field name="model">ir.action.act_window</field>

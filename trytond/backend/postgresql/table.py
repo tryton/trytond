@@ -383,3 +383,13 @@ class TableHandler(TableHandlerInterface):
                 'unable to drop \'%s\' column on table %s!' % \
                 (column_name, self.table_name))
         self._update_definitions()
+
+    @staticmethod
+    def dropTable(cursor, model, table, cascade=False):
+        cursor.execute('DELETE from ir_model_data where '\
+                           'model = \'%s\'' % model)
+
+        query = 'DROP TABLE "%s"' % table
+        if cascade:
+            query = query + ' CASCADE'
+        cursor.execute(query)
