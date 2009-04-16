@@ -323,7 +323,7 @@ model,"ir.action,name",act_attachment_form,Attachments,Anhänge,0
 model,"ir.action,name",act_translation_clean,Clean Translations,Übersetzungen bereinigen,0
 model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
 model,"ir.action,name",act_property_form_default,Default Properties,Standardeigenschaften,0
-model,"ir.action,name",act_default_form,Defaults,Standards,0
+model,"ir.action,name",act_default_form,Defaults,Standardeinstellungen,0
 model,"ir.action,name",act_export_form,Exports,Exporte,0
 model,"ir.action,name",act_translation_export,Export Translations,Übersetzungen exportieren,0
 model,"ir.action,name",act_model_fields_form,Fields,Felder,0
@@ -400,7 +400,7 @@ model,"ir.ui.menu,name",menu_attachment_form,Attachments,Anhänge,0
 model,"ir.ui.menu,name",menu_translation_clean,Clean Translations,Übersetzungen bereinigen,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Wizardelemente konfigurieren,0
 model,"ir.ui.menu,name",menu_property_form_default,Default Properties,Standardeigenschaften,0
-model,"ir.ui.menu,name",menu_default_form,Defaults,Standards,0
+model,"ir.ui.menu,name",menu_default_form,Defaults,Standardeinstellungen,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exporte,0
 model,"ir.ui.menu,name",menu_translation_export,Export Translations,Übersetzungen exportieren,0
 model,"ir.ui.menu,name",model_model_fields_form,Fields,Felder,0
@@ -569,7 +569,7 @@ view,ir.cron,0,Action to trigger,Auszuführende Aktion,0
 view,ir.cron,0,Scheduled Action,Geplante Aktion,0
 view,ir.cron,0,Scheduled Actions,Geplante Aktionen,0
 view,ir.default,0,Default,Standard,0
-view,ir.default,0,Defaults,Standards,0
+view,ir.default,0,Defaults,Standardeinstellungen,0
 view,ir.export,0,Exports,Exporte,0
 view,ir.lang,0,Date Formatting,Format Datum,0
 view,ir.lang,0,Language,Sprache,0
