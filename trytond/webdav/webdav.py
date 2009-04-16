@@ -173,7 +173,7 @@ class Collection(ModelSQL, ModelView):
                     context=context)
                 for report in reports:
                     report_name = report.name + '-' + str(report.id) \
-                            + '.' + report.output_format.format
+                            + '.' + report.extension
                     if uri == report_name:
                         if cache is not None:
                             cache['_uri2object'][cache_uri] = \
@@ -276,7 +276,7 @@ class Collection(ModelSQL, ModelView):
                 context=context)
             for report in reports:
                 report_name = report.name + '-' + str(report.id) \
-                        + '.' + report.output_format.format
+                        + '.' + report.extension
                 if '/' in report_name:
                     continue
                 res.append(report_name)

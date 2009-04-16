@@ -197,17 +197,6 @@ class ActionKeyword(ModelSQL, ModelView):
 ActionKeyword()
 
 
-class ActionReportOutputFormat(ModelSQL, ModelView):
-    "Output formats for reports"
-    _name = 'ir.action.report.outputformat'
-    _description = "Report Output Format"
-    format = fields.Char('Internal Format Name', required=True,
-            readonly=True, help="Used as file extension, too.")
-    name = fields.Char('Name', required=True, translate=True)
-
-ActionReportOutputFormat()
-
-
 class ActionReport(ModelSQL, ModelView):
     "Action report"
     _name = 'ir.action.report'
@@ -228,8 +217,10 @@ class ActionReport(ModelSQL, ModelView):
     style_content = fields.Function('get_style_content',
             type='binary', string='Style')
     direct_print = fields.Boolean('Direct Print')
-    output_format = fields.Many2One('ir.action.report.outputformat',
-            'Output format', required=True)
+    extension = fields.Selection(
+        [('odt', 'ODT Document'),
+         ('pdf', 'PDF Document'),],
+        string='Extension', required=True)
     module = fields.Char('Module', readonly=True)
     email = fields.Char('Email')
 
@@ -248,6 +239,24 @@ class ActionReport(ModelSQL, ModelView):
         # Migration from 1.0 report_name_uniq has been removed
         table.drop_constraint('report_name_uniq')
 
+        # Migration from 1.0 output_format (m2o) is now extension (selection)
+        if table.column_exist('output_format'):
+            cursor.execute(
+                'SELECT report.id FROM "'+ self._table + '" report '\
+                'JOIN ir_action_report_outputformat of '\
+                    'ON (report.output_format = of.id) '\
+                'WHERE of.format = \'pdf\''
+                )
+
+            ids = [x[0] for x in cursor.fetchall()]
+            self.write(cursor, 0, ids, {'extension': 'pdf'})
+            ids = self.search(cursor, 0, [('id', 'not in', ids)])
+            self.write(cursor, 0, ids, {'extension': 'odt'})
+
+            table.drop_column("output_format")
+            TableHandler.dropTable(cursor, 'ir.action.report.outputformat',
+                      'ir_action_report_outputformat')
+
     def default_type(self, cursor, user, context=None):
         return 'ir.action.report'
 
@@ -257,14 +266,8 @@ class ActionReport(ModelSQL, ModelView):
     def default_direct_print(self, cursor, user, context=None):
         return False
 
-    def default_output_format(self, cursor, user, context=None):
-        format_obj = self.pool.get(ActionReportOutputFormat._name)
-        formats = format_obj.search(cursor, user, [
-            ('format', '=', 'odt'),
-            ], limit=1, context=context)
-        if formats:
-            return formats[0]
-        return False
+    def default_extension(self, cursor, user, context=None):
+        return 'odt'
 
     def default_module(self, cursor, user, context=None):
         return context and context.get('module', '') or ''
