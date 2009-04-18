@@ -8,7 +8,7 @@ class UIMenuGroup(ModelSQL):
     "UI Menu - Group"
     _name = 'ir.ui.menu-res.group'
     _description = __doc__
-    menu_id = fields.Many2One('ir.ui.menu', 'Menu', ondelete='RESTRICT',
+    menu_id = fields.Many2One('ir.ui.menu', 'Menu', ondelete='CASCADE',
             select=1, required=True)
     gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
@@ -27,7 +27,7 @@ class ActionGroup(ModelSQL):
     "Action - Group"
     _name = 'ir.action-res.group'
     _description = __doc__
-    action_id = fields.Many2One('ir.action', 'Action', ondelete='RESTRICT',
+    action_id = fields.Many2One('ir.action', 'Action', ondelete='CASCADE',
             select=1, required=True)
     gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
@@ -47,7 +47,7 @@ class ModelFieldGroup(ModelSQL):
     _name = 'ir.model.field-res.group'
     _description = __doc__
     field_id = fields.Many2One('ir.model.field', 'Model Field',
-            ondelete='RESTRICT', select=1, required=True)
+            ondelete='CASCADE', select=1, required=True)
     group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
@@ -66,7 +66,7 @@ class RuleGroupGroup(ModelSQL):
     _name = 'ir.rule.group-res.group'
     _description = __doc__
     rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
-            ondelete='RESTRICT', select=1, required=True)
+            ondelete='CASCADE', select=1, required=True)
     group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
@@ -85,7 +85,7 @@ class RuleGroupUser(ModelSQL):
     _name = 'ir.rule.group-res.user'
     _description = __doc__
     rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
-            ondelete='RESTRICT', select=1, required=True)
+            ondelete='CASCADE', select=1, required=True)
     user_id = fields.Many2One('res.user', 'User', ondelete='CASCADE',
             select=1, required=True)
 
