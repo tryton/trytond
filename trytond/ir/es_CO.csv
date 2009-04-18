@@ -23,7 +23,7 @@ error,ir.lang,0,decimal_point and thousands_sep must be different!,El punto_deci
 error,ir.lang,0,Invalid Grouping!,Agrupamiento Inválido!,0
 error,ir.lang,0,The date format is not valid!,El formato de fecha no es válido!,0
 error,ir.model,0,The model must be unique!,El modelo debe ser único!,0
-error,ir.model.access,0,Only on record by model and group is allowed!,Solamente si el registro del modelo y el grupo está permitido!,0
+error,ir.model.access,0,Only one record by model and group is allowed!,Sólo se permite un registro por modelo y grupo!,0
 error,ir.model.access,0,You can not create this kind of document! (%s),No puede crear esta clase de documento! (%s),0
 error,ir.model.access,0,You can not delete this document! (%s),No puede borrar este documento! (%s),0
 error,ir.model.access,0,You can not read this document! (%s),No puede leer este documento! (%s),0
@@ -79,12 +79,9 @@ field,"ir.action,rec_name",0,Name,Nombre,0
 field,"ir.action.report,action",0,Action,Acción,0
 field,"ir.action.report,direct_print",0,Direct Print,Impresión Directa,0
 field,"ir.action.report,email",0,Email,Correo Electrónico,0
+field,"ir.action.report,extension",0,Extension,Extensión,0
 field,"ir.action.report,model",0,Model,Modelo,0
 field,"ir.action.report,module",0,Module,Módulo,0
-field,"ir.action.report,output_format",0,Output format,Formato de Salida,0
-field,"ir.action.report.outputformat,format",0,Internal Format Name,Formato Interno de Nombre,0
-field,"ir.action.report.outputformat,name",0,Name,Nombre,0
-field,"ir.action.report.outputformat,rec_name",0,Name,Nombre,0
 field,"ir.action.report,rec_name",0,Name,Nombre,0
 field,"ir.action.report,report",0,Path,Camino,0
 field,"ir.action.report,report_content",0,Content,Contenido,0
@@ -157,7 +154,7 @@ field,"ir.model.access,description",0,Description,Descripción,0
 field,"ir.model.access,group",0,Group,Grupo,0
 field,"ir.model.access,model",0,Model,Modelo,0
 field,"ir.model.access,perm_create",0,Create Access,Crear Acceso,0
-field,"ir.model.access,perm_delete",0,Delete Permission,Permiso para Eliminar,0
+field,"ir.model.access,perm_delete",0,Delete Access,Permiso para Eliminar,1
 field,"ir.model.access,perm_read",0,Read Access,Acceso de Lectura,0
 field,"ir.model.access,perm_write",0,Write Access,Acceso de Escritura,0
 field,"ir.model.access,rec_name",0,Name,Nombre,0
@@ -291,7 +288,6 @@ help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Adici
 help,"ir.action.act_window,limit",0,Default limit for the list view,Límite predeterminado para la lista de vista,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Criterio de Búsqueda predeterminado para la vista de lista,0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Usar el nombre de la acción como el nombre de la ventana,0
-help,"ir.action.report.outputformat,format",0,"Used as file extension, too.","Usado como extensión de archivo, también.",0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definir el estilo para aplicar al reporte.,0
 help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Cantidad de Veces que la función ha sido llamada,
@@ -351,9 +347,6 @@ model,"ir.action,name",act_view_tree_width_form,View Tree Width,Ancho de Vista d
 model,"ir.action,name",act_action_act_window_form,Window Actions,Acciones de Ventana,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Asistentes,0
 model,"ir.action.report,name",0,Action report,Acción de reporte,0
-model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),Documentos de TextoODF(.odt),0
-model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,Documento PDF,0
-model,"ir.action.report.outputformat,name",0,Report Output Format,Formato de Reporte de Salida,0
 model,"ir.action.url,name",0,Action URL,Acción URL,0
 model,"ir.action.wizard,name",0,Action wizard,Acción de ayudante,0
 model,"ir.attachment,name",0,Attachment,Adjunto,0
@@ -442,6 +435,8 @@ selection,"ir.action.keyword,keyword",0,Form relate,Formulario relacionado,0
 selection,"ir.action.keyword,keyword",0,Open Graph,Abrir Gráfica,0
 selection,"ir.action.keyword,keyword",0,Open tree,Desplegar árbol,0
 selection,"ir.action.keyword,keyword",0,Print form,Formulario de Impresión,0
+selection,"ir.action.report,extension",0,ODT Document,Documento ODT,0
+selection,"ir.action.report,extension",0,PDF Document,Documento PDF,0
 selection,"ir.cron,interval_type",0,Days,Días,0
 selection,"ir.cron,interval_type",0,Hours,Horas,0
 selection,"ir.cron,interval_type",0,Minutes,Minutos,0
