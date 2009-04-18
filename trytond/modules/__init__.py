@@ -225,6 +225,7 @@ def load_module_graph(cursor, graph, pool, lang=None):
                 module=module,)
 
             for filename in package.datas.get('xml', []):
+                filename = filename.replace('/', os.sep)
                 mode = 'update'
                 if hasattr(package, 'init') or package_state == 'to install':
                     mode = 'init'
@@ -246,6 +247,7 @@ def load_module_graph(cursor, graph, pool, lang=None):
             modules_todo.append((module, list(tryton_parser.to_delete)))
 
             for filename in package.datas.get('translation', []):
+                filename = filename.replace('/', os.sep)
                 lang2 = os.path.splitext(filename)[0]
                 if lang2 not in lang:
                     continue
