@@ -82,12 +82,9 @@ field,"ir.action,rec_name",0,Name,Name,0
 field,"ir.action.report,action",0,Action,Aktion,0
 field,"ir.action.report,direct_print",0,Direct Print,Direktdruck,0
 field,"ir.action.report,email",0,Email,E-Mail,0
+field,"ir.action.report,extension",0,Extension,Erweiterung,0
 field,"ir.action.report,model",0,Model,Modell,0
 field,"ir.action.report,module",0,Module,Modul,0
-field,"ir.action.report,output_format",0,Output format,Ausgabeformat,0
-field,"ir.action.report.outputformat,format",0,Internal Format Name,Interner Name des Formats,0
-field,"ir.action.report.outputformat,name",0,Name,Name,0
-field,"ir.action.report.outputformat,rec_name",0,Name,Name,0
 field,"ir.action.report,rec_name",0,Name,Name,0
 field,"ir.action.report,report",0,Path,Pfad,0
 field,"ir.action.report,report_content",0,Content,Inhalt,0
@@ -294,7 +291,6 @@ help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Die S
 help,"ir.action.act_window,limit",0,Default limit for the list view,Standardobergrenze für die Listenanscht,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Standardsuchwerte in der Listenansicht,0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Aktionsname als Fenstername benutzen,0
-help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Wird auch als Dateiendung verwendet,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definiert den Stil für den Bericht,0
 help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Anzahl der Funktionsaufrufe
@@ -355,9 +351,6 @@ model,"ir.action,name",act_view_tree_width_form,View Tree Width,Spaltenbreiten a
 model,"ir.action,name",act_action_act_window_form,Window Actions,Fensteraktionen,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
 model,"ir.action.report,name",0,Action report,Aktion Bericht,0
-model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),ODF Dokumente (.odf),0
-model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,PDF Dokument,0
-model,"ir.action.report.outputformat,name",0,Report Output Format,Bericht Ausgabeformat,0
 model,"ir.action.url,name",0,Action URL,Aktion URL,0
 model,"ir.action.wizard,name",0,Action wizard,Aktion Wizard,0
 model,"ir.attachment,name",0,Attachment,Anhang,0
@@ -446,6 +439,8 @@ selection,"ir.action.keyword,keyword",0,Form relate,Bezugsformular,0
 selection,"ir.action.keyword,keyword",0,Open Graph,Graph öffnen,0
 selection,"ir.action.keyword,keyword",0,Open tree,Baum öffnen,0
 selection,"ir.action.keyword,keyword",0,Print form,Formular drucken,0
+selection,"ir.action.report,extension",0,ODT Document,ODT Dokument,0
+selection,"ir.action.report,extension",0,PDF Document,PDF Dokument,0
 selection,"ir.cron,interval_type",0,Days,Tage,0
 selection,"ir.cron,interval_type",0,Hours,Stunden,0
 selection,"ir.cron,interval_type",0,Minutes,Minuten,0
