@@ -9,7 +9,6 @@ error,foreign_model_exist,0,"Could not delete ""%s"" records because they are us
 error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist.","La valeur du champ ""%s"" de ""%s"" est absente.",0
 error,ir.action.keyword,0,Wrong wizard model!,Mauvais modèle d'assistant,0
 error,ir.action.report,0,The internal name must be unique by module!,Le nom interne doit être unique par module !,0
-error,ir.attachment,0,Error! You can not create attachments with the same name!,Erreur ! Vous ne pouvez pas créer des pièces jointes avec le même nom.,0
 error,ir.attachment,0,The names of attachments must be unique by record!,Les noms des pièces jointes d'un même enregistrement doivent être unique !,0
 error,ir.cron,0,Scheduled action failed,L'action planifiée a échoué,0
 error,ir.cron,0,"The following action failed to execute properly: ""%s""
@@ -25,7 +24,7 @@ error,ir.lang,0,decimal_point and thousands_sep must be different!,decimal_point
 error,ir.lang,0,Invalid Grouping!,Groupement incorrect !,0
 error,ir.lang,0,The date format is not valid!,Le format de date est incorrect !,0
 error,ir.model,0,The model must be unique!,Le modèle doit être unique !,0
-error,ir.model.access,0,Only on record by model and group is allowed!,Seul un enregistrement par modèle et par groupe est autorisé,0
+error,ir.model.access,0,Only one record by model and group is allowed!,Un seul enregistrement par modèle et group est autorisé !,0
 error,ir.model.access,0,You can not create this kind of document! (%s),Vous ne pouvez pas créer ce type de document ! (%s),0
 error,ir.model.access,0,You can not delete this document! (%s),Vous ne pouvez pas supprimer ce document ! (%s),0
 error,ir.model.access,0,You can not read this document! (%s),Vous ne pouvez pas lire ce document ! (%s),0
@@ -64,7 +63,6 @@ field,"ir.action.act_window,limit",0,Limit,Limite,0
 field,"ir.action.act_window,rec_name",0,Name,Nom,0
 field,"ir.action.act_window,res_model",0,Model,Modèle,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Critères de recherche,0
-field,"ir.action.act_window,src_model",0,Source model,Modèle source,0
 field,"ir.action.act_window,usage",0,Action Usage,Utilisation,0
 field,"ir.action.act_window.view,act_window",0,Action,Action,0
 field,"ir.action.act_window.view,rec_name",0,Name,Nom,0
@@ -84,12 +82,9 @@ field,"ir.action,rec_name",0,Name,Nom,0
 field,"ir.action.report,action",0,Action,Action,0
 field,"ir.action.report,direct_print",0,Direct Print,Imprimer directement,0
 field,"ir.action.report,email",0,Email,E-mail,0
+field,"ir.action.report,extension",0,Extension,Extension,0
 field,"ir.action.report,model",0,Model,Modèle,0
 field,"ir.action.report,module",0,Module,Module,0
-field,"ir.action.report,output_format",0,Output format,Format de sortie,0
-field,"ir.action.report.outputformat,format",0,Internal Format Name,Nom du format interne,0
-field,"ir.action.report.outputformat,name",0,Name,Nom,0
-field,"ir.action.report.outputformat,rec_name",0,Name,Nom,0
 field,"ir.action.report,rec_name",0,Name,Nom,0
 field,"ir.action.report,report",0,Path,Chemin,0
 field,"ir.action.report,report_content",0,Content,Contenu,0
@@ -162,7 +157,7 @@ field,"ir.model.access,description",0,Description,Description,0
 field,"ir.model.access,group",0,Group,Groupe,0
 field,"ir.model.access,model",0,Model,Modèle,0
 field,"ir.model.access,perm_create",0,Create Access,Accès en creation,0
-field,"ir.model.access,perm_delete",0,Delete Permission,Permission de suppression,0
+field,"ir.model.access,perm_delete",0,Delete Access,Accès à la suppression,0
 field,"ir.model.access,perm_read",0,Read Access,Accès en lecture,0
 field,"ir.model.access,perm_write",0,Write Access,Accès en écriture,0
 field,"ir.model.access,rec_name",0,Name,Nom,0
@@ -296,7 +291,6 @@ help,"ir.action.act_window,auto_refresh",0,Add an auto-refresh on the view,Ajout
 help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par défaut pour la vue liste,0
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Critères de recherche par défaut pour la vue liste,0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Utiliser le nom de l'action comme nom de la fenêtre,0
-help,"ir.action.report.outputformat,format",0,"Used as file extension, too.",Utiliser aussi comme extension de fichier.,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Définit le style à appliquer sur le rapport.,0
 help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Nombre de fois que la fonction est appelée,
@@ -356,9 +350,6 @@ model,"ir.action,name",act_view_tree_width_form,View Tree Width,Largeur de la vu
 model,"ir.action,name",act_action_act_window_form,Window Actions,Actions de la fenêtre,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Assistants,0
 model,"ir.action.report,name",0,Action report,Action rapport,0
-model,"ir.action.report.outputformat,name",action_report_outputformat_odt,ODF Textdocuments (.odt),Documents ODF (.odt),0
-model,"ir.action.report.outputformat,name",action_report_outputformat_pdf,PDF Document,Document PDF,0
-model,"ir.action.report.outputformat,name",0,Report Output Format,Format de sortie de rapport,0
 model,"ir.action.url,name",0,Action URL,Action URL,0
 model,"ir.action.wizard,name",0,Action wizard,Action assistant,0
 model,"ir.attachment,name",0,Attachment,Pièce jointe,0
@@ -447,6 +438,8 @@ selection,"ir.action.keyword,keyword",0,Form relate,Formulaire relié,0
 selection,"ir.action.keyword,keyword",0,Open Graph,Ouvrir le graphique,0
 selection,"ir.action.keyword,keyword",0,Open tree,Ouvrir l'arbre,0
 selection,"ir.action.keyword,keyword",0,Print form,Imprimer le formulaire,0
+selection,"ir.action.report,extension",0,ODT Document,Document ODT,0
+selection,"ir.action.report,extension",0,PDF Document,Document PDF,0
 selection,"ir.cron,interval_type",0,Days,Jours,0
 selection,"ir.cron,interval_type",0,Hours,Heures,0
 selection,"ir.cron,interval_type",0,Minutes,Minutes,0
