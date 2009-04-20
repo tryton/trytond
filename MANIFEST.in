@@ -6,7 +6,7 @@ include TODO
 include CHANGELOG
 include doc/*
 include etc/*
-include trytond/init.sql
+include trytond/backend/postgresql/init.sql
 include trytond/ir/*.xml
 include trytond/ir/*.csv
 include trytond/ir/module/*.xml
