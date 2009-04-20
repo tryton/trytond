@@ -1,3 +1,5 @@
+Version 1.2.0 - 2009-04-20
+* Bug fixes (see mercurial logs for details)
 * Add delete of foreign keys with ondelete CASCADE
 * Add write for foreign keys with ondelete SET NULL
 * Add datetime_field on Many2One to use a specific _datetime when reading the related record
