@@ -329,6 +329,9 @@ class TrytonDAVInterface(iface.dav_interface):
             cursor.close()
         return res
 
+    def _get_dav_getetag(self, uri):
+        return '"' + str(self.get_lastmodified(uri)) + '"'
+
     def get_creationdate(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
