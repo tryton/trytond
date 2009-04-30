@@ -140,12 +140,16 @@ class TrytonDAVInterface(iface.dav_interface):
         self.baseuri = '%s://%s:%s/' % (protocol, interface or socket.gethostname(), port)
         self.verbose = False
 
-    def _get_dburi(self, uri):
+    @staticmethod
+    def get_dburi(uri):
         uri = urlparse.urlsplit(uri)[2]
         if uri[0] == '/':
             uri = uri[1:]
         dbname, uri = (uri.split('/', 1) + [None])[0:2]
         return dbname, uri
+
+    def _get_dburi(self, uri):
+        return TrytonDAVInterface.get_dburi(uri)
 
     def get_childs(self, uri):
         res = []
