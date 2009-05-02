@@ -18,6 +18,7 @@ class ConfigManager(object):
             'db_name': False,
             'db_user': False,
             'db_password': False,
+            'db_minconn': 1,
             'db_maxconn': 64,
             'pg_path': None,
             'admin_passwd': 'admin',
