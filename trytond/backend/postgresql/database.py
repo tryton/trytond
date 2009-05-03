@@ -82,7 +82,7 @@ class Database(DatabaseInterface):
         from trytond.tools import exec_pg_command_pipe
         if CONFIG['db_password']:
             raise Exception('Couldn\'t dump database with password!')
-        cmd = ['pg_dump', '--format=c']
+        cmd = ['pg_dump', '--format=c', '--no-owner']
         if CONFIG['db_user']:
             cmd.append('--username=' + CONFIG['db_user'])
         if CONFIG['db_host']:
@@ -111,7 +111,7 @@ class Database(DatabaseInterface):
         cursor.commit()
         cursor.close()
 
-        cmd = ['pg_restore']
+        cmd = ['pg_restore', '--no-owner']
         if CONFIG['db_user']:
             cmd.append('--username=' + CONFIG['db_user'])
         if CONFIG['db_host']:
