@@ -82,7 +82,7 @@ field,"ir.action,rec_name",0,Name,Name,0
 field,"ir.action.report,action",0,Action,Aktion,0
 field,"ir.action.report,direct_print",0,Direct Print,Direktdruck,0
 field,"ir.action.report,email",0,Email,E-Mail,0
-field,"ir.action.report,extension",0,Extension,Erweiterung,0
+field,"ir.action.report,extension",0,Extension,Dokumententyp,0
 field,"ir.action.report,model",0,Model,Modell,0
 field,"ir.action.report,module",0,Module,Modul,0
 field,"ir.action.report,rec_name",0,Name,Name,0
@@ -441,6 +441,7 @@ selection,"ir.action.keyword,keyword",0,Open tree,Baum öffnen,0
 selection,"ir.action.keyword,keyword",0,Print form,Formular drucken,0
 selection,"ir.action.report,extension",0,ODT Document,ODT Dokument,0
 selection,"ir.action.report,extension",0,PDF Document,PDF Dokument,0
+selection,"ir.action.report,extension",0,VCard file,VCard Datei,0
 selection,"ir.cron,interval_type",0,Days,Tage,0
 selection,"ir.cron,interval_type",0,Hours,Stunden,0
 selection,"ir.cron,interval_type",0,Minutes,Minuten,0
