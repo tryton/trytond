@@ -441,7 +441,6 @@ selection,"ir.action.keyword,keyword",0,Open tree,Baum öffnen,0
 selection,"ir.action.keyword,keyword",0,Print form,Formular drucken,0
 selection,"ir.action.report,extension",0,ODT Document,ODT Dokument,0
 selection,"ir.action.report,extension",0,PDF Document,PDF Dokument,0
-selection,"ir.action.report,extension",0,VCard file,VCard Datei,0
 selection,"ir.cron,interval_type",0,Days,Tage,0
 selection,"ir.cron,interval_type",0,Hours,Stunden,0
 selection,"ir.cron,interval_type",0,Minutes,Minuten,0
