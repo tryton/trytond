@@ -37,6 +37,7 @@ class LocalInt(local):
 
 USER_ID = LocalInt(0)
 CACHE = LocalDict()
+DATABASE = LocalDict()
 
 # Fix for bad use of Document in DAV.utils make_xmlresponse
 from DAV.utils import VERSION as DAV_VERSION
@@ -165,28 +166,19 @@ class TrytonDAVInterface(iface.dav_interface):
             finally:
                 cursor.close()
             for dbname in lists:
-                res.append(urlparse.urljoin(self.baseuri, dbname))
+                res.append(urlparse.urljoin(uri, dbname))
             return res
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         try:
-            try:
-                collection_obj = pool.get('webdav.collection')
-                if uri[-1:] != '/':
-                    uri += '/'
-                for child in collection_obj.get_childs(cursor, int(USER_ID), dburi,
-                        cache=CACHE):
-                    res.append(urlparse.urljoin(self.baseuri, uri + child))
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            collection_obj = pool.get('webdav.collection')
+            for child in collection_obj.get_childs(cursor, int(USER_ID), dburi,
+                    cache=CACHE):
+                res.append(urlparse.urljoin(uri, child))
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def get_data(self, uri):
@@ -217,98 +209,70 @@ class TrytonDAVInterface(iface.dav_interface):
             res += '</body>'
             res += '</html>'
             return res
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.get_data(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.get_data(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def put(self, uri, data, content_type=''):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.put(cursor, int(USER_ID), dburi, data,
-                        content_type, cache=CACHE)
-                cursor.commit()
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                cursor.rollback()
-                raise
-            except:
-                cursor.rollback()
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.put(cursor, int(USER_ID), dburi, data,
+                    content_type, cache=CACHE)
+            cursor.commit()
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            cursor.rollback()
+            raise
+        except:
+            cursor.rollback()
+            raise DAV_Error(500)
         return res
 
     def mkcol(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.mkcol(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-                cursor.commit()
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                cursor.rollback()
-                raise
-            except:
-                cursor.rollback()
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.mkcol(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+            cursor.commit()
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            cursor.rollback()
+            raise
+        except:
+            cursor.rollback()
+            raise DAV_Error(500)
         return res
 
     def _get_dav_resourcetype(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return COLLECTION
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.get_resourcetype(cursor, int(USER_ID), dburi,
-                    cache=CACHE)
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.get_resourcetype(cursor, int(USER_ID), dburi,
+                cache=CACHE)
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def _get_dav_displayname(self, uri):
@@ -318,46 +282,32 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return '0'
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.get_contentlength(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.get_contentlength(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def _get_dav_getcontenttype(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or self.is_collection(uri):
             return "text/html"
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.get_contenttype(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.get_contenttype(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def _get_dav_getetag(self, uri):
@@ -367,120 +317,85 @@ class TrytonDAVInterface(iface.dav_interface):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return time.time()
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.get_creationdate(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.get_creationdate(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def get_lastmodified(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return time.time()
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.get_lastmodified(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.get_lastmodified(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def rmcol(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.rmcol(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-                cursor.commit()
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                cursor.rollback()
-                raise
-            except:
-                cursor.rollback()
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.rmcol(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+            cursor.commit()
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            cursor.rollback()
+            raise
+        except:
+            cursor.rollback()
+            raise DAV_Error(500)
         return res
 
     def rm(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             raise DAV_Forbidden
-        database = Database(dbname).connect()
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.rm(cursor, int(USER_ID), dburi,
-                        cache=CACHE)
-                cursor.commit()
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                cursor.rollback()
-                raise
-            except:
-                cursor.rollback()
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.rm(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+            cursor.commit()
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            cursor.rollback()
+            raise
+        except:
+            cursor.rollback()
+            raise DAV_Error(500)
         return res
 
     def exists(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
             return 1
-        database = Database(dbname)
-        cursor = database.cursor()
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            try:
-                res = collection_obj.exists(cursor, int(USER_ID), dburi, cache=CACHE)
-            except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
-                raise
-            except:
-                raise DAV_Error(500)
-        finally:
-            cursor.close()
+            res = collection_obj.exists(cursor, int(USER_ID), dburi, cache=CACHE)
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+            raise
+        except:
+            raise DAV_Error(500)
         return res
 
     def is_collection(self, uri):
@@ -519,14 +434,39 @@ class TrytonDAVInterface(iface.dav_interface):
 class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         WebDAVServer.DAVRequestHandler):
 
+    def finish(self):
+        global DATABASE
+        dbname = None
+        if 'dbname' in DATABASE:
+            dbname = DATABASE['dbname']
+            del DATABASE['dbname']
+        if dbname:
+            Cache.clean(dbname)
+        if 'cursor' in DATABASE:
+            DATABASE['cursor'].close()
+            del DATABASE['cursor']
+        if dbname:
+            Cache.resets(dbname)
+
     def get_userinfo(self, user, password, command=''):
         global USER_ID
+        global DATABASE
+
         dbname = self.path.split('/', 2)[1]
+        DATABASE['dbname'] = dbname
         if not dbname:
+            database = Database().connect()
+            DATABASE['cursor'] = database.cursor()
             return 1
         USER_ID = login(dbname, user, password, cache=False)
-        Cache.clean(dbname)
-        Cache.resets(dbname)
+
+        database = Database(dbname).connect()
+        DATABASE['cursor'] = database.cursor()
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
+
         if int(USER_ID):
             return 1
         return 0
