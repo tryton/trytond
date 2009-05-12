@@ -1,10 +1,11 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
 "Lang"
 from trytond.model import ModelView, ModelSQL, fields
+from trytond.model.cacheable import Cacheable
 import time
 
 
-class Lang(ModelSQL, ModelView):
+class Lang(ModelSQL, ModelView, Cacheable):
     "Language"
     _name = "ir.lang"
     _description = __doc__
@@ -102,6 +103,36 @@ class Lang(ModelSQL, ModelView):
 
     def check_xml_record(self, cursor, user, ids, values, context=None):
         return True
+
+    def get_translatable_languages(self, cursor, user, context=None):
+        if not self.get(cursor, 'translatable_languages'):
+            lang_ids = self.search(cursor, user, [
+                                      ('translatable', '=', True),
+                                      ], context=context)
+            self.add(cursor, 'translatable_languages', [x.code for x in \
+                        self.browse(cursor, user, lang_ids, context=context)])
+        return self.get(cursor, 'translatable_languages')
+
+    def create(self, cursor, user, vals, context=None):
+        # Clear cache
+        if self.get(cursor, 'translatable_languages'):
+            self.invalidate(cursor, 'translatable_languages')
+        return super(Lang, self).create(cursor, user, vals,
+                     context=context)
+
+    def write(self, cursor, user, ids, vals, context=None):
+        # Clear cache
+        if self.get(cursor, 'translatable_languages'):
+            self.invalidate(cursor, 'translatable_languages')
+        return super(Lang, self).write(cursor, user, ids, vals,
+                     context=context)
+
+    def delete(self, cursor, user, ids, context=None):
+        # Clear cache
+        if self.get(cursor, 'translatable_languages'):
+            self.invalidate(cursor, 'translatable_languages')
+        return super(Lang, self).delete(cursor, user, ids,
+                     context=context)
 
     def _group(self, lang, s, monetary=False):
         # Code from _group in locale.py
