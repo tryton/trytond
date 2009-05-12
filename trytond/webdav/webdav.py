@@ -529,7 +529,7 @@ class Collection(ModelSQL, ModelView):
                     }, context=context)
             except:
                 raise DAV_Forbidden
-        return 201
+        return
 
     def mkcol(self, cursor, user, uri, context=None, cache=None):
         from DAV.errors import DAV_Forbidden
