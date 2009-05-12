@@ -244,6 +244,10 @@ class TrytonDAVInterface(iface.dav_interface):
         except:
             cursor.rollback()
             raise DAV_Error(500)
+        if res:
+            uparts = list(urlparse.urlsplit(uri))
+            uparts[2] = res
+            res = urlparse.urlunsplit(uparts)
         return res
 
     def mkcol(self, uri):

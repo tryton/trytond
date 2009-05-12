@@ -9,7 +9,7 @@ Prerequisites
  * lxml (http://codespeak.net/lxml/)
  * egenix-mx-base (http://www.egenix.com/products/python/)
  * relatorio 0.2.0 or later (http://relatorio.openhex.org/)
- * Optional: pywebdav (http://sourceforge.net/projects/pywebdav/)
+ * Optional: pywebdav 0.9.2 or later (http://code.google.com/p/pywebdav/)
  * Optional: pydot (http://code.google.com/p/pydot/)
  * Optional: pytz (http://pytz.sourceforge.net/)
  * Optional: openoffice-python
