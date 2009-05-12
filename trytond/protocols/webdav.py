@@ -147,6 +147,10 @@ class TrytonDAVInterface(iface.dav_interface):
         if uri[0] == '/':
             uri = uri[1:]
         dbname, uri = (uri.split('/', 1) + [None])[0:2]
+        if dbname:
+            dbname = urllib.unquote_plus(dbname)
+        if uri:
+            uri = urllib.unquote_plus(uri)
         return dbname, uri
 
     def _get_dburi(self, uri):
@@ -172,9 +176,11 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = Pool(DATABASE['dbname'])
         try:
             collection_obj = pool.get('webdav.collection')
+            if uri[-1:] != '/':
+                uri += '/'
             for child in collection_obj.get_childs(cursor, int(USER_ID), dburi,
                     cache=CACHE):
-                res.append(urlparse.urljoin(uri, child))
+                res.append(uri + child.encode('utf-8'))
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
             raise
         except:
@@ -452,7 +458,7 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         global USER_ID
         global DATABASE
 
-        dbname = self.path.split('/', 2)[1]
+        dbname = urllib.unquote_plus(self.path.split('/', 2)[1])
         DATABASE['dbname'] = dbname
         if not dbname:
             database = Database().connect()
