@@ -1593,14 +1593,9 @@ class ModelSQL(ModelStorage):
                         del arg2[xitem]
                     #TODO fix max_stack_depth
                     if len(arg2):
-                        if arg[0] == 'id':
-                            qu1.append(('("%s".id ' + arg[1] + ' (%s))') % \
-                                    (table._table,
-                                        ','.join(['%s'] * len(arg2)),))
-                        else:
-                            qu1.append(('("%s".%s ' + arg[1] + ' (%s))') % \
-                                    (table._table, arg[0], ','.join(
-                                        ['%s'] * len(arg2))))
+                        qu1.append(('("%s".%s ' + arg[1] + ' (%s))') % \
+                                (table._table, arg[0], ','.join(
+                                    ['%s'] * len(arg2))))
                         if todel:
                             if table._columns[arg[0]]._type == 'boolean':
                                 if arg[1] == 'in':
