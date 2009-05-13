@@ -67,7 +67,7 @@ class FieldsTestCase(unittest.TestCase):
 
     def test0010boolean(self):
         '''
-        Test booleans.
+        Test Boolean.
         '''
         boolean1_id = self.boolean.create({
             'boolean': True,
@@ -77,6 +77,36 @@ class FieldsTestCase(unittest.TestCase):
         boolean1 = self.boolean.read(boolean1_id, ['boolean'], CONTEXT)
         self.assert_(boolean1['boolean'] == True)
 
+        boolean_ids = self.boolean.search([
+            ('boolean', '=', True),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [boolean1_id])
+
+        boolean_ids = self.boolean.search([
+            ('boolean', '!=', True),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [])
+
+        boolean_ids = self.boolean.search([
+            ('boolean', 'in', [True]),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [boolean1_id])
+
+        boolean_ids = self.boolean.search([
+            ('boolean', 'in', [False]),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [])
+
+        boolean_ids = self.boolean.search([
+            ('boolean', 'not in', [True]),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [])
+
+        boolean_ids = self.boolean.search([
+            ('boolean', 'not in', [False]),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [boolean1_id])
+
         boolean2_id = self.boolean.create({
             'boolean': False,
             }, CONTEXT)
@@ -84,6 +114,21 @@ class FieldsTestCase(unittest.TestCase):
 
         boolean2 = self.boolean.read(boolean2_id, ['boolean'], CONTEXT)
         self.assert_(boolean2['boolean'] == False)
+
+        boolean_ids = self.boolean.search([
+            ('boolean', '=', False),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [boolean2_id])
+
+        boolean_ids = self.boolean.search([
+            ('boolean', 'in', [True, False]),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [boolean1_id, boolean2_id])
+
+        boolean_ids = self.boolean.search([
+            ('boolean', 'not in', [True, False]),
+            ], CONTEXT)
+        self.assert_(boolean_ids == [])
 
         boolean3_id = self.boolean.create({}, CONTEXT)
         self.assert_(boolean3_id)
