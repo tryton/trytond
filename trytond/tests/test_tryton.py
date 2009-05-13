@@ -54,6 +54,65 @@ class DBTestCase(unittest.TestCase):
         login()
 
 
+class FieldsTestCase(unittest.TestCase):
+    '''
+    Test Fields.
+    '''
+
+    def setUp(self):
+        install_module('tests')
+        self.boolean = RPCProxy('tests.boolean')
+        self.boolean_default = RPCProxy('tests.boolean_default')
+        self.boolean_required = RPCProxy('tests.boolean_required')
+
+    def test0010boolean(self):
+        '''
+        Test booleans.
+        '''
+        boolean1_id = self.boolean.create({
+            'boolean': True,
+            }, CONTEXT)
+        self.assert_(boolean1_id)
+
+        boolean1 = self.boolean.read(boolean1_id, ['boolean'], CONTEXT)
+        self.assert_(boolean1['boolean'] == True)
+
+        boolean2_id = self.boolean.create({
+            'boolean': False,
+            }, CONTEXT)
+        self.assert_(boolean2_id)
+
+        boolean2 = self.boolean.read(boolean2_id, ['boolean'], CONTEXT)
+        self.assert_(boolean2['boolean'] == False)
+
+        boolean3_id = self.boolean.create({}, CONTEXT)
+        self.assert_(boolean3_id)
+
+        boolean3 = self.boolean.read(boolean3_id, ['boolean'], CONTEXT)
+        self.assert_(boolean3['boolean'] == False)
+
+        boolean4_id = self.boolean_default.create({}, CONTEXT)
+        self.assert_(boolean4_id)
+
+        boolean4 = self.boolean_default.read(boolean4_id, ['boolean'], CONTEXT)
+        self.assert_(boolean4['boolean'] == True)
+
+        boolean5_id = self.boolean_required.create({}, CONTEXT)
+        self.assert_(boolean5_id)
+
+        self.boolean.write(boolean1_id, {
+            'boolean': False,
+            }, CONTEXT)
+        boolean1 = self.boolean.read(boolean1_id, ['boolean'], CONTEXT)
+        self.assert_(boolean1['boolean'] == False)
+
+        self.boolean.write(boolean2_id, {
+            'boolean': True,
+            }, CONTEXT)
+        boolean2 = self.boolean.read(boolean2_id, ['boolean'], CONTEXT)
+        self.assert_(boolean2['boolean'] == True)
+
+
 class MPTTTestCase(unittest.TestCase):
     '''
     Test Modified Preorder Tree Traversal.
@@ -254,6 +313,7 @@ def suite():
 
 if __name__ == '__main__':
     suite = suite()
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FieldsTestCase))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MPTTTestCase))
     unittest.TextTestRunner(verbosity=2).run(suite)
     SOCK.disconnect()
