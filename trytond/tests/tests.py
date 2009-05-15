@@ -35,3 +35,26 @@ class BooleanRequired(ModelSQL):
             required=True)
 
 BooleanRequired()
+
+
+class Integer(ModelSQL):
+    'Integer'
+    _name = 'tests.integer'
+    _description = __doc__
+    integer = fields.Integer(string='Integer', help='Test integer',
+            required=False)
+
+Integer()
+
+
+class IntegerDefault(ModelSQL):
+    'Integer Default'
+    _name = 'tests.integer_default'
+    _description = __doc__
+    integer = fields.Integer(string='Integer', help='Test integer',
+            required=False)
+
+    def default_integer(self, cursor, user, context=None):
+        return 5
+
+IntegerDefault()
