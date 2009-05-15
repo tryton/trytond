@@ -65,6 +65,9 @@ class FieldsTestCase(unittest.TestCase):
         self.boolean_default = RPCProxy('tests.boolean_default')
         self.boolean_required = RPCProxy('tests.boolean_required')
 
+        self.integer = RPCProxy('tests.integer')
+        self.integer_default = RPCProxy('tests.integer_default')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -156,6 +159,183 @@ class FieldsTestCase(unittest.TestCase):
             }, CONTEXT)
         boolean2 = self.boolean.read(boolean2_id, ['boolean'], CONTEXT)
         self.assert_(boolean2['boolean'] == True)
+
+    def test0020integer(self):
+        '''
+        Test Integer.
+        '''
+        integer1_id = self.integer.create({
+            'integer': 1,
+            }, CONTEXT)
+        self.assert_(integer1_id)
+
+        integer1 = self.integer.read(integer1_id, ['integer'], CONTEXT)
+        self.assert_(integer1['integer'] == 1)
+
+        integer_ids = self.integer.search([
+            ('integer', '=', 1),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', '=', 0),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '!=', 1),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '!=', 0),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', 'in', [1]),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', 'in', [0]),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', 'in', []),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', 'not in', [1]),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', 'not in', [0]),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', 'not in', []),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', '<', 5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', '<', -5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '<', 1),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '<=', 5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', '<=', -5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '<=', 1),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', '>', 5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '>', -5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', '>', 1),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '>=', 5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer_ids = self.integer.search([
+            ('integer', '>=', -5),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer_ids = self.integer.search([
+            ('integer', '>=', 1),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id])
+
+        integer2_id = self.integer.create({
+            'integer': 0,
+            }, CONTEXT)
+        self.assert_(integer2_id)
+
+        integer2 = self.integer.read(integer2_id, ['integer'], CONTEXT)
+        self.assert_(integer2['integer'] == 0)
+
+        integer_ids = self.integer.search([
+            ('integer', '=', 0),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer2_id])
+
+        integer_ids = self.integer.search([
+            ('integer', 'in', [0, 1]),
+            ], CONTEXT)
+        self.assert_(integer_ids == [integer1_id, integer2_id])
+
+        integer_ids = self.integer.search([
+            ('integer', 'not in', [0, 1]),
+            ], CONTEXT)
+        self.assert_(integer_ids == [])
+
+        integer3_id = self.integer.create({}, CONTEXT)
+        self.assert_(integer3_id)
+
+        integer3 = self.integer.read(integer3_id, ['integer'], CONTEXT)
+        self.assert_(integer3['integer'] == 0)
+
+        integer4_id = self.integer_default.create({}, CONTEXT)
+        self.assert_(integer4_id)
+
+        integer4 = self.integer_default.read(integer4_id, ['integer'], CONTEXT)
+        self.assert_(integer4['integer'] == 5)
+
+        self.integer.write(integer1_id, {
+            'integer': 0,
+            }, CONTEXT)
+        integer1 = self.integer.read(integer1_id, ['integer'], CONTEXT)
+        self.assert_(integer1['integer'] == 0)
+
+        self.integer.write(integer2_id, {
+            'integer': 1,
+            }, CONTEXT)
+        integer2 = self.integer.read(integer2_id, ['integer'], CONTEXT)
+        self.assert_(integer2['integer'] == 1)
+
+        self.failUnlessRaises(Exception, self.integer.create, {
+            'integer': 'test',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.integer.write, integer1_id, {
+            'integer': 'test',
+            }, CONTEXT)
 
 
 class MPTTTestCase(unittest.TestCase):
