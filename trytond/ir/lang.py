@@ -105,13 +105,15 @@ class Lang(ModelSQL, ModelView, Cacheable):
         return True
 
     def get_translatable_languages(self, cursor, user, context=None):
-        if not self.get(cursor, 'translatable_languages'):
+        res = self.get(cursor, 'translatable_languages')
+        if res is None:
             lang_ids = self.search(cursor, user, [
                                       ('translatable', '=', True),
                                       ], context=context)
-            self.add(cursor, 'translatable_languages', [x.code for x in \
-                        self.browse(cursor, user, lang_ids, context=context)])
-        return self.get(cursor, 'translatable_languages')
+            res = [x.code for x in self.browse(cursor, user, lang_ids,
+                context=context)]
+            self.add(cursor, 'translatable_languages', res)
+        return res
 
     def create(self, cursor, user, vals, context=None):
         # Clear cache
