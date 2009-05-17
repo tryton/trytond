@@ -108,8 +108,8 @@ class Lang(ModelSQL, ModelView, Cacheable):
         res = self.get(cursor, 'translatable_languages')
         if res is None:
             lang_ids = self.search(cursor, user, [
-                                      ('translatable', '=', True),
-                                      ], context=context)
+                    ('translatable', '=', True),
+                    ], context=context)
             res = [x.code for x in self.browse(cursor, user, lang_ids,
                 context=context)]
             self.add(cursor, 'translatable_languages', res)
