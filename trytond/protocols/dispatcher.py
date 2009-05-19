@@ -49,7 +49,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             try:
                 database = Database(*args, **kargs).connect()
                 cursor = database.cursor()
-                cursor.close()
+                cursor.close(close=True)
                 return True
             except:
                 return False
@@ -58,7 +58,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             try:
                 cursor = database.cursor()
                 res = database.list(cursor)
-                cursor.close()
+                cursor.close(close=True)
             except:
                 res = []
             return res
@@ -159,7 +159,7 @@ def create(database_name, password, lang, admin_password):
         try:
             database.create(cursor, database_name)
             cursor.commit()
-            cursor.close()
+            cursor.close(close=True)
 
             database = Database(database_name).connect()
             cursor = database.cursor()
@@ -233,7 +233,7 @@ def drop(database_name, password):
         else:
             logger.info('DROP DB: %s' % (database_name))
     finally:
-        cursor.close()
+        cursor.close(close=True)
     return True
 
 def dump(database_name, password):
@@ -253,7 +253,7 @@ def restore(database_name, password, data):
     try:
         database = Database().connect()
         cursor = database.cursor()
-        cursor.close()
+        cursor.close(close=True)
         raise Exception("Database already exists!")
     except:
         pass
