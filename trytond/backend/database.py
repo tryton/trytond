@@ -113,9 +113,11 @@ class CursorInterface(object):
         '''
         raise
 
-    def close(self):
+    def close(self, close=False):
         '''
         Close the cursor
+
+        :param close: boolean to not release cursor in pool
         '''
         raise
 

@@ -188,7 +188,7 @@ class Database(DatabaseInterface):
             cursor2 = database.cursor()
             if cursor2.test():
                 res.append(db_name)
-            cursor2.close()
+            cursor2.close(close=True)
         return res
 
     @staticmethod
@@ -318,7 +318,7 @@ class Cursor(CursorInterface):
             amount += log[1][1]
         logger.info("SUM:%s/%d" % (amount, self.count[sql_type]))
 
-    def close(self):
+    def close(self, close=False):
         if self.sql_log:
             self._print_log('from')
             self._print_log('into')
@@ -332,7 +332,7 @@ class Cursor(CursorInterface):
         del self.cursor
         #if id(self._conn) in self._connpool._rused:
         self.rollback()
-        self._connpool.putconn(self._conn)
+        self._connpool.putconn(self._conn, close=close)
 
     def commit(self):
         self._conn.commit()
