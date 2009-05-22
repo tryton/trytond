@@ -447,6 +447,11 @@
       <attribute name="spell"/>
     </optional>
   </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="float_time"/>
+    </optional>
+  </define>
   <define name="image">
     <element name="image">
       <ref name="attlist.image"/>
