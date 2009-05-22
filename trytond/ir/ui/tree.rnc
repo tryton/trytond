@@ -52,6 +52,7 @@ attlist.field &=
     | "bottom_to_top"
     | "top_to_bottom"
   }?
+attlist.field &= attribute float_time { text }?
 button = element button { attlist.button, empty }
 attlist.button &= attribute help { text }?
 attlist.button &=

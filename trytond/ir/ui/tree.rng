@@ -153,6 +153,11 @@
       </attribute>
     </optional>
   </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="float_time"/>
+    </optional>
+  </define>
   <define name="button">
     <element name="button">
       <ref name="attlist.button"/>
