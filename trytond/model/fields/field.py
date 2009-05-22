@@ -15,7 +15,7 @@ class Field(object):
         :param required: A boolean if ``True`` the field is required.
         :param readonly: A boolean if ``True`` the field is not editable in
             the user interface.
-        :param domain: A list that defines a domain. See domain on
+        :param domain: A list that defines a domain constraint. See domain on
             ModelStorage.search.
         :param states: A dictionary. Possible keys are ``required``,
             ``readonly`` and ``invisible``. Values are string of python
