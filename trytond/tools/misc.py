@@ -8,6 +8,7 @@ import os, time, sys
 import inspect
 from trytond.config import CONFIG
 import socket
+import subprocess
 import zipfile
 from trytond.backend import Database
 from threading import Lock, local
@@ -51,7 +52,18 @@ def exec_pg_command_pipe(name, *args):
         cmd = '"' + prog + '" ' + ' '.join(args)
     else:
         cmd = prog + ' ' + ' '.join(args)
-    return os.popen2(cmd, 'b')
+    
+    # if db_password is set in configuration we should pass
+    # an environment variable PGPASSWORD to our subprocess
+    # see libpg documentation
+    child_env = dict(os.environ)
+    if CONFIG['db_password']:
+        child_env['PGPASSWORD'] = CONFIG['db_password']
+    pipe = subprocess.Popen(cmd, shell=True, 
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                            close_fds=True,
+                            env=child_env)
+    return (pipe.stdin, pipe.stdout)
 
 def exec_command_pipe(name, *args):
     prog = find_in_path(name)
