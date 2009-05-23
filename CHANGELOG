@@ -1,3 +1,4 @@
+* Handle database dump and restore with password
 * Add float_time attribute in fields view
 
 Version 1.2.0 - 2009-04-20
