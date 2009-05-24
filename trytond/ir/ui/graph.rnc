@@ -24,6 +24,7 @@ attlist.field &= attribute fill { "0" | "1" }?
 attlist.field &= attribute empty { "0" | "1" }?
 attlist.field &= attribute color { text }?
 attlist.field &= attribute widget { "float_time" }?
+attlist.field &= attribute float_time { text }?
 data = element data { attlist.data, xpath+ }
 attlist.data &= empty
 xpath = element xpath { attlist.xpath,
