@@ -1504,13 +1504,6 @@ class ModelSQL(ModelStorage):
                 i += 1
             else:
                 if field.translate:
-                    exprs = ['%s', '%s']
-                    if domain[i][1] in ('like', 'ilike', 'not like', 'not ilike'):
-                        exprs = ['%% %s%%', '%s%%']
-                    oper = 'OR'
-                    if domain[i][1] in ('not like', 'not ilike', '!='):
-                        oper = 'AND'
-
                     if self._name == 'ir.model':
                         table_join = 'LEFT JOIN "ir_translation" ' \
                                 'ON (ir_translation.name = ' \
@@ -1558,11 +1551,8 @@ class ModelSQL(ModelStorage):
                     query1 = '(SELECT "' + table._table + '".id ' \
                             'FROM ' + table_query + '"' + table._table + '" ' \
                             + table_join + ' ' \
-                            'WHERE (' + trans_field + ' ' + \
-                            domain[i][1] + ' %s ' + oper + ' ' + trans_field + ' ' + \
-                            domain[i][1] + ' %s))'
-                    query2 = table_args + table_join_args + [exprs[0] % domain[i][2],
-                            exprs[1] % domain[i][2]]
+                            'WHERE (' + trans_field + ' ' + domain[i][1] + ' %s))'
+                    query2 = table_args + table_join_args + [domain[i][2]]
                     domain[i] = ('id', 'inselect', (query1, query2), table)
                 else:
                     domain[i] += (table,)
@@ -1658,34 +1648,21 @@ class ModelSQL(ModelStorage):
                         if arg[1] in ('like', 'ilike'):
                             if not arg[2]:
                                 qu2.append('%')
-                                qu2.append('%')
                                 add_null = True
                             else:
-                                qu2.append('%% %s%%' % arg[2])
-                                qu2.append('%s%%' % arg[2])
+                                qu2.append(arg[2])
                         elif arg[1] in ('not like', 'not ilike'):
                             if not arg[2]:
                                 qu2.append('')
-                                qu2.append('')
                             else:
-                                qu2.append('%% %s%%' % arg[2])
-                                qu2.append('%s%%' % arg[2])
+                                qu2.append(arg[2])
                                 add_null = True
                         else:
                             if arg[0] in table._columns:
                                 qu2.append(FIELDS[table._columns[arg[0]]._type].\
                                         sql_format(arg[2]))
-                        if arg[1] in ('like', 'ilike'):
-                            qu1.append('("%s".%s %s %s OR "%s".%s %s %s)' % \
-                                    (table._table, arg[0], arg[1], '%s',
-                                        table._table, arg[0], arg[1], '%s'))
-                        elif arg[1] in ('not like', 'not ilike'):
-                            qu1.append('("%s".%s %s %s AND "%s".%s %s %s)' % \
-                                    (table._table, arg[0], arg[1], '%s',
-                                        table._table, arg[0], arg[1], '%s'))
-                        else:
-                            qu1.append('("%s".%s %s %%s)' % (table._table,
-                                arg[0], arg[1]))
+                        qu1.append('("%s".%s %s %%s)' % (table._table,
+                            arg[0], arg[1]))
                         if add_null:
                             qu1[-1] = '(' + qu1[-1] + ' OR ' + \
                                     '"' + table._table + '".' + arg[0] +' IS NULL)'
