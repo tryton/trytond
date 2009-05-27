@@ -1,3 +1,4 @@
+* Doesn't append '%' to "like", "ilike" clauses
 * Handle database dump and restore with password
 * Add float_time attribute in fields view
 
