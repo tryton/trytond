@@ -67,9 +67,11 @@ class FieldsTestCase(unittest.TestCase):
 
         self.integer = RPCProxy('tests.integer')
         self.integer_default = RPCProxy('tests.integer_default')
+        self.integer_required = RPCProxy('tests.integer_required')
 
         self.float = RPCProxy('tests.float')
         self.float_default = RPCProxy('tests.float_default')
+        self.float_required = RPCProxy('tests.float_required')
 
     def test0010boolean(self):
         '''
@@ -340,6 +342,12 @@ class FieldsTestCase(unittest.TestCase):
             'integer': 'test',
             }, CONTEXT)
 
+        integer5_id = self.integer_required.create({}, CONTEXT)
+        self.assert_(integer5_id)
+
+        integer5 = self.integer_required.read(integer5_id, ['integer'], CONTEXT)
+        self.assert_(integer5['integer'] == 0)
+
     def test0030float(self):
         '''
         Test Float.
@@ -516,6 +524,12 @@ class FieldsTestCase(unittest.TestCase):
         self.failUnlessRaises(Exception, self.float.write, float1_id, {
             'float': 'test',
             }, CONTEXT)
+
+        float5_id = self.float_required.create({}, CONTEXT)
+        self.assert_(float5_id)
+
+        float5 = self.float_required.read(float5_id, ['float'], CONTEXT)
+        self.assert_(float5['float'] == 0)
 
 
 class MPTTTestCase(unittest.TestCase):

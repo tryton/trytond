@@ -60,6 +60,16 @@ class IntegerDefault(ModelSQL):
 IntegerDefault()
 
 
+class IntegerRequired(ModelSQL):
+    'Integer Required'
+    _name = 'tests.integer_required'
+    _description = __doc__
+    integer = fields.Integer(string='Integer', help='Test integer',
+            required=True)
+
+IntegerRequired()
+
+
 class Float(ModelSQL):
     'Float'
     _name = 'tests.float'
@@ -81,3 +91,14 @@ class FloatDefault(ModelSQL):
         return 5.5
 
 FloatDefault()
+
+
+class FloatRequired(ModelSQL):
+    'Float Required'
+    _name = 'tests.float_required'
+    _description = __doc__
+    float = fields.Float(string='Float', help='Test float',
+            required=True)
+
+FloatRequired()
+
