@@ -68,6 +68,9 @@ class FieldsTestCase(unittest.TestCase):
         self.integer = RPCProxy('tests.integer')
         self.integer_default = RPCProxy('tests.integer_default')
 
+        self.float = RPCProxy('tests.float')
+        self.float_default = RPCProxy('tests.float_default')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -335,6 +338,183 @@ class FieldsTestCase(unittest.TestCase):
 
         self.failUnlessRaises(Exception, self.integer.write, integer1_id, {
             'integer': 'test',
+            }, CONTEXT)
+
+    def test0030float(self):
+        '''
+        Test Float.
+        '''
+        float1_id = self.float.create({
+            'float': 1.1,
+            }, CONTEXT)
+        self.assert_(float1_id)
+
+        float1 = self.float.read(float1_id, ['float'], CONTEXT)
+        self.assert_(float1['float'] == 1.1)
+
+        float_ids = self.float.search([
+            ('float', '=', 1.1),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', '=', 0),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '!=', 1.1),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '!=', 0),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', 'in', [1.1]),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', 'in', [0]),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', 'in', []),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', 'not in', [1.1]),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', 'not in', [0]),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', 'not in', []),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', '<', 5),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', '<', -5),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '<', 1.1),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '<=', 5),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', '<=', -5),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '<=', 1.1),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', '>', 5),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '>', -5),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', '>', 1.1),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '>=', 5),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float_ids = self.float.search([
+            ('float', '>=', -5),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float_ids = self.float.search([
+            ('float', '>=', 1.1),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id])
+
+        float2_id = self.float.create({
+            'float': 0,
+            }, CONTEXT)
+        self.assert_(float2_id)
+
+        float2 = self.float.read(float2_id, ['float'], CONTEXT)
+        self.assert_(float2['float'] == 0)
+
+        float_ids = self.float.search([
+            ('float', '=', 0),
+            ], CONTEXT)
+        self.assert_(float_ids == [float2_id])
+
+        float_ids = self.float.search([
+            ('float', 'in', [0, 1.1]),
+            ], CONTEXT)
+        self.assert_(float_ids == [float1_id, float2_id])
+
+        float_ids = self.float.search([
+            ('float', 'not in', [0, 1.1]),
+            ], CONTEXT)
+        self.assert_(float_ids == [])
+
+        float3_id = self.float.create({}, CONTEXT)
+        self.assert_(float3_id)
+
+        float3 = self.float.read(float3_id, ['float'], CONTEXT)
+        self.assert_(float3['float'] == 0)
+
+        float4_id = self.float_default.create({}, CONTEXT)
+        self.assert_(float4_id)
+
+        float4 = self.float_default.read(float4_id, ['float'], CONTEXT)
+        self.assert_(float4['float'] == 5.5)
+
+        self.float.write(float1_id, {
+            'float': 0,
+            }, CONTEXT)
+        float1 = self.float.read(float1_id, ['float'] , CONTEXT)
+        self.assert_(float1['float'] == 0)
+
+        self.float.write(float2_id, {
+            'float': 1.1,
+            }, CONTEXT)
+        float2 = self.float.read(float2_id, ['float'], CONTEXT)
+        self.assert_(float2['float'] == 1.1)
+
+        self.failUnlessRaises(Exception, self.float.create, {
+            'float': 'test',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.float.write, float1_id, {
+            'float': 'test',
             }, CONTEXT)
 
 

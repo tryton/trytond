@@ -58,3 +58,26 @@ class IntegerDefault(ModelSQL):
         return 5
 
 IntegerDefault()
+
+
+class Float(ModelSQL):
+    'Float'
+    _name = 'tests.float'
+    _description = __doc__
+    float = fields.Float(string='Float', help='Test float',
+            required=False)
+
+Float()
+
+
+class FloatDefault(ModelSQL):
+    'Float Default'
+    _name = 'tests.float_default'
+    _description = __doc__
+    float = fields.Float(string='Float', help='Test float',
+            required=False)
+
+    def default_float(self, cursor, user, context=None):
+        return 5.5
+
+FloatDefault()
