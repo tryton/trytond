@@ -12,7 +12,6 @@ import logging
 
 OPJ = os.path.join
 MODULES_PATH = os.path.dirname(__file__)
-sys.path.insert(1, MODULES_PATH)
 
 MODULES = []
 
@@ -332,12 +331,13 @@ def register_classes():
         if os.path.isfile(OPJ(MODULES_PATH, module + '.zip')):
             mod_path = OPJ(MODULES_PATH, module + '.zip')
             zimp = zipimport.zipimporter(mod_path)
-            zimp.load_module(module)
+            zimp.load_module('trytond.modules.' + module)
         elif os.path.isdir(OPJ(MODULES_PATH, module)):
             mod_file, pathname, description = imp.find_module(module,
                     [MODULES_PATH])
             try:
-                imp.load_module(module, mod_file, pathname, description)
+                imp.load_module('trytond.modules.' + module, mod_file,
+                        pathname, description)
             finally:
                 if mod_file is not None:
                     mod_file.close()
@@ -348,7 +348,8 @@ def register_classes():
             mod_file, pathname, description = imp.find_module(module,
                     [mod_path])
             try:
-                imp.load_module(module, mod_file, pathname, description)
+                imp.load_module('trytond.modules.' + module, mod_file,
+                        pathname, description)
             finally:
                 if mod_file is not None:
                     mod_file.close()
