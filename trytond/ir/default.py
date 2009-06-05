@@ -26,6 +26,7 @@ class Default(ModelSQL, ModelView):
         self._rpc.update({
             'get_default': False,
             'set_default': True,
+            'reset_default': True,
         })
 
     def get_default(self, cursor, user, model, clause, context=None):
@@ -104,6 +105,31 @@ class Default(ModelSQL, ModelView):
             'clause': clause,
             'user': user_default,
             }, context=context)
+
+    def reset_default(self, cursor, user, model, field, clause, value,
+            user_default, context=None):
+        ir_model_obj = self.pool.get('ir.model')
+        ir_field_obj = self.pool.get('ir.model.field')
+
+        model_obj = self.pool.get(model)
+        if field not in model_obj._columns:
+            model = self.pool.get(model_obj._inherit_fields[field][0])._name
+
+        model_id = ir_model_obj.search(cursor, user, [
+            ('model', '=', model),
+            ], context=context)[0]
+        field_id = ir_field_obj.search(cursor, user, [
+            ('name', '=', field),
+            ('model', '=', model_id),
+            ], context=context)[0]
+        default_ids = self.search(cursor, user, [
+            ('model', '=', model_id),
+            ('field', '=', field_id),
+            ('clause', '=', clause),
+            ('user', '=', user_default),
+            ], context=context)
+        if default_ids:
+            self.delete(cursor, user, default_ids, context=context)
 
     def create(self, cursor, user, vals, context=None):
         res = super(Default, self).create(cursor, user, vals, context=context)
