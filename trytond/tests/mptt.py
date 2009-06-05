@@ -15,6 +15,7 @@ class MPTT(ModelSQL, ModelView):
     left = fields.Integer('Left', required=True, select=1)
     right = fields.Integer('Right', required=True, select=1)
     childs = fields.One2Many('tests.mptt', 'parent', 'Children')
+    active = fields.Boolean('Active')
 
     def __init__(self):
         super(MPTT, self).__init__()
@@ -25,5 +26,8 @@ class MPTT(ModelSQL, ModelView):
         self._error_messages.update({
             'recursive_mptt': 'You can not create recursive Tree!',
         })
+
+    def default_active(self, cursor, user, context=None):
+        return True
 
 MPTT()

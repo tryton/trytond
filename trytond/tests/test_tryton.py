@@ -574,6 +574,56 @@ class MPTTTestCase(unittest.TestCase):
                         (child['id'] , child['right'], previous_right))
             previous_right = child['left']
 
+
+    def ReParent(self, parent_id=False):
+        record_ids = self.mptt.search([
+            ('parent', '=', parent_id),
+            ], CONTEXT)
+        if not record_ids:
+            return
+        for record_id in record_ids:
+            for record2_id in record_ids:
+                if record_id != record2_id:
+                    self.mptt.write(record_id, {
+                        'parent': record2_id,
+                        }, CONTEXT)
+                    self.assertRaises(Exception, self.CheckTree())
+                    self.mptt.write(record_id, {
+                        'parent': parent_id,
+                        }, CONTEXT)
+                    self.assertRaises(Exception, self.CheckTree())
+        for record_id in record_ids:
+            self.ReParent(record_id)
+
+    def ReOrder(self, parent_id=False):
+        record_ids = self.mptt.search([
+            ('parent', '=', parent_id),
+            ], CONTEXT)
+        if not record_ids:
+            return
+        i = len(record_ids)
+        for record_id in record_ids:
+            self.mptt.write(record_id, {
+                'sequence': i,
+                }, CONTEXT)
+            i -= 1
+            self.assertRaises(Exception, self.CheckTree())
+        i = 0
+        for record_id in record_ids:
+            self.mptt.write(record_id, {
+                'sequence': i,
+                }, CONTEXT)
+            i += 1
+            self.assertRaises(Exception, self.CheckTree())
+        for record_id in record_ids:
+            self.ReOrder(record_id)
+
+        record_ids = self.mptt.search([], CONTEXT)
+        self.mptt.write(record_ids, {
+            'sequence': 0,
+            }, CONTEXT)
+        self.assertRaises(Exception, self.CheckTree())
+
     def test0010create(self):
         '''
         Create tree.
@@ -597,61 +647,49 @@ class MPTTTestCase(unittest.TestCase):
         '''
         Re-order.
         '''
-        def reorder(parent_id=False):
-            record_ids = self.mptt.search([
-                ('parent', '=', parent_id),
-                ], CONTEXT)
-            if not record_ids:
-                return
-            i = len(record_ids)
-            for record_id in record_ids:
-                self.mptt.write(record_id, {
-                    'sequence': i,
-                    }, CONTEXT)
-                i -= 1
-                self.assertRaises(Exception, self.CheckTree())
-            i = 0
-            for record_id in record_ids:
-                self.mptt.write(record_id, {
-                    'sequence': i,
-                    }, CONTEXT)
-                i += 1
-                self.assertRaises(Exception, self.CheckTree())
-            for record_id in record_ids:
-                reorder(record_id)
-        reorder()
-        record_ids = self.mptt.search([], CONTEXT)
-        self.mptt.write(record_ids, {
-            'sequence': 0,
-            }, CONTEXT)
-        self.assertRaises(Exception, self.CheckTree())
+        self.ReOrder()
 
     def test0030reparent(self):
         '''
         Re-parent.
         '''
-        def reparent(parent_id=False):
-            record_ids = self.mptt.search([
-                ('parent', '=', parent_id),
-                ], CONTEXT)
-            if not record_ids:
-                return
-            for record_id in record_ids:
-                for record2_id in record_ids:
-                    if record_id != record2_id:
-                        self.mptt.write(record_id, {
-                            'parent': record2_id,
-                            }, CONTEXT)
-                        self.assertRaises(Exception, self.CheckTree())
-                        self.mptt.write(record_id, {
-                            'parent': parent_id,
-                            }, CONTEXT)
-                        self.assertRaises(Exception, self.CheckTree())
-            for record_id in record_ids:
-                reparent(record_id)
-        reparent()
+        self.ReParent()
 
-    def test0040delete(self):
+    def test0040active(self):
+        record_ids = self.mptt.search([], CONTEXT)
+        for record_id in record_ids:
+            if record_id % 2:
+                self.mptt.write(record_id, {
+                        'active': False
+                        }, CONTEXT)
+                self.assertRaises(Exception, self.CheckTree())
+
+        self.ReParent()
+        self.ReOrder()
+
+        record_ids = self.mptt.search([], CONTEXT)
+        self.mptt.write(record_ids[:len(record_ids)/2], {
+                'active': False
+                }, CONTEXT)
+        self.assertRaises(Exception, self.CheckTree())
+        record_ids = self.mptt.search([], CONTEXT)
+        self.mptt.write(record_ids, {
+                'active': False
+                }, CONTEXT)
+
+
+        self.ReParent()
+        self.ReOrder()
+
+        record_ids = self.mptt.search([
+                ('active', '=', False),
+                ], CONTEXT)
+        self.mptt.write(record_ids, {
+                'active': False
+                }, CONTEXT)
+        self.assertRaises(Exception, self.CheckTree())
+
+    def test0050delete(self):
         '''
         Delete.
         '''
