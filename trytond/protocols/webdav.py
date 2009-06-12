@@ -468,7 +468,7 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
             database = Database().connect()
             DATABASE['cursor'] = database.cursor()
             return 1
-        USER_ID = login(dbname, user, password, cache=False)
+        USER_ID.value = login(dbname, user, password, cache=False)
 
         database = Database(dbname).connect()
         DATABASE['cursor'] = database.cursor()
