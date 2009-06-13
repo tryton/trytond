@@ -10,6 +10,7 @@ if os.path.isdir(DIR):
 
 import unittest
 import time
+from decimal import Decimal
 from trytond import pysocket
 
 ADMIN_PASSWORD = 'admin'
@@ -72,6 +73,10 @@ class FieldsTestCase(unittest.TestCase):
         self.float = RPCProxy('tests.float')
         self.float_default = RPCProxy('tests.float_default')
         self.float_required = RPCProxy('tests.float_required')
+
+        self.numeric = RPCProxy('tests.numeric')
+        self.numeric_default = RPCProxy('tests.numeric_default')
+        self.numeric_required = RPCProxy('tests.numeric_required')
 
     def test0010boolean(self):
         '''
@@ -530,6 +535,189 @@ class FieldsTestCase(unittest.TestCase):
 
         float5 = self.float_required.read(float5_id, ['float'], CONTEXT)
         self.assert_(float5['float'] == 0)
+
+    def test0040numeric(self):
+        '''
+        Test Numeric.
+        '''
+        numeric1_id = self.numeric.create({
+            'numeric': Decimal('1.1'),
+            }, CONTEXT)
+        self.assert_(numeric1_id)
+
+        numeric1 = self.numeric.read(numeric1_id, ['numeric'], CONTEXT)
+        self.assert_(numeric1['numeric'] == Decimal('1.1'))
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '=', Decimal('1.1')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '=', Decimal('0')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '!=', Decimal('1.1')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '!=', Decimal('0')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'in', [Decimal('1.1')]),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'in', [Decimal('0')]),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'in', []),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'not in', [Decimal('1.1')]),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'not in', [Decimal('0')]),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'not in', []),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '<', Decimal('5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '<', Decimal('-5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '<', Decimal('1.1')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '<=', Decimal('5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '<=', Decimal('-5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '<=', Decimal('1.1')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '>', Decimal('5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '>', Decimal('-5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '>', Decimal('1.1')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '>=', Decimal('5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '>=', Decimal('-5')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '>=', Decimal('1.1')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id])
+
+        numeric2_id = self.numeric.create({
+            'numeric': Decimal('0'),
+            }, CONTEXT)
+        self.assert_(numeric2_id)
+
+        numeric2 = self.numeric.read(numeric2_id, ['numeric'], CONTEXT)
+        self.assert_(numeric2['numeric'] == Decimal('0'))
+
+        numeric_ids = self.numeric.search([
+            ('numeric', '=', Decimal('0')),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric2_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'in', [Decimal('0'), Decimal('1.1')]),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [numeric1_id, numeric2_id])
+
+        numeric_ids = self.numeric.search([
+            ('numeric', 'not in', [Decimal('0'), Decimal('1.1')]),
+            ], CONTEXT)
+        self.assert_(numeric_ids == [])
+
+        numeric3_id = self.numeric.create({}, CONTEXT)
+        self.assert_(numeric3_id)
+
+        numeric3 = self.numeric.read(numeric3_id, ['numeric'], CONTEXT)
+        self.assert_(numeric3['numeric'] == Decimal('0'))
+
+        numeric4_id = self.numeric_default.create({}, CONTEXT)
+        self.assert_(numeric4_id)
+
+        numeric4 = self.numeric_default.read(numeric4_id, ['numeric'], CONTEXT)
+        self.assert_(numeric4['numeric'] == Decimal('5.5'))
+
+        self.numeric.write(numeric1_id, {
+            'numeric': Decimal('0'),
+            }, CONTEXT)
+        numeric1 = self.numeric.read(numeric1_id, ['numeric'] , CONTEXT)
+        self.assert_(numeric1['numeric'] == Decimal('0'))
+
+        self.numeric.write(numeric2_id, {
+            'numeric': Decimal('1.1'),
+            }, CONTEXT)
+        numeric2 = self.numeric.read(numeric2_id, ['numeric'], CONTEXT)
+        self.assert_(numeric2['numeric'] == Decimal('1.1'))
+
+        self.failUnlessRaises(Exception, self.numeric.create, {
+            'numeric': 'test',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.numeric.write, numeric1_id, {
+            'numeric': 'test',
+            }, CONTEXT)
+
+        numeric5_id = self.numeric_required.create({}, CONTEXT)
+        self.assert_(numeric5_id)
+
+        numeric5 = self.numeric_required.read(numeric5_id, ['numeric'], CONTEXT)
+        self.assert_(numeric5['numeric'] == Decimal('0'))
 
 
 class MPTTTestCase(unittest.TestCase):
