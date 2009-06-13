@@ -102,3 +102,36 @@ class FloatRequired(ModelSQL):
 
 FloatRequired()
 
+
+class Numeric(ModelSQL):
+    'Numeric'
+    _name = 'tests.numeric'
+    _description = __doc__
+    numeric = fields.Numeric(string='Numeric', help='Test numeric',
+            required=False)
+
+Numeric()
+
+
+class NumericDefault(ModelSQL):
+    'Numeric Default'
+    _name = 'tests.numeric_default'
+    _description = __doc__
+    numeric = fields.Numeric(string='Numeric', help='Test numeric',
+            required=False)
+
+    def default_numeric(self, cursor, user, context=None):
+        return 5.5
+
+NumericDefault()
+
+
+class NumericRequired(ModelSQL):
+    'Numeric Required'
+    _name = 'tests.numeric_required'
+    _description = __doc__
+    numeric = fields.Numeric(string='Numeric', help='Test numeric',
+            required=True)
+
+NumericRequired()
+
