@@ -23,6 +23,10 @@ class RuleGroup(ModelSQL, ModelView):
             'rule_group_id', 'group_id', 'Groups')
     users = fields.Many2Many('ir.rule.group-res.user',
             'rule_group_id', 'user_id', 'Users')
+    perm_read = fields.Boolean('Read Access')
+    perm_write = fields.Boolean('Write Access')
+    perm_create = fields.Boolean('Create Access')
+    perm_delete = fields.Boolean('Delete Access')
 
     def __init__(self):
         super(RuleGroup, self).__init__()
@@ -39,6 +43,18 @@ class RuleGroup(ModelSQL, ModelView):
 
     def default_default_p(self, cursor, user, context=None):
         return False
+
+    def default_perm_read(self, cursor, user, context=None):
+        return True
+
+    def default_perm_write(self, cursor, user, context=None):
+        return True
+
+    def default_perm_create(self, cursor, user, context=None):
+        return True
+
+    def default_perm_delete(self, cursor, user, context=None):
+        return True
 
     def delete(self, cursor, user, ids, context=None):
         res = super(RuleGroup, self).delete(cursor, user, ids,
@@ -123,9 +139,11 @@ class Rule(ModelSQL, ModelView):
             res.append((i, i))
         return res
 
-    def domain_get(self, cursor, user, model_name, context=None):
+    def domain_get(self, cursor, user, model_name, mode='read', context=None):
         if context is None:
             context = {}
+        assert mode in ['read', 'write', 'create', 'delete'], \
+                'Invalid domain mode for security'
 
         # root user above constraint
         if user == 0:
@@ -147,6 +165,7 @@ class Rule(ModelSQL, ModelView):
                     'JOIN "' + model_obj._table + '" m ON (g.model = m.id)) ' \
                     "ON (g.id = r.rule_group) " \
                 "WHERE m.model = %s "
+                    "AND g.perm_" + mode + " "
                     "AND (g.id IN (" \
                             'SELECT rule_group_id ' \
                             'FROM "' + rule_group_user_obj._table + '" ' \
