@@ -15,6 +15,16 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="global_p"/>
                     <label name="default_p"/>
                     <field name="default_p"/>
+                    <group col="4" colspan="6" id="perm">
+                        <label name="perm_read"/>
+                        <field name="perm_read"/>
+                        <label name="perm_write"/>
+                        <field name="perm_write"/>
+                        <label name="perm_create"/>
+                        <field name="perm_create"/>
+                        <label name="perm_delete"/>
+                        <field name="perm_delete"/>
+                    </group>
                     <label name="name"/>
                     <field name="name" colspan="5"/>
                     <field name="rules" colspan="6"/>
@@ -32,6 +42,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Record rules">
+                    <field name="perm_read" select="2"/>
+                    <field name="perm_write" select="2"/>
+                    <field name="perm_create" select="2"/>
+                    <field name="perm_delete" select="2"/>
                     <field name="model" select="1"/>
                     <field name="name" select="2"/>
                     <field name="global_p" select="1"/>

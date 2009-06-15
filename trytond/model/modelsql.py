@@ -362,6 +362,16 @@ class ModelSQL(ModelStorage):
                 cursor2.close()
             raise
 
+        domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
+                self._name, mode='create', context=context)
+        if domain1:
+            cursor.execute('SELECT id FROM "' + self._table + '" ' \
+                    'WHERE id = %s AND (' + domain1 + ')',
+                    [id_new] + domain2)
+            if not cursor.rowcount:
+                self.raise_user_error(cursor, 'access_error',
+                        self._description, context=context)
+
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
@@ -413,7 +423,7 @@ class ModelSQL(ModelStorage):
 
         # construct a clause for the rules :
         domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
-                context=context)
+                mode='read', context=context)
 
         fields_related = {}
         datetime_fields = []
@@ -773,7 +783,7 @@ class ModelSQL(ModelStorage):
         upd1.append(user)
 
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor,
-                user, self._name, context=context)
+                user, self._name, mode='write', context=context)
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
         for i in range(0, len(ids), cursor.IN_MAX):
@@ -994,7 +1004,7 @@ class ModelSQL(ModelStorage):
         delete_ctx['_delete'][self._name].update(ids)
 
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
-                self._name, context=context)
+                self._name, mode='delete', context=context)
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
 
@@ -1121,7 +1131,7 @@ class ModelSQL(ModelStorage):
 
         # construct a clause for the rules :
         domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
-                context=context)
+                mode='read', context=context)
         if domain1:
             if qu1:
                 qu1 += ' AND ' + domain1

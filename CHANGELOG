@@ -1,3 +1,4 @@
+* Read, write, create, delete permission on record rules
 * Add reset_default method to ir.default
 * Doesn't append '%' to "like", "ilike" clauses
 * Handle database dump and restore with password
