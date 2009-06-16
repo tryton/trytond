@@ -1419,6 +1419,9 @@ class ModelSQL(ModelStorage):
                             [
                                 ('rec_name', domain[i][1], domain[i][2]),
                             ], context=context)]
+                    elif isinstance(domain[i][2], (int, long)) \
+                            and not isinstance(domain[i][2], bool):
+                        res_ids = [domain[i][2]]
                     else:
                         res_ids = domain[i][2]
                     if res_ids == True or res_ids == False:
