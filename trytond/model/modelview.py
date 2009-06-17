@@ -165,7 +165,7 @@ class ModelView(Model):
                 '''<form string="%s">''' % (self._description,)
                 for i in res:
                     if i in ('create_uid', 'create_date',
-                            'write_uid', 'write_date', 'id'):
+                            'write_uid', 'write_date', 'id', 'rec_name'):
                         continue
                     if res[i]['type'] not in ('one2many', 'many2many'):
                         xml += '<label name="%s"/>' % (i,)
