@@ -79,6 +79,7 @@ class One2Many(Field):
             (``create``, ``{<field name>: value}``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),
+            (``delete_all``),
             (``unlink``, ``<ids>``),
             (``add``, ``<ids>``),
             (``unlink_all``),
@@ -97,6 +98,11 @@ class One2Many(Field):
                 model.write(cursor, user, act[1] , act[2], context=context)
             elif act[0] == 'delete':
                 model.delete(cursor, user, act[1], context=context)
+            elif act[0] == 'delete_all':
+                ids = model.search(cursor, user, [
+                    (self.field, '=', record_id),
+                    ], context=context)
+                model.delete(cursor, user, ids, context=context)
             elif act[0] == 'unlink':
                 if isinstance(act[1], (int, long)):
                     ids = [act[1]]
