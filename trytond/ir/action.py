@@ -2,7 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 "Action"
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import file_open
+from trytond.tools import file_open, Cache
 from trytond.backend import TableHandler
 import base64
 import os
@@ -481,6 +481,100 @@ class ActionWizard(ModelSQL, ModelView):
         return res
 
 ActionWizard()
+
+
+class ActionWizardSize(ModelSQL, ModelView):
+    "Action Wizard Size"
+    _name = 'ir.action.wizard_size'
+    _description = __doc__
+    wizard = fields.Char('Wizard', required=True, select=1)
+    model = fields.Char('Model', required=True, select=1)
+    user = fields.Many2One('res.user', 'User', required=True,
+            ondelete='CASCADE', select=1)
+    width = fields.Integer('Width')
+    height = fields.Integer('Height')
+
+    def __init__(self):
+        super(ActionWizardSize, self).__init__()
+        self._rpc.update({
+            'set_size': True,
+        })
+
+    def create(self, cursor, user, vals, context=None):
+        res = super(ActionWizardSize, self).create(cursor, user, vals,
+                context=context)
+        # Restart the cache for get_size
+        self.get_size(cursor.dbname)
+        return res
+
+    def write(self, cursor, user, ids, vals, context=None):
+        res = super(ActionWizardSize, self).write(cursor, user, ids,
+                vals, context=context)
+        # Restart the cache for get_size
+        self.get_size(cursor.dbname)
+        return res
+
+    def delete(self, cursor, user, ids, context=None):
+        res = super(ActionWizardSize, self).delete(cursor, user, ids,
+                context=context)
+        # Restart the cache for get_size
+        self.get_size(cursor.dbname)
+        return res
+
+    def set_size(self, cursor, user, wizard, model, width, height,
+            context=None):
+        '''
+        Set size for wizard dialog.
+        :param cursor: the database cursor
+        :param user: the user id
+        :param wizard: the wizard name
+        :param model: the model name
+        :param width: the width
+        :param height: the height
+        :param context: the context
+        '''
+        ids = self.search(cursor, user, [
+            ('user', '=', user),
+            ('wizard', '=', wizard),
+            ('model', '=', model),
+            ], context=context)
+        if ids:
+            self.write(cursor, user, ids, {
+                'width': width,
+                'height': height,
+                }, context=context)
+        else:
+            self.create(cursor, user, {
+                'wizard': wizard,
+                'model': model,
+                'user': user,
+                'width': width,
+                'height': height,
+                }, context=context)
+
+    def get_size(self, cursor, user, wizard, model, context=None):
+        '''
+        Get size for wizard dialog.
+        :param cursor: the database cursor
+        :param user: the user id
+        :param wizard: the wizard name
+        :param model: the model name
+        :param context: the context
+        :return: (width, height)
+        '''
+        ids = self.search(cursor, user, [
+            ('user', '=', user),
+            ('wizard', '=', wizard),
+            ('model', '=', model),
+            ], limit=1, context=context)
+        if ids:
+            wizard_size = self.browse(cursor, user, ids[0], context=context)
+            return wizard_size.width, wizard_size.height
+        return (0, 0)
+
+    get_size = Cache('ir.action.wizard_size.get_size')(get_size)
+
+ActionWizardSize()
 
 
 class ActionURL(ModelSQL, ModelView):
