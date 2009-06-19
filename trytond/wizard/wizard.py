@@ -131,6 +131,7 @@ class Wizard(object):
 
     def execute(self, cursor, user, wiz_id, data, state='init', context=None):
         translation_obj = self.pool.get('ir.translation')
+        wizard_size_obj = self.pool.get('ir.action.wizard_size')
         if context is None:
             context = {}
         res = {}
@@ -192,6 +193,8 @@ class Wizard(object):
             res['fields'] = fields
             res['arch'] = arch
             res['state'] = button_list
+            res['size'] = wizard_size_obj.get_size(cursor, user, self._name,
+                    result_def['object'], context=context)
         elif result_def['type'] == 'choice':
             next_state = getattr(self, result_def['next_state'])(cursor, user,
                     data, context)
