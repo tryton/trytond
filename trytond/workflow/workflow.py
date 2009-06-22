@@ -561,7 +561,7 @@ class InstanceGraph(Report):
         self.graph_instance_get(cursor, user, graph, instance_id,
                 datas.get('nested', False), context=context)
         data = graph.create(prog='dot', format='png')
-        return ('png', base64.encodestring(data), False)
+        return ('png', base64.encodestring(data), False, workflow.name)
 
     def graph_instance_get(self, cursor, user, graph, instance_id, nested=False,
             context=None):

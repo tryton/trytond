@@ -359,9 +359,18 @@ class ModelGraph(Report):
     def execute(self, cursor, user, ids, datas, context=None):
         import pydot
         model_obj = self.pool.get('ir.model')
+        action_report_obj = self.pool.get('ir.action.report')
 
         if context is None:
             context = {}
+
+        action_report_ids = action_report_obj.search(cursor, user, [
+            ('report_name', '=', self._name)
+            ], context=context)
+        if not action_report_ids:
+            raise Exception('Error', 'Report (%s) not find!' % self._name)
+        action_report = action_report_obj.browse(cursor, user,
+                action_report_ids[0], context=context)
 
         models = model_obj.browse(cursor, user, ids, context=context)
 
@@ -371,7 +380,7 @@ class ModelGraph(Report):
         self.fill_graph(cursor, user, models, graph,
                 level=datas['form']['level'], context=context)
         data = graph.create(prog='dot', format='png')
-        return ('png', base64.encodestring(data), False)
+        return ('png', base64.encodestring(data), False, action_report.name)
 
     def fill_graph(self, cursor, user, models, graph, level=1, context=None):
         import pydot
