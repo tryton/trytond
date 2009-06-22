@@ -82,6 +82,21 @@ class Report(object):
         pass
 
     def execute(self, cursor, user, ids, datas, context=None):
+        '''
+        Execute the report.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: a list of record ids on which execute report
+        :param datas: a dictionary with datas that will be set in
+            local context of the report
+        :param context: the context
+        :return: a tuple with:
+            report type,
+            base64 encoded data,
+            a boolean to direct print,
+            the report name
+        '''
         if context is None:
             context = {}
         action_report_obj = self.pool.get('ir.action.report')
