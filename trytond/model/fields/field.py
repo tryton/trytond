@@ -46,6 +46,7 @@ class Field(object):
         self.required = required
         self.readonly = readonly
         self.domain = domain or []
+        assert isinstance(self.domain, list), 'domain must be a list'
         self.states = states or {}
         self.priority = priority
         self.change_default = change_default

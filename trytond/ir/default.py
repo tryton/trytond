@@ -16,7 +16,7 @@ class Default(ModelSQL, ModelView):
     model = fields.Many2One('ir.model', 'Model', required=True,
        ondelete='CASCADE')
     field = fields.Many2One('ir.model.field', 'Field', required=True,
-       ondelete='CASCADE', domain="[('model', '=', model)]")
+       ondelete='CASCADE', domain=["('model', '=', model)"])
     value = fields.Text('Value')
     clause = fields.Text('Clause')
     user = fields.Many2One('res.user', 'User', ondelete='CASCADE')
