@@ -818,6 +818,25 @@ class ModelStorage(Model):
             ctx_pref = user_obj.get_preferences(cursor, user,
                 context_only=True, context=context)
 
+        def eval_domain(domain, env=None):
+            res = []
+            for arg in domain:
+                if isinstance(arg, basestring):
+                    if arg in ('AND', 'OR'):
+                        res.append(arg)
+                    else:
+                        if not env:
+                            return True
+                        res.append(eval(arg, env))
+                elif isinstance(arg, tuple):
+                    res.append(arg)
+                elif isinstance(arg, list):
+                    arg = eval_domain(arg, env=env)
+                    if arg == True:
+                        return True
+                    res.append(arg)
+            return res
+
         context.update(ctx_pref)
         records = self.browse(cursor, user, ids, context=context)
         for field_name, field in self._columns.iteritems():
@@ -828,7 +847,7 @@ class ModelStorage(Model):
                     relation_obj = self.pool.get(field.model_name)
                 else:
                     relation_obj = field.get_target(self.pool)
-                if isinstance(field.domain, basestring):
+                if eval_domain(field.domain) == True:
                     ctx = context.copy()
                     ctx.update(ctx_pref)
                     for record in records:
@@ -838,7 +857,7 @@ class ModelStorage(Model):
                         env['time'] = time
                         env['context'] = context
                         env['active_id'] = record.id
-                        domain = eval(field.domain, env)
+                        domain = eval_domain(field.domain, env=env)
                         relation_ids = []
                         if record[field_name]:
                             if field._type in ('many2one',):
