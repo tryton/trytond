@@ -135,3 +135,45 @@ class NumericRequired(ModelSQL):
 
 NumericRequired()
 
+
+class Char(ModelSQL):
+    'Char'
+    _name = 'tests.char'
+    _description = __doc__
+    char = fields.Char(string='Char', size=None, help='Test char',
+            required=False)
+
+Char()
+
+
+class CharDefault(ModelSQL):
+    'Char Default'
+    _name = 'tests.char_default'
+    _description = __doc__
+    char = fields.Char(string='Char', size=None, help='Test char',
+            required=False)
+
+    def default_char(self, cursor, user, context=None):
+        return 'Test'
+
+CharDefault()
+
+
+class CharRequired(ModelSQL):
+    'Char Required'
+    _name = 'tests.char_required'
+    _description = __doc__
+    char = fields.Char(string='Char', size=None, help='Test char',
+            required=True)
+
+CharRequired()
+
+
+class CharSize(ModelSQL):
+    'Char Size'
+    _name = 'tests.char_size'
+    _description = __doc__
+    char = fields.Char(string='Char', size=5, help='Test char',
+            required=False)
+
+CharSize()

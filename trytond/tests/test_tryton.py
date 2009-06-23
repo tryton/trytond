@@ -78,6 +78,11 @@ class FieldsTestCase(unittest.TestCase):
         self.numeric_default = RPCProxy('tests.numeric_default')
         self.numeric_required = RPCProxy('tests.numeric_required')
 
+        self.char = RPCProxy('tests.char')
+        self.char_default = RPCProxy('tests.char_default')
+        self.char_required = RPCProxy('tests.char_required')
+        self.char_size = RPCProxy('tests.char_size')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -718,6 +723,235 @@ class FieldsTestCase(unittest.TestCase):
 
         numeric5 = self.numeric_required.read(numeric5_id, ['numeric'], CONTEXT)
         self.assert_(numeric5['numeric'] == Decimal('0'))
+
+    def test0050char(self):
+        '''
+        Test Char.
+        '''
+        char1_id = self.char.create({
+            'char': 'Test',
+            }, CONTEXT)
+        self.assert_(char1_id)
+
+        char1 = self.char.read(char1_id, ['char'], CONTEXT)
+        self.assert_(char1['char'] == 'Test')
+
+        char_ids = self.char.search([
+            ('char', '=', 'Test'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', '=', 'Foo'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', '=', False),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', '!=', 'Test'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', '!=', 'Foo'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', '!=', False),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'in', ['Test']),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'in', ['Foo']),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'in', [False]),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'in', []),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'not in', ['Test']),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'not in', ['Foo']),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'not in', [False]),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'not in', []),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'like', 'Test'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'like', 'T%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'like', 'Foo'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'like', 'F%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'ilike', 'test'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'ilike', 't%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'ilike', 'foo'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'ilike', 'f%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'not like', 'Test'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'not like', 'T%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'not like', 'Foo'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'not like', 'F%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'not ilike', 'test'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'not ilike', 't%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char_ids = self.char.search([
+            ('char', 'not ilike', 'foo'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char_ids = self.char.search([
+            ('char', 'not ilike', 'f%'),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id])
+
+        char2_id = self.char.create({
+            'char': False,
+            }, CONTEXT)
+        self.assert_(char2_id)
+
+        char2 = self.char.read(char2_id, ['char'], CONTEXT)
+        self.assert_(char2['char'] == None)
+
+        char_ids = self.char.search([
+            ('char', '=', False),
+            ], CONTEXT)
+        self.assert_(char_ids == [char2_id])
+
+        char_ids = self.char.search([
+            ('char', 'in', [False, 'Test']),
+            ], CONTEXT)
+        self.assert_(char_ids == [char1_id, char2_id])
+
+        char_ids = self.char.search([
+            ('char', 'not in', [False, 'Test']),
+            ], CONTEXT)
+        self.assert_(char_ids == [])
+
+        char3_id = self.char.create({}, CONTEXT)
+        self.assert_(char3_id)
+
+        char3 = self.char.read(char3_id, ['char'], CONTEXT)
+        self.assert_(char3['char'] == None)
+
+        char4_id = self.char_default.create({}, CONTEXT)
+        self.assert_(char4_id)
+
+        char4 = self.char_default.read(char4_id, ['char'], CONTEXT)
+        self.assert_(char4['char'] == 'Test')
+
+        self.char.write(char1_id, {
+            'char': False,
+            }, CONTEXT)
+        char1 = self.char.read(char1_id, ['char'], CONTEXT)
+        self.assert_(char1['char'] == None)
+
+        self.char.write(char2_id, {
+            'char': 'Test',
+            }, CONTEXT)
+        char2 = self.char.read(char2_id, ['char'], CONTEXT)
+        self.assert_(char2['char'] == 'Test')
+
+        self.failUnlessRaises(Exception, self.char_required.create, {}, CONTEXT)
+
+        char5_id = self.char_required.create({
+            'char': 'Test',
+            }, CONTEXT)
+        self.assert_(char5_id)
+
+        char6_id = self.char_size.create({
+            'char': 'Test',
+            }, CONTEXT)
+        self.assert_(char6_id)
+
+        self.failUnlessRaises(Exception, self.char_size.create, {
+            'char': 'foobar',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.char_size.write, char6_id, {
+            'char': 'foobar',
+            }, CONTEXT)
 
 
 class MPTTTestCase(unittest.TestCase):
