@@ -70,7 +70,7 @@ class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
     rpc_paths = None
     encode_threshold = 1400 # common MTU
 
-    # Copy from SimpleXMLRPCServer.py
+    # Copy from SimpleXMLRPCServer.py with gzip encoding added
     def do_POST(self):
         """Handles the HTTP POST request.
 
