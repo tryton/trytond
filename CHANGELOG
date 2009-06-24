@@ -1,3 +1,4 @@
+* Add gzip encoding for XML-RPC
 * Add report name in the result of Report.execute
 * Add ir.action.wizard_size to store prefered wizard size
 * Add delete_all action on One2Many field
