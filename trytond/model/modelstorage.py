@@ -8,6 +8,7 @@ import datetime
 import time
 from decimal import Decimal
 import logging
+from itertools import chain
 
 OPERATORS = (
     'child_of',
@@ -764,16 +765,40 @@ class ModelStorage(Model):
         :param parent: the parent field name
         :return: True or False
         '''
-        ids_parent = ids[:]
-        while len(ids_parent):
-            ids_parent2 = set()
-            for record in self.browse(cursor, user, ids_parent):
-                if record[parent].id:
-                    ids_parent2.add(record[parent].id)
-            ids_parent = list(ids_parent2)
-            for i in ids_parent:
-                if i in ids:
-                    return False
+        if parent in self._columns:
+            parent_type = self._columns[parent]._type
+        elif parent in self._inherit_fields:
+            parent_type = self._inherit_fields[parent][2]._type
+        else:
+            raise Exception('Field %s not available on object "%s"' % \
+                    (parent, self._name))
+
+        if parent_type not in ('many2one', 'many2many'):
+            raise Exception(
+                    'Unsupported field type "%s" for field "%s" on "%s"' % \
+                    (parent_type, parent, self._name))
+
+        records = self.browse(cursor, user, ids)
+        visited = set()
+
+        for record in records:
+            walked = set()
+            walker = record[parent]
+            while walker:
+                if parent_type == 'many2many':
+                    for w in walker:
+                        walked.add(w.id)
+                        if w.id == record.id:
+                            return False
+                    walker = list(chain(*(w[parent] for w in walker
+                            if w.id not in visited)))
+                else:
+                    walked.add(walker.id)
+                    if walker.id == record.id:
+                        return False
+                    walker = walker[parent] not in visited and walker[parent]
+            visited.update(walked)
+
         return True
 
     def _get_error_args(self, cursor, user, field_name, context=None):
