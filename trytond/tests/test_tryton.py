@@ -12,6 +12,7 @@ import unittest
 import time
 from decimal import Decimal
 from trytond import pysocket
+from lxml import etree
 
 ADMIN_PASSWORD = 'admin'
 HOST = '127.0.0.1'
@@ -954,6 +955,42 @@ class FieldsTestCase(unittest.TestCase):
             }, CONTEXT)
 
 
+class ModelViewTestCase(unittest.TestCase):
+    '''
+    Test ModelView
+    '''
+
+    def setUp(self):
+        install_module('ir')
+        install_module('res')
+        install_module('workflow')
+        install_module('webdav')
+
+    def test0010ir(self):
+        '''
+        Test ir.
+        '''
+        self.assertRaises(Exception, test_view('ir'))
+
+    def test0020res(self):
+        '''
+        Test res.
+        '''
+        self.assertRaises(Exception, test_view('res'))
+
+    def test0030workflow(self):
+        '''
+        Test workflow.
+        '''
+        self.assertRaises(Exception, test_view('workflow'))
+
+    def test0040webdav(self):
+        '''
+        Test webdav.
+        '''
+        self.assertRaises(Exception, test_view('webdav'))
+
+
 class MPTTTestCase(unittest.TestCase):
     '''
     Test Modified Preorder Tree Traversal.
@@ -1187,12 +1224,38 @@ def install_module(name):
         'ir.module.module.install_upgrade', 'delete', wiz_id))
     SOCK.receive()
 
+def test_view(module_name):
+    view_obj = RPCProxy('ir.ui.view')
+    view_ids = view_obj.search([
+        ('module', '=', module_name),
+        ])
+
+    for view in view_obj.read(view_ids, ['id', 'model', 'inherit']):
+        view_id = view['inherit'] or view['id']
+        model = view['model']
+        model_obj = RPCProxy(model)
+        res = model_obj.fields_view_get(view_id)
+        assert res['model'] == model
+        tree = etree.fromstring(res['arch'])
+        tree_root = tree.getroottree().getroot()
+
+        def check_tree(element):
+            if element.tag in ('field', 'label', 'separator', 'group'):
+                for attr in ('name', 'icon'):
+                    field = element.get(attr)
+                    if field:
+                        assert field in res['fields']
+            for child in element:
+                check_tree(child)
+        check_tree(tree_root)
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(DBTestCase)
 
 if __name__ == '__main__':
     suite = suite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FieldsTestCase))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ModelViewTestCase))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MPTTTestCase))
     unittest.TextTestRunner(verbosity=2).run(suite)
     SOCK.disconnect()
