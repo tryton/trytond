@@ -47,7 +47,7 @@ setup(name=PACKAGE,
         'relatorio >= 0.2.0',
     ],
     extras_require={
-        'WebDAV': ['PyWebDAV'],
+        'WebDAV': ['PyWebDAV >= 0.9.3'],
         'PDF': ['openoffice.interact'],
         'SSL': ['pyOpenSSL'],
         'graphviz': ['pydot'],

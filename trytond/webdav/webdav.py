@@ -242,9 +242,12 @@ class Collection(ModelSQL, ModelView):
             cache['_uri2object'][cache_uri] = (object_name, object_id)
         return object_name, object_id
 
-    def get_childs(self, cursor, user, uri, context=None, cache=None):
+    def get_childs(self, cursor, user, uri, filter=None, context=None,
+            cache=None):
         report_obj = self.pool.get('ir.action.report')
         res = []
+        if filter:
+            return []
         if not uri:
             collection_ids = self.search(cursor, user, [
                 ('parent', '=', False),
