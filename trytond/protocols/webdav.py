@@ -156,7 +156,7 @@ class TrytonDAVInterface(iface.dav_interface):
     def _get_dburi(self, uri):
         return TrytonDAVInterface.get_dburi(uri)
 
-    def get_childs(self, uri):
+    def get_childs(self, uri, filter=None):
         res = []
         dbname, dburi = self._get_dburi(uri)
         if not dbname:
@@ -179,7 +179,7 @@ class TrytonDAVInterface(iface.dav_interface):
             if uri[-1:] != '/':
                 uri += '/'
             for child in collection_obj.get_childs(cursor, int(USER_ID), dburi,
-                    cache=CACHE):
+                    filter=filter, cache=CACHE):
                 res.append(uri + child.encode('utf-8'))
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
             raise
