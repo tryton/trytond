@@ -13,12 +13,12 @@ class Collection(ModelSQL, ModelView):
     "Collection"
     _name = "webdav.collection"
     _description = __doc__
-    name = fields.Char('Name', size=128, required=True, select=1)
+    name = fields.Char('Name', required=True, select=1)
     parent = fields.Many2One('webdav.collection', 'Parent',
        ondelete='RESTRICT', domain=[('model', '=', False)])
     childs = fields.One2Many('webdav.collection', 'parent', 'Children')
     model = fields.Many2One('ir.model', 'Model')
-    domain = fields.Char('Domain', size=250)
+    domain = fields.Char('Domain')
 
     def __init__(self):
         super(Collection, self).__init__()
