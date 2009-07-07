@@ -132,7 +132,8 @@ class BrowseRecord(object):
                     elif hasattr(j, 'get_target'):
                         model = j.get_target(self._model.pool)
                     if j._type in ('many2one',):
-                        if not data[i]:
+                        if not data[i] and not (isinstance(data[i], (int, long))
+                                and not isinstance(data[i], type(False))):
                             data[i] = BrowseRecordNull()
                         else:
                             ctx = self._context
@@ -184,7 +185,7 @@ class BrowseRecord(object):
         return hash((self._model_name, self._id))
 
     def __nonzero__(self):
-        return bool(self._id)
+        return True
 
     __repr__ = __str__
 

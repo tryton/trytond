@@ -950,6 +950,25 @@ class ModelStorage(Model):
                                         error_args=self._get_error_args(cursor,
                                             user, field_name, context=context),
                                         context=context)
+            # validate required
+            if field.required:
+                for record in records:
+                    if isinstance(record[field_name], (BrowseRecordNull,
+                        type(None), type(False))) and not record[field_name]:
+                        self.raise_user_error(cursor,
+                                'required_validation_record',
+                                error_args=self._get_error_args(cursor,
+                                    user, field_name, context=context),
+                                context=context)
+            # validate size
+            if hasattr(field, 'size') and field.size:
+                for record in records:
+                    if len(record[field_name]) > field.size:
+                        self.raise_user_error(cursor,
+                                'size_validation_record',
+                                error_args=self._get_error_args(cursor,
+                                    user, field_name, context=context),
+                                context=context)
 
     def _clean_defaults(self, defaults):
         vals = {}
