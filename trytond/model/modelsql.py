@@ -1600,7 +1600,7 @@ class ModelSQL(ModelStorage):
                 clause = 'IN'
                 if arg[1] == 'notinselect':
                     clause = 'NOT IN'
-                qu1.append('("%s".%s %s (%s))' % (table._table, arg[0], clause,
+                qu1.append('("%s"."%s" %s (%s))' % (table._table, arg[0], clause,
                     arg[2][0]))
                 qu2 += arg[2][1]
             elif arg[1] in ('in', 'not in'):
@@ -1616,7 +1616,7 @@ class ModelSQL(ModelStorage):
                         del arg2[xitem]
                     #TODO fix max_stack_depth
                     if len(arg2):
-                        qu1.append(('("%s".%s ' + arg[1] + ' (%s))') % \
+                        qu1.append(('("%s"."%s" ' + arg[1] + ' (%s))') % \
                                 (table._table, arg[0], ','.join(
                                     ['%s'] * len(arg2))))
                         if todel:
@@ -1672,14 +1672,14 @@ class ModelSQL(ModelStorage):
                                 (table._table, arg[0]))
                         qu2.append(False)
                     else:
-                        qu1.append('("%s".%s IS NULL)' % \
+                        qu1.append('("%s"."%s" IS NULL)' % \
                                 (table._table, arg[0]))
                 elif (arg[2] is False) and (arg[1] == '!='):
-                    qu1.append('("%s".%s IS NOT NULL)' % \
+                    qu1.append('("%s"."%s" IS NOT NULL)' % \
                             (table._table, arg[0]))
                 else:
                     if arg[0] == 'id':
-                        qu1.append('("%s".%s %s %%s)' % \
+                        qu1.append('("%s"."%s" %s %%s)' % \
                                 (table._table, arg[0], arg[1]))
                         qu2.append(arg[2])
                     else:
@@ -1700,7 +1700,7 @@ class ModelSQL(ModelStorage):
                             if arg[0] in table._columns:
                                 qu2.append(FIELDS[table._columns[arg[0]]._type].\
                                         sql_format(arg[2]))
-                        qu1.append('("%s".%s %s %%s)' % (table._table,
+                        qu1.append('("%s"."%s" %s %%s)' % (table._table,
                             arg[0], arg[1]))
                         if add_null:
                             qu1[-1] = '(' + qu1[-1] + ' OR ' + \
