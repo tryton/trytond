@@ -103,7 +103,7 @@ class TrytonServer(object):
             if not cursor.test():
                 raise Exception("'%s' is not a Tryton database!" % db_name)
             cursor.execute('SELECT code FROM ir_lang ' \
-                    'WHERE translatable = True')
+                    'WHERE translatable')
             lang = [x[0] for x in cursor.fetchall()]
             cursor.close()
             update = bool(CONFIG['init'] or CONFIG['update'])

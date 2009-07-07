@@ -632,10 +632,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             cursor.execute('INSERT INTO ir_translation ' \
                                     '(name, lang, type, src, res_id, ' \
                                         'value, module, fuzzy) ' \
-                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
                                     (table_name + ',' + field_name,
                                         'en_US', 'model', values[field_name],
-                                        res_id, '', module))
+                                        res_id, '', module, False))
 
                 for table in inherit_db_ids.keys():
                     data_id = self.modeldata_obj.search(cursor, user, [
@@ -775,10 +775,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             cursor.execute('INSERT INTO ir_translation ' \
                                     '(name, lang, type, src, res_id, ' \
                                         'value, module, fuzzy) ' \
-                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
                                     (table_name + ',' + field_name,
                                         'en_US', 'model', values[field_name],
-                                        res_id, '', module))
+                                        res_id, '', module, False))
 
             if to_update:
                 # re-read it: this ensure that we store the real value
@@ -864,10 +864,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         cursor.execute('INSERT INTO ir_translation ' \
                                 '(name, lang, type, src, res_id, ' \
                                     'value, module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s, false)',
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
                                 (table_name + ',' + field_name,
                                     'en_US', 'model', values[field_name],
-                                    res_id, '', module))
+                                    res_id, '', module, False))
 
             # re-read it: this ensure that we store the real value
             # in the model_data table:

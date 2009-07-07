@@ -164,10 +164,11 @@ class Cron(ModelSQL, ModelView):
                 crons = cursor.dictfetchall()
 
                 for cron in crons:
-                    cursor.execute('UPDATE ir_cron SET running = True ' \
-                                       'WHERE id = %s' % cron['id'])
-                    nextcall = DateTime.strptime(str(cron['nextcall']),
-                                                 '%Y-%m-%d %H:%M:%S')
+                    cursor.execute('UPDATE ir_cron SET running = %s ' \
+                                       'WHERE id = %s', (True, cron['id']))
+                    nextcall = DateTime.strptime(
+                            cron['nextcall'].strftime('%Y-%m-%d %H:%M:%S'),
+                            '%Y-%m-%d %H:%M:%S')
                     numbercall = cron['numbercall']
                     done = False
 
@@ -182,13 +183,15 @@ class Cron(ModelSQL, ModelView):
                         done = True
 
                     addsql = ''
+                    addsql_param = []
                     if not numbercall:
-                        addsql = ', active=False'
+                        addsql = ', active = %s'
+                        addsql_param = [False]
                     cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
-                                "running = False, numbercall = %s" + addsql + " " \
+                                "running = %s, numbercall = %s" + addsql + " " \
                                 "WHERE id = %s",
-                                (nextcall.strftime('%Y-%m-%d %H:%M:%S'),
-                                    numbercall, cron['id']))
+                                [nextcall.strftime('%Y-%m-%d %H:%M:%S'), False,
+                                    numbercall] + addsql_param + [cron['id']])
                     cursor.commit()
             except Exception, e:
                 cursor.rollback()

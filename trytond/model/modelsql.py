@@ -1154,7 +1154,7 @@ class ModelSQL(ModelStorage):
 
         if count:
             cursor.execute('SELECT COUNT("%s".id) FROM ' % self._table +
-                    ' '.join(tables) + ' WHERE ' + (qu1 or 'True') +
+                    ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') +
                     limit_str + offset_str, tables_args + qu2)
             res = cursor.fetchall()
             return res[0][0]
@@ -1165,7 +1165,7 @@ class ModelSQL(ModelStorage):
             select_field += ', COALESCE("' + self._table + '".write_date, "' + \
                     self._table + '".create_date)'
         query_str = 'SELECT ' + select_field + ' FROM ' + \
-                ' '.join(tables) + ' WHERE ' + (qu1 or 'True') + \
+                ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
                 ' ORDER BY ' + order_by + limit_str + offset_str
         if query_string:
             return (query_str, tables_args + qu2)
@@ -1257,7 +1257,7 @@ class ModelSQL(ModelStorage):
             qu1b, qu2b = self.__search_domain_oper(cursor, user, domain2,
                     tables, tables_args, context=context)
             if not qu1b:
-                qu1b = 'true'
+                qu1b = FIELDS['boolean'].sql_format(True)
             if qu1 and qu1b:
                 qu1 += ' ' + operator + ' ' + qu1b
             elif qu1b:
@@ -1500,7 +1500,7 @@ class ModelSQL(ModelStorage):
                                     'WHERE id IN ' + \
                                         '(' + ','.join(['%s' for x in ids2]) + ')',
                                         ids2)
-                            clause = 'false '
+                            clause = FIELDS['boolean'].sql_format(False) + ' '
                             for left, right in cursor.fetchall():
                                 clause += 'OR '
                                 clause += '( "' + field.left + '" >= ' + \
@@ -1540,8 +1540,9 @@ class ModelSQL(ModelStorage):
                                     'AND ir_translation.res_id = 0' \
                                     'AND ir_translation.lang = %%s ' \
                                     'AND ir_translation.type = \'model\' ' \
-                                    'AND ir_translation.fuzzy = false)' % \
-                                (domain[i][0],)
+                                    'AND ir_translation.fuzzy = %s)' % \
+                                (domain[i][0],
+                                        FIELDS['boolean'].sql_format(False))
                     elif self._name == 'ir.model.field':
                         if domain[i][0] == 'field_description':
                             ttype = 'field'
@@ -1555,16 +1556,18 @@ class ModelSQL(ModelStorage):
                                     'AND ir_translation.res_id = 0' \
                                     'AND ir_translation = %%s ' \
                                     'AND ir_translation.type = \'%s\' ' \
-                                    'AND ir_translation.fuzzy = false)' % \
-                                (table._table, ttype)
+                                    'AND ir_translation.fuzzy = %s)' % \
+                                (table._table, ttype,
+                                        FIELDS['boolean'].sql_format(False))
                     else:
                         table_join = 'LEFT JOIN "ir_translation" ' \
                                 'ON (ir_translation.res_id = %s.id ' \
                                     'AND ir_translation.name = \'%s,%s\' ' \
                                     'AND ir_translation.lang = %%s ' \
                                     'AND ir_translation.type = \'model\' ' \
-                                    'AND ir_translation.fuzzy = false)' % \
-                                (table._table, table._name, domain[i][0])
+                                    'AND ir_translation.fuzzy = %s)' % \
+                                (table._table, table._name, domain[i][0],
+                                        FIELDS['boolean'].sql_format(False))
                     table_join_args = [context.get('language') or 'en_US']
 
                     table_query = ''
@@ -1620,47 +1623,54 @@ class ModelSQL(ModelStorage):
                             if table._columns[arg[0]]._type == 'boolean':
                                 if arg[1] == 'in':
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '"%s".%s = false)' % \
+                                            '"%s"."%s" = %%s)' % \
                                             (table._table, arg[0])
+                                    arg2.append(False)
                                 else:
                                     qu1[-1] = '(' + qu1[-1] + ' AND ' \
-                                            '"%s".%s != false)' % \
+                                            '"%s"."%s" != %%s)' % \
                                             (table._table, arg[0])
+                                    arg2.append(False)
                             else:
                                 if arg[1] == 'in':
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '"%s".%s IS NULL)' % \
+                                            '"%s"."%s" IS NULL)' % \
                                             (table._table, arg[0])
                                 else:
                                     qu1[-1] = '(' + qu1[-1] + ' AND ' \
-                                            '"%s".%s IS NOT NULL)' % \
+                                            '"%s"."%s" IS NOT NULL)' % \
                                             (table._table, arg[0])
                         qu2 += arg2
                     elif todel:
                         if table._columns[arg[0]]._type == 'boolean':
                             if arg[1] == 'in':
-                                qu1.append('("%s".%s = false)' % \
+                                qu1.append('("%s"."%s" = %%s)' % \
                                         (table._table, arg[0]))
+                                qu2.append(False)
                             else:
-                                qu1.append('("%s".%s != false)' % \
+                                qu1.append('("%s"."%s" != %%s)' % \
                                         (table._table, arg[0]))
+                                qu2.append(False)
                         else:
                             if arg[1] == 'in':
-                                qu1.append('("%s".%s IS NULL)' % \
+                                qu1.append('("%s"."%s" IS NULL)' % \
                                         (table._table, arg[0]))
                             else:
-                                qu1.append('("%s".%s IS NOT NULL)' % \
+                                qu1.append('("%s"."%s" IS NOT NULL)' % \
                                         (table._table, arg[0]))
                 else:
                     if arg[1] == 'in':
-                        qu1.append(' false')
+                        qu1.append(' %s')
+                        qu2.append(False)
                     else:
-                        qu1.append(' true')
+                        qu1.append(' %s')
+                        qu2.append(True)
             else:
                 if (arg[2] is False) and (arg[1] == '='):
                     if table._columns[arg[0]]._type == 'boolean':
-                        qu1.append('("%s".%s = false)' % \
+                        qu1.append('("%s"."%s" = %%s)' % \
                                 (table._table, arg[0]))
+                        qu2.append(False)
                     else:
                         qu1.append('("%s".%s IS NULL)' % \
                                 (table._table, arg[0]))
@@ -1818,10 +1828,11 @@ class ModelSQL(ModelStorage):
                                 'AND "%s".res_id = 0 ' \
                                 'AND "%s".lang = %%s ' \
                                 'AND "%s".type = \'model\' ' \
-                                'AND "%s".fuzzy = false)' % \
+                                'AND "%s".fuzzy = %s)' % \
                             (translation_table, translation_table, field_name,
                                     translation_table, translation_table,
-                                    translation_table, translation_table)
+                                    translation_table, translation_table,
+                                    FIELDS['boolean'].sql_format(False))
                 elif self._name == 'ir.model.field':
                     if field_name == 'field_description':
                         ttype = 'field'
@@ -1837,10 +1848,11 @@ class ModelSQL(ModelStorage):
                                 'AND "%s".res_id = 0 ' \
                                 'AND "%s".lang = %%s ' \
                                 'AND "%s".type = \'%s\' ' \
-                                'AND "%s".fuzzy = false)' % \
+                                'AND "%s".fuzzy = %s)' % \
                             (translation_table, translation_table, table_name,
                                     translation_table, translation_table,
-                                    translation_table, ttype, translation_table)
+                                    translation_table, ttype, translation_table,
+                                    FIELDS['boolean'].sql_format(False))
                 else:
                     table_join = 'LEFT JOIN "ir_translation" ' \
                             'AS "%s" ON ' \
@@ -1848,11 +1860,12 @@ class ModelSQL(ModelStorage):
                                 'AND "%s".name = \'%s,%s\' ' \
                                 'AND "%s".lang = %%s ' \
                                 'AND "%s".type = \'model\' ' \
-                                'AND "%s".fuzzy = false)' % \
+                                'AND "%s".fuzzy = %s)' % \
                             (translation_table, translation_table, table_name,
                                     translation_table, self._name, field_name,
                                     translation_table, translation_table,
-                                    translation_table)
+                                    translation_table,
+                                    FIELDS['boolean'].sql_format(False))
                 if table_join not in tables:
                     tables.append(table_join)
                     tables_args[table_join] = [context.get('language') or 'en_US']

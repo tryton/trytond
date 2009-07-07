@@ -51,15 +51,16 @@ class Wizard(object):
                     if not res:
                         cursor.execute('INSERT INTO ir_translation ' \
                                 '(name, lang, type, src, value, module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, false)',
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                                 (self._name + ',' + state + ',' + button_name,
                                     'en_US', 'wizard_button', button_value,
-                                    '', module_name))
+                                    '', module_name, False))
                     elif res[0]['src'] != button_value:
                         cursor.execute('UPDATE ir_translation ' \
                                 'SET src = %s, ' \
-                                    'fuzzy = True '
-                                'WHERE id = %s', (button_value, res[0]['id']))
+                                    'fuzzy = %s '
+                                'WHERE id = %s', (button_value, True,
+                                    res[0]['id']))
 
         cursor.execute('SELECT id, src FROM ir_translation ' \
                 'WHERE lang = %s ' \
@@ -74,8 +75,9 @@ class Wizard(object):
             if error not in trans_error:
                 cursor.execute('INSERT INTO ir_translation ' \
                         '(name, lang, type, src, value, module, fuzzy) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
-                        (self._name, 'en_US', 'error', error, '', module_name))
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                        (self._name, 'en_US', 'error', error, '', module_name,
+                            False))
 
     def raise_user_error(self, cursor, error, error_args=None,
             error_description='', error_description_args=None, context=None):
