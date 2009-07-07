@@ -378,7 +378,7 @@ class ActionActWindow(ModelSQL, ModelView):
             help='Add an auto-refresh on the view')
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
-    window_name = fields.Boolean('Window Name', required=True,
+    window_name = fields.Boolean('Window Name',
             help='Use the action name as window name')
     search_value = fields.Char('Search Criteria',
             help='Default search criteria for the list view')
