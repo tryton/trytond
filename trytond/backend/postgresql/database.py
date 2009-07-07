@@ -271,9 +271,6 @@ class Cursor(CursorInterface):
         return getattr(self.cursor, name)
 
     def execute(self, sql, params=None):
-        if params is None:
-            params = ()
-
         if self.sql_log:
             now = time.time()
 
