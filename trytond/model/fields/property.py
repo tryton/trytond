@@ -142,7 +142,8 @@ class Property(Function):
               + property_query + ' AND res is not null',
             property_val)
 
-        if not cursor.rowcount:
+        fetchall = cursor.fetchall()
+        if not fetchall:
             return [('id', 'in', [x[0] for x in props])]
 
         else:

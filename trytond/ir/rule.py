@@ -217,8 +217,9 @@ class Rule(ModelSQL, ModelView):
                             'JOIN "' + user_group_obj._table + '" u_rel ' \
                                 'ON g_rel.group_id = u_rel.gid ' \
                         'WHERE u_rel.uid = %s))', (model_name, user, user))
-        if cursor.rowcount:
-            group_id = cursor.fetchone()[0]
+        fetchone = cursor.fetchone()
+        if fetchone:
+            group_id = fetchone[0]
             clause[group_id] = []
         clause = clause.values()
         clause.insert(0, 'OR')

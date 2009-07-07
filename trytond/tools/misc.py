@@ -385,7 +385,7 @@ class Cache(object):
             for name in Cache._resets[dbname]:
                 cursor.execute('SELECT name FROM ir_cache WHERE name = %s',
                             (name,))
-                if cursor.rowcount:
+                if cursor.fetchone():
                     cursor.execute('UPDATE ir_cache SET "timestamp" = now() '\
                             'WHERE name = %s', (name,))
                 else:

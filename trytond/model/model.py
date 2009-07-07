@@ -135,7 +135,14 @@ class Model(object):
         # Add model in ir_model
         cursor.execute("SELECT id FROM ir_model WHERE model = %s",
                 (self._name,))
-        if not cursor.rowcount:
+        model_id = None
+        if cursor.rowcount == -1 or cursor.rowcount is None:
+            data = cursor.fetchone()
+            if data:
+                model_id, = data
+        elif cursor.rowcount != 0:
+            model_id, = cursor.fetchone()
+        if not model_id:
             cursor.execute("INSERT INTO ir_model " \
                     "(model, name, info, module) VALUES (%s, %s, %s, %s)",
                     (self._name, self._description, self.__doc__,
@@ -144,7 +151,6 @@ class Model(object):
                     (self._name,))
             (model_id,) = cursor.fetchone()
         else:
-            (model_id,) = cursor.fetchone()
             cursor.execute('UPDATE ir_model ' \
                     'SET name = %s, ' \
                         'info = %s ' \
@@ -159,13 +165,19 @@ class Model(object):
                         'AND name = %s ' \
                         'AND res_id = %s',
                     ('en_US', 'model', name, 0))
-            if not cursor.rowcount:
+            trans_id = None
+            if cursor.rowcount == -1 or cursor.rowcount is None:
+                data = cursor.fetchone()
+                if data:
+                    trans_id, = data
+            elif cursor.rowcount != 0:
+                trans_id, = cursor.fetchone()
+            if not trans_id:
                 cursor.execute('INSERT INTO ir_translation ' \
                         '(name, lang, type, src, value, module, fuzzy) ' \
                         'VALUES (%s, %s, %s, %s, %s, %s, false)',
                         (name, 'en_US', 'model', src, '', module_name))
             else:
-                trans_id = cursor.fetchone()[0]
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
                         'WHERE id = %s',

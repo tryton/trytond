@@ -348,9 +348,10 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND src = %s ',
                         (vals.get('name', ''), vals.get('res_id', 0), 'en_US',
                             vals.get('type', ''), vals.get('src', '')))
-                if cursor.rowcount:
+                fetchone = cursor.fetchone()
+                if fetchone:
                     vals = vals.copy()
-                    vals['module'] = cursor.fetchone()[0]
+                    vals['module'] = fetchone[0]
             else:
                 cursor.execute('SELECT module, src FROM ir_translation ' \
                         'WHERE name = %s ' \
@@ -359,9 +360,10 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND type = %s',
                         (vals.get('name', ''), vals.get('res_id', 0), 'en_US',
                             vals.get('type', '')))
-                if cursor.rowcount:
+                fetchone = cursor.fetchone()
+                if fetchone:
                     vals = vals.copy()
-                    vals['module'], vals['src'] = cursor.fetchone()
+                    vals['module'], vals['src'] = fetchone
         return super(Translation, self).create(cursor, user, vals,
                 context=context)
 

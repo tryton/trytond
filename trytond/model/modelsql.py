@@ -171,9 +171,9 @@ class ModelSQL(ModelStorage):
         if self._history:
             self._update_history_table(cursor)
             cursor.execute('SELECT id FROM "' + self._table + '"')
-            if cursor.rowcount:
+            if cursor.fetchone():
                 cursor.execute('SELECT id FROM "' + self._table + '__history"')
-                if not cursor.rowcount:
+                if not cursor.fetchone():
                     columns = ['"' + str(x) + '"' for x in self._columns
                             if not hasattr(self._columns[x], 'set')]
                     cursor.execute('INSERT INTO "' + self._table + '__history" '\
@@ -368,7 +368,7 @@ class ModelSQL(ModelStorage):
             cursor.execute('SELECT id FROM "' + self._table + '" ' \
                     'WHERE id = %s AND (' + domain1 + ')',
                     [id_new] + domain2)
-            if not cursor.rowcount:
+            if not cursor.fetchone():
                 self.raise_user_error(cursor, 'access_error',
                         self._description, context=context)
 
@@ -501,7 +501,8 @@ class ModelSQL(ModelStorage):
                                 '(' + ','.join(['%s' for x in sub_ids]) + ')' + \
                             history_clause + history_order + history_limit,
                             table_args + sub_ids + history_args)
-                if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                dictfetchall = cursor.dictfetchall()
+                if not len(dictfetchall) == len({}.fromkeys(sub_ids)):
                     if domain1:
                         cursor.execute('SELECT id FROM ' + \
                                 table_query + '\"' + self._table + '\" ' \
@@ -509,12 +510,15 @@ class ModelSQL(ModelStorage):
                                 '(' + ','.join(['%s' for x in sub_ids]) + ')' + \
                                 history_clause + history_order + history_limit,
                                 table_args + sub_ids + history_args)
-                        if cursor.rowcount == len({}.fromkeys(sub_ids)):
+                        rowcount = cursor.rowcount
+                        if rowcount == -1 or rowcount is None:
+                            rowcount = len(cursor.fetchall())
+                        if rowcount == len({}.fromkeys(sub_ids)):
                             self.raise_user_error(cursor, 'access_error',
                                     self._description, context=context)
                     self.raise_user_error(cursor, 'read_error',
                             self._description, context=context)
-                res.extend(cursor.dictfetchall())
+                res.extend(dictfetchall)
         else:
             res = [{'id': x} for x in ids]
 
@@ -722,7 +726,7 @@ class ModelSQL(ModelStorage):
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + ' OR '.join(
                                 [clause for x in range(len(args)/2)]), args)
-                    if cursor.rowcount:
+                    if cursor.fetchone():
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
             for i in ids:
@@ -796,11 +800,17 @@ class ModelSQL(ModelStorage):
             else:
                 cursor.execute('SELECT id FROM "' + self._table + '" ' \
                         'WHERE id IN (' + ids_str + ')', sub_ids)
-            if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+            rowcount = cursor.rowcount
+            if rowcount == -1 or rowcount is None:
+                rowcount = len(cursor.fetchall())
+            if not rowcount == len({}.fromkeys(sub_ids)):
                 if domain1:
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
                             'WHERE id IN (' + ids_str + ')', sub_ids)
-                    if cursor.rowcount == len({}.fromkeys(sub_ids)):
+                    rowcount = cursor.rowcount()
+                    if rowcount == -1 or rowcount is None:
+                        rowcount = len(cursor.fetchall())
+                    if rowcount == len({}.fromkeys(sub_ids)):
                         self.raise_user_error(cursor, 'access_error',
                             self._description, context=context)
                 self.raise_user_error(cursor, 'write_error',
@@ -958,7 +968,7 @@ class ModelSQL(ModelStorage):
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + ' OR '.join(
                                 [clause for x in range(len(args)/2)]), args)
-                    if cursor.rowcount:
+                    if cursor.fetchone():
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
             for i in ids:
@@ -1015,7 +1025,10 @@ class ModelSQL(ModelStorage):
                 cursor.execute('SELECT id FROM "'+self._table+'" ' \
                         'WHERE id IN (' + str_d + ') ' + domain1,
                         sub_ids + domain2)
-                if not cursor.rowcount == len({}.fromkeys(sub_ids)):
+                rowcount = cursor.rowcount
+                if rowcount == -1 or rowcount is None:
+                    rowcount = len(cursor.fetchall())
+                if not rowcount == len({}.fromkeys(sub_ids)):
                     self.raise_user_error(cursor, 'access_error',
                             self._description, context=context)
 
@@ -1922,9 +1935,10 @@ class ModelSQL(ModelStorage):
         cursor.execute('SELECT "' + left + '", "' + right + '" ' \
                 'FROM "' + self._table + '" ' \
                 'WHERE id = %s', (object_id,))
-        if not cursor.rowcount:
+        fetchone = cursor.fetchone()
+        if not fetchone:
             return
-        old_left, old_right = cursor.fetchone()
+        old_left, old_right = fetchone
         if old_left == old_right:
             cursor.execute('UPDATE "' + self._table + '" ' \
                     'SET "' + right + '" = "' + right + '" + 1 ' \
@@ -1947,8 +1961,9 @@ class ModelSQL(ModelStorage):
             cursor.execute('SELECT MAX("' + right + '") ' \
                     'FROM "' + self._table + '" ' \
                     'WHERE "' + field_name + '" IS NULL')
-            if cursor.rowcount:
-                parent_right = cursor.fetchone()[0] + 1
+            fetchone = cursor.fetchone()
+            if fetchone:
+                parent_right = fetchone[0] + 1
 
         cursor.execute('SELECT id FROM "' + self._table + '" ' \
                 'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',

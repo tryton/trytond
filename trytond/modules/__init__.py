@@ -393,8 +393,9 @@ def load_modules(database_name, pool, update=False, lang=None):
         if update:
             cursor.execute("SELECT name FROM ir_module_module " \
                     "WHERE state IN ('to remove')")
-            if cursor.rowcount:
-                for (mod_name,) in cursor.fetchall():
+            fetchall = cursor.fetchall()
+            if fetchall:
+                for (mod_name,) in fetchall:
                     #TODO check if ressource not updated by the user
                     cursor.execute('SELECT model, db_id FROM ir_model_data ' \
                             'WHERE module = %s ' \

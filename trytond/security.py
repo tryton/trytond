@@ -24,8 +24,8 @@ def login(dbname, loginname, password, cache=True):
         password_sha = sha.new(password).hexdigest()
     cursor.execute('SELECT id, password, active FROM res_user '
         'WHERE login = %s', (loginname,))
-    if cursor.rowcount:
-        res = cursor.fetchone()
+    res = cursor.fetchone()
+    if res:
         cursor.close()
         user_id = res[0]
         if user_id == 0:

@@ -621,8 +621,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                     'AND module = %s',
                                 (table_name + ',' + field_name,
                                     'en_US', 'model', res_id, module))
-                        if cursor.rowcount:
-                            trans_id = cursor.fetchone()[0]
+                        fetchone = cursor.fetchone()
+                        if fetchone:
+                            trans_id = fetchone[0]
                             cursor.execute('UPDATE ir_translation ' \
                                     'SET src = %s, module = %s ' \
                                     'WHERE id = %s',
@@ -762,9 +763,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                     'AND module = %s',
                                 (table_name + ',' + field_name,
                                     'en_US', 'model', res_id, module))
-                        if cursor.rowcount:
+                        fetchone = cursor.fetchone()
+                        if fetchone:
                             if to_update.get(field_name):
-                                trans_id = cursor.fetchone()[0]
+                                trans_id = fetchone[0]
                                 cursor.execute('UPDATE ir_translation ' \
                                         'SET src = %s, module = %s ' \
                                         'WHERE id = %s',
@@ -846,8 +848,14 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                 'AND res_id = %s',
                             (table_name + ',' + field_name,
                                 'en_US', 'model', res_id))
-                    if cursor.rowcount:
-                        trans_id = cursor.fetchone()[0]
+                    trans_id = None
+                    if cursor.rowcount == -1 or cursor.rowcount is None:
+                        data = cursor.fetchone()
+                        if data:
+                            trans_id, = data
+                    elif cursor.rowcount != 0:
+                        trans_id, = cursor.fetchone()
+                    if trans_id:
                         cursor.execute('UPDATE ir_translation ' \
                                 'SET src = %s, module = %s ' \
                                 'WHERE id = %s',
