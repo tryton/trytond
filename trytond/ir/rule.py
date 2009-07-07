@@ -161,9 +161,9 @@ class Rule(ModelSQL, ModelView):
         user_group_obj = self.pool.get('res.user-res.group')
 
         cursor.execute('SELECT r.id FROM "' + self._table + '" r ' \
-                'JOIN ("' + rule_group_obj._table + '" g ' \
-                    'JOIN "' + model_obj._table + '" m ON (g.model = m.id)) ' \
+                'JOIN "' + rule_group_obj._table + '" g ' \
                     "ON (g.id = r.rule_group) " \
+                'JOIN "' + model_obj._table + '" m ON (g.model = m.id) ' \
                 "WHERE m.model = %s "
                     "AND g.perm_" + mode + " "
                     "AND (g.id IN (" \
