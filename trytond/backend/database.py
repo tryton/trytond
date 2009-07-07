@@ -138,3 +138,41 @@ class CursorInterface(object):
         Test if it is a Tryton database.
         '''
         raise
+
+    def nextid(self, table):
+        '''
+        Return the next sequenced id for a table.
+
+        :param table: the table name
+        :return: an integer
+        '''
+
+    def setnextid(self, table, value):
+        '''
+        Set the current sequenced id for a table.
+
+        :param table: the table name
+        '''
+
+    def currid(self, table):
+        '''
+        Return the current sequenced id for a table.
+
+        :param table: the table name
+        :return: an integer
+        '''
+
+    def lastid(self):
+        '''
+        Return the last id inserted.
+
+        :return: an integer
+        '''
+
+    def has_lock(self):
+        '''
+        Return True if database handle lock table.
+
+        :return: a boolean
+        '''
+        raise

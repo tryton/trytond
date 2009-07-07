@@ -144,7 +144,8 @@ class SequenceStrict(Sequence):
     _description = __doc__
 
     def get_id(self, cursor, user, clause, context=None):
-        cursor.execute('LOCK TABLE "' + self._table + '"')
+        if cursor.has_lock():
+            cursor.execute('LOCK TABLE "' + self._table + '"')
         return super(SequenceStrict, self).get_id(cursor, user, clause,
                 context=context)
 

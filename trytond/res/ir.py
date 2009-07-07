@@ -17,7 +17,7 @@ class UIMenuGroup(ModelSQL):
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'ir_ui_menu_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'ir_ui_menu_group_rel_id_seq',
-                self._sequence)
+                self._table + '_id_seq')
         super(UIMenuGroup, self).init(cursor, module_name)
 
 UIMenuGroup()
@@ -36,7 +36,7 @@ class ActionGroup(ModelSQL):
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'ir_action_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'ir_action_group_rel_id_seq',
-                self._sequence)
+                self._table + '_id_seq')
         super(ActionGroup, self).init(cursor, module_name)
 
 ActionGroup()
@@ -55,7 +55,7 @@ class ModelFieldGroup(ModelSQL):
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'ir_model_field_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'ir_model_field_group_rel_id_seq',
-                self._sequence)
+                self._table + '_id_seq')
         super(ModelFieldGroup, self).init(cursor, module_name)
 
 ModelFieldGroup()
@@ -74,7 +74,7 @@ class RuleGroupGroup(ModelSQL):
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'group_rule_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'group_rule_group_rel_id_seq',
-                self._sequence)
+                self._table + '_id_seq')
         super(RuleGroupGroup, self).init(cursor, module_name)
 
 RuleGroupGroup()
@@ -93,7 +93,7 @@ class RuleGroupUser(ModelSQL):
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'user_rule_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'user_rule_group_rel_id_seq',
-                self._sequence)
+                self._table + '_id_seq')
         super(RuleGroupUser, self).init(cursor, module_name)
 
 RuleGroupUser()

@@ -204,7 +204,6 @@ ActionKeyword()
 class ActionReport(ModelSQL, ModelView):
     "Action report"
     _name = 'ir.action.report'
-    _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
     model = fields.Char('Model')
@@ -327,6 +326,16 @@ class ActionReport(ModelSQL, ModelView):
             return new_ids[0]
         return new_ids
 
+    def create(self, cursor, user, vals, context=None):
+        if cursor.nextid(self._table):
+            cursor.setnextid(self._table, cursor.currid('ir_action'))
+        new_id = super(ActionReport, self).create(cursor, user, vals,
+                context=context)
+        report = self.browse(cursor, user, new_id, context=context)
+        cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
+                'WHERE id = %s', (report.action.id, report.id))
+        return report.action.id
+
     def write(self, cursor, user, ids, vals, context=None):
         if context is None:
             context = {}
@@ -357,7 +366,6 @@ ActionReport()
 class ActionActWindow(ModelSQL, ModelView):
     "Action act window"
     _name = 'ir.action.act_window'
-    _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
     domain = fields.Char('Domain Value')
@@ -411,6 +419,16 @@ class ActionActWindow(ModelSQL, ModelView):
                     for view in act.act_window_views]
         return res
 
+    def create(self, cursor, user, vals, context=None):
+        if cursor.nextid(self._table):
+            cursor.setnextid(self._table, cursor.currid('ir_action'))
+        new_id = super(ActionActWindow, self).create(cursor, user, vals,
+                context=context)
+        act_window = self.browse(cursor, user, new_id, context=context)
+        cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
+                'WHERE id = %s', (act_window.action.id, act_window.id))
+        return act_window.action.id
+
     def delete(self, cursor, user, ids, context=None):
         action_obj = self.pool.get('ir.action')
 
@@ -455,7 +473,6 @@ ActionActWindowView()
 class ActionWizard(ModelSQL, ModelView):
     "Action wizard"
     _name = 'ir.action.wizard'
-    _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
     wiz_name = fields.Char('Wizard name', required=True)
@@ -466,6 +483,16 @@ class ActionWizard(ModelSQL, ModelView):
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.wizard'
+
+    def create(self, cursor, user, vals, context=None):
+        if cursor.nextid(self._table):
+            cursor.setnextid(self._table, cursor.currid('ir_action'))
+        new_id = super(ActionWizard, self).create(cursor, user, vals,
+                context=context)
+        wizard = self.browse(cursor, user, new_id, context=context)
+        cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
+                'WHERE id = %s', (wizard.action.id, wizard.id))
+        return wizard.action.id
 
     def delete(self, cursor, user, ids, context=None):
         action_obj = self.pool.get('ir.action')
@@ -580,7 +607,6 @@ ActionWizardSize()
 class ActionURL(ModelSQL, ModelView):
     "Action URL"
     _name = 'ir.action.url'
-    _sequence = 'ir_action_id_seq'
     _description = __doc__
     _inherits = {'ir.action': 'action'}
     url = fields.Char('Action Url', required=True)
@@ -592,6 +618,16 @@ class ActionURL(ModelSQL, ModelView):
 
     def default_target(self, cursor, user, context=None):
         return 'new'
+
+    def create(self, cursor, user, vals, context=None):
+        if cursor.nextid(self._table):
+            cursor.setnextid(self._table, cursor.currid('ir_action'))
+        new_id = super(ActionURL, self).create(cursor, user, vals,
+                context=context)
+        url = self.browse(cursor, user, new_id, context=context)
+        cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
+                'WHERE id = %s', (url.action.id, url.id))
+        return url.action.id
 
     def delete(self, cursor, user, ids, context=None):
         action_obj = self.pool.get('ir.action')

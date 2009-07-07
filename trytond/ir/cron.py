@@ -154,7 +154,8 @@ class Cron(ModelSQL, ModelView):
             return
         try:
             try:
-                cursor.execute('LOCK TABLE ir_cron')
+                if cursor.has_lock():
+                    cursor.execute('LOCK TABLE ir_cron')
                 cursor.execute('SELECT * FROM ir_cron ' \
                         'WHERE numbercall <> 0 ' \
                             'AND active ' \

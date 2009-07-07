@@ -21,8 +21,6 @@ class ModelSQL(ModelStorage):
         ``[('name', 'ASC'), 'age', 'DESC']``
     :_order_name: The name of the field (or an SQL statement) on which the records
          must be sorted when sorting on this model from an other one.
-    :_sequence: The  name of the sequence in the database that increments the
-        ``id`` field.
     :_history: A boolean to historize record change.
     :_sql_constraints: A list of constraints that are added on the table. E.g.:
 
@@ -35,7 +33,6 @@ class ModelSQL(ModelStorage):
     _table = None # The name of the table in database
     _order = None
     _order_name = None # Use to force order field when sorting on Many2One
-    _sequence = None
     _history = False
 
     def __init__(self):
@@ -49,9 +46,6 @@ class ModelSQL(ModelStorage):
 
         assert self._table[-9:] != '__history', \
                 'Model _table %s cannot end with "__history"' % self._table
-
-        if not self._sequence:
-            self._sequence = self._table+'_id_seq'
 
     def init(self, cursor, module_name):
         super(ModelSQL, self).init(cursor, module_name)
@@ -254,10 +248,6 @@ class ModelSQL(ModelStorage):
                     del defaults[field]
             values.update(self._clean_defaults(defaults))
 
-        # Get new id
-        cursor.execute("SELECT NEXTVAL('" + self._sequence + "')")
-        (id_new,) = cursor.fetchone()
-
         (upd0, upd1, upd2) = ('', '', [])
         upd_todo = []
 
@@ -318,9 +308,16 @@ class ModelSQL(ModelStorage):
         upd1 += ', %s, now()'
         upd2.append(user)
         try:
-            cursor.execute('INSERT INTO "' + self._table + '" ' \
-                    '(id' + upd0 + ') ' \
-                    'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
+            id_new = cursor.nextid(self._table)
+            if id_new:
+                cursor.execute('INSERT INTO "' + self._table + '" ' \
+                        '(id' + upd0 + ') ' \
+                        'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
+            else:
+                cursor.execute('INSERT INTO "' + self._table + '" ' \
+                        '(' + upd0[1:] + ') ' \
+                        'VALUES (' + upd1[1:] + ')', tuple(upd2))
+                id_new = cursor.lastid()
         except DatabaseIntegrityError, exception:
             database = Database(cursor.database_name).connect()
             cursor2 = database.cursor()
