@@ -346,7 +346,6 @@ class Fs2bdAccessor:
             self.browserecord[module][model_name][model.id] = model
 
     def fetch_new_module(self, module):
-        if module == "ir.ui.menu": raise
         self.fs2db[module] = {}
         module_data_ids = self.modeldata_obj.search(
             self.cursor, self.user, [
