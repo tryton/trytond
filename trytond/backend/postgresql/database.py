@@ -257,7 +257,7 @@ class Cursor(CursorInterface):
         self._connpool = connpool
         self._conn = conn
         self.database_name = database_name
-        self.dbname = self.database_name #XX to remove
+        self.dbname = self.database_name #XXX to remove
         self.cursor = conn.cursor(cursor_factory=_Cursor)
         self.commit()
         self.sql_from_log = {}
