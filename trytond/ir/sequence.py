@@ -118,7 +118,7 @@ class Sequence(ModelSQL, ModelView):
                     'SET number_next = number_next + number_increment, ' \
                         'write_uid = %s, ' \
                         'write_date = NOW() ' \
-                    'WHERE id = %s AND active = True', (user, sequence.id,))
+                    'WHERE id = %s AND active = %s', (user, sequence.id, True))
             if number_next:
                 return self._process(cursor, user, sequence.prefix, date=date,
                         context=context) + \

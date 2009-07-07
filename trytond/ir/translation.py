@@ -151,10 +151,10 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND name = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
-                            'AND fuzzy = false ' \
+                            'AND fuzzy = %s ' \
                             'AND res_id in (' + \
                                 ','.join([str(x) for x in sub_to_fetch]) + ')',
-                        (lang, ttype, name))
+                        (lang, ttype, name, False))
                 for res_id, value in cursor.fetchall():
                     self.add(cursor, (lang, ttype, name, res_id), value)
                     translations[res_id] = value
@@ -248,9 +248,9 @@ class Translation(ModelSQL, ModelView, Cacheable):
                         'AND src = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
-                        'AND fuzzy = false ' \
+                        'AND fuzzy = %s ' \
                         'AND res_id = 0',
-                    (lang, ttype, str(name), source))
+                    (lang, ttype, str(name), source, False))
         else:
             cursor.execute('SELECT value ' \
                     'FROM ir_translation ' \
@@ -259,9 +259,9 @@ class Translation(ModelSQL, ModelView, Cacheable):
                         'AND name = %s ' \
                         'AND value != \'\' ' \
                         'AND value IS NOT NULL ' \
-                        'AND fuzzy = false ' \
+                        'AND fuzzy = %s ' \
                         'AND res_id = 0',
-                    (lang, ttype, str(name)))
+                    (lang, ttype, str(name), False))
         res = cursor.fetchone()
         if res:
             self.add(cursor, (lang, ttype, name, source), res[0])
@@ -302,18 +302,18 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND src = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
-                            'AND fuzzy = false ' \
+                            'AND fuzzy = %s ' \
                             'AND res_id = 0)',
-                            (lang, ttype, str(name), source))]
+                            (lang, ttype, str(name), source, False))]
                 else:
                     clause += [('(lang = %s ' \
                             'AND type = %s ' \
                             'AND name = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
-                            'AND fuzzy = false ' \
+                            'AND fuzzy = %s ' \
                             'AND res_id = 0)',
-                            (lang, ttype, str(name)))]
+                            (lang, ttype, str(name), False))]
         if clause:
             for i in range(0, len(clause), cursor.IN_MAX):
                 sub_clause = clause[i:i + cursor.IN_MAX]

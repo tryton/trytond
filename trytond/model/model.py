@@ -175,8 +175,8 @@ class Model(object):
             if not trans_id:
                 cursor.execute('INSERT INTO ir_translation ' \
                         '(name, lang, type, src, value, module, fuzzy) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
-                        (name, 'en_US', 'model', src, '', module_name))
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                        (name, 'en_US', 'model', src, '', module_name, False))
             else:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
@@ -250,9 +250,9 @@ class Model(object):
                             'write_uid', 'write_date', 'id'):
                     cursor.execute('INSERT INTO ir_translation ' \
                             '(name, lang, type, src, value, module, fuzzy) ' \
-                            'VALUES (%s, %s, %s, %s, %s, %s, false)',
+                            'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                             (trans_name, 'en_US', 'field',
-                                field.string, '', module_name))
+                                field.string, '', module_name, False))
             elif trans_fields[trans_name]['src'] != field.string:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
@@ -262,9 +262,9 @@ class Model(object):
                 if field.help:
                     cursor.execute('INSERT INTO ir_translation ' \
                             '(name, lang, type, src, value, module, fuzzy) ' \
-                            'VALUES (%s, %s, %s, %s, %s, %s, false)',
+                            'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                             (trans_name, 'en_US', 'help',
-                                field.help, '', module_name))
+                                field.help, '', module_name, False))
             elif trans_help[trans_name]['src'] != field.help:
                 cursor.execute('UPDATE ir_translation ' \
                         'SET src = %s ' \
@@ -281,9 +281,9 @@ class Model(object):
                         cursor.execute('INSERT INTO ir_translation ' \
                                 '(name, lang, type, src, value, ' \
                                     'module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, false)',
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                                 (trans_name, 'en_US', 'selection', val, '',
-                                    module_name))
+                                    module_name, False))
         # Clean ir_model_field from field that are no more existing.
         for field_name in fields:
             if fields[field_name]['module'] == module_name \
@@ -308,8 +308,9 @@ class Model(object):
             if error not in trans_error:
                 cursor.execute('INSERT INTO ir_translation ' \
                         '(name, lang, type, src, value, module, fuzzy) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
-                        (self._name, 'en_US', 'error', error, '', module_name))
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                        (self._name, 'en_US', 'error', error, '', module_name,
+                            False))
 
     def _get_error_messages(self):
         return self._error_messages.values()

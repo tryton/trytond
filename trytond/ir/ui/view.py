@@ -131,9 +131,9 @@ class View(ModelSQL, ModelView):
                 if not done:
                     cursor.execute('INSERT INTO ir_translation ' \
                         '(name, lang, type, src, value, module, fuzzy)' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, false)',
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                         (view.model, 'en_US', 'view', string, '',
-                            view.module))
+                            view.module, False))
             if strings:
                 cursor.execute('DELETE FROM ir_translation ' \
                         'WHERE name = %s ' \
