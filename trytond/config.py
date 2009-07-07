@@ -13,6 +13,7 @@ class ConfigManager(object):
             'xmlport': 8069,
             'webdav': False,
             'webdavport': 8080,
+            'db_type': 'postgresql',
             'db_host': False,
             'db_port': False,
             'db_name': False,

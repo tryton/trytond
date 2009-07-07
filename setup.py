@@ -41,12 +41,12 @@ setup(name=PACKAGE,
     ],
     license=LICENSE,
     install_requires=[
-        'psycopg2 >= 2.0',
         'lxml',
         'egenix-mx-base',
         'relatorio >= 0.2.0',
     ],
     extras_require={
+        'PostgreSQL': ['psycopg2 >= 2.0'],
         'WebDAV': ['PyWebDAV >= 0.9.3'],
         'PDF': ['openoffice.interact'],
         'SSL': ['pyOpenSSL'],
