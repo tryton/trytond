@@ -323,7 +323,7 @@ class UserGroup(ModelSQL):
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'res_group_user_rel', self._table)
         TableHandler.sequence_rename(cursor, 'res_group_user_rel_id_seq',
-                self._sequence)
+                self._table + '_id_seq')
         super(UserGroup, self).init(cursor, module_name)
 
 UserGroup()

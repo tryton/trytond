@@ -357,5 +357,19 @@ class Cursor(CursorInterface):
                 ")")
         return len(self.cursor.fetchall()) != 0
 
+    def nextid(self, table):
+        self.cursor.execute("SELECT NEXTVAL('" + table + "_id_seq')")
+        return self.cursor.fetchone()[0]
+
+    def setnextid(self, table, value):
+        self.cursor.execute("SELECT SETVAL('" + table + "_id_seq', %d)" % value)
+
+    def currid(self, table):
+        self.cursor.execute('SELECT last_value FROM "' + table + '_id_seq"')
+        return self.cursor.fetchone()[0]
+
+    def has_lock(self):
+        return True
+
 register_type(UNICODE)
 register_adapter(Session, AsIs)
