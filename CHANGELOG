@@ -1,3 +1,6 @@
+* Add sqlite backend
+* Add validate test for required and size
+* Remove _sequence on ModelSQL
 * Use gzip in pysocket
 * Add gzip encoding for XML-RPC
 * Add report name in the result of Report.execute
