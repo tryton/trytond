@@ -10,10 +10,13 @@ import re
 import mx.DateTime
 from decimal import Decimal
 
+_FIX_ROWCOUNT = False
 try:
     from pysqlite2 import dbapi2 as sqlite
     from pysqlite2.dbapi2 import IntegrityError as DatabaseIntegrityError
     from pysqlite2.dbapi2 import OperationalError as DatabaseOperationalError
+    #pysqlite2 < 2.5 doesn't return correct rowcount
+    _FIX_ROWCOUNT = sqlite.version_info < (2 , 5, 0)
 except ImportError:
     import sqlite3 as sqlite
     from sqlite3 import IntegrityError as DatabaseIntegrityError
@@ -232,6 +235,8 @@ class Cursor(CursorInterface):
         self.cursor = conn.cursor(_Cursor)
 
     def __getattr__(self, name):
+        if _FIX_ROWCOUNT and name == 'rowcount':
+            return -1
         return getattr(self.cursor, name)
 
     def execute(self, sql, params=None):
