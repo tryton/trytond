@@ -27,16 +27,6 @@ class BooleanDefault(ModelSQL):
 BooleanDefault()
 
 
-class BooleanRequired(ModelSQL):
-    'Boolean Required'
-    _name = 'tests.boolean_required'
-    _description = __doc__
-    boolean = fields.Boolean(string='Boolean', help='Test boolean',
-            required=True)
-
-BooleanRequired()
-
-
 class Integer(ModelSQL):
     'Integer'
     _name = 'tests.integer'
