@@ -91,7 +91,7 @@ insert into res_user (id,login,password,name,action,active) values (0,'root',NUL
 
 CREATE TABLE res_group (
     id INTEGER PRIMARY KEY,
-    name VARCHAR NOT NULL
+    name VARCHAR
 );
 
 CREATE TABLE "res_user-res_group" (
@@ -143,9 +143,9 @@ create table wkf_instance
     id INTEGER PRIMARY KEY,
     workflow INTEGER,
     uid INTEGER,
-    res_id INTEGER not null,
-    res_type VARCHAR not null,
-    state VARCHAR not null
+    res_id INTEGER,
+    res_type VARCHAR,
+    state VARCHAR
 );
 
 create table wkf_workitem

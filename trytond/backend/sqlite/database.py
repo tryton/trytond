@@ -176,10 +176,10 @@ class Database(DatabaseInterface):
             else:
                 state = 'uninstalled'
             cursor.execute('INSERT INTO ir_module_module ' \
-                    '(author, website, name, shortdesc, ' \
-                    'description, state) ' \
-                    'VALUES (%s, %s, %s, %s, %s, %s)',
-                    (info.get('author', ''),
+                    '(create_uid, create_date, author, website, name, ' \
+                    'shortdesc, description, state) ' \
+                    'VALUES (%s, now(), %s, %s, %s, %s, %s, %s)',
+                    (0, info.get('author', ''),
                 info.get('website', ''), i, info.get('name', False),
                 info.get('description', ''), state))
             cursor.execute('SELECT last_insert_rowid()')
@@ -187,8 +187,9 @@ class Database(DatabaseInterface):
             dependencies = info.get('depends', [])
             for dependency in dependencies:
                 cursor.execute('INSERT INTO ir_module_module_dependency ' \
-                        '(module, name) VALUES (%s, %s)',
-                        (module_id, dependency))
+                        '(create_uid, create_date, module, name) ' \
+                        'VALUES (%s, now(), %s, %s) ',
+                        (0, module_id, dependency))
 
 
 class _Cursor(sqlite.Cursor):
