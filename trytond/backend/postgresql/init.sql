@@ -183,8 +183,8 @@ create table wkf_witm_trans
 
 CREATE TABLE ir_module_module (
     id serial NOT NULL,
-    create_uid integer references res_user on delete set null,
-    create_date timestamp without time zone,
+    create_uid integer NOT NULL references res_user on delete set null,
+    create_date timestamp without time zone NOT NULL,
     write_date timestamp without time zone,
     write_uid integer references res_user on delete set null,
     website varchar,
@@ -200,8 +200,8 @@ ALTER TABLE ir_module_module add constraint name_uniq unique (name);
 
 CREATE TABLE ir_module_module_dependency (
     id serial NOT NULL,
-    create_uid integer references res_user on delete set null,
-    create_date timestamp without time zone,
+    create_uid integer NOT NULL references res_user on delete set null,
+    create_date timestamp without time zone NOT NULL,
     write_date timestamp without time zone,
     write_uid integer references res_user on delete set null,
     name varchar,

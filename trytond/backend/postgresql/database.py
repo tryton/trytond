@@ -208,17 +208,18 @@ class Database(DatabaseInterface):
             cursor.execute('SELECT NEXTVAL(\'ir_module_module_id_seq\')')
             module_id = cursor.fetchone()[0]
             cursor.execute('INSERT INTO ir_module_module ' \
-                    '(id, author, website, name, shortdesc, ' \
-                    'description, state) ' \
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                    (module_id, info.get('author', ''),
+                    '(id, create_uid, create_date, author, website, name, ' \
+                    'shortdesc, description, state) ' \
+                    'VALUES (%s, %s, now(), %s, %s, %s, %s, %s, %s)',
+                    (module_id, 0, info.get('author', ''),
                 info.get('website', ''), i, info.get('name', False),
                 info.get('description', ''), state))
             dependencies = info.get('depends', [])
             for dependency in dependencies:
                 cursor.execute('INSERT INTO ir_module_module_dependency ' \
-                        '(module, name) VALUES (%s, %s)',
-                        (module_id, dependency))
+                        '(create_uid, create_date, module, name) ' \
+                        'VALUES (%s, now(), %s, %s)',
+                        (0, module_id, dependency))
 
 
 class _Cursor(cursor):
