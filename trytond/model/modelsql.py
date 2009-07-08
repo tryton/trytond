@@ -804,7 +804,7 @@ class ModelSQL(ModelStorage):
                 if domain1:
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
                             'WHERE id IN (' + ids_str + ')', sub_ids)
-                    rowcount = cursor.rowcount()
+                    rowcount = cursor.rowcount
                     if rowcount == -1 or rowcount is None:
                         rowcount = len(cursor.fetchall())
                     if rowcount == len({}.fromkeys(sub_ids)):
