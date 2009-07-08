@@ -21,12 +21,13 @@ from DAV.constants import COLLECTION, OBJECT
 from DAV.utils import get_uriparentpath, get_urifilename, quote_uri
 from DAV.davcmd import copyone, copytree, moveone, movetree, delone, deltree
 import urllib
-
-# Local int for multi-thread
 import sys
+import traceback
+import logging
 from threading import local
 
 
+# Local int for multi-thread
 class LocalInt(local):
 
     def __init__(self, value=0):
@@ -141,6 +142,18 @@ class TrytonDAVInterface(iface.dav_interface):
         self.baseuri = '%s://%s:%s/' % (protocol, interface or socket.gethostname(), port)
         self.verbose = False
 
+    def _log_exception(self, exception):
+        if CONFIG['verbose'] or (exception.args \
+                and (str(exception.args[0]) not in \
+                ('NotLogged', 'ConcurrencyException', 'UserError',
+                    'UserWarning')) \
+                    and not isinstance(exception,
+                        (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden))):
+            tb_s = reduce(lambda x, y: x + y,
+                traceback.format_exception(*sys.exc_info()))
+            logger = logging.getLogger('webdav')
+            logger.error('Exception:\n' + tb_s.decode('utf-8', 'ignore'))
+
     @staticmethod
     def get_dburi(uri):
         uri = urlparse.urlsplit(uri)[2]
@@ -181,9 +194,11 @@ class TrytonDAVInterface(iface.dav_interface):
             for child in collection_obj.get_childs(cursor, int(USER_ID), dburi,
                     filter=filter, cache=CACHE):
                 res.append(uri + child.encode('utf-8'))
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
@@ -221,9 +236,11 @@ class TrytonDAVInterface(iface.dav_interface):
         try:
             res = collection_obj.get_data(cursor, int(USER_ID), dburi,
                     cache=CACHE)
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
@@ -238,10 +255,12 @@ class TrytonDAVInterface(iface.dav_interface):
             res = collection_obj.put(cursor, int(USER_ID), dburi, data,
                     content_type, cache=CACHE)
             cursor.commit()
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise DAV_Error(500)
         if res:
@@ -261,10 +280,12 @@ class TrytonDAVInterface(iface.dav_interface):
             res = collection_obj.mkcol(cursor, int(USER_ID), dburi,
                     cache=CACHE)
             cursor.commit()
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise DAV_Error(500)
         return res
@@ -279,9 +300,11 @@ class TrytonDAVInterface(iface.dav_interface):
         try:
             res = collection_obj.get_resourcetype(cursor, int(USER_ID), dburi,
                 cache=CACHE)
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
@@ -298,9 +321,11 @@ class TrytonDAVInterface(iface.dav_interface):
         try:
             res = collection_obj.get_contentlength(cursor, int(USER_ID), dburi,
                     cache=CACHE)
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
@@ -314,9 +339,11 @@ class TrytonDAVInterface(iface.dav_interface):
         try:
             res = collection_obj.get_contenttype(cursor, int(USER_ID), dburi,
                     cache=CACHE)
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
@@ -333,9 +360,11 @@ class TrytonDAVInterface(iface.dav_interface):
         try:
             res = collection_obj.get_creationdate(cursor, int(USER_ID), dburi,
                     cache=CACHE)
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
@@ -349,9 +378,11 @@ class TrytonDAVInterface(iface.dav_interface):
         try:
             res = collection_obj.get_lastmodified(cursor, int(USER_ID), dburi,
                     cache=CACHE)
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
@@ -366,10 +397,12 @@ class TrytonDAVInterface(iface.dav_interface):
             res = collection_obj.rmcol(cursor, int(USER_ID), dburi,
                     cache=CACHE)
             cursor.commit()
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise DAV_Error(500)
         return res
@@ -385,10 +418,12 @@ class TrytonDAVInterface(iface.dav_interface):
             res = collection_obj.rm(cursor, int(USER_ID), dburi,
                     cache=CACHE)
             cursor.commit()
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             cursor.rollback()
             raise DAV_Error(500)
         return res
@@ -402,9 +437,11 @@ class TrytonDAVInterface(iface.dav_interface):
         collection_obj = pool.get('webdav.collection')
         try:
             res = collection_obj.exists(cursor, int(USER_ID), dburi, cache=CACHE)
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden):
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
             raise
-        except:
+        except Exception, exception:
+            self._log_exception(exception)
             raise DAV_Error(500)
         return res
 
