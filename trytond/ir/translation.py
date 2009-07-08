@@ -1003,13 +1003,13 @@ class TranslationUpdate(Wizard):
                 (data['form']['lang'],))
         for row in cursor.dictfetchall():
             cursor.execute('UPDATE ir_translation ' \
-                    'SET fuzzy = True, ' \
+                    'SET fuzzy = %s, ' \
                         'src = %s ' \
                     'WHERE name = %s ' \
                         'AND res_id = %s ' \
                         'AND type = %s ' \
                         'AND lang = %s',
-                    (row['src'], row['name'], row['res_id'], row['type'],
+                    (True, row['src'], row['name'], row['res_id'], row['type'],
                         data['form']['lang']))
 
         cursor.execute('SELECT src, MAX(value) AS value FROM ir_translation ' \
