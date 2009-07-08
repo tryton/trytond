@@ -65,7 +65,6 @@ class FieldsTestCase(unittest.TestCase):
         install_module('tests')
         self.boolean = RPCProxy('tests.boolean')
         self.boolean_default = RPCProxy('tests.boolean_default')
-        self.boolean_required = RPCProxy('tests.boolean_required')
 
         self.integer = RPCProxy('tests.integer')
         self.integer_default = RPCProxy('tests.integer_default')
@@ -160,9 +159,6 @@ class FieldsTestCase(unittest.TestCase):
 
         boolean4 = self.boolean_default.read(boolean4_id, ['boolean'], CONTEXT)
         self.assert_(boolean4['boolean'] == True)
-
-        boolean5_id = self.boolean_required.create({}, CONTEXT)
-        self.assert_(boolean5_id)
 
         self.boolean.write(boolean1_id, {
             'boolean': False,
