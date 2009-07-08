@@ -327,6 +327,13 @@ class ActionReport(ModelSQL, ModelView):
         return new_ids
 
     def create(self, cursor, user, vals, context=None):
+        later = {}
+        vals = vals.copy()
+        for field in vals:
+            if field in self._columns \
+                    and hasattr(self._columns[field], 'set'):
+                later[field] = vals[field]
+                del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionReport, self).create(cursor, user, vals,
@@ -334,6 +341,7 @@ class ActionReport(ModelSQL, ModelView):
         report = self.browse(cursor, user, new_id, context=context)
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (report.action.id, report.id))
+        self.write(cursor, user, report.action.id, later, context=context)
         return report.action.id
 
     def write(self, cursor, user, ids, vals, context=None):
@@ -420,6 +428,13 @@ class ActionActWindow(ModelSQL, ModelView):
         return res
 
     def create(self, cursor, user, vals, context=None):
+        later = {}
+        vals = vals.copy()
+        for field in vals:
+            if field in self._columns \
+                    and hasattr(self._columns[field], 'set'):
+                later[field] = vals[field]
+                del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionActWindow, self).create(cursor, user, vals,
@@ -427,6 +442,7 @@ class ActionActWindow(ModelSQL, ModelView):
         act_window = self.browse(cursor, user, new_id, context=context)
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (act_window.action.id, act_window.id))
+        self.write(cursor, user, act_window.action.id, later, context=context)
         return act_window.action.id
 
     def delete(self, cursor, user, ids, context=None):
@@ -485,6 +501,13 @@ class ActionWizard(ModelSQL, ModelView):
         return 'ir.action.wizard'
 
     def create(self, cursor, user, vals, context=None):
+        later = {}
+        vals = vals.copy()
+        for field in vals:
+            if field in self._columns \
+                    and hasattr(self._columns[field], 'set'):
+                later[field] = vals[field]
+                del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionWizard, self).create(cursor, user, vals,
@@ -492,6 +515,7 @@ class ActionWizard(ModelSQL, ModelView):
         wizard = self.browse(cursor, user, new_id, context=context)
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (wizard.action.id, wizard.id))
+        self.write(cursor, user, wizard.action.id, later, context=context)
         return wizard.action.id
 
     def delete(self, cursor, user, ids, context=None):
@@ -620,6 +644,13 @@ class ActionURL(ModelSQL, ModelView):
         return 'new'
 
     def create(self, cursor, user, vals, context=None):
+        later = {}
+        vals = vals.copy()
+        for field in vals:
+            if field in self._columns \
+                    and hasattr(self._columns[field], 'set'):
+                later[field] = vals[field]
+                del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionURL, self).create(cursor, user, vals,
@@ -627,6 +658,7 @@ class ActionURL(ModelSQL, ModelView):
         url = self.browse(cursor, user, new_id, context=context)
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (url.action.id, url.id))
+        self.write(cursor, user, url.action.id, later, context=context)
         return url.action.id
 
     def delete(self, cursor, user, ids, context=None):
