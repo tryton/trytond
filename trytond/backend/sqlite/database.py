@@ -249,7 +249,6 @@ class Cursor(CursorInterface):
             else:
                 res = self.cursor.execute(sql)
         except:
-            print sql, params
             raise
         return res
 
