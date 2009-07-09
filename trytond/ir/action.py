@@ -333,7 +333,8 @@ class ActionReport(ModelSQL, ModelView):
             if field in self._columns \
                     and hasattr(self._columns[field], 'set'):
                 later[field] = vals[field]
-                del vals[field]
+        for field in later:
+            del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionReport, self).create(cursor, user, vals,
@@ -434,7 +435,8 @@ class ActionActWindow(ModelSQL, ModelView):
             if field in self._columns \
                     and hasattr(self._columns[field], 'set'):
                 later[field] = vals[field]
-                del vals[field]
+        for field in later:
+            del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionActWindow, self).create(cursor, user, vals,
@@ -507,7 +509,8 @@ class ActionWizard(ModelSQL, ModelView):
             if field in self._columns \
                     and hasattr(self._columns[field], 'set'):
                 later[field] = vals[field]
-                del vals[field]
+        for field in later:
+            del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionWizard, self).create(cursor, user, vals,
@@ -650,7 +653,8 @@ class ActionURL(ModelSQL, ModelView):
             if field in self._columns \
                     and hasattr(self._columns[field], 'set'):
                 later[field] = vals[field]
-                del vals[field]
+        for field in later:
+            del vals[field]
         if cursor.nextid(self._table):
             cursor.setnextid(self._table, cursor.currid('ir_action'))
         new_id = super(ActionURL, self).create(cursor, user, vals,
