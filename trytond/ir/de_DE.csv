@@ -48,6 +48,7 @@ error,read_error,0,"You try to read records that don't exist anymore!
 (Dokumententyp: %s)",0
 error,required_field,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
+error,size_validation_record,0,"The field ""%s"" on ""%s"" is too long.","Der Wert von Feld ""%s"" in ""%s"" ist zu lang.",0
 error,write_error,0,"You try to write on records that don't exist anymore!
 (Document type: %s)","Schreibversuch auf nicht mehr vorhandene Datensätze!
 (Dokumententyp: %s)",0
@@ -100,6 +101,12 @@ field,"ir.action.wizard,action",0,Action,Aktion,0
 field,"ir.action.wizard,email",0,Email,E-Mail,0
 field,"ir.action.wizard,model",0,Model,Modell,0
 field,"ir.action.wizard,rec_name",0,Name,Name,0
+field,"ir.action.wizard_size,height",0,Height,Höhe,0
+field,"ir.action.wizard_size,model",0,Model,Modell,0
+field,"ir.action.wizard_size,rec_name",0,Name,Name,0
+field,"ir.action.wizard_size,user",0,User,Benutzer,0
+field,"ir.action.wizard_size,width",0,Width,Breite,0
+field,"ir.action.wizard_size,wizard",0,Wizard,Wizard,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Name,0
 field,"ir.attachment,collision",0,Collision,Kollision,0
 field,"ir.attachment,datas",0,Datas,Daten,0
@@ -214,6 +221,10 @@ field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Gruppen,0
 field,"ir.rule.group,model",0,Model,Modell,0
 field,"ir.rule.group,name",0,Name,Name,0
+field,"ir.rule.group,perm_create",0,Create Access,Erstellen,0
+field,"ir.rule.group,perm_delete",0,Delete Access,Löschen,0
+field,"ir.rule.group,perm_read",0,Read Access,Lesen,0
+field,"ir.rule.group,perm_write",0,Write Access,Schreiben,0
 field,"ir.rule.group,rec_name",0,Name,Name,0
 field,"ir.rule.group,rules",0,Tests,Tests,0
 field,"ir.rule.group,users",0,Users,Benutzer,0
@@ -349,9 +360,11 @@ model,"ir.action,name",act_view_sc_form,View Shortcuts,Schnelltasten anzeigen,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Spaltenbreiten anzeigen,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Fensteraktionen,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Wizards,0
+model,"ir.action,name",act_action_wizard_size_form,Wizard Sizes,Wizard Größen,0
 model,"ir.action.report,name",0,Action report,Aktion Bericht,0
 model,"ir.action.url,name",0,Action URL,Aktion URL,0
 model,"ir.action.wizard,name",0,Action wizard,Aktion Wizard,0
+model,"ir.action.wizard_size,name",0,Action Wizard Size,Aktion Wizard Größe,0
 model,"ir.attachment,name",0,Attachment,Anhang,0
 model,"ir.cache,name",0,Cache,Cache,0
 model,"ir.cron,name",0,Cron,Cron,0
@@ -426,6 +439,7 @@ model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Schnelltasten anzeigen,0
 model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Spaltenbreiten anzeigen,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Fensteraktionen,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Wizards,0
+model,"ir.ui.menu,name",menu_action_wizard_size,Wizard Sizes,Wizard Größen,0
 model,"ir.ui.view,name",0,View,Sicht,0
 model,"ir.ui.view_sc,name",0,View shortcut,Schnelltaste,0
 model,"ir.ui.view_tree_width,name",0,View Tree Width,Sicht Spaltenbreite,0
@@ -558,6 +572,8 @@ view,ir.action.url,0,URL,URL,0
 view,ir.action.wizard,0,Keyword,Schlüsselwort,0
 view,ir.action.wizard,0,Keywords,Schlüsselwörter,0
 view,ir.action.wizard,0,Wizard,Wizard,0
+view,ir.action.wizard_size,0,Wizard Size,Wizard Größe,0
+view,ir.action.wizard_size,0,Wizard Sizes,Wizard Größen,0
 view,ir.attachment,0,Attachments,Anhänge,0
 view,ir.cron,0,Action to trigger,Auszuführende Aktion,0
 view,ir.cron,0,Scheduled Action,Geplante Aktion,0
