@@ -167,3 +167,46 @@ class CharSize(ModelSQL):
             required=False)
 
 CharSize()
+
+
+class Text(ModelSQL):
+    'Text'
+    _name = 'tests.text'
+    _description = __doc__
+    text = fields.Text(string='Text', size=None, help='Test text',
+            required=False)
+
+Text()
+
+
+class TextDefault(ModelSQL):
+    'Text Default'
+    _name = 'tests.text_default'
+    _description = __doc__
+    text = fields.Text(string='Text', size=None, help='Test text',
+            required=False)
+
+    def default_text(self, cursor, user, context=None):
+        return 'Test'
+
+TextDefault()
+
+
+class TextRequired(ModelSQL):
+    'Text Required'
+    _name = 'tests.text_required'
+    _description = __doc__
+    text = fields.Text(string='Text', size=None, help='Test text',
+            required=True)
+
+TextRequired()
+
+
+class TextSize(ModelSQL):
+    'Text Size'
+    _name = 'tests.text_size'
+    _description = __doc__
+    text = fields.Text(string='Text', size=5, help='Test text',
+            required=False)
+
+TextSize()

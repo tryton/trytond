@@ -83,6 +83,11 @@ class FieldsTestCase(unittest.TestCase):
         self.char_required = RPCProxy('tests.char_required')
         self.char_size = RPCProxy('tests.char_size')
 
+        self.text = RPCProxy('tests.text')
+        self.text_default = RPCProxy('tests.text_default')
+        self.text_required = RPCProxy('tests.text_required')
+        self.text_size = RPCProxy('tests.text_size')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -949,6 +954,240 @@ class FieldsTestCase(unittest.TestCase):
         self.failUnlessRaises(Exception, self.char_size.write, char6_id, {
             'char': 'foobar',
             }, CONTEXT)
+
+    def test0060text(self):
+        '''
+        Test Text.
+        '''
+        text1_id = self.text.create({
+            'text': 'Test',
+            }, CONTEXT)
+        self.assert_(text1_id)
+
+        text1 = self.text.read(text1_id, ['text'], CONTEXT)
+        self.assert_(text1['text'] == 'Test')
+
+        text_ids = self.text.search([
+            ('text', '=', 'Test'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', '=', 'Foo'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', '=', False),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', '!=', 'Test'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', '!=', 'Foo'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', '!=', False),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'in', ['Test']),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'in', ['Foo']),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'in', [False]),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'in', []),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'not in', ['Test']),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'not in', ['Foo']),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'not in', [False]),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'not in', []),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'like', 'Test'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'like', 'T%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'like', 'Foo'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'like', 'F%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'ilike', 'test'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'ilike', 't%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'ilike', 'foo'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'ilike', 'f%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'not like', 'Test'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'not like', 'T%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'not like', 'Foo'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'not like', 'F%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'not ilike', 'test'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'not ilike', 't%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text_ids = self.text.search([
+            ('text', 'not ilike', 'foo'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text_ids = self.text.search([
+            ('text', 'not ilike', 'f%'),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id])
+
+        text2_id = self.text.create({
+            'text': False,
+            }, CONTEXT)
+        self.assert_(text2_id)
+
+        text2 = self.text.read(text2_id, ['text'], CONTEXT)
+        self.assert_(text2['text'] == None)
+
+        text_ids = self.text.search([
+            ('text', '=', False),
+            ], CONTEXT)
+        self.assert_(text_ids == [text2_id])
+
+        text_ids = self.text.search([
+            ('text', 'in', [False, 'Test']),
+            ], CONTEXT)
+        self.assert_(text_ids == [text1_id, text2_id])
+
+        text_ids = self.text.search([
+            ('text', 'not in', [False, 'Test']),
+            ], CONTEXT)
+        self.assert_(text_ids == [])
+
+        text3_id = self.text.create({}, CONTEXT)
+        self.assert_(text3_id)
+
+        text3 = self.text.read(text3_id, ['text'], CONTEXT)
+        self.assert_(text3['text'] == None)
+
+        text4_id = self.text_default.create({}, CONTEXT)
+        self.assert_(text4_id)
+
+        text4 = self.text_default.read(text4_id, ['text'], CONTEXT)
+        self.assert_(text4['text'] == 'Test')
+
+        self.text.write(text1_id, {
+            'text': False,
+            }, CONTEXT)
+        text1 = self.text.read(text1_id, ['text'], CONTEXT)
+        self.assert_(text1['text'] == None)
+
+        self.text.write(text2_id, {
+            'text': 'Test',
+            }, CONTEXT)
+        text2 = self.text.read(text2_id, ['text'], CONTEXT)
+        self.assert_(text2['text'] == 'Test')
+
+        self.failUnlessRaises(Exception, self.text_required.create, {}, CONTEXT)
+
+        text5_id = self.text_required.create({
+            'text': 'Test',
+            }, CONTEXT)
+        self.assert_(text5_id)
+
+        text6_id = self.text_size.create({
+            'text': 'Test',
+            }, CONTEXT)
+        self.assert_(text6_id)
+
+        self.failUnlessRaises(Exception, self.text_size.create, {
+            'text': 'foobar',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.text_size.write, text6_id, {
+            'text': 'foobar',
+            }, CONTEXT)
+
+        text7_id = self.text.create({
+            'text': 'Foo\nBar',
+            }, CONTEXT)
+        self.assert_(text7_id)
 
 
 class ModelViewTestCase(unittest.TestCase):
