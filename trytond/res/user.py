@@ -220,8 +220,12 @@ class User(ModelSQL, ModelView):
                 res[field] = user[field]
 
         if user.language:
+            date = user.language.date
+            for i, j in [('%a', ''), ('%A', ''), ('%b', '%m'), ('%B', '%m'),
+                    ('%j', ''), ('%U', ''), ('%w', ''), ('%W', '')]:
+                date = date.replace(i, j)
             res['locale'] = {
-                'date': user.language.date,
+                'date': date,
                 'grouping': eval(user.language.grouping),
                 'decimal_point': user.language.decimal_point,
                 'thousands_sep': user.language.thousands_sep,
