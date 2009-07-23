@@ -1,8 +1,10 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Lang"
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 import time
+from time_locale import TIME_LOCALE
 
 
 class Lang(ModelSQL, ModelView, Cacheable):
@@ -98,6 +100,11 @@ class Lang(ModelSQL, ModelView, Cacheable):
                     and '%-d' not in lang.date \
                     and '%j' not in lang.date \
                     and '%-j' not in lang.date:
+                return False
+            if '%x' in lang.date \
+                    or '%X' in lang.date \
+                    or '%c' in lang.date \
+                    or '%Z' in lang.date:
                 return False
         return True
 
@@ -290,5 +297,21 @@ class Lang(ModelSQL, ModelView, Cacheable):
             s = sign + s
 
         return s.replace('<', '').replace('>', '')
+
+    def strftime(self, timetuple, code, format):
+        '''
+        Convert timetuple to a string as specified by the format argument.
+
+        :param timetuple: a tuple or struct_time representing a time
+        :param code: locale code
+        :param format: a string
+        :return: a string
+        '''
+        if code in TIME_LOCALE:
+            for f, i in (('%a', 6), ('%A', 6), ('%b', 1), ('%B', 1)):
+                format = format.replace(f, TIME_LOCALE[code][f][timetuple[i]])
+            format = format.replace('%p', TIME_LOCALE[code]['%p']\
+                    [timetuple[3] < 12 and 0 or 1])
+        return time.strftime(format, timetuple)
 
 Lang()
