@@ -299,7 +299,7 @@ class Report(object):
                 date = mx.DateTime.strptime(str(value), string_pattern)
             else:
                 date = mx.DateTime.DateTime(*(value.timetuple()[:6]))
-            return date.strftime(locale_format)
+            return lang_obj.strftime(date.tuple(), lang.code, locale_format)
         if currency:
             return lang_obj.currency(lang, value, currency, grouping=grouping)
         return lang_obj.format(lang, '%.' + str(digits) + 'f', value,
