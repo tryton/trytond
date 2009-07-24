@@ -356,11 +356,11 @@ model,"ir.action,name",act_view_sc_form,View Shortcuts,Ver Atajos,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Ancho de Vista de Árbol,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Acciones de Ventana,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Asistentes,0
-model,"ir.action,name",act_action_wizard_size_form,Wizard Sizes,Tamaños del Gestor,0
+model,"ir.action,name",act_action_wizard_size_form,Wizard Sizes,Tamaños del Asistente,0
 model,"ir.action.report,name",0,Action report,Acción de reporte,0
 model,"ir.action.url,name",0,Action URL,Acción URL,0
 model,"ir.action.wizard,name",0,Action wizard,Acción de ayudante,0
-model,"ir.action.wizard_size,name",0,Action Wizard Size,Tamaño de la Acción del Gestor,0
+model,"ir.action.wizard_size,name",0,Action Wizard Size,Tamaño de la Acción del Asistente,0
 model,"ir.attachment,name",0,Attachment,Adjunto,0
 model,"ir.cache,name",0,Cache,Caché,0
 model,"ir.cron,name",0,Cron,Cron,0
@@ -435,7 +435,7 @@ model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Ver Atajos,0
 model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Ancho de Vista de Árbol,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Acciones de Ventana,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Asistentes,0
-model,"ir.ui.menu,name",menu_action_wizard_size,Wizard Sizes,Tamaños del Gestor,0
+model,"ir.ui.menu,name",menu_action_wizard_size,Wizard Sizes,Tamaños del Asistente,0
 model,"ir.ui.view,name",0,View,Vista,0
 model,"ir.ui.view_sc,name",0,View shortcut,Ver atajo,0
 model,"ir.ui.view_tree_width,name",0,View Tree Width,Ancho de Vista de Árbol,0
@@ -568,8 +568,8 @@ view,ir.action.url,0,URL,URL,0
 view,ir.action.wizard,0,Keyword,Palabra Clave,0
 view,ir.action.wizard,0,Keywords,Palabras Clave,0
 view,ir.action.wizard,0,Wizard,Asistente,0
-view,ir.action.wizard_size,0,Wizard Size,Tamaño del Gestor,0
-view,ir.action.wizard_size,0,Wizard Sizes,Tamaños del Gestor,0
+view,ir.action.wizard_size,0,Wizard Size,Tamaño del Asistente,0
+view,ir.action.wizard_size,0,Wizard Sizes,Tamaños del Asistente,0
 view,ir.attachment,0,Attachments,Adjuntos,0
 view,ir.cron,0,Action to trigger,Acción a ejecutarse,0
 view,ir.cron,0,Scheduled Action,Acción agendada,0
