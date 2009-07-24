@@ -210,3 +210,36 @@ class TextSize(ModelSQL):
             required=False)
 
 TextSize()
+
+
+class Sha(ModelSQL):
+    'Sha'
+    _name = 'tests.sha'
+    _description = __doc__
+    sha = fields.Sha(string='Sha', help='Sha sha',
+            required=False)
+
+Sha()
+
+
+class ShaDefault(ModelSQL):
+    'Sha Default'
+    _name = 'tests.sha_default'
+    _description = __doc__
+    sha = fields.Sha(string='Sha', help='Sha sha',
+            required=False)
+
+    def default_sha(self, cursor, user, consha=None):
+        return 'Sha'
+
+ShaDefault()
+
+
+class ShaRequired(ModelSQL):
+    'Sha Required'
+    _name = 'tests.sha_required'
+    _description = __doc__
+    sha = fields.Sha(string='Sha', help='Sha sha',
+            required=True)
+
+ShaRequired()

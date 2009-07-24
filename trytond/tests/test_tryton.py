@@ -88,6 +88,10 @@ class FieldsTestCase(unittest.TestCase):
         self.text_required = RPCProxy('tests.text_required')
         self.text_size = RPCProxy('tests.text_size')
 
+        self.sha = RPCProxy('tests.sha')
+        self.sha_default = RPCProxy('tests.sha_default')
+        self.sha_required = RPCProxy('tests.sha_required')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -1188,6 +1192,222 @@ class FieldsTestCase(unittest.TestCase):
             'text': 'Foo\nBar',
             }, CONTEXT)
         self.assert_(text7_id)
+
+    def test0070sha(self):
+        '''
+        Test Sha.
+        '''
+        sha1_id = self.sha.create({
+            'sha': 'Test',
+            }, CONTEXT)
+        self.assert_(sha1_id)
+
+        sha1 = self.sha.read(sha1_id, ['sha'], CONTEXT)
+        self.assert_(sha1['sha'] == '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa')
+
+        sha_ids = self.sha.search([
+            ('sha', '=', 'Test'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', '=', 'Foo'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', '=', False),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', '!=', 'Test'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', '!=', 'Foo'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', '!=', False),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'in', ['Test']),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'in', ['Foo']),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'in', [False]),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'in', []),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not in', ['Test']),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not in', ['Foo']),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not in', [False]),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not in', []),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'like', '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'like', '640a%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'like', 'Foo'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'like', 'F%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'ilike', '640AB2BAE07BEDC4C163F679A746F7AB7FB5D1FA'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'ilike', '640A%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'ilike', 'foo'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'ilike', 'f%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not like', '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not like', '640a%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not like', 'Foo'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not like', 'F%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not ilike', '640AB2BAE07BEDC4C163F679A746F7AB7FB5D1FA'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not ilike', '640A%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not ilike', 'foo'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not ilike', 'f%'),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id])
+
+        sha2_id = self.sha.create({
+            'sha': False,
+            }, CONTEXT)
+        self.assert_(sha2_id)
+
+        sha2 = self.sha.read(sha2_id, ['sha'], CONTEXT)
+        self.assert_(sha2['sha'] == None)
+
+        sha_ids = self.sha.search([
+            ('sha', '=', False),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha2_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'in', [False, 'Test']),
+            ], CONTEXT)
+        self.assert_(sha_ids == [sha1_id, sha2_id])
+
+        sha_ids = self.sha.search([
+            ('sha', 'not in', [False, 'Test']),
+            ], CONTEXT)
+        self.assert_(sha_ids == [])
+
+        sha3_id = self.sha.create({}, CONTEXT)
+        self.assert_(sha3_id)
+
+        sha3 = self.sha.read(sha3_id, ['sha'], CONTEXT)
+        self.assert_(sha3['sha'] == None)
+
+        sha4_id = self.sha_default.create({}, CONTEXT)
+        self.assert_(sha4_id)
+
+        sha4 = self.sha_default.read(sha4_id, ['sha'], CONTEXT)
+        self.assert_(sha4['sha'] == 'ba79baeb9f10896a46ae74715271b7f586e74640')
+
+        self.sha.write(sha1_id, {
+            'sha': False,
+            }, CONTEXT)
+        sha1 = self.sha.read(sha1_id, ['sha'], CONTEXT)
+        self.assert_(sha1['sha'] == None)
+
+        self.sha.write(sha2_id, {
+            'sha': 'Test',
+            }, CONTEXT)
+        sha2 = self.sha.read(sha2_id, ['sha'], CONTEXT)
+        self.assert_(sha2['sha'] == '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa')
+
+        self.failUnlessRaises(Exception, self.sha_required.create, {}, CONTEXT)
+
+        sha5_id = self.sha_required.create({
+            'sha': 'Test',
+            }, CONTEXT)
+        self.assert_(sha5_id)
 
 
 class ModelViewTestCase(unittest.TestCase):
