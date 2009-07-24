@@ -46,6 +46,7 @@ error,read_error,0,"You try to read records that don't exist anymore!
 (Document type: %s)",¡Está intentando leer registros que ya no existen!,0
 error,required_field,0,"The field ""%s"" on ""%s"" is required.","Se requiere el campo ""%s"" en ""%s"".",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Se requiere el campo ""%s"" en ""%s"".",0
+error,size_validation_record,0,"The field ""%s"" on ""%s"" is too long.","El campo ""%s"" en ""%s"" es muy largo.",0
 error,write_error,0,"You try to write on records that don't exist anymore!
 (Document type: %s)",¡Está tratando de escribir registros que ya no existen!,0
 error,write_xml_record,0,You are not allowed to modify this record.,No esta autorizado para modificar este registro.,0
@@ -60,7 +61,6 @@ field,"ir.action.act_window,limit",0,Limit,Límite,0
 field,"ir.action.act_window,rec_name",0,Name,Nombre,0
 field,"ir.action.act_window,res_model",0,Model,Modelo,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Criterio de Búsqueda,0
-field,"ir.action.act_window,usage",0,Action Usage,Uso de Acción,0
 field,"ir.action.act_window.view,act_window",0,Action,Acción,0
 field,"ir.action.act_window.view,rec_name",0,Name,Nombre,0
 field,"ir.action.act_window,views",0,Views,Vistas,0
@@ -98,6 +98,12 @@ field,"ir.action.wizard,action",0,Action,Acción,0
 field,"ir.action.wizard,email",0,Email,Correo Electrónico,0
 field,"ir.action.wizard,model",0,Model,Modelo,0
 field,"ir.action.wizard,rec_name",0,Name,Nombre,0
+field,"ir.action.wizard_size,height",0,Height,Altura,0
+field,"ir.action.wizard_size,model",0,Model,Modelo,1
+field,"ir.action.wizard_size,rec_name",0,Name,Nombre de Contacto,1
+field,"ir.action.wizard_size,user",0,User,Usuario,1
+field,"ir.action.wizard_size,width",0,Width,Ancho,1
+field,"ir.action.wizard_size,wizard",0,Wizard,Asistente,1
 field,"ir.action.wizard,wiz_name",0,Wizard name,Nombre del Asistente,0
 field,"ir.attachment,collision",0,Collision,Colisión,0
 field,"ir.attachment,datas",0,Datas,Datos,0
@@ -212,6 +218,10 @@ field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Grupos,0
 field,"ir.rule.group,model",0,Model,Modelo,0
 field,"ir.rule.group,name",0,Name,Nombre,0
+field,"ir.rule.group,perm_create",0,Create Access,Crear Acceso,1
+field,"ir.rule.group,perm_delete",0,Delete Access,Permiso para Eliminar,1
+field,"ir.rule.group,perm_read",0,Read Access,Acceso de Lectura,1
+field,"ir.rule.group,perm_write",0,Write Access,Acceso de Escritura,1
 field,"ir.rule.group,rec_name",0,Name,Nombre,0
 field,"ir.rule.group,rules",0,Tests,Pruebas,0
 field,"ir.rule.group,users",0,Users,Usuarios,0
@@ -346,9 +356,11 @@ model,"ir.action,name",act_view_sc_form,View Shortcuts,Ver Atajos,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Ancho de Vista de Árbol,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Acciones de Ventana,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Asistentes,0
+model,"ir.action,name",act_action_wizard_size_form,Wizard Sizes,Tamaños del Gestor,0
 model,"ir.action.report,name",0,Action report,Acción de reporte,0
 model,"ir.action.url,name",0,Action URL,Acción URL,0
 model,"ir.action.wizard,name",0,Action wizard,Acción de ayudante,0
+model,"ir.action.wizard_size,name",0,Action Wizard Size,Tamaño de la Acción del Gestor,0
 model,"ir.attachment,name",0,Attachment,Adjunto,0
 model,"ir.cache,name",0,Cache,Caché,0
 model,"ir.cron,name",0,Cron,Cron,0
@@ -423,6 +435,7 @@ model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Ver Atajos,0
 model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Ancho de Vista de Árbol,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Acciones de Ventana,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Asistentes,0
+model,"ir.ui.menu,name",menu_action_wizard_size,Wizard Sizes,Tamaños del Gestor,0
 model,"ir.ui.view,name",0,View,Vista,0
 model,"ir.ui.view_sc,name",0,View shortcut,Ver atajo,0
 model,"ir.ui.view_tree_width,name",0,View Tree Width,Ancho de Vista de Árbol,0
@@ -555,6 +568,8 @@ view,ir.action.url,0,URL,URL,0
 view,ir.action.wizard,0,Keyword,Palabra Clave,0
 view,ir.action.wizard,0,Keywords,Palabras Clave,0
 view,ir.action.wizard,0,Wizard,Asistente,0
+view,ir.action.wizard_size,0,Wizard Size,Tamaño del Gestor,0
+view,ir.action.wizard_size,0,Wizard Sizes,Tamaños del Gestor,0
 view,ir.attachment,0,Attachments,Adjuntos,0
 view,ir.cron,0,Action to trigger,Acción a ejecutarse,0
 view,ir.cron,0,Scheduled Action,Acción agendada,0
