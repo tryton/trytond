@@ -43,33 +43,29 @@ def now():
 class Database(DatabaseInterface):
 
     _memory_database = None
-    _memory_created = False
     _conn = None
 
     def __new__(cls, database_name=':memory:'):
-        if database_name in (':memory:', 'memory') \
+        if database_name == ':memory:' \
                 and cls._memory_database:
             return cls._memory_database
         return DatabaseInterface.__new__(cls, database_name=database_name)
 
     def __init__(self, database_name=':memory:'):
         super(Database, self).__init__(database_name=database_name)
-        if database_name in (':memory:', 'memory'):
+        if database_name == ':memory:':
             Database._memory_database = self
 
     def connect(self):
-        if self._conn is not None:
-            return self
-        if self.database_name in (':memory:', 'memory'):
+        if self.database_name == ':memory:':
             path = ':memory:'
-            if self.database_name == 'memory' \
-                    and not self._memory_created:
-                raise Exception('Database doesn\'t exist!')
         else:
             path = os.path.join(CONFIG['data_path'],
                     self.database_name + '.sqlite')
             if not os.path.isfile(path):
                 raise Exception('Database doesn\'t exist!')
+        if self._conn is not None:
+            return self
         self._conn = sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES)
         self._conn.create_function('date_trunc', 2, date_trunc)
         self._conn.create_function('now', 0, now)
@@ -85,17 +81,15 @@ class Database(DatabaseInterface):
         return Cursor(self._conn, self.database_name)
 
     def close(self):
-        if self.database_name in (':memory:', 'memory'):
+        if self.database_name == ':memory:':
             return
         if self._conn is None:
             return
         self._conn = None
 
     def create(self, cursor, database_name):
-        if database_name in (':memory:', 'memory'):
+        if database_name == ':memory:':
             path = ':memory:'
-            if database_name == 'memory':
-                self._memory_created = True
         else:
             if os.sep in database_name:
                 return
@@ -107,7 +101,7 @@ class Database(DatabaseInterface):
         conn.close()
 
     def drop(self, cursor, database_name):
-        if database_name in (':memory', 'memory'):
+        if database_name == ':memory':
             self._conn = None
             return
         if os.sep in database_name:
@@ -117,7 +111,7 @@ class Database(DatabaseInterface):
 
     @staticmethod
     def dump(database_name):
-        if database_name in (':memory:', 'memory'):
+        if database_name == ':memory:':
             raise Exception('Unable to dump memory database!')
         if os.sep in database_name:
             raise Exception('Wrong database name!')
@@ -130,7 +124,7 @@ class Database(DatabaseInterface):
 
     @staticmethod
     def restore(database_name, data):
-        if database_name in (':memory:', 'memory'):
+        if database_name == ':memory:':
             raise Exception('Unable to restore memory database!')
         if os.sep in database_name:
             raise Exception('Wrong database name!')
@@ -145,9 +139,9 @@ class Database(DatabaseInterface):
     @staticmethod
     def list(cursor):
         res = []
-        for file in os.listdir(CONFIG['data_path']) + ['memory']:
-            if file.endswith('.sqlite') or file == 'memory':
-                if file == 'memory':
+        for file in os.listdir(CONFIG['data_path']) + [':memory:']:
+            if file.endswith('.sqlite') or file == ':memory:':
+                if file == ':memory:':
                     db_name = ':memory:'
                 else:
                     db_name = file[:-7]
