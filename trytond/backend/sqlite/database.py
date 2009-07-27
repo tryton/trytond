@@ -226,7 +226,7 @@ class _Cursor(sqlite.Cursor):
 
 
 class Cursor(CursorInterface):
-    IN_MAX = 500
+    IN_MAX = 200
 
     def __init__(self, conn, database_name):
         self._conn = conn
