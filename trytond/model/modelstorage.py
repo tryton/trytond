@@ -963,7 +963,7 @@ class ModelStorage(Model):
             # validate size
             if hasattr(field, 'size') and field.size:
                 for record in records:
-                    if len(record[field_name]) > field.size:
+                    if len(record[field_name] or '') > field.size:
                         self.raise_user_error(cursor,
                                 'size_validation_record',
                                 error_args=self._get_error_args(cursor,
