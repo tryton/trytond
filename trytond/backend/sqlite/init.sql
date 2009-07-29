@@ -31,7 +31,7 @@ CREATE TABLE ir_ui_view (
 	"type" VARCHAR,
 	arch TEXT,
 	field_childs VARCHAR,
-	priority INTEGER
+	priority INTEGER DEFAULT 0
 );
 
 CREATE TABLE ir_ui_menu (
@@ -52,7 +52,7 @@ CREATE TABLE ir_translation (
     lang VARCHAR,
     src TEXT,
     name VARCHAR,
-    res_id INTEGER,
+    res_id INTEGER DEFAULT 0,
     value TEXT,
     "type" VARCHAR,
     module VARCHAR,
@@ -142,8 +142,8 @@ create table wkf_instance
 (
     id INTEGER PRIMARY KEY,
     workflow INTEGER,
-    uid INTEGER,
-    res_id INTEGER,
+    uid INTEGER DEFAULT 0,
+    res_id INTEGER DEFAULT 0,
     res_type VARCHAR,
     state VARCHAR
 );
