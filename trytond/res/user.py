@@ -7,6 +7,8 @@ from trytond.wizard import Wizard
 from lxml import etree
 from trytond.tools import Cache
 from trytond.backend import TableHandler
+import string
+import random
 
 
 class User(ModelSQL, ModelView):
@@ -16,6 +18,7 @@ class User(ModelSQL, ModelView):
     name = fields.Char('Name', required=True, select=1, translate=True)
     login = fields.Char('Login', required=True)
     password = fields.Sha('Password')
+    salt = fields.Char('Salt', size=8)
     signature = fields.Text('Signature')
     active = fields.Boolean('Active')
     action = fields.Many2One('ir.action', 'Home Action')
@@ -114,8 +117,13 @@ class User(ModelSQL, ModelView):
         if 'menu' in vals:
             vals['menu'] = action_obj.get_action_id(cursor, user,
                     vals['menu'], context=context)
-        if 'password' in vals and vals['password'] == 'x' * 10:
-            del vals['password']
+        if 'password' in vals:
+            if vals['password'] == 'x' * 10:
+                del vals['password']
+            else:
+                vals['salt'] = ''.join(random.sample(
+                    string.letters + string.digits, 8))
+                vals['password'] += vals['salt']
         return vals
 
     def create(self, cursor, user, vals, context=None):
