@@ -18,11 +18,7 @@ def login(dbname, loginname, password, cache=True):
     _USER_TRY.setdefault(dbname, {})
     database = Database(dbname).connect()
     cursor = database.cursor()
-    if hashlib:
-        password_sha = hashlib.sha1(password).hexdigest()
-    else:
-        password_sha = sha.new(password).hexdigest()
-    cursor.execute('SELECT id, password, active FROM res_user '
+    cursor.execute('SELECT id, password, active, salt FROM res_user '
         'WHERE login = %s', (loginname,))
     res = cursor.fetchone()
     if res:
@@ -31,6 +27,12 @@ def login(dbname, loginname, password, cache=True):
         if user_id == 0:
             return False
         _USER_TRY[dbname].setdefault(user_id, 0)
+        # Add salt
+        password += res[3] or ''
+        if hashlib:
+            password_sha = hashlib.sha1(password).hexdigest()
+        else:
+            password_sha = sha.new(password).hexdigest()
         if res[1] == password_sha and res[2]:
             _USER_TRY[dbname][user_id] = 0
             if cache:

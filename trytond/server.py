@@ -27,6 +27,8 @@ except ImportError:
     import sha
 import threading
 from pool import Pool
+import string
+import random
 
 
 class TrytonServer(object):
@@ -128,13 +130,15 @@ class TrytonServer(object):
 
                 database = Database(db_name).connect()
                 cursor = database.cursor()
+                salt = ''.join(random.sample(string.letters + string.digits, 8))
+                password += salt
                 if hashlib:
                     password = hashlib.sha1(password).hexdigest()
                 else:
                     password = sha.new(password).hexdigest()
                 cursor.execute('UPDATE res_user ' \
-                        'SET password = %s ' \
-                        'WHERE login = \'admin\'', (password,))
+                        'SET password = %s, salt = %s ' \
+                        'WHERE login = \'admin\'', (password, salt))
                 cursor.commit()
                 cursor.close()
 
