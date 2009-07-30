@@ -6,6 +6,9 @@ from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
 from trytond.backend import DatabaseIntegrityError, Database
 import datetime
+import re
+_RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)
+_RE_CHECK = re.compile('CHECK\s*\((.*)\)', re.I)
 
 
 class ModelSQL(ModelStorage):
@@ -2056,3 +2059,34 @@ class ModelSQL(ModelStorage):
                             + str(current_left - next_left) + ' ' \
                     'WHERE id in (' + ','.join(['%s' for x in child_ids]) + ')',
                     child_ids)
+
+    def _validate(self, cursor, user, ids, context=None):
+        super(ModelSQL, self)._validate(cursor, user, ids, context=context)
+        if cursor.has_constraint():
+            return
+        # Works only for a single transaction
+        for _, sql, error in self._sql_constraints:
+            m = _RE_UNIQUE.match(sql)
+            if m:
+                sql = m.group(1)
+                cursor.execute('SELECT COUNT(id) ' \
+                        'FROM "' + self._table + '" ' \
+                        'GROUP BY ' + sql + ' ' \
+                        'HAVING COUNT(id) > 1')
+                if cursor.fetchone():
+                    self.raise_user_error(cursor, error, context=context)
+                continue
+            m = _RE_CHECK.match(sql)
+            if m:
+                sql = m.group(1)
+                for i in range(0, len(ids), cursor.IN_MAX):
+                    sub_ids = ids[i:i + cursor.IN_MAX]
+                    cursor.execute('SELECT id ' \
+                            'FROM "' + self._table + '" ' \
+                            'WHERE NOT (' + sql + ') ' \
+                                'AND id IN ' \
+                                '(' + ','.join(['%s' for x in sub_ids]) + ')',
+                            sub_ids)
+                    if cursor.fetchone():
+                        self.raise_user_error(cursor, error, context=context)
+                    continue

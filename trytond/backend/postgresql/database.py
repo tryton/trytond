@@ -372,5 +372,8 @@ class Cursor(CursorInterface):
     def has_lock(self):
         return True
 
+    def has_constraint(self):
+        return True
+
 register_type(UNICODE)
 register_adapter(Session, AsIs)
