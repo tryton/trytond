@@ -176,3 +176,11 @@ class CursorInterface(object):
         :return: a boolean
         '''
         raise
+
+    def has_constraint(self):
+        '''
+        Return True if database handle constraint.
+
+        :return: a boolean
+        '''
+        raise

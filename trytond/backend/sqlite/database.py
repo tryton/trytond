@@ -291,6 +291,9 @@ class Cursor(CursorInterface):
     def has_lock(self):
         return False
 
+    def has_constraint(self):
+        return False
+
 sqlite.register_converter('NUMERIC', lambda val: Decimal(str(val)))
 sqlite.register_adapter(Decimal, lambda val: float(val))
 sqlite.register_adapter(Session, lambda val: int(val))
