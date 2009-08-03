@@ -8,7 +8,7 @@ this repository contains the full copyright notices and license terms. -->
 
         <record model="ir.lang" id="lang_cs">
             <field name="code">cs_CZ</field>
-            <field name="name">Čeština</field>
+            <field name="name">Czech</field>
             <field name="date">%-d.%-m.%Y</field>
             <field name="grouping">[3, 3, 0]</field>
             <field name="decimal_point">,</field>
@@ -16,7 +16,7 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <record model="ir.lang" id="lang_de">
             <field name="code">de_DE</field>
-            <field name="name">Deutsch</field>
+            <field name="name">German</field>
             <field name="date">%d.%m.%Y</field>
             <field name="grouping">[3, 3, 0]</field>
             <field name="decimal_point">,</field>
@@ -32,7 +32,7 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <record model="ir.lang" id="lang_es">
             <field name="code">es_ES</field>
-            <field name="name">Español (España)</field>
+            <field name="name">Spanish (Spain)</field>
             <field name="date">%d/%m/%Y</field>
             <field name="grouping">[3, 3, 0]</field>
             <field name="decimal_point">,</field>
@@ -40,7 +40,7 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <record model="ir.lang" id="lang_es_CO">
             <field name="code">es_CO</field>
-            <field name="name">Español (Colombia)</field>
+            <field name="name">Spanish (Colombia)</field>
             <field name="date">%d/%m/%Y</field>
             <field name="grouping">[3, 3, 0]</field>
             <field name="decimal_point">,</field>
@@ -48,7 +48,7 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <record model="ir.lang" id="lang_fr">
             <field name="code">fr_FR</field>
-            <field name="name">Français</field>
+            <field name="name">French</field>
             <field name="date">%d.%m.%Y</field>
             <field name="grouping">[]</field>
             <field name="decimal_point">,</field>

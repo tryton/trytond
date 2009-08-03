@@ -11,7 +11,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
     "Language"
     _name = "ir.lang"
     _description = __doc__
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Name', required=True, translate=True)
     code = fields.Char('Code', required=True,
             help="RFC 4646 tag: http://tools.ietf.org/html/rfc4646")
     translatable = fields.Boolean('Translatable')
@@ -44,6 +44,31 @@ class Lang(ModelSQL, ModelView, Cacheable):
             'invalid_grouping': 'Invalid Grouping!',
             'invalid_date': 'The date format is not valid!',
         })
+
+    def read(self, cursor, user, ids, fields_names=None, context=None):
+        translation_obj = self.pool.get('ir.translation')
+        if context is None:
+            context = {}
+        remove_code = False
+        if context.get('translate_name', False) \
+                and (not fields_names or 'name' in fields_names):
+            if fields_names and 'code' not in fields_names:
+                fields_names = fields_names[:]
+                fields_names.append('code')
+                remove_code = True
+        res = super(Lang, self).read(cursor, user, ids,
+                fields_names=fields_names, context=context)
+        if context.get('translate_name', False) \
+                and (not fields_names or 'name' in fields_names):
+            for record in res:
+                res_trans = translation_obj._get_ids(cursor,
+                        self._name + ',name', 'model',
+                        record['code'], [record['id']])
+                record['name'] = res_trans.get(record['id'], False) \
+                        or record['name']
+                if remove_code:
+                    del record['code']
+        return res
 
     def default_active(self, cursor, user, context=None):
         return 1

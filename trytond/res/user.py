@@ -269,6 +269,9 @@ class User(ModelSQL, ModelView):
         model_data_obj = self.pool.get('ir.model.data')
         lang_obj = self.pool.get('ir.lang')
 
+        if context is None:
+            context = {}
+
         model_data_ids = model_data_obj.search(cursor, user, [
             ('fs_id', '=', 'user_view_form_preferences'),
             ('module', '=', 'res'),
@@ -292,7 +295,9 @@ class User(ModelSQL, ModelView):
                 ('translatable', '=', True),
                 ('code', '=', 'en_US'),
                 ], context=None)
-            for lang in lang_obj.browse(cursor, user, lang_ids, context=context):
+            ctx = context.copy()
+            ctx['translate_name'] = True
+            for lang in lang_obj.browse(cursor, user, lang_ids, context=ctx):
                 res['fields']['language']['selection'].append(
                         (lang.code, lang.name))
         return res
