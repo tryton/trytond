@@ -330,13 +330,13 @@ class Lang(ModelSQL, ModelView, Cacheable):
         :param timetuple: a tuple or struct_time representing a time
         :param code: locale code
         :param format: a string
-        :return: a string
+        :return: a unicode string
         '''
         if code in TIME_LOCALE:
             for f, i in (('%a', 6), ('%A', 6), ('%b', 1), ('%B', 1)):
                 format = format.replace(f, TIME_LOCALE[code][f][timetuple[i]])
             format = format.replace('%p', TIME_LOCALE[code]['%p']\
-                    [timetuple[3] < 12 and 0 or 1])
-        return time.strftime(format, timetuple)
+                    [timetuple[3] < 12 and 0 or 1]).encode('utf-8')
+        return time.strftime(format, timetuple).decode('utf-8')
 
 Lang()
