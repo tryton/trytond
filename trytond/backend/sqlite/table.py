@@ -199,7 +199,8 @@ class TableHandler(TableHandlerInterface):
             self._update_definitions()
         elif action == 'remove':
             if len(column_name) == 1:
-                if self._field2module.get(column_name[0]) != self.module_name:
+                if self._field2module.get(column_name[0], self.module_name) \
+                        != self.module_name:
                     return
 
             if index_name in self._indexes:
