@@ -96,16 +96,12 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             obj = pool.get(object_name, type=object_type)
             return pydoc.getdoc(getattr(obj, method))
 
+    user = security.check(database_name, user, session)
+
     database = Database(database_name).connect()
     cursor = database.cursor()
     try:
         try:
-            outdate_timeout = True
-            if object_name == 'res.request' and method == 'request_get':
-                outdate_timeout = False
-            user = security.check(database_name, user, session,
-                    outdate_timeout=outdate_timeout)
-
             Cache.clean(database_name)
             database_list = Pool.database_list()
             pool = Pool(database_name)
@@ -135,6 +131,8 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             cursor.rollback()
             raise
     finally:
+        if not (object_name == 'res.request' and method == 'request_get'):
+            user.reset_timestamp()
         cursor.close()
         Cache.resets(database_name)
     return res
