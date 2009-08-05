@@ -578,8 +578,7 @@ class ModelSQL(ModelStorage):
                 and hasattr(self._columns[x], 'get')]
         func_fields = {}
         for field in fields_post:
-            if isinstance(self._columns[field], fields.Function) \
-                    and not isinstance(self._columns[field], fields.Property):
+            if isinstance(self._columns[field], fields.Function):
                 key = (self._columns[field].fnct, self._columns[field].arg)
                 func_fields.setdefault(key, [])
                 func_fields[key].append(field)
