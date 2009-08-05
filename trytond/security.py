@@ -58,7 +58,7 @@ def check_super(passwd):
     else:
         raise Exception('AccessDenied')
 
-def check(dbname, user, session, outdate_timeout=True):
+def check(dbname, user, session):
     if user == 0:
         raise Exception('AccessDenied')
     result = False
@@ -70,8 +70,6 @@ def check(dbname, user, session, outdate_timeout=True):
                 in enumerate(_USER_CACHE[dbname][user]):
             if abs(real_session.timestamp - now) < timeout:
                 if real_session.session == session:
-                    if outdate_timeout:
-                        real_session.reset_timestamp()
                     result = real_session
             else:
                 to_del.insert(0, i)
