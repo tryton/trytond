@@ -120,7 +120,7 @@ class User(ModelSQL, ModelView):
         if 'password' in vals:
             if vals['password'] == 'x' * 10:
                 del vals['password']
-            else:
+            elif vals['password']:
                 vals['salt'] = ''.join(random.sample(
                     string.letters + string.digits, 8))
                 vals['password'] += vals['salt']
