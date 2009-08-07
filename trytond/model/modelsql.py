@@ -345,7 +345,7 @@ class ModelSQL(ModelStorage):
                                 .get(field.model_name, set())
                         if not ((model_obj.search(cursor2, 0, [
                             ('id', '=', values[field_name]),
-                            ], context=context) \
+                            ], order=[], context=context) \
                                     or values[field_name] in create_records) \
                                 and values[field_name] not in delete_records):
                             self.raise_user_error(cursor2,
@@ -850,7 +850,7 @@ class ModelSQL(ModelStorage):
                                     .get(field.model_name, set())
                             if not ((model_obj.search(cursor2, 0, [
                                 ('id', '=', values[field_name]),
-                                ], context=context) \
+                                ], order=[], context=context) \
                                         or values[field_name] in create_records) \
                                     and values[field_name] not in delete_records):
                                 self.raise_user_error(cursor2,
@@ -1044,7 +1044,7 @@ class ModelSQL(ModelStorage):
                     continue
                 model_ids = model.search(cursor, 0, [
                     (field_name, 'in', sub_ids),
-                    ], context=context)
+                    ], order=[], context=context)
                 if model_ids:
                     model.write(cursor, user, model_ids, {
                         field_name: False,
@@ -1056,7 +1056,7 @@ class ModelSQL(ModelStorage):
                     continue
                 model_ids = model.search(cursor, 0, [
                     (field_name, 'in', sub_ids),
-                    ], context=context)
+                    ], order=[], context=context)
                 if model_ids:
                     model.delete(cursor, user, model_ids, context=delete_ctx)
 
@@ -1073,7 +1073,7 @@ class ModelSQL(ModelStorage):
                     for model, field_name in foreign_keys_tocheck:
                         if model.search(cursor2, 0, [
                             (field_name, 'in', sub_ids),
-                            ], context=context):
+                            ], order=[], context=context):
                             error_args = []
                             error_args.append(self._get_error_args(cursor2,
                                 user, 'id', context=context)[1])
@@ -1314,13 +1314,14 @@ class ModelSQL(ModelStorage):
                         domain.extend([(fargs[0], 'in',
                                 self.pool.get(field.model_name).search(cursor, user,
                                     [(fargs[1], domain[i][1], domain[i][2])],
-                                    context=context))])
+                                    order=[], context=context))])
                         domain.pop(i)
                     else:
                         domain[i] = (fargs[0], 'inselect',
                                 self.pool.get(field.model_name).search(cursor, user,
                                     [(fargs[1], domain[i][1], domain[i][2])],
-                                    context=context, query_string=True), table)
+                                    order=[], context=context, query_string=True),
+                                table)
                         i += 1
                     continue
                 else:
@@ -1329,7 +1330,7 @@ class ModelSQL(ModelStorage):
             if hasattr(field, 'search'):
                 arg = [domain.pop(i)]
                 domain.extend(field.search(cursor, user, table,
-                    arg[0][0], arg, context=context))
+                    arg[0][0], arg, order=[], context=context))
             elif field._type == 'one2many':
                 field_obj = self.pool.get(field.model_name)
 
@@ -1337,7 +1338,7 @@ class ModelSQL(ModelStorage):
                     # get the ids of the records of the "distant" resource
                     ids2 = [x[0] for x in field_obj.search(cursor, user, [
                         ('rec_name', domain[i][1], domain[i][2]),
-                        ], context=context)]
+                        ], order=[], context=context)]
                 else:
                     ids2 = domain[i][2]
 
@@ -1391,7 +1392,7 @@ class ModelSQL(ModelStorage):
                     if isinstance(domain[i][2], basestring):
                         ids2 = [x[0] for x in target_obj.search(cursor, user, [
                             ('rec_name', 'ilike', domain[i][2]),
-                            ], context=context)]
+                            ], order=[], context=context)]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
                     else:
@@ -1402,7 +1403,7 @@ class ModelSQL(ModelStorage):
                             return []
                         ids2 = table.search(cursor, user,
                                 [(parent, 'in', ids), (parent, '!=', False)],
-                                context=context)
+                                order=[], context=context)
                         return ids + _rec_get(ids2, table, parent)
 
                     if target_obj._name != table._name:
@@ -1412,7 +1413,7 @@ class ModelSQL(ModelStorage):
                                     (domain[i][0],))
                         ids2 = target_obj.search(cursor, user,
                                 [(domain[i][3], 'child_of', ids2)],
-                                context=context)
+                                order=[], context=context)
                         relation_obj = self.pool.get(field.relation_name)
                         query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + relation_obj._table + '" ' \
@@ -1436,7 +1437,7 @@ class ModelSQL(ModelStorage):
                         res_ids = [x[0] for x in target_obj.search(cursor, user,
                             [
                                 ('rec_name', domain[i][1], domain[i][2]),
-                            ], context=context)]
+                            ], order=[], context=context)]
                     elif isinstance(domain[i][2], (int, long)) \
                             and not isinstance(domain[i][2], bool):
                         res_ids = [domain[i][2]]
@@ -1471,7 +1472,7 @@ class ModelSQL(ModelStorage):
                         field_obj = self.pool.get(field.model_name)
                         ids2 = [x[0] for x in field_obj.search(cursor, user, [
                             ('rec_name', 'like', domain[i][2]),
-                            ], context=context)]
+                            ], order=[], context=context)]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
                     else:
@@ -1491,7 +1492,7 @@ class ModelSQL(ModelStorage):
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
                         ids2 = self.pool.get(field.model_name).search(cursor, user,
-                                [(domain[i][3], 'child_of', ids2)],
+                                [(domain[i][3], 'child_of', ids2)], order=[],
                                 context=context)
                         if domain[i][1] == 'child_of':
                             domain[i] = (domain[i][0], 'in', ids2, table)
@@ -1531,7 +1532,7 @@ class ModelSQL(ModelStorage):
                         field_obj = self.pool.get(field.model_name)
                         res_ids = field_obj.search(cursor, user, [
                             (field_obj._rec_name, domain[i][1], domain[i][2]),
-                            ], context=context)
+                            ], order=[], context=context)
                         domain[i] = (domain[i][0], 'in', res_ids, table)
                     else:
                         domain[i] += (table,)
