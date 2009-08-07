@@ -48,6 +48,7 @@ class Reference(Field):
         res = {}
         for i in values:
             res[i['id']] = i[name]
+        ref_id_found = {}
         for i in ids:
             if not (i in res):
                 res[i] = False
@@ -60,6 +61,7 @@ class Reference(Field):
             if ref_model not in model.pool.object_name_list():
                 continue
             ref_obj = model.pool.get(ref_model)
+            ref_id_found.setdefault(ref_model, set())
             try:
                 ref_id = eval(ref_id)
             except:
@@ -71,9 +73,12 @@ class Reference(Field):
             ctx = context.copy()
             ctx['active_test'] = False
             if ref_id \
+                and ref_id not in ref_id_found[ref_model] \
                 and not ref_obj.search(cursor, user, [
                     ('id', '=', ref_id),
                     ], order=[], context=ctx):
                 ref_id = False
+            if ref_id:
+                ref_id_found[ref_model].add(ref_id)
             res[i] = ref_model + ',' + str(ref_id)
         return res
