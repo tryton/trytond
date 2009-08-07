@@ -1122,7 +1122,9 @@ class ModelSQL(ModelStorage):
 
         # Get order by
         order_by = []
-        for field, otype in (order or self._order):
+        if order is None or order is False:
+            order = self._order
+        for field, otype in order:
             if otype.upper() not in ('DESC', 'ASC'):
                 raise Exception('Error', 'Wrong order type (%s)!' % otype)
             order_by2, tables2, tables2_args = self._order_calc(cursor, user,
@@ -1168,7 +1170,8 @@ class ModelSQL(ModelStorage):
                     self._table + '".create_date)'
         query_str = 'SELECT ' + select_field + ' FROM ' + \
                 ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
-                ' ORDER BY ' + order_by + limit_str + offset_str
+                (order_by and ' ORDER BY ' + order_by or '') + \
+                limit_str + offset_str
         if query_string:
             return (query_str, tables_args + qu2)
         cursor.execute(query_str, tables_args + qu2)
