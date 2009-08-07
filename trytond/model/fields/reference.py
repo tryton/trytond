@@ -73,7 +73,7 @@ class Reference(Field):
             if ref_id \
                 and not ref_obj.search(cursor, user, [
                     ('id', '=', ref_id),
-                    ], context=ctx):
+                    ], order=[], context=ctx):
                 ref_id = False
             res[i] = ref_model + ',' + str(ref_id)
         return res
