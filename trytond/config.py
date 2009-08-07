@@ -40,6 +40,7 @@ class ConfigManager(object):
             'multi_server': False,
             'session_timeout': 600,
             'psyco': False,
+            'auto_reload': True,
         }
 
         parser = optparse.OptionParser(version=VERSION)

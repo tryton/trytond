@@ -12,7 +12,6 @@ import sys, os, signal
 import time
 from trytond.backend import Database, DatabaseOperationalError
 from config import CONFIG
-from trytond.modules import register_classes
 import mx.DateTime
 
 if not hasattr(mx.DateTime, 'strptime'):
@@ -29,6 +28,7 @@ import threading
 from pool import Pool
 import string
 import random
+from trytond.monitor import monitor
 
 
 class TrytonServer(object):
@@ -98,7 +98,7 @@ class TrytonServer(object):
             elif not cursor.test():
                 raise Exception("'%s' is not a Tryton database!" % db_name)
 
-        register_classes()
+        Pool.start()
 
         for db_name in CONFIG["db_name"]:
             cursor = Database(db_name).connect().cursor()
@@ -175,8 +175,7 @@ class TrytonServer(object):
         def handler(signum, frame):
             if hasattr(signal, 'SIGUSR1'):
                 if signum == signal.SIGUSR1:
-                    for db_name in Pool.database_list():
-                        Pool(db_name).init()
+                    Pool.start()
                     return
             if CONFIG['netrpc']:
                 netrpcd.stop()
@@ -220,6 +219,11 @@ class TrytonServer(object):
             psyco.full()
 
         while True:
+            if CONFIG['auto_reload'] and monitor():
+                try:
+                    Pool.start()
+                except:
+                    pass
             for dbname in Pool.database_list():
                 pool = Pool(dbname)
                 if 'ir.cron' not in pool.object_name_list():

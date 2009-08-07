@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.modules import load_modules
+from trytond.modules import load_modules, register_classes
 from threading import RLock
 import logging
 
@@ -53,6 +53,28 @@ class Pool(object):
             if module != 'trytond' and module != 'modules':
                 break
         Pool.classes[type].setdefault(module, []).append(cls)
+
+    @staticmethod
+    def start():
+        '''
+        Start/restart the Pool
+        '''
+        Pool._lock.acquire()
+        try:
+            reload_p = False
+            for type in Pool.classes:
+                if Pool.classes[type]:
+                    reload_p = True
+                Pool.classes[type] = {}
+            try:
+                register_classes(reload_p=reload_p)
+            except:
+                if not reload_p:
+                    raise
+            for db_name in Pool.database_list():
+                Pool(db_name).init()
+        finally:
+            Pool._lock.release()
 
     @staticmethod
     def database_list():
