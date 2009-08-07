@@ -1,3 +1,4 @@
+* Don't order search result if order value is []
 * Add reload of modules if files have changed
 * Add salt to sha of password
 * Add strftime to ir.lang to handle locale's format
