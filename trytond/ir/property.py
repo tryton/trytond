@@ -42,13 +42,13 @@ class Property(ModelSQL, ModelView):
         field_ids = model_field_obj.search(cursor, user, [
             ('name', 'in', names),
             ('model.model', '=', model),
-            ], context=context)
+            ], order=[], context=context)
         fields = model_field_obj.browse(cursor, user, field_ids, context=context)
 
         default_ids = self.search(cursor, user, [
             ('field', 'in', field_ids),
             ('res', '=', False),
-            ], context=context)
+            ], order=[], context=context)
         default_vals = dict((x, False) for x in names)
         if default_ids:
             for property in self.browse(cursor, user, default_ids,
@@ -77,7 +77,7 @@ class Property(ModelSQL, ModelView):
                     obj = self.pool.get(field.relation)
                     if not obj.search(cursor, user, [
                         ('id', '=', default_vals[field.name]),
-                        ], context=context):
+                        ], order=[], context=context):
                         default_vals[field.name] = False
             return default_vals
 
@@ -88,7 +88,7 @@ class Property(ModelSQL, ModelView):
             ('field', 'in', field_ids),
             ('res', 'in', [model + ',' + str(obj_id) \
                     for obj_id in  res_ids]),
-            ])
+            ], order=[], context=context)
         for property in self.browse(cursor, user, property_ids,
                 context=context):
             val = False
@@ -114,7 +114,7 @@ class Property(ModelSQL, ModelView):
                 obj = self.pool.get(field.relation)
                 obj_ids = obj.search(cursor, user, [
                     ('id', 'in', res[field.name].values()),
-                    ], context=context)
+                    ], order=[], context=context)
                 for res_id in res[field.name]:
                     if res[field.name][res_id] not in obj_ids:
                         res[field.name][res_id] = False
@@ -153,19 +153,19 @@ class Property(ModelSQL, ModelView):
         field_id = model_field_obj.search(cursor, user, [
             ('name', '=', name),
             ('model.model', '=', model),
-            ], limit=1, context=context)[0]
+            ], order=[], limit=1, context=context)[0]
         field = model_field_obj.browse(cursor, user, field_id, context=context)
 
         property_ids = self.search(cursor, user, [
             ('field', '=', field_id),
             ('res', '=', model + ',' + str(res_id)),
-            ], context=context)
+            ], order=[], context=context)
         self.delete(cursor, 0, property_ids, context=ctx)
 
         default_id = self.search(cursor, user, [
             ('field', '=', field_id),
             ('res', '=', False),
-            ], limit=1, context=context)
+            ], order=[], limit=1, context=context)
         default_val = False
         if default_id:
             value = self.browse(cursor, user, default_id[0],
