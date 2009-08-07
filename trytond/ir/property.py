@@ -71,14 +71,20 @@ class Property(ModelSQL, ModelView):
                             raise Exception('Not implemented')
                 default_vals[property.field.name] = val
 
+        id_found = {}
+
         if not res_ids:
             for field in fields:
                 if field.ttype == 'many2one':
                     obj = self.pool.get(field.relation)
-                    if not obj.search(cursor, user, [
-                        ('id', '=', default_vals[field.name]),
-                        ], order=[], context=context):
+                    id_found.setdefault(field.relation, set())
+                    if default_vals[field.name] not in id_found[field.relation]\
+                            and not obj.search(cursor, user, [
+                                ('id', '=', default_vals[field.name]),
+                                ], order=[], context=context):
                         default_vals[field.name] = False
+                    if default_vals[field.name]:
+                        id_found[field.relation].add(default_vals[field.name])
             return default_vals
 
         for name in names:
@@ -112,9 +118,14 @@ class Property(ModelSQL, ModelView):
         for field in fields:
             if field.ttype == 'many2one':
                 obj = self.pool.get(field.relation)
+                id_found.setdefault(field.relation, set())
+                if set(res[field.name].values()).issubset(
+                        id_found[field.relation]):
+                    continue
                 obj_ids = obj.search(cursor, user, [
                     ('id', 'in', res[field.name].values()),
                     ], order=[], context=context)
+                id_found[field.relation].update(obj_ids)
                 for res_id in res[field.name]:
                     if res[field.name][res_id] not in obj_ids:
                         res[field.name][res_id] = False
