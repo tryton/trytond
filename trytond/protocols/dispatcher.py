@@ -7,6 +7,7 @@ from trytond.tools import Cache, find_language_context
 from trytond.backend import Database, DatabaseIntegrityError
 from trytond.config import CONFIG
 from trytond.version import VERSION
+from trytond.monitor import monitor
 import traceback
 import logging
 import time
@@ -21,6 +22,9 @@ import pydoc
 
 def dispatch(host, port, protocol, database_name, user, session, object_type,
         object_name, method, *args, **kargs):
+
+    if CONFIG['auto_reload'] and monitor():
+        Pool.start()
 
     if object_type == 'common':
         if method == 'login':

@@ -16,13 +16,17 @@ MODULES_PATH = os.path.dirname(__file__)
 MODULES = []
 
 EGG_MODULES = {}
-try:
-    import pkg_resources
-    for ep in pkg_resources.iter_entry_points('trytond.modules'):
-        mod_name = ep.module_name.split('.')[-1]
-        EGG_MODULES[mod_name] = ep
-except ImportError:
-    pass
+
+def update_egg_modules():
+    global EGG_MODULES
+    try:
+        import pkg_resources
+        for ep in pkg_resources.iter_entry_points('trytond.modules'):
+            mod_name = ep.module_name.split('.')[-1]
+            EGG_MODULES[mod_name] = ep
+    except ImportError:
+        pass
+update_egg_modules()
 
 
 class Graph(dict):
@@ -303,6 +307,7 @@ def get_module_list():
                 module_list.add(file)
             elif file[-4:] == '.zip':
                 module_list.add(file[:-4])
+    update_egg_modules()
     module_list.update(EGG_MODULES.keys())
     module_list.add('ir')
     module_list.add('workflow')
@@ -311,12 +316,27 @@ def get_module_list():
     module_list.add('tests')
     return list(module_list)
 
-def register_classes():
-    import trytond.ir
-    import trytond.workflow
-    import trytond.res
-    import trytond.webdav
-    import trytond.tests
+def register_classes(reload_p=False):
+    '''
+    Import modules to register the classes in the Pool
+
+    :param reload_p: reload modules instead of import it
+    '''
+    if not reload_p:
+        import trytond.ir
+        import trytond.workflow
+        import trytond.res
+        import trytond.webdav
+        import trytond.tests
+    else:
+        for module in ('trytond.model', 'trytond.report', 'trytond.wizard',
+                'trytond.ir', 'trytond.workflow', 'trytond.res',
+                'trytond.webdav', 'trytond.tests'):
+            for i in sys.modules.keys():
+                if i.startswith(module) \
+                        and i != module:
+                    del sys.modules[i]
+            reload(sys.modules[module])
 
     logger = logging.getLogger('modules')
 
@@ -326,6 +346,14 @@ def register_classes():
 
         if module in ('ir', 'workflow', 'res', 'webdav', 'tests'):
             MODULES.append(module)
+            continue
+
+        if reload_p and 'trytond.modules.' + module in sys.modules:
+            for i in sys.modules.keys():
+                if i.startswith('trytond.modules.' + module) \
+                        and i != 'trytond.modules.' + module:
+                    del sys.modules[i]
+            reload(sys.modules['trytond.modules.' + module])
             continue
 
         if os.path.isfile(OPJ(MODULES_PATH, module + '.zip')):
