@@ -1330,7 +1330,7 @@ class ModelSQL(ModelStorage):
             if hasattr(field, 'search'):
                 arg = [domain.pop(i)]
                 domain.extend(field.search(cursor, user, table,
-                    arg[0][0], arg, order=[], context=context))
+                    arg[0][0], arg, context=context))
             elif field._type == 'one2many':
                 field_obj = self.pool.get(field.model_name)
 
