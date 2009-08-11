@@ -125,7 +125,8 @@ class Report(object):
         localcontext['datas'] = datas
         localcontext['user'] = self.pool.get('res.user').\
                 browse(cursor, user, user)
-        localcontext['formatLang'] = self.format_lang
+        localcontext['formatLang'] = lambda *args, **kargs: \
+                self.format_lang(*((cursor, user) + args), **kargs)
         localcontext['decodestring'] = decodestring
         localcontext['StringIO'] = StringIO.StringIO
         localcontext['time'] = time
@@ -276,15 +277,17 @@ class Report(object):
                 return res
         return None
 
-    def format_lang(self, value, lang, digits=2, grouping=True, monetary=False,
-            date=False, currency=None):
+    def format_lang(self, cursor, user, value, lang, digits=2, grouping=True,
+            monetary=False, date=False, currency=None):
         lang_obj = self.pool.get('ir.lang')
 
         if date:
             if lang:
                 locale_format = lang.date
+                code = lang.code
             else:
-                locale_format = lang_obj.default_date(None, None)
+                locale_format = lang_obj.default_date(cursor, user)
+                code = lang_obj.default_code(cursor, user)
             if not isinstance(value, time.struct_time):
                 # assume string, parse it
                 if len(str(value)) == 10:
@@ -299,7 +302,7 @@ class Report(object):
                 date = mx.DateTime.strptime(str(value), string_pattern)
             else:
                 date = mx.DateTime.DateTime(*(value.timetuple()[:6]))
-            return lang_obj.strftime(date.tuple(), lang.code, locale_format)
+            return lang_obj.strftime(date.tuple(), code, locale_format)
         if currency:
             return lang_obj.currency(lang, value, currency, grouping=grouping)
         return lang_obj.format(lang, '%.' + str(digits) + 'f', value,
