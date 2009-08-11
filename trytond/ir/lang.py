@@ -70,6 +70,9 @@ class Lang(ModelSQL, ModelView, Cacheable):
                     del record['code']
         return res
 
+    def default_code(self, cursor, user, context=None):
+        return 'en_US'
+
     def default_active(self, cursor, user, context=None):
         return 1
 
