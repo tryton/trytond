@@ -85,6 +85,8 @@ class Property(ModelSQL, ModelView):
                         default_vals[field.name] = False
                     if default_vals[field.name]:
                         id_found[field.relation].add(default_vals[field.name])
+            if not names_list:
+                return default_vals[names[0]]
             return default_vals
 
         for name in names:
