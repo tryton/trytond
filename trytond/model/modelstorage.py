@@ -161,6 +161,15 @@ class ModelStorage(Model):
             self.raise_user_error(cursor, 'write_xml_record',
                                   error_description='xml_record_desc',
                                   context=context)
+
+        # Clean cursor cache
+        for cache in cursor.cache.values():
+            if self._name in cache:
+                if isinstance(ids, (int, long)):
+                    ids = [ids]
+                for i in ids:
+                    if i in cache[self._name]:
+                        cache[self._name][i] = {}
         return False
 
     def delete(self, cursor, user, ids, context=None):
@@ -181,6 +190,15 @@ class ModelStorage(Model):
             self.raise_user_error(cursor, 'delete_xml_record',
                                   error_description='xml_record_desc',
                                   context=context)
+
+        # Clean cursor cache
+        for cache in cursor.cache.values():
+            if self._name in cache:
+                if isinstance(ids, (int, long)):
+                    ids = [ids]
+                for i in ids:
+                    if i in cache[self._name]:
+                        del cache[self._name][i]
         return False
 
     def copy(self, cursor, user, ids, default=None, context=None):
@@ -451,11 +469,9 @@ class ModelStorage(Model):
         :param context: the context
         :return: a BrowseRecordList or a BrowseRecord
         '''
-        cache = {}
         if isinstance(ids, (int, long)):
-            return BrowseRecord(cursor, user, ids, self, cache,
-                    context=context)
-        return BrowseRecordList([BrowseRecord(cursor, user, x, self, cache,
+            return BrowseRecord(cursor, user, ids, self, context=context)
+        return BrowseRecordList([BrowseRecord(cursor, user, x, self,
             context=context) for x in ids], context)
 
     def __export_row(self, cursor, user, row, fields_names, context=None):

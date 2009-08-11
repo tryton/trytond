@@ -102,7 +102,7 @@ class CursorInterface(object):
     IN_MAX = 1000
 
     def __init__(self):
-        raise
+        self.cache = {}
 
     def execute(self, sql, params=None):
         '''
@@ -125,13 +125,13 @@ class CursorInterface(object):
         '''
         Commit the cursor
         '''
-        raise
+        self.cache = {}
 
     def rollback(self):
         '''
         Rollback the cursor
         '''
-        raise
+        self.cache = {}
 
     def test(self):
         '''

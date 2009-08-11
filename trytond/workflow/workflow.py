@@ -432,9 +432,10 @@ class WorkflowWorkitem(ModelSQL, ModelView):
             instance_obj.write(cursor, 0, workitem.instance.id, {
                 'transitions': [('add', [x.id for x in transitions])],
                 }, context=context)
+            instance = workitem.instance
             self.delete(cursor, 0, workitem.id, context=context)
             for transition in transitions:
-                self._join_test(cursor, user, transition, workitem.instance,
+                self._join_test(cursor, user, transition, instance,
                         context=context)
             return True
         return False

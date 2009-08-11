@@ -340,10 +340,11 @@ class ActionReport(ModelSQL, ModelView):
         new_id = super(ActionReport, self).create(cursor, user, vals,
                 context=context)
         report = self.browse(cursor, user, new_id, context=context)
+        new_id = report.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (report.action.id, report.id))
-        self.write(cursor, user, report.action.id, later, context=context)
-        return report.action.id
+        self.write(cursor, user, new_id, later, context=context)
+        return new_id
 
     def write(self, cursor, user, ids, vals, context=None):
         if context is None:
@@ -442,10 +443,11 @@ class ActionActWindow(ModelSQL, ModelView):
         new_id = super(ActionActWindow, self).create(cursor, user, vals,
                 context=context)
         act_window = self.browse(cursor, user, new_id, context=context)
+        new_id = act_window.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (act_window.action.id, act_window.id))
-        self.write(cursor, user, act_window.action.id, later, context=context)
-        return act_window.action.id
+        self.write(cursor, user, new_id, later, context=context)
+        return new_id
 
     def delete(self, cursor, user, ids, context=None):
         action_obj = self.pool.get('ir.action')
@@ -516,10 +518,11 @@ class ActionWizard(ModelSQL, ModelView):
         new_id = super(ActionWizard, self).create(cursor, user, vals,
                 context=context)
         wizard = self.browse(cursor, user, new_id, context=context)
+        new_id = wizard.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (wizard.action.id, wizard.id))
-        self.write(cursor, user, wizard.action.id, later, context=context)
-        return wizard.action.id
+        self.write(cursor, user, new_id, later, context=context)
+        return new_id
 
     def delete(self, cursor, user, ids, context=None):
         action_obj = self.pool.get('ir.action')
@@ -660,10 +663,11 @@ class ActionURL(ModelSQL, ModelView):
         new_id = super(ActionURL, self).create(cursor, user, vals,
                 context=context)
         url = self.browse(cursor, user, new_id, context=context)
+        new_id = url.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (url.action.id, url.id))
-        self.write(cursor, user, url.action.id, later, context=context)
-        return url.action.id
+        self.write(cursor, user, new_id, later, context=context)
+        return new_id
 
     def delete(self, cursor, user, ids, context=None):
         action_obj = self.pool.get('ir.action')
