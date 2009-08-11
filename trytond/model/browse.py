@@ -48,13 +48,20 @@ class BrowseRecord(object):
     An object that represents record defined by a ORM object.
     '''
 
-    def __init__(self, cursor, user, record_id, model, cache, context=None):
+    def __init__(self, cursor, user, record_id, model, context=None):
         self._cursor = cursor
         self._user = user
         self._id = record_id
         self._model = model
         self._model_name = self._model._name
         self._context = context or {}
+
+        cache_ctx = self._context.copy()
+        for i in ('_timestamp', '_delete', '_create_records',
+                '_delete_records'):
+            if i in cache_ctx:
+                del cache_ctx[i]
+        cache = cursor.cache.setdefault(repr(cache_ctx), {})
 
         cache.setdefault(model._name, {})
         cache.setdefault('_language_cache', {})
@@ -141,13 +148,12 @@ class BrowseRecord(object):
                                 ctx = self._context.copy()
                                 ctx['_datetime'] = data[j.datetime_field]
                             data[i] = BrowseRecord(self._cursor, self._user,
-                                    data[i], model, self._cache,
-                                    context=ctx)
+                                    data[i], model, context=ctx)
                     elif j._type in ('one2many', 'many2many') and len(data[i]):
                         data[i] = BrowseRecordList([BrowseRecord(self._cursor,
                             self._user,
                             isinstance(x, (list, tuple)) and x[0] or x, model,
-                            self._cache, context=self._context) for x in data[i]],
+                            context=self._context) for x in data[i]],
                             self._context)
                 self._data[data['id']].update(data)
         return self._data[self._id][name]

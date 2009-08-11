@@ -223,6 +223,7 @@ class Cursor(CursorInterface):
     IN_MAX = 200
 
     def __init__(self, conn, database_name):
+        super(Cursor, self).__init__()
         self._conn = conn
         self.database_name = database_name
         self.dbname = self.database_name #XXX to remove
@@ -256,9 +257,11 @@ class Cursor(CursorInterface):
         self.rollback()
 
     def commit(self):
+        super(Cursor, self).commit()
         self._conn.commit()
 
     def rollback(self):
+        super(Cursor, self).rollback()
         self._conn.rollback()
 
     def test(self):

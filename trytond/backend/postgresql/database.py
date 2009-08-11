@@ -255,6 +255,7 @@ class _Cursor(cursor):
 class Cursor(CursorInterface):
 
     def __init__(self, connpool, conn, database_name):
+        super(Cursor, self).__init__()
         self._connpool = connpool
         self._conn = conn
         self.database_name = database_name
@@ -330,9 +331,11 @@ class Cursor(CursorInterface):
         self._connpool.putconn(self._conn, close=close)
 
     def commit(self):
+        super(Cursor, self).commit()
         self._conn.commit()
 
     def rollback(self):
+        super(Cursor, self).rollback()
         self._conn.rollback()
 
     def test(self):
