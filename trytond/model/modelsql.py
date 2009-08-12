@@ -2075,12 +2075,28 @@ class ModelSQL(ModelStorage):
             m = _RE_UNIQUE.match(sql)
             if m:
                 sql = m.group(1)
-                cursor.execute('SELECT COUNT(id) ' \
-                        'FROM "' + self._table + '" ' \
-                        'GROUP BY ' + sql + ' ' \
-                        'HAVING COUNT(id) > 1')
-                if cursor.fetchone():
-                    self.raise_user_error(cursor, error, context=context)
+                sql_clause = ' AND '.join('%s = %%s' % \
+                        i for i in sql.split(','))
+                sql_clause = '(id != %s AND ' + sql_clause + ')'
+
+                for i in range(0, len(ids), cursor.IN_MAX):
+                    sub_ids = ids[i:i + cursor.IN_MAX]
+
+                    cursor.execute('SELECT id,' + sql + ' ' \
+                            'FROM "' + self._table + '" ' \
+                            'WHERE id IN (' + \
+                                ','.join('%s' for i in sub_ids) + ')', sub_ids)
+
+                    cursor.execute('SELECT id ' \
+                            'FROM "' + self._table + '" ' \
+                            'WHERE ' + \
+                                ' OR '.join(sql_clause for i in sub_ids),
+                            reduce(lambda x, y: x + list(y),
+                                   cursor.fetchall(),
+                                   []))
+
+                    if cursor.fetchone():
+                        self.raise_user_error(cursor, error, context=context)
                 continue
             m = _RE_CHECK.match(sql)
             if m:
