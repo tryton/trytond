@@ -16,17 +16,23 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="usage"/>
                     <label name="active"/>
                     <field name="active" xexpand="0" width="100"/>
-                    <field name="keywords" colspan="6">
-                        <tree string="Keywords">
-                            <field name="keyword"/>
-                        </tree>
-                        <form string="Keyword">
-                            <field name="keyword"/>
-                            <field name="model"/>
-                        </form>
-                    </field>
-                    <separator name="groups" colspan="6"/>
-                    <field name="groups" colspan="6"/>
+                    <notebook colspan="6">
+                        <page name="keywords">
+                            <field name="keywords" colspan="4">
+                                <tree string="Keywords">
+                                    <field name="keyword"/>
+                                </tree>
+                                <form string="Keyword">
+                                    <field name="keyword"/>
+                                    <field name="model"/>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="groups">
+                            <separator name="groups" colspan="4"/>
+                            <field name="groups" colspan="4"/>
+                        </page>
+                    </notebook>
                 </form>
                 ]]>
             </field>
@@ -76,33 +82,41 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="model"/>
                     <label name="active"/>
                     <field name="active" xexpand="0" width="100"/>
-                    <label name="report_name"/>
-                    <field name="report_name"/>
-                    <label name="report"/>
-                    <field name="report"/>
-                    <label name="report_content"/>
-                    <field name="report_content"/>
-                    <label name="extension"/>
-                    <field name="extension"/>
-                    <label name="style"/>
-                    <field name="style"/>
-                    <label name="direct_print"/>
-                    <field name="direct_print"/>
-                    <label name="email"/>
-                    <field name="email" colspan="5"/>
-                    <field name="keywords" colspan="8">
-                        <tree string="Keywords">
-                            <field name="keyword"/>
-                        </tree>
-                        <form string="Keyword">
-                            <label name="keyword"/>
-                            <field name="keyword"/>
-                            <label name="model"/>
-                            <field name="model"/>
-                        </form>
-                    </field>
-                    <separator name="groups" colspan="8"/>
-                    <field name="groups" colspan="8"/>
+                    <notebook colspan="6">
+                        <page string="General" id="general">
+                            <label name="report_name"/>
+                            <field name="report_name"/>
+                            <label name="report"/>
+                            <field name="report"/>
+                            <label name="report_content"/>
+                            <field name="report_content"/>
+                            <label name="extension"/>
+                            <field name="extension"/>
+                            <label name="style"/>
+                            <field name="style"/>
+                            <label name="direct_print"/>
+                            <field name="direct_print"/>
+                            <label name="email"/>
+                            <field name="email" colspan="3"/>
+                        </page>
+                        <page name="keywords">
+                            <field name="keywords" colspan="4">
+                                <tree string="Keywords">
+                                    <field name="keyword"/>
+                                </tree>
+                                <form string="Keyword">
+                                    <label name="keyword"/>
+                                    <field name="keyword"/>
+                                    <label name="model"/>
+                                    <field name="model"/>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="groups">
+                            <separator name="groups" colspan="4"/>
+                            <field name="groups" colspan="4"/>
+                        </page>
+                    </notebook>
                 </form>
                 ]]>
             </field>
@@ -249,26 +263,34 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="name"/>
                     <label name="active"/>
                     <field name="active" xexpand="0" width="100"/>
-                    <label name="wiz_name"/>
-                    <field name="wiz_name"/>
-                    <label name="model"/>
-                    <field name="model"/>
-                    <newline/>
-                    <label name="email"/>
-                    <field name="email" colspan="3"/>
-                    <field name="keywords" colspan="4">
-                        <tree string="Keywords">
-                            <field name="keyword"/>
-                        </tree>
-                        <form string="Keyword">
-                            <label name="keyword"/>
-                            <field name="keyword"/>
+                    <notebook colspan="4">
+                        <page string="General" id="general">
+                            <label name="wiz_name"/>
+                            <field name="wiz_name"/>
                             <label name="model"/>
                             <field name="model"/>
-                        </form>
-                    </field>
-                    <separator name="groups" colspan="4"/>
-                    <field name="groups" colspan="4"/>
+                            <newline/>
+                            <label name="email"/>
+                            <field name="email" colspan="3"/>
+                        </page>
+                        <page name="keywords">
+                            <field name="keywords" colspan="4">
+                                <tree string="Keywords">
+                                    <field name="keyword"/>
+                                </tree>
+                                <form string="Keyword">
+                                    <label name="keyword"/>
+                                    <field name="keyword"/>
+                                    <label name="model"/>
+                                    <field name="model"/>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="groups">
+                            <separator name="groups" colspan="4"/>
+                            <field name="groups" colspan="4"/>
+                        </page>
+                    </notebook>
                 </form>
                 ]]>
             </field>
@@ -375,8 +397,29 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="name"/>
                     <label name="active"/>
                     <field name="active" xexpand="0" width="100"/>
-                    <label name="url"/>
-                    <field name="url"/>
+                    <notebook colspan="4">
+                        <page string="General" id="general">
+                            <label name="url"/>
+                            <field name="url"/>
+                        </page>
+                        <page name="keywords">
+                            <field name="keywords" colspan="4">
+                                <tree string="Keywords">
+                                    <field name="keyword"/>
+                                </tree>
+                                <form string="Keyword">
+                                    <label name="keyword"/>
+                                    <field name="keyword"/>
+                                    <label name="model"/>
+                                    <field name="model"/>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="groups">
+                            <separator name="groups" colspan="4"/>
+                            <field name="groups" colspan="4"/>
+                        </page>
+                    </notebook>
                 </form>
                 ]]>
             </field>
