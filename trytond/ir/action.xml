@@ -9,14 +9,16 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Action" col="6">
+                <form string="Action">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="usage"/>
-                    <field name="usage"/>
                     <label name="active"/>
                     <field name="active" xexpand="0" width="100"/>
-                    <notebook colspan="6">
+                    <notebook colspan="4">
+                        <page string="General" id="general">
+                            <label name="usage"/>
+                            <field name="usage"/>
+                        </page>
                         <page name="keywords">
                             <field name="keywords" colspan="4">
                                 <tree string="Keywords">
