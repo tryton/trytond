@@ -164,12 +164,13 @@ class ModelStorage(Model):
 
         # Clean cursor cache
         for cache in cursor.cache.values():
-            if self._name in cache:
-                if isinstance(ids, (int, long)):
-                    ids = [ids]
-                for i in ids:
-                    if i in cache[self._name]:
-                        cache[self._name][i] = {}
+            for cache in (cache, cache.get('_language_cache', {}).values()):
+                if self._name in cache:
+                    if isinstance(ids, (int, long)):
+                        ids = [ids]
+                    for i in ids:
+                        if i in cache[self._name]:
+                            cache[self._name][i] = {}
         return False
 
     def delete(self, cursor, user, ids, context=None):
@@ -193,12 +194,13 @@ class ModelStorage(Model):
 
         # Clean cursor cache
         for cache in cursor.cache.values():
-            if self._name in cache:
-                if isinstance(ids, (int, long)):
-                    ids = [ids]
-                for i in ids:
-                    if i in cache[self._name]:
-                        del cache[self._name][i]
+            for cache in (cache, cache.get('_language_cache', {}).values()):
+                if self._name in cache:
+                    if isinstance(ids, (int, long)):
+                        ids = [ids]
+                    for i in ids:
+                        if i in cache[self._name]:
+                            del cache[self._name][i]
         return False
 
     def copy(self, cursor, user, ids, default=None, context=None):
