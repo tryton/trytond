@@ -77,19 +77,19 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Report" col="6">
+                <form string="Report">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="model"/>
-                    <field name="model"/>
                     <label name="active"/>
                     <field name="active" xexpand="0" width="100"/>
-                    <notebook colspan="6">
+                    <notebook colspan="4">
                         <page string="General" id="general">
+                            <label name="model"/>
+                            <field name="model"/>
                             <label name="report_name"/>
                             <field name="report_name"/>
                             <label name="report"/>
-                            <field name="report"/>
+                            <field name="report" colspan="3"/>
                             <label name="report_content"/>
                             <field name="report_content"/>
                             <label name="extension"/>
