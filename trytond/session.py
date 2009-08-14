@@ -11,6 +11,7 @@ class Session(int):
         self.__data = {
             'session': str(random.random()),
             'timestamp': time.time(),
+            'name': '',
         }
 
     def __getattr__(self, name):

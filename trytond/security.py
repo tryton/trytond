@@ -39,6 +39,7 @@ def login(dbname, loginname, password, cache=True):
                 _USER_CACHE.setdefault(dbname, {})
                 _USER_CACHE[dbname].setdefault(user_id, [])
                 session = Session(user_id)
+                session.name = loginname
                 _USER_CACHE[dbname][user_id].append(session)
                 return (user_id, session.session)
             else:
@@ -51,6 +52,17 @@ def login(dbname, loginname, password, cache=True):
     time.sleep(2 ** _USER_TRY[dbname][0])
     _USER_TRY[dbname][0] += 1
     return False
+
+def logout(dbname, user, session):
+    name = ''
+    if _USER_CACHE.get(dbname, {}).has_key(user):
+        for i, real_session \
+                in enumerate(_USER_CACHE[dbname][user]):
+            if real_session.session == session:
+                name = real_session.name
+                del _USER_CACHE[dbname][user][i]
+                break
+    return name
 
 def check_super(passwd):
     if passwd == CONFIG['admin_passwd']:
@@ -78,3 +90,13 @@ def check(dbname, user, session):
     if result:
         return result
     raise Exception('NotLogged')
+
+def get_connections(dbname, user):
+    res = 0
+    now = time.time()
+    timeout = int(CONFIG['session_timeout'])
+    if _USER_CACHE.get(dbname, {}).has_key(int(user)):
+        for i, session in enumerate(_USER_CACHE[dbname][int(user)]):
+            if abs(session.timestamp - now) < timeout:
+                res += 1
+    return res

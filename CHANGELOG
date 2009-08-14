@@ -1,3 +1,4 @@
+* Add logout method
 * Move BrowseRecord cache onto the cursor
 * Don't order search result if order value is []
 * Add reload of modules if files have changed
