@@ -36,6 +36,12 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                     (msg, user, host, port, protocol, database_name))
             Cache.resets(database_name)
             return res or False
+        elif method == 'logout':
+            name = security.logout(database_name, user, session)
+            logger = logging.getLogger('dispatcher')
+            logger.info('logout \'%s\' from %s:%d using %s on database \'%s\'' % \
+                    (name, host, port, protocol, database_name))
+            return True
         elif method == 'version':
             return VERSION
         elif method == 'timezone_get':

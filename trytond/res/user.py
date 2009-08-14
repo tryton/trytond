@@ -7,6 +7,7 @@ from trytond.wizard import Wizard
 from lxml import etree
 from trytond.tools import Cache
 from trytond.backend import TableHandler
+from trytond.security import get_connections
 import string
 import random
 
@@ -38,6 +39,8 @@ class User(ModelSQL, ModelView):
     status_bar = fields.Function('get_status_bar', type='char',
             string="Status Bar")
     warnings = fields.One2Many('res.user.warning', 'user', 'Warnings')
+    connections = fields.Function('get_connections', type='integer',
+            string='Connections')
 
     def __init__(self):
         super(User, self).__init__()
@@ -106,6 +109,12 @@ class User(ModelSQL, ModelView):
         res = {}
         for user in self.browse(cursor, user_id, ids, context=context):
             res[user.id] = user.name
+        return res
+
+    def get_connections(self, cursor, user, ids, name, arg, context=None):
+        res = {}
+        for user_id in ids:
+            res[user_id] = get_connections(cursor.database_name, user_id)
         return res
 
     def _convert_vals(self, cursor, user, vals, context=None):
