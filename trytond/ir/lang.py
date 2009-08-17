@@ -49,25 +49,24 @@ class Lang(ModelSQL, ModelView, Cacheable):
         translation_obj = self.pool.get('ir.translation')
         if context is None:
             context = {}
-        remove_code = False
-        if context.get('translate_name', False) \
-                and (not fields_names or 'name' in fields_names):
-            if fields_names and 'code' not in fields_names:
-                fields_names = fields_names[:]
-                fields_names.append('code')
-                remove_code = True
         res = super(Lang, self).read(cursor, user, ids,
                 fields_names=fields_names, context=context)
         if context.get('translate_name', False) \
                 and (not fields_names or 'name' in fields_names):
-            for record in res:
+            ctx = context.copy()
+            ctx['language'] = self.default_code(cursor, user, context=context)
+            del ctx['translate_name']
+            res2 = self.read(cursor, user, ids,
+                    fields_names=['id', 'code', 'name'], context=ctx)
+            for record2 in res2:
+                for record in res:
+                    if record['id'] == record2['id']:
+                        break
                 res_trans = translation_obj._get_ids(cursor,
                         self._name + ',name', 'model',
-                        record['code'], [record['id']])
-                record['name'] = res_trans.get(record['id'], False) \
-                        or record['name']
-                if remove_code:
-                    del record['code']
+                        record2['code'], [record2['id']])
+                record['name'] = res_trans.get(record2['id'], False) \
+                        or record2['name']
         return res
 
     def default_code(self, cursor, user, context=None):
