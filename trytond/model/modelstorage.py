@@ -101,6 +101,20 @@ class ModelStorage(Model):
             return res[0]
         return 0
 
+    def __clean_xxx2many_cache(self, cursor, user, context=None):
+        # Clean cursor cache
+        to_clean = [(model._name, field_name)
+                for model_name, model in self.pool.iterobject(type='model')
+                for field_name, target_name in model._xxx2many_targets
+                if target_name == self._name]
+        for cache in cursor.cache.values():
+            for cache in (cache, cache.get('_language_cache', {}).values()):
+                for model_name, field_name in to_clean:
+                    if model_name in cache:
+                        for model_id in cache[model_name]:
+                            if field_name in cache[model_name][model_id]:
+                                del cache[model_name][model_id][field_name]
+
     def create(self, cursor, user, values, context=None):
         '''
         Create records.
@@ -115,6 +129,7 @@ class ModelStorage(Model):
         model_access_obj = self.pool.get('ir.model.access')
         model_access_obj.check(cursor, user, self._name, 'create',
                 context=context)
+        self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
 
     def read(self, cursor, user, ids, fields_names=None, context=None):
@@ -171,6 +186,7 @@ class ModelStorage(Model):
                     for i in ids:
                         if i in cache[self._name]:
                             cache[self._name][i] = {}
+        self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
 
     def delete(self, cursor, user, ids, context=None):
@@ -201,6 +217,7 @@ class ModelStorage(Model):
                     for i in ids:
                         if i in cache[self._name]:
                             del cache[self._name][i]
+        self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
 
     def copy(self, cursor, user, ids, default=None, context=None):
