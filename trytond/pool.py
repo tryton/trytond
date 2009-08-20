@@ -146,6 +146,15 @@ class Pool(object):
             return res
         return self._pool[self.database_name][type].keys()
 
+    def iterobject(self, type='model'):
+        '''
+        Return an iterator over object name, object
+
+        :param type: the type
+        :return: an iterator
+        '''
+        return self._pool[self.database_name][type].iteritems()
+
     def instanciate(self, module):
         '''
         Instanciate objects for a module

@@ -25,17 +25,19 @@ class Model(object):
     _description = ''
     pool = None #XXX change to avoid collision with field
     __columns = None
+    __xxx2many_targets = None
     __defaults = None
 
     def _reset_columns(self):
         self.__columns = None
+        self._reset_xxx2many_targets()
 
     def _getcolumns(self):
         if self.__columns:
             return self.__columns
         res = {}
         for attr in dir(self):
-            if attr in ('_columns', '_defaults'):
+            if attr in ('_columns', '_defaults', '_xxx2many_targets'):
                 continue
             if isinstance(getattr(self, attr), fields.Field):
                 res[attr] = getattr(self, attr)
@@ -118,11 +120,31 @@ class Model(object):
                 res[field_name] = (model, self._inherits[model],
                         self.pool.get(model)._inherit_fields[field_name][2])
         self._inherit_fields = res
+        self._reset_xxx2many_targets()
         # Update objects that uses this one to update their _inherits fields
         for obj_name in self.pool.object_name_list():
             obj = self.pool.get(obj_name)
             if self._name in obj._inherits:
                 obj._inherits_reload()
+
+    def _reset_xxx2many_targets(self):
+        self.__xxx2many_targets = None
+
+    def _getxxx2many_targets(self):
+        if self.__xxx2many_targets:
+            return self.__xxx2many_targets
+        res = [(x, getattr(y, 'model_name', None) or \
+                getattr(y, 'target', None) or getattr(y, 'relation_name', None))
+                for x, y in self._columns.iteritems()
+                if y._type in ('one2many', 'many2many')]
+        res += [(x, getattr(y, 'model_name', None) or \
+                getattr(y, 'target', None) or getattr(y, 'relation_name', None))
+                for _, (_, x, y) in self._inherit_fields.iteritems()
+                if y._type in ('one2many', 'many2many')]
+        self.__xxx2many_targets = res
+        return res
+
+    _xxx2many_targets = property(fget=_getxxx2many_targets)
 
     def init(self, cursor, module_name):
         """
