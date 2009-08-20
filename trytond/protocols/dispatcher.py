@@ -90,8 +90,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
         if method == 'listMethods':
             res = []
             for type in ('model', 'wizard', 'report'):
-                for object_name in pool.object_name_list(type=type):
-                    obj = pool.get(object_name, type=type)
+                for object_name, obj in pool.iterobject(type=type):
                     for method in obj._rpc:
                         res.append(type + '.' + object_name + '.' + method)
             return res

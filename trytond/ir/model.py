@@ -229,9 +229,9 @@ class ModelAccess(ModelSQL, ModelView):
                 context=context)
         self.check(cursor.dbname)
         # Restart the cache
-        for model in self.pool.object_name_list():
+        for _, model in self.pool.iterobject():
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                model.fields_view_get(cursor.dbname)
             except:
                 pass
         return res
@@ -241,9 +241,9 @@ class ModelAccess(ModelSQL, ModelView):
                 context=context)
         self.check(cursor.dbname)
         # Restart the cache
-        for model in self.pool.object_name_list():
+        for _, model in self.pool.iterobject():
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                model.fields_view_get(cursor.dbname)
             except:
                 pass
         return res
@@ -253,9 +253,9 @@ class ModelAccess(ModelSQL, ModelView):
                 context=context)
         self.check(cursor.dbname)
         # Restart the cache
-        for model in self.pool.object_name_list():
+        for _, model in self.pool.iterobject():
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                model.fields_view_get(cursor.dbname)
             except:
                 pass
         return res

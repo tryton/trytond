@@ -147,9 +147,9 @@ class View(ModelSQL, ModelView):
     def delete(self, cursor, user, ids, context=None):
         res = super(View, self).delete(cursor, user, ids, context=context)
         # Restart the cache
-        for model in self.pool.object_name_list():
+        for _, model in self.pool.iterobject():
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                model.fields_view_get(cursor.dbname)
             except:
                 pass
         return res
@@ -157,9 +157,9 @@ class View(ModelSQL, ModelView):
     def create(self, cursor, user, vals, context=None):
         res = super(View, self).create(cursor, user, vals, context=context)
         # Restart the cache
-        for model in self.pool.object_name_list():
+        for _, model in self.pool.iterobject():
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                model.fields_view_get(cursor.dbname)
             except:
                 pass
         return res
@@ -167,9 +167,9 @@ class View(ModelSQL, ModelView):
     def write(self, cursor, user, ids, vals, context=None):
         res = super(View, self).write(cursor, user, ids, vals, context=context)
         # Restart the cache
-        for model in self.pool.object_name_list():
+        for _, model in self.pool.iterobject():
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                model.fields_view_get(cursor.dbname)
             except:
                 pass
         return res

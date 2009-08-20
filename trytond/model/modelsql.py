@@ -992,8 +992,7 @@ class ModelSQL(ModelStorage):
         foreign_keys_tocheck = []
         foreign_keys_toupdate = []
         foreign_keys_todelete = []
-        for model_name in self.pool.object_name_list():
-            model = self.pool.get(model_name)
+        for _, model in self.pool.iterobject():
             if hasattr(model, 'table_query') \
                     and model.table_query(context):
                 continue

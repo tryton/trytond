@@ -151,9 +151,9 @@ class User(ModelSQL, ModelView):
         # Restart the cache of check
         self.pool.get('ir.model.access').check(cursor.dbname)
         # Restart the cache
-        for model in self.pool.object_name_list():
+        for _, model in self.pool.iterobject():
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                model.fields_view_get(cursor.dbname)
             except:
                 pass
         return res
