@@ -500,6 +500,7 @@ class ActionWizard(ModelSQL, ModelView):
             ondelete='CASCADE')
     model = fields.Char('Model')
     email = fields.Char('Email')
+    window = fields.Boolean('Window', help='Run wizard in a new window')
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.wizard'

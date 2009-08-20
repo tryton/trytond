@@ -274,6 +274,8 @@ this repository contains the full copyright notices and license terms. -->
                             <newline/>
                             <label name="email"/>
                             <field name="email" colspan="3"/>
+                            <label name="window"/>
+                            <field name="window"/>
                         </page>
                         <page name="keywords">
                             <field name="keywords" colspan="4">
