@@ -185,7 +185,10 @@ class Database(DatabaseInterface):
             cursor2 = database.cursor()
             if cursor2.test():
                 res.append(db_name)
-            cursor2.close(close=True)
+                cursor2.close(close=True)
+            else:
+                cursor2.close(close=True)
+                database.close()
         return res
 
     @staticmethod
