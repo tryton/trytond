@@ -351,7 +351,8 @@ def register_classes(reload_p=False):
         if reload_p and 'trytond.modules.' + module in sys.modules:
             for i in sys.modules.keys():
                 if i.startswith('trytond.modules.' + module) \
-                        and i != 'trytond.modules.' + module:
+                        and i != 'trytond.modules.' + module \
+                        and getattr(sys.modules[i], '_TRYTON_RELOAD', True):
                     del sys.modules[i]
             reload(sys.modules['trytond.modules.' + module])
             continue
