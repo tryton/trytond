@@ -116,7 +116,7 @@ create table wkf
 (
     id serial,
     name varchar,
-    osv varchar,
+    model varchar,
     on_create bool,
     primary key(id)
 );

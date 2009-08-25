@@ -1,4 +1,5 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of this repository contains the full copyright notices and license terms.
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 "Workflow"
 import os
 from trytond.model import ModelView, ModelSQL, fields
@@ -15,7 +16,7 @@ class Workflow(ModelSQL, ModelView):
     _table = "wkf"
     _description = __doc__
     name = fields.Char('Name', required=True, translate=True)
-    osv = fields.Char('Resource Model', required=True, select=1)
+    model = fields.Char('Resource Model', required=True, select=1)
     on_create = fields.Boolean('On Create', select=2)
     activities = fields.One2Many('workflow.activity', 'workflow',
        'Activities')
@@ -25,6 +26,16 @@ class Workflow(ModelSQL, ModelView):
         self._error_messages.update({
             'no_workflow_defined': 'No workflow defined!',
             })
+
+    def init(self, cursor, module_name):
+        super(Workflow, self).init(cursor, module_name)
+        table = TableHandler(cursor, self, module_name)
+
+        # Migration from 1.2 rename osv into model
+        if table.column_exist('osv'):
+            cursor.execute('UPDATE "' + self._table + '" ' \
+                    'SET model = osv')
+            table.drop_column('osv', exception=True)
 
     def default_on_create(self, cursor, user, context=None):
         return 1
@@ -524,7 +535,7 @@ class InstanceGraph(Report):
         lang = lang_obj.browse(cursor, user, lang_id, context=context)
 
         workflow_id = workflow_obj.search(cursor, user, [
-            ('osv', '=', datas['model']),
+            ('model', '=', datas['model']),
             ], limit=1, context=context)
         if not workflow_id:
             workflow_obj.raise_user_error(cursor, 'no_workflow_defined',
