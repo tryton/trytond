@@ -10,6 +10,11 @@ from trytond.backend import TableHandler
 from trytond.security import get_connections
 import string
 import random
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import sha
 
 
 class User(ModelSQL, ModelView):
@@ -137,7 +142,10 @@ class User(ModelSQL, ModelView):
 
     def create(self, cursor, user, vals, context=None):
         vals = self._convert_vals(cursor, user, vals, context=context)
-        return super(User, self).create(cursor, user, vals, context=context)
+        res = super(User, self).create(cursor, user, vals, context=context)
+        # Restart the cache for _get_login
+        self._get_login(cursor.dbname)
+        return res
 
     def write(self, cursor, user, ids, vals, context=None):
         vals = self._convert_vals(cursor, user, vals, context=context)
@@ -146,6 +154,8 @@ class User(ModelSQL, ModelView):
         self.pool.get('ir.rule').domain_get(cursor.dbname)
         # Restart the cache for get_groups
         self.get_groups(cursor.dbname)
+        # Restart the cache for _get_login
+        self._get_login(cursor.dbname)
         # Restart the cache for get_preferences
         self.get_preferences(cursor.dbname)
         # Restart the cache of check
@@ -163,7 +173,10 @@ class User(ModelSQL, ModelView):
             ids = [ids]
         if 0 in ids:
             self.raise_user_error(cursor, 'rm_root', context=context)
-        return super(User, self).delete(cursor, user, ids, context=context)
+        res = super(User, self).delete(cursor, user, ids, context=context)
+        # Restart the cache for _get_login
+        self._get_login(cursor.dbname)
+        return res
 
     def read(self, cursor, user, ids, fields_names=None, context=None):
         res = super(User, self).read(cursor, user, ids, fields_names=fields_names,
@@ -332,6 +345,40 @@ class User(ModelSQL, ModelView):
                 context=context)['groups']
 
     get_groups = Cache('res_user.get_groups')(get_groups)
+
+    def _get_login(self, cursor, user, login, context=None):
+        cursor.execute('SELECT id, password, salt ' \
+                'FROM "' + self._table + '" '
+                'WHERE login = %s AND active', (login,))
+        res = cursor.fetchone()
+        if not res:
+            return None, None, None
+        return res
+    _get_login = Cache('res_user._get_login')(_get_login)
+
+    def get_login(self, cursor, user, login, password, context=None):
+        '''
+        Return user id if password matches
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param login: the login name
+        :param password: the password
+        :param context: the context
+        :return: integer
+        '''
+        user_id, user_password, salt = self._get_login(cursor, user,
+                login, context=context)
+        if not user_id:
+            return 0
+        password += salt or ''
+        if hashlib:
+            password_sha = hashlib.sha1(password).hexdigest()
+        else:
+            password_sha = sha.new(password).hexdigest()
+        if password_sha == user_password:
+            return user_id
+        return 0
 
 User()
 

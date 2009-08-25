@@ -2,12 +2,8 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.backend import Database
 from trytond.session import Session
+from trytond.pool import Pool
 from config import CONFIG
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import sha
 import time
 
 
@@ -16,41 +12,29 @@ _USER_TRY = {}
 
 def login(dbname, loginname, password, cache=True):
     _USER_TRY.setdefault(dbname, {})
+    _USER_TRY[dbname].setdefault(loginname, 0)
     database = Database(dbname).connect()
     cursor = database.cursor()
-    cursor.execute('SELECT id, password, active, salt FROM res_user '
-        'WHERE login = %s', (loginname,))
-    res = cursor.fetchone()
-    if res:
-        cursor.close()
-        user_id = res[0]
-        if user_id == 0:
-            return False
-        _USER_TRY[dbname].setdefault(user_id, 0)
-        # Add salt
-        password += res[3] or ''
-        if hashlib:
-            password_sha = hashlib.sha1(password).hexdigest()
-        else:
-            password_sha = sha.new(password).hexdigest()
-        if res[1] == password_sha and res[2]:
-            _USER_TRY[dbname][user_id] = 0
-            if cache:
-                _USER_CACHE.setdefault(dbname, {})
-                _USER_CACHE[dbname].setdefault(user_id, [])
-                session = Session(user_id)
-                session.name = loginname
-                _USER_CACHE[dbname][user_id].append(session)
-                return (user_id, session.session)
-            else:
-                return user_id
-        time.sleep(2 ** _USER_TRY[dbname][user_id])
-        _USER_TRY[dbname][user_id] += 1
-        return False
+    database_list = Pool.database_list()
+    pool = Pool(dbname)
+    if not dbname in database_list:
+        pool.init()
+    user_obj = pool.get('res.user')
+    user_id = user_obj.get_login(cursor, 0, loginname, password)
     cursor.close()
-    _USER_TRY[dbname].setdefault(0, 0)
-    time.sleep(2 ** _USER_TRY[dbname][0])
-    _USER_TRY[dbname][0] += 1
+    if user_id:
+        _USER_TRY[dbname][loginname] = 0
+        if cache:
+            _USER_CACHE.setdefault(dbname, {})
+            _USER_CACHE[dbname].setdefault(user_id, [])
+            session = Session(user_id)
+            session.name = loginname
+            _USER_CACHE[dbname][user_id].append(session)
+            return (user_id, session.session)
+        else:
+            return user_id
+    time.sleep(2 ** _USER_TRY[dbname][loginname])
+    _USER_TRY[dbname][loginname] += 1
     return False
 
 def logout(dbname, user, session):
