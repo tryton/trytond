@@ -27,6 +27,8 @@ class Database(DatabaseInterface):
 
     _databases = {}
     _connpool = None
+    _list_cache = None
+    _list_cache_timestamp = None
 
     def __new__(cls, database_name='template1'):
         if database_name in cls._databases:
@@ -73,9 +75,11 @@ class Database(DatabaseInterface):
     def create(self, cursor, database_name):
         cursor.execute('CREATE DATABASE "' + database_name + '" ' \
                 'TEMPLATE template0 ENCODING \'unicode\'')
+        Database._list_cache = None
 
     def drop(self, cursor, database_name):
         cursor.execute('DROP DATABASE "' + database_name + '"')
+        Database._list_cache = None
 
     @staticmethod
     def dump(database_name):
@@ -141,10 +145,16 @@ class Database(DatabaseInterface):
             raise Exception('Couldn\'t restore database!')
         cursor.close()
         database.close()
+        Database._list_cache = None
         return True
 
     @staticmethod
     def list(cursor):
+        now = time.time()
+        timeout = int(CONFIG['session_timeout'])
+        res = Database._list_cache
+        if res and abs(Database._list_cache_timestamp - now) < timeout:
+            return res
         db_user = CONFIG['db_user']
         if not db_user and os.name == 'posix':
             db_user = pwd.getpwuid(os.getuid())[0]
@@ -189,6 +199,8 @@ class Database(DatabaseInterface):
             else:
                 cursor2.close(close=True)
                 database.close()
+        Database._list_cache = res
+        Database._list_cache_timestamp = now
         return res
 
     @staticmethod
