@@ -186,7 +186,8 @@ class ModelStorage(Model):
                     for i in ids:
                         if i in cache[self._name]:
                             cache[self._name][i] = {}
-        self.__clean_xxx2many_cache(cursor, user, context=context)
+        if ids:
+            self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
 
     def delete(self, cursor, user, ids, context=None):
@@ -217,7 +218,8 @@ class ModelStorage(Model):
                     for i in ids:
                         if i in cache[self._name]:
                             del cache[self._name][i]
-        self.__clean_xxx2many_cache(cursor, user, context=context)
+        if ids:
+            self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
 
     def copy(self, cursor, user, ids, default=None, context=None):
