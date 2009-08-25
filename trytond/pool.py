@@ -77,6 +77,21 @@ class Pool(object):
             Pool._lock.release()
 
     @staticmethod
+    def stop(database_name):
+        '''
+        Stop the Pool
+        '''
+        Pool._lock.acquire()
+        lock = Pool._locks.setdefault(database_name, RLock())
+        Pool._lock.release()
+        lock.acquire()
+        if database_name in Pool._pool:
+            del Pool._pool[database_name]
+        if database_name in Pool._pools:
+            del Pool._pools[database_name]
+        lock.release()
+
+    @staticmethod
     def database_list():
         '''
         :return: database list
