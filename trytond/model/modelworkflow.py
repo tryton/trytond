@@ -61,7 +61,7 @@ class ModelWorkflow(ModelStorage):
             ids = [ids]
 
         workflow_ids = workflow_obj.search(cursor, 0, [
-            ('osv', '=', self._name),
+            ('model', '=', self._name),
             ('on_create', '=', True),
             ], context=context)
         for res_id in ids:

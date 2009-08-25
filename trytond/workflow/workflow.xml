@@ -12,8 +12,8 @@
                 <form string="Workflow" col="6">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="osv"/>
-                    <field name="osv"/>
+                    <label name="model"/>
+                    <field name="model"/>
                     <label name="on_create"/>
                     <field name="on_create"/>
                     <field name="activities" colspan="6"/>
@@ -28,7 +28,7 @@
               <![CDATA[
                 <tree string="Workflow">
                     <field name="name" select="1"/>
-                    <field name="osv" select="1"/>
+                    <field name="model" select="1"/>
                     <field name="on_create"/>
                 </tree>
                 ]]>

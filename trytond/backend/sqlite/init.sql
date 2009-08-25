@@ -108,7 +108,7 @@ create table wkf
 (
     id INTEGER PRIMARY KEY,
     name VARCHAR,
-    osv VARCHAR,
+    model VARCHAR,
     on_create BOOLEAN
 );
 

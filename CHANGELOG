@@ -1,3 +1,4 @@
+* Rename osv into model on workflow
 * Add logout method
 * Move BrowseRecord cache onto the cursor
 * Don't order search result if order value is []
