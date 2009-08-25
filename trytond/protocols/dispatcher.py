@@ -239,6 +239,7 @@ def drop(database_name, password):
             raise
         else:
             logger.info('DROP DB: %s' % (database_name))
+            Pool.stop(database_name)
     finally:
         cursor.close(close=True)
     return True
