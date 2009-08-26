@@ -319,7 +319,7 @@ class Module(ModelSQL, ModelView):
             if res:
                 self.raise_user_error(cursor, 'uninstall_dep',
                         error_description='\n'.join(
-                            ['\t%s: %s' % (x[0], x[1]) for x in res]),
+                            '\t%s: %s' % (x[0], x[1]) for x in res),
                         context=context)
         self.write(cursor, user, ids, {'state': 'to remove'})
         return True
@@ -647,8 +647,8 @@ class ModuleInstallUpgrade(Wizard):
             ], context=context)
         modules = module_obj.browse(cursor, user, module_ids, context=context)
         return {
-            'module_info': '\n'.join([x.name + ': ' + x.state \
-                    for x in modules]),
+            'module_info': '\n'.join(x.name + ': ' + x.state \
+                    for x in modules),
         }
 
     def _upgrade_module(self, cursor, user, data, context):

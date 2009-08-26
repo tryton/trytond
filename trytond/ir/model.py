@@ -95,7 +95,7 @@ class ModelField(ModelSQL, ModelView):
                     model_ids.add(rec['model'])
             model_ids = list(model_ids)
             cursor.execute('SELECT id, model FROM ir_model WHERE id IN ' \
-                    '(' + ','.join(['%s' for x in model_ids]) + ')', model_ids)
+                    '(' + ','.join(('%s',) * len(model_ids)) + ')', model_ids)
             id2model = dict(cursor.fetchall())
 
             trans_args = []

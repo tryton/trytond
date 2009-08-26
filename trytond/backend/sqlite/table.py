@@ -194,7 +194,7 @@ class TableHandler(TableHandlerInterface):
                 return
             self.cursor.execute('CREATE INDEX "' + index_name + '" ' \
                                'ON "' + self.table_name + '" ( ' + \
-                               ','.join(['"' + x + '"' for x in column_name]) + \
+                               ','.join('"' + x + '"' for x in column_name) + \
                                ')')
             self._update_definitions()
         elif action == 'remove':

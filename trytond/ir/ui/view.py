@@ -140,7 +140,7 @@ class View(ModelSQL, ModelView):
                             'AND type = %s ' \
                             'AND module = %s ' \
                             'AND src NOT IN ' \
-                                '(' + ','.join(['%s' for x in strings]) + ')',
+                                '(' + ','.join(('%s',) * len(strings)) + ')',
                         (view.model, 'view', view.module) + tuple(strings))
         return True
 

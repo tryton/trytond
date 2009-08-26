@@ -224,7 +224,7 @@ class Model(object):
                     'WHERE lang = %s ' \
                         'AND type IN (%s, %s, %s) ' \
                         'AND name IN ' \
-                            '(' + ','.join(['%s' for x in self._columns]) + ')',
+                            '(' + ','.join(('%s',) * len(self._columns)) + ')',
                             ('en_US', 'field', 'help', 'selection') + \
                                     tuple([self._name + ',' + x \
                                         for x in self._columns]))

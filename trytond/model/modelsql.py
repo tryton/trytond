@@ -726,7 +726,7 @@ class ModelSQL(ModelStorage):
                     cursor.execute("SELECT id " \
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + ' OR '.join(
-                                [clause for x in range(len(args)/2)]), args)
+                                (clause,) * (len(args)/2)), args)
                     if cursor.fetchone():
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
@@ -969,7 +969,7 @@ class ModelSQL(ModelStorage):
                     cursor.execute("SELECT id " \
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + ' OR '.join(
-                                [clause for x in range(len(args)/2)]), args)
+                                (clause,) * (len(args)/2)), args)
                     if cursor.fetchone():
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
@@ -985,7 +985,7 @@ class ModelSQL(ModelStorage):
                     and field.left and field.right:
                 cursor.execute('SELECT id FROM "' + self._table + '" '\
                         'WHERE "' + k + '" IN (' \
-                            + ','.join(['%s' for x in ids]) + ')',
+                            + ','.join(('%s',) * len(ids)) + ')',
                             ids)
                 tree_ids[k] = [x[0] for x in cursor.fetchall()]
 
@@ -1363,7 +1363,7 @@ class ModelSQL(ModelStorage):
                         query1 = 'SELECT "' + field.field + '" ' \
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
-                                    ','.join(['%s' for x in ids2]) + ')'
+                                    ','.join(('%s',) * len(ids2)) + ')'
                         query2 = table_args + ids2
                         domain[i] = ('id', 'inselect', (query1, query2))
                     else:
@@ -1417,7 +1417,7 @@ class ModelSQL(ModelStorage):
                         query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + relation_obj._table + '" ' \
                                 'WHERE "' + field.target + '" IN (' + \
-                                    ','.join(['%s' for x in ids2]) + ') ' \
+                                    ','.join(('%s',) * len(ids2)) + ') ' \
                                     'AND "' + field.origin + '" IS NOT NULL'
                         query2 = [str(x) for x in ids2]
                         if domain[i][1] == 'child_of':
@@ -1459,7 +1459,7 @@ class ModelSQL(ModelStorage):
                         query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + relation_obj._table + '" ' \
                                 'WHERE "' + field.target + '" IN (' + \
-                                    ','.join(['%s' for x in res_ids]) + ')'
+                                    ','.join(('%s',) * len(res_ids)) + ')'
                         query2 = [str(x) for x in res_ids]
                         domain[i] = ('id', 'inselect', (query1, query2))
                 i += 1
@@ -1503,7 +1503,7 @@ class ModelSQL(ModelStorage):
                                         '"' + field.right + '" ' + \
                                     'FROM "' + self._table + '" ' + \
                                     'WHERE id IN ' + \
-                                        '(' + ','.join(['%s' for x in ids2]) + ')',
+                                        '(' + ','.join(('%s',) * len(ids2)) + ')',
                                         ids2)
                             clause = FIELDS['boolean'].sql_format(False) + ' '
                             for left, right in cursor.fetchall():
@@ -1625,7 +1625,7 @@ class ModelSQL(ModelStorage):
                     if len(arg2):
                         qu1.append(('("%s"."%s" ' + arg[1] + ' (%s))') % \
                                 (table._table, arg[0], ','.join(
-                                    ['%s'] * len(arg2))))
+                                    ('%s',) * len(arg2))))
                         if todel:
                             if table._columns[arg[0]]._type == 'boolean':
                                 if arg[1] == 'in':
@@ -1997,14 +1997,14 @@ class ModelSQL(ModelStorage):
         # ids for left update
         cursor.execute('SELECT id FROM "' + self._table + '" ' \
                 'WHERE "' + left + '" >= %s ' \
-                    'AND id NOT IN (' + ','.join(['%s' for x in child_ids]) + ')',
+                    'AND id NOT IN (' + ','.join(('%s',) * len(child_ids)) + ')',
                     [parent_right] + child_ids)
         left_ids = [x[0] for x in cursor.fetchall()]
 
         # ids for right update
         cursor.execute('SELECT id FROM "' + self._table + '" ' \
                 'WHERE "' + right + '" >= %s ' \
-                    'AND id NOT IN (' + ','.join(['%s' for x in child_ids]) + ')',
+                    'AND id NOT IN (' + ','.join(('%s',) * len(child_ids)) + ')',
                     [parent_right] + child_ids)
         right_ids = [x[0] for x in cursor.fetchall()]
 
@@ -2030,7 +2030,7 @@ class ModelSQL(ModelStorage):
                         + str(parent_right - old_left) + ', ' \
                     '"' + right + '" = "' + right + '" + ' \
                         + str(parent_right - old_left) + ' ' \
-                'WHERE id IN (' + ','.join(['%s' for x in child_ids]) + ')',
+                'WHERE id IN (' + ','.join(('%s',) * len(child_ids)) + ')',
                 child_ids)
 
         # Use root user to by-pass rules
@@ -2062,7 +2062,7 @@ class ModelSQL(ModelStorage):
                             + str(current_left - next_left) + ', ' \
                         '"' + right + '" = "' + right + '" - ' \
                             + str(current_left - next_left) + ' ' \
-                    'WHERE id in (' + ','.join(['%s' for x in child_ids]) + ')',
+                    'WHERE id in (' + ','.join(('%s',) * len(child_ids)) + ')',
                     child_ids)
 
     def _validate(self, cursor, user, ids, context=None):
