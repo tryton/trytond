@@ -153,7 +153,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND value IS NOT NULL ' \
                             'AND fuzzy = %s ' \
                             'AND res_id in (' + \
-                                ','.join([str(x) for x in sub_to_fetch]) + ')',
+                                ','.join(map(str, sub_to_fetch)) + ')',
                         (lang, ttype, name, False))
                 for res_id, value in cursor.fetchall():
                     self.add(cursor, (lang, ttype, name, res_id), value)
@@ -319,7 +319,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 sub_clause = clause[i:i + cursor.IN_MAX]
                 cursor.execute('SELECT lang, type, name, src, value ' \
                         'FROM ir_translation ' \
-                        'WHERE ' + ' OR '.join([x[0] for x in sub_clause]),
+                        'WHERE ' + ' OR '.join(x[0] for x in sub_clause),
                         reduce(lambda x, y: x + y, [x[1] for x in sub_clause]))
                 for lang, ttype, name, source, value in cursor.fetchall():
                     if (name, ttype, lang, source) not in args:
@@ -694,7 +694,7 @@ class ReportTranslationSet(Wizard):
                             'AND type = %s ' \
                             'AND module = %s ' \
                             'AND src NOT IN ' \
-                                '(' + ','.join(['%s' for x in strings]) + ')',
+                                '(' + ','.join(('%s',) * len(strings)) + ')',
                         (report.report_name, 'odt', report.module) + \
                                 tuple(strings))
         return {}

@@ -161,7 +161,7 @@ class Property(Function):
     def get_condition(sql_type, arg):
         if arg[1] in ('in', 'not in'):
             return ("(cast(split_part(value,',',2) as %s) %s ("+ \
-                ",".join('%%s' for x in arg[2]) + ")) ") % (sql_type, arg[1])
+                ",".join(('%%s',) * len(arg[2])) + ")) ") % (sql_type, arg[1])
         else:
             return "(cast(split_part(value,',',2) as %s) %s %%s) " % \
                 (sql_type, arg[1])

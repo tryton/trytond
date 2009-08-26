@@ -194,7 +194,7 @@ def load_module_graph(cursor, graph, pool, lang=None):
 
     modules = [x.name for x in graph]
     cursor.execute('SELECT name, state FROM ir_module_module ' \
-            'WHERE name in (' + ','.join(['%s' for x in modules]) + ')',
+            'WHERE name in (' + ','.join(('%s',) * len(modules)) + ')',
             modules)
     module2state = {}
     for name, state in cursor.fetchall():
