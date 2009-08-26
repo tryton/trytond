@@ -397,7 +397,7 @@ class Collection(ModelSQL, ModelView):
                                 'EXTRACT(epoch FROM create_date) ' \
                             'FROM "' + model_obj._table +'" ' \
                             'WHERE id IN (' + \
-                                ','.join(['%s' for x in sub_ids]) + ')', sub_ids)
+                                ','.join(('%s',) * len(sub_ids)) + ')', sub_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date
@@ -432,7 +432,7 @@ class Collection(ModelSQL, ModelView):
                                     'COALESCE(write_date, create_date)) ' \
                             'FROM "' + model_obj._table +'" ' \
                             'WHERE id IN (' + \
-                                ','.join(['%s' for x in sub_ids]) + ')', sub_ids)
+                                ','.join(('%s',) * len(sub_ids)) + ')', sub_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date

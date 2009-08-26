@@ -490,7 +490,7 @@ class ModelSQL(ModelStorage):
                             ','.join(fields_pre2 + ['id']) + \
                             ' FROM ' + table_query + '\"' + self._table +'\" ' \
                             'WHERE id IN ' \
-                                '(' + ','.join(['%s' for x in sub_ids]) + ')' + \
+                                '(' + ','.join(('%s',) * len(sub_ids)) + ')' + \
                             history_clause + \
                             ' AND (' + domain1 + ') ' + history_order + \
                             history_limit,
@@ -500,7 +500,7 @@ class ModelSQL(ModelStorage):
                             ','.join(fields_pre2 + ['id']) + \
                             ' FROM ' + table_query + '\"' + self._table + '\" ' \
                             'WHERE id IN ' \
-                                '(' + ','.join(['%s' for x in sub_ids]) + ')' + \
+                                '(' + ','.join(('%s',) * len(sub_ids)) + ')' + \
                             history_clause + history_order + history_limit,
                             table_args + sub_ids + history_args)
                 dictfetchall = cursor.dictfetchall()
@@ -509,7 +509,7 @@ class ModelSQL(ModelStorage):
                         cursor.execute('SELECT id FROM ' + \
                                 table_query + '\"' + self._table + '\" ' \
                                 'WHERE id IN ' \
-                                '(' + ','.join(['%s' for x in sub_ids]) + ')' + \
+                                '(' + ','.join(('%s',) * len(sub_ids)) + ')' + \
                                 history_clause + history_order + history_limit,
                                 table_args + sub_ids + history_args)
                         rowcount = cursor.rowcount
@@ -793,7 +793,7 @@ class ModelSQL(ModelStorage):
             domain1 = ' AND (' + domain1 + ') '
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            ids_str = ','.join(['%s' for x in sub_ids])
+            ids_str = ','.join(('%s',) * len(sub_ids))
             if domain1:
                 cursor.execute('SELECT id FROM "' + self._table + '" ' \
                         'WHERE id IN (' + ids_str + ') ' + domain1,
@@ -900,7 +900,7 @@ class ModelSQL(ModelStorage):
             nids = []
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
-                ids_str = ','.join(['%s' for x in sub_ids])
+                ids_str = ','.join(('%s',) * len(sub_ids))
                 cursor.execute('SELECT DISTINCT "' + col + '" ' \
                         'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
                         sub_ids)
@@ -1374,7 +1374,7 @@ class ModelSQL(ModelStorage):
                                 'SELECT "' + field.field + \
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
                                 'WHERE id IN (' + \
-                                    ','.join(['%s' for x in sub_ids2]) + ')',
+                                    ','.join(('%s',) * len(sub_ids2)) + ')',
                                 table_args + sub_ids2)
 
                             ids3.extend([x[0] for x in cursor.fetchall()])
@@ -2084,12 +2084,12 @@ class ModelSQL(ModelStorage):
                     cursor.execute('SELECT id,' + sql + ' ' \
                             'FROM "' + self._table + '" ' \
                             'WHERE id IN (' + \
-                                ','.join('%s' for i in sub_ids) + ')', sub_ids)
+                                ','.join(('%s',) * len(sub_ids)) + ')', sub_ids)
 
                     cursor.execute('SELECT id ' \
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + \
-                                ' OR '.join(sql_clause for i in sub_ids),
+                                ' OR '.join((sql_clause,) * len(sub_ids)),
                             reduce(lambda x, y: x + list(y),
                                    cursor.fetchall(),
                                    []))
@@ -2106,7 +2106,7 @@ class ModelSQL(ModelStorage):
                             'FROM "' + self._table + '" ' \
                             'WHERE NOT (' + sql + ') ' \
                                 'AND id IN ' \
-                                '(' + ','.join(['%s' for x in sub_ids]) + ')',
+                                '(' + ','.join(('%s',) * len(sub_ids)) + ')',
                             sub_ids)
                     if cursor.fetchone():
                         self.raise_user_error(cursor, error, context=context)
