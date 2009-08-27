@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import random
+import os
+import base64
 import time
 
 
@@ -9,7 +10,7 @@ class Session(int):
     def __init__(self, x):
         super(Session, self).__init__()
         self.__data = {
-            'session': str(random.random()),
+            'session': base64.b64encode(os.urandom(32)),
             'timestamp': time.time(),
             'name': '',
         }
