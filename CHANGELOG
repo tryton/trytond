@@ -1,7 +1,7 @@
 * Move login test in res.user
 * Rename osv into model on workflow
 * Add logout method
-* Move BrowseRecord cache onto the cursor
+* Move BrowseRecord cache onto the cursor except for Function fields
 * Don't order search result if order value is []
 * Add reload of modules if files have changed
 * Add salt to sha of password

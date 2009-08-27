@@ -492,8 +492,10 @@ class ModelStorage(Model):
         '''
         if isinstance(ids, (int, long)):
             return BrowseRecord(cursor, user, ids, self, context=context)
+        local_cache = {}
         return BrowseRecordList([BrowseRecord(cursor, user, x, self,
-            context=context) for x in ids], context)
+            local_cache=local_cache, context=context) for x in ids],
+            context=context)
 
     def __export_row(self, cursor, user, row, fields_names, context=None):
         lines = []
