@@ -135,7 +135,7 @@ class BrowseRecord(object):
 
             ids = [x for x in self._data.keys() \
                     if not self._data[x].has_key(name) \
-                    or not self._local_data.setdefault(x, {}).has_key(name)]
+                    and not self._local_data.setdefault(x, {}).has_key(name)]
             # read the data
             datas = self._model.read(self._cursor, self._user, ids,
                     [x[0] for x in ffields], context=self._context)
