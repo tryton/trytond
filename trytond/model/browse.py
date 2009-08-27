@@ -1,5 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from trytond.model import fields
 
 class BrowseRecordList(list):
     '''
@@ -48,7 +49,8 @@ class BrowseRecord(object):
     An object that represents record defined by a ORM object.
     '''
 
-    def __init__(self, cursor, user, record_id, model, context=None):
+    def __init__(self, cursor, user, record_id, model, local_cache=None,
+            context=None):
         self._cursor = cursor
         self._user = user
         self._id = record_id
@@ -69,13 +71,20 @@ class BrowseRecord(object):
         if not record_id in self._data:
             self._data[record_id] = {'id': record_id}
         self._cache = cache
+        self._local_cache = local_cache or {}
+        self._local_cache.setdefault(model._name, {})
+        self._local_cache.setdefault('_language_cache', {})
+        self._local_data = self._local_cache[model._name]
+        if not record_id in self._local_data:
+            self._local_data[record_id] = {}
 
     def __getitem__(self, name):
         if name == 'id':
             return self._id
         if name == 'setLang':
             return self.setLang
-        if not self._data[self._id].has_key(name):
+        if not self._data[self._id].has_key(name) \
+                and not self._local_data[self._id].has_key(name):
             # build the list of fields we will fetch
 
             # fetch the definition of the field which was asked for
@@ -94,7 +103,8 @@ class BrowseRecord(object):
                 # gen the list of "local" (ie not inherited)
                 ffields = [x for x in self._model._columns.items() \
                         if not hasattr(x[1], 'get') \
-                        and x[0] not in self._data[self._id] \
+                        and (x[0] not in self._data[self._id] \
+                            or x[0] not in self._local_data[self._id]) \
                         and ((not x[1].translate \
                                 and x[1]._type not in ('text', 'binary')) \
                             or x[0] == name)]
@@ -103,7 +113,8 @@ class BrowseRecord(object):
                         self._model._inherit_fields.items()]
                 # complete the field list with the inherited fields
                 ffields += [x for x in inherits if not hasattr(x[1], 'get') \
-                        and x[0] not in self._data[self._id] \
+                        and (x[0] not in self._data[self._id] \
+                            or x[0] not in self._local_data[self._id]) \
                         and x[0] not in self._model._columns \
                         and ((not x[1].translate \
                                 and x[1]._type not in ('text', 'binary')) \
@@ -123,7 +134,8 @@ class BrowseRecord(object):
                     ffields.append((j.datetime_field, col))
 
             ids = [x for x in self._data.keys() \
-                    if not self._data[x].has_key(name)]
+                    if not self._data[x].has_key(name) \
+                    or not self._local_data.setdefault(x, {}).has_key(name)]
             # read the data
             datas = self._model.read(self._cursor, self._user, ids,
                     [x[0] for x in ffields], context=self._context)
@@ -132,13 +144,12 @@ class BrowseRecord(object):
             for data in datas:
                 for i, j in ffields:
                     model = None
-                    if hasattr(j, 'model_name'):
-                        if j.model_name not in self._model.pool.object_name_list():
-                            continue
+                    if hasattr(j, 'model_name') \
+                            and j.model_name in self._model.pool.object_name_list():
                         model = self._model.pool.get(j.model_name)
                     elif hasattr(j, 'get_target'):
                         model = j.get_target(self._model.pool)
-                    if j._type in ('many2one',):
+                    if model and j._type in ('many2one',):
                         if not data[i] and not (isinstance(data[i], (int, long))
                                 and not isinstance(data[i], type(False))):
                             data[i] = BrowseRecordNull()
@@ -149,13 +160,19 @@ class BrowseRecord(object):
                                 ctx['_datetime'] = data[j.datetime_field]
                             data[i] = BrowseRecord(self._cursor, self._user,
                                     data[i], model, context=ctx)
-                    elif j._type in ('one2many', 'many2many') and len(data[i]):
+                    elif model and j._type in ('one2many', 'many2many') \
+                            and len(data[i]):
                         data[i] = BrowseRecordList([BrowseRecord(self._cursor,
                             self._user,
                             isinstance(x, (list, tuple)) and x[0] or x, model,
                             context=self._context) for x in data[i]],
                             self._context)
+                    if isinstance(j, fields.Function):
+                        self._local_data.setdefault(data['id'], {})[i] = data[i]
+                        del data[i]
                 self._data[data['id']].update(data)
+        if name in self._local_data[self._id]:
+            return self._local_data[self._id][name]
         return self._data[self._id][name]
 
     def __getattr__(self, name):
@@ -199,21 +216,22 @@ class BrowseRecord(object):
         self._context = self._context.copy()
         prev_lang = self._context.get('language') or 'en_US'
         self._context['language'] = lang
-        language_cache = self._cache['_language_cache']
-        for model in self._cache:
-            if model == '_language_cache':
-                continue
-            for record_id in self._cache[model]:
-                language_cache.setdefault(prev_lang,
-                        {}).setdefault(model, {})[record_id] = \
-                                self._cache[model][record_id]
-                if lang in language_cache \
-                        and model in language_cache[lang] \
-                        and record_id in language_cache[lang][model]:
-                    self._cache[model][record_id] = \
-                            language_cache[lang][model][record_id]
-                else:
-                    self._cache[model][record_id] = {'id': record_id}
+        for cache in (self._cache, self._local_cache):
+            language_cache = cache['_language_cache']
+            for model in cache:
+                if model == '_language_cache':
+                    continue
+                for record_id in cache[model]:
+                    language_cache.setdefault(prev_lang,
+                            {}).setdefault(model, {})[record_id] = \
+                                    cache[model][record_id]
+                    if lang in language_cache \
+                            and model in language_cache[lang] \
+                            and record_id in language_cache[lang][model]:
+                        cache[model][record_id] = \
+                                language_cache[lang][model][record_id]
+                    else:
+                        cache[model][record_id] = {'id': record_id}
 
     def get_eval(self, name):
         res = self[name]
