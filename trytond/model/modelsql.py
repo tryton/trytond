@@ -220,7 +220,8 @@ class ModelSQL(ModelStorage):
         values = values.copy()
 
         # Clean values
-        for key in ('create_uid', 'create_date', 'id'):
+        for key in ('create_uid', 'create_date', 'write_uid', 'write_date',
+                'id'):
             if key in values:
                 del values[key]
 
@@ -734,13 +735,11 @@ class ModelSQL(ModelStorage):
                 if context['_timestamp'].get(self._name + ',' + str(i)):
                     del context['_timestamp'][self._name + ',' +str(i)]
 
-
-        if 'write_uid' in values:
-            del values['write_uid']
-        if 'write_date' in values:
-            del values['write_date']
-        if 'id' in values:
-            del values['id']
+        # Clean values
+        for key in ('create_uid', 'create_date', 'write_uid', 'write_date',
+                'id'):
+            if key in values:
+                del values[key]
 
         upd0 = []
         upd1 = []
