@@ -1,3 +1,4 @@
+* Add ModelSingleton
 * Move login test in res.user
 * Rename osv into model on workflow
 * Add logout method

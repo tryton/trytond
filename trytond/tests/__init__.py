@@ -2,4 +2,5 @@
 #this repository contains the full copyright notices and license terms.
 
 from tests import *
+from model import *
 from mptt import *
