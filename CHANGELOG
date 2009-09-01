@@ -1,3 +1,4 @@
+* Add ir.model.access check get and set of ir.property
 * Add ModelSingleton
 * Move login test in res.user
 * Rename osv into model on workflow

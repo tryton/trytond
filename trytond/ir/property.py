@@ -32,7 +32,10 @@ class Property(ModelSQL, ModelView):
         :return: a dictionary
         """
         model_field_obj = self.pool.get('ir.model.field')
+        model_access_obj = self.pool.get('ir.model.access')
         res = {}
+
+        model_access_obj.check(cursor, user, model, 'read', context=context)
 
         names_list = True
         if not isinstance(names, list):
@@ -157,6 +160,9 @@ class Property(ModelSQL, ModelView):
         :return: the id of the record created
         """
         model_field_obj = self.pool.get('ir.model.field')
+        model_access_obj = self.pool.get('ir.model.access')
+
+        model_access_obj.check(cursor, user, model, 'write', context=context)
 
         if context is None:
             context = {}
