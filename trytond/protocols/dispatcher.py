@@ -185,8 +185,8 @@ def create(database_name, password, lang, admin_password):
             #XXX replace with model write
             if lang != 'en_US':
                 cursor.execute('UPDATE ir_lang ' \
-                        'SET translatable = True ' \
-                        'WHERE code = %s', (lang,))
+                        'SET translatable = %s ' \
+                        'WHERE code = %s', (True, lang))
             cursor.execute('UPDATE res_user ' \
                     'SET language = ' \
                         '(SELECT id FROM ir_lang WHERE code = %s LIMIT 1) '\
