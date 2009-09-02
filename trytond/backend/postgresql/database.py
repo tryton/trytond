@@ -94,10 +94,10 @@ class Database(DatabaseInterface):
             cmd.append('--port=' + CONFIG['db_port'])
         cmd.append(database_name)
 
-        stdin, stdout = exec_pg_command_pipe(*tuple(cmd))
-        stdin.close()
-        data = stdout.read()
-        res = stdout.close()
+        pipe = exec_pg_command_pipe(*tuple(cmd))
+        pipe.stdin.close()
+        data = pipe.stdout.read()
+        res = pipe.wait()
         if res:
             raise Exception('Couldn\'t dump database!')
         return data
@@ -129,11 +129,11 @@ class Database(DatabaseInterface):
             args2.append(' ' + tmpfile)
             args2 = tuple(args2)
 
-        stdin, stdout = exec_pg_command_pipe(*args2)
+        pipe = exec_pg_command_pipe(*args2)
         if not os.name == "nt":
-            stdin.write(data)
-        stdin.close()
-        res = stdout.close()
+            pipe.stdin.write(data)
+        pipe.stdin.close()
+        res = pipe.wait()
         if res:
             raise Exception('Couldn\'t restore database')
 

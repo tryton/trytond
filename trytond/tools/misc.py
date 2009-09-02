@@ -63,7 +63,7 @@ def exec_pg_command_pipe(name, *args):
                             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                             close_fds=True,
                             env=child_env)
-    return (pipe.stdin, pipe.stdout)
+    return pipe
 
 def exec_command_pipe(name, *args):
     prog = find_in_path(name)
