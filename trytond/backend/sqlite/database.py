@@ -117,7 +117,7 @@ class Database(DatabaseInterface):
             raise Exception('Wrong database name!')
         path = os.path.join(CONFIG['data_path'],
                 database_name + '.sqlite')
-        file_p = file(path)
+        file_p = file(path, 'rb')
         data = file_p.read()
         file_p.close()
         return data
