@@ -36,6 +36,9 @@ def date_trunc(_type, date):
     elif _type == 'day':
         return "%i-%02i-%02i 00:00:00" % (dt.year, dt.month, dt.day)
 
+def split_part(text, delimiter, count):
+    return (text.split(delimiter) + [''] * (count - 1))[count - 1]
+
 def now():
     return mx.DateTime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -68,6 +71,7 @@ class Database(DatabaseInterface):
             return self
         self._conn = sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES)
         self._conn.create_function('date_trunc', 2, date_trunc)
+        self._conn.create_function('split_part', 3, split_part)
         self._conn.create_function('now', 0, now)
         return self
 
