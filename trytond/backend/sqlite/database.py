@@ -265,26 +265,29 @@ class Cursor(CursorInterface):
         self._conn.rollback()
 
     def test(self):
-        self.cursor.execute("SELECT name " \
-                "FROM sqlite_master " \
-                "WHERE type = 'table' AND name in (" \
-                "'ir_model', "
-                "'ir_model_field', "
-                "'ir_ui_view', "
-                "'ir_ui_menu', "
-                "'res_user', "
-                "'res_group', "
-                "'wkf', "
-                "'wkf_activity', "
-                "'wkf_transition', "
-                "'wkf_instance', "
-                "'wkf_workitem', "
-                "'wkf_witm_trans', "
-                "'ir_module_module', "
-                "'ir_module_module_dependency, '"
-                "'ir_translation, '"
-                "'ir_lang'"
-                ")")
+        try:
+            self.cursor.execute("SELECT name " \
+                    "FROM sqlite_master " \
+                    "WHERE type = 'table' AND name in (" \
+                    "'ir_model', "
+                    "'ir_model_field', "
+                    "'ir_ui_view', "
+                    "'ir_ui_menu', "
+                    "'res_user', "
+                    "'res_group', "
+                    "'wkf', "
+                    "'wkf_activity', "
+                    "'wkf_transition', "
+                    "'wkf_instance', "
+                    "'wkf_workitem', "
+                    "'wkf_witm_trans', "
+                    "'ir_module_module', "
+                    "'ir_module_module_dependency, '"
+                    "'ir_translation, '"
+                    "'ir_lang'"
+                    ")")
+        except:
+            return False
         return len(self.cursor.fetchall()) != 0
 
     def lastid(self):
