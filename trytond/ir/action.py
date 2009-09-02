@@ -224,7 +224,7 @@ class ActionReport(ModelSQL, ModelView):
         [('odt', 'ODT Document'),
          ('pdf', 'PDF Document'),],
         string='Extension', required=True)
-    module = fields.Char('Module', readonly=True)
+    module = fields.Char('Module', readonly=True, select=1)
     email = fields.Char('Email')
 
     def __init__(self):
