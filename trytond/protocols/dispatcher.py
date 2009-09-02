@@ -255,7 +255,7 @@ def dump(database_name, password):
     logger.info('DUMP DB: %s' % (database_name))
     return base64.encodestring(data)
 
-def restore(database_name, password, data):
+def restore(database_name, password, data, update=False):
     logger = logging.getLogger('database')
     security.check_super(password)
     try:
@@ -268,4 +268,16 @@ def restore(database_name, password, data):
     data = base64.decodestring(data)
     Database.restore(database_name, data)
     logger.info('RESTORE DB: %s' % (database_name))
+    if update:
+        cursor = Database(database_name).connect().cursor()
+        cursor.execute('SELECT code FROM ir_lang ' \
+                'WHERE translatable')
+        lang = [x[0] for x in cursor.fetchall()]
+        cursor.execute('UPDATE ir_module_module SET ' \
+                "state = 'to upgrade' " \
+                "WHERE state = 'installed'")
+        cursor.commit()
+        cursor.close()
+        Pool(database_name).init(update=update, lang=lang)
+        logger.info('Update/Init succeed!')
     return True
