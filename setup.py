@@ -44,6 +44,7 @@ setup(name=PACKAGE,
         'lxml',
         'egenix-mx-base',
         'relatorio >= 0.2.0',
+        'Genshi',
     ],
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],
