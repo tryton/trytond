@@ -12,7 +12,7 @@ class Date(Model):
     def __init__(self):
         super(Date, self).__init__()
         self._rpc.update({
-            'today': True,
+            'today': False,
             })
 
     def today(self, cursor, user, context=None):
