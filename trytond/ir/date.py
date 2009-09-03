@@ -9,6 +9,12 @@ class Date(Model):
     _name = 'ir.date'
     _description = __doc__
 
+    def __init__(self):
+        super(Date, self).__init__()
+        self._rpc.update({
+            'today': True,
+            })
+
     def today(self, cursor, user, context=None):
         '''
         Current date
