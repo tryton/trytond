@@ -1,3 +1,4 @@
+* Use the module dependency order to apply views that inherits
 * Allow to update database at the end of restore
 * Add ir.model.access check get and set of ir.property
 * Add ModelSingleton
