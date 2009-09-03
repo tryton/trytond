@@ -1,7 +1,6 @@
 - Add check on action groups when executing wizard
 - Handle button as a field to allow to override it with python code
 - Allow to create fields from the client interface
-- Fix the order of views that inherits (must be the module dependency order)
 - Improve encoding of default properties
 - Use determined action name in workflow like for default value
 - Add check for index and constraint name lenght (limit 31)

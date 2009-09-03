@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.model import Model
 from trytond.tools import Cache
+from trytond.modules import create_graph, get_module_list
 from lxml import etree
 try:
     import hashlib
@@ -70,6 +71,20 @@ class ModelView(Model):
     """
     Define a model with views in Tryton.
     """
+    __modules_list = None # Cache for the modules list sorted by dependency
+
+    @staticmethod
+    def _reset_modules_list():
+        ModelView.__modules_list = None
+
+    def _get_modules_list(self):
+        if ModelView.__modules_list:
+            return ModelView.__modules_list
+        graph = create_graph(get_module_list())[0]
+        ModelView.__modules_list = [x.name for x in graph] + [None]
+        return ModelView.__modules_list
+
+    _modules_list = property(fget=_get_modules_list)
 
     def __init__(self):
         super(ModelView, self).__init__()
@@ -143,13 +158,26 @@ class ModelView(Model):
                 view_id = inherit_view_id
 
             # get all views which inherit from (ie modify) this view
-            cursor.execute('SELECT arch, domain, id FROM ir_ui_view ' \
+            cursor.execute('SELECT arch, domain, module FROM ir_ui_view ' \
                     'WHERE (inherit = %s AND model = %s) OR ' \
                         ' (id = %s AND inherit IS NOT NULL) '
                     'ORDER BY priority ASC, id ASC',
                     (view_id, self._name, view_id))
             sql_inherit = cursor.fetchall()
-            for (arch, domain, view_id) in sql_inherit:
+            raise_p = False
+            while True:
+                try:
+                    sql_inherit.sort(lambda x, y: \
+                            cmp(self._modules_list.index(x[2] or None),
+                                self._modules_list.index(y[2] or None)))
+                    break
+                except ValueError:
+                    if raise_p:
+                        raise
+                    # There is perhaps a new module in the directory
+                    ModelView._reset_modules_list()
+                    raise_p = True
+            for arch, domain, _ in sql_inherit:
                 if domain:
                     if not eval(domain, {'context': context}):
                         continue
