@@ -344,6 +344,13 @@ class Fs2bdAccessor:
                 object_ids = ids
         models = model_obj.browse(self.cursor, self.user, object_ids)
         for model in models:
+            if model.id in self.browserecord[module][model_name]:
+                for cache in self.cursor.cache.values():
+                    for cache in (cache, cache.get('_language_cache',
+                        {}).values()):
+                        if model_name in cache \
+                                and model.id in cache[model_name]:
+                            cache[model_name][model.id] = {}
             self.browserecord[module][model_name][model.id] = model
 
     def fetch_new_module(self, module):
