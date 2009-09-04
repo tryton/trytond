@@ -56,7 +56,9 @@ class BrowseRecord(object):
         self._id = record_id
         self._model = model
         self._model_name = self._model._name
-        self._context = context or {}
+        if context is None:
+            context = {}
+        self._context = context
 
         cache_ctx = self._context.copy()
         for i in ('_timestamp', '_delete', '_create_records',
@@ -71,7 +73,9 @@ class BrowseRecord(object):
         if not record_id in self._data:
             self._data[record_id] = {'id': record_id}
         self._cache = cache
-        self._local_cache = local_cache or {}
+        if local_cache is None:
+            local_cache ={}
+        self._local_cache = local_cache
         self._local_cache.setdefault(model._name, {})
         self._local_cache.setdefault('_language_cache', {})
         self._local_data = self._local_cache[model._name]
