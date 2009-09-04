@@ -824,6 +824,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         'values': values,
                         'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
                         })
+            # reset_browsercord to keep cache memory low
+            self.fs2db.reset_browsercord(module, object_ref._name, db_id)
 
         else:
             # this record is new, create it in the db:
