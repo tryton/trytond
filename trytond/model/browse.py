@@ -137,7 +137,11 @@ class BrowseRecord(object):
                         col = self._model._inherit_fields[j.datetime_field][2]
                     ffields.append((j.datetime_field, col))
 
-            ids = [x for x in self._data.keys() \
+            if len(self._data) <= self._cursor.IN_MAX:
+                iterids = self._data.iterkeys()
+            else:
+                iterids = self._local_data.iterkeys()
+            ids = [x for x in iterids \
                     if not self._data[x].has_key(name) \
                     and not self._local_data.setdefault(x, {}).has_key(name)]
             # read the data
