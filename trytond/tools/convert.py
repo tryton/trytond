@@ -359,7 +359,7 @@ class Fs2bdAccessor:
             self.cursor, self.user, [
                 ('module', '=', module),
                 ('inherit', '=', False),
-                ])
+                ], order=[('db_id', 'ASC')])
 
         record_ids = {}
         for rec in self.modeldata_obj.browse(
