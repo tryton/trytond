@@ -167,12 +167,14 @@ class BrowseRecord(object):
                                 ctx = self._context.copy()
                                 ctx['_datetime'] = data[j.datetime_field]
                             data[i] = BrowseRecord(self._cursor, self._user,
-                                    data[i], model, context=ctx)
+                                    data[i], model, local_cache=self._local_cache,
+                                    context=ctx)
                     elif model and j._type in ('one2many', 'many2many') \
                             and len(data[i]):
                         data[i] = BrowseRecordList([BrowseRecord(self._cursor,
                             self._user,
                             isinstance(x, (list, tuple)) and x[0] or x, model,
+                            local_cache=self._local_cache,
                             context=self._context) for x in data[i]],
                             self._context)
                     if isinstance(j, fields.Function):
