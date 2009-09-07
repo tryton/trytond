@@ -17,6 +17,8 @@ There is different kind of Model for different purpose:
 
   * ``ModelWorkflow``: Define Model with workflow.
 
+  * ``ModelSingleton``: Define Model with singleton property.
+
 The following snippet gives a first idea of what can be done:
 
 .. highlight:: python
