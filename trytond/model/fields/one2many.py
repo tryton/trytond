@@ -49,6 +49,9 @@ class One2Many(Field):
         :param context: the context
         :return: a dictionary with ids as key and values as value
         '''
+        if context is None:
+            context = {}
+
         res = {}
         for i in ids:
             res[i] = []
@@ -59,9 +62,26 @@ class One2Many(Field):
                     [(self.field, 'in', sub_ids)], order=self.order,
                     context=context)
 
-        for i in model.pool.get(self.model_name).read(cursor, user, ids2,
-                [self.field], context=context):
-            res[i[self.field]].append(i['id'])
+        cache_ctx = context.copy()
+        for i in ('_timestamp', '_delete', '_create_records',
+                '_delete_records'):
+            if i in cache_ctx:
+                del cache_ctx[i]
+        cache = cursor.cache.setdefault(repr(cache_ctx), {})
+        cache.setdefault(self.model_name, {})
+        ids3 = []
+        for i in ids2:
+            if i in cache[self.model_name] \
+                    and self.field in cache[self.model_name][i]:
+                res[cache[self.model_name][i][self.field].id].append(i)
+            else:
+                ids3.append(i)
+
+        if ids3:
+            for i in model.pool.get(self.model_name).read(cursor, user, ids3,
+                    [self.field], context=context):
+                res[i[self.field]].append(i['id'])
+
         for val in res.values():
             val.sort(lambda x, y: cmp(ids2.index(x), ids2.index(y)))
         return res

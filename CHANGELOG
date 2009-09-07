@@ -1,3 +1,4 @@
+* Fill the cursor cache at search
 * Allow rpc on today of ir.date
 * Use the module dependency order to apply views that inherits
 * Allow to update database at the end of restore

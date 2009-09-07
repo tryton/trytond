@@ -5,6 +5,7 @@ from trytond.model import ModelStorage, OPERATORS
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
 from trytond.backend import DatabaseIntegrityError, Database
+from trytond.model.browse import BrowseRecord, BrowseRecordNull
 import datetime
 import re
 _RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)
@@ -1161,34 +1162,99 @@ class ModelSQL(ModelStorage):
             res = cursor.fetchall()
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
-        select_field = '"' + self._table + '".id'
+        select_fields = ['"' + self._table + '".id']
         if self._history and context.get('_datetime') \
                 and not query_string:
-            select_field += ', COALESCE("' + self._table + '".write_date, "' + \
-                    self._table + '".create_date)'
-        query_str = 'SELECT ' + select_field + ' FROM ' + \
+            select_fields += ['COALESCE("' + self._table + '".write_date, "' + \
+                    self._table + '".create_date) AS _datetime']
+        if not query_string:
+            select_fields += [(x[0] in ('create_date', 'write_date')) \
+                    and ('date_trunc(\'second\', "' + \
+                    self._table + '"."' + x[0] + '") AS "' + x[0] + '"') \
+                    or '"' + self._table + '"."' + x[0] + '"' \
+                    for x in self._columns.iteritems() \
+                    if not hasattr(x[1], 'get') \
+                    and (x[0] != 'id')
+                    and (not x[1].translate \
+                        and x[1]._type not in ('text', 'binary'))]
+            if not self.table_query(context):
+                select_fields += ['(COALESCE("' + self._table + '".write_date,'\
+                        '"' + self._table + '".create_date)) ' \
+                        'AS _timestamp']
+            else:
+                select_fields += ['now()::timestamp AS _timestamp']
+        query_str = 'SELECT ' + ','.join(select_fields) + ' FROM ' + \
                 ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
                 (order_by and ' ORDER BY ' + order_by or '') + \
                 limit_str + offset_str
         if query_string:
             return (query_str, tables_args + qu2)
-        cursor.execute(query_str, tables_args + qu2)
+        cursor.execute('SELECT * FROM (' + query_str + ') AS ' \
+                '"' + self._table + '" ' \
+                'LIMIT %d' % cursor.IN_MAX, tables_args + qu2)
+
+        datas = cursor.dictfetchall()
+        cache_ctx = context.copy()
+        for i in ('_timestamp', '_delete', '_create_records',
+                '_delete_records'):
+            if i in cache_ctx:
+                del cache_ctx[i]
+        cache = cursor.cache.setdefault(repr(cache_ctx), {})
+        cache.setdefault(self._name, {})
+        for data in datas:
+            for i in data.keys():
+                if i in ('_timestamp', '_datetime'):
+                    continue
+                field = self._columns[i]
+                if field._type in ('many2one',):
+                    if field.model_name not in self.pool.object_name_list():
+                        del data[i]
+                        continue
+                    model = self.pool.get(field.model_name)
+                    if not data[i] and not (isinstance(data[i], (int, long))
+                            and not isinstance(data[i], type(False))):
+                        data[i] = BrowseRecordNull()
+                    else:
+                        ctx = context
+                        if hasattr(field, 'datetime_field') \
+                                and field.datetime_field:
+                            ctx = context.copy()
+                            if field.datetime_field not in data:
+                                del data[i]
+                                continue
+                            ctx['_datetime'] = data[field.datetime_field]
+                        data[i] = BrowseRecord(cursor, user, data[i],
+                                model, context=ctx)
+            cache[self._name].setdefault(data['id'], {})
+            cache[self._name][data['id']].update(data)
+
+        if len(datas) >= cursor.IN_MAX:
+            select_fields2 = [select_fields[0]]
+            if self._history and context.get('_datetime') \
+                    and not query_string:
+                select_fields2 += [select_fields[1]]
+            cursor.execute('SELECT * FROM (' \
+                    'SELECT ' + ','.join(select_fields2) + ' FROM ' + \
+                    ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
+                    (order_by and ' ORDER BY ' + order_by or '') + \
+                    limit_str + offset_str + ') AS "' + self._table + '" ' \
+                    'OFFSET %d' % cursor.IN_MAX, tables_args + qu2)
+            datas += cursor.dictfetchall()
 
         if self._history and context.get('_datetime'):
             res = []
             ids_date = {}
-            for row in cursor.fetchall():
-                if row[0] in ids_date:
-                    if row[1] <= ids_date[row[0]]:
+            for data in datas:
+                if data['id'] in ids_date:
+                    if data['_datetime'] <= ids_date[data['id']]:
                         continue
-                if row[0] in res:
-                    res.remove(row[0])
-                res.append(row[0])
-                ids_date[row[0]] = row[1]
+                if data['id'] in res:
+                    res.remove(data['id'])
+                res.append(data['id'])
+                ids_date[data['id']] = data['_datetime']
             return res
 
-        res = cursor.fetchall()
-        return [x[0] for x in res]
+        return [x['id'] for x in datas]
 
     def search_domain(self, cursor, user, domain, active_test=True, context=None):
         '''
