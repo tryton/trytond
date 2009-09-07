@@ -672,13 +672,13 @@ class ReportTranslationSet(Wizard):
                     if seqmatch.ratio() > 0.6:
                         cursor.execute('UPDATE ir_translation ' \
                                 'SET src = %s, ' \
-                                    'fuzzy = True ' \
+                                    'fuzzy = %s ' \
                                 'WHERE name = %s ' \
                                     'AND type = %s ' \
                                     'AND src = %s ' \
                                     'AND module = %s',
-                                (string, report.report_name, 'odt', string_trans,
-                                    report.module))
+                                (string, True, report.report_name, 'odt',
+                                    string_trans, report.module))
                         del trans_reports[string_trans]
                         done = True
                         break
@@ -1024,11 +1024,11 @@ class TranslationUpdate(Wizard):
 
         for row in cursor.dictfetchall():
             cursor.execute('UPDATE ir_translation ' \
-                    'SET fuzzy = True, ' \
+                    'SET fuzzy = %s, ' \
                         'value = %s ' \
                     'WHERE src = %s ' \
                         'AND (value = \'\' OR value IS NULL) ' \
-                        'AND lang = %s', (row['value'], row['src'],
+                        'AND lang = %s', (True, row['value'], row['src'],
                             data['form']['lang']))
 
         cursor.execute('UPDATE ir_translation ' \
