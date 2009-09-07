@@ -184,3 +184,14 @@ class CursorInterface(object):
         :return: a boolean
         '''
         raise
+
+    def limit_clause(self, select, limit=None, offset=None):
+        '''
+        Return SELECT queries with limit and offset
+
+        :param select: the SELECT query string
+        :param limit: the limit
+        :param offset: the offset
+        :return: a string
+        '''
+        raise

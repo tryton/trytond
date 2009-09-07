@@ -471,7 +471,7 @@ class ModelSQL(ModelStorage):
             table_query = '"' + self._table + '__history" AS '
             history_clause = ' AND (COALESCE(write_date, create_date) <= %s)'
             history_order = ' ORDER BY COALESCE(write_date, create_date) DESC'
-            history_limit = ' LIMIT 1'
+            history_limit = cursor.limit_clause('', 1)
             history_args = [context['_datetime']]
         if len(fields_pre) :
             fields_pre2 = [(x in ('create_date', 'write_date')) \
@@ -1137,13 +1137,10 @@ class ModelSQL(ModelStorage):
 
         order_by = ','.join(order_by)
 
-        # Get limit
-        limit_str = limit and (type(limit) in (float, int, long))\
-                    and ' LIMIT %d' % limit or ''
-
-        # Get offset
-        offset_str = offset and (type(offset) in (float, int, long))\
-                     and ' OFFSET %d' % offset or ''
+        if type(limit) not in (float, int, long, type(None)):
+            raise Exception('Error', 'Wrong limit type (%s)!' % type(limit))
+        if type(offset) not in (float, int, long, type(None)):
+            raise Exception('Error', 'Wrong offset type (%s)!' % type(offset))
 
         # construct a clause for the rules :
         domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
@@ -1156,9 +1153,10 @@ class ModelSQL(ModelStorage):
             qu2 += domain2
 
         if count:
-            cursor.execute('SELECT COUNT("%s".id) FROM ' % self._table +
-                    ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') +
-                    limit_str + offset_str, tables_args + qu2)
+            cursor.execute(cursor.limit_clause(
+                'SELECT COUNT("%s".id) FROM ' % self._table +
+                    ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or ''),
+                    limit, offset), tables_args + qu2)
             res = cursor.fetchall()
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
@@ -1183,15 +1181,15 @@ class ModelSQL(ModelStorage):
                         'AS _timestamp']
             else:
                 select_fields += ['now()::timestamp AS _timestamp']
-        query_str = 'SELECT ' + ','.join(select_fields) + ' FROM ' + \
+        query_str = cursor.limit_clause(
+                'SELECT ' + ','.join(select_fields) + ' FROM ' + \
                 ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
-                (order_by and ' ORDER BY ' + order_by or '') + \
-                limit_str + offset_str
+                (order_by and ' ORDER BY ' + order_by or ''), limit, offset)
         if query_string:
             return (query_str, tables_args + qu2)
-        cursor.execute('SELECT * FROM (' + query_str + ') AS ' \
-                '"' + self._table + '" ' \
-                'LIMIT %d' % cursor.IN_MAX, tables_args + qu2)
+        cursor.execute(cursor.limit_clause(
+            'SELECT * FROM (' + query_str + ') AS ' \
+                '"' + self._table + '"', cursor.IN_MAX), tables_args + qu2)
 
         datas = cursor.dictfetchall()
         cache_ctx = context.copy()
@@ -1233,12 +1231,14 @@ class ModelSQL(ModelStorage):
             if self._history and context.get('_datetime') \
                     and not query_string:
                 select_fields2 += [select_fields[1]]
-            cursor.execute('SELECT * FROM (' \
-                    'SELECT ' + ','.join(select_fields2) + ' FROM ' + \
-                    ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
-                    (order_by and ' ORDER BY ' + order_by or '') + \
-                    limit_str + offset_str + ') AS "' + self._table + '" ' \
-                    'OFFSET %d' % cursor.IN_MAX, tables_args + qu2)
+            cursor.execute(cursor.limit_clause(
+                'SELECT * FROM (' + \
+                    cursor.limit_clause(
+                        'SELECT ' + ','.join(select_fields2) + ' FROM ' + \
+                        ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
+                        (order_by and ' ORDER BY ' + order_by or ''),
+                        limit, offset) + ') AS "' + self._table + '"',
+                    None, cursor.IN_MAX), tables_args + qu2)
             datas += cursor.dictfetchall()
 
         if self._history and context.get('_datetime'):

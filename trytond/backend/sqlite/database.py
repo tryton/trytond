@@ -304,6 +304,15 @@ class Cursor(CursorInterface):
     def has_constraint(self):
         return False
 
+    def limit_clause(self, select, limit=None, offset=None):
+        if limit is not None:
+            select += ' LIMIT %d' % limit
+        if offset is not None:
+            if limit is None:
+                select += ' LIMIT -1'
+            select += ' OFFSET %d' % offset
+        return select
+
 sqlite.register_converter('NUMERIC', lambda val: Decimal(str(val)))
 sqlite.register_adapter(Decimal, lambda val: float(val))
 sqlite.register_adapter(Session, lambda val: int(val))

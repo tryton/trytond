@@ -64,7 +64,7 @@ class MenuitemTagHandler:
             action_id = self.mh.get_id(values['action'])
 
             # TODO maybe use a prefetch for this:
-            self.mh.cursor.execute(
+            self.mh.cursor.execute(self.mh.cursor.limit_clause(
             "SELECT a.name, a.type, act.view_type, v.type " \
             "FROM ir_action a " \
                 "LEFT JOIN ir_action_report report ON (a.id = report.action) " \
@@ -77,8 +77,8 @@ class MenuitemTagHandler:
                 "OR act.id = %s " \
                 "OR wizard.id = %s " \
                 "OR url.id = %s " \
-            "ORDER by wv.sequence " \
-            "LIMIT 1", (action_id, action_id, action_id, action_id))
+            "ORDER by wv.sequence", 1),
+            (action_id, action_id, action_id, action_id))
             action_name, action_type, view_type, view_mode = \
                 self.mh.cursor.fetchone()
 
