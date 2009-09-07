@@ -21,6 +21,7 @@ except ImportError:
     import sqlite3 as sqlite
     from sqlite3 import IntegrityError as DatabaseIntegrityError
     from sqlite3 import OperationalError as DatabaseOperationalError
+QUOTE_SEPARATION = re.compile(r"(.*?)('.*?')", re.DOTALL)
 
 def date_trunc(_type, date):
     if _type == 'second':
@@ -240,8 +241,7 @@ class Cursor(CursorInterface):
 
     def execute(self, sql, params=None):
         sql = sql.replace('?', '??')
-        quote_separation = re.compile(r"(.*?)('.*?')", re.DOTALL)
-        notQuoted_quoted = quote_separation.findall(sql+"''")
+        notQuoted_quoted = QUOTE_SEPARATION.findall(sql+"''")
         replaced = [nq\
                 .replace('%s', '?')\
                 .replace('ilike', 'like') \
