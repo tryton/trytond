@@ -393,5 +393,12 @@ class Cursor(CursorInterface):
     def has_constraint(self):
         return True
 
+    def limit_clause(self, select, limit=None, offset=None):
+        if limit is not None:
+            select += ' LIMIT %d' % limit
+        if offset is not None:
+            select += ' OFFSET %d' % offset
+        return select
+
 register_type(UNICODE)
 register_adapter(Session, AsIs)

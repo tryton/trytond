@@ -188,8 +188,9 @@ def create(database_name, password, lang, admin_password):
                         'SET translatable = %s ' \
                         'WHERE code = %s', (True, lang))
             cursor.execute('UPDATE res_user ' \
-                    'SET language = ' \
-                        '(SELECT id FROM ir_lang WHERE code = %s LIMIT 1) '\
+                    'SET language = (' + \
+                        cursor.limit_clause('SELECT id FROM ir_lang ' \
+                        'WHERE code = %s', 1) + ')' \
                     'WHERE login <> \'root\'', (lang,))
             if hashlib:
                 admin_password = hashlib.sha1(admin_password).hexdigest()
