@@ -106,32 +106,32 @@ class FieldsTestCase(unittest.TestCase):
 
         boolean_ids = self.boolean.search([
             ('boolean', '=', True),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [boolean1_id])
 
         boolean_ids = self.boolean.search([
             ('boolean', '!=', True),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [])
 
         boolean_ids = self.boolean.search([
             ('boolean', 'in', [True]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [boolean1_id])
 
         boolean_ids = self.boolean.search([
             ('boolean', 'in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [])
 
         boolean_ids = self.boolean.search([
             ('boolean', 'not in', [True]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [])
 
         boolean_ids = self.boolean.search([
             ('boolean', 'not in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [boolean1_id])
 
         boolean2_id = self.boolean.create({
@@ -144,17 +144,17 @@ class FieldsTestCase(unittest.TestCase):
 
         boolean_ids = self.boolean.search([
             ('boolean', '=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [boolean2_id])
 
         boolean_ids = self.boolean.search([
             ('boolean', 'in', [True, False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [boolean1_id, boolean2_id])
 
         boolean_ids = self.boolean.search([
             ('boolean', 'not in', [True, False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(boolean_ids == [])
 
         boolean3_id = self.boolean.create({}, CONTEXT)
@@ -195,112 +195,112 @@ class FieldsTestCase(unittest.TestCase):
 
         integer_ids = self.integer.search([
             ('integer', '=', 1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', '=', 0),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '!=', 1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '!=', 0),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', 'in', [1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', 'in', [0]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', 'in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', 'not in', [1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', 'not in', [0]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', 'not in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', '<', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', '<', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '<', 1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '<=', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', '<=', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '<=', 1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', '>', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '>', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', '>', 1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '>=', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer_ids = self.integer.search([
             ('integer', '>=', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer_ids = self.integer.search([
             ('integer', '>=', 1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id])
 
         integer2_id = self.integer.create({
@@ -313,17 +313,17 @@ class FieldsTestCase(unittest.TestCase):
 
         integer_ids = self.integer.search([
             ('integer', '=', 0),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer2_id])
 
         integer_ids = self.integer.search([
             ('integer', 'in', [0, 1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [integer1_id, integer2_id])
 
         integer_ids = self.integer.search([
             ('integer', 'not in', [0, 1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(integer_ids == [])
 
         integer3_id = self.integer.create({}, CONTEXT)
@@ -378,112 +378,112 @@ class FieldsTestCase(unittest.TestCase):
 
         float_ids = self.float.search([
             ('float', '=', 1.1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', '=', 0),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '!=', 1.1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '!=', 0),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', 'in', [1.1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', 'in', [0]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', 'in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', 'not in', [1.1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', 'not in', [0]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', 'not in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', '<', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', '<', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '<', 1.1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '<=', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', '<=', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '<=', 1.1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', '>', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '>', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', '>', 1.1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '>=', 5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float_ids = self.float.search([
             ('float', '>=', -5),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float_ids = self.float.search([
             ('float', '>=', 1.1),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id])
 
         float2_id = self.float.create({
@@ -496,17 +496,17 @@ class FieldsTestCase(unittest.TestCase):
 
         float_ids = self.float.search([
             ('float', '=', 0),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float2_id])
 
         float_ids = self.float.search([
             ('float', 'in', [0, 1.1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [float1_id, float2_id])
 
         float_ids = self.float.search([
             ('float', 'not in', [0, 1.1]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(float_ids == [])
 
         float3_id = self.float.create({}, CONTEXT)
@@ -561,112 +561,112 @@ class FieldsTestCase(unittest.TestCase):
 
         numeric_ids = self.numeric.search([
             ('numeric', '=', Decimal('1.1')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', '=', Decimal('0')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '!=', Decimal('1.1')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '!=', Decimal('0')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'in', [Decimal('1.1')]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'in', [Decimal('0')]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'not in', [Decimal('1.1')]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'not in', [Decimal('0')]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'not in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', '<', Decimal('5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', '<', Decimal('-5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '<', Decimal('1.1')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '<=', Decimal('5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', '<=', Decimal('-5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '<=', Decimal('1.1')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', '>', Decimal('5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '>', Decimal('-5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', '>', Decimal('1.1')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '>=', Decimal('5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric_ids = self.numeric.search([
             ('numeric', '>=', Decimal('-5')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', '>=', Decimal('1.1')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id])
 
         numeric2_id = self.numeric.create({
@@ -679,17 +679,17 @@ class FieldsTestCase(unittest.TestCase):
 
         numeric_ids = self.numeric.search([
             ('numeric', '=', Decimal('0')),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric2_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'in', [Decimal('0'), Decimal('1.1')]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [numeric1_id, numeric2_id])
 
         numeric_ids = self.numeric.search([
             ('numeric', 'not in', [Decimal('0'), Decimal('1.1')]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(numeric_ids == [])
 
         numeric3_id = self.numeric.create({}, CONTEXT)
@@ -744,152 +744,152 @@ class FieldsTestCase(unittest.TestCase):
 
         char_ids = self.char.search([
             ('char', '=', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', '=', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', '=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', '!=', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', '!=', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', '!=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'in', ['Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'in', ['Foo']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'not in', ['Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'not in', ['Foo']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'not in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'not in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'like', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'like', 'T%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'like', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'like', 'F%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'ilike', 'test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'ilike', 't%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'ilike', 'foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'ilike', 'f%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'not like', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'not like', 'T%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'not like', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'not like', 'F%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'not ilike', 'test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'not ilike', 't%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char_ids = self.char.search([
             ('char', 'not ilike', 'foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char_ids = self.char.search([
             ('char', 'not ilike', 'f%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id])
 
         char2_id = self.char.create({
@@ -902,17 +902,17 @@ class FieldsTestCase(unittest.TestCase):
 
         char_ids = self.char.search([
             ('char', '=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char2_id])
 
         char_ids = self.char.search([
             ('char', 'in', [False, 'Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [char1_id, char2_id])
 
         char_ids = self.char.search([
             ('char', 'not in', [False, 'Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(char_ids == [])
 
         char3_id = self.char.create({}, CONTEXT)
@@ -973,152 +973,152 @@ class FieldsTestCase(unittest.TestCase):
 
         text_ids = self.text.search([
             ('text', '=', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', '=', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', '=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', '!=', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', '!=', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', '!=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'in', ['Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'in', ['Foo']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'not in', ['Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'not in', ['Foo']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'not in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'not in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'like', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'like', 'T%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'like', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'like', 'F%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'ilike', 'test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'ilike', 't%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'ilike', 'foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'ilike', 'f%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'not like', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'not like', 'T%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'not like', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'not like', 'F%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'not ilike', 'test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'not ilike', 't%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text_ids = self.text.search([
             ('text', 'not ilike', 'foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text_ids = self.text.search([
             ('text', 'not ilike', 'f%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id])
 
         text2_id = self.text.create({
@@ -1131,17 +1131,17 @@ class FieldsTestCase(unittest.TestCase):
 
         text_ids = self.text.search([
             ('text', '=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text2_id])
 
         text_ids = self.text.search([
             ('text', 'in', [False, 'Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [text1_id, text2_id])
 
         text_ids = self.text.search([
             ('text', 'not in', [False, 'Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(text_ids == [])
 
         text3_id = self.text.create({}, CONTEXT)
@@ -1207,152 +1207,152 @@ class FieldsTestCase(unittest.TestCase):
 
         sha_ids = self.sha.search([
             ('sha', '=', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', '=', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', '=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', '!=', 'Test'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', '!=', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', '!=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'in', ['Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'in', ['Foo']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'not in', ['Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'not in', ['Foo']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'not in', [False]),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'not in', []),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'like', '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'like', '640a%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'like', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'like', 'F%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'ilike', '640AB2BAE07BEDC4C163F679A746F7AB7FB5D1FA'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'ilike', '640A%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'ilike', 'foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'ilike', 'f%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'not like', '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'not like', '640a%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'not like', 'Foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'not like', 'F%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'not ilike', '640AB2BAE07BEDC4C163F679A746F7AB7FB5D1FA'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'not ilike', '640A%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha_ids = self.sha.search([
             ('sha', 'not ilike', 'foo'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha_ids = self.sha.search([
             ('sha', 'not ilike', 'f%'),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id])
 
         sha2_id = self.sha.create({
@@ -1365,17 +1365,17 @@ class FieldsTestCase(unittest.TestCase):
 
         sha_ids = self.sha.search([
             ('sha', '=', False),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha2_id])
 
         sha_ids = self.sha.search([
             ('sha', 'in', [False, 'Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha1_id, sha2_id])
 
         sha_ids = self.sha.search([
             ('sha', 'not in', [False, 'Test']),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [])
 
         sha3_id = self.sha.create({}, CONTEXT)
@@ -1483,33 +1483,34 @@ class ModelSingletonTestCase(unittest.TestCase):
         singleton = self.singleton.read(singleton_id, ['name'], CONTEXT)
         self.assert_(singleton['name'] == 'foo')
 
-        singleton_ids = self.singleton.search([], CONTEXT)
+        singleton_ids = self.singleton.search([], 0, None, None, CONTEXT)
         self.assert_(len(singleton_ids) == 1)
 
     def test0030copy(self):
         '''
         Test copy method.
         '''
-        singleton_id = self.singleton.search([], CONTEXT)[0]
+        singleton_id = self.singleton.search([], 0, None, None, CONTEXT)[0]
 
         singleton2_id = self.singleton.copy(singleton_id, None, CONTEXT)
         self.assert_(singleton2_id == singleton_id)
 
-        singleton_ids = self.singleton.search([], CONTEXT)
+        singleton_ids = self.singleton.search([], 0, None, None, CONTEXT)
         self.assert_(len(singleton_ids) == 1)
 
         singleton3_id = self.singleton.copy(singleton_id, {'name': 'bar'},
                 CONTEXT)
         self.assert_(singleton3_id == singleton_id)
 
-        singleton_ids = self.singleton.search([], CONTEXT)
+        singleton_ids = self.singleton.search([], 0, None, None, CONTEXT)
         self.assert_(len(singleton_ids) == 1)
 
     def test0040default_get(self):
         '''
         Test default_get method.
         '''
-        self.singleton.delete(self.singleton.search([], CONTEXT), CONTEXT)
+        self.singleton.delete(self.singleton.search([], 0, None, None,
+            CONTEXT), CONTEXT)
 
         default = self.singleton.default_get(['name'], CONTEXT)
         self.assert_(default == {'name': 'test'})
@@ -1578,7 +1579,7 @@ class MPTTTestCase(unittest.TestCase):
     def ReParent(self, parent_id=False):
         record_ids = self.mptt.search([
             ('parent', '=', parent_id),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         if not record_ids:
             return
         for record_id in record_ids:
@@ -1598,7 +1599,7 @@ class MPTTTestCase(unittest.TestCase):
     def ReOrder(self, parent_id=False):
         record_ids = self.mptt.search([
             ('parent', '=', parent_id),
-            ], CONTEXT)
+            ], 0, None, None, CONTEXT)
         if not record_ids:
             return
         i = len(record_ids)
@@ -1618,7 +1619,7 @@ class MPTTTestCase(unittest.TestCase):
         for record_id in record_ids:
             self.ReOrder(record_id)
 
-        record_ids = self.mptt.search([], CONTEXT)
+        record_ids = self.mptt.search([], 0, None, None, CONTEXT)
         self.mptt.write(record_ids, {
             'sequence': 0,
             }, CONTEXT)
@@ -1656,7 +1657,7 @@ class MPTTTestCase(unittest.TestCase):
         self.ReParent()
 
     def test0040active(self):
-        record_ids = self.mptt.search([], CONTEXT)
+        record_ids = self.mptt.search([], 0, None, None, CONTEXT)
         for record_id in record_ids:
             if record_id % 2:
                 self.mptt.write(record_id, {
@@ -1667,12 +1668,12 @@ class MPTTTestCase(unittest.TestCase):
         self.ReParent()
         self.ReOrder()
 
-        record_ids = self.mptt.search([], CONTEXT)
+        record_ids = self.mptt.search([], 0, None, None, CONTEXT)
         self.mptt.write(record_ids[:len(record_ids)/2], {
                 'active': False
                 }, CONTEXT)
         self.assertRaises(Exception, self.CheckTree())
-        record_ids = self.mptt.search([], CONTEXT)
+        record_ids = self.mptt.search([], 0, None, None, CONTEXT)
         self.mptt.write(record_ids, {
                 'active': False
                 }, CONTEXT)
@@ -1683,7 +1684,7 @@ class MPTTTestCase(unittest.TestCase):
 
         record_ids = self.mptt.search([
                 ('active', '=', False),
-                ], CONTEXT)
+                ], 0, None, None, CONTEXT)
         self.mptt.write(record_ids, {
                 'active': False
                 }, CONTEXT)
@@ -1693,15 +1694,15 @@ class MPTTTestCase(unittest.TestCase):
         '''
         Delete.
         '''
-        record_ids = self.mptt.search([], CONTEXT)
+        record_ids = self.mptt.search([], 0, None, None, CONTEXT)
         for record_id in record_ids:
             if record_id % 2:
                 self.mptt.delete(record_id, CONTEXT)
                 self.assertRaises(Exception, self.CheckTree())
-        record_ids = self.mptt.search([], CONTEXT)
+        record_ids = self.mptt.search([], 0, None, None, CONTEXT)
         self.mptt.delete(record_ids[:len(record_ids)/2], CONTEXT)
         self.assertRaises(Exception, self.CheckTree())
-        record_ids = self.mptt.search([], CONTEXT)
+        record_ids = self.mptt.search([], 0, None, None, CONTEXT)
         self.mptt.delete(record_ids, CONTEXT)
         self.assertRaises(Exception, self.CheckTree())
 
