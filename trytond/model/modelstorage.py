@@ -398,12 +398,37 @@ class ModelStorage(Model):
         '''
         ids = self.search(cursor, user, domain, offset=offset, limit=limit,
                 order=order, context=context)
+
+        if not fields_names:
+            fields_names = list(set(self._columns.keys() \
+                    + self._inherit_fields.keys()))
+
+        res = []
+        for model in self.browse(cursor, user, ids, context=context):
+            record = {}
+            for fields_name in set(fields_names):
+                fields = fields_name.split('.')
+                while fields:
+                    field_name = fields.pop()
+                    if fields_name not in record:
+                        record[fields_name] = model[field_name]
+                    else:
+                        if isinstance(record[fields_name], BrowseRecordNull):
+                            continue
+                        record[fields_name] = record[fields_name][field_name]
+                if isinstance(record[fields_name], BrowseRecordNull):
+                    record[fields_name] = False
+                elif isinstance(record[fields_name], BrowseRecord):
+                    record[fields_name] = record[fields_name].id
+                elif isinstance(record[fields_name], BrowseRecordList):
+                    record[fields_name] = [x.id for x in record[fields_name]]
+            res.append(record)
+
         if limit == 1:
             if not ids:
                 return []
-            ids = ids[0]
-        return self.read(cursor, user, ids, fields_names=fields_names,
-                context=context)
+            return res[0]
+        return res
 
     def _search_domain_active(self, domain, active_test=True, context=None):
         if context is None:
