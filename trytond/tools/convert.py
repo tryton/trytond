@@ -854,9 +854,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             'WHERE name = %s' \
                                 'AND lang = %s ' \
                                 'AND type = %s ' \
-                                'AND res_id = %s',
+                                'AND res_id = %s ' \
+                                'AND module = %s',
                             (table_name + ',' + field_name,
-                                'en_US', 'model', res_id))
+                                'en_US', 'model', res_id, module))
                     trans_id = None
                     if cursor.rowcount == -1 or cursor.rowcount is None:
                         data = cursor.fetchone()
