@@ -104,6 +104,22 @@ class CursorInterface(object):
     def __init__(self):
         self.cache = {}
 
+    def get_cache(self, context=None):
+        '''
+        Return cache for the context
+
+        :param context: the context
+        :return: the cache dictionary
+        '''
+        if context is None:
+            context = {}
+        cache_ctx = context.copy()
+        for i in ('_timestamp', '_delete', '_create_records',
+                '_delete_records'):
+            if i in cache_ctx:
+                del cache_ctx[i]
+        return self.cache.setdefault(repr(cache_ctx), {})
+
     def execute(self, sql, params=None):
         '''
         Execute a query

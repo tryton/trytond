@@ -62,12 +62,7 @@ class One2Many(Field):
                     [(self.field, 'in', sub_ids)], order=self.order,
                     context=context)
 
-        cache_ctx = context.copy()
-        for i in ('_timestamp', '_delete', '_create_records',
-                '_delete_records'):
-            if i in cache_ctx:
-                del cache_ctx[i]
-        cache = cursor.cache.setdefault(repr(cache_ctx), {})
+        cache = cursor.get_cache(context)
         cache.setdefault(self.model_name, {})
         ids3 = []
         for i in ids2:

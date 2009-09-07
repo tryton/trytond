@@ -60,13 +60,7 @@ class BrowseRecord(object):
             context = {}
         self._context = context
 
-        cache_ctx = self._context.copy()
-        for i in ('_timestamp', '_delete', '_create_records',
-                '_delete_records'):
-            if i in cache_ctx:
-                del cache_ctx[i]
-        cache = cursor.cache.setdefault(repr(cache_ctx), {})
-
+        cache = cursor.get_cache(self._context)
         cache.setdefault(model._name, {})
         cache.setdefault('_language_cache', {})
         self._data = cache[model._name]
