@@ -402,6 +402,8 @@ class ModelStorage(Model):
         if not fields_names:
             fields_names = list(set(self._columns.keys() \
                     + self._inherit_fields.keys()))
+        if 'id' not in fields_names:
+            fields_names.append('id')
 
         res = []
         for model in self.browse(cursor, user, ids, context=context):
