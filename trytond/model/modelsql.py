@@ -1192,12 +1192,7 @@ class ModelSQL(ModelStorage):
                 '"' + self._table + '"', cursor.IN_MAX), tables_args + qu2)
 
         datas = cursor.dictfetchall()
-        cache_ctx = context.copy()
-        for i in ('_timestamp', '_delete', '_create_records',
-                '_delete_records'):
-            if i in cache_ctx:
-                del cache_ctx[i]
-        cache = cursor.cache.setdefault(repr(cache_ctx), {})
+        cache = cursor.get_cache(context)
         cache.setdefault(self._name, {})
         for data in datas:
             for i in data.keys():
