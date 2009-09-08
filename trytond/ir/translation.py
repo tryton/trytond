@@ -15,7 +15,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.wizard import Wizard
 from trytond import tools
-from trytond.tools import file_open
+from trytond.tools import file_open, reduce_ids
 from trytond.backend import TableHandler
 import os
 
@@ -144,6 +144,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
         if to_fetch:
             for i in range(0, len(to_fetch), cursor.IN_MAX):
                 sub_to_fetch = to_fetch[i:i + cursor.IN_MAX]
+                red_sql, red_ids = reduce_ids('res_id', sub_to_fetch)
                 cursor.execute('SELECT res_id, value ' \
                         'FROM ir_translation ' \
                         'WHERE lang = %s ' \
@@ -152,9 +153,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
                             'AND fuzzy = %s ' \
-                            'AND res_id in (' + \
-                                ','.join(map(str, sub_to_fetch)) + ')',
-                        (lang, ttype, name, False))
+                            'AND ' + red_sql,
+                        [lang, ttype, name, False] + red_ids)
                 for res_id, value in cursor.fetchall():
                     self.add(cursor, (lang, ttype, name, res_id), value)
                     translations[res_id] = value

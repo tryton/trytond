@@ -12,6 +12,7 @@ import unittest
 import time
 from decimal import Decimal
 from trytond import pysocket
+from trytond.tools import reduce_ids
 from lxml import etree
 
 ADMIN_PASSWORD = 'admin'
@@ -54,6 +55,52 @@ class DBTestCase(unittest.TestCase):
         Login.
         '''
         login()
+
+
+class ToolsTestCase(unittest.TestCase):
+    '''
+    Test tools.
+    '''
+
+    def test0010reduce_ids_continue(self):
+        '''
+        Test reduce_ids continue list.
+        '''
+        self.assert_(('(((id >= %s) AND (id <= %s)))', [0, 9]) == \
+                reduce_ids('id', range(10)))
+
+    def test0020reduce_ids_one_hole(self):
+        '''
+        Test reduce_ids continue list with one hole.
+        '''
+        self.assert_(('(((id >= %s) AND (id <= %s)) OR ' \
+                '((id >= %s) AND (id <= %s)))', [0, 9, 20, 29]) == \
+                reduce_ids('id', range(10) + map(lambda x: x + 20, range(10))))
+
+    def test0030reduce_ids_short_continue(self):
+        '''
+        Test reduce_ids short continue list.
+        '''
+        self.assert_(('((id IN (%s,%s,%s,%s)))', [0, 1, 2, 3]) == \
+                reduce_ids('id', range(4)))
+
+    def test0040reduce_ids_complex(self):
+        '''
+        Test reduce_ids complex list.
+        '''
+        self.assert_(('(((id >= %s) AND (id <= %s)) OR ' \
+                '(id IN (%s,%s,%s,%s,%s)))', [0, 14, 25, 26, 27, 28, 29]) == \
+                reduce_ids('id', range(10) + map(lambda x: x + 25, range(5)) + \
+                map(lambda x: x + 5, range(10))))
+
+    def test0050reduce_ids_complex_small_continue(self):
+        '''
+        Test reduce_ids complex list with small continue.
+        '''
+        self.assert_(('(((id >= %s) AND (id <= %s)) OR (id IN (%s,%s,%s,%s)))',
+            [1, 12, 15, 18, 19, 21]) == \
+                    reduce_ids('id', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15,
+                        18, 19, 21]))
 
 
 class FieldsTestCase(unittest.TestCase):
@@ -1796,6 +1843,7 @@ def suite():
 
 if __name__ == '__main__':
     suite = suite()
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ToolsTestCase))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FieldsTestCase))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ModelSingletonTestCase))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ModelViewTestCase))

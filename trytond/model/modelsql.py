@@ -6,6 +6,7 @@ from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
 from trytond.backend import DatabaseIntegrityError, Database
 from trytond.model.browse import BrowseRecord, BrowseRecordNull
+from trytond.tools import reduce_ids
 import datetime
 import re
 _RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)
@@ -487,33 +488,31 @@ class ModelSQL(ModelStorage):
 
             for i in range(0, len(ids), in_max):
                 sub_ids = ids[i:i + in_max]
+                red_sql, red_ids = reduce_ids('id', sub_ids)
                 if domain1:
                     cursor.execute('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
                             ' FROM ' + table_query + '\"' + self._table +'\" ' \
-                            'WHERE id IN ' \
-                                '(' + ','.join(('%s',) * len(sub_ids)) + ')' + \
+                            'WHERE ' + red_sql  + \
                             history_clause + \
                             ' AND (' + domain1 + ') ' + history_order + \
                             history_limit,
-                            table_args + sub_ids + history_args + domain2)
+                            table_args + red_ids + history_args + domain2)
                 else:
                     cursor.execute('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
                             ' FROM ' + table_query + '\"' + self._table + '\" ' \
-                            'WHERE id IN ' \
-                                '(' + ','.join(('%s',) * len(sub_ids)) + ')' + \
+                            'WHERE ' + red_sql + \
                             history_clause + history_order + history_limit,
-                            table_args + sub_ids + history_args)
+                            table_args + red_ids + history_args)
                 dictfetchall = cursor.dictfetchall()
                 if not len(dictfetchall) == len({}.fromkeys(sub_ids)):
                     if domain1:
                         cursor.execute('SELECT id FROM ' + \
                                 table_query + '\"' + self._table + '\" ' \
-                                'WHERE id IN ' \
-                                '(' + ','.join(('%s',) * len(sub_ids)) + ')' + \
+                                'WHERE ' + red_sql + \
                                 history_clause + history_order + history_limit,
-                                table_args + sub_ids + history_args)
+                                table_args + red_ids + history_args)
                         rowcount = cursor.rowcount
                         if rowcount == -1 or rowcount is None:
                             rowcount = len(cursor.fetchall())
@@ -793,21 +792,21 @@ class ModelSQL(ModelStorage):
             domain1 = ' AND (' + domain1 + ') '
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            ids_str = ','.join(('%s',) * len(sub_ids))
+            red_sql, red_ids = reduce_ids('id', sub_ids)
             if domain1:
                 cursor.execute('SELECT id FROM "' + self._table + '" ' \
-                        'WHERE id IN (' + ids_str + ') ' + domain1,
-                        sub_ids + domain2)
+                        'WHERE ' + red_sql + ' ' + domain1,
+                        red_ids + domain2)
             else:
                 cursor.execute('SELECT id FROM "' + self._table + '" ' \
-                        'WHERE id IN (' + ids_str + ')', sub_ids)
+                        'WHERE ' + red_sql, red_ids)
             rowcount = cursor.rowcount
             if rowcount == -1 or rowcount is None:
                 rowcount = len(cursor.fetchall())
             if not rowcount == len({}.fromkeys(sub_ids)):
                 if domain1:
                     cursor.execute('SELECT id FROM "' + self._table + '" ' \
-                            'WHERE id IN (' + ids_str + ')', sub_ids)
+                            'WHERE ' + red_sql, red_ids)
                     rowcount = cursor.rowcount
                     if rowcount == -1 or rowcount is None:
                         rowcount = len(cursor.fetchall())
@@ -820,7 +819,7 @@ class ModelSQL(ModelStorage):
                 cursor.execute('UPDATE "' + self._table + '" ' \
                         'SET ' + \
                         ','.join([x[0] + ' = '+ x[1] for x in upd0]) + ' ' \
-                        'WHERE id IN (' + ids_str + ') ', upd1 + sub_ids)
+                        'WHERE ' + red_sql, upd1 + red_ids)
             except DatabaseIntegrityError, exception:
                 database = Database(cursor.database_name).connect()
                 cursor2 = database.cursor()
@@ -900,10 +899,10 @@ class ModelSQL(ModelStorage):
             nids = []
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
-                ids_str = ','.join(('%s',) * len(sub_ids))
+                red_sql, red_ids = reduce_ids('id', sub_ids)
                 cursor.execute('SELECT DISTINCT "' + col + '" ' \
-                        'FROM "' + self._table + '" WHERE id IN (' + ids_str + ')',
-                        sub_ids)
+                        'FROM "' + self._table + '" WHERE ' + red_sql,
+                        red_ids)
                 nids.extend([x[0] for x in cursor.fetchall()])
 
             values2 = {}
@@ -983,10 +982,9 @@ class ModelSQL(ModelStorage):
             if isinstance(field, fields.Many2One) \
                     and field.model_name == self._name \
                     and field.left and field.right:
+                red_sql, red_ids = reduce_ids('"' + k + '"', ids)
                 cursor.execute('SELECT id FROM "' + self._table + '" '\
-                        'WHERE "' + k + '" IN (' \
-                            + ','.join(('%s',) * len(ids)) + ')',
-                            ids)
+                        'WHERE ' + red_sql, red_ids)
                 tree_ids[k] = [x[0] for x in cursor.fetchall()]
 
         foreign_keys_tocheck = []
@@ -1021,11 +1019,11 @@ class ModelSQL(ModelStorage):
 
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            str_d = ','.join(('%s',) * len(sub_ids))
+            red_sql, red_ids = reduce_ids('id', sub_ids)
             if domain1:
                 cursor.execute('SELECT id FROM "'+self._table+'" ' \
-                        'WHERE id IN (' + str_d + ') ' + domain1,
-                        sub_ids + domain2)
+                        'WHERE ' + red_sql + ' ' + domain1,
+                        red_ids + domain2)
                 rowcount = cursor.rowcount
                 if rowcount == -1 or rowcount is None:
                     rowcount = len(cursor.fetchall())
@@ -1035,7 +1033,7 @@ class ModelSQL(ModelStorage):
 
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            str_d = ','.join(('%s',) * len(sub_ids))
+            red_sql, red_ids = reduce_ids('id', sub_ids)
 
             for model, field_name in foreign_keys_toupdate:
                 if not hasattr(model, 'search') \
@@ -1064,7 +1062,7 @@ class ModelSQL(ModelStorage):
             context['_delete_records'][self._name].update(sub_ids)
             try:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
-                        'WHERE id IN (' + str_d + ')', sub_ids)
+                        'WHERE ' + red_sql, red_ids)
             except DatabaseIntegrityError:
                 database = Database(cursor.database_name).connect()
                 cursor2 = database.cursor()
@@ -1420,22 +1418,22 @@ class ModelSQL(ModelStorage):
                     domain[i] = ('id', '=', '0')
                 else:
                     if len(ids2) < cursor.IN_MAX:
+                        red_sql, red_ids = reduce_ids('id', ids2)
                         query1 = 'SELECT "' + field.field + '" ' \
                                 'FROM ' + table_query + '"' + field_obj._table + '" ' \
-                                'WHERE id IN (' + \
-                                    ','.join(('%s',) * len(ids2)) + ')'
-                        query2 = table_args + ids2
+                                'WHERE ' + red_sql
+                        query2 = table_args + red_ids
                         domain[i] = ('id', 'inselect', (query1, query2))
                     else:
                         ids3 = []
                         for i in range(0, len(ids2), cursor.IN_MAX):
                             sub_ids2 = ids2[i:i + cursor.IN_MAX]
+                            red_sql, red_ids = reduce_ids('id', sub_ids2)
                             cursor.execute(
                                 'SELECT "' + field.field + \
                                 '" FROM ' + table_query + '"' + field_obj._table + '" ' \
-                                'WHERE id IN (' + \
-                                    ','.join(('%s',) * len(sub_ids2)) + ')',
-                                table_args + sub_ids2)
+                                'WHERE ' + red_sql,
+                                table_args + red_ids)
 
                             ids3.extend([x[0] for x in cursor.fetchall()])
 
@@ -1474,12 +1472,13 @@ class ModelSQL(ModelStorage):
                                 [(domain[i][3], 'child_of', ids2)],
                                 order=[], context=context)
                         relation_obj = self.pool.get(field.relation_name)
+                        red_sql, red_ids = reduce_ids('"' + field.target + '"',
+                                ids2)
                         query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + relation_obj._table + '" ' \
-                                'WHERE "' + field.target + '" IN (' + \
-                                    ','.join(('%s',) * len(ids2)) + ') ' \
+                                'WHERE ' + red_sql + ' ' \
                                     'AND "' + field.origin + '" IS NOT NULL'
-                        query2 = [str(x) for x in ids2]
+                        query2 = red_ids
                         if domain[i][1] == 'child_of':
                             domain[i] = ('id', 'inselect', (query1, query2))
                         else:
@@ -1516,11 +1515,12 @@ class ModelSQL(ModelStorage):
                         domain[i] = ('id', '=', '0')
                     else:
                         relation_obj = self.pool.get(field.relation_name)
+                        red_sql, red_ids = reduce_ids('"' + field.target + '"',
+                                res_ids)
                         query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + relation_obj._table + '" ' \
-                                'WHERE "' + field.target + '" IN (' + \
-                                    ','.join(('%s',) * len(res_ids)) + ')'
-                        query2 = [str(x) for x in res_ids]
+                                'WHERE ' + red_sql
+                        query2 = red_ids
                         domain[i] = ('id', 'inselect', (query1, query2))
                 i += 1
 
@@ -1559,12 +1559,11 @@ class ModelSQL(ModelStorage):
                             domain[i] = (domain[i][0], 'not in', ids2, table)
                     else:
                         if field.left and field.right and ids2:
+                            red_sql, red_ids = reduce_ids('id', ids2)
                             cursor.execute('SELECT "' + field.left + '", ' \
                                         '"' + field.right + '" ' + \
                                     'FROM "' + self._table + '" ' + \
-                                    'WHERE id IN ' + \
-                                        '(' + ','.join(('%s',) * len(ids2)) + ')',
-                                        ids2)
+                                    'WHERE ' + red_sql, red_ids)
                             clause = FIELDS['boolean'].sql_format(False) + ' '
                             for left, right in cursor.fetchall():
                                 clause += 'OR '
@@ -1681,23 +1680,32 @@ class ModelSQL(ModelStorage):
                         del arg2[xitem]
                     arg2 = [FIELDS[table._columns[arg[0]]._type].sql_format(x)
                             for x in arg2]
-                    #TODO fix max_stack_depth
                     if len(arg2):
-                        qu1.append(('("%s"."%s" ' + arg[1] + ' (%s))') % \
-                                (table._table, arg[0], ','.join(
-                                    ('%s',) * len(arg2))))
+                        if reduce(lambda x, y: x and isinstance(y, (int, long)),
+                                arg2, True):
+                            red_sql, red_ids = reduce_ids('"%s"."%s"' % \
+                                    (table._table, arg[0]), arg2)
+                            if arg[1] == 'not in':
+                                red_sql = '(NOT(' + red_sql + '))'
+                            qu1.append(red_sql)
+                            qu2 += red_ids
+                        else:
+                            qu1.append(('("%s"."%s" ' + arg[1] + ' (%s))') % \
+                                    (table._table, arg[0], ','.join(
+                                        ('%s',) * len(arg2))))
+                            qu2 += arg2
                         if todel:
                             if table._columns[arg[0]]._type == 'boolean':
                                 if arg[1] == 'in':
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
                                             '"%s"."%s" = %%s)' % \
                                             (table._table, arg[0])
-                                    arg2.append(False)
+                                    qu2.append(False)
                                 else:
                                     qu1[-1] = '(' + qu1[-1] + ' AND ' \
                                             '"%s"."%s" != %%s)' % \
                                             (table._table, arg[0])
-                                    arg2.append(False)
+                                    qu2.append(False)
                             else:
                                 if arg[1] == 'in':
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
@@ -1707,7 +1715,6 @@ class ModelSQL(ModelStorage):
                                     qu1[-1] = '(' + qu1[-1] + ' AND ' \
                                             '"%s"."%s" IS NOT NULL)' % \
                                             (table._table, arg[0])
-                        qu2 += arg2
                     elif todel:
                         if table._columns[arg[0]]._type == 'boolean':
                             if arg[1] == 'in':
@@ -2054,44 +2061,44 @@ class ModelSQL(ModelStorage):
         if len(child_ids) > cursor.IN_MAX:
             return self._rebuild_tree(cursor, 0, field_name, False, 0)
 
+        red_child_sql, red_child_ids = reduce_ids('id', child_ids)
         # ids for left update
         cursor.execute('SELECT id FROM "' + self._table + '" ' \
                 'WHERE "' + left + '" >= %s ' \
-                    'AND id NOT IN (' + ','.join(('%s',) * len(child_ids)) + ')',
-                    [parent_right] + child_ids)
+                    'AND NOT ' + red_child_sql,
+                    [parent_right] + red_child_ids)
         left_ids = [x[0] for x in cursor.fetchall()]
 
         # ids for right update
         cursor.execute('SELECT id FROM "' + self._table + '" ' \
                 'WHERE "' + right + '" >= %s ' \
-                    'AND id NOT IN (' + ','.join(('%s',) * len(child_ids)) + ')',
-                    [parent_right] + child_ids)
+                    'AND NOT ' + red_child_sql,
+                    [parent_right] + red_child_ids)
         right_ids = [x[0] for x in cursor.fetchall()]
 
         if left_ids:
             for i in range(0, len(left_ids), cursor.IN_MAX):
                 sub_ids = left_ids[i:i + cursor.IN_MAX]
-                str_d = ','.join(('%s',) * len(sub_ids))
+                red_sub_sql, red_sub_ids = reduce_ids('id', sub_ids)
                 cursor.execute('UPDATE "' + self._table + '" ' \
                         'SET "' + left + '" = "' + left + '" + ' \
                             + str(old_right - old_left + 1) + ' ' \
-                        'WHERE id IN (' + str_d + ')', sub_ids)
+                        'WHERE ' + red_sub_sql, red_sub_ids)
         if right_ids:
             for i in range(0, len(right_ids), cursor.IN_MAX):
                 sub_ids = right_ids[i:i + cursor.IN_MAX]
-                str_d = ','.join(('%s',) * len(sub_ids))
+                red_sub_sql, red_sub_ids = reduce_ids('id', sub_ids)
                 cursor.execute('UPDATE "' + self._table + '" ' \
                         'SET "' + right + '" = "' + right + '" + ' \
                             + str(old_right - old_left + 1) + ' ' \
-                        'WHERE id IN (' + str_d + ')', sub_ids)
+                        'WHERE ' + red_sub_sql, red_sub_ids)
 
         cursor.execute('UPDATE "' + self._table + '" ' \
                 'SET "' + left + '" = "' + left + '" + ' \
                         + str(parent_right - old_left) + ', ' \
                     '"' + right + '" = "' + right + '" + ' \
                         + str(parent_right - old_left) + ' ' \
-                'WHERE id IN (' + ','.join(('%s',) * len(child_ids)) + ')',
-                child_ids)
+                'WHERE ' + red_child_sql, red_child_ids)
 
         # Use root user to by-pass rules
         brother_ids = self.search(cursor, 0, [
@@ -2122,8 +2129,7 @@ class ModelSQL(ModelStorage):
                             + str(current_left - next_left) + ', ' \
                         '"' + right + '" = "' + right + '" - ' \
                             + str(current_left - next_left) + ' ' \
-                    'WHERE id in (' + ','.join(('%s',) * len(child_ids)) + ')',
-                    child_ids)
+                    'WHERE ' + red_child_sql, red_child_ids)
 
     def _validate(self, cursor, user, ids, context=None):
         super(ModelSQL, self)._validate(cursor, user, ids, context=context)
@@ -2140,11 +2146,11 @@ class ModelSQL(ModelStorage):
 
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
+                    red_sql, red_ids = reduce_ids('id', sub_ids)
 
                     cursor.execute('SELECT id,' + sql + ' ' \
                             'FROM "' + self._table + '" ' \
-                            'WHERE id IN (' + \
-                                ','.join(('%s',) * len(sub_ids)) + ')', sub_ids)
+                            'WHERE ' + red_sql, red_ids)
 
                     cursor.execute('SELECT id ' \
                             'FROM "' + self._table + '" ' \
@@ -2162,12 +2168,11 @@ class ModelSQL(ModelStorage):
                 sql = m.group(1)
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
+                    red_sql, red_ids = reduce_ids('id', sub_ids)
                     cursor.execute('SELECT id ' \
                             'FROM "' + self._table + '" ' \
                             'WHERE NOT (' + sql + ') ' \
-                                'AND id IN ' \
-                                '(' + ','.join(('%s',) * len(sub_ids)) + ')',
-                            sub_ids)
+                                'AND ' + red_sql, red_ids)
                     if cursor.fetchone():
                         self.raise_user_error(cursor, error, context=context)
                     continue
