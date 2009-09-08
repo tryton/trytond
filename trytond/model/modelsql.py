@@ -1194,9 +1194,9 @@ class ModelSQL(ModelStorage):
         cache.setdefault(self._name, {})
         for data in datas:
             for i in data.keys():
-                if i.strip('"') in ('_timestamp', '_datetime'):
+                if i in ('_timestamp', '_datetime'):
                     continue
-                field = self._columns[i.strip('"')]
+                field = self._columns[i]
                 if field._type in ('many2one',):
                     if field.model_name not in self.pool.object_name_list():
                         del data[i]

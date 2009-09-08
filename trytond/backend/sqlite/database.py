@@ -199,7 +199,7 @@ class _Cursor(sqlite.Cursor):
     def __build_dict(self, row):
         res = {}
         for i in range(len(self.description)):
-            res[self.description[i][0]] = row[i]
+            res[self.description[i][0].strip('"')] = row[i]
         return res
 
     def dictfetchone(self):
