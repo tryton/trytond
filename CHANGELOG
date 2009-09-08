@@ -1,3 +1,4 @@
+* Add new tool reduce_ids
 * Add limit_clause function on cursor
 * Fill the cursor cache at search
 * Allow rpc on today of ir.date

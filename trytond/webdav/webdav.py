@@ -7,6 +7,7 @@ import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.version import PACKAGE, VERSION, WEBSITE
 from trytond.report import Report
+from trytond.tools import reduce_ids
 
 
 class Collection(ModelSQL, ModelView):
@@ -393,11 +394,11 @@ class Collection(ModelSQL, ModelView):
                 res = None
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
+                    red_sql, red_ids = reduce_ids('id', sub_ids)
                     cursor.execute('SELECT id, ' \
                                 'EXTRACT(epoch FROM create_date) ' \
                             'FROM "' + model_obj._table +'" ' \
-                            'WHERE id IN (' + \
-                                ','.join(('%s',) * len(sub_ids)) + ')', sub_ids)
+                            'WHERE ' + red_sql, red_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date
@@ -427,12 +428,12 @@ class Collection(ModelSQL, ModelView):
                 res = None
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
+                    red_sql, red_ids = reduce_ids('id', sub_ids)
                     cursor.execute('SELECT id, ' \
                                 'EXTRACT(epoch FROM ' \
                                     'COALESCE(write_date, create_date)) ' \
                             'FROM "' + model_obj._table +'" ' \
-                            'WHERE id IN (' + \
-                                ','.join(('%s',) * len(sub_ids)) + ')', sub_ids)
+                            'WHERE ' + red_sql, red_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date

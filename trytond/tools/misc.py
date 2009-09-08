@@ -520,3 +520,45 @@ class LocalDict(local):
 
     def __ne__(self, y):
         return self.dict.__ne__(y)
+
+def reduce_ids(field, ids):
+    '''
+    Return a small SQL clause for ids
+
+    :param field: the field of the clause
+    :param ids: the list of ids
+    :return: sql string and sql param
+    '''
+    ids = ids[:]
+    ids.sort()
+    prev = ids.pop(0)
+    continue_list = [prev, prev]
+    discontinue_list = []
+    sql = []
+    args = []
+    for i in ids:
+        if i == prev:
+            continue
+        if i != prev + 1:
+            if continue_list[-1] - continue_list[0] < 5:
+                discontinue_list.extend([continue_list[0] + x for x in
+                    range(continue_list[-1] - continue_list[0] + 1)])
+            else:
+                sql.append('((' + field + ' >= %s) AND (' + field + ' <= %s))')
+                args.append(continue_list[0])
+                args.append(continue_list[-1])
+            continue_list = []
+        continue_list.append(i)
+        prev = i
+    if continue_list[-1] - continue_list[0] < 5:
+        discontinue_list.extend([continue_list[0] + x for x in
+            range(continue_list[-1] - continue_list[0] + 1)])
+    else:
+        sql.append('((' + field + ' >= %s) AND (' + field + ' <= %s))')
+        args.append(continue_list[0])
+        args.append(continue_list[-1])
+    if discontinue_list:
+        sql.append('(' + field + ' IN (' + \
+                ','.join(('%s',) * len(discontinue_list)) + '))')
+        args.extend(discontinue_list)
+    return '(' + ' OR '.join(sql) + ')', args
