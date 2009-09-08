@@ -1196,6 +1196,7 @@ class ModelSQL(ModelStorage):
         cache.setdefault(self._name, {})
         for data in datas:
             for i in data.keys():
+                i = i.strip('"')
                 if i in ('_timestamp', '_datetime'):
                     continue
                 field = self._columns[i]
