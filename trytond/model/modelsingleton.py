@@ -77,7 +77,9 @@ class ModelSingleton(ModelStorage):
         res = super(ModelSingleton, self).search(cursor, user, domain,
                 offset=0, limit=None, order=None, context=None, count=False)
         if not res:
-            return 1
+            if limit == 1:
+                return 1
+            return [1]
         return res
 
     def default_get(self, cursor, user, fields_names, context=None,
