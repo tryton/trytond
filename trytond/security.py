@@ -21,6 +21,7 @@ def login(dbname, loginname, password, cache=True):
         pool.init()
     user_obj = pool.get('res.user')
     user_id = user_obj.get_login(cursor, 0, loginname, password)
+    cursor.commit()
     cursor.close()
     if user_id:
         _USER_TRY[dbname][loginname] = 0
