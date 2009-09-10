@@ -1,3 +1,4 @@
+* Added column_rename on TableHandler
 * Add new tool reduce_ids
 * Add limit_clause function on cursor
 * Fill the cursor cache at search

@@ -85,6 +85,18 @@ class TableHandler(TableHandlerInterface):
     def column_exist(self, column_name):
         return column_name in self._columns
 
+    def column_rename(self, old_name, new_name, exception=False):
+        if self.column_exist(old_name) and \
+                not self.column_exist(new_name):
+            self.cursor.execute('ALTER TABLE "%s" ' \
+                    'RENAME COLUMN "%s" TO "%s"' %
+                    (self.table_name, old_name, new_name))
+        elif exception and self.column_exist(new_name):
+            raise Exception('Unable to rename column %s.%s to %s.%s: ' \
+                    '%s.%s already exist!' % \
+                    (self.table_name, old_name, self.table_name, new_name,
+                     self.table_name, new_name))
+
     def _update_definitions(self):
         # Fetch columns definitions from the table
         self.cursor.execute("SELECT at.attname, at.attlen, "\
