@@ -81,6 +81,17 @@ class TableHandlerInterface(object):
         '''
         raise
 
+    def column_rename(self, old_name, new_name, exception=False):
+        '''
+        Rename column
+
+        :param old_name: the name of the existing column
+        :param new_name: the new name of the column
+        :param exception: a boolean to raise or not an exception
+            if it is not possible to rename the column.
+        '''
+        raise
+
     def alter_size(self, column_name, column_type):
         '''
         Modify size of a column
