@@ -136,9 +136,8 @@ class TableHandler(TableHandlerInterface):
             contype, confdeltype, column, ref, conname = line
             if contype == 'f':
                 self._fk_deltypes[column] = confdeltype
-            else:
-                if conname not in self._constraints:
-                    self._constraints.append(conname)
+            if conname not in self._constraints:
+                self._constraints.append(conname)
 
         # Fetch indexes defined for the table
         self.cursor.execute("SELECT cl2.relname "\
@@ -272,9 +271,7 @@ class TableHandler(TableHandlerInterface):
         if not self.cursor.rowcount:
             add = True
         elif self._fk_deltypes.get(column_name) != code:
-            self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
-                    'DROP CONSTRAINT "' + self.table_name + '_' + \
-                    column_name + '_fkey"')
+            self.drop_fk(column_name)
             add = True
         if add:
             self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
@@ -283,10 +280,14 @@ class TableHandler(TableHandlerInterface):
                         'ON DELETE ' + on_delete)
         self._update_definitions()
 
-    def index_action(self, column_name, action='add'):
+    def drop_fk(self, column_name, table=None):
+        self.drop_constraint(column_name + '_fkey', table=table)
+
+    def index_action(self, column_name, action='add', table=None):
         if isinstance(column_name, basestring):
             column_name = [column_name]
-        index_name = self.table_name + "_" + '_'.join(column_name) + "_index"
+        index_name = (table or self.table_name) + "_" + '_'.join(column_name) \
+                + "_index"
 
         if action == 'add':
             if index_name in self._indexes:
@@ -366,8 +367,8 @@ class TableHandler(TableHandlerInterface):
                  ident, constraint,))
         self._update_definitions()
 
-    def drop_constraint(self, ident, exception=False):
-        ident = self.table_name + "_" + ident
+    def drop_constraint(self, ident, exception=False, table=None):
+        ident = (table or self.table_name) + "_" + ident
         if ident not in self._constraints:
             return
         try:

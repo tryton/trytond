@@ -1,3 +1,4 @@
+* Allow to drop constraint, index and foreign key with custom table name
 * Added column_rename on TableHandler
 * Add new tool reduce_ids
 * Add limit_clause function on cursor

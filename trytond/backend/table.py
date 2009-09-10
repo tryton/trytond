@@ -143,12 +143,22 @@ class TableHandlerInterface(object):
         '''
         raise
 
-    def index_action(self, column_name, action='add'):
+    def drop_fk(self, column_name, table=None):
+        '''
+        Drop a foreign key
+
+        :param column_name: the column name
+        :param table: optional table name
+        '''
+        raise
+
+    def index_action(self, column_name, action='add', table=None):
         '''
         Add/remove an index
 
         :param column_name: the column name or a list of column name
         :param action: 'add' or 'remove'
+        :param table: optional table name
         '''
         raise
 
@@ -172,13 +182,14 @@ class TableHandlerInterface(object):
         '''
         raise
 
-    def drop_constraint(self, ident, exception=False):
+    def drop_constraint(self, ident, exception=False, table=None):
         '''
         Remove a constraint
 
         :param ident: the name of the constraint
         :param exception: a boolean to raise or not an exception
             if it is not possible to remove the constraint
+        :param table: optional table name
         '''
         raise
 

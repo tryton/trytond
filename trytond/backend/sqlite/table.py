@@ -196,7 +196,12 @@ class TableHandler(TableHandlerInterface):
             'Unable to add foreign key on table %s!' % \
             (self.table_name,))
 
-    def index_action(self, column_name, action='add'):
+    def drop_fk(self, column_name, table=None):
+        logging.getLogger('init').warning(
+            'Unable to drop foreign key on table %s!' % \
+            (self.table_name,))
+
+    def index_action(self, column_name, action='add', table=None):
         if isinstance(column_name, basestring):
             column_name = [column_name]
         index_name = self.table_name + "_" + '_'.join(column_name) + "_index"
@@ -243,7 +248,7 @@ class TableHandler(TableHandlerInterface):
             'Unable to add constraint on table %s!' % \
             (self.table_name,))
 
-    def drop_constraint(self, ident, exception=False):
+    def drop_constraint(self, ident, exception=False, table=None):
         logging.getLogger('init').warning(
             'Unable to drop constraint on table %s!' % \
             (self.table_name,))
