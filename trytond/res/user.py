@@ -79,6 +79,7 @@ class User(ModelSQL, ModelView):
                             'as it is used internally for resources\n' \
                             'created by the system ' \
                             '(updates, module installation, ...)',
+            'wrong_password': 'Wrong password!',
             })
 
     def default_password(self, cursor, user, context=None):
@@ -270,22 +271,38 @@ class User(ModelSQL, ModelView):
 
     get_preferences = Cache('res_user.get_preferences')(get_preferences)
 
-    def set_preferences(self, cursor, user, values, context=None):
+    def set_preferences(self, cursor, user_id, values, old_password=False,
+            context=None):
+        '''
+        Set user preferences.
+
+        :param cursor: the database cursor
+        :param user_id: the user id
+        :param values: a dictionary with values
+        :param old_password: the previous password if password is in values
+        :param context: the context
+        '''
         lang_obj = self.pool.get('ir.lang')
         values_clean = values.copy()
         fields = self._preferences_fields + self._context_fields
         for field in values:
             if field not in fields or field == 'groups':
                 del values_clean[field]
+            if field == 'password':
+                user = self.browse(cursor, 0, user_id, context=context)
+                if not self.get_login(cursor, 0, user.login, old_password,
+                        context=context):
+                    self.raise_user_error(cursor, 'wrong_password',
+                            context=context)
             if field == 'language':
-                lang_ids = lang_obj.search(cursor, user, [
+                lang_ids = lang_obj.search(cursor, user_id, [
                     ('code', '=', values['language']),
                     ], context=context)
                 if lang_ids:
                     values_clean['language'] = lang_ids[0]
                 else:
                     del values_clean['language']
-        self.write(cursor, 0, user, values_clean, context=context)
+        self.write(cursor, 0, user_id, values_clean, context=context)
 
     def get_preferences_fields_view(self, cursor, user, context=None):
         model_data_obj = self.pool.get('ir.model.data')
