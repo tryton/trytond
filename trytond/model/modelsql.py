@@ -15,7 +15,7 @@ _RE_CHECK = re.compile('CHECK\s*\((.*)\)', re.I)
 
 class ModelSQL(ModelStorage):
     """
-    Define a model with storage in database in Tryton.
+    Define a model with storage in database.
 
     :_table: The name of the database table which is mapped to the class.
         If not set the value of ``_name`` is used with dots converted to
@@ -25,7 +25,7 @@ class ModelSQL(ModelStorage):
 
         ``[('name', 'ASC'), 'age', 'DESC']``
     :_order_name: The name of the field (or an SQL statement) on which the records
-         must be sorted when sorting on this model from an other one.
+         must be sorted when sorting on this model from an other model.
     :_history: A boolean to historize record change.
     :_sql_constraints: A list of constraints that are added on the table. E.g.:
 

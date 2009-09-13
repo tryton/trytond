@@ -6,13 +6,13 @@ from trytond.model.fields.field import Field
 
 class Integer(Field):
     '''
-    Define an integer field (``int``)
+    Define an integer field (``int``).
     '''
     _type = 'integer'
 
 
 class BigInteger(Field):
     '''
-    Define an integer field (``long``)
+    Define an integer field (``long``).
     '''
     _type = 'biginteger'

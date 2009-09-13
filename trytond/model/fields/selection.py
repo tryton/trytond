@@ -6,7 +6,7 @@ from trytond.model.fields.field import Field
 
 class Selection(Field):
     '''
-    Define a selection field (``str``)
+    Define a selection field (``str``).
     '''
     _type = 'selection'
 
@@ -16,7 +16,7 @@ class Selection(Field):
             on_change_with=None, depends=None, order_field=None, context=None):
         '''
         :param selection: A list or a function name that returns a list.
-            The list must be a list of tuple. First member is the value
+            The list must be a list of tuples. First member is the value
             to store and the second is the value to display.
         :param sort: A boolean to sort or not the selections.
         '''

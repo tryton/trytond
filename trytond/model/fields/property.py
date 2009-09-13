@@ -8,7 +8,7 @@ from trytond import backend
 
 class Property(Function):
     '''
-    Define property field that is stored in ir.property (any)
+    Define a property field that is stored in ir.property (any).
     '''
 
     def __init__(self, type='float', model_name=None, selection=None,
@@ -17,8 +17,8 @@ class Property(Function):
             change_default=False, translate=False, select=0, on_change=None,
             on_change_with=None, depends=None, order_field=None, context=None):
         '''
-        :param type: The type of field.
-        :param fnct_search: The name of the function to search.
+        :param type: The type of the field.
+        :param fnct_search: The name of the search function.
         :param model_name: See Many2One.
         :param selection: See Selection.
         :param digits: See Float.

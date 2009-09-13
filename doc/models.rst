@@ -4,16 +4,16 @@
 Model
 #####
 
-Model is python classes that usually represents business logical or
-concepts. Such classes consist essentially of keywords, fields,
+A model is a python class that usually represent a business logic or a
+concept. Such classes consist essentially of keywords, fields,
 constraints and helper functions.
-There is different kind of Model for different purpose:
+There are different kinds of Models for different purposes:
 
   * ``ModelView``: Define Model with views.
 
   * ``ModelStorage``: Define Model with storage capability.
 
-  * ``ModelSQL``: Define ModelStorage with SQL database for storage backend.
+  * ``ModelSQL``: Define ModelStorage with SQL database as storage backend.
 
   * ``ModelWorkflow``: Define Model with workflow.
 
@@ -61,13 +61,13 @@ The following snippet gives a first idea of what can be done:
                                     'party', 'category', 'Categories')
   Party()
 
-Instantiating the class register the Model class in the framework.
-Later they will be instanciate once per database and stored in the Pool.
+Instantiating the class registers the Model class in the framework.
+Later the class will be instantiated once per database and stored in the Pool.
 Model instances are essentially accessors to records.
 
-Model properties defines meta-informations about the model, they are
-class attributes starting with and underscore.
-Some Model Properties are instance attributes which allow to update
+Model properties define meta-information of the model, they are
+class attributes starting with an underscore.
+Some Model Properties are instance attributes allowing to update
 them at other places in the framework.
 
 .. _model:
@@ -100,7 +100,7 @@ Model
 Search clauses
 ^^^^^^^^^^^^^^
 
-Simple clause are a list of condition, with an implicit ``AND``
+A simple clause is a list of conditions, with an implicit ``AND``
 operator:
 
 .. highlight:: python
@@ -110,7 +110,7 @@ operator:
   [('name', '=', 'Bob'),('age','>=', 20)]
 
 
-More complex clause can be made this way:
+More complex clauses can be made this way:
 
 .. highlight:: python
 
@@ -122,13 +122,13 @@ More complex clause can be made this way:
 
 
 Where ``country`` is a ``Many2One`` field on the current field.  The
-number *dots* in the left hand side of a condition is not limited, but
+number of *dots* in the left hand side of a condition is not limited, but
 the underlying relation must be a ``Many2One``.
 
-Which if used in a search call on the Address model will result in
-something similar to the following sql code (the actual sql query will
+If used in a search call on the Address model this will result in
+something similar to the following sql code (the actual sql query will 
 be more complex since it has to take care of the access rights of the
-user.):
+user):
 
 .. highlight:: sql
 
@@ -187,8 +187,8 @@ with the same ``_name`` attribute:
 
 This example shows how to define and relate a new model to an existing model.
 The example also demonstrates how to define a reflecting ``Many2One``: It's not
-possible to create the two models without using inheritance because
-each of the foreign key (``first_owner`` and ``current_car``) need the
+possible to create the two models without using inheritance, because
+each of the foreign keys (``first_owner`` and ``current_car``) needs the
 other model table.
 
 
@@ -221,14 +221,14 @@ and then calling `self._reset_columns`.
 
 In this example the extended model wants on_change_employee(...) to be called so it adds 'employee'
 to the on_change attribute of the employee field.  Notice that only if the the field is
-modified then `self._reset_columns` is called.  Also notice that a developer should try
+modified `self._reset_columns` is called.  Also notice that a developer should try
 to make no assumptions about the field so that additional modules could also
 extend the same field.
 
 Fields
 ******
 
-Fields are class attributes which a name that can not start with an underscore.
+Fields are class attributes with a name that can not start with an underscore.
 
 .. _trytond.model.fields.Boolean:
 .. autoclass:: trytond.model.fields.Boolean
@@ -331,7 +331,7 @@ Fields are class attributes which a name that can not start with an underscore.
 How to use Function fields
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Let's say that the following field is defined on the invoice model:
+Assuming the following field is defined on the invoice model:
 
 .. highlight:: python
 
@@ -365,7 +365,7 @@ each id in ``ids``.
 One method to rule them all
 +++++++++++++++++++++++++++
 
-The first variant of this we'll look at is defining a unique function for
+The first variant we'll look at is defining a unique function for
 several fields. Let's consider this new field which returns the total for
 the invoice lines of kind *service*:
 
@@ -421,7 +421,7 @@ Or even better:
       return res
 
 
-The framework is able to check if ``names`` (instead of ``name``) is
+The framework is able to check, if ``names`` (instead of ``name``) is
 used in the method definition, hence adapting the way the method is
 called.
 
@@ -449,11 +449,10 @@ to the function call:
 Search on Function fields
 +++++++++++++++++++++++++
 
-Another improvement would be to provide a search function.
+Another possible improvement can be to provide a search function.
 Indeed without it the user will not be able to search across
 invoices for a certain amount.  If we forget about the
-``total_service`` field, solution could be something like the
-following:
+``total_service`` field, a solution could look like the following:
 
 .. highlight:: python
 
@@ -493,13 +492,12 @@ following:
       return res
 
 
-One should note that such an implementation would be very slow for a large
-number of invoices.
+Note: Such an implementation would be very slow for a large number of invoices.
 
 
 Write on Function fields
 ++++++++++++++++++++++++
-It's also possible to allow the user to write on a function field:
+It is also possible to allow the user to write on a function field:
 
 .. highlight:: python
 

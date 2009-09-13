@@ -10,10 +10,10 @@ class Model(object):
     """
     Define a model in Tryton.
 
-    :_name: a unique string to reference the model across all the platform.
-    :_inherits:
+    :_name: a unique string to reference the model throughout the platform.
+    :_inherits: a model from which this one inherits.
     :_description: a non technical description string.
-    :_rpc: a dictionary with method name allowed to be called remotely and
+    :_rpc: a dictionary with a method name allowed to be called remotely and
         a boolean as value that defines if it must be called in a commited
         transaction.
     :_error_messages: a dictionary mapping keywords to an error message. Eg.:
@@ -148,7 +148,7 @@ class Model(object):
 
     def init(self, cursor, module_name):
         """
-        Add model in ir.model and ir.model.field
+        Add model in ir.model and ir.model.field.
 
         :param cursor: the database cursor
         :param module_name: the module name
@@ -341,7 +341,7 @@ class Model(object):
             error_description='', error_description_args=None,
             raise_exception=True, context=None):
         '''
-        Raise an exception that will be display as an error message
+        Raise an exception that will be displayed as an error message
         in the client.
 
         :param cursor: the database cursor
@@ -419,8 +419,8 @@ class Model(object):
             warning_args=None, warning_description='',
             warning_description_args=None, context=None):
         '''
-        Raise an exception that will be display as a warning message
-        in the client if the user has not yet by-pass it.
+        Raise an exception that will be displayed as a warning message
+        in the client, if the user has not yet bypassed it.
 
         :param cursor: the database cursor
         :param user: the user id
@@ -455,14 +455,14 @@ class Model(object):
     def default_get(self, cursor, user, fields_names, context=None,
             with_rec_name=True):
         '''
-        Return a dict with the default values for each fields_names.
+        Return a dict with the default values for each field in fields_names.
 
         :param cursor: the database cursor
         :param user: the user id
         :param fields_names: a list of fields names
         :param context: the context
         :param with_rec_name: a boolean to add rec_name value
-        :return: a dictionnary with field name as key
+        :return: a dictionary with field name as key
             and default value as value
         '''
         value = {}
@@ -595,13 +595,13 @@ class Model(object):
 
     def fields_get(self, cursor, user, fields_names=None, context=None):
         """
-        Returns the definition of each field in the object
+        Return the definition of each field in the object.
 
         :param cursor: the database cursor
         :param user: the user id
-        :param fields_names: a list of fields names or None for all fields
+        :param fields_names: a list of field names or None for all fields
         :param context: the context
-        :return: a dictionnary with field name as key and definition as value
+        :return: a dictionary with field name as key and definition as value
         """
         if context is None:
             context = {}

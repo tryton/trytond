@@ -6,7 +6,7 @@ from trytond.model.fields.field import Field
 
 class Char(Field):
     '''
-    Define a char field (``unicode``)
+    Define a char field (``unicode``).
     '''
     _type = 'char'
 

@@ -6,7 +6,7 @@ from trytond.model.fields.field import Field
 
 class Many2Many(Field):
     '''
-    Define many2many field (``list``)
+    Define many2many field (``list``).
     '''
     _type = 'many2many'
 
@@ -20,9 +20,9 @@ class Many2Many(Field):
             or the name of the target model for ModelView only.
         :param origin: The name of the field to store origin ids.
         :param target: The name of the field to store target ids.
-        :param order:  a list of tuple that are constructed like this:
+        :param order:  a list of tuples that are constructed like this:
             ``('field name', 'DESC|ASC')``
-            it allow to specify the order of result
+            allowing to specify the order of result
         '''
         super(Many2Many, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
@@ -45,7 +45,7 @@ class Many2Many(Field):
         :param ids: a list of ids
         :param model: a string with the name of the model
         :param name: a string with the name of the field
-        :param values: a dictionary with the readed values
+        :param values: a dictionary with the read values
         :param context: the context
         :return: a dictionary with ids as key and values as value
         '''
@@ -81,7 +81,7 @@ class Many2Many(Field):
         :param record_id: The record id
         :param model: A string with the name of the model
         :param name: A string with the name of the field
-        :param values: A list of tuple:
+        :param values: A list of tuples:
             (``create``, ``{<field name>: value}``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),
@@ -170,7 +170,7 @@ class Many2Many(Field):
 
     def get_target(self, pool):
         '''
-        Return the target model
+        Return the target model.
 
         :param pool: The pool
         :return: A Model
