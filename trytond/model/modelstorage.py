@@ -75,11 +75,11 @@ class ModelStorage(Model):
         self._constraints = []
 
     def default_create_uid(self, cursor, user, context=None):
-        "Default value for uid field"
+        "Default value for uid field."
         return int(user)
 
     def default_create_date(self, cursor, user, context=None):
-        "Default value for create_date field"
+        "Default value for create_date field."
         return datetime.datetime.today()
 
     def default_sequence(self, cursor, user, context=None):
@@ -154,7 +154,7 @@ class ModelStorage(Model):
 
     def write(self, cursor, user, ids, values, context=None):
         '''
-        Write values on records
+        Write values on records.
 
         :param cursor: the database cursor
         :param user: the user id
@@ -223,12 +223,12 @@ class ModelStorage(Model):
 
     def copy(self, cursor, user, ids, default=None, context=None):
         '''
-        Duplicate the record in ids.
+        Duplicate the record(s) in ids.
 
         :param cursor: the database cursor
         :param user: the user id
         :param ids: a list of ids or an id
-        :param default: a dictionnary with field name as keys and
+        :param default: a dictionary with field name as keys and
             new value for the field as value
         :param context: the context
         :return: a list of new ids or the new id
@@ -333,28 +333,28 @@ class ModelStorage(Model):
     def search(self, cursor, user, domain, offset=0, limit=None, order=None,
             context=None, count=False):
         '''
-        Return a list of id that match the clauses defined in args.
+        Return a list of ids that match the clauses defined in args.
 
         :param cursor: the database cursor
         :param user: the user id
         :param domain: a list of tuples or lists
-            lists are construct like this:
+            lists are constructed like this:
             ``['operator', args, args, ...]``
             operator can be 'AND' or 'OR', if it is missing the default
             value will be 'AND'
-            tuples are construct like this:
+            tuples are constructed like this:
             ``('field name', 'operator', value)``
             field name: is a field name from the model or a relational field
             by using '.' as separator.
             operator must be in OPERATORS
-        :param offset: an integer to specify the offset for the result
+        :param offset: an integer to specify the offset of the result
         :param limit: an integer to specify the number of result
-        :param order: a list of tuple that are constructed like this:
+        :param order: a list of tuples that are constructed like this:
             ``('field name', 'DESC|ASC')``
-            it allow to specify the order of result
+            allowing to specify the order of result
         :param context: the context
-        :param count: a boolean to return only the len of the result
-        :return: a list of ids or an interger
+        :param count: a boolean to return only the length of the result
+        :return: a list of ids or an integer
         '''
         if count:
             return 0
@@ -362,7 +362,7 @@ class ModelStorage(Model):
 
     def search_count(self, cursor, user, domain, context=None):
         '''
-        Return the number of record that match the domain. (See search)
+        Return the number of records that match the domain. (See search)
 
         :param cursor: the database cursor
         :param user: the user id
@@ -378,22 +378,22 @@ class ModelStorage(Model):
     def search_read(self, cursor, user, domain, offset=0, limit=None, order=None,
             context=None, fields_names=None):
         '''
-        Call search function and read in once.
-        Usefull for the client to reduce the number of calls.
+        Call search and read functions at once.
+        Useful for the client to reduce the number of calls.
 
         :param cursor: the database cursor
         :param user: the user id
         :param domain: a domain like in search
         :param offset: an integer to specify the offset for the result
-        :param limit: an integer to specify the number of result
-        :param order: a list of tuple that are constructed like this:
+        :param limit: an integer to specify the number of records
+        :param order: a list of tuples that are constructed like this:
             ('field name', 'DESC|ASC')
-            it allow to specify the order of result
+            allowing to to specify the order of result
         :param context: the context
         :param fields_names: fields names to read if None read all fields
-        :return: a list of dictionnary or a dictionnary if limit is 1
-            the dictionnaries will have fields names as key
-            and fields value as value
+        :return: a list of dictionaries or a dictionary if limit is 1
+            the dictionaries will have field names as key
+            and field values as value
         '''
         ids = self.search(cursor, user, domain, offset=offset, limit=limit,
                 order=order, context=context)
@@ -466,7 +466,7 @@ class ModelStorage(Model):
     def get_rec_name(self, cursor, user, ids, name, arg, context=None):
         '''
         Return a dictionary with id as key and rec_name as value.
-        It is used by the Function field rec_name
+        It is used by the Function field rec_name.
 
         :param cursor: the database cursor
         :param user: the user id
@@ -489,7 +489,7 @@ class ModelStorage(Model):
 
     def search_rec_name(self, cursor, user, name, args, context=None):
         '''
-        Return a list of arguments for search on rec_name
+        Return a list of arguments for search on rec_name.
 
         :param cursor: the database cursor
         :param user: the user id
@@ -507,7 +507,7 @@ class ModelStorage(Model):
 
     def browse(self, cursor, user, ids, context=None):
         '''
-        Return a browse a BrowseRecordList for the ids
+        Return a BrowseRecordList for the ids
             or BrowseRecord if ids is a integer.
 
         :param cursor: the database cursor
@@ -562,15 +562,15 @@ class ModelStorage(Model):
 
     def export_data(self, cursor, user, ids, fields_names, context=None):
         '''
-        Return list of list of values for each ids.
-        The list of values follow the fields_names.
-        Relational fields are defined with '/' at any deep.
+        Return list of list of values for each id in ids.
+        The list of values follows fields_names.
+        Relational fields are defined with '/' at any depth.
 
         :param cursor: the database cursor
         :param ids: a list of ids
-        :param fields_names: a list of fields names
+        :param fields_names: a list of field names
         :param context: the context
-        :return: a list of list of values for each ids
+        :return: a list of list of values for each id in ids
         '''
         fields_names = [x.split('/') for x in fields_names]
         datas = []
@@ -580,13 +580,13 @@ class ModelStorage(Model):
 
     def import_data(self, cursor, user, fields_names, datas, context=None):
         '''
-        Create record for each values in datas.
-        The fields name of values must be defined in fields_names.
+        Create records for all values in datas.
+        The field names of values must be defined in fields_names.
 
         :param cursor: the database cursor
         :param user: the user id
         :param fields_names: a list of fields names
-        :param datas: the datas to import
+        :param datas: the data to import
         :param context: the context
         :return: a tuple with
             - the number of records imported
@@ -782,15 +782,15 @@ class ModelStorage(Model):
         originating from xml data. This is used by write and delete
         functions: if the return value is True the records can be
         written/deleted, False otherwise. The default behaviour is to
-        forbid all modification on records/fields originating from
+        forbid any modification on records/fields originating from
         xml. Values is the dictionary of written values. If values is
         equal to None, no field by field check is performed, False is
-        return has soon has one of the record comes from the xml.
+        returned as soon as one of the record comes from the xml.
 
         :param cursor: the database cursor
         :param user: the user id
         :param ids: a list of ids or an id
-        :param values: a dictionary with fields names as key and
+        :param values: a dictionary with field names as key and
             written values as value
         :param context: the context
         :return: True or False
@@ -824,7 +824,7 @@ class ModelStorage(Model):
 
     def check_recursion(self, cursor, user, ids, parent='parent'):
         '''
-        Function that check if there is no recursion in the tree
+        Function that checks if there is no recursion in the tree
         composed with parent as parent field name.
 
         :param cursor: the database cursor
@@ -1064,7 +1064,7 @@ class ModelStorage(Model):
 
     def workflow_trigger_trigger(self, cursor, user, ids, context=None):
         '''
-        Trigger trigger event
+        Trigger a trigger event.
 
         :param cursor: the database cursor
         :param user: the user id

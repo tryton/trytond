@@ -6,7 +6,7 @@ from trytond.model.fields.field import Field
 
 class Reference(Field):
     '''
-    Define a reference field (``str``)
+    Define a reference field (``str``).
     '''
     _type = 'reference'
 
@@ -16,7 +16,7 @@ class Reference(Field):
             on_change_with=None, depends=None, order_field=None, context=None):
         '''
         :param selection: A list or a function name that returns a list.
-            The list must be a list of tuple. First member is a internal name
+            The list must be a list of tuples. First member is an internal name
             of model and the second is the user name of model.
         '''
         super(Reference, self).__init__(string=string, help=help,
@@ -30,14 +30,14 @@ class Reference(Field):
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):
         '''
-        Replace removed reference id by False
+        Replace removed reference id by False.
 
         :param cursor: the database cursor
         :param user: the user id
         :param ids: a list of ids
         :param model: a string with the name of the model
         :param name: a string with the name of the field
-        :param values: a dictionary with the readed values
+        :param values: a dictionary with the read values
         :param context: the context
         :return: a dictionary with ids as key and values as value
         '''

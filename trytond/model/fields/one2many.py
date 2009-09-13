@@ -6,7 +6,7 @@ from trytond.model.fields.field import Field
 
 class One2Many(Field):
     '''
-    Define one2many field (``list``)
+    Define one2many field (``list``).
     '''
     _type = 'one2many'
 
@@ -18,11 +18,11 @@ class One2Many(Field):
         '''
         :param model_name: The name of the targeted model.
         :param field: The name of the field that handle the reverse many2one.
-        :param add_remove: A list that defines a domain for the add/remove.
+        :param add_remove: A list that defines a domain on add/remove.
             See domain on ModelStorage.search.
-        :param order:  a list of tuple that are constructed like this:
+        :param order:  a list of tuples that are constructed like this:
             ``('field name', 'DESC|ASC')``
-            it allow to specify the order of result
+            allowing to specify the order of result.
         '''
         super(One2Many, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
@@ -45,7 +45,7 @@ class One2Many(Field):
         :param ids: a list of ids
         :param model: a string with the name of the model
         :param name: a string with the name of the field
-        :param values: a dictionary with the readed values
+        :param values: a dictionary with the read values
         :param context: the context
         :return: a dictionary with ids as key and values as value
         '''
@@ -90,7 +90,7 @@ class One2Many(Field):
         :param record_id: The record id
         :param model: A string with the name of the model
         :param name: A string with the name of the field
-        :param values: A list of tuple:
+        :param values: A list of tuples:
             (``create``, ``{<field name>: value}``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),

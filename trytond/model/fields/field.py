@@ -18,15 +18,15 @@ class Field(object):
         :param domain: A list that defines a domain constraint. See domain on
             ModelStorage.search.
         :param states: A dictionary. Possible keys are ``required``,
-            ``readonly`` and ``invisible``. Values are string of python
-            statement that can be evaluate with record values. This allows to
+            ``readonly`` and ``invisible``. Values are strings of python
+            statements that can be evaluated with record values. This allows to
             change dynamically the attributes of the field.
         :param priority: Give the order in which set methods are called.
-        :param change_default: A boolean if ``True`` the field can be used as
-            condition for custom default value.
-        :param translate: A boolean if ``True`` the field is translatable.
+        :param change_default: A boolean. If ``True`` the field can be used as
+        condition for a custom default value.
+        :param translate: A boolean. If ``True`` the field is translatable.
         :param select: An integer. When equal to ``1``, the field appears in the
-            search box in list view and search will be optimized. When equal to
+            search box in list view and the search will be optimized. When equal to
             ``2`` the field appears in the *Advanced Search* in the search box.
         :param on_change: A list of values. If set, the client will call the
             method ``on_change_<field_name>`` when the user changes the field

@@ -6,7 +6,7 @@ from trytond.model.fields.field import Field
 
 class Binary(Field):
     '''
-    Define a binary field (``str``)
+    Define a binary field (``str``).
     '''
     _type = 'binary'
 
@@ -19,7 +19,7 @@ class Binary(Field):
         :param ids: a list of ids
         :param model: a string with the name of the model
         :param name: a string with the name of the field
-        :param values: a dictionary with the readed values
+        :param values: a dictionary with the read values
         :param context: the context
         :return: a dictionary with ids as key and values as value
         '''

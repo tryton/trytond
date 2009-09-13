@@ -93,7 +93,7 @@ class ModelView(Model):
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
             context=None, toolbar=False, hexmd5=None):
         '''
-        Return a view definition
+        Return a view definition.
 
         :param cursor: the database cursor
         :param user: the user id
@@ -102,14 +102,14 @@ class ModelView(Model):
         :param context: the context
         :param toolbar: if True the result will contain a toolbar key with
             keyword action definitions for the view
-        :param hexmd5: if fill, the function will return True if the result
-            have the same md5
-        :return: a dictionnary with keys:
+        :param hexmd5: if filled, the function will return True if the result
+            has the same md5
+        :return: a dictionary with keys:
            - model: the model name
            - arch: the xml description of the view
-           - fields: a dictionnary with the definition of each fields in the view
-           - toolbar: a dictionnary with the keyword action definitions
-           - md5: the check sum of the dictionnary without this checksum
+           - fields: a dictionary with the definition of each field in the view
+           - toolbar: a dictionary with the keyword action definitions
+           - md5: the check sum of the dictionary without this checksum
         '''
 
         if context is None:
@@ -252,7 +252,7 @@ class ModelView(Model):
     def view_header_get(self, cursor, user, value, view_type='form',
             context=None):
         """
-        Overload this method if you need a window title
+        Overload this method if you need a window title.
         which depends on the context
 
         :param cursor: the database cursor

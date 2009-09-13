@@ -7,7 +7,7 @@ import inspect
 
 class Function(Field):
     '''
-    Define function field (any)
+    Define function field (any).
     '''
     _type = 'float'
 
