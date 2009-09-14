@@ -1081,6 +1081,8 @@ class ModelStorage(Model):
             ('res_id', 'in', ids),
             ('model', '=', self._name),
             ], context=context)
-        for trigger in trigger_obj.browse(cursor, 0, trigger_ids,
-                context=context):
-            instance_obj.update(cursor, user, trigger.instance, context=context)
+        instances = set([trigger.instance \
+                for trigger in trigger_obj.browse(cursor, 0, trigger_ids,
+                    context=context)])
+        for instance in instances:
+            instance_obj.update(cursor, user, instance, context=context)
