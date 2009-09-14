@@ -1035,6 +1035,10 @@ class ModelSQL(ModelStorage):
             sub_ids = ids[i:i + cursor.IN_MAX]
             red_sql, red_ids = reduce_ids('id', sub_ids)
 
+            context.setdefault('_delete_records', {})
+            context['_delete_records'].setdefault(self._name, set())
+            context['_delete_records'][self._name].update(sub_ids)
+
             for model, field_name in foreign_keys_toupdate:
                 if not hasattr(model, 'search') \
                         or not hasattr(model, 'write'):
@@ -1057,9 +1061,6 @@ class ModelSQL(ModelStorage):
                 if model_ids:
                     model.delete(cursor, user, model_ids, context=delete_ctx)
 
-            context.setdefault('_delete_records', {})
-            context['_delete_records'].setdefault(self._name, set())
-            context['_delete_records'][self._name].update(sub_ids)
             try:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE ' + red_sql, red_ids)
@@ -1193,12 +1194,19 @@ class ModelSQL(ModelStorage):
         cache = cursor.get_cache(context)
         cache.setdefault(self._name, {})
         for data in datas:
+            if data['id'] in context.setdefault('_delete_records', {})\
+                    .setdefault(self._name, set()):
+                continue
             for i in data.keys():
                 if i in ('_timestamp', '_datetime'):
                     continue
                 field = self._columns[i]
                 if field._type in ('many2one',):
                     if field.model_name not in self.pool.object_name_list():
+                        del data[i]
+                        continue
+                    if data[i] in context.setdefault('_delete_records', {})\
+                            .setdefault(field.model_name, set()):
                         del data[i]
                         continue
                     model = self.pool.get(field.model_name)
