@@ -124,7 +124,7 @@ class Report(object):
         localcontext = {}
         localcontext['datas'] = datas
         localcontext['user'] = self.pool.get('res.user').\
-                browse(cursor, user, user)
+                browse(cursor, user, user, context=context)
         localcontext['formatLang'] = lambda *args, **kargs: \
                 self.format_lang(*((cursor, user) + args), **kargs)
         localcontext['decodestring'] = decodestring
