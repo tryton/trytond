@@ -64,10 +64,22 @@ class TableHandler(TableHandlerInterface):
 
     @staticmethod
     def table_rename(cursor, old_name, new_name):
+        #Rename table
         if TableHandler.table_exist(cursor, old_name) and \
                 not TableHandler.table_exist(cursor, new_name):
             cursor.execute('ALTER TABLE "%s" RENAME TO "%s"' % \
                     (old_name, new_name))
+        # Rename sequence
+        old_sequence = old_name + '_id_seq'
+        new_sequence = new_name + '_id_seq'
+        TableHandler.sequence_rename(cursor, old_sequence, new_sequence)
+        #Rename history table
+        old_history = old_name + "__history"
+        new_history = new_name + "__history"
+        if TableHandler.table_exist(cursor, old_history) and \
+                not TableHandler.table_exist(cursor, new_history):
+            cursor.execute('ALTER TABLE "%s" RENAME TO "%s"' % \
+                    (old_history, new_history))
 
     @staticmethod
     def sequence_exist(cursor, sequence_name):
