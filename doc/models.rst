@@ -328,6 +328,127 @@ Fields are class attributes with a name that can not start with an underscore.
 
 .. _use_function:
 
+
+Field events and methods
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Setting defaults
+++++++++++++++++
+
+If you want to set a default value for a field of a model you merely need to
+define a function named `default_field_name` where field_name is the name of
+the field.
+
+.. highlight:: python
+
+::
+
+  class Sale(ModelWorkflow, ModelSQL, ModelView):
+      'Sale'
+      _name = 'sale.sale'
+      sale_date = fields.Date('Sale Date', required=True, states={
+          'readonly': "state != 'draft'",
+          })
+      def default_sale_date(self, cursor, user, context=None):
+          date_obj = self.pool.get('ir.date')
+          return date_obj.today(cursor, user, context=context)
+
+This example sets the default sale date on a sale to be the current date.  The
+client will use this default when filling a form for this model.  These
+methods also can be called explicitly when creating a model manually to populate it
+with defaults.  Finally these methods also will be called when using the create method
+if there is no value set in values that were passed.
+
+on_change versus on_change_with
++++++++++++++++++++++++++++++++
+
+If a field's value depends on the value of another field a model must act on
+the other field changing.  There are two ways to handle this depending on how
+many dependencies there are.
+
+ * `on_change` on field with field_name contained list of field names
+
+   * method on_change_field_name is called
+   * fields with name in on_change are passed in vals with their name as the
+     key
+   * method returns a dictionary with keys that are the names of fields to set
+
+ * `on_change_with` defined on field with field_name containing list of
+   field names
+
+   * method on_change_with_field_name is called
+   * fields with name in on_change_with are passed in vals with their name as
+     the key
+   * method returns only a new value of the field that defined on_change_with
+
+.. highlight:: python
+
+::
+
+  class PackingOut(ModelWorkflow, ModelSQL, ModelView):
+      _name = 'stock.packing.out'
+
+      customer = fields.Many2One('party.party', 'Customer', required=True,
+              states={
+                  'readonly': "state != 'draft' or bool(outgoing_moves)",
+              }, on_change=['customer'])
+
+      def on_change_customer(self, cursor, user, ids, values, context=None):
+          if not values.get('customer'):
+              return {'delivery_address': False}
+          party_obj = self.pool.get("party.party")
+          address_id = party_obj.address_get(cursor, user, values['customer'],
+                  type='delivery', context=context)
+          return {
+                  'delivery_address': address_id}      
+
+In this example when the customer changes the delivery address also changes.
+The new value is set when `on_change_customer` returns the new value for 
+`delivery_address` in a dict. Any field of the model returned in this dict 
+will be updated with the new value.
+
+.. highlight:: python
+
+::
+
+  class Template(ModelSQL, ModelView):
+      _name = "product.template"
+
+      purchase_uom = fields.Many2One('product.uom', 'Purchase UOM', states={
+          'readonly': "active == False",
+          'invisible': "not purchasable",
+          'required': "purchasable",
+          }, domain=["('category', '=', (default_uom, 'uom.category'))"],
+          context="{'category': (default_uom, 'uom.category')}",
+          on_change_with=['default_uom', 'purchase_uom', 'purchasable'])
+
+      def on_change_with_purchase_uom(self, cursor, user, ids, vals,
+              context=None):
+          uom_obj = self.pool.get('product.uom')
+          res = False
+
+          if vals.get('default_uom'):
+              default_uom = uom_obj.browse(cursor, user, vals['default_uom'],
+                      context=context)
+              if vals.get('purchase_uom'):
+                  purchase_uom = uom_obj.browse(cursor, user, vals['purchase_uom'],
+                          context=context)
+                  if default_uom.category.id == purchase_uom.category.id:
+                      res = purchase_uom.id
+                  else:
+                      res = default_uom.id
+              else:
+                  res = default_uom.id
+          return res
+
+In this example when either default_uom, purchase_uom or purchasable change
+then purchase_uom will be changed.  Notice that `on_change_with` differs from
+`on_change` because `on_change_with` returns only the value for the specific
+field compared to `on_change` which returns a dictionary of values. Also notice
+that all the fields in `on_change_with` are passed into the `vals` argument of
+the method call as keys in the dictionary.
+
+
 How to use Function fields
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
