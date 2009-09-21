@@ -107,6 +107,7 @@ field,"ir.action.wizard_size,rec_name",0,Name,Name,0
 field,"ir.action.wizard_size,user",0,User,Benutzer,0
 field,"ir.action.wizard_size,width",0,Width,Breite,0
 field,"ir.action.wizard_size,wizard",0,Wizard,Wizard,0
+field,"ir.action.wizard,window",0,Window,Separates Fenster,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Wizard Name,0
 field,"ir.attachment,collision",0,Collision,Kollision,0
 field,"ir.attachment,datas",0,Datas,Daten,0
@@ -302,6 +303,7 @@ help,"ir.action.act_window,limit",0,Default limit for the list view,Standardober
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Standardsuchwerte in der Listenansicht,0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Aktionsname als Fenstername benutzen,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definiert den Stil für den Bericht,0
+help,"ir.action.wizard,window",0,Run wizard in a new window,Wizard in separatem Fenster ausführen,0
 help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Anzahl der Funktionsaufrufe
 (eine negative Zahl bewirkt, dass die Funktion immer aufgerufen wird)",0
