@@ -1,5 +1,6 @@
 type,name,res_id,src,value,fuzzy
 error,res.group,0,The name of the group must be unique!,Der Name der Gruppe kann nicht mehrfach vergeben werden!,0
+error,res.user,0,Wrong password!,Ungültiges Passwort!,0
 error,res.user,0,You can not have two users with the same login!,Der Name für einen Benutzer kann nur einmal vergeben werden!,0
 error,res.user,0,"You can not remove the root user
 as it is used internally for resources
