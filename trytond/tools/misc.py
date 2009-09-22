@@ -554,7 +554,7 @@ def reduce_ids(field, ids):
         prev = i
     if continue_list[-1] - continue_list[0] < 5:
         discontinue_list.extend([continue_list[0] + x for x in
-            range(continue_list[-1] - continue_list[0] + 1)])
+            range(int(continue_list[-1] - continue_list[0] + 1))])
     else:
         sql.append('((' + field + ' >= %s) AND (' + field + ' <= %s))')
         args.append(continue_list[0])
