@@ -389,6 +389,8 @@ class User(ModelSQL, ModelView):
         if not user_id:
             return 0
         password += salt or ''
+        if isinstance(password, unicode):
+            password = password.encode('utf-8')
         if hashlib:
             password_sha = hashlib.sha1(password).hexdigest()
         else:

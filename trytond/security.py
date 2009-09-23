@@ -20,6 +20,7 @@ def login(dbname, loginname, password, cache=True):
     if not dbname in database_list:
         pool.init()
     user_obj = pool.get('res.user')
+    password = password.decode('utf-8')
     user_id = user_obj.get_login(cursor, 0, loginname, password)
     cursor.commit()
     cursor.close()
