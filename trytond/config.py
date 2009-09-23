@@ -42,8 +42,11 @@ class ConfigManager(object):
             'session_timeout': 600,
             'psyco': False,
             'auto_reload': True,
+            'init': {},
+            'update': {},
         }
 
+    def parse(self):
         parser = optparse.OptionParser(version=VERSION)
 
         parser.add_option("-c", "--config", dest="config",

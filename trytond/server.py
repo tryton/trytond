@@ -34,6 +34,7 @@ from trytond.monitor import monitor
 class TrytonServer(object):
 
     def __init__(self):
+        CONFIG.parse()
 
         if CONFIG['logfile']:
             logf = CONFIG['logfile']
