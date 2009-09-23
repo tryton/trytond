@@ -13,6 +13,7 @@ import zipfile
 from trytond.backend import Database
 from threading import Lock, local
 import logging
+import smtplib
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -128,99 +129,26 @@ def file_open(name, mode="r", subdir='modules'):
 
     raise IOError, 'File not found : '+str(name)
 
-def email_send(email_from, email_to, subject, body, email_cc=None,
-        email_bcc=None, reply_to=False, tinycrm=False):
-    """Send an email."""
-    if not email_cc:
-        email_cc = []
-    if not email_bcc:
-        email_bcc = []
-    import smtplib
-    from email.MIMEText import MIMEText
-    from email.Header import Header
-    from email.Utils import formatdate, COMMASPACE
+def get_smtp_server():
+    """
+    Instanciate, configure and return a SMTP or SMTP_SSL instance from
+    smtplib.
+    :return: A SMTP instance. The quit() method must be call when all
+    the calls to sendmail() have been made.
+    """
+    if CONFIG['smtp_ssl']:
+        smtp_server = smtplib.SMTP_SSL(CONFIG['smtp_server'],
+                CONFIG['smtp_port'])
+    else:
+        smtp_server = smtplib.SMTP(CONFIG['smtp_server'], CONFIG['smtp_port'])
 
-    msg = MIMEText(body or '', _charset='utf-8')
-    msg['Subject'] = Header(subject.decode('utf8'), 'utf-8')
-    msg['From'] = email_from
-    del msg['Reply-To']
-    if reply_to:
-        msg['Reply-To'] = msg['From']+', '+reply_to
-    msg['To'] = COMMASPACE.join(email_to)
-    if email_cc:
-        msg['Cc'] = COMMASPACE.join(email_cc)
-    if email_bcc:
-        msg['Bcc'] = COMMASPACE.join(email_bcc)
-    msg['Date'] = formatdate(localtime=True)
-    if tinycrm:
-        msg['Message-Id'] = '<' + str(time.time()) + '-tinycrm-' + \
-                str(tinycrm) + '@' + socket.gethostname() + '>'
-    try:
-        smtp = smtplib.SMTP()
-        smtp.connect(CONFIG['smtp_server'])
-        if CONFIG['smtp_user'] or CONFIG['smtp_password']:
-            smtp.login(CONFIG['smtp_user'], CONFIG['smtp_password'])
-        smtp.sendmail(email_from, email_to + email_cc + email_bcc,
-                msg.as_string())
-        smtp.quit()
-    except Exception, exp:
-        logging.getLogger("tools.email_send").error(str(exp))
-    return True
+    if CONFIG['smtp_tls']:
+        smtp_server.starttls()
 
-def email_send_attach(email_from, email_to, subject, body, email_cc=None,
-        email_bcc=None, reply_to=False, attach=None,
-        tinycrm=False):
-    """Send an email."""
-    if not email_cc:
-        email_cc = []
-    if not email_bcc:
-        email_bcc = []
-    if not attach:
-        attach = []
-    import smtplib
-    from email.MIMEText import MIMEText
-    from email.MIMEBase import MIMEBase
-    from email.MIMEMultipart import MIMEMultipart
-    from email.Header import Header
-    from email.Utils import formatdate, COMMASPACE
-    from email import Encoders
+    if CONFIG['smtp_user'] and CONFIG['smtp_password']:
+        smtp_server.login(CONFIG['smtp_user'], CONFIG['smtp_password'])
 
-    msg = MIMEMultipart()
-
-    msg['Subject'] = Header(subject.decode('utf8'), 'utf-8')
-    msg['From'] = email_from
-    del msg['Reply-To']
-    if reply_to:
-        msg['Reply-To'] = reply_to
-    msg['To'] = COMMASPACE.join(email_to)
-    if email_cc:
-        msg['Cc'] = COMMASPACE.join(email_cc)
-    if email_bcc:
-        msg['Bcc'] = COMMASPACE.join(email_bcc)
-    if tinycrm:
-        msg['Message-Id'] = '<' + str(time.time()) + '-tinycrm-' + \
-                str(tinycrm) + '@' + socket.gethostname()+'>'
-    msg['Date'] = formatdate(localtime=True)
-    msg.attach( MIMEText(body or '', _charset='utf-8') )
-    for (fname, fcontent) in attach:
-        part = MIMEBase('application', "octet-stream")
-        part.set_payload( fcontent )
-        Encoders.encode_base64(part)
-        part.add_header('Content-Disposition',
-                'attachment; filename="%s"' % (fname,))
-        msg.attach(part)
-    try:
-        smtp = smtplib.SMTP()
-        smtp.connect(CONFIG['smtp_server'])
-        if CONFIG['smtp_user'] or CONFIG['smtp_password']:
-            smtp.login(CONFIG['smtp_user'], CONFIG['smtp_password'])
-        smtp.sendmail(email_from, email_to + email_cc + email_bcc,
-                msg.as_string())
-        smtp.quit()
-    except Exception, exp:
-        logging.getLogger("tools.email_send_attach").error(str(exp))
-
-    return True
+    return smtp_server
 
 def sms_send(user, password, api_id, text, to):
     "text must be latin-1 encoded"
