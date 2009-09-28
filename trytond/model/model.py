@@ -133,15 +133,45 @@ class Model(object):
     def _getxxx2many_targets(self):
         if self.__xxx2many_targets:
             return self.__xxx2many_targets
-        res = [(x, getattr(y, 'model_name', None) or \
-                getattr(y, 'target', None) or getattr(y, 'relation_name', None))
-                for x, y in self._columns.iteritems()
-                if y._type in ('one2many', 'many2many')]
-        res += [(x, getattr(y, 'model_name', None) or \
-                getattr(y, 'target', None) or getattr(y, 'relation_name', None))
-                for _, (_, x, y) in self._inherit_fields.iteritems()
-                if y._type in ('one2many', 'many2many')]
-        self.__xxx2many_targets = res
+        to_cache = True
+
+        res = [(field_name, field.model_name)
+                for field_name, field in self._columns.iteritems()
+                if field._type == 'one2many']
+
+        for field_name, field in self._columns.iteritems():
+            if field._type != 'many2many':
+                continue
+            if hasattr(field, 'get_target'):
+                try:
+                    model_name = field.get_target(self.pool)._name
+                except KeyError:
+                    to_cache = False
+                    continue
+            else:
+                model_name = field.model_name
+            res.append((field_name, model_name))
+
+        res += [(field_name, field.model_name)
+                for _, (_, field_name, field) in \
+                        self._inherit_fields.iteritems()
+                if field._type == 'one2many']
+
+        for _, (_, field_name, field) in self._inherit_fields.iteritems():
+            if field._type != 'many2many':
+                continue
+            if hasattr(field, 'get_target'):
+                try:
+                    model_name = field.get_target(self.pool)._name
+                except KeyError:
+                    to_cache = False
+                    continue
+            else:
+                model_name = field.model_name
+            res.append((field_name, model_name))
+
+        if to_cache:
+            self.__xxx2many_targets = res
         return res
 
     _xxx2many_targets = property(fget=_getxxx2many_targets)
