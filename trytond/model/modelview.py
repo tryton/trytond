@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from trytond.model import Model
-from trytond.tools import Cache
+from trytond.tools import Cache, safe_eval
 from trytond.modules import create_graph, get_module_list
 from lxml import etree
 try:
@@ -179,7 +179,7 @@ class ModelView(Model):
                     raise_p = True
             for arch, domain, _ in sql_inherit:
                 if domain:
-                    if not eval(domain, {'context': context}):
+                    if not safe_eval(domain, {'context': context}):
                         continue
                 if not arch or not arch.strip():
                     continue

@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from trytond.pool import Pool
+from trytond.tools import safe_eval
 
 
 class EnvCall(object):
@@ -55,7 +56,7 @@ def eval_expr(cursor, user, model, obj_id, action, context=None):
         elif line =='False':
             res = False
         else:
-            res = eval(line, env)
+            res = safe_eval(line, env)
     return res
 
 def execute(cursor, user, model, obj_id, activity, context=None):

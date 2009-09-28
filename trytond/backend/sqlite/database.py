@@ -162,6 +162,7 @@ class Database(DatabaseInterface):
 
     @staticmethod
     def init(cursor):
+        from trytond.tools import safe_eval
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
         for line in file(sql_file).read().split(';'):
             if (len(line)>0) and (not line.isspace()):
@@ -171,7 +172,7 @@ class Database(DatabaseInterface):
             root_path = os.path.join(os.path.dirname(__file__), '..', '..')
             tryton_file = os.path.join(root_path, i, '__tryton__.py')
             mod_path = os.path.join(root_path, i)
-            info = eval(file(tryton_file).read())
+            info = safe_eval(file(tryton_file).read())
             active = info.get('active', False)
             if active:
                 state = 'to install'

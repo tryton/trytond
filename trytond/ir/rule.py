@@ -2,7 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 "Rule"
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import Cache
+from trytond.tools import Cache, safe_eval
 import time
 
 
@@ -188,7 +188,7 @@ class Rule(ModelSQL, ModelView):
                 recur=['many2one'], root_tech='user', root='User')
         # Use root user without context to prevent recursion
         for rule in self.browse(cursor, 0, ids):
-            dom = eval("[('%s', '%s', %s)]" % \
+            dom = safe_eval("[('%s', '%s', %s)]" % \
                     (rule.field.name, rule.operator,
                         operand2query[rule.operand]),
                     {'user': self.pool.get('res.user').browse(cursor, 0,

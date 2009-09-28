@@ -10,6 +10,7 @@ SPEC: Execute "model.function(*eval(args))" periodically
 
 from trytond.backend import Database
 from trytond.model import ModelView, ModelSQL, fields
+from trytond.tools import safe_eval
 from mx import DateTime
 import datetime
 import traceback
@@ -98,7 +99,7 @@ class Cron(ModelSQL, ModelView):
 
     def _callback(self, cursor, cron):
         try:
-            args = (cron['args'] or []) and eval(cron['args'])
+            args = (cron['args'] or []) and safe_eval(cron['args'])
             obj = self.pool.get(cron['model'])
             if not obj and hasattr(obj, cron['function']):
                 return False

@@ -7,7 +7,7 @@ import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.version import PACKAGE, VERSION, WEBSITE
 from trytond.report import Report
-from trytond.tools import reduce_ids
+from trytond.tools import reduce_ids, safe_eval
 
 
 class Collection(ModelSQL, ModelView):
@@ -271,7 +271,7 @@ class Collection(ModelSQL, ModelView):
                 if not model_obj:
                     return res
                 model_ids = model_obj.search(cursor, user,
-                        eval(collection.domain or "[]"), context=context)
+                        safe_eval(collection.domain or "[]"), context=context)
                 for child in model_obj.browse(cursor, user,
                         model_ids, context=context):
                     if '/' in child.rec_name:

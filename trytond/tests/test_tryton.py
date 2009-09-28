@@ -12,7 +12,7 @@ import unittest
 import time
 from decimal import Decimal
 from trytond import pysocket
-from trytond.tools import reduce_ids
+from trytond.tools import reduce_ids, safe_eval
 from lxml import etree
 
 ADMIN_PASSWORD = 'admin'
@@ -101,6 +101,32 @@ class ToolsTestCase(unittest.TestCase):
             [1, 12, 15, 18, 19, 21]) == \
                     reduce_ids('id', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15,
                         18, 19, 21]))
+
+    def test0060safe_eval_builtin(self):
+        '''
+        Attempt to access a unsafe builtin.
+        '''
+        self.assertRaises(Exception, safe_eval, "open('test.txt', 'w')")
+
+    def test0061safe_eval_getattr(self):
+        '''
+        Attempt to get arround direct attr access.
+        '''
+        self.assertRaises(Exception, safe_eval, "getattr(int, '__abs__')")
+
+    def test0062safe_eval_func_globals(self):
+        '''
+        Attempt to access global enviroment where fun was defined.
+        '''
+        self.assertRaises(Exception, safe_eval,
+                "def x(): pass; print x.func_globals")
+
+    def test0063safe_eval_lowlevel(self):
+        '''
+        Lowlevel tricks to access 'object'.
+        '''
+        self.assertRaises(Exception, safe_eval,
+                "().__class__.mro()[1].__subclasses__()")
 
 
 class FieldsTestCase(unittest.TestCase):

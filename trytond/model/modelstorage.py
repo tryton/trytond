@@ -4,6 +4,7 @@ from trytond.model import Model
 from trytond.model import fields
 from trytond.model.browse import BrowseRecordList, BrowseRecord, BrowseRecordNull
 from trytond.model.browse import EvalEnvironment
+from trytond.tools import safe_eval
 import datetime
 import time
 from decimal import Decimal
@@ -813,7 +814,7 @@ class ModelStorage(Model):
                 context=context):
             if not line.values:
                 continue
-            xml_values = eval(line.values, {
+            xml_values = safe_eval(line.values, {
                 'Decimal': Decimal,
                 'datetime': datetime,
                 })
@@ -920,7 +921,7 @@ class ModelStorage(Model):
                     else:
                         if not env:
                             return True
-                        res.append(eval(arg, env))
+                        res.append(safe_eval(arg, env))
                 elif isinstance(arg, tuple):
                     res.append(arg)
                 elif isinstance(arg, list):
@@ -1002,7 +1003,7 @@ class ModelStorage(Model):
                         env['time'] = time
                         env['context'] = context
                         env['active_id'] = record.id
-                        required = eval(field.states['required'], env)
+                        required = safe_eval(field.states['required'], env)
                         if required and not record[field_name]:
                             self.raise_user_error(cursor,
                                     'required_validation_record',

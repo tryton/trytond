@@ -272,12 +272,12 @@ class EvalEnvironment(dict):
     def __getattr__(self, item):
         return self.__getitem__(item)
 
-    def get(self, item):
+    def get(self, item, default=None):
         try:
             return self.__getitem__(item)
         except:
             pass
-        return super(EvalEnvironment, self).get(item)
+        return super(EvalEnvironment, self).get(item, default=default)
 
     def __nonzero__(self):
         return bool(self._record)

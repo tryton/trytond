@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model.fields.field import Field
+from trytond.tools import safe_eval
 
 
 class Reference(Field):
@@ -63,7 +64,7 @@ class Reference(Field):
             ref_obj = model.pool.get(ref_model)
             ref_id_found.setdefault(ref_model, set())
             try:
-                ref_id = eval(ref_id)
+                ref_id = safe_eval(ref_id)
             except:
                 pass
             try:

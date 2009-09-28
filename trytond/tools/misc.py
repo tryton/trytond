@@ -18,6 +18,7 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
+import dis
 
 def find_in_path(name):
     if os.name == "nt":
@@ -492,3 +493,45 @@ def reduce_ids(field, ids):
                 ','.join(('%s',) * len(discontinue_list)) + '))')
         args.extend(discontinue_list)
     return '(' + ' OR '.join(sql) + ')', args
+
+_ALLOWED_CODES = set(dis.opmap[x] for x in [
+    'POP_TOP','ROT_TWO','ROT_THREE','ROT_FOUR','DUP_TOP',
+    'BUILD_LIST','BUILD_MAP','BUILD_TUPLE',
+    'LOAD_CONST','RETURN_VALUE','STORE_SUBSCR',
+    'UNARY_POSITIVE','UNARY_NEGATIVE','UNARY_NOT',
+    'UNARY_INVERT','BINARY_POWER','BINARY_MULTIPLY',
+    'BINARY_DIVIDE','BINARY_FLOOR_DIVIDE','BINARY_TRUE_DIVIDE',
+    'BINARY_MODULO','BINARY_ADD','BINARY_SUBTRACT',
+    'BINARY_LSHIFT','BINARY_RSHIFT','BINARY_AND','BINARY_XOR', 'BINARY_OR',
+    'STORE_MAP', 'LOAD_NAME', 'CALL_FUNCTION', 'COMPARE_OP', 'LOAD_ATTR',
+    'STORE_NAME', 'GET_ITER', 'FOR_ITER', 'LIST_APPEND', 'JUMP_ABSOLUTE',
+    'DELETE_NAME', 'JUMP_IF_TRUE', 'JUMP_IF_FALSE', 'BINARY_SUBSCR',
+    ] if x in dis.opmap)
+
+
+def safe_eval(source, data=None):
+    if '__subclasses__' in source:
+        raise ValueError('__subclasses__ not allowed')
+    c = compile(source, '', 'eval')
+    codes = []
+    s = c.co_code
+    i = 0
+    while i < len(s):
+        code = ord(s[i])
+        codes.append(code)
+        if code >= dis.HAVE_ARGUMENT:
+            i += 3
+        else:
+            i += 1
+    for code in codes:
+        if code not in _ALLOWED_CODES:
+            raise ValueError('opcode %s not allowed' % dis.opname[code])
+    return eval(c, {'__builtins__': {
+        'True': True,
+        'False': False,
+        'str': str,
+        'globals': locals,
+        'locals': locals,
+        'bool': bool,
+        'dict': dict,
+        }}, data)
