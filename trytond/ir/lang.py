@@ -3,6 +3,7 @@
 "Lang"
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
+from trytond.tools import safe_eval
 import time
 from time_locale import TIME_LOCALE
 
@@ -99,7 +100,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
         '''
         for lang in self.browse(cursor, user, ids):
             try:
-                grouping = eval(lang.grouping)
+                grouping = safe_eval(lang.grouping)
                 for i in grouping:
                     if not isinstance(i, int):
                         return False
@@ -174,10 +175,10 @@ class Lang(ModelSQL, ModelView, Cacheable):
         # Code from _group in locale.py
         if monetary:
             thousands_sep = monetary['mon_thousands_sep']
-            grouping = eval(monetary['mon_grouping'])
+            grouping = safe_eval(monetary['mon_grouping'])
         else:
             thousands_sep = lang['thousands_sep']
-            grouping = eval(lang['grouping'])
+            grouping = safe_eval(lang['grouping'])
         if not grouping:
             return (s, 0)
         result = ""

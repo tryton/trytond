@@ -181,7 +181,7 @@ class Module(ModelSQL, ModelView):
             else:
                 file_p = tools.file_open(os.path.join(name, '__tryton__.py'))
             data = file_p.read()
-            info = eval(data)
+            info = tools.safe_eval(data)
             file_p.close()
         except:
             return {}

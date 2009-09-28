@@ -5,7 +5,7 @@ import copy
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.wizard import Wizard
 from lxml import etree
-from trytond.tools import Cache
+from trytond.tools import Cache, safe_eval
 from trytond.backend import TableHandler
 from trytond.security import get_connections
 import string
@@ -257,7 +257,7 @@ class User(ModelSQL, ModelView):
                 date = date.replace(i, j)
             res['locale'] = {
                 'date': date,
-                'grouping': eval(user.language.grouping),
+                'grouping': safe_eval(user.language.grouping),
                 'decimal_point': user.language.decimal_point,
                 'thousands_sep': user.language.thousands_sep,
             }

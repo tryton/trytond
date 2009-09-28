@@ -144,7 +144,8 @@ def create_graph(module_list, force=None):
             mod_path = OPJ(ep.dist.location, 'trytond', 'modules', module)
         if os.path.isfile(tryton_file) or zipfile.is_zipfile(mod_path+'.zip'):
             try:
-                info = eval(tools.file_open(tryton_file, subdir='').read())
+                info = tools.safe_eval(tools.file_open(tryton_file,
+                    subdir='').read())
             except:
                 logger.error('%s:eval file %s' % (module, tryton_file))
                 raise

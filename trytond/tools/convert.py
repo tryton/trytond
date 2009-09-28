@@ -9,6 +9,7 @@ except ImportError:
 import os.path
 from trytond.config import CONFIG
 from trytond.version import VERSION
+from trytond.tools import safe_eval
 import time
 from xml import sax
 from decimal import Decimal
@@ -54,7 +55,7 @@ class MenuitemTagHandler:
                 values[attr] = attributes.get(attr)
 
         if attributes.get('active'):
-            values['active'] = bool(eval(attributes['active']))
+            values['active'] = bool(safe_eval(attributes['active']))
 
         if values.get('parent'):
             values['parent'] = self.mh.get_id(values['parent'])
@@ -201,7 +202,8 @@ class RecordTagHandler:
                 f_obj = self.mh.pool.get(search_model)
                 answer = f_obj.browse(
                     self.mh.cursor, self.mh.user,
-                    f_obj.search(self.mh.cursor, self.mh.user, eval(search_attr),
+                    f_obj.search(self.mh.cursor, self.mh.user,
+                        safe_eval(search_attr),
                         context={'active_test': False}))
 
                 if not answer: return
@@ -221,7 +223,7 @@ class RecordTagHandler:
                 context['version'] = VERSION.rsplit('.', 1)[0]
                 context['ref'] = self.mh.get_id
                 context['obj'] = lambda *a: 1
-                self.values[field_name] = eval(eval_attr, context)
+                self.values[field_name] = safe_eval(eval_attr, context)
 
         else:
             raise Exception("Tags '%s' not supported inside tag record."% (name,))
@@ -511,7 +513,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 return False
             ref_mode, ref_id = browse_record[key].split(',', 1)
             try:
-                ref_id = eval(ref_id)
+                ref_id = safe_eval(ref_id)
             except:
                 pass
             if isinstance(ref_id, (list, tuple)):
@@ -581,7 +583,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             if not old_values:
                 old_values = {}
             else:
-                old_values = eval(old_values, {
+                old_values = safe_eval(old_values, {
                     'Decimal': Decimal,
                     'datetime': datetime,
                     })

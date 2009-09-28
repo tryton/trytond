@@ -2,7 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 "Default"
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import Cache
+from trytond.tools import Cache, safe_eval
 from decimal import Decimal
 import mx.DateTime
 import datetime
@@ -69,7 +69,7 @@ class Default(ModelSQL, ModelView):
                             date.month, date.day, date.hour, date.minute,
                             int(date.second))
                 else:
-                    res[default.field.name] = eval(default.value)
+                    res[default.field.name] = safe_eval(default.value)
         return res
 
     get_default = Cache('ir_default.get_default')(get_default)
