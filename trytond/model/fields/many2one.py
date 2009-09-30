@@ -27,10 +27,10 @@ class Many2One(Field):
             value to read the target record.
         '''
         if datetime_field:
-            if ('depends' in args) and args['depends']:
-                args['depends'].append(datetime_field)
+            if depends:
+                depends.append(datetime_field)
             else:
-                args['depends'] = [datetime_field]
+                depends = [datetime_field]
         super(Many2One, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
                 states=states, priority=priority, change_default=change_default,
