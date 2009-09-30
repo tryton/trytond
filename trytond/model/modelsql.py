@@ -2160,13 +2160,12 @@ class ModelSQL(ModelStorage):
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + red_sql, red_ids)
 
+                    fetchall = cursor.fetchall()
                     cursor.execute('SELECT id ' \
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + \
-                                ' OR '.join((sql_clause,) * len(sub_ids)),
-                            reduce(lambda x, y: x + list(y),
-                                   cursor.fetchall(),
-                                   []))
+                                ' OR '.join((sql_clause,) * len(fetchall)),
+                            reduce(lambda x, y: x + list(y), fetchall, []))
 
                     if cursor.fetchone():
                         self.raise_user_error(cursor, error, context=context)
