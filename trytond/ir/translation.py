@@ -1032,9 +1032,9 @@ class TranslationUpdate(Wizard):
                             data['form']['lang']))
 
         cursor.execute('UPDATE ir_translation ' \
-                'SET fuzzy = False ' \
+                'SET fuzzy = %s ' \
                 'WHERE (value = \'\' OR value IS NULL) ' \
-                    'AND lang = %s', (data['form']['lang'],))
+                    'AND lang = %s', (False, data['form']['lang'],))
         return {}
 
     def _action_translation_open(self, cursor, user, data, context):
