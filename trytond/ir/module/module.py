@@ -219,26 +219,24 @@ class Module(ModelSQL, ModelView):
             if module.name not in graph:
                 continue
             def get_parents(name, graph):
-                parents = []
+                parents = set()
                 for node in graph:
                     if graph[name] in node.childs:
-                        if node.name not in parents:
-                            parents.append(node.name)
-                for parent in parents:
-                    for parent2 in get_parents(parent, graph):
-                        if parent2 not in parents:
-                            parents.append(parent2)
+                        parents.add(node.name)
+                for parent in parents.copy():
+                    parents.update(get_parents(parent, graph))
                 return parents
             dependencies = get_parents(module.name, graph)
             def get_childs(name, graph):
-                childs = [x.name for x in graph[name].childs]
-                childs2 = []
+                childs = set(x.name for x in graph[name].childs)
+                childs2 = set()
                 for child in childs:
-                    childs2 += get_childs(child, graph)
-                return childs + childs2
-            dependencies += get_childs(module.name, graph)
+                    childs2.update(get_childs(child, graph))
+                childs.update(childs2)
+                return childs
+            dependencies.update(get_childs(module.name, graph))
             res += self.search(cursor, user, [
-                ('name', 'in', dependencies),
+                ('name', 'in', list(dependencies)),
                 ], context=context)
         return list({}.fromkeys(res))
 
@@ -253,17 +251,14 @@ class Module(ModelSQL, ModelView):
                 self.raise_user_error(cursor, 'missing_dep',
                         (missings, module.name), context=context)
             def get_parents(name, graph):
-                parents = []
+                parents = set()
                 for node in graph:
                     if graph[name] in node.childs:
-                        if node.name not in parents:
-                            parents.append(node.name)
-                for parent in parents:
-                    for parent2 in get_parents(parent, graph):
-                        if parent2 not in parents:
-                            parents.append(parent2)
+                        parents.add(node.name)
+                for parent in parents.copy():
+                    parents.update(get_parents(parent, graph))
                 return parents
-            dependencies = get_parents(module.name, graph)
+            dependencies = list(get_parents(module.name, graph))
             module_install_ids = self.search(cursor, user, [
                 ('name', 'in', dependencies),
                 ('state', '=', 'uninstalled'),
@@ -283,12 +278,13 @@ class Module(ModelSQL, ModelView):
                 self.raise_user_error(cursor, user, 'missing_dep',
                         (missings, module.name), context=context)
             def get_childs(name, graph):
-                childs = [x.name for x in graph[name].childs]
-                childs2 = []
+                childs = set(x.name for x in graph[name].childs)
+                childs2 = set()
                 for child in childs:
-                    childs2 += get_childs(child, graph)
-                return childs + childs2
-            dependencies = get_childs(module.name, graph)
+                    childs2.update(get_childs(child, graph))
+                childs.update(childs2)
+                return childs
+            dependencies = list(get_childs(module.name, graph))
             module_installed_ids = self.search(cursor, user, [
                 ('name', 'in', dependencies),
                 ('state', '=', 'installed'),
