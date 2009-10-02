@@ -1605,6 +1605,22 @@ class ModelSingletonTestCase(unittest.TestCase):
         default = self.singleton.default_get(['create_uid'], CONTEXT, False)
         self.assert_(len(default) == 1)
 
+    def test0050search(self):
+        '''
+        Test search method.
+        '''
+        self.singleton.delete(self.singleton.search([], 0, None, None,
+            CONTEXT), CONTEXT)
+
+        singleton_ids = self.singleton.search([], 0, None, None, CONTEXT)
+        self.assert_(singleton_ids == [1])
+
+        singleton_ids = self.singleton.search([], 0, 1, None, CONTEXT)
+        self.assert_(singleton_ids == [1])
+
+        singleton_ids = self.singleton.search([], 0, None, None, CONTEXT, True)
+        self.assert_(singleton_ids == 1)
+
 
 class MPTTTestCase(unittest.TestCase):
     '''
