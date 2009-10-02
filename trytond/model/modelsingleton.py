@@ -77,6 +77,8 @@ class ModelSingleton(ModelStorage):
         res = super(ModelSingleton, self).search(cursor, user, domain,
                 offset=0, limit=None, order=None, context=None, count=False)
         if not res:
+            if count:
+                return 1
             return [1]
         return res
 
