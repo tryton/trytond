@@ -1282,7 +1282,7 @@ class ModelSQL(ModelStorage):
             table_query = '(' + table_query + ') AS '
 
         if self._history and context.get('_datetime'):
-            table_query = self._table + '__history AS '
+            table_query = '"' + self._table + '__history" AS '
 
         tables = [table_query + '"' + self._table + '"']
 
