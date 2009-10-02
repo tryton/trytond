@@ -614,6 +614,8 @@ class ModelSQL(ModelStorage):
                         and self._columns[field].datetime_field:
                     ctx = context.copy()
                     for record in res:
+                        if not record[field]:
+                            continue
                         ctx['_datetime'] = \
                                 record[self._columns[field].datetime_field]
                         record2 = obj.read(cursor, user, record[field],
