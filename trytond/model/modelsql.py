@@ -580,9 +580,21 @@ class ModelSQL(ModelStorage):
         func_fields = {}
         for field in fields_post:
             if isinstance(self._columns[field], fields.Function):
-                key = (self._columns[field].fnct, self._columns[field].arg)
+                key = (self._columns[field].fnct, self._columns[field].arg,
+                        self._columns[field].datetime_field)
                 func_fields.setdefault(key, [])
                 func_fields[key].append(field)
+                continue
+            if hasattr(self._columns[field], 'datetime_field') \
+                    and self._columns[field].datetime_field:
+                ctx = context.copy()
+                for record in res:
+                    ctx['_datetime'] = \
+                            record[self._columns[field].datetime_field]
+                    res2 = self._columns[field].get(cursor, user,
+                            [record['id']], self, field, values=[record],
+                            context=ctx)
+                    record[field] = res2[record['id']]
                 continue
             # get the value of that field for all records/ids
             res2 = self._columns[field].get(cursor, user, ids, self, field,
@@ -592,6 +604,17 @@ class ModelSQL(ModelStorage):
         for i in func_fields:
             field_list = func_fields[i]
             field = field_list[0]
+            datetime_field = i[2]
+            if datetime_field:
+                ctx = context.copy()
+                for record in res:
+                    ctx['_datetime'] = record[datetime_field]
+                    res2 = self._columns[field].get(cursor, user,
+                            [record['id']], self, field_list, values=[record],
+                            context=ctx)
+                    for field in res2:
+                        record[field] = res2[field][record['id']]
+                continue
             res2 = self._columns[field].get(cursor, user, ids, self, field_list,
                     values=res, context=context)
             for field in res2:
