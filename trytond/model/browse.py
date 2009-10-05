@@ -123,8 +123,7 @@ class BrowseRecord(object):
 
             # add datetime_field
             for i, j in ffields:
-                if j._type == 'many2one' and hasattr(j, 'datetime_field') \
-                        and j.datetime_field:
+                if hasattr(j, 'datetime_field') and j.datetime_field:
                     if j.datetime_field in self._model._columns:
                         col = self._model._columns[j.datetime_field]
                     else:
@@ -165,12 +164,15 @@ class BrowseRecord(object):
                                     context=ctx)
                     elif model and j._type in ('one2many', 'many2many') \
                             and len(data[i]):
+                        ctx = self._context
+                        if hasattr(j, 'datetime_field') and j.datetime_field:
+                            ctx = self._context.copy()
+                            ctx['_datetime'] = data[j.datetime_field]
                         data[i] = BrowseRecordList([BrowseRecord(self._cursor,
                             self._user,
                             isinstance(x, (list, tuple)) and x[0] or x, model,
                             local_cache=self._local_cache,
-                            context=self._context) for x in data[i]],
-                            self._context)
+                            context=ctx) for x in data[i]], ctx)
                     if isinstance(j, fields.Function):
                         self._local_data.setdefault(data['id'], {})[i] = data[i]
                         del data[i]

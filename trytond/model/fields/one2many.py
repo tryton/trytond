@@ -11,10 +11,10 @@ class One2Many(Field):
     _type = 'one2many'
 
     def __init__(self, model_name, field, string='', add_remove=None, order=None,
-            help='', required=False, readonly=False, domain=None, states=None,
-            priority=0, change_default=False, translate=False, select=0,
-            on_change=None, on_change_with=None, depends=None, order_field=None,
-            context=None):
+            datetime_field=None, help='', required=False, readonly=False,
+            domain=None, states=None, priority=0, change_default=False,
+            translate=False, select=0, on_change=None, on_change_with=None,
+            depends=None, order_field=None, context=None):
         '''
         :param model_name: The name of the targeted model.
         :param field: The name of the field that handle the reverse many2one.
@@ -23,7 +23,14 @@ class One2Many(Field):
         :param order:  a list of tuples that are constructed like this:
             ``('field name', 'DESC|ASC')``
             allowing to specify the order of result.
+        :param datetime_field: The name of the field that contains the datetime
+            value to read the target records.
         '''
+        if datetime_field:
+            if depends:
+                depends.append(datetime_field)
+            else:
+                depends = [datetime_field]
         super(One2Many, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
                 states=states, priority=priority, change_default=change_default,
@@ -34,6 +41,7 @@ class One2Many(Field):
         self.field = field
         self.add_remove = add_remove
         self.order = order
+        self.datetime_field = datetime_field
     __init__.__doc__ += Field.__init__.__doc__
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):

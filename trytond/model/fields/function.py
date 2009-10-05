@@ -13,11 +13,11 @@ class Function(Field):
 
     def __init__(self, fnct, arg=None, fnct_inv='', fnct_inv_arg=None,
             type='float', fnct_search='', model_name=None, selection=None,
-            digits=None, relation=None, add_remove=None, string='', help='',
-            required=False, readonly=False, domain=None, states=None,
-            priority=0, change_default=False, translate=False, select=0,
-            on_change=None, on_change_with=None, depends=None, order_field=None,
-            context=None):
+            digits=None, relation=None, add_remove=None, datetime_field=None,
+            string='', help='', required=False, readonly=False, domain=None,
+            states=None, priority=0, change_default=False, translate=False,
+            select=0, on_change=None, on_change_with=None, depends=None,
+            order_field=None, context=None):
         '''
         :param fnct: The name of the function.
         :param arg: Argument for the function.
@@ -30,7 +30,14 @@ class Function(Field):
         :param digits: See Float.
         :param relation: Like model_name.
         :param add_remove: See Many2One.
+        :param datetime_field: The name of the field that contains the datetime
+            value to read the target records.
         '''
+        if datetime_field:
+            if depends:
+                depends.append(datetime_field)
+            else:
+                depends = [datetime_field]
         super(Function, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
                 states=states, priority=priority, change_default=change_default,
@@ -51,6 +58,7 @@ class Function(Field):
         if relation:
             self.model_name = relation
         self.add_remove = add_remove
+        self.datetime_field = datetime_field
     __init__.__doc__ += Field.__init__.__doc__
 
     def search(self, cursor, user, model, name, args, context=None):

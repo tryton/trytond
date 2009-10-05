@@ -1,3 +1,4 @@
+* Add datetime_field on xxx2Many to use a specific _datetime when reading the related record
 * Add new tool safe_eval
 * Handle sequence and history renaming when renaming table
 * Add old_password to set_preferences of res.user on password change
