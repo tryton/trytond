@@ -1677,10 +1677,10 @@ class ModelSQL(ModelStorage):
                             'ir_translation.value, \'\'), ' \
                             + '"' + table._table + '".' + domain[i][0] + ')'
 
-                    query1 = '(SELECT "' + table._table + '".id ' \
+                    query1 = 'SELECT "' + table._table + '".id ' \
                             'FROM ' + table_query + '"' + table._table + '" ' \
                             + table_join + ' ' \
-                            'WHERE (' + trans_field + ' ' + domain[i][1] + ' %s))'
+                            'WHERE (' + trans_field + ' ' + domain[i][1] + ' %s)'
                     query2 = table_args + table_join_args + [domain[i][2]]
                     domain[i] = ('id', 'inselect', (query1, query2), table)
                 else:
