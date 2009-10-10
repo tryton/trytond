@@ -51,7 +51,9 @@ def monitor():
         if os.path.splitext(path)[1] in ['.pyc', '.pyo', '.pyd']:
             path = path[:-1]
         if _modified(path):
-            if subprocess.call((sys.executable, '-c', 'import %s' % module)):
+            if subprocess.call((sys.executable, '-c', 'import %s' % module),
+                    cwd=os.path.dirname(os.path.abspath(os.path.normpath(
+                        os.path.join(__file__, '..'))))):
                 modified = False
                 break
             modified = True
