@@ -956,8 +956,6 @@ class ModelSQL(ModelStorage):
         return True
 
     def delete(self, cursor, user, ids, context=None):
-        super(ModelSQL, self).delete(cursor, user, ids, context=context)
-
         if context is None:
             context = {}
 
@@ -1087,6 +1085,8 @@ class ModelSQL(ModelStorage):
                 model_ids = [x[0] for x in cursor.fetchall()]
                 if model_ids:
                     model.delete(cursor, user, model_ids, context=delete_ctx)
+
+            super(ModelSQL, self).delete(cursor, user, sub_ids, context=context)
 
             try:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
