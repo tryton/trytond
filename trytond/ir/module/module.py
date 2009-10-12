@@ -158,7 +158,6 @@ class Module(ModelSQL, ModelView):
             'button_uninstall_cancel': True,
             'button_upgrade': True,
             'button_upgrade_cancel': True,
-            'button_update_translations': True,
             'on_write': False,
         })
         self._error_messages.update({
@@ -329,20 +328,6 @@ class Module(ModelSQL, ModelView):
 
     def button_upgrade_cancel(self, cursor, user, ids, context=None):
         self.write(cursor, user, ids, {'state': 'installed'}, context=context)
-        return True
-
-    def button_update_translations(self, cursor, user, ids, context=None):
-        lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [('translatable', '=', True)],
-                context=context)
-        langs = lang_obj.browse(cursor, user, lang_ids, context=context)
-        for module in self.browse(cursor, user, ids, context=context):
-            files = Module.get_module_info(module.name).get('translations', {})
-            for lang in langs:
-                if files.has_key(lang.code):
-                    filepath = os.path.join(MODULES_PATH, module.name,
-                            files[lang.code])
-                    tools.trans_load(filepath, lang.code)
         return True
 
     # update the list of available packages
