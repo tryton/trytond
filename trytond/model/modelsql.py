@@ -1066,7 +1066,7 @@ class ModelSQL(ModelStorage):
                 if not hasattr(model, 'search') \
                         or not hasattr(model, 'write'):
                     continue
-                red_sql2, red_ids2 = reduce_ids(field_name, sub_ids)
+                red_sql2, red_ids2 = reduce_ids('"' + field_name + '"', sub_ids)
                 cursor.execute('SELECT id FROM "' + model._table + '" ' \
                         'WHERE ' + red_sql2, red_ids2)
                 model_ids = [x[0] for x in cursor.fetchall()]
@@ -1079,7 +1079,7 @@ class ModelSQL(ModelStorage):
                 if not hasattr(model, 'search') \
                         or not hasattr(model, 'delete'):
                     continue
-                red_sql2, red_ids2 = reduce_ids(field_name, sub_ids)
+                red_sql2, red_ids2 = reduce_ids('"' + field_name + '"', sub_ids)
                 cursor.execute('SELECT id FROM "' + model._table + '" ' \
                         'WHERE ' + red_sql2, red_ids2)
                 model_ids = [x[0] for x in cursor.fetchall()]
