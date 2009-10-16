@@ -20,11 +20,11 @@ error,ir.cron,0,"The following action failed to execute properly: ""%s""
 
 %s
 ",0
-error,ir.lang,0,decimal_point and thousands_sep must be different!,decimal_point et thousands_sep doivent être différents !,0
+error,ir.lang,0,decimal_point and thousands_sep must be different!,Le séparateur de décimale et le séparateur des centaines doivent être différents !,0
 error,ir.lang,0,Invalid Grouping!,Groupement incorrect !,0
 error,ir.lang,0,The date format is not valid!,Le format de date est incorrect !,0
 error,ir.model,0,The model must be unique!,Le modèle doit être unique !,0
-error,ir.model.access,0,Only one record by model and group is allowed!,Un seul enregistrement par modèle et group est autorisé !,0
+error,ir.model.access,0,Only one record by model and group is allowed!,Un seul enregistrement par modèle et groupe est autorisé !,0
 error,ir.model.access,0,You can not create this kind of document! (%s),Vous ne pouvez pas créer ce type de document ! (%s),0
 error,ir.model.access,0,You can not delete this document! (%s),Vous ne pouvez pas supprimer ce document ! (%s),0
 error,ir.model.access,0,You can not read this document! (%s),Vous ne pouvez pas lire ce document ! (%s),0
@@ -48,6 +48,7 @@ error,read_error,0,"You try to read records that don't exist anymore!
 (Type du document: %s)",0
 error,required_field,0,"The field ""%s"" on ""%s"" is required.","Le champ ""%s"" de ""%s"" est requis.",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Le champ ""%s"" de ""%s"" est requis.",0
+error,size_validation_record,0,"The field ""%s"" on ""%s"" is too long.","Le champ ""%s"" de ""%s"" est trop long",0
 error,write_error,0,"You try to write on records that don't exist anymore!
 (Document type: %s)","Vous essayez d'écrire sur un enregistrement qui n'existe plus !
 (Type du document: %s)",0
@@ -63,7 +64,6 @@ field,"ir.action.act_window,limit",0,Limit,Limite,0
 field,"ir.action.act_window,rec_name",0,Name,Nom,0
 field,"ir.action.act_window,res_model",0,Model,Modèle,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Critères de recherche,0
-field,"ir.action.act_window,usage",0,Action Usage,Utilisation,0
 field,"ir.action.act_window.view,act_window",0,Action,Action,0
 field,"ir.action.act_window.view,rec_name",0,Name,Nom,0
 field,"ir.action.act_window,views",0,Views,Vues,0
@@ -101,6 +101,13 @@ field,"ir.action.wizard,action",0,Action,Action,0
 field,"ir.action.wizard,email",0,Email,E-mail,0
 field,"ir.action.wizard,model",0,Model,Modèle,0
 field,"ir.action.wizard,rec_name",0,Name,Nom,0
+field,"ir.action.wizard_size,height",0,Height,Hauteur,0
+field,"ir.action.wizard_size,model",0,Model,Modèle,0
+field,"ir.action.wizard_size,rec_name",0,Name,Nom,0
+field,"ir.action.wizard_size,user",0,User,Utilisateur,0
+field,"ir.action.wizard_size,width",0,Width,Largeur,0
+field,"ir.action.wizard_size,wizard",0,Wizard,Assistant,0
+field,"ir.action.wizard,window",0,Window,Onglet,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Nom de l'assistant,0
 field,"ir.attachment,collision",0,Collision,Collision,0
 field,"ir.attachment,datas",0,Datas,Données,0
@@ -215,6 +222,10 @@ field,"ir.rule.group,global_p",0,Global,Global,0
 field,"ir.rule.group,groups",0,Groups,Groupes,0
 field,"ir.rule.group,model",0,Model,Modèle,0
 field,"ir.rule.group,name",0,Name,Nom,0
+field,"ir.rule.group,perm_create",0,Create Access,Accès en creation,0
+field,"ir.rule.group,perm_delete",0,Delete Access,Accès à la suppression,1
+field,"ir.rule.group,perm_read",0,Read Access,Accès en lecture,0
+field,"ir.rule.group,perm_write",0,Write Access,Accès en écriture,0
 field,"ir.rule.group,rec_name",0,Name,Nom,0
 field,"ir.rule.group,rules",0,Tests,Tests,0
 field,"ir.rule.group,users",0,Users,Utilisateurs,0
@@ -292,6 +303,7 @@ help,"ir.action.act_window,limit",0,Default limit for the list view,Limite par d
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Critères de recherche par défaut pour la vue liste,0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Utiliser le nom de l'action comme nom de la fenêtre,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Définit le style à appliquer sur le rapport.,0
+help,"ir.action.wizard,window",0,Run wizard in a new window,Lancer l'assistant dans un nouvel onglet,0
 help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Nombre de fois que la fonction est appelée,
 une valeur négative indique que la fonction sera toujours appelée.",0
@@ -349,9 +361,11 @@ model,"ir.action,name",act_view_sc_form,View Shortcuts,Raccourcis,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Largeur de la vue arbre,0
 model,"ir.action,name",act_action_act_window_form,Window Actions,Actions de la fenêtre,0
 model,"ir.action,name",act_action_wizard_form,Wizards,Assistants,0
+model,"ir.action,name",act_action_wizard_size_form,Wizard Sizes,Tailles des assistants,0
 model,"ir.action.report,name",0,Action report,Action rapport,0
 model,"ir.action.url,name",0,Action URL,Action URL,0
 model,"ir.action.wizard,name",0,Action wizard,Action assistant,0
+model,"ir.action.wizard_size,name",0,Action Wizard Size,Action taille assistant,0
 model,"ir.attachment,name",0,Attachment,Pièce jointe,0
 model,"ir.cache,name",0,Cache,Cache,0
 model,"ir.cron,name",0,Cron,Cron,0
@@ -359,7 +373,13 @@ model,"ir.date,name",0,Date,Date,0
 model,"ir.default,name",0,Default,Défaut,0
 model,"ir.export.line,name",0,Export line,Ligne d'export,0
 model,"ir.export,name",0,Export,Export,0
+model,"ir.lang,name",lang_cs,Czech,,0
+model,"ir.lang,name",lang_en,English,,0
+model,"ir.lang,name",lang_fr,French,,0
+model,"ir.lang,name",lang_de,German,,0
 model,"ir.lang,name",0,Language,Langue,0
+model,"ir.lang,name",lang_es_CO,Spanish (Colombia),,0
+model,"ir.lang,name",lang_es,Spanish (Spain),,0
 model,"ir.model.access,name",0,Model access,Accès de modèle,0
 model,"ir.model.data,name",0,Model data,Données de modèle,0
 model,"ir.model.field,name",0,Model field,Champ de modèle,0
@@ -426,6 +446,7 @@ model,"ir.ui.menu,name",menu_view_sc,View Shortcuts,Raccourcis de la vue,0
 model,"ir.ui.menu,name",menu_view_tree_width,View Tree Width,Largeur des vues arbres,0
 model,"ir.ui.menu,name",menu_action_act_window,Window Actions,Actions de la fenêtre,0
 model,"ir.ui.menu,name",menu_action_wizard,Wizards,Assistants,0
+model,"ir.ui.menu,name",menu_action_wizard_size,Wizard Sizes,Tailles des assistants,0
 model,"ir.ui.view,name",0,View,Vue,0
 model,"ir.ui.view_sc,name",0,View shortcut,Vue raccourci,0
 model,"ir.ui.view_tree_width,name",0,View Tree Width,Largeur de vue arbre,0
@@ -542,22 +563,30 @@ selection,"ir.ui.view,type",0,Form,Formulaire,0
 selection,"ir.ui.view,type",0,Graph,Graphique,0
 selection,"ir.ui.view,type",0,Tree,Arbre,0
 view,ir.action,0,Action,Action,0
-view,ir.action,0,Keyword,Mot-clè,0
-view,ir.action,0,Keywords,Mots-clès,0
+view,ir.action,0,General,Général,0
+view,ir.action,0,Keyword,Mot-clé,0
+view,ir.action,0,Keywords,Mots-clés,0
 view,ir.action.act_window,0,General,Général,0
-view,ir.action.act_window,0,Keyword,Mot-clè,0
-view,ir.action.act_window,0,Keywords,Mots-clès,0
-view,ir.action.act_window,0,Open a Window,Ouvrir un fenêtre,0
+view,ir.action.act_window,0,Keyword,Mot-clé,0
+view,ir.action.act_window,0,Keywords,Mots-clés,0
+view,ir.action.act_window,0,Open a Window,Ouvrir une fenêtre,0
 view,ir.action.act_window,0,Open Window,Ouvre la fenêtre,0
 view,ir.action.act_window,0,Views,Vues,0
-view,ir.action.report,0,Keyword,Mot-clè,0
-view,ir.action.report,0,Keywords,Mots-clès,0
+view,ir.action.report,0,General,Général,0
+view,ir.action.report,0,Keyword,Mot-clé,0
+view,ir.action.report,0,Keywords,Mots-clés,0
 view,ir.action.report,0,Report,Rapport,0
 view,ir.action.report,0,Report xml,Rapport xml,0
+view,ir.action.url,0,General,Général,0
+view,ir.action.url,0,Keyword,Mot-clé,0
+view,ir.action.url,0,Keywords,Mots-clés,0
 view,ir.action.url,0,URL,URL,0
-view,ir.action.wizard,0,Keyword,Mot-clè,0
-view,ir.action.wizard,0,Keywords,Mots-clès,0
+view,ir.action.wizard,0,General,Général,0
+view,ir.action.wizard,0,Keyword,Mot-clé,0
+view,ir.action.wizard,0,Keywords,Mots-clés,0
 view,ir.action.wizard,0,Wizard,Assistant,0
+view,ir.action.wizard_size,0,Wizard Size,Taille de l'assistant,0
+view,ir.action.wizard_size,0,Wizard Sizes,Tailles des assistants,0
 view,ir.attachment,0,Attachments,Pièces jointes,0
 view,ir.cron,0,Action to trigger,Action à suivre,0
 view,ir.cron,0,Scheduled Action,Action planifiée,0
