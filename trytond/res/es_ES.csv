@@ -21,8 +21,8 @@ field,"ir.rule.group-res.user,user_id",0,User,Usuario,0
 field,"ir.ui.menu-res.group,gid",0,Group,Grupo,0
 field,"ir.ui.menu-res.group,menu_id",0,Menu,Menú,0
 field,"ir.ui.menu-res.group,rec_name",0,Name,Nombre,0
-field,"res.group,menu_access",0,Access Menu,Permisos de los menús,0
-field,"res.group,model_access",0,Access Model,Permisos de los modelos,0
+field,"res.group,menu_access",0,Access Menu,Menú de acceso,0
+field,"res.group,model_access",0,Access Model,Modelo de acceso,0
 field,"res.group,name",0,Name,Nombre,0
 field,"res.group,rec_name",0,Name,Nombre,0
 field,"res.group,rule_groups",0,Rules,Reglas,0
@@ -32,7 +32,7 @@ field,"res.request,active",0,Active,Activo,0
 field,"res.request,act_to",0,To,A,0
 field,"res.request,body",0,Body,Cuerpo,0
 field,"res.request,date_sent",0,Date,Fecha,0
-field,"res.request,history",0,History,Historia,0
+field,"res.request,history",0,History,Histórico,0
 field,"res.request.history,act_from",0,From,De,0
 field,"res.request.history,act_to",0,To,A,0
 field,"res.request.history,body",0,Body,Cuerpo,0
@@ -65,7 +65,7 @@ field,"res.user,groups",0,Groups,Grupos,0
 field,"res.user,language",0,Language,Idioma,0
 field,"res.user,language_direction",0,Language Direction,Dirección del idioma,0
 field,"res.user,login",0,Login,Nombre de usuario,0
-field,"res.user,menu",0,Menu Action,Acción del menú,0
+field,"res.user,menu",0,Menu Action,Menú de acciones,0
 field,"res.user,name",0,Name,Nombre,0
 field,"res.user,password",0,Password,Contraseña,0
 field,"res.user,rec_name",0,Name,Nombre,0
@@ -82,43 +82,43 @@ field,"res.user.warning,rec_name",0,Name,Nombre,0
 field,"res.user,warnings",0,Warnings,Avisos,0
 field,"res.user.warning,user",0,User,Usuario,0
 model,"ir.action,name",act_group_form,Groups,Grupos,0
-model,"ir.action,name",act_request_link_form,Request Links,Enlaces de solicitudes,0
+model,"ir.action,name",act_request_link_form,Request Links,Enlaces a solicitudes,0
 model,"ir.action,name",act_request_form,Requests,Solicitudes,0
 model,"ir.action,name",act_user_form,Users,Usuarios,0
 model,"ir.action-res.group,name",0,Action - Group,Acción - Grupo,0
-model,"ir.model.field-res.group,name",0,Model Field Group Rel,Relación de grupo de modelo de campo,0
+model,"ir.model.field-res.group,name",0,Model Field Group Rel,Relación entre grupo y campo del modelo,0
 model,"ir.rule.group-res.group,name",0,Rule Group - Group,Regla de grupo - grupo,0
 model,"ir.rule.group-res.user,name",0,Rule Group - User,Regla de grupo - usuario,0
 model,"ir.ui.menu,name",menu_group_form,Groups,Grupos,0
-model,"ir.ui.menu,name",menu_request_link_form,Request Links,Enlaces de solicitudes,0
+model,"ir.ui.menu,name",menu_request_link_form,Request Links,Enlaces a solicitudes,0
 model,"ir.ui.menu,name",menu_request_form,Requests,Solicitudes,0
 model,"ir.ui.menu,name",menu_res,Users,Usuarios,0
 model,"ir.ui.menu,name",menu_user_form,Users,Usuarios,0
 model,"ir.ui.menu-res.group,name",0,UI Menu - Group,Menú UI - Grupo,0
 model,"res.group,name",group_admin,Administration,Administración,0
 model,"res.group,name",0,Group,Grupo,0
-model,"res.request.history,name",0,Request history,Histórico de peticiones,0
-model,"res.request.link,name",0,Request link,Enlace de petición,0
+model,"res.request.history,name",0,Request history,Histórico de solicitudes,0
+model,"res.request.link,name",0,Request link,Enlace a solicitud,0
 model,"res.request.link,name",request_link_cron,Scheduler,Programador de tareas,0
-model,"res.request,name",0,Request,Petición,0
-model,"res.request.reference,name",0,Request Reference,Referencia de la petición,0
-model,"res.user.config.init,name",0,User Config Init,Inicialización de la configuración del usuario,0
+model,"res.request,name",0,Request,Solicitud,0
+model,"res.request.reference,name",0,Request Reference,Referencia de la solicitud,0
+model,"res.user.config.init,name",0,User Config Init,Inicialización de la configuración de usuario,0
 model,"res.user,name",user_admin,Administrator,Administrador,0
 model,"res.user,name",0,User,Usuario,0
 model,"res.user-res.group,name",0,User - Group,Usuario - Grupo,0
 model,"res.user.warning,name",0,User Warning,Aviso al usuario,0
-selection,"res.request.history,priority",0,High,Alto,0
-selection,"res.request.history,priority",0,Low,Bajo,0
+selection,"res.request.history,priority",0,High,Alta,0
+selection,"res.request.history,priority",0,Low,Baja,0
 selection,"res.request.history,priority",0,Normal,Normal,0
 selection,"res.request.history,state",0,Chatting,En discusión,0
-selection,"res.request.history,state",0,Closed,Cerrado,0
+selection,"res.request.history,state",0,Closed,Cerrada,0
 selection,"res.request.history,state",0,Draft,Borrador,0
 selection,"res.request.history,state",0,Waiting,En espera,0
-selection,"res.request,priority",0,High,Alto,0
-selection,"res.request,priority",0,Low,Bajo,0
+selection,"res.request,priority",0,High,Alta,0
+selection,"res.request,priority",0,Low,Baja,0
 selection,"res.request,priority",0,Normal,Normal,0
 selection,"res.request,state",0,Chatting,En discusión,0
-selection,"res.request,state",0,Closed,Cerrado,0
+selection,"res.request,state",0,Closed,Cerrada,0
 selection,"res.request,state",0,Draft,Borrador,0
 selection,"res.request,state",0,Waiting,En espera,0
 view,ir.module.module,0,Cancel Installation,Cancelar instalación,0
@@ -136,10 +136,10 @@ view,res.request,0,Reply,Responder,0
 view,res.request,0,Request,Solicitud,0
 view,res.request,0,Requests,Solicitudes,0
 view,res.request,0,Send,Enviar,0
-view,res.request.history,0,Request History,Historial de solicitudes,0
-view,res.request.link,0,Request Link,Enlace de solicitud,0
-view,res.request.reference,0,Request Reference,Referencia de solicitud,0
-view,res.request.reference,0,Request References,Referencias de solicitud,0
+view,res.request.history,0,Request History,Histórico de solicitudes,0
+view,res.request.link,0,Request Link,Enlace a solicitud,0
+view,res.request.reference,0,Request Reference,Referencia de la solicitud,0
+view,res.request.reference,0,Request References,Referencias de la solicitud,0
 view,res.user,0,Preferences,Preferencias,0
 view,res.user,0,Security,Seguridad,0
 view,res.user,0,User,Usuario,0

@@ -163,10 +163,10 @@ field,"ir.lang,translatable",0,Translatable,Traducible,0
 field,"ir.model.access,description",0,Description,Descripción,0
 field,"ir.model.access,group",0,Group,Grupo,0
 field,"ir.model.access,model",0,Model,Modelo,0
-field,"ir.model.access,perm_create",0,Create Access,Permiso para crear,0
-field,"ir.model.access,perm_delete",0,Delete Access,Permiso para borrar,0
-field,"ir.model.access,perm_read",0,Read Access,Permiso para leer,0
-field,"ir.model.access,perm_write",0,Write Access,Permiso para escribir,0
+field,"ir.model.access,perm_create",0,Create Access,Acceso para crear,0
+field,"ir.model.access,perm_delete",0,Delete Access,Acceso para borrar,0
+field,"ir.model.access,perm_read",0,Read Access,Acceso para leer,0
+field,"ir.model.access,perm_write",0,Write Access,Acceso para escribir,0
 field,"ir.model.access,rec_name",0,Name,Nombre,0
 field,"ir.model.data,date_init",0,Init Date,Fecha de inicio,0
 field,"ir.model.data,date_update",0,Update Date,Fecha de actualización,0
@@ -422,7 +422,7 @@ model,"ir.ui.menu,name",menu_localization,Localization,Localización,0
 model,"ir.ui.menu,name",menu_menu_form,Menus,Menús,0
 model,"ir.ui.menu,name",menu_models,Models,Modelos,0
 model,"ir.ui.menu,name",menu_model_form,Models,Modelos,0
-model,"ir.ui.menu,name",menu_model_access_form,Models Access,Permisos de los modelos,0
+model,"ir.ui.menu,name",menu_model_access_form,Models Access,Acceso a los modelos,0
 model,"ir.ui.menu,name",menu_modules,Modules,Módulos,0
 model,"ir.ui.menu,name",menu_module_form,Modules,Módulos,0
 model,"ir.ui.menu,name",menu_module_install_upgrade,Perform Pending Installation/Upgrade,Realizar Instalaciones/Actualizaciones pendientes,0
@@ -601,7 +601,7 @@ view,ir.lang,0,Languages,Idiomas,0
 view,ir.lang,0,Numbers Formatting,Formato de números,0
 view,ir.model,0,Fields Description,Descripción de campos,0
 view,ir.model,0,Model Description,Descripción del modelo,0
-view,ir.model.access,0,Access controls,Control de permisos,0
+view,ir.model.access,0,Access controls,Controles de acceso,0
 view,ir.model.field,0,Fields,Campos,0
 view,ir.model.print_model_graph.init,0,Print Model Graph,Imprimir el gráfico del modelo,0
 view,ir.module.module,0,Cancel Installation,Cancelar instalación,0
