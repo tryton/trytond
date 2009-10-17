@@ -12,7 +12,7 @@
     'description_es_ES': '''Módulo basico que provee el concepto y la administración de servicios WebDAV integrados.
 ''',
     'description_fr_FR': '''Module de base fournissant les concepts et l'administration des fonctionnalités integrées de WebDAV.
-'''
+''',
     'active': True,
     'depends': ['ir'],
     'xml': [
