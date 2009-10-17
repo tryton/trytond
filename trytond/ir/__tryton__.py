@@ -3,12 +3,16 @@
 {
     'name': 'IR',
     'name_de_DE': 'Interne Administration',
+    'name_es_ES': 'Administración interna',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of models, actions, sequences, localizations, cron jobs etc.
 ''',
     'description_de_DE': '''Basismodul für interne Aufgaben der Anwendung
 
  - Stellt Konzept und Administration für Modelle, Aktionen, Sequenzen, Lokalisierungen, Zeitplaner etc. zur Verfügung
+''',
+    'description_es_ES': '''Módulo básico que gestiona las tareas internas de la aplicación.
+ - Provee los conceptos y administración de modelos, acciones, secuencias, localización, tareas programadas, etc...
 ''',
     'active': True,
     'xml': [

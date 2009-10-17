@@ -3,9 +3,12 @@
 {
     'name': 'Workflow',
     'name_de_DE': 'Workflow',
+    'name_es_ES': 'Flujo de trabajo',
     'description': '''Basic module providing concept and administration of workflows.
 ''',
     'description_de_DE': '''Basismodul für Konzept und Administration von Workflows
+''',
+    'description_es_ES': '''Módulo básico que provee el concepto y administración de flujos de trabajo.
 ''',
     'active': True,
     'depends': ['ir', 'res'],

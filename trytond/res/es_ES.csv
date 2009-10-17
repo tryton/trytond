@@ -1,5 +1,6 @@
 type,name,res_id,src,value,fuzzy
 error,res.group,0,The name of the group must be unique!,El nombre del grupo debe ser único,0
+error,res.user,0,Wrong password!,Contraseña incorrecta,0
 error,res.user,0,You can not have two users with the same login!,No puede tener dos usuarios con el mismo nombre de usuario,0
 error,res.user,0,"You can not remove the root user
 as it is used internally for resources
@@ -57,9 +58,10 @@ field,"res.request.reference,reference",0,Reference,Referencia,0
 field,"res.request.reference,request",0,Request,Solicitud,0
 field,"res.request,references",0,References,Referencias,0
 field,"res.request,state",0,State,Estado,0
-field,"res.request,trigger_date",0,Trigger Date,Fecha de activación,0
+field,"res.request,trigger_date",0,Trigger Date,Fecha del disparo,0
 field,"res.user,action",0,Home Action,Acción inicial,0
 field,"res.user,active",0,Active,Activo,0
+field,"res.user,connections",0,Connections,Conexiones,0
 field,"res.user,email",0,Email,Correo electrónico,0
 field,"res.user,groups",0,Groups,Grupos,0
 field,"res.user,language",0,Language,Idioma,0
@@ -73,6 +75,7 @@ field,"res.user-res.group,gid",0,Group,Grupo,0
 field,"res.user-res.group,rec_name",0,Name,Nombre,0
 field,"res.user-res.group,uid",0,User,Usuario,0
 field,"res.user,rule_groups",0,Rules,Reglas,0
+field,"res.user,salt",0,Salt,Sal,0
 field,"res.user,signature",0,Signature,Firma,0
 field,"res.user,status_bar",0,Status Bar,Barra de estado,0
 field,"res.user,timezone",0,Timezone,Zona horaria,0

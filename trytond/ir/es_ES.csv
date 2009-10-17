@@ -589,7 +589,7 @@ view,ir.action.wizard,0,Wizard,Asistente,0
 view,ir.action.wizard_size,0,Wizard Size,Tamaño del asistente,0
 view,ir.action.wizard_size,0,Wizard Sizes,Tamaños de asistente,0
 view,ir.attachment,0,Attachments,Adjuntos,0
-view,ir.cron,0,Action to trigger,Acción a lanzar,0
+view,ir.cron,0,Action to trigger,Acción a disparar,0
 view,ir.cron,0,Scheduled Action,Acción programada,0
 view,ir.cron,0,Scheduled Actions,Acciones programadas,0
 view,ir.default,0,Default,Predeterminado,0
