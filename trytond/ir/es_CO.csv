@@ -609,7 +609,7 @@ view,ir.module.module.install_upgrade.start,0,You may have to reinstall some lan
 view,ir.property,0,Properties,Propiedades,0
 view,ir.property,0,Property,Propiedad,0
 view,ir.rule,0,Test,Prueba,0
-view,ir.rule.group,0,"If there is no test defined, the rule is always satified if not global","Si no hay prueba definida, la regla se aplica siempre que no sea global",0
+view,ir.rule.group,0,"If there is no test defined, the rule is always satisfied if not global","Si no hay prueba definida, la regla se aplica siempre que no sea global",0
 view,ir.rule.group,0,Record rules,Grabar Reglas,0
 view,ir.rule.group,0,The rule is satisfied if at least one test is True,La regla se satisface si por lo menos una condición es Verdadera,0
 view,ir.sequence,0,${day},${day},0

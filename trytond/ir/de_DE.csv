@@ -634,7 +634,7 @@ view,ir.module.module.install_upgrade.start,0,You may have to reinstall some lan
 view,ir.property,0,Properties,Eigenschaften,0
 view,ir.property,0,Property,Eigenschaft,0
 view,ir.rule,0,Test,Test,0
-view,ir.rule.group,0,"If there is no test defined, the rule is always satified if not global","Wenn kein Test festgelegt wird, wird die Regel immer als gültig bewertet (außer global)",0
+view,ir.rule.group,0,"If there is no test defined, the rule is always satisfied if not global","Wenn kein Test festgelegt wird, wird die Regel immer als gültig bewertet (außer global)",0
 view,ir.rule.group,0,Record rules,Datensatzregeln,0
 view,ir.rule.group,0,The rule is satisfied if at least one test is True,"Die Regel wird als gültig bewertet, wenn wenigstens ein Test positiv ist (True)",0
 view,ir.sequence,0,${day},${day},0
