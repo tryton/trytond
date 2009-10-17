@@ -122,7 +122,7 @@ model,"ir.ui.menu,name",menu_request_form,Requests,Anfragen,0
 model,"ir.ui.menu,name",menu_res,Users,Benutzer,0
 model,"ir.ui.menu,name",menu_user_form,Users,Benutzer,0
 model,"ir.ui.menu-res.group,name",0,UI Menu - Group,Oberfläche Menü - Gruppe,0
-model,"res.group,name",group_admin,Administration,Administration Intern,0
+model,"res.group,name",group_admin,Administration,Interne Administration,0
 model,"res.group,name",0,Group,Gruppe,0
 model,"res.request.history,name",0,Request history,Bisherige Anfragen,0
 model,"res.request.link,name",0,Request link,Anfrage Verknüpfung,0
