@@ -4,6 +4,7 @@
     'name': 'Res',
     'name_de_DE': 'Benutzerverwaltung',
     'name_es_ES': 'Gestión de usuarios',
+    'name_fr_FR': 'Ressource',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of users and internal communication.
 ''',
@@ -14,6 +15,9 @@ Provides concepts and administration of users and internal communication.
     'description_es_ES': '''Módulo básico que gestiona tareas internas de la aplicación.
 
  - Provee los conceptos y administración de usuarios y comunicación interna.
+''',
+    'description_fr_FR': '''Module de base gérant les tâches internes de l'application.
+Fournit les concepts et l'administration des utilisateurs et de la communication interne.
 ''',
     'active': True,
     'depends': ['ir'],
