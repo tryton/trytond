@@ -104,6 +104,7 @@ field,"ir.action.wizard_size,rec_name",0,Name,Nombre,0
 field,"ir.action.wizard_size,user",0,User,Usuario,0
 field,"ir.action.wizard_size,width",0,Width,Ancho,0
 field,"ir.action.wizard_size,wizard",0,Wizard,Asistente,0
+field,"ir.action.wizard,window",0,Window,,0
 field,"ir.action.wizard,wiz_name",0,Wizard name,Nombre del Asistente,0
 field,"ir.attachment,collision",0,Collision,Colisión,0
 field,"ir.attachment,datas",0,Datas,Datos,0
@@ -299,6 +300,7 @@ help,"ir.action.act_window,limit",0,Default limit for the list view,Límite pred
 help,"ir.action.act_window,search_value",0,Default search criteria for the list view,Criterio de Búsqueda predeterminado para la vista de lista,0
 help,"ir.action.act_window,window_name",0,Use the action name as window name,Usar el nombre de la acción como el nombre de la ventana,0
 help,"ir.action.report,style",0,Define the style to apply on the report.,Definir el estilo para aplicar al reporte.,0
+help,"ir.action.wizard,window",0,Run wizard in a new window,,0
 help,"ir.cron,numbercall",0,"Number of times the function is called,
 a negative number indicates that the function will always be called","Cantidad de Veces que la función ha sido llamada,
 un número negativo indica que la función siempre será llamada.",0
@@ -368,7 +370,13 @@ model,"ir.date,name",0,Date,Fecha,0
 model,"ir.default,name",0,Default,Predeterminado,0
 model,"ir.export.line,name",0,Export line,Exportar línea,0
 model,"ir.export,name",0,Export,Exporte,0
+model,"ir.lang,name",lang_cs,Czech,,0
+model,"ir.lang,name",lang_en,English,,0
+model,"ir.lang,name",lang_fr,French,,0
+model,"ir.lang,name",lang_de,German,,0
 model,"ir.lang,name",0,Language,Idioma,0
+model,"ir.lang,name",lang_es_CO,Spanish (Colombia),,0
+model,"ir.lang,name",lang_es,Spanish (Spain),,0
 model,"ir.model.access,name",0,Model access,Modelo de acceso,0
 model,"ir.model.data,name",0,Model data,Modelo de dato,0
 model,"ir.model.field,name",0,Model field,Modelo de campo,0
@@ -552,6 +560,7 @@ selection,"ir.ui.view,type",0,Form,Formulario,0
 selection,"ir.ui.view,type",0,Graph,Gráfico,0
 selection,"ir.ui.view,type",0,Tree,Árbol,0
 view,ir.action,0,Action,Acción,0
+view,ir.action,0,General,General,0
 view,ir.action,0,Keyword,Palabra Clave,0
 view,ir.action,0,Keywords,Palabras Clave,0
 view,ir.action.act_window,0,General,General,0
@@ -560,11 +569,16 @@ view,ir.action.act_window,0,Keywords,Palabras Clave,0
 view,ir.action.act_window,0,Open a Window,Abrir una Ventana,0
 view,ir.action.act_window,0,Open Window,Abrir Ventana,0
 view,ir.action.act_window,0,Views,Vistas,0
+view,ir.action.report,0,General,General,0
 view,ir.action.report,0,Keyword,Palabra Clave,0
 view,ir.action.report,0,Keywords,Palabras Clave,0
 view,ir.action.report,0,Report,Reporte,0
 view,ir.action.report,0,Report xml,Reporte xml,0
+view,ir.action.url,0,General,General,0
+view,ir.action.url,0,Keyword,Palabra Clave,0
+view,ir.action.url,0,Keywords,Palabras Clave,0
 view,ir.action.url,0,URL,URL,0
+view,ir.action.wizard,0,General,General,0
 view,ir.action.wizard,0,Keyword,Palabra Clave,0
 view,ir.action.wizard,0,Keywords,Palabras Clave,0
 view,ir.action.wizard,0,Wizard,Asistente,0

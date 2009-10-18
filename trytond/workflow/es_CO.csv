@@ -24,9 +24,9 @@ field,"workflow.instance,transitions",0,,,0
 field,"workflow.instance,uid",0,User ID,Identificación del Usuario,0
 field,"workflow.instance,workflow",0,Workflow,Flujo de trabajo,0
 field,"workflow.instance,workitems",0,Workitems,Objetos de trabajo,0
+field,"workflow,model",0,Resource Model,Modelo del Recurso,0
 field,"workflow,name",0,Name,Nombre,0
 field,"workflow,on_create",0,On Create,Al Crear,0
-field,"workflow,osv",0,Resource Model,Modelo del Recurso,0
 field,"workflow,rec_name",0,Name,Nombre,0
 field,"workflow.transition,act_from",0,Source Activity,Actividad Fuente,0
 field,"workflow.transition,act_to",0,Destination Activity,Actividad destino,0
