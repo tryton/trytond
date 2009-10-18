@@ -3,7 +3,7 @@ error,access_error,0,"You try to bypass an access rule!
 (Document type: %s)","Está intentando evitar una regla de acceso
 (Tipo de documento: %s)",0
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,No puede borrar un registro involucrado en un flujo activo.,0
-error,delete_xml_record,0,You are not allowed to delete this record.,No está autorizado a eliminar este registro.,0
+error,delete_xml_record,0,You are not allowed to delete this record.,No está autorizado a borrar este registro.,0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.",El valor del campo «%s» en «%s» no es válido según su dominio.,0
 error,foreign_model_exist,0,"Could not delete ""%s"" records because they are used on field ""%s"" of ""%s"".",No se pudieron borrar «%s» registros porque se usan en el campo «%s» de «%s».,0
 error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist.",El valor del campo «%s» en «%s» no existe.,0
@@ -113,7 +113,7 @@ field,"ir.attachment,collision",0,Collision,Colisión,0
 field,"ir.attachment,datas",0,Datas,Datos,0
 field,"ir.attachment,datas_size",0,Datas size,Tamaño de los datos,0
 field,"ir.attachment,description",0,Description,Descripción,0
-field,"ir.attachment,digest",0,Digest,,0
+field,"ir.attachment,digest",0,Digest,Resumen,0
 field,"ir.attachment,link",0,Link,Enlace,0
 field,"ir.attachment,name",0,Attachment Name,Nombre del adjunto,0
 field,"ir.attachment,rec_name",0,Name,Nombre,0
