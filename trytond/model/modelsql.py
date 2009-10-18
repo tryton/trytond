@@ -1186,7 +1186,7 @@ class ModelSQL(ModelStorage):
             res = cursor.fetchall()
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
-        select_fields = ['"' + self._table + '".id']
+        select_fields = ['"' + self._table + '".id AS id']
         if self._history and context.get('_datetime') \
                 and not query_string:
             select_fields += ['COALESCE("' + self._table + '".write_date, "' + \
@@ -1195,7 +1195,7 @@ class ModelSQL(ModelStorage):
             select_fields += [(x[0] in ('create_date', 'write_date')) \
                     and ('date_trunc(\'second\', "' + \
                     self._table + '"."' + x[0] + '") AS "' + x[0] + '"') \
-                    or '"' + self._table + '"."' + x[0] + '"' \
+                    or '"' + self._table + '"."' + x[0] + '" AS "' + x[0] + '"' \
                     for x in self._columns.iteritems() \
                     if not hasattr(x[1], 'get') \
                     and (x[0] != 'id')
