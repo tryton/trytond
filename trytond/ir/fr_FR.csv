@@ -632,7 +632,7 @@ view,ir.module.module.install_upgrade.start,0,You may have to reinstall some lan
 view,ir.property,0,Properties,Propriétés,0
 view,ir.property,0,Property,Propriété,0
 view,ir.rule,0,Test,Test,0
-view,ir.rule.group,0,"If there is no test defined, the rule is always satisfied if not global","Si il n'y a pas de test définit, la règle est toujours satisfaite s'elle n'est pas globale",0
+view,ir.rule.group,0,"If there is no test defined, the rule is always satisfied if not global","Si il n'y a pas de test défini, la règle est toujours satisfaite s'elle n'est pas globale",0
 view,ir.rule.group,0,Record rules,Règles d'enregistrement,0
 view,ir.rule.group,0,The rule is satisfied if at least one test is True,La règle est satisfaite si au moins un test est vrai,0
 view,ir.sequence,0,${day},,0
