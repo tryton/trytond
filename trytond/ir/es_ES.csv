@@ -470,7 +470,7 @@ selection,"ir.cron,interval_type",0,Weeks,Semanas,0
 selection,"ir.cron,interval_type",0,Work Days,Días de trabajo,0
 selection,"ir.lang,direction",0,Left-to-right,De izquierda a derecha,0
 selection,"ir.lang,direction",0,Right-to-left,De derecha a izquierda,0
-selection,"ir.module.module.config_wizard.item,state",0,Done,Hecho,0
+selection,"ir.module.module.config_wizard.item,state",0,Done,Terminado,0
 selection,"ir.module.module.config_wizard.item,state",0,Open,Abrir,0
 selection,"ir.module.module.dependency,state",0,Installed,Instalado,0
 selection,"ir.module.module.dependency,state",0,Not Installed,No instalado,0
@@ -620,7 +620,7 @@ view,ir.module.module.config_wizard.item,0,Config Wizard Items,Configurar los el
 view,ir.module.module.install_upgrade.init,0,Note that this operation my take a few minutes.,Tenga en cuenta que esta operación puede durar varios minutos.,0
 view,ir.module.module.install_upgrade.init,0,System Upgrade,Actualización del sistema,0
 view,ir.module.module.install_upgrade.init,0,Your system will be upgraded.,Su sistema se actualizará.,0
-view,ir.module.module.install_upgrade.start,0,System upgrade done,Actualización del sistema finalizada,0
+view,ir.module.module.install_upgrade.start,0,System upgrade done,Actualización del sistema terminada,0
 view,ir.module.module.install_upgrade.start,0,The modules have been upgraded / installed !,Los módulos se han actualizado / instalado,0
 view,ir.module.module.install_upgrade.start,0,We suggest you to reload the menu tab (Ctrl+t Ctrl+r).,Le sugerimos que recargue la barra del menú (Ctrl+t Ctrl+r).,0
 view,ir.module.module.install_upgrade.start,0,You may have to reinstall some language pack.,Es posible que necesite reinstalar un paquete de idioma.,0
