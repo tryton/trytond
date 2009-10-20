@@ -1,3 +1,6 @@
+Version 1.4.1 - 2009-10-20
+* Add missing init.sql of SQLite
+
 Version 1.4.0 - 2009-10-19
 * Bug fixes (see mercurial logs for details)
 * Add datetime_field on xxx2Many to use a specific _datetime when reading the related record
