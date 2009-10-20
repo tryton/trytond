@@ -10,7 +10,6 @@ logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
 import logging.handlers
 import sys, os, signal
 import time
-from trytond.backend import Database, DatabaseOperationalError
 from config import CONFIG
 import mx.DateTime
 
@@ -25,16 +24,15 @@ except ImportError:
     hashlib = None
     import sha
 import threading
-from pool import Pool
 import string
 import random
-from trytond.monitor import monitor
 
 
 class TrytonServer(object):
 
     def __init__(self):
         CONFIG.parse()
+        from trytond.backend import Database
 
         if CONFIG['logfile']:
             logf = CONFIG['logfile']
@@ -76,6 +74,9 @@ class TrytonServer(object):
 
     def run(self):
         "Run the server and never return"
+        from trytond.backend import Database
+        from pool import Pool
+        from trytond.monitor import monitor
 
         update = False
         init = {}
