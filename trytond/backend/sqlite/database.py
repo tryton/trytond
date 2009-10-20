@@ -250,7 +250,8 @@ class Cursor(CursorInterface):
         sql = "".join(replaced)[:-2]
         try:
             if params:
-                res = self.cursor.execute(sql, params)
+                res = self.cursor.execute(sql, [isinstance(x, str) and \
+                        unicode(x, 'utf-8') or x for x in  params])
             else:
                 res = self.cursor.execute(sql)
         except:
