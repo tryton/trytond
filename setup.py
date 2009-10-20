@@ -18,6 +18,7 @@ setup(name=PACKAGE,
     packages=find_packages(exclude=['*.modules.*', 'modules.*', 'modules']),
     package_data={
         'trytond.backend.postgresql': ['init.sql'],
+        'trytond.backend.sqlite': ['init.sql'],
         'trytond.ir': ['*.xml', '*.csv'],
         'trytond.ir.module': ['*.xml'],
         'trytond.ir.ui': ['*.xml', '*.rng', '*.rnc'],
