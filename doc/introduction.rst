@@ -1,9 +1,8 @@
 Introduction
 ############
 
-Tryton is a three-tiers high-level general purpose application platform
-written in Python and use Postgresql as database engine.
+Tryton is a three-tiers high-level general purpose application platform under
+the license GPL-3 written in Python and using PostgreSQL as database engine.
 
-It is the core base of an Open Source ERP.
-
-It provides modularity, scalability and security.
+It is the core base of a complete business solution providing modularity,
+scalability and security.
