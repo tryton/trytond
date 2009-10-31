@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
@@ -1032,6 +1033,30 @@ class FieldsTestCase(unittest.TestCase):
             'char': 'foobar',
             }, CONTEXT)
 
+        char7_id = self.char.create({
+            'char': u'é',
+            }, CONTEXT)
+        self.assert_(char7_id)
+
+        char7 = self.char.read(char7_id, ['char'], CONTEXT)
+        self.assert_(char7['char'] == u'é')
+
+        char_ids = self.char.search([
+            ('char', '=', u'é'),
+            ], 0, None, None, CONTEXT)
+        self.assert_(char_ids == [char7_id])
+
+        self.char.write(char7_id, {
+            'char': 'é',
+            }, CONTEXT)
+        char7 = self.char.read(char7_id, ['char'], CONTEXT)
+        self.assert_(char7['char'] == u'é')
+
+        char_ids = self.char.search([
+            ('char', '=', 'é'),
+            ], 0, None, None, CONTEXT)
+        self.assert_(char_ids == [char7_id])
+
     def test0060text(self):
         '''
         Test Text.
@@ -1266,6 +1291,30 @@ class FieldsTestCase(unittest.TestCase):
             }, CONTEXT)
         self.assert_(text7_id)
 
+        text8_id = self.text.create({
+            'text': u'é',
+            }, CONTEXT)
+        self.assert_(text8_id)
+
+        text8 = self.text.read(text8_id, ['text'], CONTEXT)
+        self.assert_(text8['text'] == u'é')
+
+        text_ids = self.text.search([
+            ('text', '=', u'é'),
+            ], 0, None, None, CONTEXT)
+        self.assert_(text_ids == [text8_id])
+
+        self.text.write(text8_id, {
+            'text': 'é',
+            }, CONTEXT)
+        text8 = self.text.read(text8_id, ['text'], CONTEXT)
+        self.assert_(text8['text'] == u'é')
+
+        text_ids = self.text.search([
+            ('text', '=', 'é'),
+            ], 0, None, None, CONTEXT)
+        self.assert_(text_ids == [text8_id])
+
     def test0070sha(self):
         '''
         Test Sha.
@@ -1481,6 +1530,30 @@ class FieldsTestCase(unittest.TestCase):
             'sha': 'Test',
             }, CONTEXT)
         self.assert_(sha5_id)
+
+        sha6_id = self.sha.create({
+            'sha': u'é',
+            }, CONTEXT)
+        self.assert_(sha6_id)
+
+        sha6 = self.sha.read(sha6_id, ['sha'], CONTEXT)
+        self.assert_(sha6['sha'] == u'bf15be717ac1b080b4f1c456692825891ff5073d')
+
+        sha_ids = self.sha.search([
+            ('sha', '=', u'é'),
+            ], 0, None, None, CONTEXT)
+        self.assert_(sha_ids == [sha6_id])
+
+        self.sha.write(sha6_id, {
+            'sha': 'é',
+            }, CONTEXT)
+        sha6 = self.sha.read(sha6_id, ['sha'], CONTEXT)
+        self.assert_(sha6['sha'] == u'bf15be717ac1b080b4f1c456692825891ff5073d')
+
+        sha_ids = self.sha.search([
+            ('sha', '=', 'é'),
+            ], 0, None, None, CONTEXT)
+        self.assert_(sha_ids == [sha6_id])
 
 
 class ModelViewTestCase(unittest.TestCase):
