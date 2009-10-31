@@ -1,61 +1,31 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import sha
 import psycopg2
+from trytond.backend import fields
 
 
-class Field(object):
-
-    @staticmethod
-    def sql_format(value):
-        if value is None or value == False:
-            return None
-        elif isinstance(value, str):
-            return unicode(value, 'utf-8')
-        elif isinstance(value, unicode):
-            return value
-        return unicode(value)
-
-    @staticmethod
-    def sql_type(field):
-        return None
-
-
-class Boolean(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return value and 'True' or 'False'
+class Boolean(fields.Boolean):
 
     @staticmethod
     def sql_type(field):
         return ('bool', 'bool')
 
 
-class Integer(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return int(value or 0)
+class Integer(fields.Integer):
 
     @staticmethod
     def sql_type(field):
         return ('int4', 'int4')
 
 
-class BigInteger(Integer):
+class BigInteger(fields.BigInteger):
 
     @staticmethod
     def sql_type(field):
         return ('int8', 'int8')
 
 
-class Char(Field):
-
+class Char(fields.Char):
 
     @staticmethod
     def sql_type(field):
@@ -64,71 +34,56 @@ class Char(Field):
         return ('varchar', 'varchar')
 
 
-class Sha(Field):
-
-    @staticmethod
-    def sql_format(value):
-        if isinstance(value, basestring):
-            if isinstance(value, unicode):
-                value = value.encode('utf-8')
-            if hashlib:
-                value = hashlib.sha1(value).hexdigest()
-            else:
-                value = sha.new(value).hexdigest()
-        return Field.sql_format(value)
+class Sha(fields.Sha):
 
     @staticmethod
     def sql_type(field):
         return ('varchar', 'varchar(40)')
 
 
-class Text(Field):
+class Text(fields.Text):
 
     @staticmethod
     def sql_type(field):
         return ('text', 'text')
 
 
-class Float(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return float(value or 0.0)
+class Float(fields.Float):
 
     @staticmethod
     def sql_type(field):
         return ('float8', 'float8')
 
 
-class Numeric(Float):
+class Numeric(fields.Numeric):
 
     @staticmethod
     def sql_type(field):
         return ('numeric', 'numeric')
 
 
-class Date(Field):
+class Date(fields.Date):
 
     @staticmethod
     def sql_type(field):
         return ('date', 'date')
 
 
-class DateTime(Field):
+class DateTime(fields.DateTime):
 
     @staticmethod
     def sql_type(field):
         return ('timestamp', 'timestamp(0)')
 
 
-class Time(Field):
+class Time(fields.Time):
 
     @staticmethod
     def sql_type(field):
         return ('time', 'time')
 
 
-class Binary(Field):
+class Binary(fields.Binary):
 
     @staticmethod
     def sql_format(value):
@@ -139,46 +94,25 @@ class Binary(Field):
         return ('bytea', 'bytea')
 
 
-class Selection(Char):
+class Selection(fields.Selection):
 
     @staticmethod
     def sql_type(field):
         return ('varchar', 'varchar')
 
 
-class Reference(Field):
+class Reference(fields.Reference):
 
     @staticmethod
     def sql_type(field):
         return ('varchar', 'varchar')
 
 
-class Many2One(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return value and int(value) or None
+class Many2One(fields.Many2One):
 
     @staticmethod
     def sql_type(field):
         return ('int4', 'int4')
-
-
-class One2Many(Field):
-    pass
-
-
-class Many2Many(Field):
-    pass
-
-
-class Function(Field):
-    pass
-
-
-class Property(Function):
-    pass
-
 
 FIELDS = {
     'boolean': Boolean,
@@ -196,8 +130,8 @@ FIELDS = {
     'selection': Selection,
     'reference': Reference,
     'many2one': Many2One,
-    'one2many': One2Many,
-    'many2many': Many2Many,
-    'function': Function,
-    'property': Property,
+    'one2many': fields.One2Many,
+    'many2many': fields.Many2Many,
+    'function': fields.Function,
+    'property': fields.Property,
 }
