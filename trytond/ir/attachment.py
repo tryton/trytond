@@ -4,7 +4,11 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.config import CONFIG
 import os
-import md5
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import md5
 import base64
 
 class Attachment(ModelSQL, ModelView):
@@ -68,7 +72,10 @@ class Attachment(ModelSQL, ModelView):
         if not os.path.isdir(directory):
             os.makedirs(directory, 0770)
         data = base64.decodestring(value)
-        digest = md5.new(data).hexdigest()
+        if hashlib:
+            digest = hashlib.md5(data).hexdigest()
+        else:
+            digest = md5.new(data).hexdigest()
         directory = os.path.join(directory, digest[0:2], digest[2:4])
         if not os.path.isdir(directory):
             os.makedirs(directory, 0770)
