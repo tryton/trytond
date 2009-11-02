@@ -22,6 +22,36 @@ except ImportError:
     from sqlite3 import IntegrityError as DatabaseIntegrityError
     from sqlite3 import OperationalError as DatabaseOperationalError
 QUOTE_SEPARATION = re.compile(r"(.*?)('.*?')", re.DOTALL)
+EXTRACT_PATTERN = re.compile(r'EXTRACT\s*\(\s*(\S*)\s+FROM', re.I)
+
+def extract(lookup_type, date):
+    if date is None:
+        return None
+    try:
+        date = mx.DateTime.strptime(date, '%Y-%m-%d %H:%M:%S')
+    except:
+        return None
+    if lookup_type.lower() == 'century':
+        return date.year / 100 + (date.year % 100 and 1 or 0)
+    elif lookup_type.lower() == 'decade':
+        return date.year.year / 10
+    elif lookup_type.lower() == 'dow':
+        return (date.weekday() + 1) % 7
+    elif lookup_type.lower() == 'doy':
+        return date.day_of_year
+    elif lookup_type.lower() == 'epoch':
+        return date.ticks()
+    elif lookup_type.lower() == 'microseconds':
+        return int(a.second * 1000000)
+    elif lookup_type.lower() == 'millennium':
+        return date.year / 1000 + (date.year % 1000 and 1 or 0)
+    elif lookup_type.lower() == 'milliseconds':
+        return int(a.second * 1000)
+    elif lookup_type.lower() == 'quarter':
+        return date.month / 4 + 1
+    elif lookup_type.lower() == 'week':
+        return date.iso_week[1]
+    return getattr(date, lookup_type)
 
 def date_trunc(_type, date):
     if _type == 'second':
@@ -71,6 +101,7 @@ class Database(DatabaseInterface):
         if self._conn is not None:
             return self
         self._conn = sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES)
+        self._conn.create_function('extract', 2, extract)
         self._conn.create_function('date_trunc', 2, date_trunc)
         self._conn.create_function('split_part', 3, split_part)
         self._conn.create_function('now', 0, now)
@@ -241,13 +272,14 @@ class Cursor(CursorInterface):
         return getattr(self.cursor, name)
 
     def execute(self, sql, params=None):
-        sql = sql.replace('?', '??')
-        notQuoted_quoted = QUOTE_SEPARATION.findall(sql+"''")
-        replaced = [nq\
-                .replace('%s', '?')\
-                .replace('ilike', 'like') \
-                + q for (nq, q) in notQuoted_quoted]
-        sql = "".join(replaced)[:-2]
+        buf = ""
+        for nq, q in QUOTE_SEPARATION.findall(sql+"''"):
+            nq = nq.replace('?', '??')
+            nq = nq.replace('%s', '?')
+            nq = nq.replace('ilike', 'like')
+            nq = re.sub(EXTRACT_PATTERN, r'EXTRACT("\1",', nq)
+            buf += nq + q
+        sql = buf[:-2]
         try:
             if params:
                 res = self.cursor.execute(sql, [isinstance(x, str) and \
