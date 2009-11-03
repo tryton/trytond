@@ -107,11 +107,19 @@ class Numeric(Float):
 class Date(Field):
 
     @staticmethod
+    def sql_format(value):
+        return value or None
+
+    @staticmethod
     def sql_type(field):
         return ('DATE', 'DATE')
 
 
 class DateTime(Field):
+
+    @staticmethod
+    def sql_format(value):
+        return value or None
 
     @staticmethod
     def sql_type(field):
