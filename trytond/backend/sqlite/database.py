@@ -9,6 +9,7 @@ import os
 import re
 import mx.DateTime
 from decimal import Decimal
+import datetime
 
 _FIX_ROWCOUNT = False
 try:
@@ -346,3 +347,6 @@ class Cursor(CursorInterface):
 sqlite.register_converter('NUMERIC', lambda val: Decimal(str(val)))
 sqlite.register_adapter(Decimal, lambda val: float(val))
 sqlite.register_adapter(Session, lambda val: int(val))
+def adapt_datetime(val):
+    return val.replace(tzinfo=None).isoformat(" ")
+sqlite.register_adapter(datetime.datetime, adapt_datetime)
