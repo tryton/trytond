@@ -476,9 +476,7 @@ class ModelSQL(ModelStorage):
             history_limit = cursor.limit_clause('', 1)
             history_args = [context['_datetime']]
         if len(fields_pre) :
-            fields_pre2 = [(x in ('create_date', 'write_date')) \
-                    and ('date_trunc(\'second\', ' + x + ') as ' + x) \
-                    or '"' + x + '"' for x in fields_pre \
+            fields_pre2 = ['"' + x + '"' for x in fields_pre \
                     if x != '_timestamp']
             if '_timestamp' in fields_pre:
                 if not self.table_query(context):
@@ -1192,10 +1190,8 @@ class ModelSQL(ModelStorage):
             select_fields += ['COALESCE("' + self._table + '".write_date, "' + \
                     self._table + '".create_date) AS _datetime']
         if not query_string:
-            select_fields += [(x[0] in ('create_date', 'write_date')) \
-                    and ('date_trunc(\'second\', "' + \
-                    self._table + '"."' + x[0] + '") AS "' + x[0] + '"') \
-                    or '"' + self._table + '"."' + x[0] + '" AS "' + x[0] + '"' \
+            select_fields += [
+                    '"' + self._table + '"."' + x[0] + '" AS "' + x[0] + '"' \
                     for x in self._columns.iteritems() \
                     if not hasattr(x[1], 'get') \
                     and (x[0] != 'id')
