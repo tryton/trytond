@@ -29,7 +29,14 @@ def extract(lookup_type, date):
     if date is None:
         return None
     try:
-        date = mx.DateTime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        datepart, timepart = date.split(" ")
+        year, month, day = map(int, datepart.split("-"))
+        timepart_full = timepart.split(".")
+        hours, minutes, seconds = map(int, timepart_full[0].split(":"))
+        if len(timepart_full) == 2:
+            microseconds = int(timepart_full[1])
+            seconds += microseconds / 1000000.0
+        date = mx.DateTime.DateTime(year, month, day, hours, minutes, seconds)
     except:
         return None
     if lookup_type.lower() == 'century':
