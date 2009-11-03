@@ -311,8 +311,9 @@ class ModelSQL(ModelStorage):
                                 'is not in the selection' % \
                                 (val, field))
         upd0 += ', create_uid, create_date'
-        upd1 += ', %s, now()'
+        upd1 += ', %s, %s'
         upd2.append(user)
+        upd2.append(datetime.datetime.now())
         try:
             id_new = cursor.nextid(self._table)
             if id_new:
@@ -483,8 +484,6 @@ class ModelSQL(ModelStorage):
                 if not self.table_query(context):
                     fields_pre2 += ['(COALESCE(write_date, create_date)) ' \
                             'AS _timestamp']
-                else:
-                    fields_pre2 += ['now()::timestamp AS _timestamp']
 
             for i in range(0, len(ids), in_max):
                 sub_ids = ids[i:i + in_max]
@@ -808,8 +807,9 @@ class ModelSQL(ModelStorage):
                                 (val, field))
 
         upd0.append(('write_uid', '%s'))
-        upd0.append(('write_date', 'now()'))
+        upd0.append(('write_date', '%s'))
         upd1.append(user)
+        upd1.append(datetime.datetime.now())
 
         domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor,
                 user, self._name, mode='write', context=context)
@@ -1121,8 +1121,8 @@ class ModelSQL(ModelStorage):
         if self._history:
             for obj_id in ids:
                 cursor.execute('INSERT INTO "' + self._table + '__history" ' \
-                        '(id, write_uid, write_date) VALUES (%s, %s, now())',
-                        (obj_id, user))
+                        '(id, write_uid, write_date) VALUES (%s, %s, %s)',
+                        (obj_id, user, datetime.datetime.now()))
 
         for k in tree_ids.keys():
             field = self._columns[k]
@@ -1205,8 +1205,6 @@ class ModelSQL(ModelStorage):
                 select_fields += ['(COALESCE("' + self._table + '".write_date,'\
                         '"' + self._table + '".create_date)) ' \
                         'AS _timestamp']
-            else:
-                select_fields += ['now()::timestamp AS _timestamp']
         query_str = cursor.limit_clause(
                 'SELECT ' + ','.join(select_fields) + ' FROM ' + \
                 ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
