@@ -76,11 +76,17 @@ class Numeric(Float):
 
 
 class Date(Field):
-    pass
+
+    @staticmethod
+    def sql_format(value):
+        return value or None
 
 
 class DateTime(Field):
-    pass
+
+    @staticmethod
+    def sql_format(value):
+        return value or None
 
 
 class Time(Field):
