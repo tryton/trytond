@@ -160,9 +160,9 @@ class Cron(ModelSQL, ModelView):
                 cursor.execute('SELECT * FROM ir_cron ' \
                         'WHERE numbercall <> 0 ' \
                             'AND active ' \
-                            'AND nextcall <= now() ' \
+                            'AND nextcall <= %s ' \
                             'AND NOT running ' \
-                            'ORDER BY priority')
+                            'ORDER BY priority', (datetime.datetime.now(),))
                 crons = cursor.dictfetchall()
 
                 for cron in crons:
