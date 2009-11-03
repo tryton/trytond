@@ -70,9 +70,6 @@ def date_trunc(_type, date):
 def split_part(text, delimiter, count):
     return (text.split(delimiter) + [''] * (count - 1))[count - 1]
 
-def now():
-    return mx.DateTime.now().strftime('%Y-%m-%d %H:%M:%S')
-
 
 class Database(DatabaseInterface):
 
@@ -104,7 +101,6 @@ class Database(DatabaseInterface):
         self._conn.create_function('extract', 2, extract)
         self._conn.create_function('date_trunc', 2, date_trunc)
         self._conn.create_function('split_part', 3, split_part)
-        self._conn.create_function('now', 0, now)
         return self
 
     def cursor(self, autocommit=False):
@@ -212,8 +208,8 @@ class Database(DatabaseInterface):
             cursor.execute('INSERT INTO ir_module_module ' \
                     '(create_uid, create_date, author, website, name, ' \
                     'shortdesc, description, state) ' \
-                    'VALUES (%s, now(), %s, %s, %s, %s, %s, %s)',
-                    (0, info.get('author', ''),
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                    (0, datetime.datetime.now(), info.get('author', ''),
                 info.get('website', ''), i, info.get('name', False),
                 info.get('description', ''), state))
             cursor.execute('SELECT last_insert_rowid()')
@@ -222,8 +218,8 @@ class Database(DatabaseInterface):
             for dependency in dependencies:
                 cursor.execute('INSERT INTO ir_module_module_dependency ' \
                         '(create_uid, create_date, module, name) ' \
-                        'VALUES (%s, now(), %s, %s) ',
-                        (0, module_id, dependency))
+                        'VALUES (%s, %s, %s, %s) ',
+                        (0, datetime.datetime.now(), module_id, dependency))
 
 
 class _Cursor(sqlite.Cursor):
