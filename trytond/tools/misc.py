@@ -19,6 +19,7 @@ try:
 except ImportError:
     import StringIO
 import dis
+import datetime
 
 def find_in_path(name):
     if os.name == "nt":
@@ -323,11 +324,11 @@ class Cache(object):
                 cursor.execute('SELECT name FROM ir_cache WHERE name = %s',
                             (name,))
                 if cursor.fetchone():
-                    cursor.execute('UPDATE ir_cache SET "timestamp" = now() '\
-                            'WHERE name = %s', (name,))
+                    cursor.execute('UPDATE ir_cache SET "timestamp" = %s '\
+                            'WHERE name = %s', (datetime.datetime.now(), name))
                 else:
                     cursor.execute('INSERT INTO ir_cache ("timestamp", "name") ' \
-                            'VALUES (now(), %s)', (name,))
+                            'VALUES (%s, %s)', (datetime.datetime.now(), name))
             Cache._resets[dbname].clear()
         finally:
             cursor.commit()
