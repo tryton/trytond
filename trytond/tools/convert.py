@@ -449,7 +449,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 self.taghandler.startElement(name, attributes)
 
             elif name == "data":
-                self.noupdate = attributes.get("noupdate", False)
+                self.noupdate = bool(int(attributes.get("noupdate", '0')))
 
             elif name == "tryton":
                 pass
@@ -899,6 +899,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'db_id': inherit_db_ids[table],
                     'values': str(values),
                     'inherit': True,
+                    'noupdate': self.noupdate,
                     })
 
             mdata_id = self.modeldata_obj.create(cursor, user, {
@@ -907,6 +908,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 'module': module,
                 'db_id': db_id,
                 'values': str(values),
+                'noupdate': self.noupdate,
                 })
 
             # update fs2db:

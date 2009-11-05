@@ -383,11 +383,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
         model_data_ids = model_data_obj.search(cursor, user, [
             ('module', '=', module),
             ], context=context)
-        fs_id2db_id = {}
+        fs_id2model_data = {}
         for model_data in model_data_obj.browse(cursor, user, model_data_ids,
                 context=context):
-            fs_id2db_id.setdefault(model_data.model, {})
-            fs_id2db_id[model_data.model][model_data.fs_id] = model_data.db_id
+            fs_id2model_data.setdefault(model_data.model, {})
+            fs_id2model_data[model_data.model][model_data.fs_id] = model_data
 
         translation_ids = []
         reader = csv.reader(datas)
@@ -420,10 +420,13 @@ class Translation(ModelSQL, ModelView, Cacheable):
             src = row[3].decode('utf-8')
             value = row[4].decode('utf-8')
             fuzzy = bool(int(row[5]))
+            noupdate = False
 
             model = name.split(',')[0]
-            if model in fs_id2db_id:
-                res_id = fs_id2db_id[model].get(res_id, res_id)
+            if model in fs_id2model_data and res_id in fs_id2model_data[model]:
+                model_data = fs_id2model_data[model][res_id]
+                res_id = model_data.db_id
+                noupdate = model_data.noupdate
 
             try:
                 res_id = int(res_id)
@@ -456,7 +459,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     if translation.value != value \
                             or translation.fuzzy != fuzzy:
                         ids2.append(translation.id)
-                if ids2:
+                if ids2 and not noupdate:
                     self.write(cursor, 0, ids2, {
                         'value': value,
                         'fuzzy': fuzzy,
