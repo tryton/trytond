@@ -278,6 +278,7 @@ class ModelData(ModelSQL, ModelView):
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
     inherit = fields.Boolean('Inherit')
+    noupdate = fields.Boolean('No Update')
 
     def __init__(self):
         super(ModelData, self).__init__()
@@ -290,6 +291,9 @@ class ModelData(ModelSQL, ModelView):
         return time.strftime('%Y-%m-%d %H:%M:%S')
 
     def default_inherit(self, cursor, user, context=None):
+        return False
+
+    def default_noupdate(self, cursor, user, context=None):
         return False
 
     def get_id(self, cursor, user, module, fs_id):
