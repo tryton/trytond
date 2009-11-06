@@ -216,7 +216,7 @@ class Sha(ModelSQL):
     'Sha'
     _name = 'tests.sha'
     _description = __doc__
-    sha = fields.Sha(string='Sha', help='Sha sha',
+    sha = fields.Sha(string='Sha', help='Test sha',
             required=False)
 
 Sha()
@@ -226,10 +226,10 @@ class ShaDefault(ModelSQL):
     'Sha Default'
     _name = 'tests.sha_default'
     _description = __doc__
-    sha = fields.Sha(string='Sha', help='Sha sha',
+    sha = fields.Sha(string='Sha', help='Test sha',
             required=False)
 
-    def default_sha(self, cursor, user, consha=None):
+    def default_sha(self, cursor, user, context=None):
         return 'Sha'
 
 ShaDefault()
@@ -239,7 +239,7 @@ class ShaRequired(ModelSQL):
     'Sha Required'
     _name = 'tests.sha_required'
     _description = __doc__
-    sha = fields.Sha(string='Sha', help='Sha sha',
+    sha = fields.Sha(string='Sha', help='Test sha',
             required=True)
 
 ShaRequired()
