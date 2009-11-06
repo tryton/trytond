@@ -633,7 +633,10 @@ class ReportTranslationSet(Wizard):
                     continue
 
                 content_io = StringIO.StringIO(content)
-                content_z = zipfile.ZipFile(content_io, mode='r')
+                try:
+                    content_z = zipfile.ZipFile(content_io, mode='r')
+                except BadZipfile:
+                    continue
 
                 content_xml = content_z.read('content.xml')
                 document = dom.minidom.parseString(content_xml)
