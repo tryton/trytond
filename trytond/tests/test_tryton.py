@@ -15,6 +15,7 @@ from decimal import Decimal
 from trytond import pysocket
 from trytond.tools import reduce_ids, safe_eval
 from lxml import etree
+import datetime
 
 ADMIN_PASSWORD = 'admin'
 HOST = '127.0.0.1'
@@ -165,6 +166,10 @@ class FieldsTestCase(unittest.TestCase):
         self.sha = RPCProxy('tests.sha')
         self.sha_default = RPCProxy('tests.sha_default')
         self.sha_required = RPCProxy('tests.sha_required')
+
+        self.date = RPCProxy('tests.date')
+        self.date_default = RPCProxy('tests.date_default')
+        self.date_required = RPCProxy('tests.date_required')
 
     def test0010boolean(self):
         '''
@@ -1554,6 +1559,256 @@ class FieldsTestCase(unittest.TestCase):
             ('sha', '=', 'é'),
             ], 0, None, None, CONTEXT)
         self.assert_(sha_ids == [sha6_id])
+
+    def test0080date(self):
+        '''
+        Test Date.
+        '''
+        today = datetime.date(2009, 1, 1)
+        tomorrow = today + datetime.timedelta(1)
+        yesterday = today - datetime.timedelta(1)
+        default_date = datetime.date(2000, 1, 1)
+
+        date1_id = self.date.create({
+            'date': today,
+            }, CONTEXT)
+        self.assert_(date1_id)
+
+        date1 = self.date.read(date1_id, ['date'], CONTEXT)
+        self.assert_(date1['date'] == today)
+
+        date_ids = self.date.search([
+            ('date', '=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '=', False),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '!=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '!=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '!=', False),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', 'in', [today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', 'in', [tomorrow]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', 'in', [False]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', 'in', []),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', 'not in', [today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', 'not in', [tomorrow]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', 'not in', [False]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', 'not in', []),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '<', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '<', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '<', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '<=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '<=', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '<=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '>', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '>', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '>', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '>=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date_ids = self.date.search([
+            ('date', '>=', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date_ids = self.date.search([
+            ('date', '>=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id])
+
+        date2_id = self.date.create({
+            'date': yesterday,
+            }, CONTEXT)
+        self.assert_(date2_id)
+
+        date2 = self.date.read(date2_id, ['date'], CONTEXT)
+        self.assert_(date2['date'] == yesterday)
+
+        date_ids = self.date.search([
+            ('date', '=', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date2_id])
+
+        date_ids = self.date.search([
+            ('date', 'in', [yesterday, today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [date1_id, date2_id])
+
+        date_ids = self.date.search([
+            ('date', 'not in', [yesterday, today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(date_ids == [])
+
+        date3_id = self.date.create({}, CONTEXT)
+        self.assert_(date3_id)
+
+        date3 = self.date.read(date3_id, ['date'], CONTEXT)
+        self.assert_(date3['date'] == None)
+
+        date4_id = self.date_default.create({}, CONTEXT)
+        self.assert_(date4_id)
+
+        date4 = self.date_default.read(date4_id, ['date'], CONTEXT)
+        self.assert_(date4['date'] == default_date)
+
+        self.date.write(date1_id, {
+            'date': yesterday,
+            }, CONTEXT)
+        date1 = self.date.read(date1_id, ['date'], CONTEXT)
+        self.assert_(date1['date'] == yesterday)
+
+        self.date.write(date2_id, {
+            'date': today,
+            }, CONTEXT)
+        date2 = self.date.read(date2_id, ['date'], CONTEXT)
+        self.assert_(date2['date'] == today)
+
+        self.failUnlessRaises(Exception, self.date.create, {
+            'date': 'test',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.date.write, date1_id, {
+            'date': 'test',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.date.create, {
+            'date': 1,
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.date.write, date1_id, {
+            'date': 1,
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.date.create, {
+                'date': datetime.datetime.now(),
+                }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.date.write, date1_id, {
+            'date': datetime.datetime.now(),
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.date.create, {
+                'date': '2009-13-01',
+                }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.date.write, date1_id, {
+            'date': '2009-02-29',
+            }, CONTEXT)
+
+        date5_id = self.date.create({
+            'date': '2009-01-01',
+            }, CONTEXT)
+        self.assert_(date5_id)
+        date5 = self.date.read(date5_id, ['date'], CONTEXT)
+        self.assert_(date5['date'] == datetime.date(2009, 1, 1))
+
+        self.failUnlessRaises(Exception,self.date_required.create, {}, CONTEXT)
+
+        date6_id = self.date_required.create({
+            'date': today,
+            }, CONTEXT)
+        self.assert_(date6_id)
+
+        date7_id = self.date.create({
+            'date': None,
+            }, CONTEXT)
+        self.assert_(date7_id)
+
+        date8_id = self.date.create({
+            'date': False,
+            }, CONTEXT)
+        self.assert_(date8_id)
 
 
 class ModelViewTestCase(unittest.TestCase):
