@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model import ModelSQL, fields
+import datetime
 
 
 class Boolean(ModelSQL):
@@ -243,3 +244,36 @@ class ShaRequired(ModelSQL):
             required=True)
 
 ShaRequired()
+
+
+class Date(ModelSQL):
+    'Date'
+    _name = 'tests.date'
+    _description = __doc__
+    date = fields.Date(string='Date', help='Test date',
+            required=False)
+
+Date()
+
+
+class DateDefault(ModelSQL):
+    'Date Default'
+    _name = 'tests.date_default'
+    _description = __doc__
+    date = fields.Date(string='Date', help='Test date',
+            required=False)
+
+    def default_date(self, cursor, user, context=None):
+        return datetime.date(2000, 1, 1)
+
+DateDefault()
+
+
+class DateRequired(ModelSQL):
+    'Date Required'
+    _name = 'tests.date_required'
+    _description = __doc__
+    date = fields.Date(string='Date', help='Test date',
+            required=True)
+
+DateRequired()
