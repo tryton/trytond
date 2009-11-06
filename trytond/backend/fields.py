@@ -1,5 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+import datetime
+
 try:
     import hashlib
 except ImportError:
@@ -79,7 +81,17 @@ class Date(Field):
 
     @staticmethod
     def sql_format(value):
-        return value or None
+        if not value:
+            return None
+        if isinstance(value, basestring):
+            year, month, day = map(int, value.split("-", 2))
+            return datetime.date(year, month, day)
+
+        assert(isinstance(value, datetime.date))
+        # datetime must be tested separately because datetime is a
+        # subclass of date:
+        assert(not isinstance(value, datetime.datetime))
+        return value
 
 
 class DateTime(Field):
