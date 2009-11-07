@@ -411,7 +411,7 @@ class ModelStorage(Model):
             for fields_name in set(fields_names):
                 fields = fields_name.split('.')
                 while fields:
-                    field_name = fields.pop()
+                    field_name = fields.pop(0)
                     if fields_name not in record:
                         record[fields_name] = model[field_name]
                     else:
