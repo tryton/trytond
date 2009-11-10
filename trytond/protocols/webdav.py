@@ -477,23 +477,43 @@ class TrytonDAVInterface(iface.dav_interface):
         return self.mkcol(dst)
 
     def _get_dav_current_user_privilege_set(self, uri):
+        dbname, dburi = self._get_dburi(uri)
+        privileges = []
+        if not dbname or not dburi:
+            privileges = ['create', 'read', 'write', 'delete']
+        else:
+            cursor = DATABASE['cursor']
+            pool = Pool(DATABASE['dbname'])
+            try:
+                collection_obj = pool.get('webdav.collection')
+                privileges = collection_obj.current_user_privilege_set(
+                        cursor, int(USER_ID), dburi, cache=CACHE)
+            except KeyError:
+                pass
+            except Exception, exception:
+                self._log_exception(exception)
+                pass
         doc = domimpl.createDocument(None, 'privilege', None)
         privilege = doc.documentElement
         privilege.tagName = 'D:privilege'
-        read = doc.createElement('D:read')
-        privilege.appendChild(read)
-        write = doc.createElement('D:write')
-        privilege.appendChild(write)
-        bind = doc.createElement('D:bind')
-        privilege.appendChild(bind)
-        unbind = doc.createElement('D:unbind')
-        privilege.appendChild(unbind)
-        write_content = doc.createElement('D:write-content')
-        privilege.appendChild(write_content)
-        write_properties = doc.createElement('D:write-properties')
-        privilege.appendChild(write_properties)
-        read_acl = doc.createElement('D:read-acl')
-        privilege.appendChild(read_acl)
+        if 'create' in privileges:
+            bind = doc.createElement('D:bind')
+            privilege.appendChild(bind)
+        if 'read' in privileges:
+            read = doc.createElement('D:read')
+            privilege.appendChild(read)
+            read_acl = doc.createElement('D:read-acl')
+            privilege.appendChild(read_acl)
+        if 'write' in privileges:
+            write = doc.createElement('D:write')
+            privilege.appendChild(write)
+            write_content = doc.createElement('D:write-content')
+            privilege.appendChild(write_content)
+            write_properties = doc.createElement('D:write-properties')
+            privilege.appendChild(write_properties)
+        if 'delete' in privileges:
+            unbind = doc.createElement('D:unbind')
+            privilege.appendChild(unbind)
         return privilege
 
 TrytonDAVInterface.PROPS['DAV:'] = tuple(list(TrytonDAVInterface.PROPS['DAV:']) \
