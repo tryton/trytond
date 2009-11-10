@@ -311,7 +311,7 @@ class TrytonDAVInterface(iface.dav_interface):
         return res
 
     def _get_dav_displayname(self, uri):
-        raise DAV_Secret
+        return uri.split('/')[-1]
 
     def _get_dav_getcontentlength(self, uri):
         dbname, dburi = self._get_dburi(uri)
