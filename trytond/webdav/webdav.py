@@ -590,6 +590,10 @@ class Collection(ModelSQL, ModelView):
             return 1
         return None
 
+    def current_user_privilege_set(self, cursor, user, uri, context=None,
+            cache=None):
+        return ['create', 'read', 'write', 'delete']
+
 Collection()
 
 

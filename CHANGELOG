@@ -1,3 +1,5 @@
+* Handle current-user-privilege-set on webdav.collection
+
 Version 1.4.0 - 2009-10-19
 * Bug fixes (see mercurial logs for details)
 * Add datetime_field on xxx2Many to use a specific _datetime when reading the related record
