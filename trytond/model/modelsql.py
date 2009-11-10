@@ -62,13 +62,13 @@ class ModelSQL(ModelStorage):
         table = TableHandler(cursor, self, module_name)
         if self._history:
             history_table = TableHandler(cursor, self, module_name, history=True)
-        datetime_field = FIELDS['datetime']
+        timestamp_field = FIELDS['timestamp']
         integer_field = FIELDS['integer']
         logs = (
-            ('create_date', datetime_field.sql_type(None),
-                datetime_field.sql_format, lambda *a: datetime.datetime.now()),
-            ('write_date', datetime_field.sql_type(None),
-                datetime_field.sql_format, None),
+            ('create_date', timestamp_field.sql_type(None),
+                timestamp_field.sql_format, lambda *a: datetime.datetime.now()),
+            ('write_date', timestamp_field.sql_type(None),
+                timestamp_field.sql_format, None),
             ('create_uid', (integer_field.sql_type(None)[0],
              'INTEGER REFERENCES res_user ON DELETE SET NULL',),
              integer_field.sql_format, lambda *a: 0),
@@ -81,10 +81,10 @@ class ModelSQL(ModelStorage):
                     default_fun=log[3], migrate=False)
         if self._history:
             history_logs = (
-                    ('create_date', datetime_field.sql_type(None),
-                        datetime_field.sql_format),
-                    ('write_date', datetime_field.sql_type(None),
-                        datetime_field.sql_format),
+                    ('create_date', timestamp_field.sql_type(None),
+                        timestamp_field.sql_format),
+                    ('write_date', timestamp_field.sql_type(None),
+                        timestamp_field.sql_format),
                     ('create_uid', (integer_field.sql_type(None)[0],
                      'INTEGER REFERENCES res_user ON DELETE SET NULL',),
                      integer_field.sql_format),

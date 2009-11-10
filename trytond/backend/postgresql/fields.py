@@ -76,6 +76,13 @@ class DateTime(fields.DateTime):
         return ('timestamp', 'timestamp(0)')
 
 
+class Timestamp(fields.Timestamp):
+
+    @staticmethod
+    def sql_type(field):
+        return ('timestamp', 'timestamp(6)')
+
+
 class Time(fields.Time):
 
     @staticmethod
@@ -125,6 +132,7 @@ FIELDS = {
     'numeric': Numeric,
     'date': Date,
     'datetime': DateTime,
+    'timestamp': Timestamp,
     'time': Time,
     'binary': Binary,
     'selection': Selection,

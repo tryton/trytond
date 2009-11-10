@@ -98,7 +98,37 @@ class DateTime(Field):
 
     @staticmethod
     def sql_format(value):
-        return value or None
+        if not value:
+            return None
+        if isinstance(value, basestring):
+            datepart, timepart = value.split(" ")
+            year, month, day = map(int, datepart.split("-", 2))
+            hours, minutes, seconds = map(int, timepart.split(":"))
+            return datetime.datetime(year, month, day, hours, minutes, seconds)
+        assert(isinstance(value, datetime.datetime))
+        value.replace(microsecond=0)
+        return value
+
+
+class Timestamp(Field):
+
+    @staticmethod
+    def sql_format(value):
+        if not value:
+            return None
+        if isinstance(value, basestring):
+            datepart, timepart = value.split(" ")
+            year, month, day = map(int, datepart.split("-", 2))
+            timepart_full = timepart.split(".", 1)
+            hours, minutes, seconds = map(int, timepart_full[0].split(":"))
+            if len(timepart_full) == 2:
+                microseconds = int(timepart_full[1])
+            else:
+                microseconds = 0
+            return datetime.datetime(year, month, day, hours, minutes, seconds,
+                    microseconds)
+        assert(isinstance(value, datetime.datetime))
+        return value
 
 
 class Time(Field):
