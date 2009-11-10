@@ -202,6 +202,10 @@ class TableHandler(TableHandlerInterface):
     def add_raw_column(self, column_name, column_type, column_format,
             default_fun=None, field_size=None, migrate=True):
         if self.column_exist(column_name):
+            if column_name in ('create_date', 'write_date'):
+                #Migrate dates from timestamp(0) to timestamp
+                self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
+                        'ALTER COLUMN "' + column_name + '" TYPE timestamp')
             if not migrate:
                 return
             base_type = column_type[0].lower()
