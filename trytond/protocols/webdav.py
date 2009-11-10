@@ -194,6 +194,8 @@ class TrytonDAVInterface(iface.dav_interface):
             for child in collection_obj.get_childs(cursor, int(USER_ID), dburi,
                     filter=filter, cache=CACHE):
                 res.append(uri + child.encode('utf-8'))
+        except KeyError:
+            return res
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -389,7 +391,7 @@ class TrytonDAVInterface(iface.dav_interface):
     def rmcol(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
-            raise DAV_Forbidden
+            return 403
         cursor = DATABASE['cursor']
         pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
@@ -397,20 +399,16 @@ class TrytonDAVInterface(iface.dav_interface):
             res = collection_obj.rmcol(cursor, int(USER_ID), dburi,
                     cache=CACHE)
             cursor.commit()
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
-            self._log_exception(exception)
-            cursor.rollback()
-            raise
         except Exception, exception:
             self._log_exception(exception)
             cursor.rollback()
-            raise DAV_Error(500)
+            return 500
         return res
 
     def rm(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or not dburi:
-            raise DAV_Forbidden
+            return 403
         cursor = DATABASE['cursor']
         pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
@@ -418,14 +416,10 @@ class TrytonDAVInterface(iface.dav_interface):
             res = collection_obj.rm(cursor, int(USER_ID), dburi,
                     cache=CACHE)
             cursor.commit()
-        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
-            self._log_exception(exception)
-            cursor.rollback()
-            raise
         except Exception, exception:
             self._log_exception(exception)
             cursor.rollback()
-            raise DAV_Error(500)
+            return 500
         return res
 
     def exists(self, uri):
