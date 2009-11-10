@@ -316,7 +316,24 @@ class TrytonDAVInterface(iface.dav_interface):
         return res
 
     def _get_dav_displayname(self, uri):
-        return uri.split('/')[-1]
+        dbname, dburi = self._get_dburi(uri)
+        if not dbname or not dburi:
+            return uri.split('/')[-1]
+        cursor = DATABASE['cursor']
+        pool = Pool(DATABASE['dbname'])
+        try:
+            collection_obj = pool.get('webdav.collection')
+            res = collection_obj.get_displayname(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
+        except KeyError:
+            raise DAV_NotFound
+        except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
+            self._log_exception(exception)
+            raise
+        except Exception, exception:
+            self._log_exception(exception)
+            raise DAV_Error(500)
+        return res
 
     def _get_dav_getcontentlength(self, uri):
         dbname, dburi = self._get_dburi(uri)

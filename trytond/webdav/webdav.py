@@ -329,6 +329,13 @@ class Collection(ModelSQL, ModelView):
             return OBJECT
         return COLLECTION
 
+    def get_displayname(self, cursor, user, uri, context=None, cache=None):
+        object_name, object_id = self._uri2object(cursor, user, uri,
+                context=context, cache=cache)
+        model_obj = self.pool.get(object_name)
+        return model_obj.browse(cursor, user, object_id, context=context)\
+                .rec_name
+
     def get_contentlength(self, cursor, user, uri, context=None, cache=None):
         attachment_obj = self.pool.get('ir.attachment')
 
