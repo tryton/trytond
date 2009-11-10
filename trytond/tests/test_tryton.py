@@ -171,6 +171,10 @@ class FieldsTestCase(unittest.TestCase):
         self.date_default = RPCProxy('tests.date_default')
         self.date_required = RPCProxy('tests.date_required')
 
+        self.datetime = RPCProxy('tests.datetime')
+        self.datetime_default = RPCProxy('tests.datetime_default')
+        self.datetime_required = RPCProxy('tests.datetime_required')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -1809,6 +1813,261 @@ class FieldsTestCase(unittest.TestCase):
             'date': False,
             }, CONTEXT)
         self.assert_(date8_id)
+
+    def test0090datetime(self):
+        '''
+        Test DateTime.
+        '''
+        today = datetime.datetime(2009, 1, 1, 12, 0, 0)
+        tomorrow = today + datetime.timedelta(1)
+        yesterday = today - datetime.timedelta(1)
+        default_datetime = datetime.datetime(2000, 1, 1, 12, 0, 0)
+
+        datetime1_id = self.datetime.create({
+            'datetime': today,
+            }, CONTEXT)
+        self.assert_(datetime1_id)
+
+        datetime1 = self.datetime.read(datetime1_id, ['datetime'], CONTEXT)
+        self.assert_(datetime1['datetime'] == today)
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '=', False),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '!=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '!=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '!=', False),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'in', [today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'in', [tomorrow]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'in', [False]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'in', []),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'not in', [today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'not in', [tomorrow]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'not in', [False]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'not in', []),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '<', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '<', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '<', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '<=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '<=', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '<=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '>', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '>', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '>', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '>=', tomorrow),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '>=', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '>=', today),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id])
+
+        datetime2_id = self.datetime.create({
+            'datetime': yesterday,
+            }, CONTEXT)
+        self.assert_(datetime2_id)
+
+        datetime2 = self.datetime.read(datetime2_id, ['datetime'], CONTEXT)
+        self.assert_(datetime2['datetime'] == yesterday)
+
+        datetime_ids = self.datetime.search([
+            ('datetime', '=', yesterday),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime2_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'in', [yesterday, today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [datetime1_id, datetime2_id])
+
+        datetime_ids = self.datetime.search([
+            ('datetime', 'not in', [yesterday, today]),
+            ], 0, None, None, CONTEXT)
+        self.assert_(datetime_ids == [])
+
+        datetime3_id = self.datetime.create({}, CONTEXT)
+        self.assert_(datetime3_id)
+
+        datetime3 = self.datetime.read(datetime3_id, ['datetime'], CONTEXT)
+        self.assert_(datetime3['datetime'] == None)
+
+        datetime4_id = self.datetime_default.create({}, CONTEXT)
+        self.assert_(datetime4_id)
+
+        datetime4 = self.datetime_default.read(datetime4_id, ['datetime'], CONTEXT)
+        self.assert_(datetime4['datetime'] == default_datetime)
+
+        self.datetime.write(datetime1_id, {
+            'datetime': yesterday,
+            }, CONTEXT)
+        datetime1 = self.datetime.read(datetime1_id, ['datetime'], CONTEXT)
+        self.assert_(datetime1['datetime'] == yesterday)
+
+        self.datetime.write(datetime2_id, {
+            'datetime': today,
+            }, CONTEXT)
+        datetime2 = self.datetime.read(datetime2_id, ['datetime'], CONTEXT)
+        self.assert_(datetime2['datetime'] == today)
+
+        self.failUnlessRaises(Exception, self.datetime.create, {
+            'datetime': 'test',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.write, datetime1_id, {
+            'datetime': 'test',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.create, {
+            'datetime': 1,
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.write, datetime1_id, {
+            'datetime': 1,
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.create, {
+            'datetime': datetime.date.today(),
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.write, datetime1_id, {
+            'datetime': datetime.date.today(),
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.create, {
+            'datetime': '2009-13-01 12:30:00',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.write, datetime1_id, {
+            'datetime': '2009-02-29 12:30:00',
+            }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.datetime.write, datetime1_id, {
+            'datetime': '2009-01-01 25:00:00',
+            }, CONTEXT)
+
+        datetime5_id = self.datetime.create({
+            'datetime': '2009-01-01 12:00:00',
+            }, CONTEXT)
+        self.assert_(datetime5_id)
+        datetime5 = self.datetime.read(datetime5_id, ['datetime'], CONTEXT)
+        self.assert_(datetime5['datetime'] == datetime.datetime(2009, 1, 1, 12,
+            0, 0))
+
+        self.failUnlessRaises(Exception,self.datetime_required.create, {}, CONTEXT)
+
+        datetime6_id = self.datetime_required.create({
+            'datetime': today,
+            }, CONTEXT)
+        self.assert_(datetime6_id)
+
+        datetime7_id = self.datetime.create({
+            'datetime': None,
+            }, CONTEXT)
+        self.assert_(datetime7_id)
+
+        datetime8_id = self.datetime.create({
+            'datetime': False,
+            }, CONTEXT)
+        self.assert_(datetime8_id)
 
 
 class ModelViewTestCase(unittest.TestCase):
