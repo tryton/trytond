@@ -277,3 +277,36 @@ class DateRequired(ModelSQL):
             required=True)
 
 DateRequired()
+
+
+class DateTime(ModelSQL):
+    'DateTime'
+    _name = 'tests.datetime'
+    _description = __doc__
+    datetime = fields.DateTime(string='DateTime', help='Test datetime',
+            required=False)
+
+DateTime()
+
+
+class DateTimeDefault(ModelSQL):
+    'DateTime Default'
+    _name = 'tests.datetime_default'
+    _description = __doc__
+    datetime = fields.DateTime(string='DateTime', help='Test datetime',
+            required=False)
+
+    def default_datetime(self, cursor, user, context=None):
+        return datetime.datetime(2000, 1, 1, 12, 0, 0, 0)
+
+DateTimeDefault()
+
+
+class DateTimeRequired(ModelSQL):
+    'DateTime Required'
+    _name = 'tests.datetime_required'
+    _description = __doc__
+    datetime = fields.DateTime(string='DateTime', help='Test datetime',
+            required=True)
+
+DateTimeRequired()
