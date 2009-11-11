@@ -175,6 +175,7 @@ field,"ir.model.data,fs_id",0,Identifier on File System,Identifikator im Dateisy
 field,"ir.model.data,inherit",0,Inherit,Vererbung,0
 field,"ir.model.data,model",0,Model,Modell,0
 field,"ir.model.data,module",0,Module,Modul,0
+field,"ir.model.data,noupdate",0,No Update,Ohne Update,0
 field,"ir.model.data,rec_name",0,Name,Name,0
 field,"ir.model.data,values",0,Values,Werte,0
 field,"ir.model.field,field_description",0,Field Description,Beschreibung,0
