@@ -50,18 +50,30 @@ class ReportFactory:
 
 class TranslateFactory:
 
-    def __init__(self, cursor, report_name, language, translation):
+    def __init__(self, cursor, user, report_name, language, translation):
         self.cursor = cursor
+        self.user = user
         self.report_name = report_name
         self.language = language
         self.translation = translation
+        self.cache = {}
 
     def __call__(self, text):
-        res = self.translation._get_source(self.cursor,
-                self.report_name, 'odt', self.language, text)
-        if res:
-            return res
-        return text
+        if self.language not in self.cache:
+            self.cache[self.language] = {}
+            translation_ids = self.translation.search(self.cursor, self.user, [
+                ('lang', '=', self.language),
+                ('type', '=', 'odt'),
+                ('name', '=', self.report_name),
+                ('value', '!=', ''),
+                ('value', '!=', False),
+                ('fuzzy', '=', False),
+                ('res_id', '=', 0),
+                ])
+            for translation in self.translation.browse(self.cursor, self.user,
+                    translation_ids):
+                self.cache[self.language][translation.src] = translation.value
+        return self.cache[self.language].get(text, text)
 
     def set_language(self, language):
         self.language = language
@@ -133,7 +145,7 @@ class Report(object):
         localcontext['datetime'] = datetime
         localcontext.update(context)
 
-        translate = TranslateFactory(cursor, self._name,
+        translate = TranslateFactory(cursor, user, self._name,
                 context.get('language', 'en_US'),
                 self.pool.get('ir.translation'))
         localcontext['setLang'] = lambda language: translate.set_language(language)
