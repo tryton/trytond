@@ -1,3 +1,4 @@
+* Rename HttpDaemon into XMLRPCDaemon
 * Improve TranslateFactory to fetch all translations for a report in one query
 * Handle displayname on webdav.collection
 * Handle current-user-privilege-set on webdav.collection

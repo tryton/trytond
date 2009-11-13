@@ -171,7 +171,7 @@ class SecureThreadedXMLRPCServer6(SecureThreadedXMLRPCServer):
     address_family = socket.AF_INET6
 
 
-class HttpDaemon(threading.Thread):
+class XMLRPCDaemon(threading.Thread):
 
     def __init__(self, interface, port, secure=False):
         threading.Thread.__init__(self)
