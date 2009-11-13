@@ -151,8 +151,8 @@ class TrytonServer(object):
 
         # Launch Server
         if CONFIG['xmlrpc']:
-            from trytond.protocols.xmlrpc import HttpDaemon
-            httpd = HttpDaemon(CONFIG['interface'], CONFIG['xmlport'],
+            from trytond.protocols.xmlrpc import XMLRPCDaemon
+            xmlrpcd = XMLRPCDaemon(CONFIG['interface'], CONFIG['xmlport'],
                     CONFIG['secure_xmlrpc'])
             self.logger.info("starting XML-RPC%s protocol, port %d" % \
                     (CONFIG['secure_xmlrpc'] and ' Secure' or '',
@@ -182,7 +182,7 @@ class TrytonServer(object):
             if CONFIG['netrpc']:
                 netrpcd.stop()
             if CONFIG['xmlrpc']:
-                httpd.stop()
+                xmlrpcd.stop()
             if CONFIG['webdav']:
                 webdavd.stop()
             if CONFIG['pidfile']:
@@ -212,7 +212,7 @@ class TrytonServer(object):
         if CONFIG['netrpc']:
             netrpcd.start()
         if CONFIG['xmlrpc']:
-            httpd.start()
+            xmlrpcd.start()
         if CONFIG['webdav']:
             webdavd.start()
 
