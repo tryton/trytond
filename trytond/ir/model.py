@@ -7,6 +7,8 @@ from trytond.report import Report
 from trytond.wizard import Wizard
 import time
 import base64
+import re
+IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 
 
 class Model(ModelSQL, ModelView):
@@ -27,7 +29,22 @@ class Model(ModelSQL, ModelView):
             ('model_uniq', 'UNIQUE(model)',
                 'The model must be unique!'),
         ]
+        self._constraints += [
+            ('check_module', 'invalid_module'),
+        ]
+        self._error_messages.update({
+            'invalid_module': 'Module Name must be a python identifier!',
+        })
         self._order.insert(0, ('model', 'ASC'))
+
+    def check_module(self, cursor, user, ids):
+        '''
+        Check module
+        '''
+        for model in self.browse(cursor, user, ids):
+            if model.module and not IDENTIFIER.match(model.module):
+                return False
+        return True
 
 Model()
 
@@ -54,6 +71,12 @@ class ModelField(ModelSQL, ModelView):
             ('name_model_uniq', 'UNIQUE(name, model)',
                 'The field name in model must be unique!'),
         ]
+        self._constraints += [
+            ('check_name', 'invalid_name'),
+        ]
+        self._error_messages.update({
+            'invalid_name': 'Model Field Name must be a python identifier!',
+        })
         self._order.insert(0, ('name', 'ASC'))
 
     def default_name(self, cursor, user, context=None):
@@ -61,6 +84,15 @@ class ModelField(ModelSQL, ModelView):
 
     def default_field_description(self, cursor, user, context=None):
         return 'No description available'
+
+    def check_name(self, cursor, user, ids):
+        '''
+        Check name
+        '''
+        for field in self.browse(cursor, user, ids):
+            if not IDENTIFIER.match(field.name):
+                return False
+        return True
 
     def read(self, cursor, user, ids, fields_names=None, context=None):
         translation_obj = self.pool.get('ir.translation')
