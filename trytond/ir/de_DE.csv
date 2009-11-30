@@ -23,6 +23,7 @@ error,ir.cron,0,"The following action failed to execute properly: ""%s""
 error,ir.lang,0,decimal_point and thousands_sep must be different!,Dezimalpunkt and Tausendertrennzeichen müssen unterschiedlich sein!,0
 error,ir.lang,0,Invalid Grouping!,Ungültige Gruppierung,0
 error,ir.lang,0,The date format is not valid!,Ungültiges Datumsformat,0
+error,ir.model,0,Module Name must be a python identifier!,Der Name eines Moduls muss ein gültiger Python-Bezeichner sein!,0
 error,ir.model,0,The model must be unique!,Das Modell kann nicht mehrfach vergeben werden!,0
 error,ir.model.access,0,Only one record by model and group is allowed!,Nur ein Datensatz pro Modell und Gruppe möglich!,0
 error,ir.model.access,0,You can not create this kind of document! (%s),Keine Berechtigung für die Erstellung dieser Dokumentenart! (%s) ,0
@@ -30,6 +31,7 @@ error,ir.model.access,0,You can not delete this document! (%s),Keine Berechtigun
 error,ir.model.access,0,You can not read this document! (%s),Keine Leseberechtigung für dieses Dokument! (%s),0
 error,ir.model.access,0,You can not write in this document! (%s),Keine Schreibberechtigung für dieses Dokument! (%s),0
 error,ir.model.data,0,"The triple (fs_id, module, model) must be unique!","Die Dreifachkombination (fs_id, module, model)  muss eindeuitg sein (kann nicht mehrfach vergeben werden)!",0
+error,ir.model.field,0,Model Field Name must be a python identifier!,Der Feldname eines Modells muss ein gültiger Python-Bezeichner sein!,0
 error,ir.model.field,0,The field name in model must be unique!,Der Feldname in Modell kann nicht mehrfach vergeben werden!,0
 error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Fehlende Abhängigkeiten %s für Modul ""%s""",0
 error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Die zu deinstallierenden Module hängen von installierten Module ab:,0
@@ -468,12 +470,12 @@ selection,"ir.action.keyword,keyword",0,Open tree,Baum öffnen,0
 selection,"ir.action.keyword,keyword",0,Print form,Formular drucken,0
 selection,"ir.action.report,extension",0,ODT Document,ODT Dokument,0
 selection,"ir.action.report,extension",0,PDF Document,PDF Dokument,0
-selection,"ir.cron,interval_type",0,Days,Tage,0
-selection,"ir.cron,interval_type",0,Hours,Stunden,0
-selection,"ir.cron,interval_type",0,Minutes,Minuten,0
-selection,"ir.cron,interval_type",0,Months,Monate,0
-selection,"ir.cron,interval_type",0,Weeks,Wochen,0
-selection,"ir.cron,interval_type",0,Work Days,Arbeitstage,0
+selection,"ir.cron,interval_type",0,Days,Tag(e),0
+selection,"ir.cron,interval_type",0,Hours,Stunde(n),0
+selection,"ir.cron,interval_type",0,Minutes,Minute(n),0
+selection,"ir.cron,interval_type",0,Months,Monat(e),0
+selection,"ir.cron,interval_type",0,Weeks,Woche(n),0
+selection,"ir.cron,interval_type",0,Work Days,Arbeitstag(e),0
 selection,"ir.lang,direction",0,Left-to-right,Links-nach-Rechts,0
 selection,"ir.lang,direction",0,Right-to-left,Rechts-nach-Links,0
 selection,"ir.module.module.config_wizard.item,state",0,Done,Erledigt,0
