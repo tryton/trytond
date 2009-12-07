@@ -136,11 +136,11 @@ class Cron(ModelSQL, ModelView):
                      'body': self.raise_user_error(
                             cursor, 'request_body', (cron['name'], tb_s),
                             raise_exception=False),
-                     'date_sent': DateTime.now(),
+                     'date_sent': datetime.datetime.now(),
                      'references': [
                             ('create',{'reference': "ir.cron,%s"%cron['id']})],
                      'state': 'waiting',
-                     'trigger_date': DateTime.now(),
+                     'trigger_date': datetime.datetime.now(),
                      })
                 cursor.commit()
             except:
