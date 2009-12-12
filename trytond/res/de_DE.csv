@@ -78,7 +78,7 @@ field,"res.request,state",0,State,Status,0
 field,"res.request,trigger_date",0,Trigger Date,Gültig ab,0
 field,"res.request,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.request,write_uid",0,Last modification by,Zuletzt geändert von,0
-field,"res.user,action",0,Home Action,Standardaktion,0
+field,"res.user,action",0,Home Action,Aktion für Startseite,0
 field,"res.user,active",0,Active,Aktiv,0
 field,"res.user,connections",0,Connections,Verbindungen,0
 field,"res.user,create_date",0,Creation date,Erstellungsdatum,0
