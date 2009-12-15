@@ -70,9 +70,9 @@ this repository contains the full copyright notices and license terms. -->
                             <label name="password"/>
                             <field name="password"/>
                             <label name="action"/>
-                            <field name="action" required="1"/>
+                            <field name="action" required="1" widget="selection"/>
                             <label name="menu"/>
-                            <field name="menu"/>
+                            <field name="menu" widget="selection"/>
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
                         </page>
