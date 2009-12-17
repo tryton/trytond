@@ -1,3 +1,4 @@
+* Add cache to safe_eval
 * Rename HttpDaemon into XMLRPCDaemon
 * Improve TranslateFactory to fetch all translations for a report in one query
 * Handle displayname on webdav.collection
