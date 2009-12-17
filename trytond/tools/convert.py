@@ -815,7 +815,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'module': module,
                     'db_id': db_id,
                     'values': values,
-                    'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
+                    'date_update': datetime.datetime.now(),
                     })
                 for table, inherit_mdata_id in inherit_mdata_ids:
                     self.modeldata_obj.write(cursor, user, inherit_mdata_id, {
@@ -824,7 +824,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         'module': module,
                         'db_id': inherit_db_ids[table],
                         'values': values,
-                        'date_update': time.strftime('%Y-%m-%d %H:%M:%S'),
+                        'date_update': datetime.datetime.now(),
                         })
             # reset_browsercord to keep cache memory low
             self.fs2db.reset_browsercord(module, object_ref._name, db_id)

@@ -13,7 +13,7 @@ import unittest
 import time
 from decimal import Decimal
 from trytond import pysocket
-from trytond.tools import reduce_ids, safe_eval
+from trytond.tools import reduce_ids, safe_eval, datetime_strftime
 from lxml import etree
 import datetime
 
@@ -129,6 +129,15 @@ class ToolsTestCase(unittest.TestCase):
         '''
         self.assertRaises(Exception, safe_eval,
                 "().__class__.mro()[1].__subclasses__()")
+
+    def test0070datetime_strftime(self):
+        '''
+        Test datetime_strftime
+        '''
+        self.assert_(datetime_strftime(datetime.date(2005, 3, 2),
+            '%Y-%m-%d'), '2005-03-02')
+        self.assert_(datetime_strftime(datetime.date(1805, 3, 2),
+            '%Y-%m-%d'), '1805-03-02')
 
 
 class FieldsTestCase(unittest.TestCase):

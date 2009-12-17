@@ -43,9 +43,9 @@ setup(name=PACKAGE,
     license=LICENSE,
     install_requires=[
         'lxml',
-        'egenix-mx-base',
         'relatorio >= 0.2.0',
         'Genshi',
+        'python-dateutil',
     ],
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],

@@ -11,18 +11,18 @@ SPEC: Execute "model.function(*eval(args))" periodically
 from trytond.backend import Database
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import safe_eval
-from mx import DateTime
 import datetime
+from dateutil.relativedelta import relativedelta
 import traceback
 import sys
 
 _INTERVALTYPES = {
-    'work_days': lambda interval: DateTime.RelativeDateTime(days=interval),
-    'days': lambda interval: DateTime.RelativeDateTime(days=interval),
-    'hours': lambda interval: DateTime.RelativeDateTime(hours=interval),
-    'weeks': lambda interval: DateTime.RelativeDateTime(days=7*interval),
-    'months': lambda interval: DateTime.RelativeDateTime(months=interval),
-    'minutes': lambda interval: DateTime.RelativeDateTime(minutes=interval),
+    'work_days': lambda interval: relativedelta(days=interval),
+    'days': lambda interval: relativedelta(days=interval),
+    'hours': lambda interval: relativedelta(hours=interval),
+    'weeks': lambda interval: relativedelta(weeks=interval),
+    'months': lambda interval: relativedelta(months=interval),
+    'minutes': lambda interval: relativedelta(minutes=interval),
 }
 
 class Cron(ModelSQL, ModelView):
@@ -147,7 +147,7 @@ class Cron(ModelSQL, ModelView):
                 cursor.rollback()
 
     def pool_jobs(self, db_name):
-        now = DateTime.now()
+        now = datetime.datetime.now()
         try:
             database = Database(db_name).connect()
             cursor = database.cursor()
@@ -168,9 +168,7 @@ class Cron(ModelSQL, ModelView):
                 for cron in crons:
                     cursor.execute('UPDATE ir_cron SET running = %s ' \
                                        'WHERE id = %s', (True, cron['id']))
-                    nextcall = DateTime.strptime(
-                            cron['nextcall'].strftime('%Y-%m-%d %H:%M:%S'),
-                            '%Y-%m-%d %H:%M:%S')
+                    nextcall = cron['nextcall']
                     numbercall = cron['numbercall']
                     done = False
 
@@ -191,9 +189,8 @@ class Cron(ModelSQL, ModelView):
                         addsql_param = [False]
                     cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
                                 "running = %s, numbercall = %s" + addsql + " " \
-                                "WHERE id = %s",
-                                [nextcall.strftime('%Y-%m-%d %H:%M:%S'), False,
-                                    numbercall] + addsql_param + [cron['id']])
+                                "WHERE id = %s", [nextcall, False, numbercall] \
+                                + addsql_param + [cron['id']])
                     cursor.commit()
             except Exception, e:
                 cursor.rollback()

@@ -1,9 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import time
 from trytond.model import ModelView, ModelSQL, fields
 from string import Template
 import datetime
+from trytond.tools import datetime_strftime
 
 
 class SequenceType(ModelSQL, ModelView):
@@ -82,9 +82,9 @@ class Sequence(ModelSQL, ModelView):
         date_obj = self.pool.get('ir.date')
         if not date:
             date = date_obj.today(cursor, user, context=context)
-        year = date.strftime('%Y')
-        month = date.strftime('%m')
-        day = date.strftime('%d')
+        year = datetime_strftime(date, '%Y')
+        month = datetime_strftime(date, '%m')
+        day = datetime_strftime(date, '%d')
         return Template(string or '').substitute(
                 year=year,
                 month=month,

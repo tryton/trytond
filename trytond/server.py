@@ -11,12 +11,6 @@ import logging.handlers
 import sys, os, signal
 import time
 from config import CONFIG
-import mx.DateTime
-
-if not hasattr(mx.DateTime, 'strptime'):
-    mx.DateTime.strptime = lambda x, y: mx.DateTime.mktime(
-            time.strptime(x, y))
-
 from getpass import getpass
 try:
     import hashlib

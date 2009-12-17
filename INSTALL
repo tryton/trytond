@@ -6,8 +6,8 @@ Prerequisites
 
  * Python 2.4 or later (http://www.python.org/)
  * lxml (http://codespeak.net/lxml/)
- * egenix-mx-base (http://www.egenix.com/products/python/)
  * relatorio 0.2.0 or later (http://relatorio.openhex.org/)
+ * python-dateutil (http://labix.org/python-dateutil)
  * Optional: psycopg 2 or later (http://www.initd.org/)
  * Optional: pywebdav 0.9.3 or later (http://code.google.com/p/pywebdav/)
  * Optional: pydot (http://code.google.com/p/pydot/)

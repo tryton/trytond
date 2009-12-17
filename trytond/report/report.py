@@ -28,7 +28,6 @@ import traceback
 from trytond.config import CONFIG
 from trytond.backend import DatabaseIntegrityError
 import inspect
-import mx.DateTime
 import logging
 
 PARENTS = {
@@ -311,10 +310,11 @@ class Report(object):
                     value = str(value)[:19]
                     locale_format = locale_format + ' %H:%M:%S'
                     string_pattern = '%Y-%m-%d %H:%M:%S'
-                date = mx.DateTime.strptime(str(value), string_pattern)
+                date = datetime.datetime(*time.strptime(str(value),
+                    string_pattern)[:6])
             else:
-                date = mx.DateTime.DateTime(*(value.timetuple()[:6]))
-            return lang_obj.strftime(date.tuple(), code, locale_format)
+                date = datetime.datetime(*(value.timetuple()[:6]))
+            return lang_obj.strftime(date, code, locale_format)
         if currency:
             return lang_obj.currency(lang, value, currency, grouping=grouping)
         return lang_obj.format(lang, '%.' + str(digits) + 'f', value,
