@@ -20,6 +20,11 @@ except ImportError:
     import StringIO
 import dis
 import datetime
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import md5
 
 def find_in_path(name):
     if os.name == "nt":
@@ -510,23 +515,34 @@ _ALLOWED_CODES = set(dis.opmap[x] for x in [
     ] if x in dis.opmap)
 
 
+_SAFE_EVAL_CACHE = {}
+
 def safe_eval(source, data=None):
     if '__subclasses__' in source:
         raise ValueError('__subclasses__ not allowed')
-    c = compile(source, '', 'eval')
-    codes = []
-    s = c.co_code
-    i = 0
-    while i < len(s):
-        code = ord(s[i])
-        codes.append(code)
-        if code >= dis.HAVE_ARGUMENT:
-            i += 3
-        else:
-            i += 1
-    for code in codes:
-        if code not in _ALLOWED_CODES:
-            raise ValueError('opcode %s not allowed' % dis.opname[code])
+    if hashlib:
+        key = hashlib.md5(source).digest()
+    else:
+        key = md5.new(source).digest()
+    c = _SAFE_EVAL_CACHE.get(key)
+    if not c:
+        c = compile(source, '', 'eval')
+        codes = []
+        s = c.co_code
+        i = 0
+        while i < len(s):
+            code = ord(s[i])
+            codes.append(code)
+            if code >= dis.HAVE_ARGUMENT:
+                i += 3
+            else:
+                i += 1
+        for code in codes:
+            if code not in _ALLOWED_CODES:
+                raise ValueError('opcode %s not allowed' % dis.opname[code])
+        if len(_SAFE_EVAL_CACHE) > 1024:
+            _SAFE_EVAL_CACHE.clear()
+        _SAFE_EVAL_CACHE[key] = c
     return eval(c, {'__builtins__': {
         'True': True,
         'False': False,
