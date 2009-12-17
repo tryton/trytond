@@ -357,6 +357,8 @@ class PrintModelGraphInit(ModelView):
     _name = 'ir.model.print_model_graph.init'
     _description = __doc__
     level = fields.Integer('Level')
+    filter = fields.Text('Filter', help="Entering a Python "
+            "Regular Expression will exclude matching models from the graph.")
 
     def default_level(self, cursor, user, context=None):
         return 1
@@ -400,6 +402,10 @@ class ModelGraph(Report):
         if context is None:
             context = {}
 
+        if not datas['form']['filter']:
+            filter = None
+        else:
+            filter = re.compile(datas['form']['filter'], re.VERBOSE)
         action_report_ids = action_report_obj.search(cursor, user, [
             ('report_name', '=', self._name)
             ], context=context)
@@ -414,11 +420,24 @@ class ModelGraph(Report):
         graph.set('center', '1')
         graph.set('ratio', 'auto')
         self.fill_graph(cursor, user, models, graph,
-                level=datas['form']['level'], context=context)
+                level=datas['form']['level'], filter=filter, context=context)
         data = graph.create(prog='dot', format='png')
         return ('png', base64.encodestring(data), False, action_report.name)
 
-    def fill_graph(self, cursor, user, models, graph, level=1, context=None):
+    def fill_graph(self, cursor, user, models, graph, level=1, filter=None,
+                context=None):
+        '''
+        Fills a pydot graph with a models structure.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param models: a BrowseRecordList of ir.model
+        :param graph: a pydot.Graph
+        :param level: the depth to dive into model reationships
+        :param filter: a compiled regular expression object to filter specific
+            models
+        :param context: the context
+        '''
         import pydot
         model_obj = self.pool.get('ir.model')
 
@@ -438,9 +457,11 @@ class ModelGraph(Report):
                         context=context)
                 if set(sub_models) != set(models):
                     self.fill_graph(cursor, user, sub_models, graph,
-                            level=level - 1, context=context)
+                            level=level - 1, filter=filter, context=context)
 
         for model in models:
+            if filter and re.search(filter, model.model):
+                    continue
             label = '{' + model.model + '\\n'
             if model.fields:
                 label += '|'
