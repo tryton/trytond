@@ -4,8 +4,8 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import Cache, safe_eval
 from decimal import Decimal
-import mx.DateTime
 import datetime
+import time
 
 
 class Default(ModelSQL, ModelView):
@@ -59,15 +59,11 @@ class Default(ModelSQL, ModelView):
                 elif default.field.ttype == 'numeric':
                     res[default.field.name] = Decimal(default.value)
                 elif default.field.ttype == 'date':
-                    date = mx.DateTime.strptime(default.value, '%Y-%m-%d')
-                    res[default.field.name] = datetime.date(date.year,
-                            date.month, date.day)
+                    res[default.field.name] = datetime.date(*time.strptime(
+                        default.value, '%Y-%m-%d')[:3])
                 elif default.field.ttype == 'datetime':
-                    date = mx.DateTime.strptime(default.value,
-                            '%Y-%m-%d %H:%M:%S')
-                    res[default.field.name] = datetime.datetime(date.year,
-                            date.month, date.day, date.hour, date.minute,
-                            int(date.second))
+                    res[default.field.name] = datetime.datetime(*time.strptime(
+                        default.value, '%Y-%m-%d %H:%M:%S')[:6])
                 else:
                     res[default.field.name] = safe_eval(default.value)
         return res

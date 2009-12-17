@@ -5,7 +5,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import Cache
 from trytond.report import Report
 from trytond.wizard import Wizard
-import time
+import datetime
 import base64
 import re
 IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
@@ -320,7 +320,7 @@ class ModelData(ModelSQL, ModelView):
         ]
 
     def default_date_init(self, cursor, user, context=None):
-        return time.strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.now()
 
     def default_inherit(self, cursor, user, context=None):
         return False

@@ -7,9 +7,9 @@ from trytond.session import Session
 import logging
 import os
 import re
-import mx.DateTime
 from decimal import Decimal
 import datetime
+import time
 
 _FIX_ROWCOUNT = False
 try:
@@ -35,37 +35,37 @@ def extract(lookup_type, date):
         hours, minutes, seconds = map(int, timepart_full[0].split(":"))
         if len(timepart_full) == 2:
             microseconds = int(timepart_full[1])
-            seconds += microseconds / 1000000.0
-        date = mx.DateTime.DateTime(year, month, day, hours, minutes, seconds)
+        date = datetime.datetime(year, month, day, hours, minutes, seconds,
+                microseconds)
     except:
         return None
     if lookup_type.lower() == 'century':
         return date.year / 100 + (date.year % 100 and 1 or 0)
     elif lookup_type.lower() == 'decade':
-        return date.year.year / 10
+        return date.year / 10
     elif lookup_type.lower() == 'dow':
         return (date.weekday() + 1) % 7
     elif lookup_type.lower() == 'doy':
-        return date.day_of_year
+        return date.timetuple().tm_yday
     elif lookup_type.lower() == 'epoch':
-        return date.ticks()
+        return int(time.mktime(date.timetuple()))
     elif lookup_type.lower() == 'microseconds':
-        return int(a.second * 1000000)
+        return date.microsecond
     elif lookup_type.lower() == 'millennium':
         return date.year / 1000 + (date.year % 1000 and 1 or 0)
     elif lookup_type.lower() == 'milliseconds':
-        return int(a.second * 1000)
+        return a.microsecond / 1000
     elif lookup_type.lower() == 'quarter':
         return date.month / 4 + 1
     elif lookup_type.lower() == 'week':
-        return date.iso_week[1]
+        return date.isocalendar()[1]
     return getattr(date, lookup_type)
 
 def date_trunc(_type, date):
     if _type == 'second':
         return date
     try:
-        date = mx.DateTime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        time.strptime(date, '%Y-%m-%d %H:%M:%S')
     except:
         return None
     if _type == 'year':

@@ -3,7 +3,7 @@
 "Lang"
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
-from trytond.tools import safe_eval
+from trytond.tools import safe_eval, datetime_strftime
 import time
 from time_locale import TIME_LOCALE
 
@@ -114,7 +114,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
         '''
         for lang in self.browse(cursor, user, ids):
             try:
-                time.strftime(lang.date, time.localtime())
+                datetime_strftime(datetime.datetime.now(), lang.date)
             except:
                 return False
             if '%Y' not in lang.date:
@@ -326,20 +326,21 @@ class Lang(ModelSQL, ModelView, Cacheable):
 
         return s.replace('<', '').replace('>', '')
 
-    def strftime(self, timetuple, code, format):
+    def strftime(self, datetime, code, format):
         '''
-        Convert timetuple to a string as specified by the format argument.
+        Convert datetime to a string as specified by the format argument.
 
-        :param timetuple: a tuple or struct_time representing a time
+        :param datetime: a datetime
         :param code: locale code
         :param format: a string
         :return: a unicode string
         '''
         if code in TIME_LOCALE:
             for f, i in (('%a', 6), ('%A', 6), ('%b', 1), ('%B', 1)):
-                format = format.replace(f, TIME_LOCALE[code][f][timetuple[i]])
+                format = format.replace(f,
+                        TIME_LOCALE[code][f][datetime.timetuple()[i]])
             format = format.replace('%p', TIME_LOCALE[code]['%p']\
-                    [timetuple[3] < 12 and 0 or 1]).encode('utf-8')
-        return time.strftime(format, timetuple).decode('utf-8')
+                    [datetime.timetuple()[3] < 12 and 0 or 1]).encode('utf-8')
+        return datetime_strftime(datetime, format).decode('utf-8')
 
 Lang()
