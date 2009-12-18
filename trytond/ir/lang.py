@@ -5,6 +5,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.tools import safe_eval, datetime_strftime
 import time
+import datetime
 from time_locale import TIME_LOCALE
 
 
@@ -114,7 +115,8 @@ class Lang(ModelSQL, ModelView, Cacheable):
         '''
         for lang in self.browse(cursor, user, ids):
             try:
-                datetime_strftime(datetime.datetime.now(), lang.date)
+                datetime_strftime(datetime.datetime.now(),
+                        lang.date.encode('utf-8'))
             except:
                 return False
             if '%Y' not in lang.date:
@@ -341,6 +343,8 @@ class Lang(ModelSQL, ModelView, Cacheable):
                         TIME_LOCALE[code][f][datetime.timetuple()[i]])
             format = format.replace('%p', TIME_LOCALE[code]['%p']\
                     [datetime.timetuple()[3] < 12 and 0 or 1]).encode('utf-8')
+        else:
+            format = format.encode('utf-8')
         return datetime_strftime(datetime, format).decode('utf-8')
 
 Lang()
