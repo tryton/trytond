@@ -194,6 +194,7 @@ field,"ir.model,info",0,Information,Information,0
 field,"ir.model,model",0,Model Name,Modellname,0
 field,"ir.model,module",0,Module,Modul,0
 field,"ir.model,name",0,Model Description,Modell Beschreibung,0
+field,"ir.model.print_model_graph.init,filter",0,Filter,Filter,0
 field,"ir.model.print_model_graph.init,level",0,Level,Ebene,0
 field,"ir.model,rec_name",0,Name,Name,0
 field,"ir.module.module,author",0,Author,Autor,0
@@ -320,6 +321,8 @@ help,"ir.model.data,db_id",0,The id of the record in the database.,Die ID des Da
 help,"ir.model.data,fs_id",0,The id of the record as known on the file system.,Die ID des Datensatzes wie im Dateisystem bekannt,0
 help,"ir.model.field,module",0,Module in which this field is defined,"Modul, in dem dieses Feld definiert ist",0
 help,"ir.model,module",0,Module in which this model is defined,"Modul, in dem dieses Modell definiert ist",0
+help,"ir.model.print_model_graph.init,filter",0,Entering a Python Regular Expression will exclude matching models from the graph.,"Ein Regulärer Ausdruck (Python Regular Expression) in diesem Feld wird übereinstimmende
+Modelle von der Darstellung ausschließen.",0
 help,"ir.rule.group,default_p",0,Add this rule to all users by default,Diese Regel als Standardregel für alle Benutzer festlegen,0
 help,"ir.rule.group,global_p",0,"Make the rule global 
 so every users must follow this rule","Regel global setzen
