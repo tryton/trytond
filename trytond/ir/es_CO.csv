@@ -22,6 +22,7 @@ error,ir.cron,0,"The following action failed to execute properly: ""%s""
 error,ir.lang,0,decimal_point and thousands_sep must be different!,El punto_decimal y el separador_de_miles NO pueden coincidir!,0
 error,ir.lang,0,Invalid Grouping!,Agrupamiento Inválido!,0
 error,ir.lang,0,The date format is not valid!,El formato de fecha no es válido!,0
+error,ir.model,0,Module Name must be a python identifier!,El Nombre del Módulo debe ser un identificador de Python!,0
 error,ir.model,0,The model must be unique!,El modelo debe ser único!,0
 error,ir.model.access,0,Only one record by model and group is allowed!,Sólo se permite un registro por modelo y grupo!,0
 error,ir.model.access,0,You can not create this kind of document! (%s),No puede crear esta clase de documento! (%s),0
@@ -29,6 +30,7 @@ error,ir.model.access,0,You can not delete this document! (%s),No puede borrar e
 error,ir.model.access,0,You can not read this document! (%s),No puede leer este documento! (%s),0
 error,ir.model.access,0,You can not write in this document! (%s),No puede escribir en este documento! (%s),0
 error,ir.model.data,0,"The triple (fs_id, module, model) must be unique!","La tripla(fs_id, módulo, modelo) debe ser única!",0
+error,ir.model.field,0,Model Field Name must be a python identifier!,El campo del Nombre del Modelo debe ser un identificador de Python!,0
 error,ir.model.field,0,The field name in model must be unique!,El nombre del campo en el modelo debe ser único!,0
 error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Dependencias faltantes %s para el módulo ""%s""",0
 error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Los módulos que está tratando de desinstalar dependen de módulos instalados:,0
@@ -172,6 +174,7 @@ field,"ir.model.data,fs_id",0,Identifier on File System,Identificador en el Sist
 field,"ir.model.data,inherit",0,Inherit,Hereda,0
 field,"ir.model.data,model",0,Model,Modelo,0
 field,"ir.model.data,module",0,Module,Módulo,0
+field,"ir.model.data,noupdate",0,No Update,No Actualizar,0
 field,"ir.model.data,rec_name",0,Name,Nombre,0
 field,"ir.model.data,values",0,Values,Valores,0
 field,"ir.model.field,field_description",0,Field Description,Descripción del Campo,0
@@ -188,6 +191,7 @@ field,"ir.model,info",0,Information,Información,0
 field,"ir.model,model",0,Model Name,Nombre del Modelo,0
 field,"ir.model,module",0,Module,Módulo,0
 field,"ir.model,name",0,Model Description,Descripción del Modelo,0
+field,"ir.model.print_model_graph.init,filter",0,Filter,Filtro,0
 field,"ir.model.print_model_graph.init,level",0,Level,Nivel,0
 field,"ir.model,rec_name",0,Name,Nombre,0
 field,"ir.module.module,author",0,Author,Autor,0
@@ -313,6 +317,7 @@ help,"ir.model.data,db_id",0,The id of the record in the database.,El id del reg
 help,"ir.model.data,fs_id",0,The id of the record as known on the file system.,El id del registro tal como lo conoce el sistema de archivos.,0
 help,"ir.model.field,module",0,Module in which this field is defined,Módulo en el que este campo fue definido,0
 help,"ir.model,module",0,Module in which this model is defined,Módulo en el que esta modelo fue definido,0
+help,"ir.model.print_model_graph.init,filter",0,Entering a Python Regular Expression will exclude matching models from the graph.,Al usar una expresión regular de Python se excluirá los modelos que coincidan de la gráfica.,0
 help,"ir.rule.group,default_p",0,Add this rule to all users by default,Añadir esta regla para todos los usuarios de forma predeterminada,0
 help,"ir.rule.group,global_p",0,"Make the rule global 
 so every users must follow this rule","Hacer global la regla
