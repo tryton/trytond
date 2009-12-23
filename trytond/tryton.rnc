@@ -24,4 +24,5 @@ attlist.menuitem &= attribute sequence { text }?
 attlist.menuitem &= attribute parent { text }?
 attlist.menuitem &= attribute action { text }?
 attlist.menuitem &= attribute groups { text }?
+attlist.menuitem &= attribute active { text }?
 start = tryton
