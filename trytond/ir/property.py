@@ -11,9 +11,9 @@ class Property(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name')
     value = fields.Reference('Value', selection='models_get')
-    res = fields.Reference('Resource', selection='models_get')
+    res = fields.Reference('Resource', selection='models_get', select=1)
     field = fields.Many2One('ir.model.field', 'Field',
-        ondelete='CASCADE', required=True)
+        ondelete='CASCADE', required=True, select=1)
 
     def models_get(self, cursor, user, context=None):
         cursor.execute('SELECT model, name FROM ir_model ORDER BY name ASC')
