@@ -7,14 +7,15 @@ DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
 if os.path.isdir(DIR):
     sys.path.insert(0, os.path.dirname(DIR))
 import trytond
-if 0:
+if '--profile' in sys.argv:
     import profile
     import pstats
     import tempfile
     import os
+    sys.argv.remove('--profile')
 
     statfile = tempfile.mkstemp(".stat","trytond-")[1]
-    profile.run('trytond.TrytonServer().run()', statfile)
+    profile.run('trytond.server.TrytonServer().run()', statfile)
     s = pstats.Stats(statfile)
     s.strip_dirs().sort_stats('cumulative').print_stats(50)
     s.strip_dirs().sort_stats('call').print_stats(50)
