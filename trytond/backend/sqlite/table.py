@@ -134,7 +134,7 @@ class TableHandler(TableHandlerInterface):
                 (column_name, self.table_name))
 
     def add_raw_column(self, column_name, column_type, column_format,
-            default_fun=None, field_size=None, migrate=True):
+            default_fun=None, field_size=None, migrate=True, string=''):
         if self.column_exist(column_name):
             if not migrate:
                 return

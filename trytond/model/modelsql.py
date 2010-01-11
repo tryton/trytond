@@ -66,19 +66,20 @@ class ModelSQL(ModelStorage):
         integer_field = FIELDS['integer']
         logs = (
             ('create_date', timestamp_field.sql_type(None),
-                timestamp_field.sql_format, lambda *a: datetime.datetime.now()),
+                timestamp_field.sql_format, lambda *a: datetime.datetime.now(),
+                self.create_date.string),
             ('write_date', timestamp_field.sql_type(None),
-                timestamp_field.sql_format, None),
+                timestamp_field.sql_format, None, self.write_date.string),
             ('create_uid', (integer_field.sql_type(None)[0],
              'INTEGER REFERENCES res_user ON DELETE SET NULL',),
-             integer_field.sql_format, lambda *a: 0),
+             integer_field.sql_format, lambda *a: 0, self.create_uid.string),
             ('write_uid', (integer_field.sql_type(None)[0],
              'INTEGER REFERENCES res_user ON DELETE SET NULL'),
-             integer_field.sql_format, None),
+             integer_field.sql_format, None, self.write_uid.string),
             )
         for log in logs:
             table.add_raw_column(log[0], log[1], log[2],
-                    default_fun=log[3], migrate=False)
+                    default_fun=log[3], migrate=False, string=log[4])
         if self._history:
             history_logs = (
                     ('create_date', timestamp_field.sql_type(None),
@@ -94,7 +95,7 @@ class ModelSQL(ModelStorage):
                     )
             for log in history_logs:
                 history_table.add_raw_column(log[0], log[1], log[2],
-                        migrate=False)
+                        migrate=False, string=log[4])
             history_table.index_action('id', action='add')
 
         for field_name, field in self._columns.iteritems():
@@ -129,10 +130,12 @@ class ModelSQL(ModelStorage):
                 table.add_raw_column(field_name,
                         FIELDS[field._type].sql_type(field),
                         FIELDS[field._type].sql_format, default_fun,
-                        hasattr(field, 'size') and field.size or None)
+                        hasattr(field, 'size') and field.size or None,
+                        string=field.string)
                 if self._history:
                     history_table.add_raw_column(field_name,
-                            FIELDS[field._type].sql_type(field), None)
+                            FIELDS[field._type].sql_type(field), None,
+                            string=field.string)
 
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
@@ -191,7 +194,7 @@ class ModelSQL(ModelStorage):
                     history_table.add_raw_column(column_name,
                             (table._columns[column_name]['typname'],
                                 table._columns[column_name]['typname']),
-                                None)
+                                None, string=table._columns[column_name].string)
 
     def _get_error_messages(self):
         res = super(ModelSQL, self)._get_error_messages()
