@@ -120,7 +120,8 @@ class TableHandlerInterface(object):
         raise
 
     def add_raw_column(self, column_name, column_type, column_format,
-            default_fun=None, field_size=None, migrate=True):
+            default_fun=None, field_size=None, migrate=True,
+            string=''):
         '''
         Add a column
 
@@ -130,6 +131,7 @@ class TableHandlerInterface(object):
         :param default_fun: the function that return the default value
         :param field_size: the size of the column if there is one
         :param migrate: boolean to try to migrate the column if exists
+        :param string: the label of the column
         '''
         raise
 

@@ -25,6 +25,9 @@ class TableHandler(TableHandlerInterface):
         if not self.table_exist(self.cursor, self.table_name):
             self.cursor.execute('CREATE TABLE "%s" ()' % self.table_name)
 
+        self.cursor.execute('COMMENT ON TABLE "%s" IS \'%s\'' % (self.table_name,
+                model._description.replace("'", "''")))
+
         self._update_definitions()
         if 'id' not in self._columns:
             if not self.history:
@@ -200,12 +203,16 @@ class TableHandler(TableHandlerInterface):
                 (value,))
 
     def add_raw_column(self, column_name, column_type, column_format,
-            default_fun=None, field_size=None, migrate=True):
+            default_fun=None, field_size=None, migrate=True, string=''):
+        def comment():
+            self.cursor.execute('COMMENT ON COLUMN "%s"."%s" IS \'%s\'' %
+                    (self.table_name, column_name, string.replace("'", "''")))
         if self.column_exist(column_name):
             if column_name in ('create_date', 'write_date'):
                 #Migrate dates from timestamp(0) to timestamp
                 self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
                         'ALTER COLUMN "' + column_name + '" TYPE timestamp')
+            comment()
             if not migrate:
                 return
             base_type = column_type[0].lower()
@@ -249,6 +256,7 @@ class TableHandler(TableHandlerInterface):
         column_type = column_type[1]
         self.cursor.execute('ALTER TABLE "%s" ADD COLUMN "%s" %s' %
                        (self.table_name, column_name, column_type))
+        comment()
 
         if column_format:
             # check if table is non-empty:
