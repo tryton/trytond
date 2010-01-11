@@ -50,7 +50,7 @@ setup(name=PACKAGE,
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],
         'WebDAV': ['PyWebDAV >= 0.9.3'],
-        'PDF': ['openoffice.interact'],
+        'PDF': ['openoffice-python'],
         'SSL': ['pyOpenSSL'],
         'graphviz': ['pydot'],
         'timezone': ['pytz'],
