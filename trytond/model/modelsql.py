@@ -83,19 +83,19 @@ class ModelSQL(ModelStorage):
         if self._history:
             history_logs = (
                     ('create_date', timestamp_field.sql_type(None),
-                        timestamp_field.sql_format),
+                        timestamp_field.sql_format, self.create_date.string),
                     ('write_date', timestamp_field.sql_type(None),
-                        timestamp_field.sql_format),
+                        timestamp_field.sql_format, self.write_date.string),
                     ('create_uid', (integer_field.sql_type(None)[0],
                      'INTEGER REFERENCES res_user ON DELETE SET NULL',),
-                     integer_field.sql_format),
+                     integer_field.sql_format, self.create_uid.string),
                     ('write_uid', (integer_field.sql_type(None)[0],
                      'INTEGER REFERENCES res_user ON DELETE SET NULL'),
-                     integer_field.sql_format),
+                     integer_field.sql_format, self.write_uid.string),
                     )
             for log in history_logs:
                 history_table.add_raw_column(log[0], log[1], log[2],
-                        migrate=False, string=log[4])
+                        migrate=False, string=log[3])
             history_table.index_action('id', action='add')
 
         for field_name, field in self._columns.iteritems():
