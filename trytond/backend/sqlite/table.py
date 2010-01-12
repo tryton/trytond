@@ -118,19 +118,19 @@ class TableHandler(TableHandlerInterface):
     def alter_size(self, column_name, column_type):
         logging.getLogger('init').warning(
             'Unable to alter size of column %s ' \
-                'of table %s not null!' % \
+                'of table %s!' % \
                 (column_name, self.table_name))
 
     def alter_type(self, column_name, column_type):
         logging.getLogger('init').warning(
             'Unable to alter type of column %s ' \
-                'of table %s not null!' % \
+                'of table %s!' % \
                 (column_name, self.table_name))
 
     def db_default(self, column_name, value):
         logging.getLogger('init').warning(
             'Unable to set default on column %s ' \
-                'of table %s not null!' % \
+                'of table %s!' % \
                 (column_name, self.table_name))
 
     def add_raw_column(self, column_name, column_type, column_format,
