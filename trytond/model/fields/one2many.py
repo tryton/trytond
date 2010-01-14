@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model.fields.field import Field
+from itertools import chain
 
 
 class One2Many(Field):
@@ -66,14 +67,14 @@ class One2Many(Field):
         ids2 = []
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            ids2 += model.pool.get(self.model_name).search(cursor, user,
+            ids2.append(model.pool.get(self.model_name).search(cursor, user,
                     [(self.field, 'in', sub_ids)], order=self.order,
-                    context=context)
+                    context=context))
 
         cache = cursor.get_cache(context)
         cache.setdefault(self.model_name, {})
         ids3 = []
-        for i in ids2:
+        for i in chain(*ids2):
             if i in cache[self.model_name] \
                     and self.field in cache[self.model_name][i]:
                 res[cache[self.model_name][i][self.field].id].append(i)
@@ -85,7 +86,7 @@ class One2Many(Field):
                     [self.field], context=context):
                 res[i[self.field]].append(i['id'])
 
-        index_of_ids2 = dict((i, index) for index, i in enumerate(ids2))
+        index_of_ids2 = dict((i, index) for index, i in enumerate(chain(*ids2)))
         for val in res.values():
             val.sort(lambda x, y: cmp(index_of_ids2[x], index_of_ids2[y]))
         return res
