@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model.fields.field import Field
+from itertools import chain
 
 
 class Many2Many(Field):
@@ -70,10 +71,11 @@ class Many2Many(Field):
         relation_ids = []
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            relation_ids += relation_obj.search(cursor, user, [
+            relation_ids.append(relation_obj.search(cursor, user, [
                 (self.origin, 'in', sub_ids),
                 (self.target + '.id', '!=', False),
-                ], order=self.order, context=context)
+                ], order=self.order, context=context))
+        relation_ids = list(chain(*relation_ids))
 
         for relation in relation_obj.read(cursor, user, relation_ids,
                 [self.origin, self.target], context=context):
