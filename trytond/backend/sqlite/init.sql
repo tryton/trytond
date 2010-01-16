@@ -1,51 +1,38 @@
--------------------------------------------------------------------------
--- Modules Description
--------------------------------------------------------------------------
-
 CREATE TABLE ir_model (
-  id INTEGER PRIMARY KEY,
-  model VARCHAR,
-  name VARCHAR,
-  info TEXT,
-  module VARCHAR
+    id INTEGER PRIMARY KEY,
+    model VARCHAR,
+    name VARCHAR,
+    info TEXT,
+    module VARCHAR
 );
 
 CREATE TABLE ir_model_field (
-  id INTEGER PRIMARY KEY,
-  model INTEGER,
-  name VARCHAR,
-  relation VARCHAR,
-  field_description VARCHAR,
-  ttype VARCHAR,
-  help TEXT,
-  module VARCHAR
+    id INTEGER PRIMARY KEY,
+    model INTEGER,
+    name VARCHAR,
+    relation VARCHAR,
+    field_description VARCHAR,
+    ttype VARCHAR,
+    help TEXT,
+    module VARCHAR
 );
 
 
--------------------------------------------------------------------------
--- Actions
--------------------------------------------------------------------------
 CREATE TABLE ir_ui_view (
-	id INTEGER PRIMARY KEY,
-	model VARCHAR,
-	"type" VARCHAR,
-	arch TEXT,
-	field_childs VARCHAR,
-	priority INTEGER DEFAULT 0
+    id INTEGER PRIMARY KEY,
+    model VARCHAR,
+    "type" VARCHAR,
+    arch TEXT,
+    field_childs VARCHAR,
+    priority INTEGER DEFAULT 0
 );
 
 CREATE TABLE ir_ui_menu (
-	id INTEGER PRIMARY KEY,
-	parent_id INTEGER,
-	name VARCHAR,
-	icon VARCHAR
+    id INTEGER PRIMARY KEY,
+    parent INTEGER,
+    name VARCHAR,
+    icon VARCHAR
 );
-
-
-
---------------------------------
--- Translation
---------------------------------
 
 CREATE TABLE ir_translation (
     id INTEGER PRIMARY KEY,
@@ -68,26 +55,15 @@ CREATE TABLE ir_lang (
     direction VARCHAR
 );
 
----------------------------------
--- Res user
----------------------------------
-
--- level:
---   0  RESTRICT TO USER
---   1  RESTRICT TO GROUP
---   2  PUBLIC
-
 CREATE TABLE res_user (
     id INTEGER PRIMARY KEY,
     name VARCHAR,
     active BOOLEAN,
     login VARCHAR,
-    password VARCHAR(40),
---  action_id INTEGER references ir_act_window on delete set null,
-    action INTEGER
+    password VARCHAR
 );
 
-insert into res_user (id,login,password,name,action,active) values (0,'root',NULL,'Root',NULL,0);
+INSERT INTO res_user (id, login, password, name, active) VALUES (0, 'root', NULL, 'Root', 0);
 
 CREATE TABLE res_group (
     id INTEGER PRIMARY KEY,
@@ -96,24 +72,18 @@ CREATE TABLE res_group (
 
 CREATE TABLE "res_user-res_group" (
     id INTEGER PRIMARY KEY,
-	uid INTEGER,
-	gid INTEGER
+    uid INTEGER,
+    gid INTEGER
 );
 
----------------------------------
--- Workflows
----------------------------------
-
-create table wkf
-(
+CREATE TABLE wkf (
     id INTEGER PRIMARY KEY,
     name VARCHAR,
     model VARCHAR,
     on_create BOOLEAN
 );
 
-create table wkf_activity
-(
+CREATE TABLE wkf_activity (
     id INTEGER PRIMARY KEY,
     workflow INTEGER,
     subflow INTEGER,
@@ -127,8 +97,7 @@ create table wkf_activity
     action TEXT
 );
 
-create table wkf_transition
-(
+CREATE TABLE wkf_transition (
     id INTEGER PRIMARY KEY,
     act_from INTEGER,
     act_to INTEGER,
@@ -138,8 +107,7 @@ create table wkf_transition
     "group" INTEGER
 );
 
-create table wkf_instance
-(
+CREATE TABLE wkf_instance (
     id INTEGER PRIMARY KEY,
     workflow INTEGER,
     uid INTEGER DEFAULT 0,
@@ -148,8 +116,7 @@ create table wkf_instance
     state VARCHAR
 );
 
-create table wkf_workitem
-(
+CREATE TABLE wkf_workitem (
     id INTEGER PRIMARY KEY,
     activity INTEGER,
     instance INTEGER,
@@ -157,16 +124,11 @@ create table wkf_workitem
     state VARCHAR
 );
 
-create table wkf_witm_trans
-(
+CREATE TABLE wkf_witm_trans (
     id INTEGER PRIMARY KEY,
     trans_id INTEGER,
     inst_id INTEGER
 );
-
----------------------------------
--- Modules
----------------------------------
 
 CREATE TABLE ir_module_module (
     id INTEGER PRIMARY KEY,

@@ -1,210 +1,230 @@
--------------------------------------------------------------------------
--- Modules Description
--------------------------------------------------------------------------
+CREATE SEQUENCE ir_model_id_seq;
 
 CREATE TABLE ir_model (
-  id serial,
-  model varchar NOT NULL,
-  name varchar,
-  info text,
-  module varchar,
-  primary key(id)
+    id INTEGER DEFAULT NEXTVAL('ir_model_id_seq') NOT NULL,
+    model VARCHAR NOT NULL,
+    name VARCHAR,
+    info TEXT,
+    module VARCHAR,
+    PRIMARY KEY(id)
 );
+
+CREATE SEQUENCE ir_model_field_id_seq;
 
 CREATE TABLE ir_model_field (
-  id serial,
-  model int references ir_model on delete cascade,
-  name varchar NOT NULL,
-  relation varchar,
-  field_description varchar,
-  ttype varchar,
-  help text,
-  module varchar,
-  primary key(id)
+    id INTEGER DEFAULT NEXTVAL('ir_model_field_id_seq') NOT NULL,
+    model INTEGER,
+    name VARCHAR NOT NULL,
+    relation VARCHAR,
+    field_description VARCHAR,
+    ttype VARCHAR,
+    help TEXT,
+    module VARCHAR,
+    PRIMARY KEY(id),
+    FOREIGN KEY (model) REFERENCES ir_model(id) ON DELETE CASCADE
 );
 
+CREATE SEQUENCE ir_ui_view_id_seq;
 
--------------------------------------------------------------------------
--- Actions
--------------------------------------------------------------------------
 CREATE TABLE ir_ui_view (
-	id serial NOT NULL,
-	model varchar NOT NULL,
-	"type" varchar,
-	arch text NOT NULL,
-	field_childs varchar,
-	priority integer NOT NULL default 0,
-	primary key(id)
+    id INTEGER DEFAULT NEXTVAL('ir_ui_view_id_seq') NOT NULL,
+    model VARCHAR NOT NULL,
+    "type" VARCHAR,
+    arch TEXT NOT NULL,
+    field_childs VARCHAR,
+    priority INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY(id)
 );
+
+CREATE SEQUENCE ir_ui_menu_id_seq;
 
 CREATE TABLE ir_ui_menu (
-	id serial NOT NULL,
-	parent_id int references ir_ui_menu on delete set null,
-	name varchar NOT NULL,
-	icon varchar,
-	primary key (id)
+    id INTEGER DEFAULT NEXTVAL('ir_ui_menu_id_seq') NOT NULL,
+    parent INTEGER,
+    name VARCHAR NOT NULL,
+    icon VARCHAR,
+    PRIMARY KEY (id),
+    FOREIGN KEY (parent) REFERENCES ir_ui_menu (id) ON DELETE SET NULL
 );
 
-
-
---------------------------------
--- Translation
---------------------------------
+CREATE SEQUENCE ir_translation_id_seq;
 
 CREATE TABLE ir_translation (
-    id serial NOT NULL,
-    lang varchar,
-    src text,
-    name varchar NOT NULL,
-    res_id integer not null default 0,
-    value text,
-    "type" varchar,
-    module varchar,
-    fuzzy boolean,
-    primary key(id)
+    id INTEGER DEFAULT NEXTVAL('ir_translation_id_seq') NOT NULL,
+    lang VARCHAR,
+    src TEXT,
+    name VARCHAR NOT NULL,
+    res_id INTEGER NOT NULL DEFAULT 0,
+    value TEXT,
+    "type" VARCHAR,
+    module VARCHAR,
+    fuzzy BOOLEAN NOT NULL,
+    PRIMARY KEY(id)
 );
+
+CREATE SEQUENCE ir_lang_id_seq;
 
 CREATE TABLE ir_lang (
-    id serial NOT NULL,
-    name varchar NOT NULL,
-    code varchar NOT NULL,
-    translatable boolean,
-    active boolean,
-    direction varchar NOT NULL,
-    primary key(id)
+    id INTEGER DEFAULT NEXTVAL('ir_lang_id_seq') NOT NULL,
+    name VARCHAR NOT NULL,
+    code VARCHAR NOT NULL,
+    translatable BOOLEAN NOT NULL,
+    active BOOLEAN NOT NULL,
+    direction VARCHAR NOT NULL,
+    PRIMARY KEY(id)
 );
 
----------------------------------
--- Res user
----------------------------------
-
--- level:
---   0  RESTRICT TO USER
---   1  RESTRICT TO GROUP
---   2  PUBLIC
+CREATE SEQUENCE res_user_id_seq;
 
 CREATE TABLE res_user (
-    id serial NOT NULL,
-    name varchar not null,
-    active boolean,
-    login varchar NOT NULL UNIQUE,
-    password varchar(40),
---  action_id int references ir_act_window on delete set null,
-    action int,
-    primary key(id)
+    id INTEGER DEFAULT NEXTVAL('res_user_id_seq') NOT NULL,
+    name VARCHAR NOT NULL,
+    active BOOLEAN NOT NULL,
+    login VARCHAR NOT NULL UNIQUE,
+    password VARCHAR,
+    PRIMARY KEY(id)
 );
-alter table res_user add constraint res_user_login_uniq unique (login);
 
-insert into res_user (id,login,password,name,action,active) values (0,'root',NULL,'Root',NULL,False);
+ALTER TABLE res_user ADD CONSTRAINT res_user_login_uniq UNIQUE (login);
+
+INSERT INTO res_user (id, login, password, name, active) VALUES (0, 'root', NULL, 'Root', False);
+
+CREATE SEQUENCE res_group_id_seq;
 
 CREATE TABLE res_group (
-    id serial NOT NULL,
-    name varchar NOT NULL,
-    primary key(id)
+    id INTEGER DEFAULT NEXTVAL('res_group_id_seq') NOT NULL,
+    name VARCHAR NOT NULL,
+    PRIMARY KEY(id)
 );
+
+CREATE SEQUENCE "res_user-res_group_id_seq";
 
 CREATE TABLE "res_user-res_group" (
-	uid integer NOT NULL references res_user on delete cascade,
-	gid integer NOT NULL references res_group on delete cascade
+    id INTEGER DEFAULT NEXTVAL('res_user-res_group_id_seq') NOT NULL,
+    uid INTEGER NOT NULL,
+    gid INTEGER NOT NULL,
+    FOREIGN KEY (uid) REFERENCES res_user (id) ON DELETE CASCADE,
+    FOREIGN KEY (gid) REFERENCES res_group (id) ON DELETE CASCADE,
+    PRIMARY KEY(id)
 );
 
----------------------------------
--- Workflows
----------------------------------
+CREATE SEQUENCE wkf_id_seq;
 
-create table wkf
-(
-    id serial,
-    name varchar,
-    model varchar,
-    on_create bool,
-    primary key(id)
+CREATE TABLE wkf (
+    id INTEGER DEFAULT NEXTVAL('wkf_id_seq') NOT NULL,
+    name VARCHAR,
+    model VARCHAR,
+    on_create BOOL NOT NULL,
+    PRIMARY KEY(id)
 );
 
-create table wkf_activity
-(
-    id serial,
-    workflow int references wkf on delete cascade,
-    subflow int references wkf on delete set null,
-    split_mode varchar,
-    join_mode varchar,
-    kind varchar not null,
-    name varchar,
-    signal_send varchar,
-    flow_start boolean,
-    flow_stop boolean,
-    action text,
-    primary key(id)
+CREATE SEQUENCE wkf_activity_id_seq;
+
+CREATE TABLE wkf_activity (
+    id INTEGER DEFAULT NEXTVAL('wkf_activity_id_seq') NOT NULL,
+    workflow INTEGER,
+    subflow INTEGER,
+    split_mode VARCHAR NOT NULL,
+    join_mode VARCHAR NOT NULL,
+    kind VARCHAR NOT NULL,
+    name VARCHAR NOT NULL,
+    signal_send VARCHAR,
+    flow_start BOOLEAN NOT NULL,
+    flow_stop BOOLEAN NOT NULL,
+    action TEXT,
+    PRIMARY KEY(id),
+    FOREIGN KEY (workflow) REFERENCES wkf (id) ON DELETE CASCADE,
+    FOREIGN KEY (subflow) REFERENCES wkf (id) ON DELETE SET NULL
 );
 
-create table wkf_transition
-(
-    id serial,
-    act_from int references wkf_activity on delete cascade,
-    act_to int references wkf_activity on delete cascade,
-    condition varchar,
-    trigger_expr_id varchar,
-    signal varchar,
-    "group" int references res_group on delete set null,
+CREATE SEQUENCE wkf_transition_id_seq;
 
-    primary key(id)
+CREATE TABLE wkf_transition (
+    id INTEGER DEFAULT NEXTVAL('wkf_transition_id_seq') NOT NULL,
+    act_from INTEGER NOT NULL,
+    act_to INTEGER NOT NULL,
+    condition VARCHAR NOT NULL,
+    trigger_expr_id VARCHAR,
+    signal VARCHAR,
+    "group" INTEGER,
+    PRIMARY KEY(id),
+    FOREIGN KEY (act_from) REFERENCES wkf_activity (id) ON DELETE CASCADE,
+    FOREIGN KEY (act_to) REFERENCES wkf_activity (id) ON DELETE CASCADE,
+    FOREIGN KEY ("group") REFERENCES res_group (id) ON DELETE SET NULL
 );
 
-create table wkf_instance
-(
-    id serial,
-    workflow int references wkf on delete restrict,
-    uid int,
-    res_id int not null,
-    res_type varchar not null,
-    state varchar not null,
-    primary key(id)
+CREATE SEQUENCE wkf_instance_id_seq;
+
+CREATE TABLE wkf_instance (
+    id INTEGER DEFAULT NEXTVAL('wkf_instance_id_seq') NOT NULL,
+    workflow INTEGER,
+    uid INTEGER DEFAULT 0,
+    res_id INT NOT NULL DEFAULT 0,
+    res_type VARCHAR NOT NULL,
+    state VARCHAR NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY (workflow) REFERENCES wkf (id) ON DELETE RESTRICT
 );
 
-create table wkf_workitem
-(
-    id serial,
-    activity int not null references wkf_activity on delete cascade,
-    instance int not null references wkf_instance on delete cascade,
-    subflow int references wkf_instance on delete cascade,
-    state varchar,
-    primary key(id)
+CREATE SEQUENCE wkf_workitem_id_seq;
+
+CREATE TABLE wkf_workitem (
+    id INTEGER DEFAULT NEXTVAL('wkf_workitem_id_seq') NOT NULL,
+    activity INTEGER NOT NULL,
+    instance INTEGER NOT NULL,
+    subflow INTEGER,
+    state VARCHAR,
+    PRIMARY KEY(id),
+    FOREIGN KEY (activity) REFERENCES wkf_activity (id) ON DELETE CASCADE,
+    FOREIGN KEY (instance) REFERENCES wkf_instance (id) ON DELETE CASCADE,
+    FOREIGN KEY (subflow) REFERENCES wkf_instance (id) ON DELETE CASCADE
 );
 
-create table wkf_witm_trans
-(
-    trans_id int not null references wkf_transition on delete cascade,
-    inst_id int not null references wkf_instance on delete cascade
+CREATE SEQUENCE wkf_witm_trans_id_seq;
+
+CREATE TABLE wkf_witm_trans (
+    id INTEGER DEFAULT NEXTVAL('wkf_witm_trans_id_seq') NOT NULL,
+    trans_id INTEGER NOT NULL,
+    inst_id INTEGER NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY (trans_id) REFERENCES wkf_transition ON DELETE CASCADE,
+    FOREIGN KEY (inst_id) REFERENCES wkf_instance ON DELETE CASCADE
 );
 
----------------------------------
--- Modules
----------------------------------
+CREATE SEQUENCE ir_module_module_id_seq;
 
 CREATE TABLE ir_module_module (
-    id serial NOT NULL,
-    create_uid integer NOT NULL references res_user on delete set null,
-    create_date timestamp without time zone NOT NULL,
-    write_date timestamp without time zone,
-    write_uid integer references res_user on delete set null,
-    website varchar,
-    name varchar NOT NULL,
-    author varchar,
-    url varchar,
-    state varchar,
-    shortdesc varchar,
-    description text,
-    primary key(id)
+    id INTEGER DEFAULT NEXTVAL('ir_module_module_id_seq') NOT NULL,
+    create_uid INTEGER NOT NULL,
+    create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    write_date TIMESTAMP WITHOUT TIME ZONE,
+    write_uid INTEGER,
+    website VARCHAR,
+    name VARCHAR NOT NULL,
+    author VARCHAR,
+    url VARCHAR,
+    state VARCHAR,
+    shortdesc VARCHAR,
+    description TEXT,
+    PRIMARY KEY(id),
+    FOREIGN KEY (create_uid) REFERENCES res_user ON DELETE SET NULL,
+    FOREIGN KEY (write_uid) REFERENCES res_user ON DELETE SET NULL
 );
-ALTER TABLE ir_module_module add constraint name_uniq unique (name);
+
+ALTER TABLE ir_module_module ADD CONSTRAINT name_uniq UNIQUE (name);
+
+CREATE SEQUENCE ir_module_module_dependency_id_seq;
 
 CREATE TABLE ir_module_module_dependency (
-    id serial NOT NULL,
-    create_uid integer NOT NULL references res_user on delete set null,
-    create_date timestamp without time zone NOT NULL,
-    write_date timestamp without time zone,
-    write_uid integer references res_user on delete set null,
-    name varchar,
-    module integer REFERENCES ir_module_module ON DELETE cascade,
-    primary key(id)
+    id INTEGER DEFAULT NEXTVAL('ir_module_module_dependency_id_seq') NOT NULL,
+    create_uid INTEGER NOT NULL,
+    create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    write_date TIMESTAMP WITHOUT TIME ZONE,
+    write_uid INTEGER,
+    name VARCHAR,
+    module INTEGER,
+    PRIMARY KEY(id),
+    FOREIGN KEY (create_uid) REFERENCES res_user ON DELETE SET NULL,
+    FOREIGN KEY (write_uid) REFERENCES res_user ON DELETE SET NULL,
+    FOREIGN KEY (module) REFERENCES ir_module_module ON DELETE CASCADE
 );
