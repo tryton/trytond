@@ -37,7 +37,7 @@ class Model(object):
             return self.__columns
         res = {}
         for attr in dir(self):
-            if attr in ('_columns', '_defaults', '_xxx2many_targets'):
+            if attr.startswith('_'):
                 continue
             if isinstance(getattr(self, attr), fields.Field):
                 res[attr] = getattr(self, attr)
