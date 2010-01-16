@@ -179,16 +179,16 @@ class TableHandler(TableHandlerInterface):
 
         self.cursor.execute("ALTER TABLE \"%s\" " \
                        "RENAME COLUMN \"%s\" " \
-                       "TO temp_change_size" % \
+                       "TO _temp_change_size" % \
                        (self.table_name, column_name))
         self.cursor.execute("ALTER TABLE \"%s\" " \
                        "ADD COLUMN \"%s\" %s" % \
                        (self.table_name, column_name, column_type))
         self.cursor.execute("UPDATE \"%s\" " \
-                       "SET \"%s\" = temp_change_size::%s" % \
+                       "SET \"%s\" = _temp_change_size::%s" % \
                        (self.table_name, column_name, column_type))
         self.cursor.execute("ALTER TABLE \"%s\" " \
-                       "DROP COLUMN temp_change_size" % \
+                       "DROP COLUMN _temp_change_size" % \
                        (self.table_name,))
         self._update_definitions()
 
