@@ -464,7 +464,7 @@ class ModuleDependency(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name')
     module = fields.Many2One('ir.module.module', 'Module', select=1,
-       ondelete='CASCADE')
+       ondelete='CASCADE', required=True)
     state = fields.Function('get_state', type='selection',
        selection=[
        ('uninstalled','Not Installed'),
