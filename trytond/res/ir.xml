@@ -448,5 +448,45 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Scheduler</field>
             <field name="model">ir.cron</field>
         </record>
+
+        <record model="ir.ui.view" id="sequence_type_view_form">
+          <field name="model">ir.sequence.type</field>
+          <field name="inherit" ref="ir.sequence_type_view_form"/>
+          <field name="arch" type="xml">
+                <![CDATA[
+                    <data>
+                        <xpath
+                            expr="/form/field[@name=&quot;code&quot;]"
+                            position="after">
+                          <separator name="groups" colspan="4"/>
+                          <field name="groups" colspan="4"/>
+                        </xpath>
+                    </data>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_sequence">
+            <field name="model" search="[('model', '=', 'ir.sequence')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_sequence">
+            <field name="field" search="[('name', '=', 'groups'), ('model.model', '=', 'ir.sequence')]"/>
+            <field name="operator">in</field>
+            <field name="operand">User/Groups</field>
+            <field name="rule_group" ref="rule_group_sequence"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_sequence_strict">
+            <field name="model" search="[('model', '=', 'ir.sequence.strict')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_sequence_strict">
+            <field name="field" search="[('name', '=', 'groups'), ('model.model', '=', 'ir.sequence.strict')]"/>
+            <field name="operator">in</field>
+            <field name="operand">User/Groups</field>
+            <field name="rule_group" ref="rule_group_sequence_strict"/>
+        </record>
+
     </data>
 </tryton>
