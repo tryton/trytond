@@ -106,21 +106,20 @@ class Sequence(ModelSQL, ModelView):
         if isinstance(domain, (int, long)):
             domain = [('id', '=', domain)]
 
-        sequence_ids = self.search(cursor, user, domain, limit=1,
+        # bypass rules on sequences
+        sequence_ids = self.search(cursor, 0, domain, limit=1,
                 context=context)
         date = context.get('date')
         if sequence_ids:
-            sequence = self.browse(cursor, user, sequence_ids[0],
+            sequence = self.browse(cursor, 0, sequence_ids[0],
                     context=context)
             #Pre-fetch number_next
             number_next = sequence.number_next
-            # Use SQL query to bypass access rules
-            cursor.execute('UPDATE "' + self._table + '" ' \
-                    'SET number_next = number_next + number_increment, ' \
-                        'write_uid = %s, ' \
-                        'write_date = %s ' \
-                    'WHERE id = %s AND active = %s',
-                    (user, datetime.datetime.now(), sequence.id, True))
+
+            self.write(cursor, 0, sequence.id, {
+                    'number_next': number_next + sequence.number_increment,
+                    }, context=context)
+
             if number_next:
                 return self._process(cursor, user, sequence.prefix, date=date,
                         context=context) + \
