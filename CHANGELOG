@@ -1,3 +1,4 @@
+* Add groups on Sequence Types and add rules on sequence based on it.
 * Ignore Fields that starts with "_"
 * Add comment on table and field for postgresql backend
 * Remove egenix-mx-base and replace it by python-dateutil
