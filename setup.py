@@ -55,7 +55,6 @@ setup(name=PACKAGE,
         'SSL': ['pyOpenSSL'],
         'graphviz': ['pydot'],
         'timezone': ['pytz'],
-        'json': ['simplejson'],
     },
     zip_safe=False,
 )
