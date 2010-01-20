@@ -483,7 +483,7 @@ class ActionActWindow(ModelSQL, ModelView):
                     return False
                 else:
                     try:
-                        field.context_validate(value)
+                        fields.context_validate(value)
                     except:
                         return False
         return True
