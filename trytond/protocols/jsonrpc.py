@@ -6,10 +6,6 @@ from trytond.config import CONFIG
 import SimpleXMLRPCServer
 import SimpleHTTPServer
 import SocketServer
-try:
-    import json
-except ImportError:
-    import simplejson as json
 from xmlrpclib import Fault
 import threading
 import traceback
@@ -26,6 +22,10 @@ import posixpath
 import urllib
 import datetime
 from decimal import Decimal
+if sys.version_info < (2, 6):
+    import simplejson as json
+else:
+    import json
 
 def object_hook(dct):
     if '__class__' in dct:
