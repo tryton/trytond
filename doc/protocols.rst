@@ -10,3 +10,6 @@ XML-RPC
 
 WebDAV
 ******
+
+JSON-RPC
+********
