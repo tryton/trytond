@@ -233,10 +233,8 @@ class Database(DatabaseInterface):
 class _Cursor(sqlite.Cursor):
 
     def __build_dict(self, row):
-        res = {}
-        for i in range(len(self.description)):
-            res[self.description[i][0].strip('"')] = row[i]
-        return res
+        return dict((desc[0], row[i])
+                for i, desc in enumerate(self.description))
 
     def dictfetchone(self):
         row = self.fetchone()
@@ -246,18 +244,12 @@ class _Cursor(sqlite.Cursor):
             return row
 
     def dictfetchmany(self, size):
-        res = []
         rows = self.fetchmany(size)
-        for row in rows:
-            res.append(self.__build_dict(row))
-        return res
+        return [self.__build_dict(row) for row in rows]
 
     def dictfetchall(self):
-        res = []
         rows = self.fetchall()
-        for row in rows:
-            res.append(self.__build_dict(row))
-        return res
+        return [self.__build_dict(row) for row in rows]
 
 
 class Cursor(CursorInterface):
