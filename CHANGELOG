@@ -1,3 +1,4 @@
+* Add PySON to replace python string evaluation on client side
 * Add JSON-RPC
 * Add groups on Sequence Types and add rules on sequence based on it.
 * Ignore Fields that starts with "_"

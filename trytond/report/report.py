@@ -212,6 +212,9 @@ class Report(object):
         rel_report = relatorio.reporting.Report(path, 'application/vnd.oasis.opendocument.text',
                 ReportFactory(), relatorio.reporting.MIMETemplateLoader())
         rel_report.filters.insert(0, translator)
+        #convert unicode key into str
+        localcontext = dict(map(lambda x: (str(x[0]), x[1]),
+            localcontext.iteritems()))
         #Test compatibility with old relatorio version <= 0.3.0
         if len(inspect.getargspec(rel_report.__call__)[0]) == 2:
             data = rel_report(objects, **localcontext).render().getvalue()

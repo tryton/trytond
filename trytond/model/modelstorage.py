@@ -5,6 +5,7 @@ from trytond.model import fields
 from trytond.model.browse import BrowseRecordList, BrowseRecord, BrowseRecordNull
 from trytond.model.browse import EvalEnvironment
 from trytond.tools import safe_eval
+from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
 import datetime
 import time
 from decimal import Decimal
@@ -918,24 +919,17 @@ class ModelStorage(Model):
             ctx_pref = user_obj.get_preferences(cursor, user,
                 context_only=True, context=context)
 
-        def eval_domain(domain, env=None):
-            res = []
-            for arg in domain:
-                if isinstance(arg, basestring):
-                    if arg in ('AND', 'OR'):
-                        res.append(arg)
-                    else:
-                        if not env:
-                            return True
-                        res.append(safe_eval(arg, env))
-                elif isinstance(arg, tuple):
-                    res.append(arg)
-                elif isinstance(arg, list):
-                    arg = eval_domain(arg, env=env)
-                    if arg == True:
+        def is_pyson(test):
+            if isinstance(test, PYSON):
+                return True
+            if isinstance(test, (list, tuple)):
+                for i in test:
+                    if isinstance(i, PYSON):
                         return True
-                    res.append(arg)
-            return res
+                    if isinstance(i, (list, tuple)):
+                        if is_pyson(i):
+                            return True
+            return False
 
         context.update(ctx_pref)
         records = self.browse(cursor, user, ids, context=context)
@@ -947,7 +941,8 @@ class ModelStorage(Model):
                     relation_obj = self.pool.get(field.model_name)
                 else:
                     relation_obj = field.get_target(self.pool)
-                if eval_domain(field.domain) == True:
+                if is_pyson(field.domain):
+                    pyson_domain = PYSONEncoder().encode(field.domain)
                     ctx = context.copy()
                     ctx.update(ctx_pref)
                     for record in records:
@@ -957,7 +952,7 @@ class ModelStorage(Model):
                         env['time'] = time
                         env['context'] = context
                         env['active_id'] = record.id
-                        domain = eval_domain(field.domain, env=env)
+                        domain = PYSONDecoder(env).decode(pyson_domain)
                         relation_ids = []
                         if record[field_name]:
                             if field._type in ('many2one',):
@@ -999,9 +994,11 @@ class ModelStorage(Model):
                                     context=context)
             # validate states required
             if field.states and 'required' in field.states:
-                if isinstance(field.states['required'], basestring):
+                if is_pyson(field.states['required']):
                     ctx = context.copy()
                     ctx.update(ctx_pref)
+                    pyson_required = PYSONEncoder().encode(
+                            field.states['required'])
                     for record in records:
                         env = EvalEnvironment(record, self)
                         env.update(ctx)
@@ -1009,7 +1006,7 @@ class ModelStorage(Model):
                         env['time'] = time
                         env['context'] = context
                         env['active_id'] = record.id
-                        required = safe_eval(field.states['required'], env)
+                        required = PYSONDecoder(env).decode(pyson_required)
                         if required and not record[field_name]:
                             self.raise_user_error(cursor,
                                     'required_validation_record',

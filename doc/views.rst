@@ -291,7 +291,8 @@ Each tree view must start with this tag.
 
     * ``sequence``: The name of the field that is used for sorting.  So this field must be an interger and it will be updated to match the new sort when the user use the ``Drag and Drop`` between rows of the list.
 
-    * ``colors``: A string that is a list of color specification separated by ';'.  The specifications have this form: ``color name:test``.  The tests is evaluated on each rows and when one return True, than the color is used to highlight the row.
+    * ``colors``: A PySON string that will be evaluated for each record. A string containing the
+      name of the color will be returned.
 
     * ``fill``: A boolean to specify if the last column must fill the remain free space in the view.
 
@@ -378,9 +379,8 @@ field
     * ``key``: can be used to distinguish fields with the same name but
       that are different with domain
 
-    * ``domain``: a string that is evaluate with the object value as
-      context. If the result is true the field value is added to the
-      graph otherwise not
+    * ``domain``: a PySON string which is evaluated with the object value as
+      context. If the result is true the field value is added to the graph.
 
     * ``fill``: defined if the graph must be fill
 

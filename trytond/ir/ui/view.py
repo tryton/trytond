@@ -7,6 +7,8 @@ import os
 import logging
 from lxml import etree
 from trytond.backend import TableHandler
+from trytond.pyson import PYSONEncoder, CONTEXT, Eval, Not, Bool, Equal
+from trytond.tools import safe_eval
 
 
 class View(ModelSQL, ModelView):
@@ -27,11 +29,11 @@ class View(ModelSQL, ModelView):
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
             ondelete='CASCADE')
     field_childs = fields.Char('Children Field', states={
-        'invisible': "type != 'tree'",
+        'invisible': Not(Equal(Eval('type'), 'tree')),
         })
     module = fields.Char('Module', readonly=True)
     domain = fields.Char('Domain', states={
-        'invisible': "not bool(inherit)",
+        'invisible': Not(Bool(Eval('inherit'))),
         })
 
     def __init__(self):
@@ -93,6 +95,36 @@ class View(ModelSQL, ModelView):
                         'Invalid xml view:\n%s' %  (str(error_log) + '\n' + xml))
                     return False
             root_element = tree.getroottree().getroot()
+
+            # validate pyson attributes
+            validates = {
+                'states': fields.states_validate,
+                'domain': fields.domain_validate,
+                'context': fields.context_validate,
+                'digits': fields.digits_validate,
+                'add_remove': fields.add_remove_validate,
+            }
+            def encode(element):
+                for attr in ('states', 'domain', 'context', 'digits',
+                        'add_remove', 'spell', 'colors'):
+                    if element.get(attr):
+                        try:
+                            value = safe_eval(element.get(attr), CONTEXT)
+                            validates.get(attr, lambda a: True)(value)
+                        except Exception, e:
+                            logger = logging.getLogger('ir')
+                            logger.error('Invalid pyson view element "%s:%s":' \
+                                    '\n%s\n%s' % \
+                                    (element.get('id') or element.get('name'),
+                                        attr, str(e), xml))
+                            return False
+                for child in element:
+                    if not encode(child):
+                        return False
+                return True
+            if not encode(root_element):
+                return False
+
             strings = self._translate_view(root_element)
             view_ids = self.search(cursor, 0, [
                 ('model', '=', view.model),

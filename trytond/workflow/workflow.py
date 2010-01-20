@@ -6,6 +6,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
 from trytond.backend import TableHandler
+from trytond.pyson import Eval, Equal, Not
 import expr
 import base64
 
@@ -67,14 +68,14 @@ class WorkflowActivity(ModelSQL, ModelView):
        ('stopall', 'Stop All'),
        ], 'Kind', required=True)
     action = fields.Text('Action', states={
-        'readonly': "kind == 'dummy'",
-        'required': "kind == 'function'",
+        'readonly': Equal(Eval('kind'), 'dummy'),
+        'required': Equal(Eval('kind'), 'function'),
         })
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
     subflow =  fields.Many2One('workflow', 'Subflow', states={
-        'readonly': "kind != 'subflow'",
-        'required': "kind == 'subflow'",
+        'readonly': Not(Equal(Eval('kind'), 'subflow')),
+        'required': Equal(Eval('kind'), 'subflow'),
         })
     signal_send = fields.Char('Signal (subflow.*)')
     out_transitions = fields.One2Many('workflow.transition', 'act_from',

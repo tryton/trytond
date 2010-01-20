@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 "Request"
 from trytond.model import ModelView, ModelSQL, fields
+from trytond.pyson import Eval, In, If, Not, Equal
 import time
 import datetime
 
@@ -18,39 +19,42 @@ _PRIORITIES = [
     ('2', 'High'),
 ]
 
+_READONLY = If(In(Eval('state'), ['waiting', 'closed']),
+        True,
+        If(Equal(Eval('state'), 'chatting'),
+            Not(Equal(Eval('act_from'), Eval('_user'))),
+            False))
+
 class Request(ModelSQL, ModelView):
     "Request"
     _name = 'res.request'
     _description = __doc__
     name = fields.Char('Subject', states={
-       'readonly': "(state in ('waiting', 'closed')) or " \
-               "(state == 'chatting' and act_from != _user)",
+        'readonly': _READONLY,
        }, required=True)
     active = fields.Boolean('Active')
     priority = fields.Selection(_PRIORITIES, 'Priority', states={
-           'readonly': "(state in ('waiting', 'closed')) or " \
-                   "(state == 'chatting' and act_from != _user)",
+           'readonly': _READONLY,
            }, required=True, order_field='priority')
     act_from = fields.Many2One('res.user', 'From', required=True,
        readonly=True)
     act_to = fields.Many2One('res.user', 'To', required=True,
             domain=[('active', '=', True)],
             states={
-                'readonly': "(state in ('waiting', 'closed')) or " \
-                        "(state == 'chatting' and act_from != _user)",
+                'readonly': _READONLY,
                 })
     body = fields.Text('Body', states={
-       'readonly': "(state in ('waiting', 'closed')) or " \
-               "(state == 'chatting' and act_from != _user)",
+       'readonly': _READONLY,
        })
     date_sent = fields.DateTime('Date', readonly=True)
     trigger_date = fields.DateTime('Trigger Date', states={
-       'readonly': "(state in ('waiting', 'closed')) or " \
-               "(state == 'chatting' and act_from != _user)",
+       'readonly': _READONLY,
        })
     references = fields.One2Many('res.request.reference', 'request',
             'References', states={
-                'readonly': "state == 'closed' or act_from != _user",
+                'readonly': If(Equal(Eval('state'), 'closed'),
+                    True,
+                    Not(Equal(Eval('act_from', 0), Eval('_user', 0)))),
             })
     number_references = fields.Function('get_number_references', type='integer',
             string="Number of References", on_change_with=['references'])

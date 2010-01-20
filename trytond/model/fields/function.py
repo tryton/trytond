@@ -2,6 +2,9 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model.fields.field import Field
+from trytond.model.fields.float import digits_validate
+from trytond.model.fields.one2many import add_remove_validate
+from trytond.pyson import PYSON
 import inspect
 
 
@@ -54,12 +57,33 @@ class Function(Field):
         self._type = type
         self.fnct_search = fnct_search
         self.selection = selection
+        self.__digits = None
         self.digits = digits
         if relation:
             self.model_name = relation
+        self.__add_remove = None
         self.add_remove = add_remove
         self.datetime_field = datetime_field
+
     __init__.__doc__ += Field.__init__.__doc__
+
+    def _get_digits(self):
+        return self.__digits
+
+    def _set_digits(self, value):
+        digits_validate(value)
+        self.__digits = value
+
+    digits = property(_get_digits, _set_digits)
+
+    def _get_add_remove(self):
+        return self.__add_remove
+
+    def _set_add_remove(self, value):
+        add_remove_validate(value)
+        self.__add_remove = value
+
+    add_remove = property(_get_add_remove, _set_add_remove)
 
     def search(self, cursor, user, model, name, args, context=None):
         '''

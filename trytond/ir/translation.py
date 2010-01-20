@@ -17,6 +17,7 @@ from trytond.wizard import Wizard
 from trytond import tools
 from trytond.tools import file_open, reduce_ids
 from trytond.backend import TableHandler
+from trytond.pyson import PYSONEncoder
 import os
 
 TRANSLATION_TYPE = [
@@ -1055,8 +1056,10 @@ class TranslationUpdate(Wizard):
         model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
                 context=context)
         res = act_window_obj.read(cursor, user, model_data.db_id, context=context)
-        res['domain'] = res['domain'][:-1] + ',' + \
-                str(('lang', '=', data['form']['lang'])) + res['domain'][-1:]
+        res['pyson_domain'] = PYSONEncoder().encode([
+            ('module', '!=', False),
+            ('lang', '=', data['form']['lang']),
+        ])
         return res
 
     states = {

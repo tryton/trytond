@@ -3,6 +3,7 @@
 
 from trytond.model import fields
 from trytond.pool import Pool
+from trytond.pyson import PYSONEncoder, CONTEXT
 import copy
 
 
@@ -667,6 +668,8 @@ class Model(object):
                             val))
         translation_obj._get_sources(cursor, trans_args)
 
+        encoder = PYSONEncoder()
+
         for field in (x for x in self._columns.keys()
                 if ((not fields_names) or x in fields_names)):
             res[field] = {'type': self._columns[field]._type}
@@ -756,6 +759,11 @@ class Model(object):
                     and hasattr(self._columns[field], 'field'):
                 res[field]['relation_field'] = copy.copy(
                         self._columns[field].field)
+
+            # convert attributes into pyson
+            for attr in ('states', 'domain', 'context', 'digits', 'add_remove'):
+                if attr in res[field]:
+                    res[field][attr] = encoder.encode(res[field][attr])
 
         if fields_names:
             # filter out fields which aren't in the fields_names list
