@@ -4,8 +4,13 @@
 
 from setuptools import setup, find_packages
 import os
+import sys
 
 execfile(os.path.join('trytond', 'version.py'))
+
+SIMPLEJSON = []
+if sys.version_info < (2, 6):
+    SIMPLEJSON = ['simplejson']
 
 setup(name=PACKAGE,
     version=VERSION,
@@ -46,8 +51,7 @@ setup(name=PACKAGE,
         'relatorio >= 0.2.0',
         'Genshi',
         'python-dateutil',
-        'simplejson',
-    ],
+    ] + SIMPLEJSON,
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],
         'WebDAV': ['PyWebDAV >= 0.9.3'],
