@@ -263,13 +263,12 @@ class User(ModelSQL, ModelView):
             }
         return res
 
+    @Cache('res_user.get_preferences')
     def get_preferences(self, cursor, user_id, context_only=False, context=None):
         user = self.browse(cursor, 0, user_id, context=context)
         res = self._get_preferences(cursor, user_id, user,
                 context_only=context_only, context=context)
         return res
-
-    get_preferences = Cache('res_user.get_preferences')(get_preferences)
 
     def set_preferences(self, cursor, user_id, values, old_password=False,
             context=None):
@@ -349,6 +348,7 @@ class User(ModelSQL, ModelView):
             res = []
         return res
 
+    @Cache('res_user.get_groups')
     def get_groups(self, cursor, user, context=None):
         '''
         Return a list of group ids for the user
@@ -361,8 +361,7 @@ class User(ModelSQL, ModelView):
         return self.read(cursor, user, user, ['groups'],
                 context=context)['groups']
 
-    get_groups = Cache('res_user.get_groups')(get_groups)
-
+    @Cache('res_user._get_login')
     def _get_login(self, cursor, user, login, context=None):
         cursor.execute('SELECT id, password, salt ' \
                 'FROM "' + self._table + '" '
@@ -371,7 +370,6 @@ class User(ModelSQL, ModelView):
         if not res:
             return None, None, None
         return res
-    _get_login = Cache('res_user._get_login')(_get_login)
 
     def get_login(self, cursor, user, login, password, context=None):
         '''
