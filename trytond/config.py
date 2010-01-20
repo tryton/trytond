@@ -12,6 +12,9 @@ class ConfigManager(object):
             'netport': 8070,
             'xmlrpc': False,
             'xmlport': 8069,
+            'jsonrpc': False,
+            'jsonport': 8000,
+            'jsondata_path': '/var/www/localhost/tryton',
             'webdav': False,
             'webdavport': 8080,
             'db_type': 'postgresql',
@@ -30,6 +33,7 @@ class ConfigManager(object):
             'logfile': None,
             'secure_netrpc': False,
             'secure_xmlrpc': False,
+            'secure_jsonrpc': False,
             'secure_webdav': False,
             'privatekey': '/etc/ssl/trytond/server.key',
             'certificate': '/etc/ssl/trytond/server.pem',
@@ -135,7 +139,7 @@ class ConfigManager(object):
                 value = True
             if value == 'False' or value == 'false':
                 value = False
-            if name in ('netport', 'xmlport', 'webdavport'):
+            if name in ('netport', 'xmlport', 'webdavport', 'jsonport'):
                 value = int(value)
             self.options[name] = value
 

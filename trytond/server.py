@@ -152,6 +152,14 @@ class TrytonServer(object):
                     (CONFIG['secure_xmlrpc'] and ' Secure' or '',
                         CONFIG['xmlport']))
 
+        if CONFIG['jsonrpc']:
+            from trytond.protocols.jsonrpc import JSONRPCDaemon
+            jsonrpcd = JSONRPCDaemon(CONFIG['interface'], CONFIG['jsonport'],
+                    CONFIG['secure_jsonrpc'])
+            self.logger.info("starting JSON-RPC%s protocol, port %d" % \
+                    (CONFIG['secure_jsonrpc'] and ' Secure' or '',
+                        CONFIG['jsonport']))
+
         if CONFIG['netrpc']:
             from trytond.protocols.netrpc import NetRPCServerThread
             netrpcd = NetRPCServerThread(CONFIG['interface'], CONFIG['netport'],
@@ -177,6 +185,8 @@ class TrytonServer(object):
                 netrpcd.stop()
             if CONFIG['xmlrpc']:
                 xmlrpcd.stop()
+            if CONFIG['jsonrpc']:
+                jsonrpcd.stop()
             if CONFIG['webdav']:
                 webdavd.stop()
             if CONFIG['pidfile']:
@@ -207,6 +217,8 @@ class TrytonServer(object):
             netrpcd.start()
         if CONFIG['xmlrpc']:
             xmlrpcd.start()
+        if CONFIG['jsonrpc']:
+            jsonrpcd.start()
         if CONFIG['webdav']:
             webdavd.start()
 
