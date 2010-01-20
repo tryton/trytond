@@ -38,17 +38,17 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="state" readonly="1"/>
                     <group col="2" colspan="2" id="button">
                         <button string="Mark for Upgrade" name="button_upgrade"
-                            type="object" states="{'invisible': '''state != 'installed' '''}"/>
+                            type="object"/>
                         <button string="Mark for Uninstallation (beta)" name="button_uninstall"
-                            type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': '''True'''}"/>
+                            type="object"/>
                         <button string="Mark for Installation" name="button_install"
-                            type="object" states="{'invisible': '''state != 'uninstalled' '''}"/>
+                            type="object"/>
                         <button string="Cancel Installation" name="button_install_cancel"
-                            type="object" states="{'invisible': '''state != 'to install' '''}"/>
+                            type="object"/>
                         <button string="Cancel Upgrade" name="button_upgrade_cancel"
-                            type="object" states="{'invisible': '''state != 'to upgrade' '''}"/>
+                            type="object"/>
                         <button string="Cancel Uninstallation" name="button_uninstall_cancel"
-                            type="object" states="{'invisible': '''state != 'to remove' '''}"/>
+                            type="object"/>
                     </group>
                 </form>
                 ]]>
@@ -60,7 +60,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Modules" on_write="on_write"
-                    colors="blue:state=='to upgrade' or state=='to install';grey:state=='uninstalled'">
+                    colors="If(In(Eval('state', ''), ['to upgrade', 'to install']), 'blue', If(Equal(Eval('state', ''), 'uninstalled'), 'grey', 'black'))">
                     <field name="name" select="1"/>
                     <field name="shortdesc" select="1"/>
                     <field name="author" select="2"/>

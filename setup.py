@@ -46,6 +46,7 @@ setup(name=PACKAGE,
         'relatorio >= 0.2.0',
         'Genshi',
         'python-dateutil',
+        'simplejson',
     ],
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],

@@ -408,37 +408,43 @@ this repository contains the full copyright notices and license terms. -->
                             expr="/form/group/button[@name=&quot;button_install&quot;]"
                             position="replace">
                             <button string="Mark for Installation" name="button_install"
-                                type="object" states="{'invisible': '''state != 'uninstalled' ''', 'readonly': '''%(res.group_admin)d not in groups'''}"/>
+                                type="object"
+                                states="{'invisible': Not(Equal(Eval('state'), 'uninstalled')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
                         </xpath>
                         <xpath
                             expr="/form/group/button[@name=&quot;button_install_cancel&quot;]"
                             position="replace">
                             <button string="Cancel Installation" name="button_install_cancel"
-                                type="object" states="{'invisible': '''state != 'to install' ''', 'readonly': '''%(res.group_admin)d not in groups'''}"/>
+                                type="object"
+                                states="{'invisible': Not(Equal(Eval('state'), 'to install')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
                         </xpath>
                         <xpath
                             expr="/form/group/button[@name=&quot;button_uninstall&quot;]"
                             position="replace">
                             <button string="Mark for Uninstallation (beta)" name="button_uninstall"
-                                type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': '''%(res.group_admin)d not in groups or True'''}"/>
+                                type="object"
+                                states="{'invisible': Not(Equal(Eval('state'), 'installed')), 'readonly': Bool(True)}"/>
                         </xpath>
                         <xpath
                             expr="/form/group/button[@name=&quot;button_uninstall_cancel&quot;]"
                             position="replace">
                             <button string="Cancel Uninstallation" name="button_uninstall_cancel"
-                                type="object" states="{'invisible': '''state != 'to remove' ''', 'readonly': '''%(res.group_admin)d not in groups'''}"/>
+                                type="object"
+                                states="{'invisible': Not(Equal(Eval('state'), 'to remove')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
                         </xpath>
                         <xpath
                             expr="/form/group/button[@name=&quot;button_upgrade&quot;]"
                             position="replace">
                             <button string="Mark for Upgrade" name="button_upgrade"
-                                type="object" states="{'invisible': '''state != 'installed' ''', 'readonly': '''%(res.group_admin)d not in groups'''}"/>
+                                type="object"
+                                states="{'invisible': Not(Equal(Eval('state'), 'installed')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
                         </xpath>
                         <xpath
                             expr="/form/group/button[@name=&quot;button_upgrade_cancel&quot;]"
                             position="replace">
                             <button string="Cancel Upgrade" name="button_upgrade_cancel"
-                                type="object" states="{'invisible': '''state != 'to upgrade' ''', 'readonly': '''%(res.group_admin)d not in groups'''}"/>
+                                type="object"
+                                states="{'invisible': Not(Equal(Eval('state'), 'to upgrade')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
                         </xpath>
                     </data>
                 ]]>

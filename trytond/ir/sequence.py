@@ -4,6 +4,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from string import Template
 import datetime
 from trytond.tools import datetime_strftime
+from trytond.pyson import In, Eval
 
 
 class SequenceType(ModelSQL, ModelView):
@@ -23,7 +24,7 @@ class Sequence(ModelSQL, ModelView):
     name = fields.Char('Sequence Name', required=True, translate=True)
     code = fields.Selection('code_get', 'Sequence Type', required=True,
             states={
-                'readonly': "context.get('code')",
+                'readonly': In('code', Eval('context', {})),
             })
     active = fields.Boolean('Active')
     prefix = fields.Char('Prefix')

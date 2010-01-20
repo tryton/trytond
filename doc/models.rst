@@ -347,7 +347,7 @@ the field.
       'Sale'
       _name = 'sale.sale'
       sale_date = fields.Date('Sale Date', required=True, states={
-          'readonly': "state != 'draft'",
+          'readonly': Not(Equal(Eval('state'), 'draft')),
           })
       def default_sale_date(self, cursor, user, context=None):
           date_obj = self.pool.get('ir.date')
@@ -390,7 +390,8 @@ many dependencies there are.
 
       customer = fields.Many2One('party.party', 'Customer', required=True,
               states={
-                  'readonly': "state != 'draft' or bool(outgoing_moves)",
+                  'readonly': Or(Not(Equal(Eval('state'), 'draft')),
+                      Bool(Eval('outgoing_moves'))),
               }, on_change=['customer'])
 
       def on_change_customer(self, cursor, user, ids, values, context=None):
@@ -415,11 +416,11 @@ will be updated with the new value.
       _name = "product.template"
 
       purchase_uom = fields.Many2One('product.uom', 'Purchase UOM', states={
-          'readonly': "active == False",
-          'invisible': "not purchasable",
-          'required': "purchasable",
-          }, domain=["('category', '=', (default_uom, 'uom.category'))"],
-          context="{'category': (default_uom, 'uom.category')}",
+          'readonly': Not(Bool(Eval('active'))),
+          'invisible': Not(Bool(Eval('purchasable'))),
+          'required': Bool(Eval('purchasable')),
+          }, domain=[('category', '=', (Eval('default_uom'), 'uom.category'))],
+          context={'category': (Eval('default_uom'), 'uom.category')},
           on_change_with=['default_uom', 'purchase_uom', 'purchasable'])
 
       def on_change_with_purchase_uom(self, cursor, user, ids, vals,

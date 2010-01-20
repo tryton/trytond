@@ -2,8 +2,9 @@
 #this repository contains the full copyright notices and license terms.
 "Action"
 from trytond.model import ModelView, ModelSQL, ModelStorage, fields
-from trytond.tools import file_open, Cache
+from trytond.tools import file_open, Cache, safe_eval
 from trytond.backend import TableHandler
+from trytond.pyson import PYSONEncoder, CONTEXT, PYSON
 import base64
 import os
 
@@ -180,6 +181,7 @@ class ActionKeyword(ModelSQL, ModelView):
             ('keyword', '=', keyword),
             ('model', '=', model + ',0'),
             ], context=context))
+        encoder = PYSONEncoder()
         for action_keyword in self.browse(cursor, user, action_keyword_ids,
                 context=context):
             try:
@@ -196,6 +198,10 @@ class ActionKeyword(ModelSQL, ModelView):
                     del res[-1]['report_content_data']
                     del res[-1]['report_content']
                     del res[-1]['style_content']
+                    res[-1]['email'] = encoder.encode(res[-1]['email'])
+                elif action_keyword.action.type == 'ir.action.act_window':
+                    for field in ('domain', 'context', 'search_value'):
+                        del res[-1][field]
         return res
 
 ActionKeyword()
@@ -401,6 +407,25 @@ class ActionActWindow(ModelSQL, ModelView):
             help='Use the action name as window name')
     search_value = fields.Char('Search Criteria',
             help='Default search criteria for the list view')
+    pyson_domain = fields.Function('get_pyson', type='string',
+            string='PySON Domain')
+    pyson_context = fields.Function('get_pyson', type='string',
+            string='PySON Context')
+    pyson_search_value = fields.Function('get_pyson', type='string',
+            string='PySON Search Criteria')
+
+    def __init__(self):
+        super(ActionActWindow, self).__init__()
+        self._constraints += [
+            ('check_domain', 'invalid_domain'),
+            ('check_context', 'invalid_context'),
+            ('check_search_value', 'invalid_search_value'),
+        ]
+        self._error_messages.update({
+            'invalid_domain': 'Invalid domain!',
+            'invalid_context': 'Invalid context!',
+            'invalid_search_value': 'Invalid search criteria!',
+        })
 
     def default_type(self, cursor, user, context=None):
         return 'ir.action.act_window'
@@ -423,11 +448,80 @@ class ActionActWindow(ModelSQL, ModelView):
     def default_search_value(self, cursor, user, context=None):
         return '{}'
 
+    def check_domain(self, cursor, user, ids):
+        "Check domain"
+        for action in self.browse(cursor, user, ids):
+            if action.domain:
+                try:
+                    value = safe_eval(action.domain, CONTEXT)
+                except:
+                    return False
+                if isinstance(value, PYSON):
+                    if not value.types() == set([list]):
+                        return False
+                elif not isinstance(value, list):
+                    return False
+                else:
+                    try:
+                        fields.domain_validate(value)
+                    except:
+                        return False
+        return True
+
+    def check_context(self, cursor, user, ids):
+        "Check context"
+        for action in self.browse(cursor, user, ids):
+            if action.context:
+                try:
+                    value = safe_eval(action.context, CONTEXT)
+                except:
+                    return False
+                if isinstance(value, PYSON):
+                    if not value.types() == set([dict]):
+                        return False
+                elif not isinstance(value, dict):
+                    return False
+                else:
+                    try:
+                        field.context_validate(value)
+                    except:
+                        return False
+        return True
+
+    def check_search_value(self, cursor, user, ids):
+        "Check search_value"
+        for action in self.browse(cursor, user, ids):
+            if action.search_value:
+                try:
+                    value = safe_eval(action.search_value, CONTEXT)
+                except:
+                    return False
+                if isinstance(value, PYSON):
+                    if not value.types() == set([dict]):
+                        return False
+                elif not isinstance(value, dict):
+                    return False
+        return True
+
     def views_get_fnc(self, cursor, user, ids, name, arg, context=None):
         res = {}
         for act in self.browse(cursor, user, ids, context=context):
             res[act.id] = [(view.view.id, view.view.type) \
                     for view in act.act_window_views]
+        return res
+
+    def get_pyson(self, cursor, user, ids, name, arg, context=None):
+        res = {}
+        encoder = PYSONEncoder()
+        field = name[6:]
+        defaults = {
+            'domain': '[]',
+            'context': '{}',
+            'search_value': '{}',
+        }
+        for act in self.browse(cursor, user, ids, context=context):
+            res[act.id] = encoder.encode(safe_eval(act[field] or
+                defaults.get(field, 'False'), CONTEXT))
         return res
 
     def create(self, cursor, user, vals, context=None):

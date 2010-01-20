@@ -3,6 +3,7 @@
 from trytond.model import Model
 from trytond.tools import Cache, safe_eval
 from trytond.modules import create_graph, get_module_list
+from trytond.pyson import PYSONEncoder, CONTEXT
 from lxml import etree
 try:
     import hashlib
@@ -373,6 +374,14 @@ class ModelView(Model):
                     fields_attrs[element.get(attr)] = attrs
             if element.get('name') in fields_width:
                 element.set('width', str(fields_width[element.get('name')]))
+
+        # convert attributes into pyson
+        encoder = PYSONEncoder()
+        for attr in ('states', 'domain', 'context', 'digits', 'add_remove',
+                'spell', 'colors'):
+            if element.get(attr):
+                element.set(attr, encoder.encode(safe_eval(element.get(attr),
+                    CONTEXT)))
 
         # translate view
         if ('language' in context) and not result:

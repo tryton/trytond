@@ -4,6 +4,10 @@
 from trytond.model.fields.field import Field
 from itertools import chain
 
+def add_remove_validate(value):
+    if value:
+        assert isinstance(value, list), 'add_remove must be a list'
+
 
 class One2Many(Field):
     '''
@@ -40,10 +44,21 @@ class One2Many(Field):
                 order_field=order_field, context=context)
         self.model_name = model_name
         self.field = field
+        self.__add_remove = None
         self.add_remove = add_remove
         self.order = order
         self.datetime_field = datetime_field
+
     __init__.__doc__ += Field.__init__.__doc__
+
+    def _get_add_remove(self):
+        return self.__add_remove
+
+    def _set_add_remove(self, value):
+        add_remove_validate(value)
+        self.__add_remove = value
+
+    add_remove = property(_get_add_remove, _set_add_remove)
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):
         '''

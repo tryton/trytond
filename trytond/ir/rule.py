@@ -3,6 +3,7 @@
 "Rule"
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import Cache, safe_eval
+from trytond.pyson import Eval, Get
 import time
 
 
@@ -87,8 +88,8 @@ class Rule(ModelSQL, ModelView):
     _rec_name = 'field'
     _description = __doc__
     field = fields.Many2One('ir.model.field', 'Field',
-       domain=["('model', '=', _parent_rule_group.model)"], select=1,
-       required=True)
+       domain=[('model', '=', Get(Eval('_parent_rule_group', {}), 'model'))],
+       select=1, required=True)
     operator = fields.Selection([
        ('=', '='),
        ('<>', '<>'),
