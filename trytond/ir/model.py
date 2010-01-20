@@ -214,6 +214,7 @@ class ModelAccess(ModelSQL, ModelView):
     def default_perm_delete(self, cursor, user, context=None):
         return False
 
+    @Cache('ir_model_access.check')
     def check(self, cursor, user, model_name, mode='read',
             raise_exception=True, context=None):
         assert mode in ['read', 'write', 'create', 'delete'], \
@@ -252,8 +253,6 @@ class ModelAccess(ModelSQL, ModelView):
             else:
                 return False
         return True
-
-    check = Cache('ir_model_access.check')(check)
 
     # Methods to clean the cache on the Check Method.
     def write(self, cursor, user, ids, vals, context=None):

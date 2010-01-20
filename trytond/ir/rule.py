@@ -141,6 +141,7 @@ class Rule(ModelSQL, ModelView):
             res.append((i, i))
         return res
 
+    @Cache('ir_rule.domain_get')
     def domain_get(self, cursor, user, model_name, mode='read', context=None):
         if context is None:
             context = {}
@@ -236,8 +237,6 @@ class Rule(ModelSQL, ModelView):
                 clause, active_test=False, context=context)
 
         return query, val
-
-    domain_get = Cache('ir_rule.domain_get')(domain_get)
 
     def delete(self, cursor, user, ids, context=None):
         res = super(Rule, self).delete(cursor, user, ids, context=context)

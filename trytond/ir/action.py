@@ -707,6 +707,7 @@ class ActionWizardSize(ModelSQL, ModelView):
                 'height': height,
                 }, context=context)
 
+    @Cache('ir.action.wizard_size.get_size')
     def get_size(self, cursor, user, wizard, model, context=None):
         '''
         Get size for wizard dialog.
@@ -726,8 +727,6 @@ class ActionWizardSize(ModelSQL, ModelView):
             wizard_size = self.browse(cursor, user, ids[0], context=context)
             return wizard_size.width, wizard_size.height
         return (0, 0)
-
-    get_size = Cache('ir.action.wizard_size.get_size')(get_size)
 
 ActionWizardSize()
 

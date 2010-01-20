@@ -30,6 +30,7 @@ class Default(ModelSQL, ModelView):
             'reset_default': True,
         })
 
+    @Cache('ir_default.get_default')
     def get_default(self, cursor, user, model, clause, context=None):
         res = {}
         test_user = user
@@ -68,8 +69,6 @@ class Default(ModelSQL, ModelView):
                 else:
                     res[default.field.name] = safe_eval(default.value)
         return res
-
-    get_default = Cache('ir_default.get_default')(get_default)
 
     def set_default(self, cursor, user, model, field, clause, value,
             user_default, context=None):
