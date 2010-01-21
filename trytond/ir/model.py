@@ -327,7 +327,7 @@ class ModelData(ModelSQL, ModelView):
     def default_noupdate(self, cursor, user, context=None):
         return False
 
-    def get_id(self, cursor, user, module, fs_id):
+    def get_id(self, cursor, user, module, fs_id, context=None):
         """
         Return for an fs_id the corresponding db_id.
 
@@ -335,6 +335,7 @@ class ModelData(ModelSQL, ModelView):
         :param user: the user id
         :param module: the module name
         :param fs_id: the id in the xml file
+        :param context: the context
 
         :return: the database id
         """
@@ -342,11 +343,12 @@ class ModelData(ModelSQL, ModelView):
             ('module', '=', module),
             ('fs_id', '=', fs_id),
             ('inherit', '=', False),
-            ])
+            ], limit=1, context=context)
         if not ids:
             raise Exception("Reference to %s not found" % \
                                 ".".join([module,fs_id]))
-        return self.read(cursor, user, ids[0], ['db_id'])['db_id']
+        return self.read(cursor, user, ids[0], ['db_id'],
+                context=context)['db_id']
 
 ModelData()
 
