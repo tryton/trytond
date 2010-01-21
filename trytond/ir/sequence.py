@@ -108,6 +108,9 @@ class Sequence(ModelSQL, ModelView):
             domain = [('id', '=', domain)]
 
         # bypass rules on sequences
+        if 'user' in context:
+            context = context.copy()
+            del context['user']
         sequence_ids = self.search(cursor, 0, domain, limit=1,
                 context=context)
         date = context.get('date')
