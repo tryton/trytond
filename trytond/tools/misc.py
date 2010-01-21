@@ -340,6 +340,67 @@ class Cache(object):
             cursor.close()
             Cache._resets_lock.release()
 
+def memoize(maxsize):
+    """
+    Decorator to 'memoize' a function - caching its results with a
+    near LRU implementation.
+
+    The cache keeps a list of keys logicaly separated in 4 segment :
+
+    segment 1 | ...        | segment4
+    [k,k,k,k,k,k,k, .. ,k,k,k,k,k,k,k]
+
+    For each segment there is a pointer that loops on it.  When a key
+    is accessed from the cache it is promoted to the first segment (at
+    the pointer place of segment one), the key under the pointer is
+    moved to the next segment, the pointer is then incremented and so
+    on. A key that is removed from the last segment is removed from
+    the cache.
+
+    :param: maxsize the size of the cache (must be greater than or
+    equal to 4)
+    """
+    assert maxsize >= 4, "Memoize cannot work if maxsize is less than 4"
+
+    def wrap(f):
+        cache = {}
+        keys = [None for i in xrange(maxsize)]
+        seg_size = maxsize // 4
+
+        pointers = [i * seg_size for i in xrange(4)]
+        max_pointers = [(i + 1) * seg_size for i in xrange(3)] + [maxsize]
+
+        def wrapper(*args):
+            key = repr(args)
+            res = cache.get(key)
+            if res:
+                pos, res = res
+                keys[pos] = None
+            else:
+                res = f(*args)
+
+            value = res
+            for segment, p in enumerate(pointers):
+                newkey = keys[p]
+                keys[p] = key
+                cache[key] = (p, value)
+
+                pointers[segment] = p + 1
+                if pointers[segment] == max_pointers[segment]:
+                    pointers[segment] = segment * seg_size
+
+                if newkey is None:
+                    break
+                segment, value = cache.pop(newkey)
+                key = newkey
+
+            return res
+
+        wrapper.__doc__ = f.__doc__
+        wrapper.__name__ = f.__name__
+
+        return wrapper
+    return wrap
 
 def mod10r(number):
     """
@@ -516,35 +577,29 @@ _ALLOWED_CODES = set(dis.opmap[x] for x in [
     'DELETE_NAME', 'JUMP_IF_TRUE', 'JUMP_IF_FALSE', 'BINARY_SUBSCR',
     ] if x in dis.opmap)
 
-
-_SAFE_EVAL_CACHE = {}
+@memoize(1000)
+def _compile_source(source):
+    c = compile(source, '', 'eval')
+    codes = []
+    s = c.co_code
+    i = 0
+    while i < len(s):
+        code = ord(s[i])
+        codes.append(code)
+        if code >= dis.HAVE_ARGUMENT:
+            i += 3
+        else:
+            i += 1
+    for code in codes:
+        if code not in _ALLOWED_CODES:
+            raise ValueError('opcode %s not allowed' % dis.opname[code])
+    return c
 
 def safe_eval(source, data=None):
     if '__subclasses__' in source:
         raise ValueError('__subclasses__ not allowed')
-    if hashlib:
-        key = hashlib.md5(source).digest()
-    else:
-        key = md5.new(source).digest()
-    c = _SAFE_EVAL_CACHE.get(key)
-    if not c:
-        c = compile(source, '', 'eval')
-        codes = []
-        s = c.co_code
-        i = 0
-        while i < len(s):
-            code = ord(s[i])
-            codes.append(code)
-            if code >= dis.HAVE_ARGUMENT:
-                i += 3
-            else:
-                i += 1
-        for code in codes:
-            if code not in _ALLOWED_CODES:
-                raise ValueError('opcode %s not allowed' % dis.opname[code])
-        if len(_SAFE_EVAL_CACHE) > 1024:
-            _SAFE_EVAL_CACHE.clear()
-        _SAFE_EVAL_CACHE[key] = c
+
+    c = _compile_source(source)
     return eval(c, {'__builtins__': {
         'True': True,
         'False': False,
