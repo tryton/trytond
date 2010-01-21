@@ -310,14 +310,9 @@ class User(ModelSQL, ModelView):
         if context is None:
             context = {}
 
-        model_data_ids = model_data_obj.search(cursor, user, [
-            ('fs_id', '=', 'user_view_form_preferences'),
-            ('module', '=', 'res'),
-            ('inherit', '=', False),
-            ], limit=1, context=context)
-        model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
-                context=context)
-        res = self.fields_view_get(cursor, user, view_id=model_data.db_id,
+        view_id = model_data_obj.get_id(cursor, user, 'res',
+                'user_view_form_preferences')
+        res = self.fields_view_get(cursor, user, view_id=view_id,
                 context=context)
         res = copy.deepcopy(res)
         for field in res['fields']:
