@@ -1217,37 +1217,24 @@ class ModelSQL(ModelStorage):
         datas = cursor.dictfetchall()
         cache = cursor.get_cache(context)
         cache.setdefault(self._name, {})
+        delete_records = context.setdefault('_delete_records', {}
+                ).setdefault(self._name, set())
+        keys = None
         for data in datas:
-            if data['id'] in context.setdefault('_delete_records', {})\
-                    .setdefault(self._name, set()):
+            if data['id'] in delete_records:
                 continue
-            for i in data.keys():
-                if i in ('_timestamp', '_datetime'):
-                    continue
-                field = self._columns[i]
-                if field._type in ('many2one',):
-                    if field.model_name not in self.pool.object_name_list():
-                        del data[i]
+            if not keys:
+                keys = data.keys()
+                for k in keys[:]:
+                    if k in ('_timestamp', '_datetime'):
+                        keys.remove(k)
                         continue
-                    if data[i] in context.setdefault('_delete_records', {})\
-                            .setdefault(field.model_name, set()):
-                        del data[i]
+                    field = self._columns[k]
+                    if field._type not in ('many2one',):
+                        keys.remove(k)
                         continue
-                    model = self.pool.get(field.model_name)
-                    if not data[i] and not (isinstance(data[i], (int, long))
-                            and not isinstance(data[i], type(False))):
-                        data[i] = BrowseRecordNull()
-                    else:
-                        ctx = context
-                        if hasattr(field, 'datetime_field') \
-                                and field.datetime_field:
-                            ctx = context.copy()
-                            if field.datetime_field not in data:
-                                del data[i]
-                                continue
-                            ctx['_datetime'] = data[field.datetime_field]
-                        data[i] = BrowseRecord(cursor, user, data[i],
-                                model, context=ctx)
+            for k in keys:
+                del data[k]
             cache[self._name].setdefault(data['id'], {})
             cache[self._name][data['id']].update(data)
 
