@@ -704,9 +704,9 @@ class ModelStorage(Model):
                                     ], limit=1, context=context)
                                 if not res2:
                                     warning += ('Relation not found: ' + \
-                                            line[i] + ' on '+relation + ' !\n')
+                                            word + ' on '+relation + ' !\n')
                                     logger.warning(
-                                        'Relation not found: ' + line[i] + \
+                                        'Relation not found: ' + word + \
                                                     ' on '+relation + ' !\n')
                                 else:
                                     res.extend(res2)
