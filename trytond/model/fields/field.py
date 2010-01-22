@@ -2,9 +2,9 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.pyson import PYSON
+from trytond.const import OPERATORS
 
 def domain_validate(value):
-    from trytond.model.modelstorage import OPERATORS
     assert isinstance(value, list), 'domain must be a list'
     def test_domain(dom):
         for arg in dom:

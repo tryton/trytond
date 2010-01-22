@@ -1,12 +1,13 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from trytond.model import ModelStorage, OPERATORS
+from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
 from trytond.backend import DatabaseIntegrityError, Database
 from trytond.model.browse import BrowseRecord, BrowseRecordNull
 from trytond.tools import reduce_ids
+from trytond.const import OPERATORS
 import datetime
 import re
 _RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)

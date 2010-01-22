@@ -6,28 +6,12 @@ from trytond.model.browse import BrowseRecordList, BrowseRecord, BrowseRecordNul
 from trytond.model.browse import EvalEnvironment
 from trytond.tools import safe_eval
 from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
+from trytond.const import OPERATORS
 import datetime
 import time
 from decimal import Decimal
 import logging
 from itertools import chain
-
-OPERATORS = (
-    'child_of',
-    'not child_of',
-    '=',
-    '!=',
-    'like',
-    'not like',
-    'ilike',
-    'not ilike',
-    'in',
-    'not in',
-    '<=',
-    '>=',
-    '<',
-    '>',
-)
 
 
 class ModelStorage(Model):
