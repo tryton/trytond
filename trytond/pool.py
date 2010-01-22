@@ -62,15 +62,19 @@ class Pool(object):
         Pool._lock.acquire()
         try:
             reload_p = False
+            prev_classes = {}
             for type in Pool.classes:
                 if Pool.classes[type]:
                     reload_p = True
+                prev_classes[type] = Pool.classes[type]
                 Pool.classes[type] = {}
             try:
                 register_classes(reload_p=reload_p)
             except:
                 if not reload_p:
                     raise
+                for type in prev_classes:
+                    Pool.classes[type] = prev_classes[type]
             for db_name in Pool.database_list():
                 Pool(db_name).init()
         finally:
