@@ -1,3 +1,4 @@
+* Raise exception when search function is missing on Function fields
 * Add LRU memoization, use it to cache compiled code for safe_eval.
 * Add PySON to replace python string evaluation on client side
 * Add JSON-RPC
