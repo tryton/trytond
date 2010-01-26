@@ -901,6 +901,7 @@ class TranslationClean(Wizard):
                             'required_field',
                             'foreign_model_missing',
                             'foreign_model_exist',
+                            'search_function_missing',
                             ):
                         continue
                     if model_name in self.pool.object_name_list():

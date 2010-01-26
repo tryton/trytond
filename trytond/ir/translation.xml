@@ -193,6 +193,15 @@ this repository contains the full copyright notices and license terms. -->
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
+        <record model="ir.translation" id="translation_search_function_missing">
+            <field name="name">search_function_missing</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">Missing search function on field "%s".</field>
+            <field name="value">Missing search function on field "%s".</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
 
         <record model="ir.ui.view" id="act_translation_set_report_init_view_form">
             <field name="model">ir.translation.set_report.init</field>
