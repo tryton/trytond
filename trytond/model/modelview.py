@@ -91,6 +91,7 @@ class ModelView(Model):
         super(ModelView, self).__init__()
         self._rpc['fields_view_get'] = False
 
+    @Cache('modelview.fields_view_get')
     def fields_view_get(self, cursor, user, view_id=None, view_type='form',
             context=None, toolbar=False, hexmd5=None):
         '''
@@ -247,8 +248,6 @@ class ModelView(Model):
         if hexmd5 == result['md5']:
             return True
         return result
-
-    fields_view_get = Cache('modelview.fields_view_get')(fields_view_get)
 
     def view_header_get(self, cursor, user, value, view_type='form',
             context=None):
