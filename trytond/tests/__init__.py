@@ -4,3 +4,4 @@
 from tests import *
 from model import *
 from mptt import *
+from import_data import *

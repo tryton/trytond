@@ -1,5 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+
 from trytond.model import Model
 from trytond.model import fields
 from trytond.model.browse import BrowseRecordList, BrowseRecord, BrowseRecordNull
@@ -12,6 +13,11 @@ import time
 from decimal import Decimal
 import logging
 from itertools import chain
+try:
+    import cStringIO as StringIO
+except ImprotError:
+    import StringIO
+import csv
 
 
 class ModelStorage(Model):
@@ -584,186 +590,244 @@ class ModelStorage(Model):
             - the exception if failed
             - the warning if failed
         '''
-        if context is None:
-            context = {}
-        fields_names = [x.split('/') for x in fields_names]
-        logger = logging.getLogger('import')
+        def process_lines(self, datas, prefix, fields_def, position=0):
 
-        def process_liness(self, datas, prefix, fields_def, position=0):
+            def warn(msgname, *args):
+                msg = self.raise_user_error(cursor, msgname, args,
+                      raise_exception=False, context=context)
+                warnings.warn(msg)
+
+            def get_selection(selection, value):
+                res = False
+                if not isinstance(selection, (tuple, list)):
+                    selection = getattr(self, selection)(cursor, user,
+                            context=context)
+                for key, val in selection:
+                    if str(key) == value:
+                        res = key
+                        break
+                if value and not res:
+                    warn('not_found_in_selection', value, '/'.join(field))
+                return res
+
+            def get_many2one(relation, value):
+                if not value:
+                    return False
+                relation_obj = self.pool.get(relation)
+                res = relation_obj.search(cursor, user, [
+                    ('rec_name', '=', value),
+                    ], limit=2, context=context)
+                if len(res) < 1:
+                    warn('relation_not_found', value, relation)
+                    res = False
+                elif len(res) > 1:
+                    warn('too_many_relations_found', value, relation)
+                    res = False
+                else:
+                    res = res[0]
+                return res
+
+            def get_many2many(relation, value):
+                if not value:
+                    return False
+                res = []
+                relation_obj = self.pool.get(relation)
+                for word in csv.reader(StringIO.StringIO(value), delimiter=',',
+                        quoting=csv.QUOTE_NONE, escapechar='\\').next():
+                    res2 = relation_obj.search(cursor, user, [
+                        ('rec_name', '=', word),
+                        ], limit=2, context=context)
+                    if len(res2) < 1:
+                        warn('relation_not_found', word, relation)
+                    elif len(res2) > 1:
+                        warn('too_many_relations_found', word, relation)
+                    else:
+                        res.extend(res2)
+                if len(res):
+                    res = [('set', res)]
+                return res
+
+            def get_reference(value):
+                if not value:
+                    return False
+                try:
+                    relation, value = value.split(',', 1)
+                except:
+                    warn('reference_syntax_error', value, '/'.join(field))
+                    return False
+                relation_obj = self.pool.get(relation)
+                res = relation_obj.search(cursor, user, [
+                    ('rec_name', '=', value),
+                    ], limit=2, context=context)
+                if len(res) < 1:
+                    warn('relation_not_found', value, relation)
+                    res = False
+                elif len(res) > 1:
+                    warn('too_many_relations_found', value, relation)
+                    res = False
+                else:
+                    res = '%s,%s' % (relation, str(res[0]))
+                return res
+
+            def get_by_id(value):
+                if not value:
+                    return False
+                relation = None
+                type = fields_def[field[-1][:-3]]['type']
+                if type == 'many2many':
+                    value = csv.reader(StringIO.StringIO(value), delimiter=',',
+                            quoting=csv.QUOTE_NONE, escapechar='\\').next()
+                elif type == 'reference':
+                    try:
+                        relation, value = value.split(',', 1)
+                    except:
+                        warn('reference_syntax_error', value, '/'.join(field))
+                        return False
+                    value = [value]
+                else:
+                    value = [value]
+                res_ids = []
+                for word in value:
+                    try:
+                        module, xml_id = word.rsplit('.', 1)
+                    except:
+                        warn('xml_id_syntax_error', word, '/'.join(field))
+                        continue
+                    db_id = ir_model_data_obj.get_id(cursor, user,
+                            module, xml_id)
+                    res_ids.append(db_id)
+                if type == 'many2many' and res_ids:
+                    return [('set', res_ids)]
+                elif type == 'reference' and res_ids:
+                    return '%s,%s' % (relation, str(res_ids[0]))
+                return res_ids and res_ids[0] or False
+
             line = datas[position]
             row = {}
             translate = {}
-            todo = []
-            warning = ''
-
+            todo = set()
+            prefix_len = len(prefix)
             # Import normal fields_names
-            for i in range(len(fields_names)):
+            for i, field in enumerate(fields_names):
                 if i >= len(line):
                     raise Exception('ImportError',
                             'Please check that all your lines have %d cols.' % \
                             (len(fields_names),))
-                field = fields_names[i]
-                if (len(field) == len(prefix) + 1) \
-                        and field[len(prefix)].endswith(':id'):
-                    res_id = False
-                    if line[i]:
-                        if fields_def[field[len(prefix)][:-3]]['type'] \
-                                == 'many2many':
-                            res_id = []
-                            for word in line[i].split(','):
-                                module, xml_id = word.rsplit('.', 1)
-                                ir_model_data_obj = \
-                                        self.pool.get('ir.model.data')
-                                new_id = ir_model_data_obj.get_id(cursor,
-                                        user, module, xml_id)
-                                res_id2 = ir_model_data_obj.read(cursor, user,
-                                        [new_id], ['res_id'])[0]['res_id']
-                                if res_id2:
-                                    res_id.append(res_id2)
-                            if len(res_id):
-                                res_id = [('set', res_id)]
+                is_prefix_len = (len(field) == (prefix_len + 1))
+                value = line[i]
+                if is_prefix_len and field[-1].endswith(':id'):
+                    row[field[0][:-3]] = get_by_id(value)
+                elif is_prefix_len and ':lang=' in field[-1]:
+                    field_name, lang = field[-1].split(':lang=')
+                    translate.setdefault(lang, {})[field_name] = value or False
+                elif is_prefix_len and prefix == field[:-1]:
+                    this_field_def = fields_def[field[-1]]
+                    field_type = this_field_def['type']
+                    res = False
+                    if field_type == 'boolean':
+                        if value.lower() == 'true':
+                            res = True
+                        elif value.lower() == 'false':
+                            res = False
                         else:
-                            module, xml_id = line[i].rsplit('.', 1)
-                            ir_model_data_obj = self.pool.get('ir.model.data')
-                            new_id = ir_model_data_obj.get_id(cursor, user,
-                                    module, xml_id)
-                            res_id = ir_model_data_obj.read(cursor, user,
-                                    [new_id], ['res_id'])[0]['res_id']
-                    row[field[0][:-3]] = res_id or False
-                    continue
-                if (len(field) == len(prefix)+1) and \
-                        len(field[len(prefix)].split(':lang=')) == 2:
-                    field, lang = field[len(prefix)].split(':lang=')
-                    translate.setdefault(lang, {})[field]=line[i] or False
-                    continue
-                if (len(field) == len(prefix)+1) and \
-                        (prefix == field[0:len(prefix)]):
-                    if fields_def[field[len(prefix)]]['type'] == 'integer':
-                        res = line[i] and int(line[i])
-                    elif fields_def[field[len(prefix)]]['type'] == 'float':
-                        res = line[i] and float(line[i])
-                    elif fields_def[field[len(prefix)]]['type'] == 'selection':
-                        res = False
-                        if isinstance(
-                                fields_def[field[len(prefix)]]['selection'],
-                                (tuple, list)):
-                            sel = fields_def[field[len(prefix)]]['selection']
-                        else:
-                            sel = getattr(self, fields_def[field[len(prefix)]]\
-                                    ['selection'])(cursor, user, context)
-                        for key, val in sel:
-                            if str(key) == line[i]:
-                                res = key
-                        if line[i] and not res:
-                            logger.warning("key '%s' not found " \
-                                               "in selection field '%s'" % \
-                                               (line[i], field[len(prefix)]))
-                    elif fields_def[field[len(prefix)]]['type'] == 'many2one':
-                        res = False
-                        if line[i]:
-                            relation = \
-                                    fields_def[field[len(prefix)]]['relation']
-                            relation_obj = self.pool.get(relation)
-                            res = relation_obj.search(cursor, user, [
-                                ('rec_name', '=', line[i]),
-                                ], limit=1, context=context)
-                            if not res:
-                                warning += ('Relation not found: ' + line[i] + \
-                                        ' on ' + relation + ' !\n')
-                                logger.warning(
-                                    'Relation not found: ' + line[i] + \
-                                        ' on ' + relation + ' !\n')
-                                res = False
-                            else:
-                                res = res[0]
-                    elif fields_def[field[len(prefix)]]['type'] == 'many2many':
-                        res = []
-                        if line[i]:
-                            relation = \
-                                    fields_def[field[len(prefix)]]['relation']
-                            for word in line[i].split(','):
-                                relation_obj = self.pool.get(relation)
-                                res2 = relation_obj.search(cursor, user, [
-                                    ('rec_name', '=', word),
-                                    ], limit=1, context=context)
-                                if not res2:
-                                    warning += ('Relation not found: ' + \
-                                            word + ' on '+relation + ' !\n')
-                                    logger.warning(
-                                        'Relation not found: ' + word + \
-                                                    ' on '+relation + ' !\n')
-                                else:
-                                    res.extend(res2)
-                            if len(res):
-                                res = [('set', res)]
+                            res = value and bool(int(value))
+                    elif field_type == 'integer':
+                        res = value and int(value)
+                    elif field_type == 'float':
+                        res = value and float(value)
+                    elif field_type == 'numeric':
+                        res = value and Decimal(value)
+                    elif field_type == 'date':
+                        res = value and datetime.date(*time.strptime(value,
+                            '%Y-%m-%d')[:3])
+                    elif field_type == 'datetime':
+                        res = value and datetime.datetime(*time.strptime(value,
+                            '%Y-%m-%d %H:%M:%S')[:6])
+                    elif field_type == 'selection':
+                        res = get_selection(this_field_def['selection'], value)
+                    elif field_type == 'many2one':
+                        res = get_many2one(this_field_def['relation'], value)
+                    elif field_type == 'many2many':
+                        res = get_many2many(this_field_def['relation'], value)
+                    elif field_type == 'reference':
+                        res = get_reference(value)
                     else:
-                        res = line[i] or False
-                    row[field[len(prefix)]] = res
-                elif (prefix==field[0:len(prefix)]):
-                    if field[0] not in todo:
-                        todo.append(field[len(prefix)])
-
+                        res = value or False
+                    row[field[-1]] = res
+                elif prefix == field[0:prefix_len]:
+                    todo.add(field[prefix_len])
             # Import one2many fields
             nbrmax = 1
             for field in todo:
                 newfd = self.pool.get(fields_def[field]['relation']).fields_get(
                         cursor, user, context=context)
-                res = process_liness(self, datas, prefix + [field], newfd,
+                res = process_lines(self, datas, prefix + [field], newfd,
                         position)
-                (newrow, max2, warning2, translate2) = res
+                (newrow, max2, translate2) = res
                 nbrmax = max(nbrmax, max2)
-                warning = warning + warning2
                 reduce(lambda x, y: x and y, newrow)
-                row[field] = (reduce(lambda x, y: x or y, newrow.values()) and \
-                        [('create', newrow)]) or []
+                row[field] = (reduce(lambda x, y: x or y, newrow.values()) and
+                         [('create', newrow)]) or []
                 i = max2
-                while (position+i)<len(datas):
+                while (position + i) < len(datas):
                     test = True
-                    for j in range(len(fields_names)):
-                        field2 = fields_names[j]
-                        if (len(field2) <= (len(prefix)+1)) \
-                                and datas[position+i][j]:
+                    for j, field2 in enumerate(fields_names):
+                        if len(field2) <= (prefix_len + 1) \
+                               and datas[position + i][j]:
                             test = False
+                            break
                     if not test:
                         break
-
-                    (newrow, max2, warning2, translate2) = \
-                            process_liness(self, datas, prefix+[field], newfd,
+                    (newrow, max2, translate2) = \
+                            process_lines(self, datas, prefix + [field], newfd,
                                     position + i)
-                    warning = warning + warning2
                     if reduce(lambda x, y: x or y, newrow.values()):
                         row[field].append(('create', newrow))
                     i += max2
                     nbrmax = max(nbrmax, i)
-
-            if len(prefix) == 0:
-                for i in range(max(nbrmax, 1)):
+            if prefix_len == 0:
+                for i in xrange(max(nbrmax, 1)):
                     datas.pop(0)
-            result = (row, nbrmax, warning, translate)
-            return result
+            return (row, nbrmax, translate)
 
+        ir_model_data_obj = self.pool.get('ir.model.data')
+
+        # logger for collecting warnings for the client
+        warnings = logging.Logger("import")
+        warning_stream = StringIO.StringIO()
+        warnings.addHandler(logging.StreamHandler(warning_stream))
+
+        if context is None:
+            context = {}
+        len_fields_names = len(fields_names)
+        for data in datas:
+            assert len(data) == len_fields_names
+        fields_names = [x.split('/') for x in fields_names]
         fields_def = self.fields_get(cursor, user, context=context)
         done = 0
 
+        warning = ''
         while len(datas):
             res = {}
-            warning = ''
             try:
-                (res, other, warning, translate) = \
-                        process_liness(self, datas, [], fields_def)
+                (res, other, translate) = \
+                        process_lines(self, datas, [], fields_def)
+                warning = warning_stream.getvalue()
                 if warning:
                     cursor.rollback()
                     return (-1, res, warning, '')
                 new_id = self.create(cursor, user, res, context=context)
+                trans_ctx = context.copy()
                 for lang in translate:
-                    context2 = context.copy()
-                    context2['language'] = lang
+                    trans_ctx['language'] = lang
                     self.write(cursor, user, new_id, translate[lang],
-                            context=context2)
+                            context=trans_ctx)
             except Exception, exp:
+                logger = logging.getLogger('import')
                 logger.error(exp)
                 cursor.rollback()
-                return (-1, res, exp[1], warning)
+                warning = '\n'.join(map(str, exp[1:]) + [warning])
+                return (-1, res, exp[0], warning)
             done += 1
         return (done, 0, 0, 0)
 

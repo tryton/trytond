@@ -7,7 +7,8 @@
     'active': True,
     'depends': ['ir', 'res'],
     'xml': [
-        ],
+        'import_data.xml',
+    ],
     'translation': [
     ],
 }
