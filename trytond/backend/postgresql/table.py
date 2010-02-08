@@ -136,7 +136,7 @@ class TableHandler(TableHandlerInterface):
                 "size": size,
                 "typname": typname}
 
-        # fetch constrains for the table
+        # fetch constraints for the table
         self.cursor.execute("SELECT co.contype, co.confdeltype, at.attname, "\
                          "cl2.relname, co.conname "\
                        "FROM pg_constraint co "\
