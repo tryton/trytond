@@ -14,7 +14,7 @@ class TableHandler(TableHandlerInterface):
         self._columns = {}
         self._constraints = []
         self._fk_deltypes = {}
-        self._indexes = {}
+        self._indexes = []
         self._field2module = {}
 
         # Create sequence if necessary
