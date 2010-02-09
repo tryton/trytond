@@ -1,3 +1,4 @@
+* Modify ondelete attribute of Many2One according to required attribute value
 * Refactor import_data of ModelStorage
 * Raise exception when search function is missing on Function fields
 * Add LRU memoization, use it to cache compiled code for safe_eval.
