@@ -6,7 +6,7 @@ Modules
 
 The modules of Tryton extend the functionality of the platform. The server
 comes by default with only a few functionality included in those modules:
-ir, res, webdav, workflow
+``ir``, ``res``, ``webdav``, ``workflow``.
 
 Module Structure
 ****************
@@ -20,13 +20,14 @@ A module is a directory in trytond/modules that contains at least two files:
 ``__init__.py`` file
 ^^^^^^^^^^^^^^^^^^^^
 
-It is the Python ``__init__.py`` to define a module. It must import all the python files from the module.
+It is the Python ``__init__.py`` to define a module. It must import all the
+python files from the module.
 
 
 ``__tryton__.py`` file
 ^^^^^^^^^^^^^^^^^^^^^^
 
-It is a Python file that must contain only dictionary with those keywords:
+It is a Python file that must contain only one dictionary with those keywords:
 
    * ``name``: The name of the module.
 
@@ -36,11 +37,9 @@ It is a Python file that must contain only dictionary with those keywords:
 
    * ``author``: The author name of the module.
 
-   * ``email``: The email address of the module (optional).
+   * ``email``: The email address of the author (optional).
 
    * ``website``: The url of the website for the module (optional).
-
-   * ``category``: A category for the module (optional).
 
    * ``description``: A long description of the module.
 
@@ -48,9 +47,11 @@ It is a Python file that must contain only dictionary with those keywords:
 
    * ``depends``: A list of modules on which the module depends.
 
-   * ``xml``: The list of the XML files of the module. There will be loaded at the installation or update of the module.
+   * ``xml``: The list of the XML files of the module. They will be loaded at
+     the installation or update of the module.
 
-   * ``translation``: The list of csv files that contains the translation. The name of the files must be the language code.
+   * ``translation``: The list of csv files that contain the translation. The
+     name of the files must be the language code.
 
 
 Here is an example:
@@ -140,17 +141,24 @@ Here is the list of the tags:
 
     * ``tryton``: The main tag of the xml
 
-    * ``data``: Define a set of data inside the file. It can have the attributes ``noupdate`` to prevent the framework to update the records.
+    * ``data``: Define a set of data inside the file. It can have the
+      attributes ``noupdate`` to prevent the framework to update the records.
 
-    * ``record``: Create a record of the model defined by the attribute ``model`` in the database. The ``id`` attribute can be use to refer to the record later in any xml file.
+    * ``record``: Create a record of the model defined by the attribute
+      ``model`` in the database. The ``id`` attribute can be used to refer to
+      the record later in any xml file.
 
-    * ``field``: Set the value of the field with the name defined by the attribute ``name``.
+    * ``field``: Set the value of the field with the name defined by the
+      attribute ``name``.
 
       Here is the list of attributes:
 
-        * ``search``: Only for relation field, it contains a domain on which searching for the first record and use it as value.
+        * ``search``: Only for relation field, it contains a domain on which
+          searching for the first record and use it as value.
 
-        * ``ref``: Only for relation field, it contains a xml id of the relation to use as value. It must be preceed by the module name with a ending dot if the record is defined in an other module.
+        * ``ref``: Only for relation field, it contains a xml id of the
+          relation to use as value. It must be prefixed by the module name with
+          a ending dot, if the record is defined in an other module.
 
         * ``eval``: Python code to evaluate and use result as value.
 
@@ -173,6 +181,7 @@ Here is the list of the tags:
 
         * ``action``: The xml id of the action linked to the menu.
 
-        * ``groups``: A list of xml id of group, that have access to the menu, separated by commas.
+        * ``groups``: A list of xml id of group, that have access to the menu,
+          separated by commas.
 
         * ``active``: A boolean telling if the menu is active or not.
