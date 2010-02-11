@@ -23,9 +23,14 @@ class Many2One(Field):
         :param right: The name of the field to store the right value. See left
         :param ondelete: Define the behavior of the record when the target
             record is deleted. (``CASCADE``, ``RESTRICT``, ``SET NULL``)
+            ``SET NULL`` will be changed into ``RESTRICT`` if required is set.
         :param datetime_field: The name of the field that contains the datetime
             value to read the target record.
         '''
+        self.__required = required
+        if ondelete not in ('CASCADE', 'RESTRICT', 'SET NULL'):
+            raise Exception('Bad arguments')
+        self.ondelete = ondelete
         if datetime_field:
             if depends:
                 depends.append(datetime_field)
@@ -40,8 +45,16 @@ class Many2One(Field):
         self.model_name = model_name
         self.left = left
         self.right = right
-        if ondelete not in ('CASCADE', 'RESTRICT', 'SET NULL'):
-            raise Exception('Bad arguments')
-        self.ondelete = ondelete
         self.datetime_field = datetime_field
+
+    def __get_required(self):
+        return self.__required
+
+    def __set_required(self, value):
+        self.__required = value
+        if value and self.ondelete == 'SET NULL':
+            self.ondelete = 'RESTRICT'
+
+    required = property(__get_required, __set_required)
+
     __init__.__doc__ += Field.__init__.__doc__

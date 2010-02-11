@@ -2913,6 +2913,335 @@ class MPTTTestCase(unittest.TestCase):
         self.CheckTree()
 
 
+class ImportDataTestCase(unittest.TestCase):
+    '''
+    Test import_data.
+    '''
+
+    def setUp(self):
+        install_module('tests')
+        self.boolean = RPCProxy('tests.import_data.boolean')
+        self.integer = RPCProxy('tests.import_data.integer')
+        self.float = RPCProxy('tests.import_data.float')
+        self.numeric = RPCProxy('tests.import_data.numeric')
+        self.char = RPCProxy('tests.import_data.char')
+        self.text = RPCProxy('tests.import_data.text')
+        self.sha = RPCProxy('tests.import_data.sha')
+        self.date = RPCProxy('tests.import_data.date')
+        self.datetime = RPCProxy('tests.import_data.datetime')
+        self.selection = RPCProxy('tests.import_data.selection')
+        self.many2one = RPCProxy('tests.import_data.many2one')
+        self.many2many = RPCProxy('tests.import_data.many2many')
+        self.one2many = RPCProxy('tests.import_data.one2many')
+        self.reference = RPCProxy('tests.import_data.reference')
+
+    def test0010boolean(self):
+        '''
+        Test boolean.
+        '''
+        self.assert_(self.boolean.import_data(['boolean'], [['True']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.boolean.import_data(['boolean'], [['1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.boolean.import_data(['boolean'], [['False']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.boolean.import_data(['boolean'], [['0']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.boolean.import_data(['boolean'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.boolean.import_data(['boolean'],
+            [['True'], ['False']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.boolean.import_data(['boolean'], [['foo']],
+            CONTEXT)[0] == -1)
+
+    def test0020integer(self):
+        '''
+        Test integer.
+        '''
+        self.assert_(self.integer.import_data(['integer'], [['1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.integer.import_data(['integer'], [['-1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.integer.import_data(['integer'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.integer.import_data(['integer'],
+            [['1'], ['2']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.integer.import_data(['integer'], [['1.1']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.integer.import_data(['integer'], [['-1.1']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.integer.import_data(['integer'], [['foo']],
+            CONTEXT)[0] == -1)
+
+    def test0030float(self):
+        '''
+        Test float.
+        '''
+        self.assert_(self.float.import_data(['float'], [['1.1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.float.import_data(['float'], [['-1.1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.float.import_data(['float'], [['1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.float.import_data(['float'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.float.import_data(['float'],
+            [['1.1'], ['2.2']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.float.import_data(['float'], [['foo']], CONTEXT)[0]
+                == -1)
+
+    def test0040numeric(self):
+        '''
+        Test numeric.
+        '''
+        self.assert_(self.numeric.import_data(['numeric'], [['1.1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.numeric.import_data(['numeric'], [['-1.1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.numeric.import_data(['numeric'], [['1']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.numeric.import_data(['numeric'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.numeric.import_data(['numeric'],
+            [['1.1'], ['2.2']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.numeric.import_data(['numeric'], [['foo']],
+            CONTEXT)[0] == -1)
+
+    def test0050char(self):
+        '''
+        Test char.
+        '''
+        self.assert_(self.char.import_data(['char'], [['test']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.char.import_data(['char'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.char.import_data(['char'],
+            [['test'], ['foo'], ['bar']], CONTEXT) == (3, 0, 0, 0))
+
+    def test0060text(self):
+        '''
+        Test text.
+        '''
+        self.assert_(self.text.import_data(['text'], [['test']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.text.import_data(['text'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.text.import_data(['text'],
+            [['test'], ['foo'], ['bar']], CONTEXT) == (3, 0, 0, 0))
+
+    def test0070sha(self):
+        '''
+        Test sha.
+        '''
+        self.assert_(self.sha.import_data(['sha'], [['test']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.sha.import_data(['sha'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.sha.import_data(['sha'],
+            [['test'], ['foo']], CONTEXT) == (2, 0, 0, 0))
+
+    def test0080date(self):
+        '''
+        Test date.
+        '''
+        self.assert_(self.date.import_data(['date'], [['2010-01-01']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.date.import_data(['date'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.date.import_data(['date'], [
+            ['2010-01-01'], ['2010-02-01']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.date.import_data(['date'], [['foo']], CONTEXT)[0]
+                == -1)
+
+    def test0090datetime(self):
+        '''
+        Test datetime.
+        '''
+        self.assert_(self.datetime.import_data(['datetime'],
+            [['2010-01-01 12:00:00']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.datetime.import_data(['datetime'], [['']], CONTEXT)
+                == (1, 0, 0, 0))
+
+        self.assert_(self.datetime.import_data(['datetime'],
+            [['2010-01-01 12:00:00'], ['2010-01-01 13:30:00']], CONTEXT)
+                == (2, 0, 0, 0))
+
+        self.assert_(self.datetime.import_data(['datetime'], [['foo']],
+            CONTEXT)[0] == -1)
+
+    def test0100selection(self):
+        '''
+        Test selection.
+        '''
+        self.assert_(self.selection.import_data(['selection'], [['select1']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.selection.import_data(['selection'], [['']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.selection.import_data(['selection'],
+            [['select1'], ['select2']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.selection.import_data(['selection'], [['foo']],
+            CONTEXT)[0] == -1)
+
+    def test0110many2one(self):
+        '''
+        Test many2one.
+        '''
+        self.assert_(self.many2one.import_data(['many2one'], [['Test']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.many2one.import_data(['many2one:id'],
+            [['tests.import_data_many2one_target_test']], CONTEXT)
+            == (1, 0, 0, 0))
+
+        self.assert_(self.many2one.import_data(['many2one'], [['']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.many2one.import_data(['many2one'],
+            [['Test'], ['Test']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.many2one.import_data(['many2one'], [['foo']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.many2one.import_data(['many2one'], [['Duplicate']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.many2one.import_data(['many2one:id'], [['foo']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.many2one.import_data(['many2one:id'],
+            [['tests.foo']], CONTEXT)[0] == -1)
+
+    def test0120many2many(self):
+        '''
+        Test many2many.
+        '''
+        self.assert_(self.many2many.import_data(['many2many'], [['Test 1']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many:id'],
+            [['tests.import_data_many2many_target_test1']], CONTEXT)
+            == (1, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many'],
+            [['Test 1,Test 2']], CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many:id'],
+            [['tests.import_data_many2many_target_test1,' \
+                    'tests.import_data_many2many_target_test2']], CONTEXT)
+            == (1, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many'],
+            [['Test\, comma']], CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many'],
+            [['Test\, comma,Test 1']], CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many'], [['']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many'],
+            [['Test 1'], ['Test 2']], CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.many2many.import_data(['many2many'], [['foo']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.many2many.import_data(['many2many'], [['Test 1,foo']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.many2many.import_data(['many2many'], [['Duplicate']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.many2many.import_data(['many2many'],
+            [['Test 1,Duplicate']], CONTEXT)[0] == -1)
+
+    def test0130one2many(self):
+        '''
+        Test one2many.
+        '''
+        self.assert_(self.one2many.import_data(['name', 'one2many/name'],
+            [['Test', 'Test 1']], CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.one2many.import_data(['name', 'one2many/name'],
+            [['Test', 'Test 1'], ['', 'Test 2']], CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.one2many.import_data(['name', 'one2many/name'],
+            [['Test 1', 'Test 1'], ['', 'Test 2'],
+                ['Test 2', 'Test 1']], CONTEXT) == (2, 0, 0, 0))
+
+    def test0140reference(self):
+        '''
+        Test reference.
+        '''
+        self.assert_(self.reference.import_data(['reference'],
+            [['tests.import_data.reference.selection,Test']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.reference.import_data(['reference:id'],
+            [['tests.import_data.reference.selection,'\
+                    'tests.import_data_reference_selection_test']], CONTEXT)
+            == (1, 0, 0, 0))
+
+        self.assert_(self.reference.import_data(['reference'], [['']],
+            CONTEXT) == (1, 0, 0, 0))
+
+        self.assert_(self.reference.import_data(['reference'],
+            [['tests.import_data.reference.selection,Test'],
+                ['tests.import_data.reference.selection,Test']],
+            CONTEXT) == (2, 0, 0, 0))
+
+        self.assert_(self.reference.import_data(['reference'],
+            [['tests.import_data.reference.selection,foo']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.reference.import_data(['reference'],
+            [['tests.import_data.reference.selection,Duplicate']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.reference.import_data(['reference:id'],
+            [['tests.import_data.reference.selection,foo']],
+            CONTEXT)[0] == -1)
+
+        self.assert_(self.reference.import_data(['reference:id'],
+            [['tests.import_data.reference.selection,tests.foo']],
+            CONTEXT)[0] == -1)
+
+
 class RPCProxy(object):
 
     def __init__(self, name):
@@ -3008,5 +3337,7 @@ if __name__ == '__main__':
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ModelSingletonTestCase))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ModelViewTestCase))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MPTTTestCase))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(
+        ImportDataTestCase))
     unittest.TextTestRunner(verbosity=2).run(suite)
     SOCK.disconnect()

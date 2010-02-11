@@ -891,6 +891,11 @@ class TranslationClean(Wizard):
                             'delete_xml_record',
                             'xml_record_desc',
                             'write_xml_record',
+                            'not_found_in_selection',
+                            'relation_not_found',
+                            'too_many_relations_found',
+                            'xml_id_syntax_error',
+                            'reference_syntax_error',
                             'delete_workflow_record',
                             'domain_validation_record',
                             'required_validation_record',
@@ -901,6 +906,7 @@ class TranslationClean(Wizard):
                             'required_field',
                             'foreign_model_missing',
                             'foreign_model_exist',
+                            'search_function_missing',
                             ):
                         continue
                     if model_name in self.pool.object_name_list():
