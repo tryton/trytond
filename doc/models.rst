@@ -4,9 +4,10 @@
 Model
 #####
 
-A model is a python class that usually represent a business logic or a
-concept. Such classes consist essentially of keywords, fields,
-constraints and helper functions.
+A model is a python class that usually represents a business logic or a concept.
+Such classes consist essentially of keywords, fields, constraints and helper
+functions.
+
 There are different kinds of Models for different purposes:
 
   * ``ModelView``: Define Model with views.
@@ -61,14 +62,13 @@ The following snippet gives a first idea of what can be done:
                                     'party', 'category', 'Categories')
   Party()
 
-Instantiating the class registers the Model class in the framework.
-Later the class will be instantiated once per database and stored in the Pool.
-Model instances are essentially accessors to records.
+Instantiating the class registers the Model class in the framework.  Later the
+class will be instantiated once per database and stored in the Pool.  Model
+instances are essentially accessors to records.
 
-Model properties define meta-information of the model, they are
-class attributes starting with an underscore.
-Some Model Properties are instance attributes allowing to update
-them at other places in the framework.
+Model properties define meta-information of the model, they are class
+attributes starting with an underscore.  Some Model Properties are instance
+attributes allowing to update them at other places in the framework.
 
 .. _model:
 
@@ -121,14 +121,13 @@ More complex clauses can be made this way:
   ]
 
 
-Where ``country`` is a ``Many2One`` field on the current field.  The
-number of *dots* in the left hand side of a condition is not limited, but
-the underlying relation must be a ``Many2One``.
+Where ``country`` is a ``Many2One`` field on the current field.  The number of
+*dots* in the left hand side of a condition is not limited, but the underlying
+relation must be a ``Many2One``.
 
-If used in a search call on the Address model this will result in
-something similar to the following sql code (the actual sql query will 
-be more complex since it has to take care of the access rights of the
-user):
+If used in a search call on the Address model this will result in something
+similar to the following sql code (the actual sql query will be more complex
+since it has to take care of the access rights of the user):
 
 .. highlight:: sql
 
@@ -149,7 +148,7 @@ Models Inheritance
 ^^^^^^^^^^^^^^^^^^
 
 Model Inheritance provides the ability to add or override fields, methods and
-constraints on existing models. 
+constraints on existing models.
 
 Adding fields to an existing model
 ++++++++++++++++++++++++++++++++++
@@ -187,16 +186,16 @@ with the same ``_name`` attribute:
 
 This example shows how to define and relate a new model to an existing model.
 The example also demonstrates how to define a reflecting ``Many2One``: It's not
-possible to create the two models without using inheritance, because
-each of the foreign keys (``first_owner`` and ``current_car``) needs the
-other model table.
+possible to create the two models without using inheritance, because each of
+the foreign keys (``first_owner`` and ``current_car``) needs the other model
+table.
 
 
 Extending existing fields from an existing model
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
-An existing field can be extended by calling `copy.copy` on it, modifying its attributes
-and then calling `self._reset_columns`.
+An existing field can be extended by calling `copy.copy` on it, modifying its
+attributes and then calling `self._reset_columns`.
 
 .. highlight:: python
 
@@ -219,11 +218,11 @@ and then calling `self._reset_columns`.
               self._reset_columns()
 
 
-In this example the extended model wants on_change_employee(...) to be called so it adds 'employee'
-to the on_change attribute of the employee field.  Notice that only if the the field is
-modified `self._reset_columns` is called.  Also notice that a developer should try
-to make no assumptions about the field so that additional modules could also
-extend the same field.
+In this example the extended model wants on_change_employee(...) to be called
+so it adds 'employee' to the on_change attribute of the employee field.  Notice
+that only if the the field is modified `self._reset_columns` is called.  Also
+notice that a developer should try to make no assumptions about the field so
+that additional modules could also extend the same field.
 
 Fields
 ******
@@ -354,10 +353,10 @@ the field.
           return date_obj.today(cursor, user, context=context)
 
 This example sets the default sale date on a sale to be the current date.  The
-client will use this default when filling a form for this model.  These
-methods also can be called explicitly when creating a model manually to populate it
-with defaults.  Finally these methods also will be called when using the create method
-if there is no value set in values that were passed.
+client will use this default when filling a form for this model.  These methods
+also can be called explicitly when creating a model manually to populate it
+with defaults.  Finally these methods also will be called when using the create
+method, in case there is no value set in the arguments passed to the method.
 
 on_change versus on_change_with
 +++++++++++++++++++++++++++++++
@@ -369,16 +368,20 @@ many dependencies there are.
  * `on_change` on field with field_name contained list of field names
 
    * method on_change_field_name is called
+
    * fields with name in on_change are passed in vals with their name as the
      key
+
    * method returns a dictionary with keys that are the names of fields to set
 
- * `on_change_with` defined on field with field_name containing list of
-   field names
+ * `on_change_with` defined on field with field_name containing list of field
+   names
 
    * method on_change_with_field_name is called
+
    * fields with name in on_change_with are passed in vals with their name as
      the key
+
    * method returns only a new value of the field that defined on_change_with
 
 .. highlight:: python
@@ -400,13 +403,12 @@ many dependencies there are.
           party_obj = self.pool.get("party.party")
           address_id = party_obj.address_get(cursor, user, values['customer'],
                   type='delivery', context=context)
-          return {
-                  'delivery_address': address_id}      
+          return {'delivery_address': address_id}
 
 In this example when the customer changes the delivery address also changes.
-The new value is set when `on_change_customer` returns the new value for 
-`delivery_address` in a dict. Any field of the model returned in this dict 
-will be updated with the new value.
+The new value is set when `on_change_customer` returns the new value for
+`delivery_address` in a dict. Any field of the model returned in this dict will
+be updated with the new value.
 
 .. highlight:: python
 
@@ -487,9 +489,9 @@ each id in ``ids``.
 One method to rule them all
 +++++++++++++++++++++++++++
 
-The first variant we'll look at is defining a unique function for
-several fields. Let's consider this new field which returns the total for
-the invoice lines of kind *service*:
+The first variant we'll look at is defining a unique function for several
+fields. Let's consider this new field which returns the total for the invoice
+lines of kind *service*:
 
 .. highlight:: python
 
@@ -543,14 +545,13 @@ Or even better:
       return res
 
 
-The framework is able to check, if ``names`` (instead of ``name``) is
-used in the method definition, hence adapting the way the method is
-called.
+The framework is able to check, if ``names`` (instead of ``name``) is used in
+the method definition, hence adapting the way the method is called.
 
 
-Another way to tackle Function implementation is to pass a dictionary
-to the ``args`` argument on the field definition. It will be forwarded
-to the function call:
+Another way to tackle Function implementation is to pass a dictionary to the
+``args`` argument on the field definition. It will be forwarded to the function
+call:
 
 .. highlight:: python
 
@@ -571,10 +572,10 @@ to the function call:
 Search on Function fields
 +++++++++++++++++++++++++
 
-Another possible improvement can be to provide a search function.
-Indeed without it the user will not be able to search across
-invoices for a certain amount.  If we forget about the
-``total_service`` field, a solution could look like the following:
+Another possible improvement can be to provide a search function.  Indeed
+without it the user will not be able to search across invoices for a certain
+amount.  If we forget about the ``total_service`` field, a solution could look
+like the following:
 
 .. highlight:: python
 

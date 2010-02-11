@@ -6,9 +6,11 @@ Views
 
 The views are used to display records of an object to the user.
 
-In tryton, objects can have several views, it is the action, that opens the window, that tells which views must be used.
+In Tryton objects can have several views. It is the action,  that opens the
+window and that tells which view to use.
 
-The views are built from XML that is stored in the databases with the object ir.ui.view.
+The views are built from XML that is stored in the databases with the object
+ir.ui.view.
 
 So generally, they are defined in xml files with this kind of xml:
 
@@ -41,18 +43,22 @@ There is three types of views:
 Form view
 *********
 
-The RNG that describes the xml for a form view is stored in
-trytond/ir/ui/form.rng.  There is also a RNC in trytond/ir/ui/form.rnc.
+The RNG describing the xml of a form view is stored in trytond/ir/ui/form.rng.
+There is also a RNC in trytond/ir/ui/form.rnc.
 
-Form view is used to display one record of an object.
+A form view is used to display one record of an object.
 
 Elements of the view are put on the screen following the rules:
 
-    * Elements are placed on the screen from left to right, from top to bottom, according the order of the xml.
+    * Elements are placed on the screen from left to right, from top to bottom,
+      according to the order of the xml.
 
-    * The screen composed of a table with a fixed number of columns and enough rows to handle all elements.
+    * The screen composed of a table with a fixed number of columns and enough
+      rows to handle all elements.
 
-    * Elements take one or more columns when they are put in the table. If there is not enough free columns on the current row, the elements is put at the begin of the next row.
+    * Elements take one or more columns when they are put in the table. If
+      there are not enough free columns on the current row, the elements are put
+      at the begining of the next row.
 
 
 XML description
@@ -60,9 +66,11 @@ XML description
 
 Here is the list of common attributes:
 
-    * ``expand``: A boolean to specify if the label should expand to take up any extra horizontal space.
+    * ``expand``: A boolean to specify if the label should expand to take up
+      any extra horizontal space.
 
-    * ``fill``: A boolean to specify if the label should fill the horizontal space allocated to it in the table cell.
+    * ``fill``: A boolean to specify if the label should fill the horizontal
+      space allocated to it in the table cell.
 
     * ``xexpand``: The same as expand but for vertical space.
 
@@ -70,16 +78,22 @@ Here is the list of common attributes:
 
     * ``colspan``: The number of columns the label must take in the table.
 
-    * ``states``: A string of python code that will be evaluated with the field of the current record.
+    * ``states``: A string of python code that will be evaluated with the field
+      of the current record.
 
       It must return a dictionary where keys can be:
 
         * ``invisible``: If true, the widget will be hidden.
-        * ``required``: If true, the field will be required.
-        * ``readonly``: If true, the field will be readonly.
-        * ``icon``: Only for button, it must return the icon name to use or False.
 
-    * ``help``: The string that will be displayed when the cursor stay over the widget.
+        * ``required``: If true, the field will be required.
+
+        * ``readonly``: If true, the field will be readonly.
+
+        * ``icon``: Only for button, it must return the icon name to use or
+          False.
+
+    * ``help``: The string that will be displayed when the cursor stay over the
+      widget.
 
 
 form
@@ -87,9 +101,13 @@ form
 
 Each form view must start with this tag.
 
-    * ``string``: The text that will be used as default title for the tab or the window.
+    * ``string``: The text that will be used as default title for the tab or
+      the window.
 
-    * ``on_write``: The name of a function that will be called when the record is saved.  The function must have this form ``on_write(self, cursor, user, ids, context=None)``.
+    * ``on_write``: The name of a function that will be called when the record
+      is saved.  The function must have this syntax:
+
+      ``on_write(self, cursor, user, ids, context=None)``
 
     * ``col``: The number of column for the view.
 
@@ -100,11 +118,14 @@ label
 
 Display static string.
 
-    * ``string``: The string that will be display in the label.
+    * ``string``: The string that will be displayed in the label.
 
-    * ``name``: The name of the field from which the description will be used for string.
+    * ``name``: The name of the field whose description will be used for
+      string.
 
-    * ``align``: The fraction of horizontal free space that must be put on the left.  0.0 means no free space to the left.  1.0 means all free space to the left.
+    * ``align``: The fraction of horizontal free space that must be put on the
+      left.  0.0 means no free space to the left.  1.0 means all free space to
+      the left.
 
 
 field
@@ -116,9 +137,11 @@ Display a field of the object with the value of the current record.
 
     * ``widget``: The widget that must be used instead of the default one.
 
-    * ``saves``: Only for One2Many fields, it is a boolean that defined if change made in the list must be save directly.
+    * ``saves``: Only for One2Many fields: it is a boolean that defines if
+      changes made in the list must be saved directly.
 
-    * ``help``: The string that will be displayed when the cursor stay over the widget.
+    * ``help``: The string that will be displayed when the cursor stays over the
+      widget.
 
     * ``width``: The minimum width the widget should request, or -1 to unset.
 
@@ -128,30 +151,37 @@ Display a field of the object with the value of the current record.
 
     * ``required``: Boolean to set the field required.
 
-    * ``mode``: Only for One2Many fields, it is a comma separated list, that specify the order of of the view used to display the relation. (Example: ``tree,form``)
+    * ``mode``: Only for One2Many fields: it is a comma separated list, that
+      specifies the order of the view used to display the relation. (Example:
+      ``tree,form``)
 
-    * ``completion``: Only for Many2One fields, it is a boolean to set the completion of the field.
+    * ``completion``: Only for Many2One fields, it is a boolean to set the
+      completion of the field.
 
-    * ``invisible``: The field will not be display, but it will fill cells in the table.
+    * ``invisible``: The field will not be displayed, but it will fill cells in
+      the table.
 
-    * ``domain``: Only for One2Many, Many2One, Many2Many fields, it defines the domain that must be used when searching for relation records.
+    * ``domain``: Only for One2Many, Many2One, Many2Many fields, it defines the
+      domain that must be used when searching for related records.
 
 
 image
 ^^^^^
 
-Display a image.
+Display an image.
 
-    * ``name``: the name of the image. It must be the name with the extension of an image from tryton/share/pixmaps/
+    * ``name``: the name of the image. It must be the name with the extension
+      of an image from ``tryton/share/pixmaps/``.
 
 separator
 ^^^^^^^^^
 
 Display a horizontal separator.
 
-    * ``string``: The string that will be display above the separator.
+    * ``string``: The string that will be displayed above the separator.
 
-    * ``name``: The name of the field from which the description will be used for string.
+    * ``name``: The name of the field from which the description will be used
+      for string.
 
 newline
 ^^^^^^^
@@ -163,20 +193,25 @@ button
 
 Display a button.
 
-    * ``string``: The string that will be display inside the button.
+    * ``string``: The string that will be displayed inside the button.
 
-    * ``type``: It can be ``workflow``, ``object`` or ``action``. The default is ``workflow``.
-      It defines which type of action must be run when clicking on it.
+    * ``type``: It can be ``workflow``, ``object`` or ``action``. The default
+      is ``workflow``.  It defines which type of action must be run when
+      clicking on it.
 
     * ``name``: The name of the action:
 
-        * ``workflow``: the name of the signal that will be send.
+        * ``workflow``: the name of the signal that will be sent.
 
-        * ``object``: the name of the function that will called.  The function must have this form ``button(self, cursor, user, ids, context=None)``.
+        * ``object``: the name of the function that will called.  The function
+          must have this syntax:
+
+          ``button(self, cursor, user, ids, context=None)``
 
         * ``action``: the id of the ir.action that will be called.
 
-    * ``confirm``: A text that will be display in a confirmation popup when the button is clicked.
+    * ``confirm``: A text that will be displayed in a confirmation popup when
+      the button is clicked.
 
 notebook
 ^^^^^^^^
@@ -190,27 +225,30 @@ page
 
 Define a new tab inside a notebook.
 
-    * ``string``: The string that will be display in the tab.
+    * ``string``: The string that will be displayed in the tab.
 
-    * ``angle``: The angle that the baseline of the label makes with the horizontal, in degrees, measured counterclockwise.
+    * ``angle``: The angle in degrees between the baseline of the label and the
+      horizontal, measured counterclockwise.
 
-    * ``col``: The number of column for the page view.
+    * ``col``: The number of columns for the page view.
 
 group
 ^^^^^
 
 Create a sub-table in a cell.
 
-    * ``string``: If set a frame will be drawn around the field with a label containing the string. Otherwise, the frame will be invisible.
+    * ``string``: If set a frame will be drawn around the field with a label
+      containing the string. Otherwise, the frame will be invisible.
 
-    * ``rowspan``: The number of rows the group must take in the table.
+    * ``rowspan``: The number of rows the group spans in the table.
 
-    * ``col``: The number of column for the group contains.
+    * ``col``: The number of columns for the group contains.
 
 hpaned, vpaned
 ^^^^^^^^^^^^^^
 
-    * ``position``: The pixel position of divider, a negative value means that the position is unset
+    * ``position``: The pixel position of divider, a negative value means that
+      the position is unset.
 
 child1,child2
 ^^^^^^^^^^^^^
@@ -283,20 +321,30 @@ tree
 
 Each tree view must start with this tag.
 
-    * ``string``: The text that will be used as default title for the tab or the window.
+    * ``string``: The text that will be used as default title for the tab or
+      the window.
 
-    * ``on_write``: The name of a function that will be called when a record is saved.  The function must have this form ``on_write(self, cursor, user, ids, context=None)``.
+    * ``on_write``: The name of a function that will be called when a record is
+      saved.  The function must have this syntax:
 
-    * ``editable``: If it is set to ``top`` or ``bottom``, the list become editable and the new record will be add on ``top`` or ``bottom`` of the list.
+      ``on_write(self, cursor, user, ids, context=None)``
 
-    * ``sequence``: The name of the field that is used for sorting.  So this field must be an interger and it will be updated to match the new sort when the user use the ``Drag and Drop`` between rows of the list.
+    * ``editable``: If it is set to ``top`` or ``bottom``, the list becomes
+      editable and the new record will be added on ``top`` or ``bottom`` of the
+      list.
 
-    * ``colors``: A PySON string that will be evaluated for each record. A string containing the
-      name of the color will be returned.
+    * ``sequence``: The name of the field that is used for sorting.  This field
+      must be an integer and it will be updated to match the new sort order
+      when the user uses ``Drag and Drop`` on list rows.
 
-    * ``fill``: A boolean to specify if the last column must fill the remain free space in the view.
+    * ``colors``: A PySON string that will be evaluated for each record. A
+      string containing the name of the color will be returned.
 
-    * ``toolbar``: A boolean to specify on tree if there is a toolbar on the left that take the first elements of the tree (like for the menu).
+    * ``fill``: A boolean to specify if the last column must fill the remaining
+      free space in the view.
+
+    * ``toolbar``: A boolean to specify on tree, if there is a toolbar on the
+      left that takes the first elements of the tree (like for the menu).
 
 field
 ^^^^^
@@ -309,13 +357,18 @@ field
 
     * ``widget``: The widget that must be used instead of the default one.
 
-    * ``select``: A number between 0 and 2. If set to 1, the field will be used as main search criteria; if set to 2, the field will be used as second search criteria; if set to 0, the field will not be used as search criteria.
+    * ``select``: A number between 0 and 2. If set to 1, the field will be used
+      as main search criteria; if set to 2, the field will be used as second
+      search criteria; if set to 0, the field will not be used as search
+      criteria.
 
     * ``tree_invisible``: Boolean to display or not the column.
 
-    * ``icon``: The name of the field that contains the name of the icon to display in the column.
+    * ``icon``: The name of the field that contains the name of the icon to
+      display in the column.
 
-    * ``sum``: A text for the sum widget that will be added on the bottom of list with the sum of all the field in the column.
+    * ``sum``: A text for the sum widget that will be added on the bottom of
+      list with the sum of all the fields in the column.
 
     * ``width``: Set the width of the column.
 
@@ -350,16 +403,16 @@ graph
 
 Each graph view must start with this tag.
 
-    * ``type``: vbar, hbar, line, pie
+    * ``type``: ``vbar``, ``hbar``, ``line``, ``pie``
 
-    * ``string``: the name of the graph
+    * ``string``: the name of the graph.
 
     * ``background``: an hexaecimal value for the color of the
-      background
+      background.
 
-    * ``color``: the main color
+    * ``color``: the main color.
 
-    * ``legend``: a boolean to specify if the legend must be display
+    * ``legend``: a boolean to specify if the legend must be displayed.
 
 x, y
 ^^^^
@@ -371,21 +424,21 @@ x, y
 field
 ^^^^^
 
-    * ``name``: the name of the field on the object to use
+    * ``name``: the name of the field on the object to use.
 
     * ``string``: allow to override the string that comes from the
-      object
+      object.
 
     * ``key``: can be used to distinguish fields with the same name but
-      that are different with domain
+      with different domain.
 
     * ``domain``: a PySON string which is evaluated with the object value as
       context. If the result is true the field value is added to the graph.
 
-    * ``fill``: defined if the graph must be fill
+    * ``fill``: defined if the graph shall be filled.
 
     * ``empty``: defined if the line graph must put a point for missing
-      date
+      dates.
 
 
 Example
@@ -408,13 +461,15 @@ Example
 Inherit view
 ************
 
-Inherited a view means that the original view will be modified by a set of rules that are defined with XML.
+Inherit a view means, that the original view will be modified by a set of rules
+that are defined with XML.
 
-For this purpose, the inheritance engine use some xpath expressions.
+For this purpose, the inheritance engine uses xpath expressions.
 
 The inherited view is defined with the field ``inherit`` of the ir.ui.view.
 
-If the field ``domain`` is not set or evaluated to True, the inheritance will be proceed.
+If the field ``domain`` is not set or evaluated to True, the inheritance will
+be proceeded.
 
 
 XML description
@@ -423,14 +478,16 @@ XML description
 data
 ^^^^
 
-Each inherit view must start with this tag.
+Each inherited view must start with this tag.
 
 xpath
 ^^^^^
 
     * ``expr``: the xpath expression to find a node in the inherited view.
 
-    * ``position``: Define the position from the finded node, it can be ``before``, ``after``, ``replace``, ``inside`` or ``replace_attributes`` which will change the attributes.
+    * ``position``: Define the position in relation to the node found. It can
+      be ``before``, ``after``, ``replace``, ``inside`` or
+      ``replace_attributes`` which will change the attributes.
 
 Example
 +++++++
