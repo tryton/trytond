@@ -92,12 +92,14 @@ class Function(Field):
         :param cursor: The database cursor.
         :param user: The user id.
         :param model: The model.
+        :param name: The name of the field.
         :param args: The search domain. See ModelStorage.search
         :param context: The context.
         :return: New list of domain.
         '''
         if not self.fnct_search:
-            return []
+            model.raise_user_error(cursor, 'search_function_missing',
+                    name, context=context)
         return getattr(model, self.fnct_search)(cursor, user, name, args,
                 context=context)
 

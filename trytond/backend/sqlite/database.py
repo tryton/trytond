@@ -54,7 +54,7 @@ def extract(lookup_type, date):
     elif lookup_type.lower() == 'millennium':
         return date.year / 1000 + (date.year % 1000 and 1 or 0)
     elif lookup_type.lower() == 'milliseconds':
-        return a.microsecond / 1000
+        return date.microsecond / 1000
     elif lookup_type.lower() == 'quarter':
         return date.month / 4 + 1
     elif lookup_type.lower() == 'week':
@@ -65,15 +65,16 @@ def date_trunc(_type, date):
     if _type == 'second':
         return date
     try:
-        time.strptime(date, '%Y-%m-%d %H:%M:%S')
+        tm_tuple = time.strptime(date, '%Y-%m-%d %H:%M:%S')
     except:
         return None
     if _type == 'year':
-        return "%i-01-01 00:00:00" % dt.year
+        return "%i-01-01 00:00:00" % tm_tuple.tm_year
     elif _type == 'month':
-        return "%i-%02i-01 00:00:00" % (dt.year, dt.month)
+        return "%i-%02i-01 00:00:00" % (tm_tuple.tm_year, tm_tuple.tm_mon)
     elif _type == 'day':
-        return "%i-%02i-%02i 00:00:00" % (dt.year, dt.month, dt.day)
+        return "%i-%02i-%02i 00:00:00" % (tm_tuple.tm_year, tm_tuple.tm_mon,
+                tm_tuple.tm_mday)
 
 def split_part(text, delimiter, count):
     return (text.split(delimiter) + [''] * (count - 1))[count - 1]

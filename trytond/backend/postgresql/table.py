@@ -14,7 +14,7 @@ class TableHandler(TableHandlerInterface):
         self._columns = {}
         self._constraints = []
         self._fk_deltypes = {}
-        self._indexes = {}
+        self._indexes = []
         self._field2module = {}
 
         # Create sequence if necessary
@@ -136,7 +136,7 @@ class TableHandler(TableHandlerInterface):
                 "size": size,
                 "typname": typname}
 
-        # fetch constrains for the table
+        # fetch constraints for the table
         self.cursor.execute("SELECT co.contype, co.confdeltype, at.attname, "\
                          "cl2.relname, co.conname "\
                        "FROM pg_constraint co "\

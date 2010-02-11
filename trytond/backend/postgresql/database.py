@@ -389,7 +389,7 @@ class Cursor(CursorInterface):
     def limit_clause(self, select, limit=None, offset=None):
         if limit is not None:
             select += ' LIMIT %d' % limit
-        if offset is not None:
+        if offset is not None and offset != 0:
             select += ' OFFSET %d' % offset
         return select
 
