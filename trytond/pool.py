@@ -42,17 +42,19 @@ class Pool(object):
         lock.release()
 
     @staticmethod
-    def register(cls, type='model'):
+    def register(klass, type='model'):
         '''
         Register a class
 
-        :param cls: the class
+        :param klass: the class
         :param type: the type
         '''
-        for module in cls.__module__.split('.'):
+        module = None
+        for module in klass.__module__.split('.'):
             if module != 'trytond' and module != 'modules':
                 break
-        Pool.classes[type].setdefault(module, []).append(cls)
+        if module:
+            Pool.classes[type].setdefault(module, []).append(klass)
 
     @staticmethod
     def start():

@@ -2,19 +2,12 @@
 #this repository contains the full copyright notices and license terms.
 "Convert"
 import re
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
-import os.path
-from trytond.config import CONFIG
 from trytond.version import VERSION
 from trytond.tools import safe_eval
 import time
 from xml import sax
 from decimal import Decimal
 import datetime
-import time
 import logging
 import traceback
 import sys
@@ -43,6 +36,7 @@ class MenuitemTagHandler:
     """Taghandler for the tag <record> """
     def __init__(self, master_handler):
         self.mh = master_handler
+        self.xml_id = None
 
     def startElement(self, name, attributes):
 
@@ -72,7 +66,8 @@ class MenuitemTagHandler:
                 "LEFT JOIN ir_action_act_window act ON (a.id = act.action) " \
                 "LEFT JOIN ir_action_wizard wizard ON (a.id = wizard.action) " \
                 "LEFT JOIN ir_action_url url ON (a.id = url.action) " \
-                "LEFT JOIN ir_action_act_window_view wv on (act.id = wv.act_window) " \
+                "LEFT JOIN ir_action_act_window_view wv ON " \
+                    "(act.id = wv.act_window) " \
                 "LEFT JOIN ir_ui_view v on (v.id = wv.view) " \
             "WHERE report.id = %s " \
                 "OR act.id = %s " \
@@ -123,7 +118,7 @@ class MenuitemTagHandler:
         if not values.get('name'):
             if not action_name:
                 raise Exception("Please provide at least a 'name' attributes "
-                                "or a 'action' attributes on the menuitem tags.")
+                        "or a 'action' attributes on the menuitem tags.")
             else:
                 values['name'] = action_name
 
@@ -138,8 +133,7 @@ class MenuitemTagHandler:
         if name != "menuitem":
             return self
         else:
-            res = self.mh.import_record(
-                'ir.ui.menu', self.values, self.xml_id)
+            self.mh.import_record( 'ir.ui.menu', self.values, self.xml_id)
             return None
 
     def current_state(self):
@@ -158,6 +152,11 @@ class RecordTagHandler:
         self.xml_ids = []
         self.model = None
         self.xml_id = None
+        self.update = None
+        self.values = None
+        self.current_field = None
+        self.cdata = None
+        self.start_cdata = None
 
 
     def startElement(self, name, attributes):
@@ -209,7 +208,9 @@ class RecordTagHandler:
                 if not answer: return
 
                 if self.model._columns[field_name]._type == 'many2many':
-                    self.values[field_name] = [('set', [x['id'] for x in answer])]
+                    self.values[field_name] = [
+                            ('set', [x['id'] for x in answer]),
+                        ]
 
                 elif self.model._columns[field_name]._type == 'many2one':
                     self.values[field_name] = answer[0]['id']
@@ -226,7 +227,8 @@ class RecordTagHandler:
                 self.values[field_name] = safe_eval(eval_attr, context)
 
         else:
-            raise Exception("Tags '%s' not supported inside tag record."% (name,))
+            raise Exception("Tags '%s' not supported inside tag record." %
+                    (name,))
 
     def characters(self, data):
 
@@ -255,7 +257,7 @@ class RecordTagHandler:
                                 "current_field expected to be set.")
             # Escape end cdata tag :
             if self.cdata in ('inside', 'start'):
-                self.values[self.current_field] =\
+                self.values[self.current_field] = \
                     CDATA_END.sub('', self.values[self.current_field])
                 self.cdata = 'done'
 
@@ -272,8 +274,7 @@ class RecordTagHandler:
         elif name == "record":
             if self.xml_id in self.xml_ids and not self.update:
                 raise Exception('Duplicate id: "%s".' % (self.xml_id,))
-            res = self.mh.import_record(
-                self.model._name, self.values, self.xml_id)
+            self.mh.import_record(self.model._name, self.values, self.xml_id)
             self.xml_ids.append(self.xml_id)
             return None
         else:
@@ -393,6 +394,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
     def __init__(self, cursor, pool, module,):
         "Register known taghandlers, and managed tags."
+        sax.handler.ContentHandler.__init__(self)
 
         self.pool = pool
         self.cursor = cursor
@@ -401,6 +403,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.modeldata_obj = pool.get('ir.model.data')
         self.fs2db = Fs2bdAccessor(cursor, self.user, self.modeldata_obj, pool)
         self.to_delete = self.populate_to_delete()
+        self.noupdate = None
 
         # Tag handlders are used to delegate the processing
         self.taghandlerlist = {
@@ -410,7 +413,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.taghandler = None
 
         # Managed tags are handled by the current class
-        self.managedtags= ["data", "tryton"]
+        self.managedtags = ["data", "tryton"]
 
         # Connect to the sax api:
         self.sax_parser = sax.make_parser()
@@ -455,7 +458,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 pass
 
             else:
-                logging.getLogger("convert").info("Tag "+ name + " not supported")
+                logging.getLogger("convert").info( "Tag %s not supported" %
+                        name)
                 return
         else:
             self.taghandler.startElement(name, attributes)
@@ -597,7 +601,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 raise Exception("This record try to overwrite " \
                 "data with the wrong model: %s (module: %s)" % (fs_id, module))
 
-            #Re-create object if it was deleted
+            #Re-create record if it was deleted
             if not self.fs2db.get_browserecord(module, object_ref._name, db_id):
                 db_id = object_ref.create(cursor, user, values,
                         context={'module': module})
@@ -605,9 +609,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # reset_browsercord
                 self.fs2db.reset_browsercord(module, object_ref._name, db_id)
 
-                object = self.fs2db.get_browserecord(module, object_ref._name, db_id)
-                for table, field_name, field in object_ref._inherit_fields.values():
-                    inherit_db_ids[table] = object[field_name].id
+                record = self.fs2db.get_browserecord(module, object_ref._name,
+                        db_id)
+                for table, field_name, field in \
+                        object_ref._inherit_fields.values():
+                    inherit_db_ids[table] = record[field_name].id
 
                 #Add a translation record for field translatable
                 for field_name in object_ref._columns.keys() + \
@@ -677,7 +683,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     })
                 self.fs2db.get(module, fs_id)["db_id"] = db_id
 
-            db_val = self.fs2db.get_browserecord(module, object_ref._name, db_id)
+            db_val = self.fs2db.get_browserecord(module, object_ref._name,
+                    db_id)
             if not db_val:
                 db_val = object_ref.browse(cursor, user, db_id)
 
@@ -737,10 +744,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
 
             if not inherit_db_ids:
-                object = object_ref.browse(cursor, user, db_id)
+                record = object_ref.browse(cursor, user, db_id)
                 for table, field_name, field in \
                         object_ref._inherit_fields.values():
-                    inherit_db_ids[table] = object[field_name].id
+                    inherit_db_ids[table] = record[field_name].id
             if not inherit_mdata_ids:
                 for table in inherit_db_ids.keys():
                     data_id = self.modeldata_obj.search(cursor, user, [
@@ -779,7 +786,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                 cursor.execute('UPDATE ir_translation ' \
                                         'SET src = %s, module = %s ' \
                                         'WHERE id = %s',
-                                        (to_update[field_name], module, trans_id))
+                                        (to_update[field_name], module,
+                                            trans_id))
                         elif values.get(field_name):
                             cursor.execute('INSERT INTO ir_translation ' \
                                     '(name, lang, type, src, res_id, ' \
@@ -835,9 +843,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     context={'module': module})
             inherit_db_ids = {}
 
-            object = object_ref.browse(cursor, user, db_id)
+            record = object_ref.browse(cursor, user, db_id)
             for table, field_name, field in object_ref._inherit_fields.values():
-                inherit_db_ids[table] = object[field_name].id
+                inherit_db_ids[table] = record[field_name].id
 
             #Add a translation record for field translatable
             for field_name in object_ref._columns.keys() + \
@@ -985,17 +993,17 @@ def post_import(cursor, pool, module, to_delete):
             model_obj.delete(cursor, user, db_id)
             mdata_delete.append(mdata_id)
             cursor.commit()
-        except Exception, exception:
+        except:
             cursor.rollback()
             tb_s = reduce(lambda x, y: x + y,
                     traceback.format_exception(*sys.exc_info()))
             logging.getLogger("convert").error(
-                'Could not delete id: %d of model %s\n' \
-                    'There should be some relation ' \
-                    'that points to this resource\n' \
-                    'You should manually fix this ' \
-                    'and restart --update=module\n' \
-                    'Exception: %s' % \
+                'Could not delete id: %d of model %s\n'
+                    'There should be some relation '
+                    'that points to this resource\n'
+                    'You should manually fix this '
+                    'and restart --update=module\n'
+                    'Exception: %s' %
                     (db_id, model, tb_s.decode('utf-8', 'ignore')))
 
     transition_obj = pool.get('workflow.transition')
@@ -1009,7 +1017,8 @@ def post_import(cursor, pool, module, to_delete):
         except:
             cursor.rollback()
             logging.getLogger("convert").error(
-                'Could not delete id: %d of model workflow.transition'% (db_id,))
+                'Could not delete id: %d of model workflow.transition' %
+                (db_id,))
 
     # Clean model_data:
     if mdata_delete:

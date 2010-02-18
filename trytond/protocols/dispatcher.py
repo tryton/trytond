@@ -3,8 +3,8 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.pool import Pool
 from trytond import security
-from trytond.tools import Cache, find_language_context
-from trytond.backend import Database, DatabaseIntegrityError
+from trytond.tools import Cache
+from trytond.backend import Database
 from trytond.config import CONFIG
 from trytond.version import VERSION
 from trytond.monitor import monitor
@@ -39,7 +39,8 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
         elif method == 'logout':
             name = security.logout(database_name, user, session)
             logger = logging.getLogger('dispatcher')
-            logger.info('logout \'%s\' from %s:%d using %s on database \'%s\'' % \
+            logger.info('logout \'%s\' from %s:%d ' \
+                    'using %s on database \'%s\'' %
                     (name, host, port, protocol, database_name))
             return True
         elif method == 'version':
@@ -206,7 +207,6 @@ def create(database_name, password, lang, admin_password):
             res = True
         except:
             logger.error('CREATE DB: %s failed' % (database_name,))
-            import traceback, sys
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger.error('Exception in call: \n' + tb_s)
@@ -233,7 +233,6 @@ def drop(database_name, password):
             cursor.commit()
         except:
             logger.error('DROP DB: %s failed' % (database_name,))
-            import traceback, sys
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
             logger.error('Exception in call: \n' + tb_s)

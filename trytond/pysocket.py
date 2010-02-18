@@ -79,10 +79,10 @@ class PySocket:
                 sock.settimeout(CONNECT_TIMEOUT)
                 sock.connect((host, int(port)))
             if ssl:
-                ssl_sock = ssl.wrap_socket(sock)
+                ssl.wrap_socket(sock)
                 self.ssl = True
             elif hasattr(socket, 'ssl'):
-                ssl_sock = socket.ssl(sock)
+                socket.ssl(sock)
                 self.ssl = True
         except:
             pass
@@ -131,12 +131,12 @@ class PySocket:
         msg = cPickle.dumps([msg, traceback], protocol=2)
         gzip_p = False
         if len(msg) > GZIP_THRESHOLD:
-            buffer = StringIO.StringIO()
-            output = gzip.GzipFile(mode='wb', fileobj=buffer)
+            buf = StringIO.StringIO()
+            output = gzip.GzipFile(mode='wb', fileobj=buf)
             output.write(msg)
             output.close()
-            buffer.seek(0)
-            msg = buffer.getvalue()
+            buf.seek(0)
+            msg = buf.getvalue()
             gzip_p = True
         size = len(msg)
         msg = str(size) + ' ' + (exception and "1" or "0") \
@@ -155,7 +155,7 @@ class PySocket:
 
     def receive(self):
         buf = self.buffer
-        L = []
+        buf_list = []
         size_remaining = MAX_LENGHT
         while size_remaining:
             chunk_size = min(size_remaining, 4096)
@@ -165,13 +165,13 @@ class PySocket:
                 chunk = self.sock.recv(chunk_size)
             if chunk == '':
                 raise RuntimeError, "socket connection broken"
-            L.append(chunk)
+            buf_list.append(chunk)
             size_remaining -= len(chunk)
             if ' ' in chunk:
                 break
         if size_remaining < 0:
             raise RuntimeError, "socket connection broken"
-        buf += ''.join(L)
+        buf += ''.join(buf_list)
         size, msg = buf.split(' ', 1)
         size = int(size)
         if size > MAX_SIZE:
@@ -186,8 +186,8 @@ class PySocket:
                 raise RuntimeError, "socket connection broken"
         exception = msg[0] != "0"
         gzip_p = msg[1] != "0"
-        L = [msg[2:]]
-        size_remaining = size - len(L[0])
+        buf_list = [msg[2:]]
+        size_remaining = size - len(buf_list[0])
         while size_remaining:
             chunk_size = min(size_remaining, 4096)
             if self.ssl:
@@ -196,9 +196,9 @@ class PySocket:
                 chunk = self.sock.recv(chunk_size)
             if chunk == '':
                 raise RuntimeError, "socket connection broken"
-            L.append(chunk)
+            buf_list.append(chunk)
             size_remaining -= len(chunk)
-        msg = ''.join(L)
+        msg = ''.join(buf_list)
         if len(msg) > size:
             self.buffer = msg[size:]
             msg = msg[:size]

@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import ConfigParser, optparse, os, sys
-from version import VERSION
+from trytond.version import VERSION
 
 
 class ConfigManager(object):
@@ -52,6 +52,7 @@ class ConfigManager(object):
             'init': {},
             'update': {},
         }
+        self.configfile = None
 
     def parse(self):
         parser = optparse.OptionParser(version=VERSION)
@@ -75,7 +76,7 @@ class ConfigManager(object):
         parser.add_option("--logfile", dest="logfile",
                 help="file where the server log will be stored")
 
-        (opt, args) = parser.parse_args()
+        (opt, _) = parser.parse_args()
 
         if opt.config:
             self.configfile = opt.config

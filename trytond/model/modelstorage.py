@@ -3,7 +3,8 @@
 
 from trytond.model import Model
 from trytond.model import fields
-from trytond.model.browse import BrowseRecordList, BrowseRecord, BrowseRecordNull
+from trytond.model.browse import BrowseRecordList, BrowseRecord, \
+        BrowseRecordNull
 from trytond.model.browse import EvalEnvironment
 from trytond.tools import safe_eval
 from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
@@ -15,7 +16,7 @@ import logging
 from itertools import chain
 try:
     import cStringIO as StringIO
-except ImprotError:
+except ImportError:
     import StringIO
 import csv
 
@@ -24,9 +25,6 @@ class ModelStorage(Model):
     """
     Define a model with storage capability in Tryton.
 
-    :_rec_name: The name of the main field of the model.
-        By default the field ``name``.
-    :id: An Integer field for unique identifier.
     :create_uid: A Many2One that points to the
         user who created the record.
     :create_date: A Date field for date of creation of the record.
@@ -40,9 +38,7 @@ class ModelStorage(Model):
         violated). ``error_keyword`` must be one of the key of
         ``_sql_error_messages``.
     """
-    _rec_name = 'name'
 
-    id = fields.Integer('ID', readonly=True)
     create_uid = fields.Many2One('res.user', 'Create User', readonly=True)
     create_date = fields.DateTime('Create Date', readonly=True)
     write_uid = fields.Many2One('res.user', 'Write User', readonly=True)
@@ -73,24 +69,6 @@ class ModelStorage(Model):
     def default_create_date(self, cursor, user, context=None):
         "Default value for create_date field."
         return datetime.datetime.today()
-
-    def default_sequence(self, cursor, user, context=None):
-        '''
-        Return the default value for sequence field.
-        '''
-        table = self._table
-        if 'sequence' not in self._columns:
-            for model in self._inherits:
-                model_obj = self.pool.get(model)
-                if 'sequence' in model_obj._columns:
-                    table = model_obj._table
-                    break
-        cursor.execute('SELECT MAX(sequence) ' \
-                'FROM "' + table + '"')
-        res = cursor.fetchone()
-        if res:
-            return res[0]
-        return 0
 
     def __clean_xxx2many_cache(self, cursor, user, context=None):
         # Clean cursor cache
@@ -157,8 +135,6 @@ class ModelStorage(Model):
         :return: True if succeed
         '''
         model_access_obj = self.pool.get('ir.model.access')
-        rule_group_obj = self.pool.get('ir.rule.group')
-        rule_obj = self.pool.get('ir.rule')
 
         model_access_obj.check(cursor, user, self._name, 'write',
                 context=context)
@@ -241,11 +217,11 @@ class ModelStorage(Model):
                 default['state'] = self._defaults['state'](cursor, user,
                         context)
 
-        def convert_data(fields, data):
+        def convert_data(field_defs, data):
             data = data.copy()
             data_o2m = {}
-            for field_name in fields:
-                ftype = fields[field_name]['type']
+            for field_name in field_defs:
+                ftype = field_defs[field_name]['type']
 
                 if field_name in (
                     'create_date',
@@ -280,21 +256,22 @@ class ModelStorage(Model):
         fields_names = self._columns.keys()
         datas = self.read(cursor, user, ids, fields_names=fields_names,
                 context=context)
-        fields = self.fields_get(cursor, user, fields_names=fields_names,
+        field_defs = self.fields_get(cursor, user, fields_names=fields_names,
                 context=context)
         for data in datas:
             data_id = data['id']
-            data, data_o2m = convert_data(fields, data)
+            data, data_o2m = convert_data(field_defs, data)
             new_ids[data_id] = self.create(cursor, user, data, context=context)
             for field_name in data_o2m:
-                relation_model = self.pool.get(fields[field_name]['relation'])
-                relation_field = fields[field_name]['relation_field']
+                relation_model = self.pool.get(
+                        field_defs[field_name]['relation'])
+                relation_field = field_defs[field_name]['relation_field']
                 relation_model.copy(cursor, user, data_o2m[field_name],
                         default={relation_field: new_ids[data_id]},
                         context=context)
 
         fields_translate = {}
-        for field_name, field in fields.iteritems():
+        for field_name, field in field_defs.iteritems():
             if field_name in self._columns and \
                     self._columns[field_name].translate:
                 fields_translate[field_name] = field
@@ -317,7 +294,8 @@ class ModelStorage(Model):
                     for data in datas:
                         data_id = data['id']
                         data, _ = convert_data(fields_translate, data)
-                        self.write(cursor, user, new_ids[data_id], data, context=ctx)
+                        self.write(cursor, user, new_ids[data_id], data,
+                                context=ctx)
         if int_id:
             return new_ids.values()[0]
         return new_ids.values()
@@ -367,8 +345,8 @@ class ModelStorage(Model):
             return len(res)
         return res
 
-    def search_read(self, cursor, user, domain, offset=0, limit=None, order=None,
-            context=None, fields_names=None):
+    def search_read(self, cursor, user, domain, offset=0, limit=None,
+            order=None, context=None, fields_names=None):
         '''
         Call search and read functions at once.
         Useful for the client to reduce the number of calls.
@@ -400,9 +378,9 @@ class ModelStorage(Model):
         for model in self.browse(cursor, user, ids, context=context):
             record = {}
             for fields_name in set(fields_names):
-                fields = fields_name.split('.')
-                while fields:
-                    field_name = fields.pop(0)
+                fields_split = fields_name.split('.')
+                while fields_split:
+                    field_name = fields_split.pop(0)
                     if fields_name not in record:
                         record[fields_name] = model[field_name]
                     else:
@@ -602,7 +580,7 @@ class ModelStorage(Model):
                 if not isinstance(selection, (tuple, list)):
                     selection = getattr(self, selection)(cursor, user,
                             context=context)
-                for key, val in selection:
+                for key, _ in selection:
                     if str(key) == value:
                         res = key
                         break
@@ -673,11 +651,11 @@ class ModelStorage(Model):
                 if not value:
                     return False
                 relation = None
-                type = fields_def[field[-1][:-3]]['type']
-                if type == 'many2many':
+                ftype = fields_def[field[-1][:-3]]['type']
+                if ftype == 'many2many':
                     value = csv.reader(StringIO.StringIO(value), delimiter=',',
                             quoting=csv.QUOTE_NONE, escapechar='\\').next()
-                elif type == 'reference':
+                elif ftype == 'reference':
                     try:
                         relation, value = value.split(',', 1)
                     except:
@@ -696,9 +674,9 @@ class ModelStorage(Model):
                     db_id = ir_model_data_obj.get_id(cursor, user,
                             module, xml_id)
                     res_ids.append(db_id)
-                if type == 'many2many' and res_ids:
+                if ftype == 'many2many' and res_ids:
                     return [('set', res_ids)]
-                elif type == 'reference' and res_ids:
+                elif ftype == 'reference' and res_ids:
                     return '%s,%s' % (relation, str(res_ids[0]))
                 return res_ids and res_ids[0] or False
 
@@ -763,7 +741,7 @@ class ModelStorage(Model):
                         cursor, user, context=context)
                 res = process_lines(self, datas, prefix + [field], newfd,
                         position)
-                (newrow, max2, translate2) = res
+                (newrow, max2, _) = res
                 nbrmax = max(nbrmax, max2)
                 reduce(lambda x, y: x and y, newrow)
                 row[field] = (reduce(lambda x, y: x or y, newrow.values()) and
@@ -778,7 +756,7 @@ class ModelStorage(Model):
                             break
                     if not test:
                         break
-                    (newrow, max2, translate2) = \
+                    (newrow, max2, _) = \
                             process_lines(self, datas, prefix + [field], newfd,
                                     position + i)
                     if reduce(lambda x, y: x or y, newrow.values()):
@@ -810,7 +788,7 @@ class ModelStorage(Model):
         while len(datas):
             res = {}
             try:
-                (res, other, translate) = \
+                (res, _, translate) = \
                         process_lines(self, datas, [], fields_def)
                 warning = warning_stream.getvalue()
                 if warning:
@@ -909,12 +887,12 @@ class ModelStorage(Model):
             walker = record[parent]
             while walker:
                 if parent_type == 'many2many':
-                    for w in walker:
-                        walked.add(w.id)
-                        if w.id == record.id:
+                    for walk in walker:
+                        walked.add(walk.id)
+                        if walk.id == record.id:
                             return False
-                    walker = list(chain(*(w[parent] for w in walker
-                            if w.id not in visited)))
+                    walker = list(chain(*(walk[parent] for walk in walker
+                            if walk.id not in visited)))
                 else:
                     walked.add(walker.id)
                     if walker.id == record.id:
@@ -952,8 +930,6 @@ class ModelStorage(Model):
             return self._validate(cursor, context['user'], ids, context=ctx)
 
         context = context.copy()
-        field_error = []
-        field_err_str = []
         for field in self._constraints:
             if not getattr(self, field[0])(cursor, user, ids):
                 self.raise_user_error(cursor, field[1], context=context)

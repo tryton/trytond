@@ -30,10 +30,10 @@ def _inherit_apply(src, inherit):
             pos = element2.get('position', 'inside')
             if pos == 'replace':
                 parent = element.getparent()
-                next = element.getnext()
-                if next is not None:
+                enext = element.getnext()
+                if enext is not None:
                     for child in element2:
-                        index = parent.index(next)
+                        index = parent.index(enext)
                         parent.insert(index, child)
                 else:
                     parent.extend(element2.getchildren())
@@ -46,10 +46,10 @@ def _inherit_apply(src, inherit):
                 element.extend(element2.getchildren())
             elif pos == 'after':
                 parent = element.getparent()
-                next = element.getnext()
-                if next is not None:
+                enext = element.getnext()
+                if enext is not None:
                     for child in element2:
-                        index = parent.index(next)
+                        index = parent.index(enext)
                         parent.insert(index, child)
                 else:
                     parent.extend(element2.getchildren())

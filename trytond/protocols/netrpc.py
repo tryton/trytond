@@ -29,7 +29,7 @@ class NetRPCClientThread(threading.Thread):
             return False
         timeout = 0
         while self.running:
-            (rlist, wlist, xlist) = select.select([self.sock], [], [], 1)
+            (rlist, _, _) = select.select([self.sock], [], [], 1)
             if not rlist:
                 timeout += 1
                 if timeout > 600:
@@ -61,7 +61,8 @@ class NetRPCClientThread(threading.Thread):
                     tback = sys.exc_info()[2]
                     pdb.post_mortem(tback)
                 try:
-                    pysocket.send(exception.args, exception=True, traceback=tb_s)
+                    pysocket.send(exception.args, exception=True,
+                            traceback=tb_s)
                 except:
                     pysocket.disconnect()
                     self.threads.remove(self)
@@ -101,7 +102,7 @@ class NetRPCServerThread(threading.Thread):
             while self.running:
                 if not int(CONFIG['max_thread']) \
                         or len(self.threads) < int(CONFIG['max_thread']):
-                    (clientsocket, address) = self.socket.accept()
+                    (clientsocket, _) = self.socket.accept()
                     c_thread = NetRPCClientThread(clientsocket, self.threads,
                             self.secure)
                     self.threads.append(c_thread)

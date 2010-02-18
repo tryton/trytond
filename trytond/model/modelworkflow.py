@@ -66,7 +66,7 @@ class ModelWorkflow(ModelStorage):
             ], context=context)
         for res_id in ids:
             for wkf_id in workflow_ids:
-                instance_id = instance_obj.create(cursor, user, {
+                instance_obj.create(cursor, user, {
                     'res_type': self._name,
                     'res_id': res_id,
                     'workflow': wkf_id,

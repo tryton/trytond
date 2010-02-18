@@ -13,9 +13,10 @@ class Property(Function):
 
     def __init__(self, type='float', model_name=None, selection=None,
             digits=None, relation=None, add_remove=None, string='', help='',
-            required=False, readonly=False, domain=None, states=None, priority=0,
-            change_default=False, translate=False, select=0, on_change=None,
-            on_change_with=None, depends=None, order_field=None, context=None):
+            required=False, readonly=False, domain=None, states=None,
+            priority=0, change_default=False, translate=False, select=0,
+            on_change=None, on_change_with=None, depends=None,
+            order_field=None, context=None):
         '''
         :param type: The type of the field.
         :param fnct_search: The name of the search function.
@@ -69,8 +70,8 @@ class Property(Function):
         '''
         property_obj = model.pool.get('ir.property')
         return property_obj.set(cursor, user, name, model._name, record_id,
-                (value and (self.model_name or '')  + ',' + str(value)) or False,
-                context=context)
+                (value and (self.model_name or '')  + ',' + str(value)) or
+                False, context=context)
 
 
     def search(self, cursor, user, model, name, args, context=None):
@@ -106,16 +107,21 @@ class Property(Function):
 
         #Fetch res ids that comply with the domain
         cursor.execute(
-            'SELECT cast(split_part("' + property_obj._table + '".res,\',\',2) as integer), ' + \
+            'SELECT CAST(' \
+                    'SPLIT_PART("' + property_obj._table + '".res,\',\',2) ' \
+                    'AS INTEGER), '\
                 '"' + property_obj._table + '".id '\
             'FROM "' + property_obj._table + '" '\
-                'JOIN "' + field_obj._table + '" on ("' + field_obj._table + '"'+ \
-                      '.id = "' + property_obj._table + '".field) '\
-                'JOIN "' + model_obj._table +'" on ("' + model_obj._table + \
-                      '".id = "' + field_obj._table + '".model) '\
+                'JOIN "' + field_obj._table + '" ON ' \
+                    '("' + field_obj._table + '"'+ \
+                        '.id = "' + property_obj._table + '".field) '\
+                'JOIN "' + model_obj._table +'" ON ' \
+                    '("' + model_obj._table + \
+                        '".id = "' + field_obj._table + '".model) '\
             'WHERE '\
               'CASE WHEN "' +\
-                model_obj._table + '".model = %s AND "' + field_obj._table + '".name = %s AND ' \
+                model_obj._table + '".model = %s ' \
+                'AND "' + field_obj._table + '".name = %s AND ' \
                 + property_query + \
               ' THEN '  + \
                 conditions + \
@@ -126,9 +132,9 @@ class Property(Function):
 
         props = cursor.fetchall()
         default = None
-        for x in props:
-            if not x[0]:
-                default = x[1]
+        for prop in props:
+            if not prop[0]:
+                default = prop[1]
                 break
 
         if not default:

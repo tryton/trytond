@@ -5,7 +5,7 @@ from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
 from trytond.session import Session
 from psycopg2.pool import ThreadedConnectionPool
-from psycopg2.extensions import cursor
+from psycopg2.extensions import cursor as PsycopgCursor
 from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2.extensions import register_type, register_adapter
@@ -238,7 +238,7 @@ class Database(DatabaseInterface):
                         (0, module_id, dependency))
 
 
-class _Cursor(cursor):
+class _Cursor(PsycopgCursor):
 
     def __build_dict(self, row):
         return dict((desc[0], row[i])

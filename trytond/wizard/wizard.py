@@ -1,14 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from trytond.pool import Pool
-from trytond.model import ModelView
-from trytond.config import CONFIG
-from trytond.backend import DatabaseIntegrityError
-import sys
 import copy
-from xml import dom
-import traceback
-import logging
 from threading import Lock
 from random import randint
 from sys import maxint
@@ -17,6 +10,7 @@ from sys import maxint
 class Wizard(object):
     _name = ""
     states = {}
+    pool = None
 
     def __new__(cls):
         Pool.register(cls, type='wizard')
@@ -35,8 +29,8 @@ class Wizard(object):
     def init(self, cursor, module_name):
         for state in self.states.keys():
             if self.states[state]['result']['type'] == 'form':
-                for i, button in enumerate(
-                        self.states[state]['result']['state']):
+                for button in \
+                        self.states[state]['result']['state']:
                     button_name = button[0]
                     button_value = button[1]
                     cursor.execute('SELECT id, name, src ' \
@@ -50,8 +44,8 @@ class Wizard(object):
                     res = cursor.dictfetchall()
                     if not res:
                         cursor.execute('INSERT INTO ir_translation ' \
-                                '(name, lang, type, src, value, module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                                '(name, lang, type, src, value, module, fuzzy)'\
+                                ' VALUES (%s, %s, %s, %s, %s, %s, %s)',
                                 (self._name + ',' + state + ',' + button_name,
                                     'en_US', 'wizard_button', button_value,
                                     '', module_name, False))
