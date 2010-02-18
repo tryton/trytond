@@ -4,13 +4,13 @@
 %prog [options]
 """
 import logging
-format='[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
-datefmt='%a %b %d %H:%M:%S %Y'
-logging.basicConfig(level=logging.DEBUG, format=format, datefmt=datefmt)
+FORMAT = '[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
+DATEFMT = '%a %b %d %H:%M:%S %Y'
+logging.basicConfig(level=logging.DEBUG, format=FORMAT, datefmt=DATEFMT)
 import logging.handlers
 import sys, os, signal
 import time
-from config import CONFIG
+from trytond.config import CONFIG
 from getpass import getpass
 try:
     import hashlib
@@ -26,7 +26,6 @@ class TrytonServer(object):
 
     def __init__(self):
         CONFIG.parse()
-        from trytond.backend import Database
 
         if CONFIG['logfile']:
             logf = CONFIG['logfile']
@@ -39,10 +38,11 @@ class TrytonServer(object):
                     logf, 'D', 1, 30)
                 handler.rolloverAt -= diff
             except Exception, exception:
-                sys.stderr.write("ERROR: couldn't create the logfile directory:" \
+                sys.stderr.write(\
+                        "ERROR: couldn't create the logfile directory:" \
                         + str(exception))
             else:
-                formatter = logging.Formatter(format, datefmt)
+                formatter = logging.Formatter(FORMAT, DATEFMT)
                 # tell the handler to use this format
                 handler.setFormatter(formatter)
 
@@ -69,7 +69,7 @@ class TrytonServer(object):
     def run(self):
         "Run the server and never return"
         from trytond.backend import Database
-        from pool import Pool
+        from trytond.pool import Pool
         from trytond.monitor import monitor
 
         update = False

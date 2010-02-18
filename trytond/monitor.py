@@ -6,30 +6,28 @@ import subprocess
 from threading import Lock
 from trytond.modules import get_module_list
 
-_lock = Lock()
-_times = {}
-_modules = None
+_LOCK = Lock()
+_TIMES = {}
+_MODULES = None
 
 def _modified(path):
-    global _times
-    global _lock
-    _lock.acquire()
+    _LOCK.acquire()
     try:
         try:
             if not os.path.isfile(path):
-                return path in _times
+                return path in _TIMES
 
             mtime = os.stat(path).st_mtime
-            if path not in _times:
-                _times[path] = mtime
+            if path not in _TIMES:
+                _TIMES[path] = mtime
 
-            if mtime != _times[path]:
-                _times[path] = mtime
+            if mtime != _TIMES[path]:
+                _TIMES[path] = mtime
                 return True
         except:
             return True
     finally:
-        _lock.release()
+        _LOCK.release()
     return False
 
 def monitor():
@@ -38,7 +36,7 @@ def monitor():
 
     :return: True if at least one file has changed
     '''
-    global _modules
+    global _MODULES
     modified = False
     for module in sys.modules.keys():
         if not module.startswith('trytond.'):
@@ -58,13 +56,13 @@ def monitor():
                 break
             modified = True
     modules = set(get_module_list())
-    if _modules is None:
-        _modules = modules
-    for module in modules.difference(_modules):
+    if _MODULES is None:
+        _MODULES = modules
+    for module in modules.difference(_MODULES):
         if subprocess.call((sys.executable, '-c',
             'import trytond.modules.%s' % module)):
             modified = False
             break
         modified = True
-    _modules = modules
+    _MODULES = modules
     return modified

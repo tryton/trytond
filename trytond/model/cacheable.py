@@ -6,6 +6,7 @@ import time
 
 
 class Cacheable(object):
+    _name = None
 
     def __init__(self):
         super(Cacheable, self).__init__()

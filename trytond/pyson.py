@@ -11,31 +11,31 @@ import datetime
 class PYSON(object):
 
     def pyson(self):
-        raise
+        raise NotImplementedError
 
     def types(self):
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def eval(dct, context):
-        raise
+        raise NotImplementedError
 
 
 class PYSONEncoder(json.JSONEncoder):
 
-    def default(self, o):
-        if isinstance(o, PYSON):
-            return o.pyson()
-        return super(PYSONEncoder, self).default(o)
+    def default(self, obj):
+        if isinstance(obj, PYSON):
+            return obj.pyson()
+        return super(PYSONEncoder, self).default(obj)
 
 
 class PYSONDecoder(json.JSONDecoder):
 
     def __init__(self, context=None):
         self.__context = context or {}
-        return super(PYSONDecoder, self).__init__(object_hook=self.object_hook)
+        super(PYSONDecoder, self).__init__(object_hook=self._object_hook)
 
-    def object_hook(self, dct):
+    def _object_hook(self, dct):
         if '__class__' in dct:
             klass = globals().get(dct['__class__'])
             if klass and hasattr(klass, 'eval'):
@@ -46,6 +46,7 @@ class PYSONDecoder(json.JSONDecoder):
 class Eval(PYSON):
 
     def __init__(self, value, default=''):
+        super(Eval, self).__init__()
         self._value = value
         self._default = default
 
@@ -70,6 +71,7 @@ class Eval(PYSON):
 class Not(PYSON):
 
     def __init__(self, value):
+        super(Not, self).__init__()
         if isinstance(value, PYSON):
             assert value.types() == set([bool]), 'value must be boolean'
         else:
@@ -93,6 +95,7 @@ class Not(PYSON):
 class Bool(PYSON):
 
     def __init__(self, value):
+        super(Bool, self).__init__()
         self._value = value
 
     def pyson(self):
@@ -112,6 +115,7 @@ class Bool(PYSON):
 class And(PYSON):
 
     def __init__(self, *statements):
+        super(And, self).__init__()
         for statement in statements:
             if isinstance(statement, PYSON):
                 assert statement.types() == set([bool]), \
@@ -151,6 +155,7 @@ class Or(And):
 class Equal(PYSON):
 
     def __init__(self, statement1, statement2):
+        super(Equal, self).__init__()
         if isinstance(statement1, PYSON):
             types1 = statement1.types()
         else:
@@ -181,6 +186,7 @@ class Equal(PYSON):
 class Greater(PYSON):
 
     def __init__(self, statement1, statement2, equal=False):
+        super(Greater, self).__init__()
         for i in (statement1, statement2):
             if isinstance(i, PYSON):
                 assert i.types().issubset(set([int, long, float])), \
@@ -233,6 +239,7 @@ class Less(Greater):
 class If(PYSON):
 
     def __init__(self, condition, then_statement, else_statement=None):
+        super(If, self).__init__()
         if isinstance(condition, PYSON):
             assert condition.types() == set([bool]), 'condition must be boolean'
         else:
@@ -276,6 +283,7 @@ class If(PYSON):
 class Get(PYSON):
 
     def __init__(self, obj, key, default=''):
+        super(Get, self).__init__()
         if isinstance(obj, PYSON):
             assert obj.types() == set([dict]), 'obj must be a dict'
         else:
@@ -310,6 +318,7 @@ class Get(PYSON):
 class In(PYSON):
 
     def __init__(self, key, obj):
+        super(In, self).__init__()
         if isinstance(key, PYSON):
             assert key.types().issubset(set([str, int, long])), \
                     'key must be a string or an integer or a long'
@@ -347,6 +356,7 @@ class Date(PYSON):
 
     def __init__(self, year=None, month=None, day=None,
             delta_years=0, delta_months=0, delta_days=0):
+        super(Date, self).__init__()
         for i in (year, month, day, delta_years, delta_months, delta_days):
             if isinstance(i, PYSON):
                 assert i.types().issubset(set([int, long, type(None)])), \
@@ -388,8 +398,8 @@ class Date(PYSON):
             date = date.replace(year=year)
         if dct['dM']:
             month = date.month + dct['dM']
-            year = date.year + month/12
-            month = month%12
+            year = date.year + month / 12
+            month = month % 12
             date = date.replace(year=year, month=month)
         if dct['dd']:
             date += datetime.timedelta(days=dct['dd'])
@@ -450,7 +460,7 @@ class DateTime(Date):
             if dct[i] is not None:
                 replace[j] = dct[i]
         datetime_ = datetime_.replace(**replace)
-        delta={}
+        delta = {}
         for i, j in (('dh', 'hours'), ('dm', 'minutes'), ('ds', 'seconds'),
                 ('dms', 'microseconds')):
             if dct[i]:

@@ -4,7 +4,6 @@
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
 from trytond.session import Session
-import logging
 import os
 import re
 from decimal import Decimal
@@ -180,12 +179,12 @@ class Database(DatabaseInterface):
     @staticmethod
     def list(cursor):
         res = []
-        for file in os.listdir(CONFIG['data_path']) + [':memory:']:
-            if file.endswith('.sqlite') or file == ':memory:':
-                if file == ':memory:':
+        for db_file in os.listdir(CONFIG['data_path']) + [':memory:']:
+            if db_file.endswith('.sqlite') or db_file == ':memory:':
+                if db_file == ':memory:':
                     db_name = ':memory:'
                 else:
-                    db_name = file[:-7]
+                    db_name = db_file[:-7]
                 try:
                     database = Database(db_name)
                 except:
@@ -270,12 +269,12 @@ class Cursor(CursorInterface):
 
     def execute(self, sql, params=None):
         buf = ""
-        for nq, q in QUOTE_SEPARATION.findall(sql+"''"):
-            nq = nq.replace('?', '??')
-            nq = nq.replace('%s', '?')
-            nq = nq.replace('ilike', 'like')
-            nq = re.sub(EXTRACT_PATTERN, r'EXTRACT("\1",', nq)
-            buf += nq + q
+        for nquote, quote in QUOTE_SEPARATION.findall(sql+"''"):
+            nquote = nquote.replace('?', '??')
+            nquote = nquote.replace('%s', '?')
+            nquote = nquote.replace('ilike', 'like')
+            nquote = re.sub(EXTRACT_PATTERN, r'EXTRACT("\1",', nquote)
+            buf += nquote + quote
         sql = buf[:-2]
         try:
             if params:
@@ -345,8 +344,8 @@ class Cursor(CursorInterface):
         return select
 
 sqlite.register_converter('NUMERIC', lambda val: Decimal(str(val)))
-sqlite.register_adapter(Decimal, lambda val: float(val))
-sqlite.register_adapter(Session, lambda val: int(val))
+sqlite.register_adapter(Decimal, float)
+sqlite.register_adapter(Session, int)
 def adapt_datetime(val):
     return val.replace(tzinfo=None).isoformat(" ")
 sqlite.register_adapter(datetime.datetime, adapt_datetime)

@@ -14,11 +14,10 @@ import socket
 import os
 import BaseHTTPServer
 import urlparse
-import base64
 import time
 from DAV import AuthServer, WebDAVServer, iface
 from DAV.errors import *
-from DAV.constants import COLLECTION, OBJECT, DAV_VERSION_1, DAV_VERSION_2
+from DAV.constants import COLLECTION, DAV_VERSION_1, DAV_VERSION_2
 from DAV.utils import get_uriparentpath, get_urifilename, quote_uri
 from DAV.davcmd import copyone, copytree, moveone, movetree, delone, deltree
 import urllib
@@ -36,6 +35,7 @@ DAV_VERSION_2['version'] += ',access-control'
 class LocalInt(local):
 
     def __init__(self, value=0):
+        super(LocalInt, self).__init__()
         self.value = value
 
     def __int__(self):
@@ -153,7 +153,8 @@ class TrytonDAVInterface(iface.dav_interface):
             protocol = 'https'
         else:
             protocol = 'http'
-        self.baseuri = '%s://%s:%s/' % (protocol, interface or socket.gethostname(), port)
+        self.baseuri = '%s://%s:%s/' % (protocol, interface or
+                socket.gethostname(), port)
         self.verbose = False
 
     def _log_exception(self, exception):
@@ -221,10 +222,12 @@ class TrytonDAVInterface(iface.dav_interface):
     def get_data(self, uri):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or (self.exists(uri) and self.is_collection(uri)):
-            res = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">'
+            res = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 '\
+                    'Transitional//EN">'
             res += '<html>'
             res += '<head>'
-            res += '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
+            res += '<meta http-equiv="Content-Type" content="text/html; '\
+                    'charset=utf-8">'
             res += '<title>%s - WebDAV - %s</title>' \
                     % (PACKAGE, dbname or 'root')
             res += '</head>'
@@ -461,7 +464,8 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = Pool(DATABASE['dbname'])
         collection_obj = pool.get('webdav.collection')
         try:
-            res = collection_obj.exists(cursor, int(USER_ID), dburi, cache=CACHE)
+            res = collection_obj.exists(cursor, int(USER_ID), dburi,
+                    cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -542,15 +546,14 @@ class TrytonDAVInterface(iface.dav_interface):
             privilege.appendChild(unbind)
         return privilege
 
-TrytonDAVInterface.PROPS['DAV:'] = tuple(list(TrytonDAVInterface.PROPS['DAV:']) \
-        + ['current-user-privilege-set'])
+TrytonDAVInterface.PROPS['DAV:'] = tuple(list(TrytonDAVInterface.PROPS['DAV:']
+    ) + ['current-user-privilege-set'])
 
 
 class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         WebDAVServer.DAVRequestHandler):
 
     def finish(self):
-        global DATABASE
         dbname = None
         if 'dbname' in DATABASE:
             dbname = DATABASE['dbname']
@@ -564,9 +567,6 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
             Cache.resets(dbname)
 
     def get_userinfo(self, user, password, command=''):
-        global USER_ID
-        global DATABASE
-
         dbname = urllib.unquote_plus(self.path.split('/', 2)[1])
         DATABASE['dbname'] = dbname
         if not dbname:

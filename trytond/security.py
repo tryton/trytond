@@ -3,7 +3,7 @@
 from trytond.backend import Database
 from trytond.session import Session
 from trytond.pool import Pool
-from config import CONFIG
+from trytond.config import CONFIG
 import time
 
 
@@ -59,7 +59,7 @@ def check_super(passwd):
 def check(dbname, user, session):
     if user == 0:
         raise Exception('AccessDenied')
-    result = False
+    result = None
     now = time.time()
     timeout = int(CONFIG['session_timeout'])
     if _USER_CACHE.get(dbname, {}).has_key(user):
@@ -82,7 +82,7 @@ def get_connections(dbname, user):
     now = time.time()
     timeout = int(CONFIG['session_timeout'])
     if _USER_CACHE.get(dbname, {}).has_key(int(user)):
-        for i, session in enumerate(_USER_CACHE[dbname][int(user)]):
+        for _, session in enumerate(_USER_CACHE[dbname][int(user)]):
             if abs(session.timestamp - now) < timeout:
                 res += 1
     return res

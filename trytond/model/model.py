@@ -3,7 +3,7 @@
 
 from trytond.model import fields
 from trytond.pool import Pool
-from trytond.pyson import PYSONEncoder, CONTEXT
+from trytond.pyson import PYSONEncoder
 import copy
 
 
@@ -20,6 +20,9 @@ class Model(object):
     :_error_messages: a dictionary mapping keywords to an error message. Eg.:
 
         ``{'recursive_categories': 'You can not create recursive categories!'}``
+    :_rec_name: The name of the main field of the model.
+        By default the field ``name``.
+    :id: An Integer field for unique identifier.
     """
     _name = None
     _inherits = {}
@@ -28,6 +31,9 @@ class Model(object):
     __columns = None
     __xxx2many_targets = None
     __defaults = None
+    _rec_name = 'name'
+
+    id = fields.Integer('ID', readonly=True)
 
     def _reset_columns(self):
         self.__columns = None
@@ -245,9 +251,9 @@ class Model(object):
                 'WHERE f.model = m.id ' \
                     'AND m.model = %s ',
                         (self._name,))
-        fields = {}
+        model_fields = {}
         for field in cursor.dictfetchall():
-            fields[field['name']] = field
+            model_fields[field['name']] = field
 
         # Prefetch field translations
         if self._columns:
@@ -278,17 +284,17 @@ class Model(object):
                 relation = field.model_name
             elif hasattr(field, 'relation_name'):
                 relation = field.relation_name
-            if field_name not in fields:
+            if field_name not in model_fields:
                 cursor.execute("INSERT INTO ir_model_field " \
                         "(model, name, field_description, ttype, " \
                             "relation, help, module) " \
                         "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                         (model_id, field_name, field.string, field._type,
                             relation, field.help, module_name))
-            elif fields[field_name]['field_description'] != field.string \
-                    or fields[field_name]['ttype'] != field._type \
-                    or fields[field_name]['relation'] != relation \
-                    or fields[field_name]['help'] != field.help:
+            elif model_fields[field_name]['field_description'] != field.string \
+                    or model_fields[field_name]['ttype'] != field._type \
+                    or model_fields[field_name]['relation'] != relation \
+                    or model_fields[field_name]['help'] != field.help:
                 cursor.execute('UPDATE ir_model_field ' \
                         'SET field_description = %s, ' \
                             'ttype = %s, ' \
@@ -296,7 +302,7 @@ class Model(object):
                             'help = %s ' \
                         'WHERE id = %s ',
                         (field.string, field._type, relation,
-                            field.help, fields[field_name]['id']))
+                            field.help, model_fields[field_name]['id']))
             trans_name = self._name + ',' + field_name
             if trans_name not in trans_fields:
                 if field_name not in ('create_uid', 'create_date',
@@ -328,7 +334,7 @@ class Model(object):
                     and ((hasattr(field, 'translate_selection') \
                         and field.translate_selection)
                         or not hasattr(field, 'translate_selection')):
-                for (key, val) in field.selection:
+                for (_, val) in field.selection:
                     if trans_name not in trans_selection \
                             or val not in trans_selection[trans_name]:
                         cursor.execute('INSERT INTO ir_translation ' \
@@ -338,13 +344,14 @@ class Model(object):
                                 (trans_name, 'en_US', 'selection', val, '',
                                     module_name, False))
         # Clean ir_model_field from field that are no more existing.
-        for field_name in fields:
-            if fields[field_name]['module'] == module_name \
+        for field_name in model_fields:
+            if model_fields[field_name]['module'] == module_name \
                     and field_name not in self._columns:
-                # XXX This delete field even when it is defined later in the module
+                #XXX This delete field even when it is defined later
+                # in the module
                 cursor.execute('DELETE FROM ir_model_field '\
                                    'WHERE id = %s',
-                               (fields[field_name]['id'],))
+                               (model_fields[field_name]['id'],))
 
         # Add error messages in ir_translation
         cursor.execute('SELECT id, src FROM ir_translation ' \

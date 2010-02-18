@@ -16,7 +16,7 @@ class BrowseRecordList(list):
         res = []
         for record in self:
             res2 = {}
-            for field_name, field in record._model._columns.iteritems():
+            for field_name, _ in record._model._columns.iteritems():
                 if not isinstance(record[field_name], BrowseRecordList):
                     res2[field_name] = record.get_eval(field_name)
             res.append(res2)
@@ -68,7 +68,7 @@ class BrowseRecord(object):
             self._data[record_id] = {'id': record_id}
         self._cache = cache
         if local_cache is None:
-            local_cache ={}
+            local_cache = {}
         self._local_cache = local_cache
         self._local_cache.setdefault(model._name, {})
         self._local_cache.setdefault('_language_cache', {})
@@ -145,8 +145,8 @@ class BrowseRecord(object):
             for data in datas:
                 for i, j in ffields:
                     model = None
-                    if hasattr(j, 'model_name') \
-                            and j.model_name in self._model.pool.object_name_list():
+                    if hasattr(j, 'model_name') and \
+                            j.model_name in self._model.pool.object_name_list():
                         model = self._model.pool.get(j.model_name)
                     elif hasattr(j, 'get_target'):
                         model = j.get_target(self._model.pool)
@@ -156,12 +156,13 @@ class BrowseRecord(object):
                             data[i] = BrowseRecordNull()
                         else:
                             ctx = self._context
-                            if hasattr(j, 'datetime_field') and j.datetime_field:
+                            if hasattr(j, 'datetime_field') and \
+                                    j.datetime_field:
                                 ctx = self._context.copy()
                                 ctx['_datetime'] = data[j.datetime_field]
                             data[i] = BrowseRecord(self._cursor, self._user,
-                                    data[i], model, local_cache=self._local_cache,
-                                    context=ctx)
+                                    data[i], model,
+                                    local_cache=self._local_cache, context=ctx)
                     elif model and j._type in ('one2many', 'many2many') \
                             and len(data[i]):
                         ctx = self._context

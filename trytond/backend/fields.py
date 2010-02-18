@@ -23,7 +23,7 @@ class Field(object):
 
     @staticmethod
     def sql_type(field):
-        return None
+        raise NotImplementedError
 
 
 class Boolean(Field):

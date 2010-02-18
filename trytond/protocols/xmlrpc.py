@@ -44,8 +44,9 @@ class GenericXMLRPCRequestHandler:
                 args = (host, port, 'XML-RPC', database_name, None, None,
                         object_type, None, method) + params
             else:
-                args = (host, port, 'XML-RPC', database_name, params[0], params[1],
-                        object_type, object_name, method) + params[2:]
+                args = (host, port, 'XML-RPC', database_name, params[0],
+                        params[1], object_type, object_name, method) + \
+                                params[2:]
             res = dispatch(*args)
             return res
         except:

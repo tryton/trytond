@@ -7,7 +7,7 @@ import time
 
 class Session(int):
 
-    def __init__(self, x):
+    def __init__(self, value):
         super(Session, self).__init__()
         self.__data = {
             'session': base64.b64encode(os.urandom(32)),

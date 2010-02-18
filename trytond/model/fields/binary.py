@@ -10,7 +10,8 @@ class Binary(Field):
     '''
     _type = 'binary'
 
-    def get(self, cursor, user, ids, model, name, values=None, context=None):
+    @staticmethod
+    def get(cursor, user, ids, model, name, values=None, context=None):
         '''
         Convert the binary value into ``str``
 

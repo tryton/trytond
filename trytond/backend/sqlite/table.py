@@ -2,7 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.backend.table import TableHandlerInterface
-from trytond.backend.sqlite.fields import FIELDS
 import logging
 import re
 
@@ -160,7 +159,6 @@ class TableHandler(TableHandlerInterface):
                 if field_size == None:
                     if self._columns[column_name]['size'] > 0:
                         self.alter_size(column_name, base_type)
-                    pass
                 elif self._columns[column_name]['size'] == field_size:
                     pass
                 elif self._columns[column_name]['size'] > 0 and \
@@ -268,7 +266,7 @@ class TableHandler(TableHandlerInterface):
             (column_name, self.table_name))
 
     @staticmethod
-    def dropTable(cursor, model, table, cascade=False):
+    def drop_table(cursor, model, table, cascade=False):
         cursor.execute('DELETE from ir_model_data where '\
                            'model = \'%s\'' % model)
 

@@ -6,7 +6,6 @@ from trytond.config import CONFIG
 import SimpleXMLRPCServer
 import SimpleHTTPServer
 import SocketServer
-from xmlrpclib import Fault
 import threading
 import traceback
 import socket
@@ -56,7 +55,7 @@ class JSONEncoder(json.JSONEncoder):
                     }
         elif isinstance(obj, Decimal):
             return float(obj)
-        return json.JSONEncoder.default(self, obj)
+        return super(JSONEncoder, self).default(obj)
 
 
 class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
@@ -80,11 +79,11 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
         """
         rawreq = json.loads(data, object_hook=object_hook)
 
-        id = rawreq.get('id', 0)
+        req_id = rawreq.get('id', 0)
         method = rawreq['method']
         params = rawreq.get('params', [])
 
-        response = {'id': id}
+        response = {'id': req_id}
 
         try:
             #generate response
@@ -210,8 +209,8 @@ class SimpleJSONRPCRequestHandler(GenericJSONRPCRequestHandler,
 
         """
         # abandon query parameters
-        path = path.split('?',1)[0]
-        path = path.split('#',1)[0]
+        path = path.split('?', 1)[0]
+        path = path.split('#', 1)[0]
         path = posixpath.normpath(urllib.unquote(path))
         words = path.split('/')
         words = filter(None, words)
@@ -252,12 +251,14 @@ class SimpleJSONRPCServer(SocketServer.TCPServer,
     _send_traceback_header = False
 
     def __init__(self, addr, requestHandler=SimpleJSONRPCRequestHandler,
-                 logRequests=True, allow_none=False, encoding=None, bind_and_activate=True):
+            logRequests=True, allow_none=False, encoding=None,
+            bind_and_activate=True):
         self.logRequests = logRequests
 
         SimpleJSONRPCDispatcher.__init__(self, allow_none, encoding)
         try:
-            SocketServer.TCPServer.__init__(self, addr, requestHandler, bind_and_activate)
+            SocketServer.TCPServer.__init__(self, addr, requestHandler,
+                    bind_and_activate)
         except TypeError:
             SocketServer.TCPServer.__init__(self, addr, requestHandler)
 

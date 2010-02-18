@@ -206,7 +206,7 @@ class TableHandlerInterface(object):
         raise
 
     @staticmethod
-    def dropTable(cursor, model, table, cascade=False):
+    def drop_table(cursor, model, table, cascade=False):
         '''
         Remove a table and clean ir_model_data from the given model.
 

@@ -2,7 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.backend.table import TableHandlerInterface
-from trytond.backend.postgresql.fields import FIELDS
 import logging
 
 
@@ -25,8 +24,8 @@ class TableHandler(TableHandlerInterface):
         if not self.table_exist(self.cursor, self.table_name):
             self.cursor.execute('CREATE TABLE "%s" ()' % self.table_name)
 
-        self.cursor.execute('COMMENT ON TABLE "%s" IS \'%s\'' % (self.table_name,
-                model._description.replace("'", "''")))
+        self.cursor.execute('COMMENT ON TABLE "%s" IS \'%s\'' % 
+                (self.table_name, model._description.replace("'", "''")))
 
         self._update_definitions()
         if 'id' not in self._columns:
@@ -140,9 +139,10 @@ class TableHandler(TableHandlerInterface):
         self.cursor.execute("SELECT co.contype, co.confdeltype, at.attname, "\
                          "cl2.relname, co.conname "\
                        "FROM pg_constraint co "\
-                         "LEFT JOIN pg_class cl on (co.conrelid = cl.oid) "\
-                         "LEFT JOIN pg_class cl2 on (co.confrelid = cl2.oid) "\
-                         "LEFT JOIN pg_attribute at on (co.conkey[1] = at.attnum) "\
+                         "LEFT JOIN pg_class cl ON (co.conrelid = cl.oid) "\
+                         "LEFT JOIN pg_class cl2 ON (co.confrelid = cl2.oid) "\
+                         "LEFT JOIN pg_attribute at ON " \
+                            "(co.conkey[1] = at.attnum) "\
                        "WHERE cl.relname = %s AND at.attrelid = cl.oid",
                        (self.table_name,))
         self._constraints = []
@@ -237,7 +237,6 @@ class TableHandler(TableHandlerInterface):
                 if field_size == None:
                     if self._columns[column_name]['size'] > 0:
                         self.alter_size(column_name, base_type)
-                    pass
                 elif self._columns[column_name]['size'] == field_size:
                     pass
                 elif self._columns[column_name]['size'] > 0 and \
@@ -318,7 +317,7 @@ class TableHandler(TableHandlerInterface):
                 return
             self.cursor.execute('CREATE INDEX "' + index_name + '" ' \
                                'ON "' + self.table_name + '" ( ' + \
-                               ','.join(['"' + x + '"' for x in column_name]) + \
+                               ','.join(['"' + x + '"' for x in column_name]) +\
                                ')')
             self._update_definitions()
         elif action == 'remove':
@@ -354,9 +353,11 @@ class TableHandler(TableHandlerInterface):
                         'of table %s not null !\n'\
                         'Try to re-run: ' \
                         'trytond.py --update=module\n' \
-                        'If it doesn\'t work, update records and execute manually:\n' \
-                        'ALTER TABLE "%s" ALTER COLUMN "%s" SET NOT NULL' % \
-                        (column_name, self.table_name, self.table_name, column_name))
+                        'If it doesn\'t work, update records ' \
+                        'and execute manually:\n' \
+                        'ALTER TABLE "%s" ALTER COLUMN "%s" SET NOT NULL' %
+                        (column_name, self.table_name, self.table_name,
+                            column_name))
         elif action == 'remove':
             if not self._columns[column_name]['notnull']:
                 return
@@ -424,7 +425,7 @@ class TableHandler(TableHandlerInterface):
         self._update_definitions()
 
     @staticmethod
-    def dropTable(cursor, model, table, cascade=False):
+    def drop_table(cursor, model, table, cascade=False):
         cursor.execute('DELETE from ir_model_data where '\
                            'model = \'%s\'' % model)
 

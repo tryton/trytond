@@ -5,7 +5,6 @@ from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
 from trytond.backend import DatabaseIntegrityError, Database
-from trytond.model.browse import BrowseRecord, BrowseRecordNull
 from trytond.tools import reduce_ids
 from trytond.const import OPERATORS
 import datetime
@@ -62,7 +61,8 @@ class ModelSQL(ModelStorage):
         # create/update table in the database
         table = TableHandler(cursor, self, module_name)
         if self._history:
-            history_table = TableHandler(cursor, self, module_name, history=True)
+            history_table = TableHandler(cursor, self, module_name,
+                    history=True)
         timestamp_field = FIELDS['timestamp']
         integer_field = FIELDS['integer']
         logs = (
@@ -168,7 +168,7 @@ class ModelSQL(ModelStorage):
                     and field.left and field.right:
                 self._rebuild_tree(cursor, 0, field_name, False, 0)
 
-        for ident, constraint, msg in self._sql_constraints:
+        for ident, constraint, _ in self._sql_constraints:
             table.add_constraint(ident, constraint)
 
         if self._history:
@@ -179,7 +179,8 @@ class ModelSQL(ModelStorage):
                 if not cursor.fetchone():
                     columns = ['"' + str(x) + '"' for x in self._columns
                             if not hasattr(self._columns[x], 'set')]
-                    cursor.execute('INSERT INTO "' + self._table + '__history" '\
+                    cursor.execute('INSERT ' \
+                            'INTO "' + self._table + '__history" '\
                             '(' + ','.join(columns) + ') ' \
                             'SELECT ' + ','.join(columns) + \
                             ' FROM "' + self._table + '"')
@@ -203,6 +204,24 @@ class ModelSQL(ModelStorage):
         for _, _, error in self._sql_constraints:
             res.append(error)
         return res
+
+    def default_sequence(self, cursor, user, context=None):
+        '''
+        Return the default value for sequence field.
+        '''
+        table = self._table
+        if 'sequence' not in self._columns:
+            for model in self._inherits:
+                model_obj = self.pool.get(model)
+                if 'sequence' in model_obj._columns:
+                    table = model_obj._table
+                    break
+        cursor.execute('SELECT MAX(sequence) ' \
+                'FROM "' + table + '"')
+        res = cursor.fetchone()
+        if res:
+            return res[0]
+        return 0
 
     def table_query(self, context=None):
         '''
@@ -269,7 +288,7 @@ class ModelSQL(ModelStorage):
 
         for i in values.keys():
             if i in self._inherit_fields:
-                (inherits, col, col_detail) = self._inherit_fields[i]
+                (inherits, _, _) = self._inherit_fields[i]
                 if i in self._columns:
                     continue
                 if inherits in tocreate:
@@ -388,8 +407,8 @@ class ModelSQL(ModelStorage):
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
-            self._columns[field].set(cursor, user, id_new, self, field, values[field],
-                    context=context)
+            self._columns[field].set(cursor, user, id_new, self, field,
+                    values[field], context=context)
 
         if self._history:
             cursor.execute('INSERT INTO "' + self._table + '__history" ' \
@@ -406,7 +425,8 @@ class ModelSQL(ModelStorage):
             if isinstance(field, fields.Many2One) \
                     and field.model_name == self._name \
                     and field.left and field.right:
-                self._update_tree(cursor, user, id_new, k, field.left, field.right)
+                self._update_tree(cursor, user, id_new, k, field.left,
+                        field.right)
 
         return id_new
 
@@ -502,7 +522,7 @@ class ModelSQL(ModelStorage):
                 else:
                     cursor.execute('SELECT ' + \
                             ','.join(fields_pre2 + ['id']) + \
-                            ' FROM ' + table_query + '\"' + self._table + '\" ' \
+                            ' FROM ' + table_query + '\"' + self._table + '\" '\
                             'WHERE ' + red_sql + \
                             history_clause + history_order + history_limit,
                             table_args + red_ids + history_args)
@@ -647,8 +667,8 @@ class ModelSQL(ModelStorage):
                         record_id = record2['id']
                         del record2['id']
                         fields_related2values[field].setdefault(record_id, {})
-                        fields_related2values[field][record_id][record['id']] = \
-                                record2
+                        fields_related2values[
+                                field][record_id][record['id']] = record2
                 else:
                     for record in obj.read(cursor, user, [x[field] for x in res
                         if x[field]], fields_related[field], context=context):
@@ -876,9 +896,9 @@ class ModelSQL(ModelStorage):
                                     .get(field.model_name, set())
                             if not ((model_obj.search(cursor2, 0, [
                                 ('id', '=', values[field_name]),
-                                ], order=[], context=context) \
-                                        or values[field_name] in create_records) \
-                                    and values[field_name] not in delete_records):
+                                ], order=[], context=context) or
+                                values[field_name] in create_records) and
+                                values[field_name] not in delete_records):
                                 self.raise_user_error(cursor2,
                                         'foreign_model_missing',
                                         error_args=self._get_error_args(
@@ -948,8 +968,9 @@ class ModelSQL(ModelStorage):
                     and field.model_name == self._name \
                     and field.left and field.right:
                 if field.left in values or field.right in values:
-                    raise Exception('ValidateError', 'You can not update fields: ' \
-                            '"%s", "%s"' % (field.left, field.right))
+                    raise Exception('ValidateError',
+                            'You can not update fields: "%s", "%s"' %
+                            (field.left, field.right))
                 if len(ids) == 1:
                     self._update_tree(cursor, user, ids[0], k,
                             field.left, field.right)
@@ -1104,10 +1125,12 @@ class ModelSQL(ModelStorage):
                             error_args = []
                             error_args.append(self._get_error_args(cursor2,
                                 user, 'id', context=context)[1])
-                            error_args.extend(list(model._get_error_args(cursor2,
-                                user, field_name, context=context)))
-                            self.raise_user_error(cursor2, 'foreign_model_exist',
-                                    error_args=tuple(error_args), context=context)
+                            error_args.extend(list(model._get_error_args(
+                                cursor2, user, field_name, context=context)))
+                            self.raise_user_error(cursor2,
+                                    'foreign_model_exist',
+                                    error_args=tuple(error_args),
+                                    context=context)
                     for name, _, error in self._sql_constraints:
                         if name in exception[0]:
                             self.raise_user_error(cursor2, error,
@@ -1269,7 +1292,8 @@ class ModelSQL(ModelStorage):
 
         return [x['id'] for x in datas]
 
-    def search_domain(self, cursor, user, domain, active_test=True, context=None):
+    def search_domain(self, cursor, user, domain, active_test=True,
+            context=None):
         '''
         Return SQL clause and arguments for the domain
 
@@ -1377,7 +1401,7 @@ class ModelSQL(ModelStorage):
                                 self._inherits[itable._name])
                 if table_join not in tables:
                     tables.append(table_join)
-                    tables_args += table_arg
+                    tables_args.extend(table_arg)
             field = table._columns.get(fargs[0], False)
             if not field:
                 if not fargs[0] in self._inherit_fields:
@@ -1389,21 +1413,25 @@ class ModelSQL(ModelStorage):
                 if field._type == 'many2one':
                     if hasattr(field, 'search'):
                         domain.extend([(fargs[0], 'in',
-                                self.pool.get(field.model_name).search(cursor, user,
-                                    [(fargs[1], domain[i][1], domain[i][2])],
-                                    order=[], context=context))])
+                                self.pool.get(field.model_name).search(cursor,
+                                    user,[
+                                        (fargs[1], domain[i][1], domain[i][2]),
+                                    ], order=[], context=context))])
                         domain.pop(i)
                     else:
                         domain[i] = (fargs[0], 'inselect',
-                                self.pool.get(field.model_name).search(cursor, user,
-                                    [(fargs[1], domain[i][1], domain[i][2])],
-                                    order=[], context=context, query_string=True),
+                                self.pool.get(field.model_name).search(cursor,
+                                    user, [
+                                        (fargs[1], domain[i][1], domain[i][2]),
+                                    ], order=[], context=context,
+                                    query_string=True),
                                 table)
                         i += 1
                     continue
                 else:
                     raise Exception('ValidateError', 'Clause on field "%s" ' \
-                            'doesn\'t work on "%s"' % (domain[i][0], self._name))
+                            'doesn\'t work on "%s"' %
+                            (domain[i][0], self._name))
             if hasattr(field, 'search'):
                 arg = [domain.pop(i)]
                 domain.extend(field.search(cursor, user, table,
@@ -1427,7 +1455,8 @@ class ModelSQL(ModelStorage):
 
                 if ids2 == True or ids2 == False:
                     query1 = 'SELECT "' + field.field + '" ' \
-                            'FROM ' + table_query + '"' + field_obj._table + '" ' \
+                            'FROM ' + table_query + \
+                                '"' + field_obj._table + '" ' \
                             'WHERE "' + field.field + '" IS NOT NULL'
                     query2 = table_args
                     clause = 'inselect'
@@ -1440,7 +1469,8 @@ class ModelSQL(ModelStorage):
                     if len(ids2) < cursor.IN_MAX:
                         red_sql, red_ids = reduce_ids('id', ids2)
                         query1 = 'SELECT "' + field.field + '" ' \
-                                'FROM ' + table_query + '"' + field_obj._table + '" ' \
+                                'FROM ' + table_query + \
+                                    '"' + field_obj._table + '" ' \
                                 'WHERE ' + red_sql
                         query2 = table_args + red_ids
                         domain[i] = ('id', 'inselect', (query1, query2))
@@ -1450,8 +1480,9 @@ class ModelSQL(ModelStorage):
                             sub_ids2 = ids2[i:i + cursor.IN_MAX]
                             red_sql, red_ids = reduce_ids('id', sub_ids2)
                             cursor.execute(
-                                'SELECT "' + field.field + \
-                                '" FROM ' + table_query + '"' + field_obj._table + '" ' \
+                                'SELECT "' + field.field + '" ' \
+                                'FROM ' + table_query + \
+                                    '"' + field_obj._table + '" ' \
                                 'WHERE ' + red_sql,
                                 table_args + red_ids)
 
@@ -1570,9 +1601,10 @@ class ModelSQL(ModelStorage):
                             raise Exception('Error', 'Programming error: ' \
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
-                        ids2 = self.pool.get(field.model_name).search(cursor, user,
-                                [(domain[i][3], 'child_of', ids2)], order=[],
-                                context=context)
+                        ids2 = self.pool.get(field.model_name).search(cursor,
+                                user, [
+                                    (domain[i][3], 'child_of', ids2),
+                                ], order=[], context=context)
                         if domain[i][1] == 'child_of':
                             domain[i] = (domain[i][0], 'in', ids2, table)
                         else:
@@ -1667,7 +1699,8 @@ class ModelSQL(ModelStorage):
                     query1 = 'SELECT "' + table._table + '".id ' \
                             'FROM ' + table_query + '"' + table._table + '" ' \
                             + table_join + ' ' \
-                            'WHERE (' + trans_field + ' ' + domain[i][1] + ' %s)'
+                            'WHERE ' \
+                            '(' + trans_field + ' ' + domain[i][1] + ' %s)'
                     query2 = table_args + table_join_args + [domain[i][2]]
                     domain[i] = ('id', 'inselect', (query1, query2), table)
                 else:
@@ -1684,8 +1717,8 @@ class ModelSQL(ModelStorage):
                 clause = 'IN'
                 if arg[1] == 'notinselect':
                     clause = 'NOT IN'
-                qu1.append('("%s"."%s" %s (%s))' % (table._table, arg[0], clause,
-                    arg[2][0]))
+                qu1.append('("%s"."%s" %s (%s))' % (table._table, arg[0],
+                    clause, arg[2][0]))
                 qu2 += arg[2][1]
             elif arg[1] in ('in', 'not in'):
                 if len(arg[2]) > 0:
@@ -1793,13 +1826,15 @@ class ModelSQL(ModelStorage):
                                 add_null = True
                         else:
                             if arg[0] in table._columns:
-                                qu2.append(FIELDS[table._columns[arg[0]]._type].\
-                                        sql_format(arg[2]))
+                                qu2.append(FIELDS[
+                                    table._columns[arg[0]]._type
+                                    ].sql_format(arg[2]))
                         qu1.append('("%s"."%s" %s %%s)' % (table._table,
                             arg[0], arg[1]))
                         if add_null:
-                            qu1[-1] = '(' + qu1[-1] + ' OR ' + \
-                                    '"' + table._table + '".' + arg[0] +' IS NULL)'
+                            qu1[-1] = '(' + qu1[-1] + ' OR ' \
+                                    '"' + table._table + '".' + arg[0] + \
+                                        ' IS NULL)'
 
         return qu1, qu2
 
@@ -1963,7 +1998,8 @@ class ModelSQL(ModelStorage):
                                     FIELDS['boolean'].sql_format(False))
                 if table_join not in tables:
                     tables.append(table_join)
-                    tables_args[table_join] = [context.get('language') or 'en_US']
+                    tables_args[table_join] = [
+                            context.get('language') or 'en_US']
                 order_by.append('COALESCE(NULLIF(' \
                         + '"' + translation_table + '".value, \'\'), ' \
                         + '"' + table_name + '".' + field_name + ') ' + otype)
@@ -1992,7 +2028,8 @@ class ModelSQL(ModelStorage):
                         'order': otype,
                         })
                 else:
-                    order_by.append('"' + table_name + '".' + field_name + ' ' + otype)
+                    order_by.append('"' + table_name + '".' + field_name + \
+                            ' ' + otype)
                 return order_by, tables, tables_args
 
         if field in self._inherit_fields.keys():
@@ -2126,14 +2163,14 @@ class ModelSQL(ModelStorage):
             ], context={'active_test': False})
         if brother_ids[-1] != object_id:
             next_id = brother_ids[brother_ids.index(object_id) + 1]
-            cursor.execute('SELECT "' + left + '",  "' + right + '" ' \
+            cursor.execute('SELECT "' + left + '" ' \
                     'FROM "' + self._table + '" ' \
                     'WHERE id = %s', (next_id,))
-            next_left, next_right = cursor.fetchone()
-            cursor.execute('SELECT "' + left + '", "' + right + '" '\
+            next_left = cursor.fetchone()[0]
+            cursor.execute('SELECT "' + left + '" '\
                     'FROM "' + self._table + '" ' \
                     'WHERE id = %s', (object_id,))
-            current_left, current_right = cursor.fetchone()
+            current_left = cursor.fetchone()[0]
 
 
             cursor.execute('UPDATE "' + self._table + '" ' \
@@ -2157,9 +2194,9 @@ class ModelSQL(ModelStorage):
             return
         # Works only for a single transaction
         for _, sql, error in self._sql_constraints:
-            m = _RE_UNIQUE.match(sql)
-            if m:
-                sql = m.group(1)
+            match = _RE_UNIQUE.match(sql)
+            if match:
+                sql = match.group(1)
                 sql_clause = ' AND '.join('%s = %%s' % \
                         i for i in sql.split(','))
                 sql_clause = '(id != %s AND ' + sql_clause + ')'
@@ -2182,9 +2219,9 @@ class ModelSQL(ModelStorage):
                     if cursor.fetchone():
                         self.raise_user_error(cursor, error, context=context)
                 continue
-            m = _RE_CHECK.match(sql)
-            if m:
-                sql = m.group(1)
+            match = _RE_CHECK.match(sql)
+            if match:
+                sql = match.group(1)
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
                     red_sql, red_ids = reduce_ids('id', sub_ids)

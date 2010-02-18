@@ -4,15 +4,13 @@
 """
 Miscelleanous tools used by tryton
 """
-import os, time, sys
+import os, time
 import inspect
 from trytond.config import CONFIG
-import socket
 import subprocess
 import zipfile
 from trytond.backend import Database
 from threading import Lock, local
-import logging
 import smtplib
 try:
     import cStringIO as StringIO
@@ -20,11 +18,6 @@ except ImportError:
     import StringIO
 import dis
 import datetime
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import md5
 
 def find_in_path(name):
     if os.name == "nt":
@@ -90,9 +83,9 @@ def file_open(name, mode="r", subdir='modules'):
     if subdir == 'modules':
         module_name = name.split(os.sep)[0]
         if module_name in EGG_MODULES:
-            ep = EGG_MODULES[module_name]
-            mod_path = os.path.join(ep.dist.location,
-                    *ep.module_name.split('.')[:-1])
+            epoint = EGG_MODULES[module_name]
+            mod_path = os.path.join(epoint.dist.location,
+                    *epoint.module_name.split('.')[:-1])
             name3 = os.path.join(mod_path, name)
 
     if subdir:
@@ -154,20 +147,6 @@ def get_smtp_server():
         smtp_server.login(CONFIG['smtp_user'], CONFIG['smtp_password'])
 
     return smtp_server
-
-def sms_send(user, password, api_id, text, to):
-    "text must be latin-1 encoded"
-    import urllib
-    params = urllib.urlencode({
-        'user': user,
-        'password': password,
-        'api_id': api_id,
-        'text': text,
-        'to':to,
-        })
-    #urllib.urlopen("http://api.clickatell.com/http/sendmsg", params)
-    urllib.urlopen("http://196.7.150.220/http/sendmsg", params)
-    return True
 
 def find_language_context(args, kargs=None):
     if kargs is None:
@@ -330,7 +309,8 @@ class Cache(object):
                     cursor.execute('UPDATE ir_cache SET "timestamp" = %s '\
                             'WHERE name = %s', (datetime.datetime.now(), name))
                 else:
-                    cursor.execute('INSERT INTO ir_cache ("timestamp", "name") ' \
+                    cursor.execute('INSERT INTO ir_cache ' \
+                            '("timestamp", "name") ' \
                             'VALUES (%s, %s)', (datetime.datetime.now(), name))
             Cache._resets[dbname].clear()
         finally:
@@ -360,7 +340,7 @@ def memoize(maxsize):
     """
     assert maxsize >= 4, "Memoize cannot work if maxsize is less than 4"
 
-    def wrap(f):
+    def wrap(fct):
         cache = {}
         keys = [None for i in xrange(maxsize)]
         seg_size = maxsize // 4
@@ -375,15 +355,15 @@ def memoize(maxsize):
                 pos, res = res
                 keys[pos] = None
             else:
-                res = f(*args)
+                res = fct(*args)
 
             value = res
-            for segment, p in enumerate(pointers):
-                newkey = keys[p]
-                keys[p] = key
-                cache[key] = (p, value)
+            for segment, pointer in enumerate(pointers):
+                newkey = keys[pointer]
+                keys[pointer] = key
+                cache[key] = (pointer, value)
 
-                pointers[segment] = p + 1
+                pointers[segment] = pointer + 1
                 if pointers[segment] == max_pointers[segment]:
                     pointers[segment] = segment * seg_size
 
@@ -394,8 +374,8 @@ def memoize(maxsize):
 
             return res
 
-        wrapper.__doc__ = f.__doc__
-        wrapper.__name__ = f.__name__
+        wrapper.__doc__ = fct.__doc__
+        wrapper.__name__ = fct.__name__
 
         return wrapper
     return wrap
@@ -419,103 +399,102 @@ def mod10r(number):
 
 class LocalDict(local):
 
-    def __init__(self, dict=None):
-        if dict is None:
-            dict = {}
-        self.dict = dict
+    def __init__(self):
+        super(LocalDict, self).__init__()
+        self._dict = {}
 
     def __str__(self):
-        return str(self.dict)
+        return str(self._dict)
 
     def __repr__(self):
-        return str(self.dict)
+        return str(self._dict)
 
     def clear(self):
-        return self.dict.clear()
+        return self._dict.clear()
 
     def keys(self):
-        return self.dict.keys()
+        return self._dict.keys()
 
     def __setitem__(self, i, y):
-        self.dict.__setitem__(i, y)
+        self._dict.__setitem__(i, y)
 
     def __getitem__(self, i):
-        return self.dict.__getitem__(i)
+        return self._dict.__getitem__(i)
 
     def copy(self):
-        return self.dict.copy()
+        return self._dict.copy()
 
     def iteritems(self):
-        return self.dict.iteritems()
+        return self._dict.iteritems()
 
     def iterkeys(self):
-        return self.dict.iterkeys()
+        return self._dict.iterkeys()
 
     def itervalues(self):
-        return self.dict.itervalues()
+        return self._dict.itervalues()
 
     def pop(self, k, d=None):
-        return self.dict.pop(k, d)
+        return self._dict.pop(k, d)
 
     def popitem(self):
-        return self.dict.popitem()
+        return self._dict.popitem()
 
     def setdefault(self, k, d=None):
-        return self.dict.setdefault(k, d)
+        return self._dict.setdefault(k, d)
 
     def update(self, E, **F):
-        return self.dict.update(E, F)
+        return self._dict.update(E, F)
 
     def values(self):
-        return self.dict.values()
+        return self._dict.values()
 
     def get(self, k, d=None):
-        return self.dict.get(k, d)
+        return self._dict.get(k, d)
 
     def has_key(self, k):
-        return self.dict.has_key(k)
+        return self._dict.has_key(k)
 
     def items(self):
-        return self.dict.items()
+        return self._dict.items()
 
     def __cmp__(self, y):
-        return self.dict.__cmp__(y)
+        return self._dict.__cmp__(y)
 
     def __contains__(self, k):
-        return self.dict.__contains__(k)
+        return self._dict.__contains__(k)
 
     def __delitem__(self, y):
-        return self.dict.__delitem__(y)
+        return self._dict.__delitem__(y)
 
     def __eq__(self, y):
-        return self.dict.__eq__(y)
+        return self._dict.__eq__(y)
 
     def __ge__(self, y):
-        return self.dict.__ge__(y)
+        return self._dict.__ge__(y)
 
     def __getitem__(self, y):
-        return self.dict.__getitem__(y)
+        return self._dict.__getitem__(y)
 
     def __gt__(self, y):
-        return self.dict.__gt__(y)
+        return self._dict.__gt__(y)
 
     def __hash__(self):
-        return self.dict.__hash__()
+        return self._dict.__hash__()
 
     def __iter__(self):
-        return self.dict.__iter__()
+        return self._dict.__iter__()
 
     def __le__(self, y):
-        return self.dict.__le__(y)
+        return self._dict.__le__(y)
 
     def __len__(self):
-        return self.dict.__len__()
+        return self._dict.__len__()
 
     def __lt__(self, y):
-        return self.dict.__lt__(y)
+        return self._dict.__lt__(y)
 
     def __ne__(self, y):
-        return self.dict.__ne__(y)
+        return self._dict.__ne__(y)
 
 def reduce_ids(field, ids):
     '''
@@ -577,12 +556,12 @@ _ALLOWED_CODES = set(dis.opmap[x] for x in [
 
 @memoize(1000)
 def _compile_source(source):
-    c = compile(source, '', 'eval')
+    comp = compile(source, '', 'eval')
     codes = []
-    s = c.co_code
+    co_code = comp.co_code
     i = 0
-    while i < len(s):
-        code = ord(s[i])
+    while i < len(co_code):
+        code = ord(co_code[i])
         codes.append(code)
         if code >= dis.HAVE_ARGUMENT:
             i += 3
@@ -591,14 +570,14 @@ def _compile_source(source):
     for code in codes:
         if code not in _ALLOWED_CODES:
             raise ValueError('opcode %s not allowed' % dis.opname[code])
-    return c
+    return comp
 
 def safe_eval(source, data=None):
     if '__subclasses__' in source:
         raise ValueError('__subclasses__ not allowed')
 
-    c = _compile_source(source)
-    return eval(c, {'__builtins__': {
+    comp = _compile_source(source)
+    return eval(comp, {'__builtins__': {
         'True': True,
         'False': False,
         'str': str,
