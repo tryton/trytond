@@ -123,7 +123,7 @@ def file_open(name, mode="r", subdir='modules'):
                 name2 = os.path.normpath(os.path.join(head + '.zip', zipname))
     for i in (name2, name, name3):
         if i and os.path.isfile(i):
-            return file(i, mode)
+            return open(i, mode)
 
     raise IOError, 'File not found : '+str(name)
 

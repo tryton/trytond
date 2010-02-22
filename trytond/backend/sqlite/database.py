@@ -157,7 +157,7 @@ class Database(DatabaseInterface):
             raise Exception('Wrong database name!')
         path = os.path.join(CONFIG['data_path'],
                 database_name + '.sqlite')
-        file_p = file(path, 'rb')
+        file_p = open(path, 'rb')
         data = file_p.read()
         file_p.close()
         return data
@@ -172,7 +172,7 @@ class Database(DatabaseInterface):
                 database_name + '.sqlite')
         if os.path.isfile(path):
             raise Exception('Database already exists!')
-        file_p = file(path, 'wb')
+        file_p = open(path, 'wb')
         file_p.write(data)
         file_p.close()
 
@@ -199,7 +199,7 @@ class Database(DatabaseInterface):
     def init(cursor):
         from trytond.tools import safe_eval
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
-        for line in file(sql_file).read().split(';'):
+        for line in open(sql_file).read().split(';'):
             if (len(line)>0) and (not line.isspace()):
                 cursor.execute(line)
 
@@ -207,7 +207,7 @@ class Database(DatabaseInterface):
             root_path = os.path.join(os.path.dirname(__file__), '..', '..')
             tryton_file = os.path.join(root_path, i, '__tryton__.py')
             mod_path = os.path.join(root_path, i)
-            info = safe_eval(file(tryton_file).read())
+            info = safe_eval(open(tryton_file).read())
             active = info.get('active', False)
             if active:
                 state = 'to install'
