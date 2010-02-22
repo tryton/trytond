@@ -56,7 +56,7 @@ class Attachment(ModelSQL, ModelView):
                     value = statinfo.st_size
                 else:
                     try:
-                        file_p = file(filename, 'rb')
+                        file_p = open(filename, 'rb')
                         value = base64.encodestring(file_p.read())
                         file_p.close()
                     except IOError:
@@ -82,7 +82,7 @@ class Attachment(ModelSQL, ModelView):
         filename = os.path.join(directory, digest)
         collision = 0
         if os.path.isfile(filename):
-            file_p = file(filename, 'rb')
+            file_p = open(filename, 'rb')
             data2 = file_p.read()
             file_p.close()
             if data != data2:
@@ -96,7 +96,7 @@ class Attachment(ModelSQL, ModelView):
                     filename = os.path.join(directory,
                             digest + '-' + str(collision2))
                     if os.path.isfile(filename):
-                        file_p = file(filename, 'rb')
+                        file_p = open(filename, 'rb')
                         data2 = file_p.read()
                         file_p.close()
                         if data == data2:
@@ -106,11 +106,11 @@ class Attachment(ModelSQL, ModelView):
                     collision = collision2 + 1
                     filename = os.path.join(directory,
                             digest + '-' + str(collision))
-                    file_p = file(filename, 'wb')
+                    file_p = open(filename, 'wb')
                     file_p.write(data)
                     file_p.close()
         else:
-            file_p = file(filename, 'wb')
+            file_p = open(filename, 'wb')
             file_p.write(data)
             file_p.close()
         cursor.execute('UPDATE ir_attachment ' \

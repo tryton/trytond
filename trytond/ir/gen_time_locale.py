@@ -180,7 +180,7 @@ def locale_strftime(lang):
     return time_locale
 
 if __name__ == '__main__':
-    fp = file(os.path.join(os.path.dirname(__file__), 'time_locale.py'), 'w')
+    fp = open(os.path.join(os.path.dirname(__file__), 'time_locale.py'), 'w')
     fp.write('''# -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of')
 #this repository contains the full copyright notices and license terms.')
