@@ -21,7 +21,7 @@ class DatabaseInterface(object):
 
         :return: the database
         '''
-        raise
+        raise NotImplementedError
 
     def cursor(self, autocommit=False):
         '''
@@ -30,13 +30,13 @@ class DatabaseInterface(object):
         :param autocommit: a boolean to active autocommit
         :return: a Cursor
         '''
-        raise
+        raise NotImplementedError
 
     def close(self):
         '''
         Close all connection
         '''
-        raise
+        raise NotImplementedError
 
     def create(self, cursor, database_name):
         '''
@@ -44,7 +44,7 @@ class DatabaseInterface(object):
 
         :param database_name: the database name
         '''
-        raise
+        raise NotImplementedError
 
     def drop(self, cursor, database_name):
         '''
@@ -53,7 +53,7 @@ class DatabaseInterface(object):
         :param cursor: a cursor on an other database
         :param database_name: the database name
         '''
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def dump(database_name):
@@ -63,7 +63,7 @@ class DatabaseInterface(object):
         :param database_name: the database name
         :return: the dump
         '''
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def restore(database_name, data):
@@ -74,6 +74,7 @@ class DatabaseInterface(object):
         :param data: the data
         :return: True if succeed
         '''
+        raise NotImplementedError
 
     @staticmethod
     def list(cursor):
@@ -82,7 +83,7 @@ class DatabaseInterface(object):
 
         :return: a list of database name
         '''
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def init(cursor):
@@ -91,7 +92,7 @@ class DatabaseInterface(object):
 
         :param cursor: a cursor on the database
         '''
-        raise
+        raise NotImplementedError
 
 
 class CursorInterface(object):
@@ -127,7 +128,7 @@ class CursorInterface(object):
         :param sql: a sql query string
         :param params: a tuple or list of parameters
         '''
-        raise
+        raise NotImplementedError
 
     def close(self, close=False):
         '''
@@ -135,7 +136,7 @@ class CursorInterface(object):
 
         :param close: boolean to not release cursor in pool
         '''
-        raise
+        raise NotImplementedError
 
     def commit(self):
         '''
@@ -153,7 +154,7 @@ class CursorInterface(object):
         '''
         Test if it is a Tryton database.
         '''
-        raise
+        raise NotImplementedError
 
     def nextid(self, table):
         '''
@@ -191,7 +192,7 @@ class CursorInterface(object):
 
         :return: a boolean
         '''
-        raise
+        raise NotImplementedError
 
     def has_constraint(self):
         '''
@@ -199,7 +200,7 @@ class CursorInterface(object):
 
         :return: a boolean
         '''
-        raise
+        raise NotImplementedError
 
     def limit_clause(self, select, limit=None, offset=None):
         '''
@@ -210,4 +211,4 @@ class CursorInterface(object):
         :param offset: the offset
         :return: a string
         '''
-        raise
+        raise NotImplementedError

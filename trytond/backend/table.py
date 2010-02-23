@@ -37,7 +37,7 @@ class TableHandlerInterface(object):
         :param table_name: the table name
         :return: a boolean
         '''
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def table_rename(cursor, old_name, new_name):
@@ -48,7 +48,7 @@ class TableHandlerInterface(object):
         :param old_name: the old table name
         :param new_name: the new table name
         '''
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def sequence_exist(cursor, sequence_name):
@@ -59,7 +59,7 @@ class TableHandlerInterface(object):
         :param sequence_name: the sequence name
         :return: a boolean
         '''
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def sequence_rename(cursor, old_name, new_name):
@@ -70,7 +70,7 @@ class TableHandlerInterface(object):
         :param old_name: the old sequence name
         :param new_name: the new sequence name
         '''
-        raise
+        raise NotImplementedError
 
     def column_exist(self, column_name):
         '''
@@ -79,7 +79,7 @@ class TableHandlerInterface(object):
         :param column_name: the column name
         :return: a boolean
         '''
-        raise
+        raise NotImplementedError
 
     def column_rename(self, old_name, new_name, exception=False):
         '''
@@ -90,7 +90,7 @@ class TableHandlerInterface(object):
         :param exception: a boolean to raise or not an exception
             if it is not possible to rename the column.
         '''
-        raise
+        raise NotImplementedError
 
     def alter_size(self, column_name, column_type):
         '''
@@ -99,7 +99,7 @@ class TableHandlerInterface(object):
         :param column_name: the column name
         :param column_type: the column definition
         '''
-        raise
+        raise NotImplementedError
 
     def alter_type(self, column_name, column_type):
         '''
@@ -108,7 +108,7 @@ class TableHandlerInterface(object):
         :param column_name: the column name
         :param column_type: the column definition
         '''
-        raise
+        raise NotImplementedError
 
     def db_default(self, column_name, value):
         '''
@@ -117,7 +117,7 @@ class TableHandlerInterface(object):
         :param column_name: the column name
         :param value: the default value
         '''
-        raise
+        raise NotImplementedError
 
     def add_raw_column(self, column_name, column_type, column_format,
             default_fun=None, field_size=None, migrate=True,
@@ -133,7 +133,7 @@ class TableHandlerInterface(object):
         :param migrate: boolean to try to migrate the column if exists
         :param string: the label of the column
         '''
-        raise
+        raise NotImplementedError
 
     def add_fk(self, column_name, reference, on_delete=None):
         '''
@@ -143,7 +143,7 @@ class TableHandlerInterface(object):
         :param reference: the foreign table name
         :param on_delete: the "on delete" value
         '''
-        raise
+        raise NotImplementedError
 
     def drop_fk(self, column_name, table=None):
         '''
@@ -152,7 +152,7 @@ class TableHandlerInterface(object):
         :param column_name: the column name
         :param table: optional table name
         '''
-        raise
+        raise NotImplementedError
 
     def index_action(self, column_name, action='add', table=None):
         '''
@@ -162,7 +162,7 @@ class TableHandlerInterface(object):
         :param action: 'add' or 'remove'
         :param table: optional table name
         '''
-        raise
+        raise NotImplementedError
 
     def not_null_action(self, column_name, action='add'):
         '''
@@ -171,7 +171,7 @@ class TableHandlerInterface(object):
         :param column_name: the column name
         :param action: 'add' or 'remove'
         '''
-        raise
+        raise NotImplementedError
 
     def add_constraint(self, ident, constraint, exception=False):
         '''
@@ -182,7 +182,7 @@ class TableHandlerInterface(object):
         :param exception: a boolean to raise or not an exception
             if it is not possible to add the constraint
         '''
-        raise
+        raise NotImplementedError
 
     def drop_constraint(self, ident, exception=False, table=None):
         '''
@@ -193,7 +193,7 @@ class TableHandlerInterface(object):
             if it is not possible to remove the constraint
         :param table: optional table name
         '''
-        raise
+        raise NotImplementedError
 
     def drop_column(self, column_name, exception=False):
         '''
@@ -203,7 +203,7 @@ class TableHandlerInterface(object):
         :param exception: a boolean to raise or not an exception
             if it is not possible to remove the column
         '''
-        raise
+        raise NotImplementedError
 
     @staticmethod
     def drop_table(cursor, model, table, cascade=False):
@@ -214,4 +214,4 @@ class TableHandlerInterface(object):
         :param table: the table name
         :param cascade: a boolean to add "CASCADE" to the delete query
         '''
-        raise
+        raise NotImplementedError
