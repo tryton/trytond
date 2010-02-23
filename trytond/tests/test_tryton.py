@@ -552,6 +552,10 @@ class PYSONTestCase(unittest.TestCase):
         self.assert_(pyson.PYSONDecoder().decode(eval)
                 == datetime.date(2010, 1, 5))
 
+        eval = pyson.PYSONEncoder().encode(datetime.date(2010, 2, 22))
+        self.assert_(pyson.PYSONDecoder().decode(eval)
+                == datetime.date(2010, 2, 22))
+
     def test0130DateTime(self):
         '''
         Test pyson.DateTime
@@ -646,6 +650,11 @@ class PYSONTestCase(unittest.TestCase):
             10, 30, 20, 0, 0, 0, 0, 0, 0, 0, 200))
         self.assert_(pyson.PYSONDecoder().decode(eval)
                 == datetime.datetime(2010, 1, 12, 10, 30, 20, 200))
+
+        eval = pyson.PYSONEncoder().encode(datetime.datetime(
+            2010, 2, 22, 10, 30, 20, 200))
+        self.assert_(pyson.PYSONDecoder().decode(eval)
+                == datetime.datetime(2010, 2, 22, 10, 30, 20, 200))
 
     def test0900Composite(self):
         '''

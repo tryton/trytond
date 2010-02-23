@@ -26,6 +26,13 @@ class PYSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, PYSON):
             return obj.pyson()
+        elif isinstance(obj, datetime.date):
+            if isinstance(obj, datetime.datetime):
+                return DateTime(obj.year, obj.month, obj.day,
+                        obj.hour, obj.minute, obj.second, obj.microsecond
+                        ).pyson()
+            else:
+                return Date(obj.year, obj.month, obj.day).pyson()
         return super(PYSONEncoder, self).default(obj)
 
 
