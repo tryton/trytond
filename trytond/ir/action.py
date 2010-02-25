@@ -349,6 +349,7 @@ class ActionReport(ModelSQL, ModelView):
         new_id = report.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (report.action.id, report.id))
+        cursor.update_auto_increment(self._table, report.action.id)
         ModelStorage.delete(self, cursor, user, report.id)
         self.write(cursor, user, new_id, later, context=context)
         return new_id
@@ -541,6 +542,7 @@ class ActionActWindow(ModelSQL, ModelView):
         new_id = act_window.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (act_window.action.id, act_window.id))
+        cursor.update_auto_increment(self._table, act_window.action.id)
         ModelStorage.delete(self, cursor, user, act_window.id)
         self.write(cursor, user, new_id, later, context=context)
         return new_id
@@ -618,6 +620,7 @@ class ActionWizard(ModelSQL, ModelView):
         new_id = wizard.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (wizard.action.id, wizard.id))
+        cursor.update_auto_increment(self._table, wizard.action.id)
         ModelStorage.delete(self, cursor, user, wizard.id)
         self.write(cursor, user, new_id, later, context=context)
         return new_id
@@ -763,6 +766,7 @@ class ActionURL(ModelSQL, ModelView):
         new_id = url.action.id
         cursor.execute('UPDATE "' + self._table + '" SET id = %s ' \
                 'WHERE id = %s', (url.action.id, url.id))
+        cursor.update_auto_increment(self._table, url.action.id)
         ModelStorage.delete(self, cursor, user, url.id)
         self.write(cursor, user, new_id, later, context=context)
         return new_id

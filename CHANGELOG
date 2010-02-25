@@ -1,3 +1,4 @@
+* Add MySQL backend
 * Refactoring by validation with pylint
 * Modify ondelete attribute of Many2One according to required attribute value
 * Refactor import_data of ModelStorage

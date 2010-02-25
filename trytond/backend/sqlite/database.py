@@ -328,8 +328,8 @@ class Cursor(CursorInterface):
         self.cursor.execute('SELECT last_insert_rowid()')
         return self.cursor.fetchone()[0]
 
-    def has_lock(self):
-        return False
+    def lock(self, table):
+        pass
 
     def has_constraint(self):
         return False
