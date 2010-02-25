@@ -186,11 +186,11 @@ class CursorInterface(object):
         :return: an integer
         '''
 
-    def has_lock(self):
+    def lock(self, table):
         '''
-        Return True if database handle lock table.
+        Lock the table
 
-        :return: a boolean
+        :param table: the table name
         '''
         raise NotImplementedError
 
@@ -212,3 +212,12 @@ class CursorInterface(object):
         :return: a string
         '''
         raise NotImplementedError
+
+    def update_auto_increment(self, table, value):
+        '''
+        Update auto_increment value of table
+
+        :param table: the table name
+        :param value: the auto_increment value
+        '''
+        pass

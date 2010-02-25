@@ -3,7 +3,7 @@ trytond
 
 The server of the Tryton application platform.
 A three-tiers  high-level general purpose application platform
-written in Python and use Postgresql as database engine.
+written in Python and use Postgresql as main database engine.
 It is the core base of an Open Source ERP.
 It provides modularity, scalability and security.
 
@@ -29,6 +29,25 @@ Package Contents
 
   trytond/
       trytond sources.
+
+Database Backends
+-----------------
+
+Tryton is mainly developed for PostgreSQL but there is some other backends
+available. Here is some warnings about using other backends:
+
+  * MySQL
+
+    * The lock implementation of MySQL requires that Tryton locks all tables.
+
+    * There are problems with floating-point comparisons.
+      See: http://dev.mysql.com/doc/refman/5.5/en/problems-with-float.html
+
+    * Tryton uses a VARCHAR(255) for Char, Selection and Reference fields.
+
+    * MySQL can not create indexes containing text or blob fields.
+
+    * Tryton uses a DECIMAL(16, 8) for Decimal fields.
 
 Support
 -------

@@ -4,5 +4,7 @@
 from trytond.config import CONFIG
 if CONFIG['db_type'] == 'sqlite':
     from sqlite import *
+elif CONFIG['db_type'] == 'mysql':
+    from mysql import *
 else:
     from postgresql import *

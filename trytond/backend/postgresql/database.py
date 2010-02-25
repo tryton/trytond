@@ -380,8 +380,8 @@ class Cursor(CursorInterface):
         self.cursor.execute('SELECT last_value FROM "' + table + '_id_seq"')
         return self.cursor.fetchone()[0]
 
-    def has_lock(self):
-        return True
+    def lock(self, table):
+        self.cursor.execute('LOCK "%s"' % table)
 
     def has_constraint(self):
         return True

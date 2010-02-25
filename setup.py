@@ -54,6 +54,7 @@ setup(name=PACKAGE,
     ] + SIMPLEJSON,
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],
+        'MySQL': ['MySQL-python'],
         'WebDAV': ['PyWebDAV >= 0.9.3'],
         'PDF': ['openoffice-python'],
         'SSL': ['pyOpenSSL'],
