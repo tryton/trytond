@@ -49,6 +49,12 @@ available. Here is some warnings about using other backends:
 
     * Tryton uses a DECIMAL(16, 8) for Decimal fields.
 
+  * SQLite
+
+    * SQLite can not alter column definitions nor create foreign keys.
+
+    * SQL constraints are validated by Tryton instead of database.
+
 Support
 -------
 
