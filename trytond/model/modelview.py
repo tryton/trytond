@@ -25,6 +25,8 @@ def _inherit_apply(src, inherit):
     tree_inherit = etree.fromstring(inherit)
     root_inherit = tree_inherit.getroottree().getroot()
     for element2 in root_inherit:
+        if element2.tag != 'xpath':
+            continue
         element = _find(tree_src, element2)
         if element is not None:
             pos = element2.get('position', 'inside')
