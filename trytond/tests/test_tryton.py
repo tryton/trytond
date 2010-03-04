@@ -105,6 +105,7 @@ def install_module(name):
     cursor = database.cursor()
     if DB_NAME not in database.list(cursor):
         create(DB_NAME, 'admin', 'en_US', CONFIG['admin_passwd'])
+    cursor.commit()
     cursor.close()
     cursor = DB.cursor()
     module_obj = POOL.get('ir.module.module')
@@ -114,6 +115,7 @@ def install_module(name):
         ])
 
     if not module_ids:
+        cursor.close()
         return
 
     module_obj.button_install(cursor, USER, module_ids, CONTEXT)
@@ -152,6 +154,8 @@ def test_view(module_name):
                     field = element.get(attr)
                     if field:
                         assert field in res['fields']
+    cursor.rollback()
+    cursor.close()
 
 def suite():
     '''
