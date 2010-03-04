@@ -179,7 +179,12 @@ class Database(DatabaseInterface):
     @staticmethod
     def list(cursor):
         res = []
-        for db_file in os.listdir(CONFIG['data_path']) + [':memory:']:
+        listdir = [':memory:']
+        try:
+            listdir += os.listdir(CONFIG['data_path'])
+        except OSError:
+            pass
+        for db_file in listdir:
             if db_file.endswith('.sqlite') or db_file == ':memory:':
                 if db_file == ':memory:':
                     db_name = ':memory:'

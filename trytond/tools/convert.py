@@ -404,6 +404,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.fs2db = Fs2bdAccessor(cursor, self.user, self.modeldata_obj, pool)
         self.to_delete = self.populate_to_delete()
         self.noupdate = None
+        self.skip_data = False
 
         # Tag handlders are used to delegate the processing
         self.taghandlerlist = {
@@ -453,6 +454,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
             elif name == "data":
                 self.noupdate = bool(int(attributes.get("noupdate", '0')))
+                if self.pool.test and \
+                        bool(int(attributes.get("skiptest", '0'))):
+                    self.skip_data = True
+                else:
+                    self.skip_data = False
 
             elif name == "tryton":
                 pass
@@ -461,7 +467,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 logging.getLogger("convert").info( "Tag %s not supported" %
                         name)
                 return
-        else:
+        elif not self.skip_data:
             self.taghandler.startElement(name, attributes)
 
     def characters(self, data):
@@ -472,7 +478,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         # Closing tag found, if we are in a delegation the handler
         # know what to do:
-        if self.taghandler:
+        if self.taghandler and not self.skip_data:
             self.taghandler = self.taghandler.endElement(name)
 
     def current_state(self):

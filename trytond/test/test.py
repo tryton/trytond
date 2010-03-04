@@ -7,7 +7,7 @@ import datetime
 
 class Boolean(ModelSQL):
     'Boolean'
-    _name = 'tests.boolean'
+    _name = 'test.boolean'
     _description = __doc__
     boolean = fields.Boolean(string='Boolean', help='Test boolean',
             required=False)
@@ -17,7 +17,7 @@ Boolean()
 
 class BooleanDefault(ModelSQL):
     'Boolean Default'
-    _name = 'tests.boolean_default'
+    _name = 'test.boolean_default'
     _description = __doc__
     boolean = fields.Boolean(string='Boolean', help='Test boolean',
             required=False)
@@ -30,7 +30,7 @@ BooleanDefault()
 
 class Integer(ModelSQL):
     'Integer'
-    _name = 'tests.integer'
+    _name = 'test.integer'
     _description = __doc__
     integer = fields.Integer(string='Integer', help='Test integer',
             required=False)
@@ -40,7 +40,7 @@ Integer()
 
 class IntegerDefault(ModelSQL):
     'Integer Default'
-    _name = 'tests.integer_default'
+    _name = 'test.integer_default'
     _description = __doc__
     integer = fields.Integer(string='Integer', help='Test integer',
             required=False)
@@ -53,7 +53,7 @@ IntegerDefault()
 
 class IntegerRequired(ModelSQL):
     'Integer Required'
-    _name = 'tests.integer_required'
+    _name = 'test.integer_required'
     _description = __doc__
     integer = fields.Integer(string='Integer', help='Test integer',
             required=True)
@@ -63,7 +63,7 @@ IntegerRequired()
 
 class Float(ModelSQL):
     'Float'
-    _name = 'tests.float'
+    _name = 'test.float'
     _description = __doc__
     float = fields.Float(string='Float', help='Test float',
             required=False)
@@ -73,7 +73,7 @@ Float()
 
 class FloatDefault(ModelSQL):
     'Float Default'
-    _name = 'tests.float_default'
+    _name = 'test.float_default'
     _description = __doc__
     float = fields.Float(string='Float', help='Test float',
             required=False)
@@ -86,7 +86,7 @@ FloatDefault()
 
 class FloatRequired(ModelSQL):
     'Float Required'
-    _name = 'tests.float_required'
+    _name = 'test.float_required'
     _description = __doc__
     float = fields.Float(string='Float', help='Test float',
             required=True)
@@ -96,7 +96,7 @@ FloatRequired()
 
 class Numeric(ModelSQL):
     'Numeric'
-    _name = 'tests.numeric'
+    _name = 'test.numeric'
     _description = __doc__
     numeric = fields.Numeric(string='Numeric', help='Test numeric',
             required=False)
@@ -106,7 +106,7 @@ Numeric()
 
 class NumericDefault(ModelSQL):
     'Numeric Default'
-    _name = 'tests.numeric_default'
+    _name = 'test.numeric_default'
     _description = __doc__
     numeric = fields.Numeric(string='Numeric', help='Test numeric',
             required=False)
@@ -119,7 +119,7 @@ NumericDefault()
 
 class NumericRequired(ModelSQL):
     'Numeric Required'
-    _name = 'tests.numeric_required'
+    _name = 'test.numeric_required'
     _description = __doc__
     numeric = fields.Numeric(string='Numeric', help='Test numeric',
             required=True)
@@ -129,7 +129,7 @@ NumericRequired()
 
 class Char(ModelSQL):
     'Char'
-    _name = 'tests.char'
+    _name = 'test.char'
     _description = __doc__
     char = fields.Char(string='Char', size=None, help='Test char',
             required=False)
@@ -139,7 +139,7 @@ Char()
 
 class CharDefault(ModelSQL):
     'Char Default'
-    _name = 'tests.char_default'
+    _name = 'test.char_default'
     _description = __doc__
     char = fields.Char(string='Char', size=None, help='Test char',
             required=False)
@@ -152,7 +152,7 @@ CharDefault()
 
 class CharRequired(ModelSQL):
     'Char Required'
-    _name = 'tests.char_required'
+    _name = 'test.char_required'
     _description = __doc__
     char = fields.Char(string='Char', size=None, help='Test char',
             required=True)
@@ -162,7 +162,7 @@ CharRequired()
 
 class CharSize(ModelSQL):
     'Char Size'
-    _name = 'tests.char_size'
+    _name = 'test.char_size'
     _description = __doc__
     char = fields.Char(string='Char', size=5, help='Test char',
             required=False)
@@ -172,7 +172,7 @@ CharSize()
 
 class Text(ModelSQL):
     'Text'
-    _name = 'tests.text'
+    _name = 'test.text'
     _description = __doc__
     text = fields.Text(string='Text', size=None, help='Test text',
             required=False)
@@ -182,7 +182,7 @@ Text()
 
 class TextDefault(ModelSQL):
     'Text Default'
-    _name = 'tests.text_default'
+    _name = 'test.text_default'
     _description = __doc__
     text = fields.Text(string='Text', size=None, help='Test text',
             required=False)
@@ -195,7 +195,7 @@ TextDefault()
 
 class TextRequired(ModelSQL):
     'Text Required'
-    _name = 'tests.text_required'
+    _name = 'test.text_required'
     _description = __doc__
     text = fields.Text(string='Text', size=None, help='Test text',
             required=True)
@@ -205,7 +205,7 @@ TextRequired()
 
 class TextSize(ModelSQL):
     'Text Size'
-    _name = 'tests.text_size'
+    _name = 'test.text_size'
     _description = __doc__
     text = fields.Text(string='Text', size=5, help='Test text',
             required=False)
@@ -215,7 +215,7 @@ TextSize()
 
 class Sha(ModelSQL):
     'Sha'
-    _name = 'tests.sha'
+    _name = 'test.sha'
     _description = __doc__
     sha = fields.Sha(string='Sha', help='Test sha',
             required=False)
@@ -225,7 +225,7 @@ Sha()
 
 class ShaDefault(ModelSQL):
     'Sha Default'
-    _name = 'tests.sha_default'
+    _name = 'test.sha_default'
     _description = __doc__
     sha = fields.Sha(string='Sha', help='Test sha',
             required=False)
@@ -238,7 +238,7 @@ ShaDefault()
 
 class ShaRequired(ModelSQL):
     'Sha Required'
-    _name = 'tests.sha_required'
+    _name = 'test.sha_required'
     _description = __doc__
     sha = fields.Sha(string='Sha', help='Test sha',
             required=True)
@@ -248,7 +248,7 @@ ShaRequired()
 
 class Date(ModelSQL):
     'Date'
-    _name = 'tests.date'
+    _name = 'test.date'
     _description = __doc__
     date = fields.Date(string='Date', help='Test date',
             required=False)
@@ -258,7 +258,7 @@ Date()
 
 class DateDefault(ModelSQL):
     'Date Default'
-    _name = 'tests.date_default'
+    _name = 'test.date_default'
     _description = __doc__
     date = fields.Date(string='Date', help='Test date',
             required=False)
@@ -271,7 +271,7 @@ DateDefault()
 
 class DateRequired(ModelSQL):
     'Date Required'
-    _name = 'tests.date_required'
+    _name = 'test.date_required'
     _description = __doc__
     date = fields.Date(string='Date', help='Test date',
             required=True)
@@ -281,7 +281,7 @@ DateRequired()
 
 class DateTime(ModelSQL):
     'DateTime'
-    _name = 'tests.datetime'
+    _name = 'test.datetime'
     _description = __doc__
     datetime = fields.DateTime(string='DateTime', help='Test datetime',
             required=False)
@@ -291,7 +291,7 @@ DateTime()
 
 class DateTimeDefault(ModelSQL):
     'DateTime Default'
-    _name = 'tests.datetime_default'
+    _name = 'test.datetime_default'
     _description = __doc__
     datetime = fields.DateTime(string='DateTime', help='Test datetime',
             required=False)
@@ -304,7 +304,7 @@ DateTimeDefault()
 
 class DateTimeRequired(ModelSQL):
     'DateTime Required'
-    _name = 'tests.datetime_required'
+    _name = 'test.datetime_required'
     _description = __doc__
     datetime = fields.DateTime(string='DateTime', help='Test datetime',
             required=True)

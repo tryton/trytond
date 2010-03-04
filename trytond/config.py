@@ -119,14 +119,14 @@ class ConfigManager(object):
         init = {}
         if opt.init:
             for i in opt.init.split(','):
-                if i != 'tests':
+                if i != 'test':
                     init[i] = 1
         self.options['init'] = init
 
         update = {}
         if opt.update:
             for i in opt.update.split(','):
-                if i != 'tests':
+                if i != 'test':
                     update[i] = 1
         self.options['update'] = update
 

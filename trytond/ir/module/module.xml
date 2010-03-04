@@ -77,7 +77,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.module.module</field>
             <field name="view_type">form</field>
-            <field name="domain">[('name', '!=', 'tests')]</field>
+            <field name="domain">[('name', '!=', 'test')]</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_module_form_view1">
