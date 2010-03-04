@@ -540,6 +540,9 @@ class FieldsTestCase(unittest.TestCase):
                 CONTEXT)
         self.assert_(float5['float'] == 0)
 
+        cursor.rollback()
+        cursor.close()
+
     def test0040numeric(self):
         '''
         Test Numeric.
@@ -950,6 +953,7 @@ class FieldsTestCase(unittest.TestCase):
 
         self.failUnlessRaises(Exception, self.char_required.create, cursor,
                 USER, {}, CONTEXT)
+        cursor.rollback()
 
         char5_id = self.char_required.create(cursor, USER, {
             'char': 'Test',
@@ -969,6 +973,7 @@ class FieldsTestCase(unittest.TestCase):
                 char6_id, {
                     'char': 'foobar',
                     }, CONTEXT)
+        cursor.rollback()
 
         char7_id = self.char.create(cursor, USER, {
             'char': u'é',
@@ -1211,6 +1216,7 @@ class FieldsTestCase(unittest.TestCase):
 
         self.failUnlessRaises(Exception, self.text_required.create, cursor,
                 USER, {}, CONTEXT)
+        cursor.rollback()
 
         text5_id = self.text_required.create(cursor, USER, {
             'text': 'Test',
@@ -1476,6 +1482,7 @@ class FieldsTestCase(unittest.TestCase):
 
         self.failUnlessRaises(Exception, self.sha_required.create, cursor,
                 USER, {}, CONTEXT)
+        cursor.rollback()
 
         sha5_id = self.sha_required.create(cursor, USER, {
             'sha': 'Test',
@@ -1753,6 +1760,7 @@ class FieldsTestCase(unittest.TestCase):
 
         self.failUnlessRaises(Exception, self.date_required.create, cursor,
                 USER, {}, CONTEXT)
+        cursor.rollback()
 
         date6_id = self.date_required.create(cursor, USER, {
             'date': today,
@@ -2026,6 +2034,7 @@ class FieldsTestCase(unittest.TestCase):
 
         self.failUnlessRaises(Exception, self.datetime_required.create, cursor,
                 USER, {}, CONTEXT)
+        cursor.rollback()
 
         datetime6_id = self.datetime_required.create(cursor, USER, {
             'datetime': today,
