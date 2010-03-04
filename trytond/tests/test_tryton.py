@@ -241,8 +241,18 @@ def modules_suite():
         else:
             continue
         for test in test_mod.suite():
-            if test not in suite_:
-                suite_.addTest(test)
+            if hasattr(test, '__eq__'):
+                if test not in suite_:
+                    suite_.addTest(test)
+            else:
+                found = False
+                for other in suite_:
+                    if type(test) == type(other) and \
+                            test._testMethodName == other._testMethodName:
+                        found = True
+                        break
+                if not found:
+                    suite_.addTest(test)
     return suite_
 
 if __name__ == '__main__':
