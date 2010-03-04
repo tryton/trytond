@@ -5,7 +5,7 @@ from trytond.model import ModelSingleton, ModelSQL, fields
 
 class Singleton(ModelSingleton, ModelSQL):
     'Singleton'
-    _name = 'tests.singleton'
+    _name = 'test.singleton'
     _description = __doc__
 
     name = fields.Char('Name')

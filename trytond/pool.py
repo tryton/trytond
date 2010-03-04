@@ -16,6 +16,7 @@ class Pool(object):
     _locks = {}
     _pool = {}
     _pools = {}
+    test = False
 
     def __new__(cls, database_name):
         cls._lock.acquire()

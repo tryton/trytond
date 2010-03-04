@@ -133,7 +133,7 @@ def create_graph(module_list, force=None):
     for module in module_list:
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
         mod_path = OPJ(MODULES_PATH, module)
-        if module in ('ir', 'workflow', 'res', 'webdav', 'tests'):
+        if module in ('ir', 'workflow', 'res', 'webdav', 'test'):
             root_path = os.path.dirname(os.path.dirname(__file__))
             tryton_file = OPJ(root_path, module, '__tryton__.py')
             mod_path = OPJ(root_path, module)
@@ -171,7 +171,7 @@ def create_graph(module_list, force=None):
             for kind in ('init', 'update'):
                 if (package in CONFIG[kind]) \
                         or (('all' in CONFIG[kind]) \
-                            and (package != 'tests')) \
+                            and (package != 'test')) \
                         or (kind in force):
                     setattr(node, kind, True)
         else:
@@ -314,7 +314,7 @@ def get_module_list():
     module_list.add('workflow')
     module_list.add('res')
     module_list.add('webdav')
-    module_list.add('tests')
+    module_list.add('test')
     return list(module_list)
 
 def register_classes(reload_p=False):
@@ -328,11 +328,11 @@ def register_classes(reload_p=False):
         import trytond.workflow
         import trytond.res
         import trytond.webdav
-        import trytond.tests
+        import trytond.test
     else:
         for module in ('trytond.model', 'trytond.report', 'trytond.wizard',
                 'trytond.ir', 'trytond.workflow', 'trytond.res',
-                'trytond.webdav', 'trytond.tests'):
+                'trytond.webdav', 'trytond.test'):
             for i in sys.modules.keys():
                 if i.startswith(module) \
                         and i != module:
@@ -345,7 +345,7 @@ def register_classes(reload_p=False):
         module = package.name
         logger.info('%s:registering classes' % module)
 
-        if module in ('ir', 'workflow', 'res', 'webdav', 'tests'):
+        if module in ('ir', 'workflow', 'res', 'webdav', 'test'):
             MODULES.append(module)
             continue
 
@@ -396,7 +396,7 @@ def load_modules(database_name, pool, update=False, lang=None):
         if update:
             if 'all' in CONFIG['init']:
                 cursor.execute("SELECT name FROM ir_module_module " \
-                        "WHERE name != \'tests\'")
+                        "WHERE name != \'test\'")
             else:
                 cursor.execute("SELECT name FROM ir_module_module " \
                         "WHERE state IN ('installed', 'to install', " \

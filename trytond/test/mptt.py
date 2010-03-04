@@ -6,15 +6,15 @@ from trytond.model import ModelView, ModelSQL, fields
 
 class MPTT(ModelSQL, ModelView):
     'Modified Preorder Tree Traversal'
-    _name = 'tests.mptt'
+    _name = 'test.mptt'
     _description = __doc__
     name = fields.Char('Name', required=True)
     sequence = fields.Integer('Sequence')
-    parent = fields.Many2One('tests.mptt', "Parent", select=1,
+    parent = fields.Many2One('test.mptt', "Parent", select=1,
             left="left", right="right")
     left = fields.Integer('Left', required=True, select=1)
     right = fields.Integer('Right', required=True, select=1)
-    childs = fields.One2Many('tests.mptt', 'parent', 'Children')
+    childs = fields.One2Many('test.mptt', 'parent', 'Children')
     active = fields.Boolean('Active')
 
     def __init__(self):
