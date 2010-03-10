@@ -805,7 +805,7 @@ class ModelStorage(Model):
                 logger.error(exp)
                 cursor.rollback()
                 warning = '\n'.join(map(str, exp[1:]) + [warning])
-                return (-1, res, exp[0], warning)
+                return (-1, res, exp, warning)
             done += 1
         return (done, 0, 0, 0)
 
