@@ -55,14 +55,14 @@ class Float(fields.Float):
 
     @staticmethod
     def sql_type(field):
-        return ('double', 'double')
+        return ('double', 'double(255, 30)')
 
 
 class Numeric(fields.Numeric):
 
     @staticmethod
     def sql_type(field):
-        return ('decimal', 'decimal(16, 8)')
+        return ('decimal', 'decimal(65, 30)')
 
 
 class Date(fields.Date):

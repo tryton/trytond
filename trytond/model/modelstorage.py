@@ -1066,6 +1066,37 @@ class ModelStorage(Model):
                                     user, field_name, context=context),
                                 context=context)
 
+            # validate digits
+            if hasattr(field, 'digits') and field.digits:
+                if is_pyson(field.digits):
+                    pyson_digits = PYSONEncoder().encode(field.digits)
+                    ctx = context.copy()
+                    ctx.update(ctx_pref)
+                    for record in records:
+                        env = EvalEnvironment(record, self)
+                        env.update(ctx)
+                        env['current_date'] = datetime.datetime.today()
+                        env['time'] = time
+                        env['context'] = context
+                        env['active_id'] = record.id
+                        digits = PYSONDecoder(env).decode(pyson_digits)
+                        if not round(record[field_name], digits[1]) == \
+                                float(record[field_name]):
+                            self.raise_user_error(cursor,
+                                    'digits_validation_record',
+                                    error_args=self._get_error_args(cursor,
+                                        user, field_name, context=context),
+                                    context=context)
+                else:
+                    for record in records:
+                        if not round(record[field_name], field.digits[1]) == \
+                                float(record[field_name]):
+                            self.raise_user_error(cursor,
+                                    'digits_validation_record',
+                                    error_args=self._get_error_args(cursor,
+                                        user, field_name, context=context),
+                                    context=context)
+
     def _clean_defaults(self, defaults):
         vals = {}
         for field in defaults.keys():

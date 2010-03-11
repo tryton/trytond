@@ -397,7 +397,9 @@ class TableHandler(TableHandlerInterface):
                 size = 255
             res = 'varchar(%s)' % str(size)
         elif typname == 'decimal':
-            res = 'decimal(16, 8)'
+            res = 'decimal(65, 30)'
+        elif typname == 'double':
+            res = 'double(255, 30)'
         else:
             res = typname
         # Default value for timestamp doesn't work

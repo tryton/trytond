@@ -5,6 +5,7 @@ from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
 import MySQLdb
 import MySQLdb.cursors
+import MySQLdb.converters
 from MySQLdb import IntegrityError as DatabaseIntegrityError
 from MySQLdb import OperationalError as DatabaseOperationalError
 import logging
@@ -27,11 +28,14 @@ class Database(DatabaseInterface):
         return self
 
     def cursor(self, autocommit=False):
+        conv = MySQLdb.converters.conversions.copy()
+        conv[float] = lambda value, _: repr(value)
         args = {
             'db': self.database_name,
             'sql_mode': 'traditional,postgresql',
             'use_unicode': True,
             'charset': 'utf8',
+            'conv': conv,
         }
         if CONFIG['db_host']:
             args['host'] = CONFIG['db_host']
@@ -50,9 +54,11 @@ class Database(DatabaseInterface):
     def create(self, cursor, database_name):
         cursor.execute('CREATE DATABASE `' + database_name + '` ' \
                 'DEFAULT CHARACTER SET = \'utf8\'')
+        Database._list_cache = None
 
     def drop(self, cursor, database_name):
         cursor.execute('DROP DATABASE `' + database_name + '`')
+        Database._list_cache = None
 
     @staticmethod
     def dump(database_name):

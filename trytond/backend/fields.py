@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import datetime
-
+from decimal import Decimal
 try:
     import hashlib
 except ImportError:
@@ -74,7 +74,15 @@ class Float(Field):
 
 
 class Numeric(Float):
-    pass
+
+    @staticmethod
+    def sql_format(value):
+        if not value:
+            value = Decimal('0.0')
+        if isinstance(value, (int, long, float)):
+            value = Decimal(repr(value))
+        assert isinstance(value, Decimal)
+        return value
 
 
 class Date(Field):
