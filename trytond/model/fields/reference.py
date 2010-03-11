@@ -27,6 +27,7 @@ class Reference(Field):
                 on_change_with=on_change_with, depends=depends,
                 order_field=order_field, context=context)
         self.selection = selection or None
+
     __init__.__doc__ += Field.__init__.__doc__
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):

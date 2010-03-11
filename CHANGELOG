@@ -1,3 +1,7 @@
+* set/get function on Fields take a list of ids
+* New interface for Function/Property fields
+  Take a Field as first argument instead of many separate arguments
+  Remove static arguments
 * Fix Float and Numeric for lost of precision
 * Add decimal digits validation on fields
 * Improve unittests to run trytond from tests

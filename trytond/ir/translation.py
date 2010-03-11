@@ -53,8 +53,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
     value = fields.Text('Translation Value')
     module = fields.Char('Module', readonly=True)
     fuzzy = fields.Boolean('Fuzzy')
-    model = fields.Function('get_model', fnct_search='model_search',
-       type='char', string='Model')
+    model = fields.Function(fields.Char('Model'), 'get_model',
+            searcher='search_model')
 
     def __init__(self):
         super(Translation, self).__init__()
@@ -75,13 +75,13 @@ class Translation(ModelSQL, ModelView, Cacheable):
     def default_fuzzy(self, cursor, user, context=None):
         return False
 
-    def get_model(self, cursor, user, ids, name, arg, context=None):
+    def get_model(self, cursor, user, ids, name, context=None):
         res = {}
         for translation in self.browse(cursor, user, ids, context=context):
             res[translation.id] = translation.name.split(',')[0]
         return res
 
-    def model_search(self, cursor, user, name, args, context=None):
+    def search_model(self, cursor, user, name, args, context=None):
         args2 = []
         i = 0
         while i < len(args):

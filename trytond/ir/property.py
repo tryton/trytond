@@ -147,14 +147,14 @@ class Property(ModelSQL, ModelView):
             'field': field_id,
         }
 
-    def set(self, cursor, user, name, model, res_id, val, context=None):
+    def set(self, cursor, user, name, model, ids, val, context=None):
         """
-        Set property value for res_id
+        Set property value for ids
         :param cursor: the database cursor
         :param user: the user id
         :param names: property name
         :param model: object name
-        :param res_id: a record ids
+        :param ids: a list of ids
         :param val: the value
         :param context: the context
         :return: the id of the record created
@@ -177,7 +177,7 @@ class Property(ModelSQL, ModelView):
 
         property_ids = self.search(cursor, user, [
             ('field', '=', field_id),
-            ('res', '=', model + ',' + str(res_id)),
+            ('res', 'in', [model + ',' + str(res_id) for res_id in ids]),
             ], order=[], context=context)
         self.delete(cursor, 0, property_ids, context=ctx)
 
@@ -208,9 +208,10 @@ class Property(ModelSQL, ModelView):
 
         res = False
         if (val != default_val):
-            vals = self._set_values(cursor, user, name, model, res_id, val,
-                    field_id, context=context)
-            res = self.create(cursor, 0, vals, context=ctx)
+            for res_id in ids:
+                vals = self._set_values(cursor, user, name, model, res_id, val,
+                        field_id, context=context)
+                res = self.create(cursor, 0, vals, context=ctx)
         return res
 
 Property()

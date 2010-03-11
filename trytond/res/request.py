@@ -56,8 +56,8 @@ class Request(ModelSQL, ModelView):
                     True,
                     Not(Equal(Eval('act_from', 0), Eval('_user', 0)))),
             })
-    number_references = fields.Function('get_number_references', type='integer',
-            string="Number of References", on_change_with=['references'])
+    number_references = fields.Function(fields.Integer('Number of References',
+        on_change_with=['references']), 'get_number_references')
     state = fields.Selection(_STATES, 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
@@ -92,8 +92,7 @@ class Request(ModelSQL, ModelView):
             return len(vals['references'])
         return 0
 
-    def get_number_references(self, cursor, user, ids, name, arg,
-            context=None):
+    def get_number_references(self, cursor, user, ids, name, context=None):
         res = {}
         for request in self.browse(cursor, user, ids, context=context):
             if request.references:

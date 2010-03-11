@@ -16,16 +16,15 @@ class Attachment(ModelSQL, ModelView):
     _name = 'ir.attachment'
     _description = __doc__
     name = fields.Char('Attachment Name', required=True)
-    datas = fields.Function('get_datas', fnct_inv='set_datas',
-       type='binary', string='Datas')
+    datas = fields.Function(fields.Binary('Datas'), 'get_datas',
+            setter='set_datas')
     description = fields.Text('Description')
     res_model = fields.Char('Resource Model', readonly=True)
     res_id = fields.Integer('Resource ID', readonly=True)
     link = fields.Char('Link')
     digest = fields.Char('Digest', size=32)
     collision = fields.Integer('Collision')
-    datas_size = fields.Function('get_datas', type='integer',
-       string='Datas size')
+    datas_size = fields.Function(fields.Integer('Datas size'), 'get_datas')
 
     def __init__(self):
         super(Attachment, self).__init__()
@@ -38,7 +37,7 @@ class Attachment(ModelSQL, ModelView):
     def default_collision(self, cursor, user, context=None):
         return 0
 
-    def get_datas(self, cursor, user, ids, name, arg, context=None):
+    def get_datas(self, cursor, user, ids, name, context=None):
         res = {}
         db_name = cursor.dbname
         for attachment in self.browse(cursor, user, ids, context=context):
@@ -64,7 +63,7 @@ class Attachment(ModelSQL, ModelView):
             res[attachment.id] = value
         return res
 
-    def set_datas(self, cursor, user, obj_id, name, value, args, context=None):
+    def set_datas(self, cursor, user, ids, name, value, context=None):
         if value is False or value is None:
             return
         db_name = cursor.dbname
@@ -113,10 +112,10 @@ class Attachment(ModelSQL, ModelView):
             file_p = open(filename, 'wb')
             file_p.write(data)
             file_p.close()
-        cursor.execute('UPDATE ir_attachment ' \
-                'SET digest = %s, ' \
-                    'collision = %s ' \
-                'WHERE id = %s', (digest, collision, obj_id))
+        self.write(cursor, user, ids, {
+            'digest': digest,
+            'collision': collision,
+            }, context=context)
 
     def check_access(self, cursor, user, ids, mode='read', context=None):
         model_access_obj = self.pool.get('ir.model.access')

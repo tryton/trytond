@@ -82,17 +82,16 @@ class UIMenu(ModelSQL, ModelView):
     parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1)
     groups = fields.Many2Many('ir.ui.menu-res.group',
        'menu_id', 'gid', 'Groups')
-    complete_name = fields.Function('get_full_name',
-       string='Complete Name', type='char', order_field='name')
+    complete_name = fields.Function(fields.Char('Complete Name',
+        order_field='name'), 'get_full_name')
     icon = fields.Selection(ICONS, 'Icon', translate=False)
-    action = fields.Function('get_action', fnct_inv='action_inv',
-       type='reference', string='Action',
-       selection=[
-           ('ir.action.report', 'ir.action.report'),
-           ('ir.action.act_window', 'ir.action.act_window'),
-           ('ir.action.wizard', 'ir.action.wizard'),
-           ('ir.action.url', 'ir.action.url'),
-           ])
+    action = fields.Function(fields.Reference('Action',
+        selection=[
+            ('ir.action.report', 'ir.action.report'),
+            ('ir.action.act_window', 'ir.action.act_window'),
+            ('ir.action.wizard', 'ir.action.wizard'),
+            ('ir.action.url', 'ir.action.url'),
+        ]), 'get_action', setter='set_action')
     active = fields.Boolean('Active')
 
     def __init__(self):
@@ -108,7 +107,7 @@ class UIMenu(ModelSQL, ModelView):
     def default_active(self, cursor, user, context=None):
         return True
 
-    def get_full_name(self, cursor, user, ids, name, args, context):
+    def get_full_name(self, cursor, user, ids, name, context):
         res = {}
         for menu in self.browse(cursor, user, ids, context=context):
             res[menu.id] = self._get_one_full_name(menu)
@@ -146,7 +145,7 @@ class UIMenu(ModelSQL, ModelView):
         res = check_menu(res)
         return res
 
-    def get_action(self, cursor, user, ids, name, arg, context=None):
+    def get_action(self, cursor, user, ids, name, context=None):
         action_keyword_obj = self.pool.get('ir.action.keyword')
 
         if context is None:
@@ -176,8 +175,7 @@ class UIMenu(ModelSQL, ModelView):
             res[model_id] = action_keyword.action.type + ',' + str(action_id)
         return res
 
-    def action_inv(self, cursor, user, menu_id, name, value, arg,
-            context=None):
+    def set_action(self, cursor, user, ids, name, value, context=None):
         if context is None:
             context = {}
         if not value:
@@ -186,10 +184,14 @@ class UIMenu(ModelSQL, ModelView):
         if '_timestamp' in ctx:
             del ctx['_timestamp']
         action_keyword_obj = self.pool.get('ir.action.keyword')
-        action_keyword_ids = action_keyword_obj.search(cursor, user, [
-            ('keyword', '=', 'tree_open'),
-            ('model', '=', self._name + ',' + str(menu_id)),
-            ], context=context)
+        action_keyword_ids = []
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
+            action_keyword_ids += action_keyword_obj.search(cursor, user, [
+                ('keyword', '=', 'tree_open'),
+                ('model', 'in', [self._name + ',' + str(menu_id)
+                    for menu_id in sub_ids]),
+                ], context=context)
         if action_keyword_ids:
             action_keyword_obj.delete(cursor, user, action_keyword_ids,
                     context=ctx)
@@ -199,10 +201,11 @@ class UIMenu(ModelSQL, ModelView):
         action_obj = self.pool.get(action_type)
         action = action_obj.browse(cursor, user, int(action_id),
                 context=context)
-        action_keyword_obj.create(cursor, user, {
-            'keyword': 'tree_open',
-            'model': self._name + ',' + str(menu_id),
-            'action': action.action.id,
-            }, context=ctx)
+        for menu_id in ids:
+            action_keyword_obj.create(cursor, user, {
+                'keyword': 'tree_open',
+                'model': self._name + ',' + str(menu_id),
+                'action': action.action.id,
+                }, context=ctx)
 
 UIMenu()

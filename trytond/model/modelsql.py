@@ -407,7 +407,7 @@ class ModelSQL(ModelStorage):
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
-            self._columns[field].set(cursor, user, id_new, self, field,
+            self._columns[field].set(cursor, user, [id_new], self, field,
                     values[field], context=context)
 
         if self._history:
@@ -601,8 +601,8 @@ class ModelSQL(ModelStorage):
         func_fields = {}
         for field in fields_post:
             if isinstance(self._columns[field], fields.Function):
-                key = (self._columns[field].fnct, self._columns[field].arg,
-                        self._columns[field].datetime_field)
+                key = (self._columns[field].getter,
+                        getattr(self._columns[field], 'datetime_field', None))
                 func_fields.setdefault(key, [])
                 func_fields[key].append(field)
                 continue
@@ -622,10 +622,10 @@ class ModelSQL(ModelStorage):
                     values=res, context=context)
             for record in res:
                 record[field] = res2[record['id']]
-        for i in func_fields:
-            field_list = func_fields[i]
+        for key in func_fields:
+            field_list = func_fields[key]
             field = field_list[0]
-            datetime_field = i[2]
+            _, datetime_field = key
             if datetime_field:
                 ctx = context.copy()
                 for record in res:
@@ -636,8 +636,8 @@ class ModelSQL(ModelStorage):
                     for field in res2:
                         record[field] = res2[field][record['id']]
                 continue
-            res2 = self._columns[field].get(cursor, user, ids, self, field_list,
-                    values=res, context=context)
+            res2 = self._columns[field].get(cursor, user, ids, self,
+                    field_list, values=res, context=context)
             for field in res2:
                 for record in res:
                     record[field] = res2[field][record['id']]
@@ -923,13 +923,12 @@ class ModelSQL(ModelStorage):
                         context.get('language') or 'en_US', ids,
                         values[field])
 
-        # call the 'set' method of fields which are not classic_write
+        # call the 'set' method of fields
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
-            for select_id in ids:
-                self._columns[field].set(cursor, user, select_id, self, field,
-                        values[field], context=context)
+            self._columns[field].set(cursor, user, ids, self, field,
+                    values[field], context=context)
 
         if self._history:
             columns = ['"' + str(x) + '"' for x in self._columns

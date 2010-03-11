@@ -549,26 +549,6 @@ The framework is able to check, if ``names`` (instead of ``name``) is used in
 the method definition, hence adapting the way the method is called.
 
 
-Another way to tackle Function implementation is to pass a dictionary to the
-``args`` argument on the field definition. It will be forwarded to the function
-call:
-
-.. highlight:: python
-
-::
-
-  state = fields.Function(
-      'get_state', type='selection', string='Total Service',
-      args={'key':'value'},
-      selection=[('draft','Draft'),('done','Done')],
-      )
-
-  def get_state(self, cursor, user, ids, names, arg, context=None):
-      # [...]
-      if arg.get('key'):
-          pass # do something with 'value'
-
-
 Search on Function fields
 +++++++++++++++++++++++++
 

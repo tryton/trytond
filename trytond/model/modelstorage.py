@@ -43,8 +43,8 @@ class ModelStorage(Model):
     create_date = fields.DateTime('Create Date', readonly=True)
     write_uid = fields.Many2One('res.user', 'Write User', readonly=True)
     write_date = fields.DateTime('Write Date', readonly=True)
-    rec_name = fields.Function('get_rec_name', type='char', string='Name',
-            fnct_search='search_rec_name')
+    rec_name = fields.Function(fields.Char('Name'), 'get_rec_name',
+            searcher='search_rec_name')
 
     def __init__(self):
         super(ModelStorage, self).__init__()
@@ -437,7 +437,7 @@ class ModelStorage(Model):
             return domain
         return process(domain)
 
-    def get_rec_name(self, cursor, user, ids, name, arg, context=None):
+    def get_rec_name(self, cursor, user, ids, name, context=None):
         '''
         Return a dictionary with id as key and rec_name as value.
         It is used by the Function field rec_name.
@@ -446,7 +446,6 @@ class ModelStorage(Model):
         :param user: the user id
         :param ids: a list of ids
         :param name: the name of the Function field
-        :param arg: the argument of the Function field
         :param context: the context
         :return: a dictionary
         '''

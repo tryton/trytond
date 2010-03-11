@@ -216,15 +216,14 @@ class ActionReport(ModelSQL, ModelView):
     report_name = fields.Char('Internal Name', required=True)
     report = fields.Char('Path')
     report_content_data = fields.Binary('Content')
-    report_content = fields.Function('get_report_content',
-            fnct_inv='report_content_inv', type='binary',
-            string='Content')
+    report_content = fields.Function(fields.Binary('Content'),
+            'get_report_content', setter='set_report_content')
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
-    style = fields.Property(type='char', string='Style',
-            help='Define the style to apply on the report.')
-    style_content = fields.Function('get_style_content',
-            type='binary', string='Style')
+    style = fields.Property(fields.Char('Style',
+            help='Define the style to apply on the report.'))
+    style_content = fields.Function(fields.Binary('Style'),
+            'get_style_content')
     direct_print = fields.Boolean('Direct Print')
     extension = fields.Selection(
         [('odt', 'ODT Document'),
@@ -281,7 +280,7 @@ class ActionReport(ModelSQL, ModelView):
     def default_module(self, cursor, user, context=None):
         return context and context.get('module', '') or ''
 
-    def get_report_content(self, cursor, user, ids, name, arg, context=None):
+    def get_report_content(self, cursor, user, ids, name, context=None):
         res = {}
         for report in self.browse(cursor, user, ids, context=context):
             data = report[name + '_data']
@@ -295,11 +294,12 @@ class ActionReport(ModelSQL, ModelView):
             res[report.id] = data
         return res
 
-    def report_content_inv(self, cursor, user, obj_id, name, value, arg,
+    def set_report_content(self, cursor, user, ids, name, value,
             context=None):
-        self.write(cursor, user, obj_id, {name+'_data': value}, context=context)
+        self.write(cursor, user, ids, {'%s_data' % name: value},
+                context=context)
 
-    def get_style_content(self, cursor, user, ids, name, arg, context=None):
+    def get_style_content(self, cursor, user, ids, name, context=None):
         res = {}
         for report in self.browse(cursor, user, ids, context=context):
             try:
@@ -396,8 +396,7 @@ class ActionActWindow(ModelSQL, ModelView):
         ], string='Type of view')
     act_window_views = fields.One2Many('ir.action.act_window.view',
             'act_window', 'Views')
-    views = fields.Function('views_get_fnc', type='binary',
-            string='Views')
+    views = fields.Function(fields.Binary('Views'), 'get_views')
     limit = fields.Integer('Limit',
             help='Default limit for the list view')
     auto_refresh = fields.Integer('Auto-Refresh',
@@ -408,12 +407,11 @@ class ActionActWindow(ModelSQL, ModelView):
             help='Use the action name as window name')
     search_value = fields.Char('Search Criteria',
             help='Default search criteria for the list view')
-    pyson_domain = fields.Function('get_pyson', type='string',
-            string='PySON Domain')
-    pyson_context = fields.Function('get_pyson', type='string',
-            string='PySON Context')
-    pyson_search_value = fields.Function('get_pyson', type='string',
-            string='PySON Search Criteria')
+    pyson_domain = fields.Function(fields.Char('PySON Domain'), 'get_pyson')
+    pyson_context = fields.Function(fields.Char('PySON Context'),
+            'get_pyson')
+    pyson_search_value = fields.Function(fields.Char(
+        'PySON Search Criteria'), 'get_pyson')
 
     def __init__(self):
         super(ActionActWindow, self).__init__()
@@ -504,14 +502,14 @@ class ActionActWindow(ModelSQL, ModelView):
                     return False
         return True
 
-    def views_get_fnc(self, cursor, user, ids, name, arg, context=None):
+    def get_views(self, cursor, user, ids, name, context=None):
         res = {}
         for act in self.browse(cursor, user, ids, context=context):
             res[act.id] = [(view.view.id, view.view.type) \
                     for view in act.act_window_views]
         return res
 
-    def get_pyson(self, cursor, user, ids, name, arg, context=None):
+    def get_pyson(self, cursor, user, ids, name, context=None):
         res = {}
         encoder = PYSONEncoder()
         field = name[6:]
