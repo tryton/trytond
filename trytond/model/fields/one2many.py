@@ -106,13 +106,13 @@ class One2Many(Field):
             val.sort(lambda x, y: cmp(index_of_ids2[x], index_of_ids2[y]))
         return res
 
-    def set(self, cursor, user, record_id, model, name, values, context=None):
+    def set(self, cursor, user, ids, model, name, values, context=None):
         '''
         Set the values.
 
         :param cursor: The database cursor
         :param user: The user id
-        :param record_id: The record id
+        :param ids: A list of ids
         :param model: A string with the name of the model
         :param name: A string with the name of the field
         :param values: A list of tuples:
@@ -131,64 +131,66 @@ class One2Many(Field):
         model = model.pool.get(self.model_name)
         for act in values:
             if act[0] == 'create':
-                act[1][self.field] = record_id
-                model.create(cursor, user, act[1], context=context)
+                for record_id in ids:
+                    act[1][self.field] = record_id
+                    model.create(cursor, user, act[1], context=context)
             elif act[0] == 'write':
-                act[2][self.field] = record_id
                 model.write(cursor, user, act[1] , act[2], context=context)
             elif act[0] == 'delete':
                 model.delete(cursor, user, act[1], context=context)
             elif act[0] == 'delete_all':
-                ids = model.search(cursor, user, [
-                    (self.field, '=', record_id),
+                target_ids = model.search(cursor, user, [
+                    (self.field, 'in', ids),
                     ], context=context)
-                model.delete(cursor, user, ids, context=context)
+                model.delete(cursor, user, target_ids, context=context)
             elif act[0] == 'unlink':
                 if isinstance(act[1], (int, long)):
-                    ids = [act[1]]
+                    target_ids = [act[1]]
                 else:
-                    ids = list(act[1])
-                if not ids:
+                    target_ids = list(act[1])
+                if not target_ids:
                     continue
-                ids = model.search(cursor, user, [
-                    (self.field, '=', record_id),
-                    ('id', 'in', ids),
+                target_ids = model.search(cursor, user, [
+                    (self.field, 'in', ids),
+                    ('id', 'in', target_ids),
                     ], context=context)
-                model.write(cursor, user, ids, {
+                model.write(cursor, user, target_ids, {
                     self.field: False,
                     }, context=context)
             elif act[0] == 'add':
                 if isinstance(act[1], (int, long)):
-                    ids = [act[1]]
+                    target_ids = [act[1]]
                 else:
-                    ids = list(act[1])
-                if not ids:
+                    target_ids = list(act[1])
+                if not target_ids:
                     continue
-                ids = model.write(cursor, user, ids, {
-                    self.field: record_id,
-                    }, context=context)
+                for record_id in ids:
+                    model.write(cursor, user, target_ids, {
+                        self.field: record_id,
+                        }, context=context)
             elif act[0] == 'unlink_all':
-                ids = model.search(cursor, user, [
-                    (self.field, '=', record_id),
+                target_ids = model.search(cursor, user, [
+                    (self.field, 'in', ids),
                     ], context=context)
-                model.write(cursor, user, ids, {
+                model.write(cursor, user, target_ids, {
                     self.field: False,
                     }, context=context)
             elif act[0] == 'set':
                 if not act[1]:
-                    ids = [0]
+                    target_ids = [0]
                 else:
-                    ids = list(act[1])
-                ids2 = model.search(cursor, user, [
-                    (self.field, '=', record_id),
-                    ('id', 'not in', ids),
-                    ], context=context)
-                model.write(cursor, user, ids2, {
-                    self.field: False,
-                    }, context=context)
-                if act[1]:
-                    model.write(cursor, user, ids, {
-                        self.field: record_id,
+                    target_ids = list(act[1])
+                for record_id in ids:
+                    target_ids2 = model.search(cursor, user, [
+                        (self.field, '=', record_id),
+                        ('id', 'not in', target_ids),
+                        ], context=context)
+                    model.write(cursor, user, target_ids2, {
+                        self.field: False,
                         }, context=context)
+                    if act[1]:
+                        model.write(cursor, user, target_ids, {
+                            self.field: record_id,
+                            }, context=context)
             else:
                 raise Exception('Bad arguments')

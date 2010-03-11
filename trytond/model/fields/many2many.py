@@ -82,13 +82,13 @@ class Many2Many(Field):
             res[relation[self.origin]].append(relation[self.target])
         return res
 
-    def set(self, cursor, user, record_id, model, name, values, context=None):
+    def set(self, cursor, user, ids, model, name, values, context=None):
         '''
         Set the values.
 
         :param cursor: The database cursor
         :param user: The user id
-        :param record_id: The record id
+        :param ids: A list of ids
         :param model: A string with the name of the model
         :param name: A string with the name of the field
         :param values: A list of tuples:
@@ -107,75 +107,77 @@ class Many2Many(Field):
         target_obj = self.get_target(model.pool)
         for act in values:
             if act[0] == 'create':
-                relation_obj.create(cursor, user, {
-                    self.origin: record_id,
-                    self.target: target_obj.create(cursor, user, act[1],
-                        context=context),
-                    }, context=context)
+                for record_id in ids:
+                    relation_obj.create(cursor, user, {
+                        self.origin: record_id,
+                        self.target: target_obj.create(cursor, user, act[1],
+                            context=context),
+                        }, context=context)
             elif act[0] == 'write':
                 target_obj.write(cursor, user, act[1] , act[2], context=context)
             elif act[0] == 'delete':
                 target_obj.delete(cursor, user, act[1], context=context)
             elif act[0] == 'unlink':
                 if isinstance(act[1], (int, long)):
-                    ids = [act[1]]
+                    target_ids = [act[1]]
                 else:
-                    ids = list(act[1])
-                if not ids:
+                    target_ids = list(act[1])
+                if not target_ids:
                     continue
                 relation_ids = []
-                for i in range(0, len(ids), cursor.IN_MAX):
-                    sub_ids = ids[i:i + cursor.IN_MAX]
+                for i in range(0, len(target_ids), cursor.IN_MAX):
+                    sub_ids = target_ids[i:i + cursor.IN_MAX]
                     relation_ids += relation_obj.search(cursor, user, [
-                        (self.origin, '=', record_id),
+                        (self.origin, 'in', ids),
                         (self.target, 'in', sub_ids),
                         ], context=context)
                 relation_obj.delete(cursor, user, relation_ids, context=context)
             elif act[0] == 'add':
                 if isinstance(act[1], (int, long)):
-                    ids = [act[1]]
+                    target_ids = [act[1]]
                 else:
-                    ids = list(act[1])
-                if not ids:
+                    target_ids = list(act[1])
+                if not target_ids:
                     continue
                 existing_ids = []
-                for i in range(0, len(ids), cursor.IN_MAX):
-                    sub_ids = ids[i:i + cursor.IN_MAX]
+                for i in range(0, len(target_ids), cursor.IN_MAX):
+                    sub_ids = target_ids[i:i + cursor.IN_MAX]
                     relation_ids = relation_obj.search(cursor, user, [
-                        (self.origin, '=', record_id),
+                        (self.origin, 'in', ids),
                         (self.target, 'in', sub_ids),
                         ], context=context)
                     for relation in relation_obj.browse(cursor, user,
                             relation_ids, context=context):
                         existing_ids.append(relation[self.target].id)
-                new_ids = [x for x in ids if x not in existing_ids]
-                for new_id in new_ids:
-                    relation_obj.create(cursor, user, {
-                        self.origin: record_id,
-                        self.target: new_id,
-                        }, context=context)
+                for new_id in (x for x in target_ids if x not in existing_ids):
+                    for record_id in ids:
+                        relation_obj.create(cursor, user, {
+                            self.origin: record_id,
+                            self.target: new_id,
+                            }, context=context)
             elif act[0] == 'unlink_all':
-                ids = relation_obj.search(cursor, user, [
-                    (self.origin, '=', record_id),
+                target_ids = relation_obj.search(cursor, user, [
+                    (self.origin, 'in', ids),
                     (self.target + '.id', '!=', False),
                     ], context=context)
-                relation_obj.delete(cursor, user, ids, context=context)
+                relation_obj.delete(cursor, user, target_ids, context=context)
             elif act[0] == 'set':
                 if not act[1]:
-                    ids = []
+                    target_ids = []
                 else:
-                    ids = list(act[1])
-                ids2 = relation_obj.search(cursor, user, [
-                    (self.origin, '=', record_id),
+                    target_ids = list(act[1])
+                target_ids2 = relation_obj.search(cursor, user, [
+                    (self.origin, 'in', ids),
                     (self.target + '.id', '!=', False),
                     ], context=context)
-                relation_obj.delete(cursor, user, ids2, context=context)
+                relation_obj.delete(cursor, user, target_ids2, context=context)
 
-                for new_id in ids:
-                    relation_obj.create(cursor, user, {
-                        self.origin: record_id,
-                        self.target: new_id,
-                        }, context=context)
+                for new_id in target_ids:
+                    for record_id in ids:
+                        relation_obj.create(cursor, user, {
+                            self.origin: record_id,
+                            self.target: new_id,
+                            }, context=context)
             else:
                 raise Exception('Bad arguments')
 

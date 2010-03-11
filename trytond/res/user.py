@@ -37,15 +37,14 @@ class User(ModelSQL, ModelView):
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     language = fields.Many2One('ir.lang', 'Language',
             domain=['OR', ('translatable', '=', True), ('code', '=', 'en_US')])
-    language_direction = fields.Function('get_language_direction', type='char',
-            string='Language Direction')
+    language_direction = fields.Function(fields.Char('Language Direction'),
+            'get_language_direction')
     timezone = fields.Selection('timezones', 'Timezone')
     email = fields.Char('Email')
-    status_bar = fields.Function('get_status_bar', type='char',
-            string="Status Bar")
+    status_bar = fields.Function(fields.Char('Status Bar'), 'get_status_bar')
     warnings = fields.One2Many('res.user.warning', 'user', 'Warnings')
-    connections = fields.Function('get_connections', type='integer',
-            string='Connections')
+    connections = fields.Function(fields.Integer('Connections'),
+            'get_connections')
 
     def __init__(self):
         super(User, self).__init__()
@@ -100,7 +99,7 @@ class User(ModelSQL, ModelView):
     def default_action(self, cursor, user, context=None):
         return self.default_menu(cursor, user, context=context)
 
-    def get_language_direction(self, cursor, user, ids, name, arg, context=None):
+    def get_language_direction(self, cursor, user, ids, name, context=None):
         res = {}
         lang_obj = self.pool.get('ir.lang')
         default_direction = lang_obj.default_direction(cursor, user, context=context)
@@ -111,13 +110,13 @@ class User(ModelSQL, ModelView):
                 res[user.id] = default_direction
         return res
 
-    def get_status_bar(self, cursor, user_id, ids, name, arg, context=None):
+    def get_status_bar(self, cursor, user_id, ids, name, context=None):
         res = {}
         for user in self.browse(cursor, user_id, ids, context=context):
             res[user.id] = user.name
         return res
 
-    def get_connections(self, cursor, user, ids, name, arg, context=None):
+    def get_connections(self, cursor, user, ids, name, context=None):
         res = {}
         for user_id in ids:
             res[user_id] = get_connections(cursor.database_name, user_id)

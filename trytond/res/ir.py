@@ -158,11 +158,10 @@ SequenceTypeGroup()
 
 class Sequence(ModelSQL, ModelView):
     _name = 'ir.sequence'
-    groups = fields.Function('get_groups', type='many2many',
-            relation='res.group', string='User Groups',
-            fnct_search='search_groups')
+    groups = fields.Function(fields.Many2Many('res.group', None, None,
+        'User Groups'), 'get_groups', searcher='search_groups')
 
-    def get_groups(self, cursor, user, ids, name, arg, context=None):
+    def get_groups(self, cursor, user, ids, name, context=None):
         sequence_type_obj = self.pool.get('ir.sequence.type')
         sequences= self.browse(cursor, user, ids, context=context)
         code2seq = {}

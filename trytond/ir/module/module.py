@@ -133,7 +133,7 @@ class Module(ModelSQL, ModelView):
     description = fields.Text("Description", readonly=True, translate=True)
     author = fields.Char("Author", readonly=True)
     website = fields.Char("Website", readonly=True)
-    version = fields.Function('get_version', string='Version', type='char')
+    version = fields.Function(fields.Char('Version'), 'get_version')
     dependencies = fields.One2Many('ir.module.module.dependency',
         'module', 'Dependencies', readonly=True)
     state = fields.Selection([
@@ -186,8 +186,7 @@ class Module(ModelSQL, ModelView):
             return {}
         return info
 
-    def get_version(self, cursor, user, ids, name, arg,
-            context=None):
+    def get_version(self, cursor, user, ids, name, context=None):
         res = {}
         for module in self.browse(cursor, user, ids, context=context):
             res[module.id] = Module.get_module_info(
@@ -465,15 +464,14 @@ class ModuleDependency(ModelSQL, ModelView):
     name = fields.Char('Name')
     module = fields.Many2One('ir.module.module', 'Module', select=1,
        ondelete='CASCADE', required=True)
-    state = fields.Function('get_state', type='selection',
-       selection=[
-       ('uninstalled','Not Installed'),
-       ('installed','Installed'),
-       ('to upgrade','To be upgraded'),
-       ('to remove','To be removed'),
-       ('to install','To be installed'),
-       ('unknown', 'Unknown'),
-       ], string='State', readonly=True)
+    state = fields.Function(fields.Selection([
+        ('uninstalled','Not Installed'),
+        ('installed','Installed'),
+        ('to upgrade','To be upgraded'),
+        ('to remove','To be removed'),
+        ('to install','To be installed'),
+        ('unknown', 'Unknown'),
+        ], 'State', readonly=True), 'get_state')
 
     def __init__(self):
         super(ModuleDependency, self).__init__()
@@ -482,7 +480,7 @@ class ModuleDependency(ModelSQL, ModelView):
                 'Dependency must be unique by module!'),
         ]
 
-    def get_state(self, cursor, user, ids, name, args, context=None):
+    def get_state(self, cursor, user, ids, name, context=None):
         result = {}
         module_obj = self.pool.get('ir.module.module')
         for dependency in self.browse(cursor, user, ids):
