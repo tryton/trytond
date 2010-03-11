@@ -18,6 +18,7 @@ import re
 import os
 if os.name == 'posix':
     import pwd
+from decimal import Decimal
 
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
@@ -395,3 +396,5 @@ class Cursor(CursorInterface):
 
 register_type(UNICODE)
 register_adapter(Session, AsIs)
+register_adapter(float, lambda value: AsIs(repr(value)))
+register_adapter(Decimal, lambda value: AsIs(str(value)))

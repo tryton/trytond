@@ -29,10 +29,12 @@ class FieldsTestCase(unittest.TestCase):
         self.float = POOL.get('test.float')
         self.float_default = POOL.get('test.float_default')
         self.float_required = POOL.get('test.float_required')
+        self.float_digits = POOL.get('test.float_digits')
 
         self.numeric = POOL.get('test.numeric')
         self.numeric_default = POOL.get('test.numeric_default')
         self.numeric_required = POOL.get('test.numeric_required')
+        self.numeric_digits = POOL.get('test.numeric_digits')
 
         self.char = POOL.get('test.char')
         self.char_default = POOL.get('test.char_default')
@@ -540,6 +542,35 @@ class FieldsTestCase(unittest.TestCase):
                 CONTEXT)
         self.assert_(float5['float'] == 0)
 
+        float6_id = self.float_digits.create(cursor, USER, {
+            'digits': 1,
+            'float': 1.1,
+            }, CONTEXT)
+        self.assert_(float6_id)
+
+        self.failUnlessRaises(Exception, self.float_digits.create, cursor,
+                USER, {
+                    'digits': 1,
+                    'float': 1.11,
+                    }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.float_digits.write, cursor,
+                USER, float6_id, {
+                    'float': 1.11,
+                    }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.float_digits.write, cursor,
+                USER, float6_id, {
+                    'digits': 0,
+                    }, CONTEXT)
+
+        float7_id = self.float.create(cursor, USER, {
+            'float': 0.1234567890123456789,
+            }, CONTEXT)
+
+        float7 = self.float.read(cursor, USER, float7_id, ['float'], CONTEXT)
+        self.assert_(float7['float'] == 0.1234567890123456789)
+
         cursor.rollback()
         cursor.close()
 
@@ -735,6 +766,37 @@ class FieldsTestCase(unittest.TestCase):
         numeric5 = self.numeric_required.read(cursor, USER, numeric5_id,
                 ['numeric'], CONTEXT)
         self.assert_(numeric5['numeric'] == Decimal('0'))
+
+        numeric6_id = self.numeric_digits.create(cursor, USER, {
+            'digits': 1,
+            'numeric': Decimal('1.1'),
+            }, CONTEXT)
+        self.assert_(numeric6_id)
+
+        self.failUnlessRaises(Exception, self.numeric_digits.create, cursor,
+                USER, {
+                    'digits': 1,
+                    'numeric': Decimal('1.11'),
+                    }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.numeric_digits.write, cursor,
+                USER, numeric6_id, {
+                    'numeric': Decimal('1.11'),
+                    }, CONTEXT)
+
+        self.failUnlessRaises(Exception, self.numeric_digits.write, cursor,
+                USER, numeric6_id, {
+                    'digits': 0,
+                    }, CONTEXT)
+
+        numeric7_id = self.numeric.create(cursor, USER, {
+            'numeric': Decimal('0.1234567890123456789'),
+            }, CONTEXT)
+
+        numeric7 = self.numeric.read(cursor, USER, numeric7_id, ['numeric'],
+                CONTEXT)
+        self.assert_(numeric7['numeric'] ==
+                Decimal('0.1234567890123456789'))
 
         cursor.rollback()
         cursor.close()

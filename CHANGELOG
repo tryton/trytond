@@ -1,3 +1,5 @@
+* Fix Float and Numeric for lost of precision
+* Add decimal digits validation on fields
 * Improve unittests to run trytond from tests
   Use sqlite as default backend
   Add skiptest attribute to data tag

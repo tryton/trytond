@@ -1,8 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from trytond.model import ModelSQL, fields
 import datetime
+from decimal import Decimal
+from trytond.model import ModelSQL, fields
+from trytond.pyson import Eval
 
 
 class Boolean(ModelSQL):
@@ -94,6 +96,17 @@ class FloatRequired(ModelSQL):
 FloatRequired()
 
 
+class FloatDigits(ModelSQL):
+    'Float Digits'
+    _name = 'test.float_digits'
+    _description = __doc__
+    digits = fields.Integer('Digits')
+    float = fields.Float(string='Float', help='Test float',
+            required=False, digits=(16, Eval('digits', 2)))
+
+FloatDigits()
+
+
 class Numeric(ModelSQL):
     'Numeric'
     _name = 'test.numeric'
@@ -112,7 +125,7 @@ class NumericDefault(ModelSQL):
             required=False)
 
     def default_numeric(self, cursor, user, context=None):
-        return 5.5
+        return Decimal('5.5')
 
 NumericDefault()
 
@@ -125,6 +138,17 @@ class NumericRequired(ModelSQL):
             required=True)
 
 NumericRequired()
+
+
+class NumericDigits(ModelSQL):
+    'Numeric Digits'
+    _name = 'test.numeric_digits'
+    _description = __doc__
+    digits = fields.Integer('Digits')
+    numeric = fields.Numeric(string='Numeric', help='Test numeric',
+            required=False, digits=(16, Eval('digits', 2)))
+
+NumericDigits()
 
 
 class Char(ModelSQL):

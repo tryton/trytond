@@ -18,6 +18,7 @@ except ImportError:
     import StringIO
 import dis
 import datetime
+from decimal import Decimal
 
 def find_in_path(name):
     if os.name == "nt":
@@ -585,4 +586,6 @@ def safe_eval(source, data=None):
         'locals': locals,
         'bool': bool,
         'dict': dict,
+        'round': round,
+        'Decimal': Decimal,
         }}, data)

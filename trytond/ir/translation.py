@@ -900,6 +900,7 @@ class TranslationClean(Wizard):
                             'domain_validation_record',
                             'required_validation_record',
                             'size_validation_record',
+                            'digits_validation_record',
                             'access_error',
                             'read_error',
                             'write_error',

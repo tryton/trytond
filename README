@@ -47,7 +47,8 @@ available. Here is some warnings about using other backends:
 
     * MySQL can not create indexes containing text or blob fields.
 
-    * Tryton uses a DECIMAL(16, 8) for Decimal fields.
+    * Tryton uses a DECIMAL(65, 30) for Decimal fields and DOUBLE(255, 30) for
+      Float fields.
 
   * SQLite
 

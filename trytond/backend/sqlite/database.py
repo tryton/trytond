@@ -353,8 +353,8 @@ class Cursor(CursorInterface):
             select += ' OFFSET %d' % offset
         return select
 
-sqlite.register_converter('NUMERIC', lambda val: Decimal(str(val)))
-sqlite.register_adapter(Decimal, float)
+sqlite.register_converter('NUMERIC', lambda val: Decimal(val))
+sqlite.register_adapter(Decimal, lambda val: buffer(str(val)))
 sqlite.register_adapter(Session, int)
 def adapt_datetime(val):
     return val.replace(tzinfo=None).isoformat(" ")
