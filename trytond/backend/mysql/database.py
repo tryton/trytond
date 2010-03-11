@@ -289,7 +289,7 @@ class Cursor(CursorInterface):
         self.cursor.execute('FLUSH TABLES WITH READ LOCK')
 
     def has_constraint(self):
-        return True
+        return False
 
     def limit_clause(self, select, limit=None, offset=None):
         if offset and limit is None:
