@@ -175,7 +175,7 @@ class TableHandler(TableHandlerInterface):
                         ('varchar', 'text'),
                         ('text', 'varchar'),
                         ('date', 'timestamp'),
-                        ('bigint', 'float'),
+                        ('bigint', 'double'),
                         ('int', 'bigint'),
                         ('tinyint', 'bool'),
                         ('decimal', 'numeric'),
