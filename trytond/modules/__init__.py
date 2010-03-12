@@ -11,7 +11,7 @@ import traceback
 import logging
 
 OPJ = os.path.join
-MODULES_PATH = os.path.dirname(__file__)
+MODULES_PATH = os.path.abspath(os.path.dirname(__file__))
 
 MODULES = []
 
@@ -134,7 +134,8 @@ def create_graph(module_list, force=None):
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
         mod_path = OPJ(MODULES_PATH, module)
         if module in ('ir', 'workflow', 'res', 'webdav', 'test'):
-            root_path = os.path.dirname(os.path.dirname(__file__))
+            root_path = os.path.abspath(os.path.dirname(
+                    os.path.dirname(__file__)))
             tryton_file = OPJ(root_path, module, '__tryton__.py')
             mod_path = OPJ(root_path, module)
         elif module in EGG_MODULES:
@@ -142,6 +143,11 @@ def create_graph(module_list, force=None):
             tryton_file = OPJ(ep.dist.location, 'trytond', 'modules', module,
                     '__tryton__.py')
             mod_path = OPJ(ep.dist.location, 'trytond', 'modules', module)
+            if not os.path.isfile(tryton_file) or not os.path.isdir(mod_path):
+                # When testing modules from setuptools location is the module
+                # directory
+                tryton_file = OPJ(ep.dist.location, '__tryton__.py')
+                mod_path = os.path.dirname(ep.dist.location)
         if os.path.isfile(tryton_file) or zipfile.is_zipfile(mod_path+'.zip'):
             try:
                 info = tools.safe_eval(tools.file_open(tryton_file,
@@ -375,6 +381,10 @@ def register_classes(reload_p=False):
             ep = EGG_MODULES[module]
             mod_path = os.path.join(ep.dist.location,
                     *ep.module_name.split('.')[:-1])
+            if not os.path.isdir(mod_path):
+                # When testing modules from setuptools location is the module
+                # directory
+                mod_path = os.path.dirname(ep.dist.location)
             mod_file, pathname, description = imp.find_module(module,
                     [mod_path])
             try:
