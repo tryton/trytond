@@ -105,7 +105,6 @@ def install_module(name):
     cursor = database.cursor()
     if DB_NAME not in database.list(cursor):
         create(DB_NAME, 'admin', 'en_US', CONFIG['admin_passwd'])
-    cursor.commit()
     cursor.close()
     cursor = DB.cursor()
     module_obj = POOL.get('ir.module.module')
@@ -119,12 +118,14 @@ def install_module(name):
         return
 
     module_obj.button_install(cursor, USER, module_ids, CONTEXT)
+    cursor.commit()
 
     install_upgrade_obj = POOL.get('ir.module.module.install_upgrade',
             type='wizard')
     wiz_id = install_upgrade_obj.create(cursor, USER)
     cursor.commit()
     install_upgrade_obj.execute(cursor, USER, wiz_id, {}, 'start', CONTEXT)
+    cursor.commit()
     install_upgrade_obj.delete(cursor, USER, wiz_id)
     cursor.commit()
     cursor.close()
