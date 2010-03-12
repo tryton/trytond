@@ -79,8 +79,10 @@ class Numeric(Float):
     def sql_format(value):
         if not value:
             value = Decimal('0.0')
-        if isinstance(value, (int, long, float)):
+        if isinstance(value, (int, long)):
             value = Decimal(repr(value))
+        if isinstance(value, float) and hasattr(value, 'decimal'):
+            value = Decimal(value.decimal)
         assert isinstance(value, Decimal)
         return value
 

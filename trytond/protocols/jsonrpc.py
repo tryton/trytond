@@ -3,6 +3,7 @@
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
+from trytond.protocols.datatype import Float
 import SimpleXMLRPCServer
 import SimpleHTTPServer
 import SocketServer
@@ -77,7 +78,7 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
         existing method through subclassing is the prefered means
         of changing method dispatch behavior.
         """
-        rawreq = json.loads(data, object_hook=object_hook)
+        rawreq = json.loads(data, object_hook=object_hook, parse_float=Float)
 
         req_id = rawreq.get('id', 0)
         method = rawreq['method']

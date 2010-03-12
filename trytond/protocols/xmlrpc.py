@@ -3,6 +3,7 @@
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
+from trytond.protocols.datatype import Float
 import SimpleXMLRPCServer
 import SocketServer
 import xmlrpclib
@@ -20,6 +21,11 @@ xmlrpclib.Marshaller.dispatch[Decimal] = \
         lambda self, value, write: self.dump_double(float(value), write)
 xmlrpclib.Marshaller.dispatch[type(None)] = \
         lambda self, value, write: self.dump_bool(bool(value), write)
+
+def _end_double(self, data):
+    self.append(Float(data))
+    self._value = 0
+xmlrpclib.Unmarshaller.dispatch["double"] = _end_double
 
 
 class GenericXMLRPCRequestHandler:
