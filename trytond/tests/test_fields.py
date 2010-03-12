@@ -565,11 +565,11 @@ class FieldsTestCase(unittest.TestCase):
                     }, CONTEXT)
 
         float7_id = self.float.create(cursor, USER, {
-            'float': 0.1234567890123456789,
+            'float': 0.123456789012345,
             }, CONTEXT)
 
         float7 = self.float.read(cursor, USER, float7_id, ['float'], CONTEXT)
-        self.assert_(float7['float'] == 0.1234567890123456789)
+        self.assert_(float7['float'] == 0.123456789012345)
 
         cursor.rollback()
         cursor.close()
