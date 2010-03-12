@@ -80,7 +80,7 @@ class Numeric(Float):
         if not value:
             value = Decimal('0.0')
         if isinstance(value, (int, long)):
-            value = Decimal(repr(value))
+            value = Decimal(str(value))
         if isinstance(value, float) and hasattr(value, 'decimal'):
             value = Decimal(value.decimal)
         assert isinstance(value, Decimal)
