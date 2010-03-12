@@ -55,7 +55,7 @@ class Float(fields.Float):
 
     @staticmethod
     def sql_type(field):
-        return ('double', 'double(255, 30)')
+        return ('double', 'double(255, 15)')
 
 
 class Numeric(fields.Numeric):
