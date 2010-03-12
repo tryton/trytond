@@ -3,9 +3,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-import logging
-logging.basicConfig(level=logging.FATAL)
-
 import sys, os
 DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
     '..', '..', '..', 'trytond')))
@@ -47,19 +44,6 @@ CONTEXT = {}
 DB = Database(DB_NAME)
 Pool.test = True
 POOL = Pool(DB_NAME)
-
-
-class DBTestCase(unittest.TestCase):
-    '''
-    Test DB service.
-    '''
-
-    def test0010create(self):
-        '''
-        Create database.
-        '''
-        self.assert_(create(DB_NAME, USER_PASSWORD, 'en_US',
-            CONFIG['admin_passwd']))
 
 
 class ModelViewTestCase(unittest.TestCase):
@@ -104,7 +88,7 @@ def install_module(name):
     database = Database().connect()
     cursor = database.cursor()
     if DB_NAME not in database.list(cursor):
-        create(DB_NAME, 'admin', 'en_US', CONFIG['admin_passwd'])
+        create(DB_NAME, USER_PASSWORD, 'en_US', CONFIG['admin_passwd'])
     cursor.close()
     cursor = DB.cursor()
     module_obj = POOL.get('ir.module.module')
@@ -162,10 +146,7 @@ def suite():
     '''
     Return test suite for other modules
     '''
-    # import module from root directory to be the same as in modules
-    import trytond.tests.test_tryton
-    return unittest.TestLoader().loadTestsFromTestCase(
-            trytond.tests.test_tryton.DBTestCase)
+    return unittest.TestSuite()
 
 def all_suite():
     '''
@@ -206,39 +187,12 @@ def modules_suite():
                 test_mod = zimp.load_module(test_module)
             except zipimport.ZipImportError:
                 continue
-        elif os.path.isdir(os.path.join(MODULES_PATH, module)):
+        elif os.path.isdir(os.path.join(MODULES_PATH, module)) or \
+                module in EGG_MODULES:
             try:
-                mod_file, pathname, description = imp.find_module(
-                        'tests', [os.path.join(MODULES_PATH, module)])
+                test_mod = __import__(test_module, fromlist=[''])
             except ImportError:
                 continue
-            try:
-                try:
-                    test_mod = imp.load_module(test_module, mod_file, pathname,
-                            description)
-                except ImportError:
-                    continue
-            finally:
-                if mod_file is not None:
-                    mod_file.close()
-        elif module in EGG_MODULES:
-            egg_p = EGG_MODULES[module]
-            mod_path = os.path.join(egg_p.dist.location,
-                    *egg_p.module_name.split('.')[:-1])
-            try:
-                mod_file, pathname, description = imp.find_module(
-                        'tests', [os.path.join(mod_path, module)])
-            except ImportError:
-                continue
-            try:
-                try:
-                    test_mod = imp.load_module(test_module, mod_file, pathname,
-                            description)
-                except ImportError:
-                    continue
-            finally:
-                if mod_file is not None:
-                    mod_file.close()
         else:
             continue
         for test in test_mod.suite():

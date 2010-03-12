@@ -4,9 +4,6 @@
 %prog [options]
 """
 import logging
-FORMAT = '[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
-DATEFMT = '%a %b %d %H:%M:%S %Y'
-logging.basicConfig(level=logging.DEBUG, format=FORMAT, datefmt=DATEFMT)
 import logging.handlers
 import sys, os, signal
 import time
@@ -25,6 +22,10 @@ import random
 class TrytonServer(object):
 
     def __init__(self):
+        logging.basicConfig(level=logging.DEBUG,
+                format='[%(asctime)s] %(levelname)s:%(name)s:%(message)s',
+                datefmt='%a %b %d %H:%M:%S %Y')
+
         CONFIG.parse()
 
         if CONFIG['logfile']:

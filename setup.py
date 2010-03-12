@@ -62,4 +62,6 @@ setup(name=PACKAGE,
         'timezone': ['pytz'],
     },
     zip_safe=False,
+    test_suite='trytond.tests',
+    test_loader='trytond.test_loader:Loader',
 )
