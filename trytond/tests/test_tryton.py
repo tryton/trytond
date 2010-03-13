@@ -87,9 +87,10 @@ def install_module(name):
     '''
     database = Database().connect()
     cursor = database.cursor()
-    if DB_NAME not in database.list(cursor):
-        create(DB_NAME, USER_PASSWORD, 'en_US', CONFIG['admin_passwd'])
+    databases = database.list(cursor)
     cursor.close()
+    if DB_NAME not in databases:
+        create(DB_NAME, USER_PASSWORD, 'en_US', CONFIG['admin_passwd'])
     cursor = DB.cursor()
     module_obj = POOL.get('ir.module.module')
     module_ids = module_obj.search(cursor, USER, [
