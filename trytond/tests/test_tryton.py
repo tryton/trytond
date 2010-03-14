@@ -180,7 +180,7 @@ def modules_suite():
     graph = create_graph(get_module_list())[0]
     for package in graph:
         module = package.name
-        test_module = 'trytond.modules.%s.tests.test_%s' % (module, module)
+        test_module = 'trytond.modules.%s.tests' % module
         if os.path.isfile(os.path.join(MODULES_PATH, module + '.zip')):
             mod_path = os.path.join(MODULES_PATH, module + '.zip')
             zimp = zipimport.zipimporter(mod_path)
