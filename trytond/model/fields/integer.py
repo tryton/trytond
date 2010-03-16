@@ -11,7 +11,7 @@ class Integer(Field):
     _type = 'integer'
 
 
-class BigInteger(Field):
+class BigInteger(Integer):
     '''
     Define an integer field (``long``).
     '''
