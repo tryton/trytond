@@ -281,16 +281,6 @@
   </define>
   <define name="attlist.field" combine="interleave">
     <optional>
-      <attribute name="saves">
-        <choice>
-          <value>0</value>
-          <value>1</value>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="attlist.field" combine="interleave">
-    <optional>
       <attribute name="expand">
         <choice>
           <value>0</value>
@@ -357,11 +347,6 @@
   <define name="attlist.field" combine="interleave">
     <optional>
       <attribute name="readonly"/>
-    </optional>
-  </define>
-  <define name="attlist.field" combine="interleave">
-    <optional>
-      <attribute name="required"/>
     </optional>
   </define>
   <define name="attlist.field" combine="interleave">
@@ -452,12 +437,6 @@
       <attribute name="float_time"/>
     </optional>
   </define>
-  <define name="image">
-    <element name="image">
-      <ref name="attlist.image"/>
-      <empty/>
-    </element>
-  </define>
   <define name="attlist.field" combine="interleave">
     <optional>
       <attribute name="img_width"/>
@@ -467,6 +446,12 @@
     <optional>
       <attribute name="img_height"/>
     </optional>
+  </define>
+  <define name="image">
+    <element name="image">
+      <ref name="attlist.image"/>
+      <empty/>
+    </element>
   </define>
   <define name="attlist.image" combine="interleave">
     <attribute name="name"/>
