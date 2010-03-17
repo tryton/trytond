@@ -496,41 +496,61 @@ class ModelStorage(Model):
             local_cache=local_cache, context=context) for x in ids),
             context=context)
 
-    def __export_row(self, cursor, user, row, fields_names, context=None):
+    def __export_row(self, cursor, user, record, fields_names, context=None):
         lines = []
         data = ['' for x in range(len(fields_names))]
         done = []
         for fpos in range(len(fields_names)):
-            field = fields_names[fpos]
-            if field:
-                row2 = row
-                i = 0
-                while i < len(field):
-                    row2 = row2[field[i]]
-                    if not row2:
+            fields_tree = fields_names[fpos]
+            if not fields_tree:
+                continue
+            value = record
+            i = 0
+            while i < len(fields_tree):
+                if not isinstance(value, BrowseRecord):
+                    break
+                field_name = fields_tree[i]
+                model_obj = self.pool.get(value._model_name)
+                field = model_obj._columns[field_name]
+                if field.states and 'invisible' in field.states:
+                    pyson_invisible = PYSONEncoder().encode(
+                            field.states['invisible'])
+                    env = EvalEnvironment(value, model_obj)
+                    env.update(context)
+                    env['current_date'] = datetime.datetime.today()
+                    env['time'] = time
+                    env['context'] = context
+                    env['active_id'] = value.id
+                    invisible = PYSONDecoder(env).decode(pyson_invisible)
+                    if invisible:
+                        value = ''
                         break
-                    if isinstance(row2, (BrowseRecordList, list)):
-                        first = True
-                        fields2 = [(x[:i+1]==field[:i+1] and x[i+1:]) \
-                                or [] for x in fields_names]
-                        if fields2 in done:
-                            break
-                        done.append(fields2)
-                        for row2 in row2:
-                            lines2 = self.__export_row(cursor, user, row2,
-                                    fields2, context)
-                            if first:
-                                for fpos2 in range(len(fields_names)):
-                                    if lines2 and lines2[0][fpos2]:
-                                        data[fpos2] = lines2[0][fpos2]
-                                lines += lines2[1:]
-                                first = False
-                            else:
-                                lines += lines2
+                value = value[field_name]
+                if isinstance(value, (BrowseRecordList, list)):
+                    first = True
+                    child_fields_names = [(x[:i + 1] == fields_tree[:i + 1] and
+                        x[i + 1:]) or [] for x in fields_names]
+                    if child_fields_names in done:
                         break
-                    i += 1
-                if i == len(field):
-                    data[fpos] = row2 or ''
+                    done.append(child_fields_names)
+                    for child_record in value:
+                        child_lines = self.__export_row(cursor, user,
+                                child_record, child_fields_names, context)
+                        if first:
+                            for child_fpos in xrange(len(fields_names)):
+                                if child_lines and child_lines[0][child_fpos]:
+                                    data[child_fpos] = \
+                                            child_lines[0][child_fpos]
+                            lines += child_lines[1:]
+                            first = False
+                        else:
+                            lines += child_lines
+                    break
+                i += 1
+            if i == len(fields_tree):
+                if value is None:
+                    value = ''
+                data[fpos] = value
         return [data] + lines
 
     def export_data(self, cursor, user, ids, fields_names, context=None):
@@ -547,8 +567,8 @@ class ModelStorage(Model):
         '''
         fields_names = [x.split('/') for x in fields_names]
         datas = []
-        for row in self.browse(cursor, user, ids, context):
-            datas += self.__export_row(cursor, user, row, fields_names, context)
+        for record in self.browse(cursor, user, ids, context):
+            datas += self.__export_row(cursor, user, record, fields_names, context)
         return datas
 
     def import_data(self, cursor, user, fields_names, datas, context=None):

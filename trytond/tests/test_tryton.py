@@ -168,6 +168,8 @@ def all_suite():
     suite_.addTests(test_mptt.suite())
     import trytond.tests.test_importdata as test_importdata
     suite_.addTests(test_importdata.suite())
+    import trytond.tests.test_exportdata as test_exportdata
+    suite_.addTests(test_exportdata.suite())
     return suite_
 
 def modules_suite():

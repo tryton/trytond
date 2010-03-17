@@ -1,4 +1,5 @@
 * Improve search on translatable fields
+* export_data return empty value for invisible fields
 * Don't allow to use float in Numeric fields
 * set/get function on Fields take a list of ids
 * New interface for Function/Property fields
