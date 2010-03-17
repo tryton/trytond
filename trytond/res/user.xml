@@ -31,7 +31,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="email" widget="email"/>
                             <newline/>
                             <label name="action"/>
-                            <field name="action" required="1"/>
+                            <field name="action"/>
                             <label name="menu"/>
                             <field name="menu"/>
                             <separator name="signature" colspan="4"/>
@@ -70,7 +70,7 @@ this repository contains the full copyright notices and license terms. -->
                             <label name="password"/>
                             <field name="password"/>
                             <label name="action"/>
-                            <field name="action" required="1" widget="selection"/>
+                            <field name="action" widget="selection"/>
                             <label name="menu"/>
                             <field name="menu" widget="selection"/>
                             <separator name="signature" colspan="4"/>

@@ -15,6 +15,7 @@ try:
 except ImportError:
     hashlib = None
     import sha
+from trytond.pyson import Eval, Greater
 
 
 class User(ModelSQL, ModelView):
@@ -27,7 +28,9 @@ class User(ModelSQL, ModelView):
     salt = fields.Char('Salt', size=8)
     signature = fields.Text('Signature')
     active = fields.Boolean('Active')
-    action = fields.Many2One('ir.action', 'Home Action')
+    action = fields.Many2One('ir.action', 'Home Action', states={
+        'required': Greater(Eval('active_id', 0), 0),
+        })
     menu = fields.Many2One('ir.action', 'Menu Action',
             domain=[('usage','=','menu')], required=True)
     groups = fields.Many2Many('res.user-res.group',
