@@ -194,6 +194,16 @@ class CharSize(ModelSQL):
 CharSize()
 
 
+class CharTranslate(ModelSQL):
+    'Char Translate'
+    _name = 'test.char_translate'
+    _description = __doc__
+    char = fields.Char(string='Char', size=None, help='Test char',
+            required=False, translate=True)
+
+CharTranslate()
+
+
 class Text(ModelSQL):
     'Text'
     _name = 'test.text'
@@ -235,6 +245,16 @@ class TextSize(ModelSQL):
             required=False)
 
 TextSize()
+
+
+class TextTranslate(ModelSQL):
+    'Text Translate'
+    _name = 'test.text_translate'
+    _description = __doc__
+    text = fields.Text(string='Text', size=None, help='Test text',
+            required=False, translate=True)
+
+TextTranslate()
 
 
 class Sha(ModelSQL):

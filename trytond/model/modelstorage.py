@@ -273,7 +273,7 @@ class ModelStorage(Model):
         fields_translate = {}
         for field_name, field in field_defs.iteritems():
             if field_name in self._columns and \
-                    self._columns[field_name].translate:
+                    getattr(self._columns[field_name], 'translate', False):
                 fields_translate[field_name] = field
 
         if fields_translate:

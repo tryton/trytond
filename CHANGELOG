@@ -1,3 +1,4 @@
+* Improve search on translatable fields
 * Don't allow to use float in Numeric fields
 * set/get function on Fields take a list of ids
 * New interface for Function/Property fields

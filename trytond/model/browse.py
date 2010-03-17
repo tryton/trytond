@@ -103,7 +103,7 @@ class BrowseRecord(object):
                         if not hasattr(x[1], 'get') \
                         and (x[0] not in self._data[self._id] \
                             or x[0] not in self._local_data[self._id]) \
-                        and ((not x[1].translate \
+                        and ((not getattr(x[1], 'translate', False) \
                                 and x[1]._type not in ('text', 'binary')) \
                             or x[0] == name)]
                 # gen the list of inherited fields
@@ -114,7 +114,7 @@ class BrowseRecord(object):
                         and (x[0] not in self._data[self._id] \
                             or x[0] not in self._local_data[self._id]) \
                         and x[0] not in self._model._columns \
-                        and ((not x[1].translate \
+                        and ((not getattr(x[1], 'translate', False) \
                                 and x[1]._type not in ('text', 'binary')) \
                             or x[0] == name)]
             # otherwise we fetch only that field

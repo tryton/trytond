@@ -37,11 +37,13 @@ class FieldsTestCase(unittest.TestCase):
         self.char_default = POOL.get('test.char_default')
         self.char_required = POOL.get('test.char_required')
         self.char_size = POOL.get('test.char_size')
+        self.char_translate = POOL.get('test.char_translate')
 
         self.text = POOL.get('test.text')
         self.text_default = POOL.get('test.text_default')
         self.text_required = POOL.get('test.text_required')
         self.text_size = POOL.get('test.text_size')
+        self.text_translate = POOL.get('test.text_translate')
 
         self.sha = POOL.get('test.sha')
         self.sha_default = POOL.get('test.sha_default')
@@ -804,186 +806,187 @@ class FieldsTestCase(unittest.TestCase):
         '''
         cursor = DB.cursor()
 
-        char1_id = self.char.create(cursor, USER, {
-            'char': 'Test',
-            }, CONTEXT)
-        self.assert_(char1_id)
+        for char in (self.char, self.char_translate):
+            char1_id = char.create(cursor, USER, {
+                'char': 'Test',
+                }, CONTEXT)
+            self.assert_(char1_id)
 
-        char1 = self.char.read(cursor, USER, char1_id, ['char'], CONTEXT)
-        self.assert_(char1['char'] == 'Test')
+            char1 = char.read(cursor, USER, char1_id, ['char'], CONTEXT)
+            self.assert_(char1['char'] == 'Test')
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', '=', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', '=', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', '=', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', '=', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', '=', False),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', '=', False),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', '!=', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', '!=', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', '!=', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', '!=', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', '!=', False),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', '!=', False),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'in', ['Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'in', ['Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'in', ['Foo']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'in', ['Foo']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'in', [False]),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'in', [False]),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'in', []),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'in', []),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not in', ['Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not in', ['Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not in', ['Foo']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not in', ['Foo']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not in', [False]),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not in', [False]),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not in', []),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not in', []),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'like', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'like', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'like', 'T%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'like', 'T%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'like', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'like', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'like', 'F%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'like', 'F%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'ilike', 'test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'ilike', 'test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'ilike', 't%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'ilike', 't%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'ilike', 'foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'ilike', 'foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'ilike', 'f%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'ilike', 'f%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not like', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not like', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not like', 'T%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not like', 'T%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not like', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not like', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not like', 'F%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not like', 'F%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not ilike', 'test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not ilike', 'test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not ilike', 't%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not ilike', 't%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not ilike', 'foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not ilike', 'foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not ilike', 'f%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not ilike', 'f%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id])
 
-        char2_id = self.char.create(cursor, USER, {
-            'char': False,
-            }, CONTEXT)
-        self.assert_(char2_id)
+            char2_id = char.create(cursor, USER, {
+                'char': False,
+                }, CONTEXT)
+            self.assert_(char2_id)
 
-        char2 = self.char.read(cursor, USER, char2_id, ['char'], CONTEXT)
-        self.assert_(char2['char'] == None)
+            char2 = char.read(cursor, USER, char2_id, ['char'], CONTEXT)
+            self.assert_(char2['char'] == None)
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', '=', False),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char2_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', '=', False),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char2_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'in', [False, 'Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [char1_id, char2_id])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'in', [False, 'Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [char1_id, char2_id])
 
-        char_ids = self.char.search(cursor, USER, [
-            ('char', 'not in', [False, 'Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(char_ids == [])
+            char_ids = char.search(cursor, USER, [
+                ('char', 'not in', [False, 'Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(char_ids == [])
 
         char3_id = self.char.create(cursor, USER, {}, CONTEXT)
         self.assert_(char3_id)
@@ -1067,186 +1070,187 @@ class FieldsTestCase(unittest.TestCase):
         '''
         cursor = DB.cursor()
 
-        text1_id = self.text.create(cursor, USER, {
-            'text': 'Test',
-            }, CONTEXT)
-        self.assert_(text1_id)
+        for text in (self.text, self.text_translate):
+            text1_id = text.create(cursor, USER, {
+                'text': 'Test',
+                }, CONTEXT)
+            self.assert_(text1_id)
 
-        text1 = self.text.read(cursor, USER, text1_id, ['text'], CONTEXT)
-        self.assert_(text1['text'] == 'Test')
+            text1 = text.read(cursor, USER, text1_id, ['text'], CONTEXT)
+            self.assert_(text1['text'] == 'Test')
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', '=', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', '=', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', '=', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', '=', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', '=', False),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', '=', False),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', '!=', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', '!=', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', '!=', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', '!=', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', '!=', False),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', '!=', False),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'in', ['Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'in', ['Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'in', ['Foo']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'in', ['Foo']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'in', [False]),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'in', [False]),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'in', []),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'in', []),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not in', ['Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not in', ['Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not in', ['Foo']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not in', ['Foo']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not in', [False]),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not in', [False]),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not in', []),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not in', []),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'like', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'like', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'like', 'T%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'like', 'T%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'like', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'like', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'like', 'F%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'like', 'F%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'ilike', 'test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'ilike', 'test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'ilike', 't%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'ilike', 't%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'ilike', 'foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'ilike', 'foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'ilike', 'f%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'ilike', 'f%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not like', 'Test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not like', 'Test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not like', 'T%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not like', 'T%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not like', 'Foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not like', 'Foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not like', 'F%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not like', 'F%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not ilike', 'test'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not ilike', 'test'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not ilike', 't%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not ilike', 't%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not ilike', 'foo'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not ilike', 'foo'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not ilike', 'f%'),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not ilike', 'f%'),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id])
 
-        text2_id = self.text.create(cursor, USER, {
-            'text': False,
-            }, CONTEXT)
-        self.assert_(text2_id)
+            text2_id = text.create(cursor, USER, {
+                'text': False,
+                }, CONTEXT)
+            self.assert_(text2_id)
 
-        text2 = self.text.read(cursor, USER, text2_id, ['text'], CONTEXT)
-        self.assert_(text2['text'] == None)
+            text2 = text.read(cursor, USER, text2_id, ['text'], CONTEXT)
+            self.assert_(text2['text'] == None)
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', '=', False),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text2_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', '=', False),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text2_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'in', [False, 'Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [text1_id, text2_id])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'in', [False, 'Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [text1_id, text2_id])
 
-        text_ids = self.text.search(cursor, USER, [
-            ('text', 'not in', [False, 'Test']),
-            ], 0, None, None, CONTEXT)
-        self.assert_(text_ids == [])
+            text_ids = text.search(cursor, USER, [
+                ('text', 'not in', [False, 'Test']),
+                ], 0, None, None, CONTEXT)
+            self.assert_(text_ids == [])
 
         text3_id = self.text.create(cursor, USER, {}, CONTEXT)
         self.assert_(text3_id)

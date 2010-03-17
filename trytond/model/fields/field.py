@@ -53,7 +53,7 @@ class Field(object):
 
     def __init__(self, string='', help='', required=False, readonly=False,
             domain=None, states=None, priority=0, change_default=False,
-            translate=False, select=0, on_change=None, on_change_with=None,
+            select=0, on_change=None, on_change_with=None,
             depends=None, order_field=None, context=None):
         '''
         :param string: A string for label of the field.
@@ -70,7 +70,6 @@ class Field(object):
         :param priority: Give the order in which set methods are called.
         :param change_default: A boolean. If ``True`` the field can be used as
         condition for a custom default value.
-        :param translate: A boolean. If ``True`` the field is translatable.
         :param select: An integer. When equal to ``1``, the field appears in the
             search box in list view and the search will be optimized. When equal to
             ``2`` the field appears in the *Advanced Search* in the search box.
@@ -97,7 +96,6 @@ class Field(object):
         self.states = states or {}
         self.priority = priority
         self.change_default = change_default
-        self.translate = translate
         self.select = select
         self.__on_change = None
         self.on_change = on_change
