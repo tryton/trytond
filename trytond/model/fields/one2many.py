@@ -15,11 +15,11 @@ class One2Many(Field):
     '''
     _type = 'one2many'
 
-    def __init__(self, model_name, field, string='', add_remove=None, order=None,
-            datetime_field=None, help='', required=False, readonly=False,
-            domain=None, states=None, priority=0, change_default=False,
-            translate=False, select=0, on_change=None, on_change_with=None,
-            depends=None, order_field=None, context=None):
+    def __init__(self, model_name, field, string='', add_remove=None,
+            order=None, datetime_field=None, help='', required=False,
+            readonly=False, domain=None, states=None, priority=0,
+            change_default=False, select=0, on_change=None,
+            on_change_with=None, depends=None, order_field=None, context=None):
         '''
         :param model_name: The name of the targeted model.
         :param field: The name of the field that handle the reverse many2one.
@@ -38,10 +38,10 @@ class One2Many(Field):
                 depends = [datetime_field]
         super(One2Many, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
-                states=states, priority=priority, change_default=change_default,
-                translate=translate, select=select, on_change=on_change,
-                on_change_with=on_change_with, depends=depends,
-                order_field=order_field, context=context)
+                states=states, priority=priority,
+                change_default=change_default, select=select,
+                on_change=on_change, on_change_with=on_change_with,
+                depends=depends, order_field=order_field, context=context)
         self.model_name = model_name
         self.field = field
         self.__add_remove = None

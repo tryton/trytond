@@ -23,18 +23,18 @@ class Float(Field):
 
     def __init__(self, string='', digits=None,  help='', required=False,
             readonly=False, domain=None, states=None, priority=0,
-            change_default=False, translate=False, select=0, on_change=None,
+            change_default=False, select=0, on_change=None,
             on_change_with=None, depends=None, order_field=None, context=None):
         '''
         :param digits: a list of two integers defining the total
             of digits and the number of decimals of the float.
         '''
-        super(Float, self).__init__(string=string, help=help, required=required,
-                readonly=readonly, domain=domain, states=states,
-                priority=priority, change_default=change_default,
-                translate=translate, select=select, on_change=on_change,
-                on_change_with=on_change_with, depends=depends,
-                order_field=order_field, context=context)
+        super(Float, self).__init__(string=string, help=help,
+                required=required, readonly=readonly, domain=domain,
+                states=states, priority=priority,
+                change_default=change_default, select=select,
+                on_change=on_change, on_change_with=on_change_with,
+                depends=depends, order_field=order_field, context=context)
         self.__digits = None
         self.digits = digits
 

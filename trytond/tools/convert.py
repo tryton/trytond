@@ -633,7 +633,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         table_name = self.pool.get(
                                 object_ref._inherit_fields[field_name][0])._name
                         res_id = inherit_db_ids[table_name]
-                    if field.translate and values.get(field_name):
+                    if getattr(field, 'translate', False) and \
+                            values.get(field_name):
                         cursor.execute('SELECT id FROM ir_translation ' \
                                 'WHERE name = %s ' \
                                     'AND lang = %s ' \
@@ -776,7 +777,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         table_name = self.pool.get(
                                 object_ref._inherit_fields[field_name][0])._name
                         res_id = inherit_db_ids[table_name]
-                    if field.translate:
+                    if getattr(field, 'translate', False):
                         cursor.execute('SELECT id FROM ir_translation ' \
                                 'WHERE name = %s ' \
                                     'AND lang = %s ' \
@@ -865,7 +866,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     table_name = self.pool.get(
                             object_ref._inherit_fields[field_name][0])._name
                     res_id = inherit_db_ids[table_name]
-                if field.translate and values.get(field_name):
+                if getattr(field, 'translate', False) and \
+                        values.get(field_name):
                     cursor.execute('SELECT id FROM ir_translation ' \
                             'WHERE name = %s' \
                                 'AND lang = %s ' \
