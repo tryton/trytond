@@ -549,7 +549,7 @@ class ModelSQL(ModelStorage):
         for field in fields_pre:
             if field == '_timestamp':
                 continue
-            if self._columns[field].translate:
+            if getattr(self._columns[field], 'translate', False):
                 ids = [x['id'] for x in res]
                 res_trans = translation_obj._get_ids(cursor,
                         self._name + ',' + field, 'model',
@@ -795,7 +795,7 @@ class ModelSQL(ModelStorage):
         for field in values:
             if field in self._columns:
                 if not hasattr(self._columns[field], 'set'):
-                    if (not self._columns[field].translate) \
+                    if (not getattr(self._columns[field], 'translate', False)) \
                             or (context.get('language') or 'en_US') == 'en_US':
                         upd0.append(('"' + field + '"', '%s'))
                         upd1.append(FIELDS[self._columns[field]._type]\
@@ -917,7 +917,7 @@ class ModelSQL(ModelStorage):
                 raise
 
         for field in direct:
-            if self._columns[field].translate:
+            if getattr(self._columns[field], 'translate', False):
                 self.pool.get('ir.translation')._set_ids(cursor, user,
                         self._name + ',' + field, 'model',
                         context.get('language') or 'en_US', ids,
@@ -1221,7 +1221,7 @@ class ModelSQL(ModelStorage):
                     for x in self._columns.iteritems() \
                     if not hasattr(x[1], 'get') \
                     and (x[0] != 'id')
-                    and (not x[1].translate \
+                    and (not getattr(x[1], 'translate', False) \
                         and x[1]._type not in ('text', 'binary'))]
             if not self.table_query(context):
                 select_fields += ['(COALESCE("' + self._table + '".write_date,'\
@@ -1647,7 +1647,7 @@ class ModelSQL(ModelStorage):
                         domain[i] += (table,)
                 i += 1
             else:
-                if field.translate:
+                if getattr(field, 'translate', False):
                     if self._name == 'ir.model':
                         table_join = 'LEFT JOIN "ir_translation" ' \
                                 'ON (ir_translation.name = ' \
@@ -1691,16 +1691,20 @@ class ModelSQL(ModelStorage):
                         table_query, table_args = table.table_query(context)
                         table_query = '(' + table_query  + ') AS '
 
-                    trans_field = 'COALESCE(NULLIF(' \
-                            'ir_translation.value, \'\'), ' \
-                            + '"' + table._table + '".' + domain[i][0] + ')'
+                    translation_obj = self.pool.get('ir.translation')
 
+                    qu1, qu2, tables, table_args = translation_obj.search_domain(
+                            cursor, user, [
+                                ('value', domain[i][1], domain[i][2]),
+                                ], context=context)
+                    qu1 = qu1.replace('"ir_translation"."value"',
+                            'COALESCE(NULLIF("ir_translation"."value", \'\'), '
+                            '"%s"."%s")' % (table._table, domain[i][0]))
                     query1 = 'SELECT "' + table._table + '".id ' \
                             'FROM ' + table_query + '"' + table._table + '" ' \
-                            + table_join + ' ' \
-                            'WHERE ' \
-                            '(' + trans_field + ' ' + domain[i][1] + ' %s)'
-                    query2 = table_args + table_join_args + [domain[i][2]]
+                            + table_join + ' WHERE ' + qu1
+                    query2 = table_args + table_join_args + qu2
+
                     domain[i] = ('id', 'inselect', (query1, query2), table)
                 else:
                     domain[i] += (table,)
@@ -1832,7 +1836,7 @@ class ModelSQL(ModelStorage):
                             arg[0], arg[1]))
                         if add_null:
                             qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                    '"' + table._table + '".' + arg[0] + \
+                                    '"' + table._table + '"."' + arg[0] + '"' \
                                         ' IS NULL)'
 
         return qu1, qu2
@@ -1947,7 +1951,7 @@ class ModelSQL(ModelStorage):
                     return order_by, tables, tables_args
 
             if field_name in self._columns \
-                    and self._columns[field_name].translate:
+                    and getattr(self._columns[field_name], 'translate', False):
                 translation_table = 'ir_translation_%s_%s' % \
                         (table_name, field_name)
                 if self._name == 'ir.model':
