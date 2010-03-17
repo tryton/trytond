@@ -28,10 +28,11 @@ def states_validate(value):
     for state in value:
         if state == 'icon':
             continue
-        assert isinstance(value[state], PYSON), \
+        assert isinstance(value[state], (bool, PYSON)), \
                 'values of states must be PYSON'
-        assert value[state].types() == set([bool]), \
-                'values of states must return boolean'
+        if hasattr(value[state], 'types'):
+            assert value[state].types() == set([bool]), \
+                    'values of states must return boolean'
 
 def on_change_validate(value):
     if value:
