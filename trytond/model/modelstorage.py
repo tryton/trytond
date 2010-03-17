@@ -266,9 +266,10 @@ class ModelStorage(Model):
                 relation_model = self.pool.get(
                         field_defs[field_name]['relation'])
                 relation_field = field_defs[field_name]['relation_field']
-                relation_model.copy(cursor, user, data_o2m[field_name],
-                        default={relation_field: new_ids[data_id]},
-                        context=context)
+                if relation_field:
+                    relation_model.copy(cursor, user, data_o2m[field_name],
+                            default={relation_field: new_ids[data_id]},
+                            context=context)
 
         fields_translate = {}
         for field_name, field in field_defs.iteritems():
