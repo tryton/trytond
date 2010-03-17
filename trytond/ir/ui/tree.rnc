@@ -17,7 +17,6 @@ attlist.tree &=
 field = element field { attlist.field, empty }
 attlist.field &= attribute name { text }
 attlist.field &= attribute readonly { text }?
-attlist.field &= attribute required { text }?
 attlist.field &=
   attribute widget {
     "char"
