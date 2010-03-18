@@ -357,7 +357,7 @@ class ModelSQL(ModelStorage):
                     # Check required fields
                     if field.required and \
                             not hasattr(field, 'set') and \
-                            not isinstance(field, (fields.Interger,
+                            not isinstance(field, (fields.Integer,
                                 fields.Float)) and \
                             field_name not in ('create_uid', 'create_date'):
                         if not values.get(field_name):
@@ -880,7 +880,7 @@ class ModelSQL(ModelStorage):
                         # Check required fields
                         if field.required and \
                                 not hasattr(field, 'set') and \
-                                not isinstance(field, (fields.Interger,
+                                not isinstance(field, (fields.Integer,
                                     fields.Float)) and \
                                 field_name not in ('create_uid',
                                     'create_date'):
