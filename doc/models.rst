@@ -425,8 +425,7 @@ be updated with the new value.
           context={'category': (Eval('default_uom'), 'uom.category')},
           on_change_with=['default_uom', 'purchase_uom', 'purchasable'])
 
-      def on_change_with_purchase_uom(self, cursor, user, ids, vals,
-              context=None):
+      def on_change_with_purchase_uom(self, cursor, user, vals, context=None):
           uom_obj = self.pool.get('product.uom')
           res = False
 

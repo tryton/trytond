@@ -86,7 +86,7 @@ class Request(ModelSQL, ModelView):
         self._order.insert(1, ('trigger_date', 'DESC'))
         self._order.insert(2, ('create_date', 'DESC'))
 
-    def on_change_with_number_references(self, cursor, user, ids, vals,
+    def on_change_with_number_references(self, cursor, user, vals,
             context=None):
         if vals.get('references'):
             return len(vals['references'])
