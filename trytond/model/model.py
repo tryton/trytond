@@ -622,8 +622,8 @@ class Model(object):
                                 and self._columns[arg]._type == 'many2one':
                             if isinstance(args[arg], (list, tuple)):
                                 args[arg] = args[arg][0]
-                    val.update(getattr(self, 'on_change_' + field)(cursor, user,
-                        [], args, context=context))
+                    val.update(getattr(self, 'on_change_' + field)(cursor,
+                        user, args, context=context))
                 if self._columns[field]._type in ('one2many',):
                     obj = self.pool.get(self._columns[field].model_name)
                     for val2 in res[field]:
