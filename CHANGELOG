@@ -1,3 +1,4 @@
+* Models that uses _inherits will search in inherited parents for missing functions
 * Remove ids from on_change* calls
 * Improve search on translatable fields
 * export_data return empty value for invisible fields
