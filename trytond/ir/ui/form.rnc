@@ -207,31 +207,16 @@ attlist.group &= [ a:defaultValue = "1" ] attribute rowspan { text }?
 attlist.group &= [ a:defaultValue = "4" ] attribute col { text }?
 attlist.group &= ( attribute name { text } | attribute id { text } )
 
-hpaned = element hpaned { attlist.paned, child1?, child2? }
+hpaned = element hpaned { attlist.paned, child* }
 
-vpaned = element vpaned { attlist.paned, child1?, child2? }
+vpaned = element vpaned { attlist.paned, child* }
 
 attlist.paned &= [ a:defaultValue = "4" ] attribute colspan { text }?
 attlist.paned &= attribute position { text }?
 attlist.paned &= attribute id { text }
 
-child1 =
-  element child1 {
-    attlist.child,
-    (label
-     | field
-     | image
-     | separator
-     | newline
-     | button
-     | notebook
-     | group
-     | hpaned
-     | vpaned)*
-  }
-
-child2 =
-  element child2 {
+child =
+  element child {
     attlist.child,
     (label
      | field
@@ -267,8 +252,7 @@ xpath = element xpath { attlist.xpath,
     | x
     | y
     | page
-    | child1
-    | child2)*
+    | child)*
   }
 attlist.xpath &= attribute expr { text }
 attlist.xpath &=
