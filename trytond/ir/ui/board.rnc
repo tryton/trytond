@@ -96,30 +96,16 @@ attlist.group &= [ a:defaultValue = "1" ] attribute rowspan { text }?
 attlist.group &= [ a:defaultValue = "4" ] attribute col { text }?
 attlist.group &= attribute id { text }
 
-hpaned = element hpaned { attlist.paned, child1?, child2? }
+hpaned = element hpaned { attlist.paned, child* }
 
-vpaned = element vpaned { attlist.paned, child1?, child2? }
+vpaned = element vpaned { attlist.paned, child* }
 
 attlist.paned &= [ a:defaultValue = "4" ] attribute colspan { text }?
 attlist.paned &= attribute position { text }?
 attlist.paned &= attribute id { text }
 
-child1 =
-  element child1 {
-    attlist.child,
-    (image
-     | separator
-     | label
-     | newline
-     | notebook
-     | group
-     | hpaned
-     | vpaned
-     | action)*
-  }
-
-child2 =
-  element child2 {
+child =
+  element child {
     attlist.child,
     (image
      | separator
@@ -148,8 +134,7 @@ xpath = element xpath { attlist.xpath,
     | vpaned
     | action
     | page
-    | child1
-    | child2
+    | child
     | board
     )*
   }
