@@ -60,7 +60,7 @@ class ConfigManager(object):
         parser.add_option("-c", "--config", dest="config",
                 help="specify config file")
         parser.add_option('--debug', dest='debug_mode', action='store_true',
-                help='enable debug mode')
+                help='enable debug mode (start post-mortem debugger if exceptions occur)')
         parser.add_option("-v", "--verbose", action="store_true",
                 dest="verbose", help="enable verbose mode")
 
