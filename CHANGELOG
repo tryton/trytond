@@ -1,3 +1,5 @@
+* Use a Reference field on ir.attachment to store resource informations
+  Improve the ir.attachment views to be usable on the client side
 * Use basic access authentication for XML-RPC
 * Replace child{1,2} attributes in xml views by a unique child
 * Models that uses _inherits will search in inherited parents for missing functions

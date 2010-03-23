@@ -8,17 +8,23 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Attachments">
+                <form string="Attachments" col="2">
+                    <label name="resource"/>
+                    <field name="resource"/>
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="res_model"/>
-                    <field name="res_model"/>
-                    <label name="res_id"/>
-                    <field name="res_id"/>
                     <label name="datas"/>
                     <field name="datas"/>
-                    <separator name="description" colspan="4"/>
-                    <field name="description" colspan="4"/>
+                    <label name="link"/>
+                    <field name="link" widget="url"/>
+                    <notebook colspan="2">
+                        <page string="Preview" name="preview" col="1">
+                            <field name="datas" widget="image"/>
+                        </page>
+                        <page name="description" col="1">
+                            <field name="description"/>
+                        </page>
+                    </notebook>
                 </form>
                 ]]>
             </field>
@@ -28,10 +34,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <tree string="Attachments">
+                <tree string="Attachments" fill="1">
+                    <field name="resource" select="1"/>
                     <field name="name" select="1"/>
-                    <field name="res_model" select="1"/>
-                    <field name="res_id"/>
+                    <field name="datas_size"/>
                 </tree>
                 ]]>
             </field>

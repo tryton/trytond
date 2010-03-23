@@ -3,6 +3,8 @@
 "Attachment"
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.config import CONFIG
+from trytond.backend import TableHandler
+from trytond.pyson import Eval, Bool, Not
 import os
 try:
     import hashlib
@@ -19,8 +21,8 @@ class Attachment(ModelSQL, ModelView):
     datas = fields.Function(fields.Binary('Datas'), 'get_datas',
             setter='set_datas')
     description = fields.Text('Description')
-    res_model = fields.Char('Resource Model', readonly=True)
-    res_id = fields.Integer('Resource ID', readonly=True)
+    resource = fields.Reference('Resource', selection='models_get',
+            select=1)
     link = fields.Char('Link')
     digest = fields.Char('Digest', size=32)
     collision = fields.Integer('Collision')
@@ -29,13 +31,41 @@ class Attachment(ModelSQL, ModelView):
     def __init__(self):
         super(Attachment, self).__init__()
         self._sql_constraints += [
-            ('res_model_res_id_name',
-                'UNIQUE (res_model, res_id, name)',
-                'The names of attachments must be unique by record!'),
+            ('resource_name', 'UNIQUE(resource, name)',
+                'The  names of attachments must be unique by resource!'),
         ]
+
+    def init(self, cursor, module_name):
+        super(Attachment, self).init(cursor, module_name)
+
+        table = TableHandler(cursor, self, module_name)
+
+        # Migration from 1.4 res_model and res_id merged into resource
+        # Reference
+        if table.column_exist('res_model') and \
+                table.column_exist('res_id'):
+            table.drop_constraint('res_model_res_id_name')
+            cursor.execute('UPDATE "%s" '
+            'SET "resource" = "res_model"||\',\'||"res_id"' % self._table)
+            table.drop_column('res_model')
+            table.drop_column('res_id')
+
+    def default_resource(self, cursor, user, context=None):
+        if context is None:
+            context = {}
+        return context.get('resource')
 
     def default_collision(self, cursor, user, context=None):
         return 0
+
+    def models_get(self, cursor, user, context=None):
+        model_obj = self.pool.get('ir.model')
+        model_ids = model_obj.search(cursor, user, [], context=context)
+        res = []
+        for model in model_obj.browse(cursor, user, model_ids,
+                context=context):
+            res.append([model.model, model.name])
+        return res
 
     def get_datas(self, cursor, user, ids, name, context=None):
         res = {}
@@ -130,8 +160,8 @@ class Attachment(ModelSQL, ModelView):
             ids = [ids]
         model_names = set()
         for attachment in self.browse(cursor, 0, ids, context=context):
-            if attachment.res_model:
-                model_names.add(attachment.res_model)
+            if attachment.resource:
+                model_names.add(attachment.resource.split(',')[0])
         for model_name in model_names:
             model_access_obj.check(cursor, user, model_name, mode=mode,
                     context=context)
