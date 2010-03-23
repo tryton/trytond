@@ -1,3 +1,4 @@
+* searcher on Function fields take only one domain clause as argument
 * Use a Reference field on ir.attachment to store resource informations
   Improve the ir.attachment views to be usable on the client side
 * Use basic access authentication for XML-RPC

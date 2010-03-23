@@ -461,23 +461,18 @@ class ModelStorage(Model):
             res[record.id] = unicode(record[rec_name])
         return res
 
-    def search_rec_name(self, cursor, user, name, args, context=None):
+    def search_rec_name(self, cursor, user, name, clause, context=None):
         '''
         Return a list of arguments for search on rec_name.
 
         :param cursor: the database cursor
         :param user: the user id
         :param name: the name of the Function field
-        :param args: the list of arguments
+        :param clause: a domain clause
         :param context: the context
-        :return: a list of arguments
+        :return: a list of domain clause
         '''
-        args2 = []
-        i = 0
-        while i < len(args):
-            args2.append((self._rec_name, args[i][1], args[i][2]))
-            i += 1
-        return args2
+        return [(self._rec_name,) + clause[1:]]
 
     def browse(self, cursor, user, ids, context=None):
         '''

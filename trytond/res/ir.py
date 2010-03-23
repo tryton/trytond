@@ -182,10 +182,12 @@ class Sequence(ModelSQL, ModelView):
 
         return res
 
-    def search_groups(self, cursor, user, name, args, context=None):
+    def search_groups(self, cursor, user, name, clause, context=None):
         sequence_type_obj = self.pool.get('ir.sequence.type')
-        ids = sequence_type_obj.search(cursor, user, args, context=context)
-        seq_types = sequence_type_obj.browse(cursor, user, ids, context=context)
+        ids = sequence_type_obj.search(cursor, user, [clause], order=[],
+                context=context)
+        seq_types = sequence_type_obj.browse(cursor, user, ids,
+                context=context)
         codes = set(st.code for st in seq_types)
         return [('code', 'in', list(codes))]
 
