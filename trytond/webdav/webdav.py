@@ -52,8 +52,8 @@ class Collection(ModelSQL, ModelView):
         for collection in self.browse(cursor, user, ids):
             if collection.parent:
                 attachment_ids = attachment_obj.search(cursor, user, [
-                    ('res_model', '=', self._name),
-                    ('res_id', '=', collection.parent.id),
+                    ('resource', '=', '%s,%s' %
+                        (self._name, collection.parent.id)),
                     ])
                 for attachment in attachment_obj.browse(cursor, user,
                         attachment_ids):
@@ -139,8 +139,7 @@ class Collection(ModelSQL, ModelView):
                 attachment_id = False
                 if attachment_ids is None:
                     attachment_ids = attachment_obj.search(cursor, user, [
-                        ('res_model', '=', object_name),
-                        ('res_id', '=', object_id),
+                        ('resource', '=', '%s,%s' % (object_name, object_id)),
                         ], context=context)
                     attachments = attachment_obj.browse(cursor, user,
                             attachment_ids, context=context)
@@ -207,8 +206,7 @@ class Collection(ModelSQL, ModelView):
                                 [(object_name, object_id)].get(name, [])
                 if attachment_ids is None:
                     attachment_ids = attachment_obj.search(cursor, user, [
-                        ('res_model', '=', object_name),
-                        ('res_id', '=', object_id),
+                        ('resource', '=', '%s,%s' % (object_name, object_id)),
                         ], context=context)
                     attachments = attachment_obj.browse(cursor, user,
                         attachment_ids, context=context)
@@ -307,8 +305,7 @@ class Collection(ModelSQL, ModelView):
 
             attachment_obj = self.pool.get('ir.attachment')
             attachment_ids = attachment_obj.search(cursor, user, [
-                ('res_model', '=', object_name),
-                ('res_id', '=', object_id),
+                ('resource', '=', '%s,%s' % (object_name, object_id)),
                 ], context=context)
             for attachment in attachment_obj.browse(cursor, user, attachment_ids,
                     context=context):
@@ -528,8 +525,7 @@ class Collection(ModelSQL, ModelView):
                     'name': name,
                     'datas': base64.encodestring(data or ''),
                     'name': name,
-                    'res_model': object_name,
-                    'res_id': object_id,
+                    'resource': '%s,%s' % (object_name, object_id),
                     }, context=context)
             except:
                 raise DAV_Forbidden
@@ -621,12 +617,13 @@ class Attachment(ModelSQL, ModelView):
     def check_collection(self, cursor, user, ids):
         collection_obj = self.pool.get('webdav.collection')
         for attachment in self.browse(cursor, user, ids):
-            if attachment.res_model == 'webdav.collection':
-                collection = collection_obj.browse(cursor, user,
-                        attachment.res_id)
-                for child in collection.childs:
-                    if child.name == attachment.name:
-                        return False
+            if attachment.resource:
+                model_name, record_id = attachment.resource.split(',')
+                if model_name == 'webdav.collection':
+                    collection = collection_obj.browse(cursor, user, record_id)
+                    for child in collection.childs:
+                        if child.name == attachment.name:
+                            return False
         return True
 
 Attachment()
