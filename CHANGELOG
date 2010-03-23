@@ -1,3 +1,4 @@
+* Use basic access authentication for XML-RPC
 * Replace child{1,2} attributes in xml views by a unique child
 * Models that uses _inherits will search in inherited parents for missing functions
 * Remove ids from on_change* calls

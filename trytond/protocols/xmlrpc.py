@@ -4,6 +4,7 @@ from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
 from trytond.protocols.datatype import Float
+from trytond import security
 import SimpleXMLRPCServer
 import SocketServer
 import xmlrpclib
@@ -14,6 +15,7 @@ import sys
 import os
 import gzip
 import StringIO
+import base64
 
 # convert decimal to float before marshalling:
 from decimal import Decimal
@@ -32,50 +34,68 @@ class GenericXMLRPCRequestHandler:
 
     def _dispatch(self, method, params):
         host, port = self.client_address[:2]
+        database_name = self.path[1:]
+        user = self.tryton['user']
+        session = self.tryton['session']
         try:
-            database_name = self.path[1:]
-            method_list = method.split('.')
-            object_type = method_list[0]
-            object_name = '.'.join(method_list[1:-1])
-            method = method_list[-1]
-            if object_type == 'system' and method == 'getCapabilities':
-                return {
-                    'introspect': {
-                        'specUrl': 'http://xmlrpc-c.sourceforge.net/' \
-                                'xmlrpc-c/introspection.html',
-                        'specVersion': 1,
-                    },
-                }
-            if object_type == 'system':
-                args = (host, port, 'XML-RPC', database_name, None, None,
-                        object_type, None, method) + params
-            else:
-                args = (host, port, 'XML-RPC', database_name, params[0],
-                        params[1], object_type, object_name, method) + \
-                                params[2:]
-            res = dispatch(*args)
-            return res
-        except:
-            tb_s = ''
-            for line in traceback.format_exception(*sys.exc_info()):
-                try:
-                    line = line.encode('utf-8', 'ignore')
-                except:
-                    continue
-                tb_s += line
-            for path in sys.path:
-                tb_s = tb_s.replace(path, '')
-            if CONFIG['debug_mode']:
-                import pdb
-                traceb = sys.exc_info()[2]
-                pdb.post_mortem(traceb)
-            raise xmlrpclib.Fault(1, str(sys.exc_value) + '\n' + tb_s)
+            try:
+                method_list = method.split('.')
+                object_type = method_list[0]
+                object_name = '.'.join(method_list[1:-1])
+                method = method_list[-1]
+                if object_type == 'system' and method == 'getCapabilities':
+                    return {
+                        'introspect': {
+                            'specUrl': 'http://xmlrpc-c.sourceforge.net/' \
+                                    'xmlrpc-c/introspection.html',
+                            'specVersion': 1,
+                        },
+                    }
+                return dispatch(host, port, 'XML-RPC', database_name, user,
+                        session, object_type, object_name, method, *params)
+            except:
+                tb_s = ''
+                for line in traceback.format_exception(*sys.exc_info()):
+                    try:
+                        line = line.encode('utf-8', 'ignore')
+                    except:
+                        continue
+                    tb_s += line
+                for path in sys.path:
+                    tb_s = tb_s.replace(path, '')
+                if CONFIG['debug_mode']:
+                    import pdb
+                    traceb = sys.exc_info()[2]
+                    pdb.post_mortem(traceb)
+                raise xmlrpclib.Fault(1, str(sys.exc_value) + '\n' + tb_s)
+        finally:
+            security.logout(database_name, user, session)
 
 
 class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
     rpc_paths = None
     encode_threshold = 1400 # common MTU
+
+    def parse_request(self):
+        res = SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.parse_request(self)
+        database_name = self.path[1:]
+        if not database_name:
+            self.tryton = {'user': None, 'session': None}
+            return res
+        try:
+            method, up64 = self.headers['Authorization'].split(None, 1)
+            if method.strip().lower() == 'basic':
+                user, password = base64.decodestring(up64).split(':', 1)
+                user_id, session = security.login(database_name, user,
+                        password)
+                self.tryton = {'user': user_id, 'session': session}
+                return res
+        except:
+            pass
+        self.send_error(401, 'Unauthorized')
+        self.send_header("WWW-Authenticate", 'Basic realm="Tryton"')
+        return False
 
     # Copy from SimpleXMLRPCServer.py with gzip encoding added
     def do_POST(self):
