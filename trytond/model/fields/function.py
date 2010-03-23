@@ -47,7 +47,7 @@ class Function(Field):
             return object.__setattr__(self, name, value)
         return setattr(self._field, name, value)
 
-    def search(self, cursor, user, model, name, args, context=None):
+    def search(self, cursor, user, model, name, clause, context=None):
         '''
         Call the searcher.
 
@@ -55,14 +55,14 @@ class Function(Field):
         :param user: The user id.
         :param model: The model.
         :param name: The name of the field.
-        :param args: The search domain. See ModelStorage.search
+        :param clause: The search domain clause. See ModelStorage.search
         :param context: The context.
-        :return: New list of domain.
+        :return: a list of domain clause.
         '''
         if not self.searcher:
             model.raise_user_error(cursor, 'search_function_missing',
                     name, context=context)
-        return getattr(model, self.searcher)(cursor, user, name, args,
+        return getattr(model, self.searcher)(cursor, user, name, tuple(clause),
                 context=context)
 
     def get(self, cursor, user, ids, model, name, values=None, context=None):

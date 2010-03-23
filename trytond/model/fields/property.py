@@ -60,12 +60,12 @@ class Property(Function):
                 False, context=context)
 
 
-    def search(self, cursor, user, model, name, args, context=None):
+    def search(self, cursor, user, model, name, clause, context=None):
         '''
         :param cursor: The database cursor.
         :param user: The user id.
         :param model: The model.
-        :param args: The search domain. See ModelStorage.search
+        :param clause: The search domain clause. See ModelStorage.search
         :param context: The context.
         :return: New list of domain.
         '''
@@ -81,12 +81,6 @@ class Property(Function):
         if not sql_type:
             return []
         sql_type = sql_type[0]
-
-
-        conditions = "AND ".join(
-            self.get_condition(sql_type, arg) for arg in args)
-        cond_args = self.get_condition_args(args)
-
 
         property_query, property_val = rule_obj.domain_get(
             cursor, user, 'ir.property', context=context)
@@ -110,11 +104,12 @@ class Property(Function):
                 'AND "' + field_obj._table + '".name = %s AND ' \
                 + property_query + \
               ' THEN '  + \
-                conditions + \
+                self.get_condition(sql_type, clause) + \
               ' ELSE '\
                 'FALSE '\
               'END',
-            [model._name, name] + property_val + cond_args)
+            [model._name, name] + property_val + \
+                    self.get_condition_args(clause))
 
         props = cursor.fetchall()
         default = None
@@ -150,22 +145,22 @@ class Property(Function):
             return [('id', 'in', res_ids)]
 
     @staticmethod
-    def get_condition(sql_type, arg):
-        if arg[1] in ('in', 'not in'):
+    def get_condition(sql_type, clause):
+        if clause[1] in ('in', 'not in'):
             return ("(cast(split_part(value,',',2) as %s) %s ("+ \
-                ",".join(('%%s',) * len(arg[2])) + ")) ") % (sql_type, arg[1])
+                ",".join(('%%s',) * len(clause[2])) + ")) ") % \
+                (sql_type, clause[1])
         else:
             return "(cast(split_part(value,',',2) as %s) %s %%s) " % \
-                (sql_type, arg[1])
+                (sql_type, clause[1])
 
     @staticmethod
-    def get_condition_args(args):
+    def get_condition_args(clause):
         res = []
-        for arg in args:
-            if arg[1] in ('in', 'not in'):
-                res.extend(arg[2])
-            else:
-                res.append(arg[2])
+        if clause[1] in ('in', 'not in'):
+            res.extend(clause[2])
+        else:
+            res.append(clause[2])
         return res
 
 

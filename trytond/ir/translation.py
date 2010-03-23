@@ -81,16 +81,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
             res[translation.id] = translation.name.split(',')[0]
         return res
 
-    def search_model(self, cursor, user, name, args, context=None):
-        args2 = []
-        i = 0
-        while i < len(args):
-            cursor.execute('SELECT id FROM ir_translation ' \
-                    'WHERE split_part(name, \',\', 1) ' + args[i][1] + ' %s',
-                    (args[i][2],))
-            args2.append(('id', 'in', [x[0] for x in cursor.fetchall()]))
-            i += 1
-        return args2
+    def search_model(self, cursor, user, name, clause, context=None):
+        cursor.execute('SELECT id FROM "%s" '
+            'WHERE split_part(name, \',\', 1) %s %%s' %
+            (self._table, clause[1]), (clause[2],))
+        return ('id', 'in', [x[0] for x in cursor.fetchall()])
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
