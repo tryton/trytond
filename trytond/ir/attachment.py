@@ -4,7 +4,6 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.config import CONFIG
 from trytond.backend import TableHandler
-from trytond.pyson import Eval, Bool, Not
 import os
 try:
     import hashlib
