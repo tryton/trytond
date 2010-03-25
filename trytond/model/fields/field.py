@@ -87,6 +87,7 @@ class Field(object):
         :param context: A dictionary which will be given to open the relation
             fields.
         '''
+        assert string, 'a string is required'
         self.string = string
         self.help = help
         self.required = required

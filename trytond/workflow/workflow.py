@@ -120,7 +120,7 @@ class WorkflowTransition(ModelSQL, ModelView):
     act_to = fields.Many2One('workflow.activity', 'Destination Activity',
        required=True, select=1, ondelete='CASCADE')
     instances = fields.Many2Many('workflow.transition-workflow.instance',
-            'trans_id', 'inst_id')
+            'trans_id', 'inst_id', 'Instances')
 
     def default_condition(self, cursor, user, context=None):
         return 'True'
@@ -143,7 +143,7 @@ class WorkflowInstance(ModelSQL, ModelView):
     overflows = fields.One2Many('workflow.workitem', 'subflow',
             'Overflow')
     transitions = fields.Many2Many('workflow.transition-workflow.instance',
-            'inst_id', 'trans_id')
+            'inst_id', 'trans_id', 'Transitions')
     workitems = fields.One2Many('workflow.workitem', 'instance', 'Workitems')
 
     def __init__(self):
