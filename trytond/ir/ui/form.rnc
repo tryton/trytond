@@ -100,7 +100,7 @@ attlist.field &= [ a:defaultValue = "1" ] attribute xfill { "0" | "1" }?
 attlist.field &= attribute help { text }?
 attlist.field &= attribute width { text }?
 attlist.field &= attribute height { text }?
-attlist.field &= attribute readonly { text }?
+attlist.field &= attribute readonly { "0" | "1" }?
 attlist.field &=
   [ a:defaultValue = "0" ] attribute tree_invisible { "0" | "1" }?
 attlist.field &= attribute mode { text }?

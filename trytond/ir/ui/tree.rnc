@@ -16,7 +16,7 @@ attlist.tree &=
   [ a:defaultValue = "0" ] attribute toolbar { "0" | "1" }?
 field = element field { attlist.field, empty }
 attlist.field &= attribute name { text }
-attlist.field &= attribute readonly { text }?
+attlist.field &= attribute readonly { "0" | "1" }?
 attlist.field &=
   attribute widget {
     "char"
