@@ -346,7 +346,12 @@
   </define>
   <define name="attlist.field" combine="interleave">
     <optional>
-      <attribute name="readonly"/>
+      <attribute name="readonly">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
     </optional>
   </define>
   <define name="attlist.field" combine="interleave">
