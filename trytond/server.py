@@ -22,9 +22,10 @@ import random
 class TrytonServer(object):
 
     def __init__(self):
-        logging.basicConfig(level=logging.DEBUG,
-                format='[%(asctime)s] %(levelname)s:%(name)s:%(message)s',
-                datefmt='%a %b %d %H:%M:%S %Y')
+        format = '[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
+        datefmt = '%a %b %d %H:%M:%S %Y'
+        logging.basicConfig(level=logging.DEBUG, format=format,
+                datefmt=datefmt)
 
         CONFIG.parse()
 
@@ -43,7 +44,7 @@ class TrytonServer(object):
                         "ERROR: couldn't create the logfile directory:" \
                         + str(exception))
             else:
-                formatter = logging.Formatter(FORMAT, DATEFMT)
+                formatter = logging.Formatter(format, datefmt)
                 # tell the handler to use this format
                 handler.setFormatter(formatter)
 
