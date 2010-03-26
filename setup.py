@@ -47,7 +47,7 @@ setup(name=PACKAGE,
     ],
     license=LICENSE,
     install_requires=[
-        'lxml',
+        'lxml >= 2.0',
         'relatorio >= 0.2.0',
         'Genshi',
         'python-dateutil',
