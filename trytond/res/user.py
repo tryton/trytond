@@ -4,7 +4,6 @@
 import copy
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.wizard import Wizard
-from lxml import etree
 from trytond.tools import Cache, safe_eval
 from trytond.backend import TableHandler
 from trytond.security import get_connections
