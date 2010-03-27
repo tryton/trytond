@@ -973,6 +973,9 @@ class ModelStorage(Model):
         context.update(ctx_pref)
         records = self.browse(cursor, user, ids, context=context)
         for field_name, field in self._columns.iteritems():
+            if isinstance(field, fields.Function) and \
+                    not field.setter:
+                continue
             # validate domain
             if field._type in ('many2one', 'many2many', 'one2many') \
                     and field.domain:
