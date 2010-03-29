@@ -5,6 +5,7 @@
     'name_de_DE': 'Benutzerverwaltung',
     'name_es_ES': 'Gestión de usuarios',
     'name_fr_FR': 'Ressource',
+    'name_ru_RU': 'Базовые ресурсы сервера',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of users and internal communication.
 ''',
@@ -18,6 +19,9 @@ Provides concepts and administration of users and internal communication.
 ''',
     'description_fr_FR': '''Module de base gérant les tâches internes de l'application.
 Fournit les concepts et l'administration des utilisateurs et de la communication interne.
+''',
+    'description_ru_RU': '''Базовый модуль обработки внутренних задач приложения.
+    Обеспечивает концепции и администрирование пользователей и внутренней связи.
 ''',
     'active': True,
     'depends': ['ir'],
@@ -33,5 +37,6 @@ Fournit les concepts et l'administration des utilisateurs et de la communication
         'de_DE.csv',
         'es_ES.csv',
         'es_CO.csv',
+        'ru_RU.csv',
     ],
 }
