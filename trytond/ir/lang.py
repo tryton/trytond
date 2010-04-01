@@ -47,6 +47,15 @@ class Lang(ModelSQL, ModelView, Cacheable):
             'invalid_date': 'The date format is not valid!',
         })
 
+    def search_rec_name(self, cursor, user, name, clause, context=None):
+        ids = self.search(cursor, user, [('code',) + clause[1:]],
+                order=[], context=context)
+        if ids:
+            ids += self.search(cursor, user, [('name',) + clause[1:]],
+                    order=[], context=context)
+            return [('id', 'in', ids)]
+        return [('name',) + clause[1:]]
+
     def read(self, cursor, user, ids, fields_names=None, context=None):
         translation_obj = self.pool.get('ir.translation')
         if context is None:
