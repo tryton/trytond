@@ -18,6 +18,12 @@ field,"ir.rule.group-res.group,rule_group_id",0,Rule Group,Regel Gruppe,0
 field,"ir.rule.group-res.user,rec_name",0,Name,Name,0
 field,"ir.rule.group-res.user,rule_group_id",0,Rule Group,Regel Gruppe,0
 field,"ir.rule.group-res.user,user_id",0,User,Benutzer,0
+field,"ir.sequence,groups",0,User Groups,Benutzergruppen,0
+field,"ir.sequence.strict,groups",0,User Groups,Benutzergruppen,0
+field,"ir.sequence.type,groups",0,User Groups,Benutzergruppen,0
+field,"ir.sequence.type-res.group,group",0,User Groups,Benutzergruppen,0
+field,"ir.sequence.type-res.group,rec_name",0,Name,Name Staat,0
+field,"ir.sequence.type-res.group,sequence_type",0,Sequence Type,Typ Strikter Nummernkreis,0
 field,"ir.ui.menu-res.group,gid",0,Group,Gruppe,0
 field,"ir.ui.menu-res.group,menu_id",0,Menu,Menü,0
 field,"ir.ui.menu-res.group,rec_name",0,Name,Name,0
@@ -108,6 +114,7 @@ field,"res.user,warnings",0,Warnings,Warnungen,0
 field,"res.user.warning,user",0,User,Benutzer,0
 field,"res.user,write_date",0,Last modification date,Zuletzt geändert am,0
 field,"res.user,write_uid",0,Last modification by,Zuletzt geändert von,0
+help,"ir.sequence.type,groups",0,Groups allowed to edit the sequences of this type,Gruppen mit der Berechtigung zur Bearbeitung von Nummernkreisen dieses Typs,0
 model,"ir.action,name",act_group_form,Groups,Gruppen,0
 model,"ir.action,name",act_request_link_form,Request Links,Anfrageverknüpfungen,0
 model,"ir.action,name",act_request_form,Requests,Anfragen,0
@@ -116,6 +123,7 @@ model,"ir.action-res.group,name",0,Action - Group,Aktion - Gruppe,0
 model,"ir.model.field-res.group,name",0,Model Field Group Rel,Modellfeld - Gruppe,0
 model,"ir.rule.group-res.group,name",0,Rule Group - Group,Gruppenregel - Gruppe,0
 model,"ir.rule.group-res.user,name",0,Rule Group - User,Gruppenregel - Benutzer,0
+model,"ir.sequence.type-res.group,name",0,Sequence Type - Group,Typ Nummernkreis - Gruppe,0
 model,"ir.ui.menu,name",menu_group_form,Groups,Gruppen,0
 model,"ir.ui.menu,name",menu_request_link_form,Request Links,Anfrageverknüpfungen,0
 model,"ir.ui.menu,name",menu_request_form,Requests,Anfragen,0
@@ -154,11 +162,13 @@ view,ir.module.module,0,Cancel Upgrade,Vormerkung für Installation / Aktualisie
 view,ir.module.module,0,Mark for Installation,Für die Installation vormerken,0
 view,ir.module.module,0,Mark for Uninstallation (beta),Für die Deinstallation (beta) vormerken,0
 view,ir.module.module,0,Mark for Upgrade,Für die Aktualisierung vormerken,0
+view,res.group,0,Access Permissions,Zugriffsberechtigungen,0
 view,res.group,0,Group,Gruppe,0
 view,res.group,0,_Group,_Gruppe,0
 view,res.group,0,Groups,Gruppen,0
 view,res.group,0,Security,Sicherheit,0
 view,res.group,0,_Security,_Sicherheit,0
+view,res.group,0,Ungültiger,Mitglieder,0
 view,res.request,0,Close,Schließen,0
 view,res.request,0,Description,Beschreibung,0
 view,res.request,0,History,Geschichte,0
@@ -173,6 +183,8 @@ view,res.request.history,0,Request History,bisherige Anfragen,0
 view,res.request.link,0,Request Link,Anfrage Verknüpfung,0
 view,res.request.reference,0,Request Reference,Anfrageverweis,0
 view,res.request.reference,0,Request References,Verweise,0
+view,res.user,0,Access Permissions,Zugriffsberechtigungen,0
+view,res.user,0,Group Membership,Gruppenmitgliedschaft,0
 view,res.user,0,Preferences,Einstellungen,0
 view,res.user,0,_Preferences,_Einstellungen,0
 view,res.user,0,Security,Sicherheit,0
