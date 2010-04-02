@@ -4,13 +4,17 @@ error,access_error,0,"You try to bypass an access rule!
 (Dokumententyp: %s)",0
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
+error,digits_validation_record,0,"The field ""%s"" on ""%s"" has too many decimal digits.","Das Feld ""%s"" in ""%s"" weist zu viele Dezimalstellen auf.",0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","Der Wert von Feld ""%s"" in ""%s"" ist für seine Domain nicht gültig!",0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
 error,foreign_model_exist,0,"Could not delete ""%s"" records because they are used on field ""%s"" of ""%s"".","""%s"" Datensätze konnten nicht gelöscht werden, weil sie in Feld ""%s"" in ""%s"" verwendet werden.",0
 error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist.","Der Wert von Feld ""%s"" in ""%s"" existiert nicht.",0
+error,ir.action.act_window,0,Invalid context!,Ungültiger Kontext!,0
+error,ir.action.act_window,0,Invalid domain!,Ungültiger Wertebereich!,0
+error,ir.action.act_window,0,Invalid search criteria!,Ungültige Suchkriterien!,0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique by module!,Der interne Name kann pro Modul nur einmal vergeben werden!,0
-error,ir.attachment,0,The names of attachments must be unique by record!,Die Namen für Anhänge können pro Datensatz nur einmal vergeben werden!,0
+error,ir.attachment,0,The  names of attachments must be unique by resource!,Der Name für einen Anhang kann nur einmal pro Ressource vergeben werden!,0
 error,ir.cron,0,Scheduled action failed,Geplante Aktion fehlgeschlagen,0
 error,ir.cron,0,"The following action failed to execute properly: ""%s""
  Traceback: 
@@ -45,16 +49,22 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,Präfix/Suffix ungültig!,0
 error,ir.sequence.strict,0,Missing sequence!,Fehlender Nummernkreis!,0
 error,ir.translation,0,Translation must be unique,Übersetzung kann nicht mehrfach vergeben werden!,0
 error,ir.ui.view,0,Invalid XML for View!,Ungültiges XML für Ansicht!,0
+error,not_found_in_selection,0,Key %r not found in selection field %r,Schlüsselwert %r nicht gefunden in Auswahlfeld %r,0
 error,read_error,0,"You try to read records that don't exist anymore!
 (Document type: %s)","Leseversuch von nicht mehr vorhandenen Datensätzen!
 (Dokumententyp: %s)",0
+error,reference_syntax_error,0,Syntax error for reference %r in %s,Syntaxfehler für Beziehung %r in %s,0
+error,relation_not_found,0,Relation not found: %r in %s,Beziehung nicht gefunden: %r in %s,0
 error,required_field,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Feld ""%s"" in ""%s"" ist erforderlich.",0
+error,search_function_missing,0,"Missing search function on field ""%s"".","Fehlende Suchfunktion für Feld ""%s"".",0
 error,size_validation_record,0,"The field ""%s"" on ""%s"" is too long.","Der Wert von Feld ""%s"" in ""%s"" ist zu lang.",0
+error,too_many_relations_found,0,Too many relations found: %r in %s,Zu viele Beziehungen gefunden: %r in %s,0
 error,write_error,0,"You try to write on records that don't exist anymore!
 (Document type: %s)","Schreibversuch auf nicht mehr vorhandene Datensätze!
 (Dokumententyp: %s)",0
 error,write_xml_record,0,You are not allowed to modify this record.,Keine Berechtigung für die Änderung dieses Datensatzes,0
+error,xml_id_syntax_error,0,Syntax error for XML id %r in %s,Syntaxfehler für die XML id %r in %s,0
 error,xml_record_desc,0,This record is part of the base configuration.,Dieser Datensatz ist Teil der Basiskonfiguration,0
 field,"ir.action,active",0,Active,Aktiv,0
 field,"ir.action.act_window,action",0,Action,Aktion,0
@@ -63,6 +73,9 @@ field,"ir.action.act_window,auto_refresh",0,Auto-Refresh,Automatisches Auffrisch
 field,"ir.action.act_window,context",0,Context Value,Kontext,0
 field,"ir.action.act_window,domain",0,Domain Value,Domain,0
 field,"ir.action.act_window,limit",0,Limit,Begrenzung,0
+field,"ir.action.act_window,pyson_context",0,PySON Context,PySON Kontext,0
+field,"ir.action.act_window,pyson_domain",0,PySON Domain,PySON Wertebereich,0
+field,"ir.action.act_window,pyson_search_value",0,PySON Search Criteria,PySON Suchkriterien,0
 field,"ir.action.act_window,rec_name",0,Name,Name,0
 field,"ir.action.act_window,res_model",0,Model,Modell,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Suchkriterien,0
@@ -119,8 +132,7 @@ field,"ir.attachment,digest",0,Digest,Zusammenfassung,0
 field,"ir.attachment,link",0,Link,Verknüpfung,0
 field,"ir.attachment,name",0,Attachment Name,Name Anhang,0
 field,"ir.attachment,rec_name",0,Name,Name,0
-field,"ir.attachment,res_id",0,Resource ID,ID Ressource,0
-field,"ir.attachment,res_model",0,Resource Model,Modell Ressource,0
+field,"ir.attachment,resource",0,Resource,Ressource,0
 field,"ir.cache,name",0,Name,Name,0
 field,"ir.cache,rec_name",0,Name,Name,0
 field,"ir.cache,timestamp",0,Timestamp,Zeitstempel,0
@@ -390,6 +402,7 @@ model,"ir.lang,name",lang_en,English,Englisch,0
 model,"ir.lang,name",lang_fr,French,Französisch,0
 model,"ir.lang,name",lang_de,German,Deutsch,0
 model,"ir.lang,name",0,Language,Sprache,0
+model,"ir.lang,name",lang_ru,Russian,Russisch,0
 model,"ir.lang,name",lang_es_CO,Spanish (Colombia),Spanisch (Kolumbien),0
 model,"ir.lang,name",lang_es,Spanish (Spain),Spanisch (Spanien),0
 model,"ir.model.access,name",0,Model access,Modell Zugriff,0
@@ -600,6 +613,7 @@ view,ir.action.wizard,0,Wizard,Wizard,0
 view,ir.action.wizard_size,0,Wizard Size,Wizardmaß,0
 view,ir.action.wizard_size,0,Wizard Sizes,Wizardmaße,0
 view,ir.attachment,0,Attachments,Anhänge,0
+view,ir.attachment,0,Preview,Vorschau,0
 view,ir.cron,0,Action to trigger,Auszuführende Aktion,0
 view,ir.cron,0,Scheduled Action,Geplante Aktion,0
 view,ir.cron,0,Scheduled Actions,Geplante Aktionen,0

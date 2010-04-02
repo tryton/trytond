@@ -20,7 +20,7 @@ field,"workflow.instance,rec_name",0,Name,Name,0
 field,"workflow.instance,res_id",0,Resource ID,ID Ressource,0
 field,"workflow.instance,res_type",0,Resource Model,Modell Ressource,0
 field,"workflow.instance,state",0,State,Status,0
-field,"workflow.instance,transitions",0,,,0
+field,"workflow.instance,transitions",0,Transitions,Übergänge,0
 field,"workflow.instance,uid",0,User ID,Benutzer ID,0
 field,"workflow.instance,workflow",0,Workflow,Workflow,0
 field,"workflow.instance,workitems",0,Workitems,Elemente,0
@@ -32,7 +32,7 @@ field,"workflow.transition,act_from",0,Source Activity,Quelle der Aktivität,0
 field,"workflow.transition,act_to",0,Destination Activity,Bestimmung der Aktivität,0
 field,"workflow.transition,condition",0,Condition,Bedingung,0
 field,"workflow.transition,group",0,Group Required,Erforderliche Gruppe,0
-field,"workflow.transition,instances",0,,,0
+field,"workflow.transition,instances",0,Instances,Instanzen,0
 field,"workflow.transition,rec_name",0,Name,Name,0
 field,"workflow.transition,signal",0,Signal (button Name),Signal (Name des Knopfes),0
 field,"workflow.transition,trigger_expr_id",0,Trigger Expr ID,ID des Auslöseausdrucks,0
