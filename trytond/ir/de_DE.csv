@@ -307,7 +307,7 @@ field,"ir.ui.view_sc,rec_name",0,Name,Name,0
 field,"ir.ui.view_sc,res_id",0,Resource Ref.,Ref. Ressource,0
 field,"ir.ui.view_sc,resource",0,Resource Name,Name Ressource,0
 field,"ir.ui.view_sc,sequence",0,Sequence,Reihenfolge,0
-field,"ir.ui.view_sc,user_id",0,User Ref.,Benutzer,0
+field,"ir.ui.view_sc,user_id",0,User Ref.,Ref. Benutzer,0
 field,"ir.ui.view_tree_width,field",0,Field,Feld,0
 field,"ir.ui.view_tree_width,model",0,Model,Modell,0
 field,"ir.ui.view_tree_width,rec_name",0,Name,Name,0
