@@ -166,6 +166,7 @@ view,res.group,0,Access Permissions,Zugriffsberechtigungen,0
 view,res.group,0,Group,Gruppe,0
 view,res.group,0,_Group,_Gruppe,0
 view,res.group,0,Groups,Gruppen,0
+view,res.group,0,Members,Mitglieder,0
 view,res.group,0,Security,Sicherheit,0
 view,res.group,0,_Security,_Sicherheit,0
 view,res.group,0,Ungültiger,Mitglieder,0
@@ -184,7 +185,7 @@ view,res.request.link,0,Request Link,Anfrage Verknüpfung,0
 view,res.request.reference,0,Request Reference,Anfrageverweis,0
 view,res.request.reference,0,Request References,Verweise,0
 view,res.user,0,Access Permissions,Zugriffsberechtigungen,0
-view,res.user,0,Group Membership,Gruppenmitgliedschaft,0
+view,res.user,0,Group Membership,Gruppenzugehörigkeit,0
 view,res.user,0,Preferences,Einstellungen,0
 view,res.user,0,_Preferences,_Einstellungen,0
 view,res.user,0,Security,Sicherheit,0
