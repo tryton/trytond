@@ -3,12 +3,16 @@ error,access_error,0,"You try to bypass an access rule!
 (Document type: %s)",¡Está intentando sobrepasar una regla de acceso!,0
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,No puede borrar un registro involucrado en un flujo activo.,0
 error,delete_xml_record,0,You are not allowed to delete this record.,No esta autorizado a eliminar este registro.,0
+error,digits_validation_record,0,"The field ""%s"" on ""%s"" has too many decimal digits.","El campo ""%s"" en ""%s"" tiene muchos dígitos decimales.",0
 error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","El valor del campo ""%s"" en ""%s no es válido ",0
 error,foreign_model_exist,0,"Could not delete ""%s"" records because they are used on field ""%s"" of ""%s"".","No se pudo borrar ""%s"" regisros porque se usan en el campo ""%s"" de ""%s"".",0
 error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist.","El valor del campo ""%s"" no existe.",0
+error,ir.action.act_window,0,Invalid context!,¡Contexto inválido!,0
+error,ir.action.act_window,0,Invalid domain!,¡Dominio inválido!,0
+error,ir.action.act_window,0,Invalid search criteria!,¡Criterio de búsqueda inválido!,0
 error,ir.action.keyword,0,Wrong wizard model!,¡Modelo de asistente erróneo!,0
 error,ir.action.report,0,The internal name must be unique by module!,¡El nombre interno de los módulos debe ser único!,0
-error,ir.attachment,0,The names of attachments must be unique by record!,¡Los nombres de los adjuntos deben ser únicos por registro!,0
+error,ir.attachment,0,The  names of attachments must be unique by resource!,¡Los nombres por recurso de adjuntos deben ser unicos!,0
 error,ir.cron,0,Scheduled action failed,La acción agendada falló,0
 error,ir.cron,0,"The following action failed to execute properly: ""%s""
  Traceback: 
@@ -44,14 +48,20 @@ error,ir.sequence.strict,0,Invalid prefix/suffix!,prefijo/sufijo inválidos!,0
 error,ir.sequence.strict,0,Missing sequence!,Falta la secuencia!,0
 error,ir.translation,0,Translation must be unique,La traducción debe ser única,0
 error,ir.ui.view,0,Invalid XML for View!,XML inválido para la Vista!,0
+error,not_found_in_selection,0,Key %r not found in selection field %r,No encontró la llave %r en el campo seleccionado %r,0
 error,read_error,0,"You try to read records that don't exist anymore!
 (Document type: %s)",¡Está intentando leer registros que ya no existen!,0
+error,reference_syntax_error,0,Syntax error for reference %r in %s,Error de sintaxis para la referencia %r en %s,0
+error,relation_not_found,0,Relation not found: %r in %s,Relación no encontrada: %r en %s,0
 error,required_field,0,"The field ""%s"" on ""%s"" is required.","Se requiere el campo ""%s"" en ""%s"".",0
 error,required_validation_record,0,"The field ""%s"" on ""%s"" is required.","Se requiere el campo ""%s"" en ""%s"".",0
+error,search_function_missing,0,"Missing search function on field ""%s"".","Búsqueda faltante en el campo ""%s"".",0
 error,size_validation_record,0,"The field ""%s"" on ""%s"" is too long.","El campo ""%s"" en ""%s"" es demasiado largo.",0
+error,too_many_relations_found,0,Too many relations found: %r in %s,Muchas relaciones encontradas: %r en %s,0
 error,write_error,0,"You try to write on records that don't exist anymore!
 (Document type: %s)",¡Está tratando de escribir registros que ya no existen!,0
 error,write_xml_record,0,You are not allowed to modify this record.,No esta autorizado para modificar este registro.,0
+error,xml_id_syntax_error,0,Syntax error for XML id %r in %s,Error de sintaxis para el id XML %r en %s,0
 error,xml_record_desc,0,This record is part of the base configuration.,Este registro es parte de la configuración base.,0
 field,"ir.action,active",0,Active,Activo,0
 field,"ir.action.act_window,action",0,Action,Acción,0
@@ -60,6 +70,9 @@ field,"ir.action.act_window,auto_refresh",0,Auto-Refresh,Auto-Refrescar,0
 field,"ir.action.act_window,context",0,Context Value,Valor en Contexto,0
 field,"ir.action.act_window,domain",0,Domain Value,Valor de Dominio,0
 field,"ir.action.act_window,limit",0,Limit,Límite,0
+field,"ir.action.act_window,pyson_context",0,PySON Context,Contexto PySON,0
+field,"ir.action.act_window,pyson_domain",0,PySON Domain,Dominio de PySON,0
+field,"ir.action.act_window,pyson_search_value",0,PySON Search Criteria,Criterio de búsqueda de PySON,0
 field,"ir.action.act_window,rec_name",0,Name,Nombre,0
 field,"ir.action.act_window,res_model",0,Model,Modelo,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Criterio de Búsqueda,0
@@ -116,8 +129,7 @@ field,"ir.attachment,digest",0,Digest,Resumen,0
 field,"ir.attachment,link",0,Link,Enlace,0
 field,"ir.attachment,name",0,Attachment Name,Nombre de Adjunto,0
 field,"ir.attachment,rec_name",0,Name,Nombre,0
-field,"ir.attachment,res_id",0,Resource ID,ID del Recurso,0
-field,"ir.attachment,res_model",0,Resource Model,Modelo del Recurso,0
+field,"ir.attachment,resource",0,Resource,Recurso,1
 field,"ir.cache,name",0,Name,Nombre,0
 field,"ir.cache,rec_name",0,Name,Nombre,0
 field,"ir.cache,timestamp",0,Timestamp,Estampa de Tiempo,0
@@ -380,6 +392,7 @@ model,"ir.lang,name",lang_en,English,,0
 model,"ir.lang,name",lang_fr,French,,0
 model,"ir.lang,name",lang_de,German,,0
 model,"ir.lang,name",0,Language,Idioma,0
+model,"ir.lang,name",lang_ru,Russian,Rus@,0
 model,"ir.lang,name",lang_es_CO,Spanish (Colombia),,0
 model,"ir.lang,name",lang_es,Spanish (Spain),,0
 model,"ir.model.access,name",0,Model access,Modelo de acceso,0
@@ -590,6 +603,7 @@ view,ir.action.wizard,0,Wizard,Asistente,0
 view,ir.action.wizard_size,0,Wizard Size,Tamaño del Asistente,0
 view,ir.action.wizard_size,0,Wizard Sizes,Tamaños del Asistente,0
 view,ir.attachment,0,Attachments,Adjuntos,0
+view,ir.attachment,0,Preview,Vista previa,0
 view,ir.cron,0,Action to trigger,Acción a ejecutarse,0
 view,ir.cron,0,Scheduled Action,Acción agendada,0
 view,ir.cron,0,Scheduled Actions,Acciones agendadas,0
