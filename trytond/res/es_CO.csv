@@ -17,6 +17,12 @@ field,"ir.rule.group-res.group,rule_group_id",0,Rule Group,Regla de Grupo,0
 field,"ir.rule.group-res.user,rec_name",0,Name,Nombre,0
 field,"ir.rule.group-res.user,rule_group_id",0,Rule Group,Regla de Grupo,0
 field,"ir.rule.group-res.user,user_id",0,User,Usuario,0
+field,"ir.sequence,groups",0,User Groups,Grupos de usuarios,0
+field,"ir.sequence.strict,groups",0,User Groups,Grupos de usuarios,0
+field,"ir.sequence.type,groups",0,User Groups,Grupos de usuarios,0
+field,"ir.sequence.type-res.group,group",0,User Groups,Grupos de usuarios,0
+field,"ir.sequence.type-res.group,rec_name",0,Name,Nombre de Contacto,1
+field,"ir.sequence.type-res.group,sequence_type",0,Sequence Type,Tipo de Secuencia,1
 field,"ir.ui.menu-res.group,gid",0,Group,Grupo,0
 field,"ir.ui.menu-res.group,menu_id",0,Menu,Menú,0
 field,"ir.ui.menu-res.group,rec_name",0,Name,Nombre,0
@@ -82,6 +88,7 @@ field,"res.user.warning,name",0,Name,Nombre,0
 field,"res.user.warning,rec_name",0,Name,Nombre,0
 field,"res.user,warnings",0,Warnings,Advertencias,0
 field,"res.user.warning,user",0,User,Usuario,0
+help,"ir.sequence.type,groups",0,Groups allowed to edit the sequences of this type,Los grupos son autorizados para editar secuencias en este tipo,0
 model,"ir.action,name",act_group_form,Groups,Grupos,0
 model,"ir.action,name",act_request_link_form,Request Links,Enlace de Solicitud,0
 model,"ir.action,name",act_request_form,Requests,Solicitudes,0
@@ -90,6 +97,7 @@ model,"ir.action-res.group,name",0,Action - Group,Acción - Grupo,0
 model,"ir.model.field-res.group,name",0,Model Field Group Rel,Modelo de Campo Grupo Rel,0
 model,"ir.rule.group-res.group,name",0,Rule Group - Group,Regla de Grupo - Grupo,0
 model,"ir.rule.group-res.user,name",0,Rule Group - User,Regla de Grupo - Usuario,0
+model,"ir.sequence.type-res.group,name",0,Sequence Type - Group,Secuencia de Tipo - Grupo,0
 model,"ir.ui.menu,name",menu_group_form,Groups,Grupos,0
 model,"ir.ui.menu,name",menu_request_link_form,Request Links,Enlace de Solicitud,0
 model,"ir.ui.menu,name",menu_request_form,Requests,Solicitudes,0
@@ -128,8 +136,10 @@ view,ir.module.module,0,Cancel Upgrade,Cancelar actualización,0
 view,ir.module.module,0,Mark for Installation,Marcar para Instalación,0
 view,ir.module.module,0,Mark for Uninstallation (beta),Marcar para Desinstalar,0
 view,ir.module.module,0,Mark for Upgrade,Marcar para Actualizar,0
+view,res.group,0,Access Permissions,Permisos de Acceso,0
 view,res.group,0,Group,Grupo,0
 view,res.group,0,Groups,Grupos,0
+view,res.group,0,Members,Miembros,0
 view,res.group,0,Security,Seguridad,0
 view,res.request,0,Close,Cerrar,0
 view,res.request,0,References,Referencias,0
@@ -141,6 +151,8 @@ view,res.request.history,0,Request History,Historial de Solicitudes,0
 view,res.request.link,0,Request Link,Enlace de Solicitud,0
 view,res.request.reference,0,Request Reference,Referencia de Solicitud,0
 view,res.request.reference,0,Request References,Referencias de Solicitud,0
+view,res.user,0,Access Permissions,Permisos de Acceso,0
+view,res.user,0,Group Membership,Membresía del grupo,0
 view,res.user,0,Preferences,Preferencias,0
 view,res.user,0,Security,Seguridad,0
 view,res.user,0,User,Usuario,0
