@@ -2,126 +2,12 @@
 #this repository contains the full copyright notices and license terms.
 "Module"
 import os
-import re
-import zipfile
-import urllib
-import zipimport
 from trytond.model import ModelView, ModelSQL, fields
 import trytond.tools as tools
 from trytond.modules import MODULES_PATH, create_graph, get_module_list
 from trytond.wizard import Wizard
 from trytond.backend import Database
 from trytond.pool import Pool
-
-VER_REGEXP = re.compile(
-    "^(\\d+)((\\.\\d+)*)([a-z]?)((_(pre|p|beta|alpha|rc)\\d*)*)(-r(\\d+))?$")
-SUFFIX_VALUE = {"pre": -2, "p": 0, "alpha": -4, "beta": -3, "rc": -1}
-SUFFIX_REGEXP = re.compile("^(alpha|beta|rc|pre|p)(\\d*)$")
-
-
-def vercmp(ver1, ver2):
-    """
-    Compare two versions
-    Take from portage_versions.py
-    @param ver1: version to compare with
-    @type ver1: string (example "1.2-r3")
-    @param ver2: version to compare again
-    @type ver2: string (example "2.1-revision1")
-    @rtype: None or float
-    @return:
-    1. position if ver1 is greater than ver2
-    2. negative if ver1 is less than ver2
-    3. 0 if ver1 equals ver2
-    4. None if ver1 or ver2 are invalid
-    """
-
-    match1 = VER_REGEXP.match(ver1)
-    match2 = VER_REGEXP.match(ver2)
-
-    if not match1 or not match1.groups():
-        return None
-    if not match2 or not match2.groups():
-        return None
-
-    list1 = [int(match1.group(1))]
-    list2 = [int(match2.group(1))]
-
-    if len(match1.group(2)) or len(match2.group(2)):
-        vlist1 = match1.group(2)[1:].split(".")
-        vlist2 = match2.group(2)[1:].split(".")
-        for i in range(0, max(len(vlist1), len(vlist2))):
-            # Implicit .0 is given -1, so 1.0.0 > 1.0
-            # would be ambiguous if two versions that aren't literally equal
-            # are given the same value (in sorting, for example).
-            if len(vlist1) <= i or len(vlist1[i]) == 0:
-                list1.append(-1)
-                list2.append(int(vlist2[i]))
-            elif len(vlist2) <= i or len(vlist2[i]) == 0:
-                list1.append(int(vlist1[i]))
-                list2.append(-1)
-            # Let's make life easy and use integers
-            # unless we're forced to use floats
-            elif (vlist1[i][0] != "0" and vlist2[i][0] != "0"):
-                list1.append(int(vlist1[i]))
-                list2.append(int(vlist2[i]))
-            # now we have to use floats so 1.02 compares correctly against 1.1
-            else:
-                list1.append(float("0."+vlist1[i]))
-                list2.append(float("0."+vlist2[i]))
-    # and now the final letter
-    if len(match1.group(4)):
-        list1.append(ord(match1.group(4)))
-    if len(match2.group(4)):
-        list2.append(ord(match2.group(4)))
-
-    for i in range(0, max(len(list1), len(list2))):
-        if len(list1) <= i:
-            return -1
-        elif len(list2) <= i:
-            return 1
-        elif list1[i] != list2[i]:
-            return list1[i] - list2[i]
-
-    # main version is equal, so now compare the _suffix part
-    list1 = match1.group(5).split("_")[1:]
-    list2 = match2.group(5).split("_")[1:]
-
-    for i in range(0, max(len(list1), len(list2))):
-        # Implicit _p0 is given a value of -1, so that 1 < 1_p0
-        if len(list1) <= i:
-            suffix1 = ("p","-1")
-        else:
-            suffix1 = SUFFIX_REGEXP.match(list1[i]).groups()
-        if len(list2) <= i:
-            suffix2 = ("p","-1")
-        else:
-            suffix2 = SUFFIX_REGEXP.match(list2[i]).groups()
-        if suffix1[0] != suffix2[0]:
-            return SUFFIX_VALUE[suffix1[0]] - SUFFIX_VALUE[suffix2[0]]
-        if suffix1[1] != suffix2[1]:
-            # it's possible that the s(1|2)[1] == ''
-            # in such a case, fudge it.
-            try:
-                revision1 = int(suffix1[1])
-            except ValueError:
-                revision1 = 0
-            try:
-                revision2 = int(suffix2[1])
-            except ValueError:
-                revision2 = 0
-            if revision1 - revision2:
-                return revision1 - revision2
-
-    # the suffix part is equal to, so finally check the revision
-    if match1.group(9):
-        revision1 = int(match1.group(9))
-    else:
-        revision1 = 0
-    if match2.group(9):
-        revision2 = int(match2.group(9))
-    else:
-        revision2 = 0
-    return revision1 - revision2
 
 
 class Module(ModelSQL, ModelView):
