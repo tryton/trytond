@@ -132,7 +132,7 @@ class Wizard(object):
             context = {}
         res = {}
 
-        if self._datas[wiz_id]['user'] != user:
+        if self._datas.get(wiz_id, {}).get('user') != user:
             raise Exception('AccessDenied')
         self._datas[wiz_id].update(data)
         data = self._datas[wiz_id]
