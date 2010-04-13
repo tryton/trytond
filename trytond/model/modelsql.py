@@ -192,11 +192,13 @@ class ModelSQL(ModelStorage):
             table = TableHandler(cursor, self)
             history_table = TableHandler(cursor, self, history=True)
             for column_name in table._columns:
-                if not history_table.column_exist(column_name):
-                    history_table.add_raw_column(column_name,
-                            (table._columns[column_name]['typname'],
-                                table._columns[column_name]['typname']),
-                                None, string=table._columns[column_name].string)
+                string = ''
+                if column_name in self._columns:
+                    string = self._columns[column_name].string
+                history_table.add_raw_column(column_name,
+                        (table._columns[column_name]['typname'],
+                            table._columns[column_name]['typname']),
+                            None, string=string)
 
     def _get_error_messages(self):
         res = super(ModelSQL, self)._get_error_messages()
