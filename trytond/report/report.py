@@ -292,7 +292,7 @@ class Report(object):
         return None
 
     def format_lang(self, cursor, user, value, lang, digits=2, grouping=True,
-            monetary=False, date=False, currency=None):
+            monetary=False, date=False, currency=None, symbol=True):
         lang_obj = self.pool.get('ir.lang')
 
         if date:
@@ -319,6 +319,7 @@ class Report(object):
                 date = datetime.datetime(*(value.timetuple()[:6]))
             return lang_obj.strftime(date, code, locale_format)
         if currency:
-            return lang_obj.currency(lang, value, currency, grouping=grouping)
+            return lang_obj.currency(lang, value, currency, grouping=grouping,
+                    symbol=symbol)
         return lang_obj.format(lang, '%.' + str(digits) + 'f', value,
                 grouping=grouping, monetary=monetary)
