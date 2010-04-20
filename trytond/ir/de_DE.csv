@@ -5,12 +5,12 @@ error,access_error,0,"You try to bypass an access rule!
 error,delete_workflow_record,0,You cannot delete a record with a running workflow.,Ein im Workflow befindlicher Datensatz kann nicht gelöscht werden!,0
 error,delete_xml_record,0,You are not allowed to delete this record.,Keine Löschberechtigung für diesen Datensatz,0
 error,digits_validation_record,0,"The field ""%s"" on ""%s"" has too many decimal digits.","Das Feld ""%s"" in ""%s"" weist zu viele Dezimalstellen auf.",0
-error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","Der Wert von Feld ""%s"" in ""%s"" ist für seine Domain nicht gültig!",0
-error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" ist nicht für seine Domain gültig.",0
+error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid according to its domain.","Der Wert von Feld ""%s"" in ""%s"" liegt nicht im gültigen Wertebereich (Domain)!",0
+error,domain_validation_record,0,"The value of the field ""%s"" on ""%s"" is not valid with his domain.","Der Wert von Feld ""%s"" in ""%s"" liegt nicht im gültigen Wertebereich (Domain)!",0
 error,foreign_model_exist,0,"Could not delete ""%s"" records because they are used on field ""%s"" of ""%s"".","""%s"" Datensätze konnten nicht gelöscht werden, weil sie in Feld ""%s"" in ""%s"" verwendet werden.",0
 error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist.","Der Wert von Feld ""%s"" in ""%s"" existiert nicht.",0
 error,ir.action.act_window,0,Invalid context!,Ungültiger Kontext!,0
-error,ir.action.act_window,0,Invalid domain!,Ungültiger Wertebereich!,0
+error,ir.action.act_window,0,Invalid domain!,Ungültiger Wertebereich (Domain)!,0
 error,ir.action.act_window,0,Invalid search criteria!,Ungültige Suchkriterien!,0
 error,ir.action.keyword,0,Wrong wizard model!,Falsches Wizardmodell!,0
 error,ir.action.report,0,The internal name must be unique by module!,Der interne Name kann pro Modul nur einmal vergeben werden!,0
@@ -71,10 +71,10 @@ field,"ir.action.act_window,action",0,Action,Aktion,0
 field,"ir.action.act_window,act_window_views",0,Views,Sichten,0
 field,"ir.action.act_window,auto_refresh",0,Auto-Refresh,Automatisches Auffrischen,0
 field,"ir.action.act_window,context",0,Context Value,Kontext,0
-field,"ir.action.act_window,domain",0,Domain Value,Domain,0
+field,"ir.action.act_window,domain",0,Domain Value,Wertebereich (Domain),0
 field,"ir.action.act_window,limit",0,Limit,Begrenzung,0
 field,"ir.action.act_window,pyson_context",0,PySON Context,PySON Kontext,0
-field,"ir.action.act_window,pyson_domain",0,PySON Domain,PySON Wertebereich,0
+field,"ir.action.act_window,pyson_domain",0,PySON Domain,PySON Wertebereich (Domain),0
 field,"ir.action.act_window,pyson_search_value",0,PySON Search Criteria,PySON Suchkriterien,0
 field,"ir.action.act_window,rec_name",0,Name,Name,0
 field,"ir.action.act_window,res_model",0,Model,Modell,0
@@ -295,7 +295,7 @@ field,"ir.ui.menu,parent",0,Parent Menu,Übergeordnet (Menü),0
 field,"ir.ui.menu,rec_name",0,Name,Name,0
 field,"ir.ui.menu,sequence",0,Sequence,Reihenfolge,0
 field,"ir.ui.view,arch",0,View Architecture,Architektur Sicht,0
-field,"ir.ui.view,domain",0,Domain,Domain,0
+field,"ir.ui.view,domain",0,Domain,Wertebereich (Domain),0
 field,"ir.ui.view,field_childs",0,Children Field,Untergeordnetes Feld,0
 field,"ir.ui.view,inherit",0,Inherited View,Vererbte Sicht,0
 field,"ir.ui.view,model",0,Model,Modell,0
