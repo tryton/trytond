@@ -368,7 +368,6 @@ model,"ir.action,name",act_sequence_type_form,Sequence Types,Tipos de Secuencia,
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Establecer Traducciones de Reporte,0
 model,"ir.action,name",act_translation_update,Synchronize Translations,Actualizar Traducción,0
 model,"ir.action,name",act_translation_form,Translations,Traducciones,0
-model,"ir.action,name",action_tryton,Tryton,Tryton,0
 model,"ir.action,name",act_action_url_form,URLs,URLs,0
 model,"ir.action,name",act_view_form,Views,Vistas,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Ver Atajos,0
@@ -452,7 +451,6 @@ model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Tipos de Secuencia,
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Establecer Traducciones de Reporte,0
 model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Actualizar Traducción,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traducciones,0
-model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
 model,"ir.ui.menu,name",0,UI menu,Menú UI,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,Interfaz de Usuario,0

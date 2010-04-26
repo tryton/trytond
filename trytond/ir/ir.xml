@@ -5,12 +5,5 @@ this repository contains the full copyright notices and license terms. -->
     <data>
         <menuitem name="Administration" id="menu_administration"
             icon="tryton-preferences-system"/>
-
-        <record model="ir.action.url" id="action_tryton">
-            <field name="name">Tryton</field>
-            <field name="url">http://www.tryton.org/</field>
-        </record>
-        <menuitem id="menu_tryton" action="action_tryton"
-            sequence="100"/>
     </data>
 </tryton>

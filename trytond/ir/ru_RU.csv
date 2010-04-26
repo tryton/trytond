@@ -354,7 +354,6 @@ model,"ir.action,name",act_sequence_type_form,Sequence Types,Тип нумера
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Установить переводы для отчетов,0
 model,"ir.action,name",act_translation_update,Synchronize Translations,Синхронизация переводов,0
 model,"ir.action,name",act_translation_form,Translations,Переводы,0
-model,"ir.action,name",action_tryton,Tryton,Тритон,0
 model,"ir.action,name",act_action_url_form,URLs,Ссылки,0
 model,"ir.action,name",act_view_form,Views,Виды,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Быстрый доступ к списку,0
@@ -437,7 +436,6 @@ model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Тип нумера
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Установить переводы для отчетов,0
 model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Синхронизация переводов,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Переводы,0
-model,"ir.ui.menu,name",menu_tryton,Tryton,Тритон,0
 model,"ir.ui.menu,name",0,UI menu,Пользовательское меню,0
 model,"ir.ui.menu,name",menu_action_url,URLs,Ссылки,0
 model,"ir.ui.menu,name",menu_ui,User Interface,Пользовательский интерфейс,0
