@@ -354,7 +354,6 @@ model,"ir.action,name",act_sequence_type_form,Sequence Types,Types de séquences
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Mettre à jours les traductions des rapports,0
 model,"ir.action,name",act_translation_update,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.action,name",act_translation_form,Translations,Traductions,0
-model,"ir.action,name",action_tryton,Tryton,Tryton,0
 model,"ir.action,name",act_action_url_form,URLs,URLs,0
 model,"ir.action,name",act_view_form,Views,Vues,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Raccourcis,0
@@ -437,7 +436,6 @@ model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de la séquen
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Mettre à jours les traductions des rapports,0
 model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Traductions,0
-model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
 model,"ir.ui.menu,name",0,UI menu,Menu de l'IU,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,UI,0

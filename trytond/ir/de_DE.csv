@@ -373,7 +373,6 @@ model,"ir.action,name",act_sequence_type_form,Sequence Types,Typen Nummernkreise
 model,"ir.action,name",act_translation_set_report,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
 model,"ir.action,name",act_translation_update,Synchronize Translations,Übersetzungen aktualisieren,0
 model,"ir.action,name",act_translation_form,Translations,Übersetzungen,0
-model,"ir.action,name",action_tryton,Tryton,Tryton,0
 model,"ir.action,name",act_action_url_form,URLs,URLs,0
 model,"ir.action,name",act_view_form,Views,Sichten,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Schnelltasten Sichten,0
@@ -462,7 +461,6 @@ model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Typen Nummernkreise
 model,"ir.ui.menu,name",menu_translation_set_report,Set Report Translations,Übersetzungen für Berichte aktualisieren,0
 model,"ir.ui.menu,name",menu_translation_update,Synchronize Translations,Übersetzungen aktualisieren,0
 model,"ir.ui.menu,name",menu_translation_form,Translations,Übersetzungen,0
-model,"ir.ui.menu,name",menu_tryton,Tryton,Tryton,0
 model,"ir.ui.menu,name",0,UI menu,Programmoberfläche Menü,0
 model,"ir.ui.menu,name",menu_action_url,URLs,URLs,0
 model,"ir.ui.menu,name",menu_ui,User Interface,Programmoberfläche,0
