@@ -85,7 +85,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
         cursor.execute('SELECT id FROM "%s" '
             'WHERE split_part(name, \',\', 1) %s %%s' %
             (self._table, clause[1]), (clause[2],))
-        return ('id', 'in', [x[0] for x in cursor.fetchall()])
+        return [('id', 'in', [x[0] for x in cursor.fetchall()])]
 
     def get_language(self, cursor, user, context):
         lang_obj = self.pool.get('ir.lang')
