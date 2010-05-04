@@ -116,7 +116,9 @@ class GenericJSONRPCRequestHandler:
 
     def _dispatch(self, method, params):
         host, port = self.client_address[:2]
-        database_name = self.path[1:].strip('sao/')
+        database_name = self.path[1:]
+        if database_name.startswith('sao/'):
+            database_name = database_name[4:]
         method_list = method.split('.')
         object_type = method_list[0]
         object_name = '.'.join(method_list[1:-1])
