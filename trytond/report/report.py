@@ -207,7 +207,8 @@ class Report(object):
         content_io.close()
         outzip.close()
 
-        translator = Translator(translate)
+        # Since Genshi >= 0.6, Translator requires a function type
+        translator = Translator(lambda text: translate(text))
 
         rel_report = relatorio.reporting.Report(path, 'application/vnd.oasis.opendocument.text',
                 ReportFactory(), relatorio.reporting.MIMETemplateLoader())
