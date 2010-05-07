@@ -219,7 +219,7 @@ class TrytonDAVInterface(iface.dav_interface):
             raise DAV_Error(500)
         return res
 
-    def get_data(self, uri):
+    def get_data(self, uri, range=None):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or (self.exists(uri) and self.is_collection(uri)):
             res = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 '\
@@ -261,7 +261,22 @@ class TrytonDAVInterface(iface.dav_interface):
         except Exception, exception:
             self._log_exception(exception)
             raise DAV_Error(500)
-        return res
+        if range is None:
+            return res
+        size = len(res)
+        if range[1] == '':
+            range[1] = size
+        else:
+            range[1] = int(range[1])
+        if range[1] > size:
+            range[1] = size
+        if range[0] == '':
+            range[0] = size - range[1]
+        else:
+            range[0] = int(range[0])
+        if range[0] > size:
+            raise DAV_Requested_Range_Not_Satisfiable
+        return res[range[0]:range[1]]
 
     def put(self, uri, data, content_type=''):
         dbname, dburi = self._get_dburi(uri)
