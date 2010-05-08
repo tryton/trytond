@@ -16,24 +16,6 @@ _RE_CHECK = re.compile('CHECK\s*\((.*)\)', re.I)
 class ModelSQL(ModelStorage):
     """
     Define a model with storage in database.
-
-    :_table: The name of the database table which is mapped to the class.
-        If not set the value of ``_name`` is used with dots converted to
-        underscores.
-    :_order: A tuple defining by default how the record are returned when searching.
-        E.g.:
-
-        ``[('name', 'ASC'), 'age', 'DESC']``
-    :_order_name: The name of the field (or an SQL statement) on which the records
-         must be sorted when sorting on this model from an other model.
-    :_history: A boolean to historize record change.
-    :_sql_constraints: A list of constraints that are added on the table. E.g.:
-
-        ``('constrain_name, sql_constraint, 'error_msg')`` where
-        ``'constrain_name'`` is the name of the SQL constraint for the database,
-        ``sql_constraint`` is the actual SQL constraint and
-        ``'error_msg'`` is one of the key of ``_error_messages``.
-    :_sql_error_messages:  Like ``_error_messages`` for ``_sql_constraints``.
     """
     _table = None # The name of the table in database
     _order = None
@@ -1310,7 +1292,7 @@ class ModelSQL(ModelStorage):
         :return: a tuple with
             - a SQL clause string
             - a list of arguments for the SQL clause
-            - a list a tables used in the SQL clause
+            - a list of tables used in the SQL clause
             - a list of arguments for the tables
         '''
         domain = self._search_domain_active(domain, active_test=active_test,

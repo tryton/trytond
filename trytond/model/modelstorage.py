@@ -24,19 +24,6 @@ import csv
 class ModelStorage(Model):
     """
     Define a model with storage capability in Tryton.
-
-    :create_uid: A Many2One that points to the
-        user who created the record.
-    :create_date: A Date field for date of creation of the record.
-    :write_uid: A Many2One that points to the user who writed the record.
-    :write_date: A Date field for date of last write of the record.
-    :rec_name: A Function field that return the rec_name of the record.
-    :_constraints: A list of constraints that each record must respect.
-        Each item of this list is a couple ``('function_name', 'error_keyword')``,
-        where ``'function_name'`` is the name of a method of the same class,
-        which should return a boolean value (``False`` when the constraint is
-        violated). ``error_keyword`` must be one of the key of
-        ``_sql_error_messages``.
     """
 
     create_uid = fields.Many2One('res.user', 'Create User', readonly=True)
@@ -304,7 +291,7 @@ class ModelStorage(Model):
     def search(self, cursor, user, domain, offset=0, limit=None, order=None,
             context=None, count=False):
         '''
-        Return a list of ids that match the clauses defined in args.
+        Return a list of ids that match the domain.
 
         :param cursor: the database cursor
         :param user: the user id

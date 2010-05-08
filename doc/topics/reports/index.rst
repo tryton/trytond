@@ -1,5 +1,8 @@
+.. _topics-reports:
+
+=======
 Reports
-#######
+=======
 
 Tryton can generate dynamic reports in many formats from report and style
 templates. The reports are generated in one step as follows: a report template
@@ -11,7 +14,7 @@ formats, such as PDF.  Extra libraries are required for this, see INSTALL for
 more information.
 
 Report Templates
-****************
+================
 
 Report templates are files with a format supported by relatorio, that contain
 snippets of the Genshi templating language.
@@ -36,33 +39,22 @@ first address of each party. The genshi code is placed in the template using
 
 
 Report styles
-*************
+=============
 
 Reports styles let you standardize the header, footer and styles of your
 templates.
 
 
 Report API
-**********
-
-.. _report:
-
-Python API
 ==========
 
-.. _trytond.report.Report
-.. autoclass:: trytond.report.Report
-    :members:
-    :undoc-members:
+Python API
+----------
 
-.. _trytond.ir.action.ActionReport
-.. autoclass:: trytond.ir.action.ActionReport
-    :members:
-    :undoc-members:
-
+.. TODO
 
 XML Description
-===============
+---------------
 
 When defining an `ir.action.report` the following attributes are available:
 
@@ -84,13 +76,13 @@ When defining an `ir.action.report` the following attributes are available:
 
 
 Report Usage
-************
+============
 
 Using genshi and open office reports
-====================================
+------------------------------------
 
 Setting up an ODT file
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 If you are creating a report from scratch you should perform the following
 steps:
@@ -133,7 +125,7 @@ steps:
       report styles.
 
 Using Genshi in an ODT file
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The genshi code is placed in the template using Functions->Placeholder->Text
 Fields. These are specific to ``*.odt`` files and can be found in the open
 office menu at Insert -> Fields -> Other and then Functions -> Placeholder ->
@@ -147,7 +139,7 @@ are supported by relatorio can be found here: `Quick Example`_ .
 See genshi's documentation for more information: `Genshi XML Templates`_
 
 Examples
---------
+^^^^^^^^
 
 The modules company, account_invoice and stock all contain helpful examples.
 
@@ -161,7 +153,7 @@ Also see relatorio's site for some examples:
 
 
 Accessing models from within the report
-=======================================
+---------------------------------------
 
 By default instances of the models the report is for are passed in to the
 report via a list of objects called `objects`.  These objects behave just as
@@ -179,12 +171,12 @@ example, one could access `invoice.party.addresses` to get a list of addresses
 for the party of an invoice.
 
 Creating a simple report template for a model from client
-=========================================================
+---------------------------------------------------------
 
 TODO: Explain the steps necessary to do this.
 
 Creating a simple report template for a model in XML
-====================================================
+----------------------------------------------------
 
 Less work has to be done if you just want a simple report representation of a
 model.  There are just 2 steps.  First, create a report template file in a
@@ -192,7 +184,7 @@ format supported by relatorio.  Second, describe your report in XML making sure
 to define the correct report_name and module_name.
 
 Replacing existing Tryton reports
-=================================
+---------------------------------
 
 To replace an existing report you must deactivate the old report and activate
 the new report.
@@ -222,7 +214,7 @@ Then you must activate the new invoice report that exists in your new module:
   </record>
 
 Passing custom data to a report
-===============================
+-------------------------------
 
 TODO: Examples of overriding Report.execute.
 
@@ -249,13 +241,11 @@ context.  Now the invoice report will be able to access the employee object.
 
 
 Replacing existing Tryton styles
-================================
+--------------------------------
 
 TODO: Explanation of how to override `ir.report.get_style_content` to change
 the default style.
 
-
-.. External Links
 
 .. _Genshi XML Templates: http://genshi.edgewall.org/wiki/Documentation/0.5.x/xml-templates.html
 

@@ -9,6 +9,13 @@ class ModelSingleton(ModelStorage):
     """
 
     def get_singleton_id(self, cursor, user, context=None):
+        '''
+        Return the id of the unique record if there is one.
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param context: the context
+        '''
         singleton_ids = super(ModelSingleton, self).search(cursor, user, [],
                 limit=1, context=context)
         if singleton_ids:
