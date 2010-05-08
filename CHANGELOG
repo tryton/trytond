@@ -1,3 +1,5 @@
+Version 1.6.0 - 2010-05-08
+* Bug fixes (see mercurial logs for details)
 * Add symbol parameter to formatLang
 * searcher on Function fields take only one domain clause as argument
 * Use a Reference field on ir.attachment to store resource informations
