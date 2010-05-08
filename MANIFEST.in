@@ -18,6 +18,7 @@ include trytond/ir/ui/*.rng
 include trytond/ir/ui/*.rnc
 include trytond/res/*.xml
 include trytond/res/*.csv
+include trytond/test/*.xml
 include trytond/webdav/*.xml
 include trytond/webdav/*.csv
 include trytond/workflow/*.xml
