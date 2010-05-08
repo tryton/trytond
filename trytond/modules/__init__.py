@@ -382,9 +382,16 @@ def register_classes(reload_p=False):
             mod_path = os.path.join(ep.dist.location,
                     *ep.module_name.split('.')[:-1])
             if not os.path.isdir(mod_path):
-                # When testing modules from setuptools location is the module
-                # directory
-                mod_path = os.path.dirname(ep.dist.location)
+                # Find module in path
+                for path in sys.path:
+                    mod_path = os.path.join(path,
+                            *ep.module_name.split('.')[:-1])
+                    if os.path.isdir(os.path.join(mod_path, module)):
+                        break
+                if not os.path.isdir(os.path.join(mod_path, module)):
+                    # When testing modules from setuptools location is the
+                    # module directory
+                    mod_path = os.path.dirname(ep.dist.location)
             mod_file, pathname, description = imp.find_module(module,
                     [mod_path])
             try:
