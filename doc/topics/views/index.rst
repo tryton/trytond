@@ -1,13 +1,13 @@
+.. _topics-views:
 
-:tocdepth: 2
-
+=====
 Views
-#####
+=====
 
 The views are used to display records of an object to the user.
 
-In Tryton objects can have several views. It is the action,  that opens the
-window and that tells which view to use.
+In Tryton, objects can have several views. An `action` opens a window and
+defines which view to show.
 
 The views are built from XML that is stored in the databases with the object
 ir.ui.view.
@@ -38,10 +38,8 @@ There is three types of views:
 
     * Graph
 
-
-
 Form view
-*********
+=========
 
 The RNG describing the xml of a form view is stored in trytond/ir/ui/form.rng.
 There is also a RNC in trytond/ir/ui/form.rnc.
@@ -62,24 +60,24 @@ Elements of the view are put on the screen following the rules:
 
 
 XML description
-+++++++++++++++
+---------------
 
 Here is the list of common attributes:
 
     * ``expand``: A boolean to specify if the label should expand to take up
-      any extra horizontal space.
+      any extra vertical space.
 
-    * ``fill``: A boolean to specify if the label should fill the horizontal
+    * ``fill``: A boolean to specify if the label should fill the vertical
       space allocated to it in the table cell.
 
-    * ``xexpand``: The same as expand but for vertical space.
+    * ``xexpand``: The same as expand but for horizontal space.
 
-    * ``xfill``: The same as fill but for vertical space.
+    * ``xfill``: The same as fill but for horizontal space.
 
-    * ``colspan``: The number of columns the label must take in the table.
+    * ``colspan``: The number of columns the widget must take in the table.
 
-    * ``states``: A string of python code that will be evaluated with the field
-      of the current record.
+    * ``states``: A string of :ref:`PYSON statement <topics-pyson>` that will
+      be evaluated with the values of the current record.
 
       It must return a dictionary where keys can be:
 
@@ -250,8 +248,8 @@ hpaned, vpaned
     * ``position``: The pixel position of divider, a negative value means that
       the position is unset.
 
-child1,child2
-^^^^^^^^^^^^^
+child1, child2
+^^^^^^^^^^^^^^
 
 Contains the two childs of a hpaned or vpaned.
 
@@ -263,7 +261,7 @@ Display a table of 4 columns with all the properties of the object.
 .. _example_form_view:
 
 Example
-+++++++
+-------
 
 .. highlight:: xml
 
@@ -303,7 +301,7 @@ Example
 
 
 Tree view
-*********
+=========
 
 The RNG that describes the xml for a tree view is stored in
 trytond/ir/ui/tree.rng. There is also a RNC in trytond/ir/ui/tree.rnc.
@@ -314,7 +312,7 @@ The columns of the view are put on the screen from left to right.
 
 
 XML description
-+++++++++++++++
+---------------
 
 tree
 ^^^^
@@ -373,7 +371,7 @@ field
     * ``width``: Set the width of the column.
 
 Example
-+++++++
+-------
 
 .. highlight:: xml
 
@@ -389,14 +387,14 @@ Example
 
 
 Graph view
-**********
+==========
 
 The RNG that describes the xml for a graph view is stored in
 trytond/ir/ui/graph.rng.  There is also a RNC in trytond/ir/ui/graph.rnc.
 
 
 XML description
-+++++++++++++++
+---------------
 
 graph
 ^^^^^
@@ -442,7 +440,7 @@ field
 
 
 Example
-+++++++
+-------
 
 .. highlight:: xml
 
@@ -456,56 +454,3 @@ Example
         <field name="total_amount"/>
     </y>
   </graph>
-
-
-Inherit view
-************
-
-Inherit a view means, that the original view will be modified by a set of rules
-that are defined with XML.
-
-For this purpose, the inheritance engine uses xpath expressions.
-
-The inherited view is defined with the field ``inherit`` of the ir.ui.view.
-
-If the field ``domain`` is not set or evaluated to True, the inheritance will
-be proceeded.
-
-
-XML description
-+++++++++++++++
-
-data
-^^^^
-
-Each inherited view must start with this tag.
-
-xpath
-^^^^^
-
-    * ``expr``: the xpath expression to find a node in the inherited view.
-
-    * ``position``: Define the position in relation to the node found. It can
-      be ``before``, ``after``, ``replace``, ``inside`` or
-      ``replace_attributes`` which will change the attributes.
-
-Example
-+++++++
-
-.. highlight:: xml
-
-::
-
-  <data>
-      <xpath
-          expr="/form/notebook/page/separator[@name=&quot;signature&quot;]"
-          position="before">
-          <label name="main_company"/>
-          <field name="main_company"/>
-          <label name="company"/>
-          <field name="company"/>
-          <label name="employee"/>
-          <field name="employee"/>
-      </xpath>
-  </data>
-

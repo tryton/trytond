@@ -1,31 +1,31 @@
+.. _topics-modules:
 
-:tocdepth: 2
-
+=======
 Modules
-#######
+=======
 
 The modules of Tryton extend the functionality of the platform. The server
-comes by default with only a few functionality included in those modules:
+comes by default with only a basic functionality included in these modules:
 ``ir``, ``res``, ``webdav``, ``workflow``.
 
 Module Structure
-****************
+================
 
-A module is a directory in trytond/modules that contains at least two files:
+A module is a directory in trytond/modules which contains at least two files:
 
    * ``__init__.py``: a Tryton module must be a Python module.
 
    * ``__tryton__.py``: a Python file that describes the Tryton module.
 
 ``__init__.py`` file
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 
 It is the Python ``__init__.py`` to define a module. It must import all the
-python files from the module.
+Python files from the module.
 
 
 ``__tryton__.py`` file
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 It is a Python file that must contain only one dictionary with those keywords:
 
@@ -45,10 +45,10 @@ It is a Python file that must contain only one dictionary with those keywords:
 
    * ``description_language_code``: The long description in the language code.
 
-   * ``depends``: A list of modules on which the module depends.
+   * ``depends``: A list of modules on which this module depends.
 
-   * ``xml``: The list of the XML files of the module. They will be loaded at
-     the installation or update of the module.
+   * ``xml``: The list of the XML files of the module. They will be loaded in
+     the given order at the installation or update of the module.
 
    * ``translation``: The list of csv files that contain the translation. The
      name of the files must be the language code.
@@ -86,19 +86,19 @@ Here is an example:
       ],
   }
 
-Python files
-************
+Python Files
+============
 
-The Python files defines the Models for the modules.
+The Python files define the models for the modules.
 
-XML files
-*********
+XML Files
+=========
 
-The XML files defines data that will be inserted into the database.
+The XML files define data that will be inserted into the database.
 
 There is an rnc for those files stored in ``trytond/tryton.rnc``.
 
-The following snippet gives a first idea of what looks a xml file:
+The following snippet gives a first idea of what an xml file looks:
 
 .. highlight:: xml
 
@@ -142,7 +142,8 @@ Here is the list of the tags:
     * ``tryton``: The main tag of the xml
 
     * ``data``: Define a set of data inside the file. It can have the
-      attributes ``noupdate`` to prevent the framework to update the records.
+      attributes ``noupdate`` to prevent the framework to update the records
+      and ``skiptest`` to prevent import of data when running tests.
 
     * ``record``: Create a record of the model defined by the attribute
       ``model`` in the database. The ``id`` attribute can be used to refer to
@@ -153,16 +154,22 @@ Here is the list of the tags:
 
       Here is the list of attributes:
 
-        * ``search``: Only for relation field, it contains a domain on which
-          searching for the first record and use it as value.
+        * ``search``: Only for relation field. It contains a domain which is
+          used to search for the value to use. The first value found will be
+          used.
 
-        * ``ref``: Only for relation field, it contains a xml id of the
+        * ``ref``: Only for relation field. It contains an xml id of the
           relation to use as value. It must be prefixed by the module name with
-          a ending dot, if the record is defined in an other module.
+          an ending dot, if the record is defined in an other module.
 
         * ``eval``: Python code to evaluate and use result as value.
 
         * ``type``: If set to xml, it will use the CDATA content as value.
+
+        .. note::
+            Field content is considered as a string. So for fields that require
+            other types, it is required to use the ``eval`` attribute.
+        ..
 
 
     * ``menuitem``: Shortcut to create ir.ui.menu records.

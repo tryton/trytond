@@ -62,13 +62,12 @@ class Field(object):
         :param required: A boolean if ``True`` the field is required.
         :param readonly: A boolean if ``True`` the field is not editable in
             the user interface.
-        :param domain: A list that defines a domain constraint. See domain on
-            ModelStorage.search.
+        :param domain: A list that defines a domain constraint.
         :param states: A dictionary. Possible keys are ``required``,
             ``readonly`` and ``invisible``. Values are pyson expressions that
             will be evaluated with record values. This allows to change
             dynamically the attributes of the field.
-        :param priority: Give the order in which set methods are called.
+        :param priority: Give the order in which setter methods are called.
         :param change_default: A boolean. If ``True`` the field can be used as
         condition for a custom default value.
         :param select: An integer. When equal to ``1``, the field appears in the

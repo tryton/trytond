@@ -21,7 +21,7 @@ class One2Many(Field):
             change_default=False, select=0, on_change=None,
             on_change_with=None, depends=None, order_field=None, context=None):
         '''
-        :param model_name: The name of the targeted model.
+        :param model_name: The name of the target model.
         :param field: The name of the field that handle the reverse many2one.
         :param add_remove: A list that defines a domain on add/remove.
             See domain on ModelStorage.search.

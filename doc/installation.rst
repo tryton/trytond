@@ -1,4 +1,0 @@
-Installation
-############
-
-see INSTALL file.

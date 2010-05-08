@@ -10,19 +10,6 @@ import copy
 class Model(object):
     """
     Define a model in Tryton.
-
-    :_name: a unique string to reference the model throughout the platform.
-    :_inherits: a model from which this one inherits.
-    :_description: a non technical description string.
-    :_rpc: a dictionary with a method name allowed to be called remotely and
-        a boolean as value that defines if it must be called in a commited
-        transaction.
-    :_error_messages: a dictionary mapping keywords to an error message. Eg.:
-
-        ``{'recursive_categories': 'You can not create recursive categories!'}``
-    :_rec_name: The name of the main field of the model.
-        By default the field ``name``.
-    :id: An Integer field for unique identifier.
     """
     _name = None
     _inherits = {}
@@ -663,7 +650,7 @@ class Model(object):
 
     def fields_get(self, cursor, user, fields_names=None, context=None):
         """
-        Return the definition of each field in the object.
+        Return the definition of each field on the model.
 
         :param cursor: the database cursor
         :param user: the user id

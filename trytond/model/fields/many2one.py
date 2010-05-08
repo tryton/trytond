@@ -16,7 +16,7 @@ class Many2One(Field):
             change_default=False, select=0, on_change=None,
             on_change_with=None, depends=None, order_field=None, context=None):
         '''
-        :param model_name: The name of the targeted model.
+        :param model_name: The name of the target model.
         :param left: The name of the field to store the left value for
             Modified Preorder Tree Traversal.
             See http://en.wikipedia.org/wiki/Tree_traversal
