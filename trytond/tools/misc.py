@@ -4,7 +4,7 @@
 """
 Miscelleanous tools used by tryton
 """
-import os, time
+import os, time, sys
 import inspect
 from trytond.config import CONFIG
 import subprocess
@@ -89,10 +89,18 @@ def file_open(name, mode="r", subdir='modules'):
                     *epoint.module_name.split('.')[:-1])
             name3 = os.path.join(mod_path, name)
             if not os.path.isfile(name3):
-                # When testing modules from setuptools location is the module
-                # directory
-                name3 = os.path.join(os.path.dirname(epoint.dist.location),
-                        name)
+                # Find module in path
+                for path in sys.path:
+                    mod_path = os.path.join(path,
+                            *epoint.module_name.split('.')[:-1])
+                    name3 = os.path.join(mod_path, name)
+                    if os.path.isfile(name3):
+                        break
+                if not os.path.isfile(name3):
+                    # When testing modules from setuptools location is the
+                    # module directory
+                    name3 = os.path.join(os.path.dirname(epoint.dist.location),
+                            name)
 
     if subdir:
         if subdir == 'modules'\
