@@ -1,3 +1,5 @@
+* Add default value to Boolean fields at database level
+
 Version 1.6.0 - 2010-05-08
 * Bug fixes (see mercurial logs for details)
 * Add symbol parameter to formatLang
