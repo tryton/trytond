@@ -123,6 +123,9 @@ class ModelSQL(ModelStorage):
                 if isinstance(field, (fields.Integer, fields.Float)):
                     table.db_default(field_name, 0)
 
+                if isinstance(field, (fields.Boolean)):
+                    table.db_default(field_name, False)
+
                 if isinstance(field, fields.Many2One):
                     if field.model_name in ('res.user', 'res.group'):
                         ref = field.model_name.replace('.','_')
