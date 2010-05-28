@@ -83,6 +83,23 @@ class User(ModelSQL, ModelView):
             'wrong_password': 'Wrong password!',
             })
 
+    def init(self, cursor, module_name):
+        super(User, self).init(cursor, module_name)
+        table = TableHandler(cursor, self, module_name)
+
+        # Migration from 1.6
+
+        # For module dashboard
+        table.not_null_action('dashboard_layout', action='remove')
+
+        # For module calendar_scheduling
+        for field in ('calendar_email_notification_new',
+                'calendar_email_notification_update',
+                'calendar_email_notification_cancel',
+                'calendar_email_notification_partstat',
+                ):
+            table.not_null_action(field, action='remove')
+
     def default_password(self, cursor, user, context=None):
         return False
 
