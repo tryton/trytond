@@ -1,3 +1,4 @@
+* Add ir.trigger to trigger ModelStorage change
 * Add default value to Boolean fields at database level
 
 Version 1.6.0 - 2010-05-08

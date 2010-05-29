@@ -417,6 +417,8 @@ class ModelSQL(ModelStorage):
                 self._update_tree(cursor, user, id_new, k, field.left,
                         field.right)
 
+        self.trigger_create(cursor, user, id_new, context=context)
+
         return id_new
 
     def read(self, cursor, user, ids, fields_names=None, context=None):
@@ -716,6 +718,11 @@ class ModelSQL(ModelStorage):
         return res
 
     def write(self, cursor, user, ids, values, context=None):
+
+        # Call before cursor cache cleaning
+        trigger_eligibles = self.trigger_write_get_eligibles(cursor, user,
+                isinstance(ids, (int, long)) and [ids] or ids, context=context)
+
         super(ModelSQL, self).write(cursor, user, ids, values, context=context)
 
         if context is None:
@@ -966,6 +973,9 @@ class ModelSQL(ModelStorage):
                             field.left, field.right)
                 else:
                     self._rebuild_tree(cursor, 0, k, False, 0)
+
+        self.trigger_write(cursor, user, trigger_eligibles, context=context)
+
         return True
 
     def delete(self, cursor, user, ids, context=None):
@@ -1066,6 +1076,8 @@ class ModelSQL(ModelStorage):
                 if not rowcount == len({}.fromkeys(sub_ids)):
                     self.raise_user_error(cursor, 'access_error',
                             self._description, context=context)
+
+        self.trigger_delete(cursor, user, ids, context=context)
 
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]

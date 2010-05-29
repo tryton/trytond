@@ -40,6 +40,7 @@ Fournit les concepts et l'administration des modèles, actions, séquences, loca
         'property.xml',
         'module/module.xml',
         'default.xml',
+        'trigger.xml',
         ],
     'translation': [
         'fr_FR.csv',

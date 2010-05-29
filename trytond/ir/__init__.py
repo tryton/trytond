@@ -15,3 +15,4 @@ import module
 from default import *
 from cache import *
 from date import *
+from trigger import *
