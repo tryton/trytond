@@ -203,6 +203,11 @@ Instance methods:
     Create a record. ``values`` is a dictionary with fields names as key and
     created values as value.
 
+.. method:: ModelStorage.trigger_create(cursor, user, id[, context])
+
+    Trigger create actions. It will call actions defined in ``ir.trigger`` if
+    ``on_create`` is set and ``condition`` is true.
+
 .. method:: ModelStorage.read(cursor, user, ids[, fields_names[, context]])
 
     Return values for the ids. If ``fields_names`` is set, there will be only
@@ -217,9 +222,25 @@ Instance methods:
     ``values`` is a dictionary with fields names as key and writen values as
     value.
 
+.. method:: ModelStorage.trigger_write_get_eligibles(cursor, user, ids[, context])
+
+    Return eligible record ids for write actions by triggers. This dictionary
+    is to pass to :method:`~ModelStorage.trigger_write`.
+
+.. method:: ModelStorage.trigger_write(cursor, user, eligibles[, context])
+
+    Trigger write actions. It will call actions defined in ``ir.trigger`` if
+    ``on_write`` is set and ``condition`` was false before
+    :method:`~ModelStorage.write` and true after.
+
 .. method:: ModelStorage.delete(cursor, user, ids[, context])
 
     Delete records. ``ids`` can be a list of ids or an id.
+
+.. method:: ModelStorage.trigger_delete(cursor, user, ids[, context])
+
+    Trigger delete actions. It will call actions defined in ``ir.trigger`` if
+    ``on_delete`` is set and ``condition`` is true.
 
 .. method:: ModelStorage.copy(cursor, user, ids[, default[, context]])
 

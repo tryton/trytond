@@ -88,6 +88,26 @@ class ModelStorage(Model):
         self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
 
+    def trigger_create(self, cursor, user, id, context=None):
+        '''
+        Trigger create actions
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param id: the created id
+        :param context: the context
+        '''
+        trigger_obj = self.pool.get('ir.trigger')
+        trigger_ids = trigger_obj.get_triggers(cursor, user, self._name, 'create')
+        if not trigger_ids:
+            return
+        record = self.browse(cursor, user, id, context=context)
+        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        for trigger in triggers:
+            if trigger_obj.eval(cursor, user, trigger, record, context=context):
+                trigger_obj.trigger_action(cursor, user, [id], trigger.id,
+                        context=context)
+
     def read(self, cursor, user, ids, fields_names=None, context=None):
         '''
         Read records.
@@ -144,6 +164,58 @@ class ModelStorage(Model):
             self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
 
+    def trigger_write_get_eligibles(self, cursor, user, ids, context=None):
+        '''
+        Return eligible ids for write actions by triggers
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: a list of ids
+        :param context: the context
+        :return: a dictionary of the lists of eligible ids by triggers
+        '''
+        trigger_obj = self.pool.get('ir.trigger')
+        trigger_ids = trigger_obj.get_triggers(cursor, user, self._name, 'write')
+        if not trigger_ids:
+            return {}
+        records = self.browse(cursor, user, ids, context=context)
+        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        eligibles = {}
+        for trigger in triggers:
+            eligibles[trigger.id] = []
+            for record in records:
+                if not trigger_obj.eval(cursor, user, trigger, record,
+                        context=context):
+                    eligibles[trigger.id].append(record.id)
+        return eligibles
+
+    def trigger_write(self, cursor, user, eligibles, context=None):
+        '''
+        Trigger write actions
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param eligibles: a dictionary of the lists of eligible ids by triggers
+        :param context: the context
+        '''
+        trigger_obj = self.pool.get('ir.trigger')
+        trigger_ids = eligibles.keys()
+        if not trigger_ids:
+            return
+        records = self.browse(cursor, user, chain(*eligibles.values()),
+                context=context)
+        id2record = dict((x.id, x) for x in records)
+        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        for trigger in triggers:
+            triggered_ids = []
+            for record_id in eligibles[trigger.id]:
+                record = id2record[record_id]
+                if trigger_obj.eval(cursor, user, trigger, record, context=context):
+                    triggered_ids.append(record.id)
+            if triggered_ids:
+                trigger_obj.trigger_action(cursor, user, triggered_ids,
+                        trigger.id, context=context)
+
     def delete(self, cursor, user, ids, context=None):
         '''
         Delete records.
@@ -175,6 +247,30 @@ class ModelStorage(Model):
         if ids:
             self.__clean_xxx2many_cache(cursor, user, context=context)
         return False
+
+    def trigger_delete(self, cursor, user, ids, context=None):
+        '''
+        Trigger delete actions
+
+        :param cursor: the database cursor
+        :param user: the user id
+        :param ids: the deleted ids
+        :param context: the context
+        '''
+        trigger_obj = self.pool.get('ir.trigger')
+        trigger_ids = trigger_obj.get_triggers(cursor, user, self._name, 'delete')
+        if not trigger_ids:
+            return
+        records = self.browse(cursor, user, ids, context=context)
+        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        for trigger in triggers:
+            triggered_ids = []
+            for record in records:
+                if trigger_obj.eval(cursor, user, trigger, record, context=context):
+                    triggered_ids.append(record.id)
+            if triggered_ids:
+                trigger_obj.trigger_action(cursor, user, triggered_ids,
+                        trigger.id, context=context)
 
     def copy(self, cursor, user, ids, default=None, context=None):
         '''

@@ -348,6 +348,36 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
+        <record model="ir.model.access" id="access_ir_trigger">
+            <field name="model" search="[('model', '=', 'ir.trigger')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_ir_trigger_admin">
+            <field name="model" search="[('model', '=', 'ir.trigger')]"/>
+            <field name="group" ref="group_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.model.access" id="access_ir_trigger_log">
+            <field name="model" search="[('model', '=', 'ir.trigger.log')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_ir_trigger_log_admin">
+            <field name="model" search="[('model', '=', 'ir.trigger.log')]"/>
+            <field name="group" ref="group_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
         <record model="ir.rule.group" id="rule_group_menu">
             <field name="model" search="[('model', '=', 'ir.ui.menu')]"/>
             <field name="global_p" eval="True"/>
@@ -492,6 +522,25 @@ this repository contains the full copyright notices and license terms. -->
             <field name="operator">in</field>
             <field name="operand">User/Groups</field>
             <field name="rule_group" ref="rule_group_sequence_strict"/>
+        </record>
+
+        <record model="res.user" id="user_trigger">
+            <field name="login">user_cron_trigger</field>
+            <field name="name">Cron Trigger</field>
+            <field name="groups" eval="[('add', ref('group_admin'))]"/>
+        </record>
+
+        <record model="ir.cron" id="cron_trigger_time">
+            <field name="name">Run On Time Triggers</field>
+            <field name="request_user" ref="user_admin"/>
+            <field name="user" ref="user_trigger"/>
+            <field name="active" eval="True"/>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model">ir.trigger</field>
+            <field name="function">trigger_time</field>
         </record>
 
     </data>
