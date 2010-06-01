@@ -620,7 +620,7 @@ class Attachment(ModelSQL, ModelView):
             if attachment.resource:
                 model_name, record_id = attachment.resource.split(',')
                 if model_name == 'webdav.collection':
-                    collection = collection_obj.browse(cursor, user, record_id)
+                    collection = collection_obj.browse(cursor, user, int(record_id))
                     for child in collection.childs:
                         if child.name == attachment.name:
                             return False
