@@ -13,14 +13,7 @@ class BrowseRecordList(list):
         self.context = context
 
     def get_eval(self):
-        res = []
-        for record in self:
-            res2 = {}
-            for field_name, _ in record._model._columns.iteritems():
-                if not isinstance(record[field_name], BrowseRecordList):
-                    res2[field_name] = record.get_eval(field_name)
-            res.append(res2)
-        return res
+        return [record.get_eval() for record in self]
 
 
 class BrowseRecordNull(object):
