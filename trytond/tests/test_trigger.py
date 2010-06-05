@@ -288,7 +288,7 @@ class TriggerTestCase(unittest.TestCase):
             }, context=CONTEXT)
 
         self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], triggered_id)])
+        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
         TRIGGER_LOGS.pop()
 
         # Trigger with condition
@@ -302,7 +302,7 @@ class TriggerTestCase(unittest.TestCase):
 
         # Matching condition
         self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], triggered_id)])
+        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
         TRIGGER_LOGS.pop()
 
         triggered_id = self.triggered.create(cursor, USER, {
@@ -323,7 +323,7 @@ class TriggerTestCase(unittest.TestCase):
             'limit_number': 1,
             }, context=CONTEXT)
         self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], triggered_id)])
+        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
         TRIGGER_LOGS.pop()
         # Delete trigger logs because SQLite reuse the same triggered_id
         self.trigger_log.delete(cursor, USER,
@@ -341,7 +341,7 @@ class TriggerTestCase(unittest.TestCase):
             'minimum_delay': 1,
             }, context=CONTEXT)
         self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], triggered_id)])
+        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
         TRIGGER_LOGS.pop()
 
         # Restart the cache on the get_triggers method of ir.trigger
