@@ -82,7 +82,7 @@ class Numeric(Float):
         if isinstance(value, (int, long)):
             value = Decimal(str(value))
         if isinstance(value, float) and hasattr(value, 'decimal'):
-            value = Decimal(value.decimal)
+            value = value.decimal
         assert isinstance(value, Decimal)
         return value
 

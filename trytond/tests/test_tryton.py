@@ -172,6 +172,8 @@ def all_suite():
     suite_.addTests(test_importdata.suite())
     import trytond.tests.test_exportdata as test_exportdata
     suite_.addTests(test_exportdata.suite())
+    import trytond.tests.test_protocols_datatype as test_protocols_datatype
+    suite_.addTests(test_protocols_datatype.suite())
     return suite_
 
 def modules_suite():
