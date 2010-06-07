@@ -154,8 +154,10 @@ class ProtocolsDatatypeFloatTestCase(unittest.TestCase):
         '''
         Test format Float
         '''
-        self.assertEqual(format(Float('1.1'), '.32f'),
-                '1.10000000000000000000000000000000')
+        # For Python < 2.6
+        if hasattr(__builtins__, 'format'):
+            self.assertEqual(format(Float('1.1'), '.32f'),
+                    '1.10000000000000000000000000000000')
 
     def test_Float_ge_Decimal(self):
         '''
@@ -359,6 +361,18 @@ class ProtocolsDatatypeFloatTestCase(unittest.TestCase):
         Test right substraction between float and Float
         '''
         self.assertEqual(2.5 - Float('1.2'), 1.3)
+
+    def test_Decimal_only_Method(self):
+        '''
+        Test Decimal only method
+        '''
+        self.assertEqual(Float('1.5').quantize(Decimal('1')), Decimal('2'))
+
+    def test_float_only_Method(self):
+        '''
+        Test float only method
+        '''
+        self.assertEqual(Float('1.5').hex(), '0x1.8000000000000p+0')
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ProtocolsDatatypeFloatTestCase)
