@@ -70,22 +70,34 @@ class Float(float):
 
     def __ge__(self, other, context=None):
         if isinstance(other, Decimal):
-            return self.decimal.__ge__(other, context=context)
+            if hasattr(self.decimal, '__ge__'):
+                return self.decimal.__ge__(other, context=context)
+            # For Python < 2.6
+            return self.decimal >= other
         return super(Float, self).__ge__(other)
 
     def __gt__(self, other, context=None):
         if isinstance(other, Decimal):
-            return self.decimal.__gt__(other, context=context)
+            if hasattr(self.decimal, '__gt__'):
+                return self.decimal.__gt__(other, context=context)
+            # For Python < 2.6
+            return self.decimal > other
         return super(Float, self).__gt__(other)
 
     def __le__(self, other, context=None):
         if isinstance(other, Decimal):
-            return self.decimal.__le__(other, context=context)
+            if hasattr(self.decimal, '__le__'):
+                return self.decimal.__le__(other, context=context)
+            # For Python < 2.6
+            return self.decimal <= other
         return super(Float, self).__le__(other)
 
     def __lt__(self, other, context=None):
         if isinstance(other, Decimal):
-            return self.decimal.__lt__(other, context=context)
+            if hasattr(self.decimal, '__lt__'):
+                return self.decimal.__lt__(other, context=context)
+            # For Python < 2.6
+            return self.decimal < other
         return super(Float, self).__lt__(other)
 
     def __mod__(self, other, context=None):
@@ -146,3 +158,6 @@ class Float(float):
         if isinstance(other, Decimal):
             return self.decimal.__truediv__(other, context=context)
         return super(Float, self).__truediv__(other)
+
+    def __getattr__(self, name):
+        return getattr(self.decimal, name)
