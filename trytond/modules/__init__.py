@@ -5,6 +5,7 @@ import os, sys, imp
 import itertools
 from trytond.config import CONFIG
 import trytond.tools as tools
+from trytond.tools import Cache
 import zipfile
 import zipimport
 import traceback
@@ -460,4 +461,5 @@ def load_modules(database_name, pool, update=False, lang=None):
         cursor.commit()
     finally:
         cursor.close()
+        Cache.resets(database_name)
     return res
