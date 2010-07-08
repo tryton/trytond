@@ -133,7 +133,7 @@ def file_open(name, mode="r", subdir='modules'):
                 return StringIO.StringIO(zfile.read(os.path.join(
                     os.path.basename(head), zipname).replace(
                         os.sep, '/')))
-            except:
+            except Exception:
                 name2 = os.path.normpath(os.path.join(head + '.zip', zipname))
     for i in (name2, name, name3):
         if i and os.path.isfile(i):

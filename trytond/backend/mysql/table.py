@@ -327,7 +327,7 @@ class TableHandler(TableHandlerInterface):
             self.cursor.execute('ALTER TABLE `%s` ' \
                            'ADD CONSTRAINT `%s` %s' % \
                            (self.table_name, ident, constraint,))
-        except:
+        except Exception:
             if exception:
                 raise
             logging.getLogger('init').warning(
@@ -347,7 +347,7 @@ class TableHandler(TableHandlerInterface):
             self.cursor.execute('ALTER TABLE `%s` ' \
                     'DROP CONSTRAINT `%s`' % \
                     (self.table_name, ident))
-        except:
+        except Exception:
             if exception:
                 raise
             logging.getLogger('init').warning(
@@ -363,7 +363,7 @@ class TableHandler(TableHandlerInterface):
                 'ALTER TABLE `%s` DROP COLUMN `%s`' %
                 (self.table_name, column_name))
 
-        except:
+        except Exception:
             if exception:
                 raise
             logging.getLogger('init').warning(

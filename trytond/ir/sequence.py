@@ -75,7 +75,7 @@ class Sequence(ModelSQL, ModelView):
             try:
                 self._process(cursor, user, sequence.prefix)
                 self._process(cursor, user, sequence.suffix)
-            except:
+            except Exception:
                 return False
         return True
 

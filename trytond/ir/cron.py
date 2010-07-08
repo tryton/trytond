@@ -112,12 +112,12 @@ class Cron(ModelSQL, ModelView):
             for line in traceback.format_exception(*sys.exc_info()):
                 try:
                     line = line.encode('utf-8', 'ignore')
-                except:
+                except Exception:
                     continue
                 tb_s += line
             try:
                 tb_s += error.message.decode('utf-8', 'ignore')
-            except:
+            except Exception:
                 pass
 
             request_obj = self.pool.get('res.request')
@@ -143,7 +143,7 @@ class Cron(ModelSQL, ModelView):
                      'trigger_date': datetime.datetime.now(),
                      })
                 cursor.commit()
-            except:
+            except Exception:
                 cursor.rollback()
 
     def pool_jobs(self, db_name):
@@ -151,7 +151,7 @@ class Cron(ModelSQL, ModelView):
         try:
             database = Database(db_name).connect()
             cursor = database.cursor()
-        except:
+        except Exception:
             return
         try:
             try:

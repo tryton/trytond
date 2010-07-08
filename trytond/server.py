@@ -232,7 +232,7 @@ class TrytonServer(object):
             if CONFIG['auto_reload'] and monitor():
                 try:
                     Pool.start()
-                except:
+                except Exception:
                     pass
             for dbname in Pool.database_list():
                 pool = Pool(dbname)

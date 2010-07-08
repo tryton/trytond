@@ -645,7 +645,7 @@ class ReportTranslationSet(Wizard):
             style_content = None
             try:
                 style_content = base64.decodestring(report.style_content)
-            except:
+            except Exception:
                 pass
 
             if style_content:

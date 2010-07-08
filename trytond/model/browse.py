@@ -271,7 +271,7 @@ class EvalEnvironment(dict):
     def get(self, item, default=None):
         try:
             return self.__getitem__(item)
-        except:
+        except Exception:
             pass
         return super(EvalEnvironment, self).get(item, default)
 

@@ -63,7 +63,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 cursor = database.cursor()
                 cursor.close(close=True)
                 return True
-            except:
+            except Exception:
                 return False
         elif method == 'list':
             database = Database().connect()
@@ -71,7 +71,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 cursor = database.cursor()
                 res = database.list(cursor)
                 cursor.close(close=True)
-            except:
+            except Exception:
                 res = []
             return res
         elif method == 'create':
@@ -206,7 +206,7 @@ def create(database_name, password, lang, admin_password):
                 module_obj.update_list(cursor, 0)
             cursor.commit()
             res = True
-        except:
+        except Exception:
             logger.error('CREATE DB: %s failed' % (database_name,))
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
@@ -232,7 +232,7 @@ def drop(database_name, password):
         try:
             database.drop(cursor, database_name)
             cursor.commit()
-        except:
+        except Exception:
             logger.error('DROP DB: %s failed' % (database_name,))
             tb_s = reduce(lambda x, y: x+y,
                     traceback.format_exception(*sys.exc_info()))
@@ -264,7 +264,7 @@ def restore(database_name, password, data, update=False):
         cursor = database.cursor()
         cursor.close(close=True)
         raise Exception("Database already exists!")
-    except:
+    except Exception:
         pass
     data = base64.decodestring(data)
     Database.restore(database_name, data)

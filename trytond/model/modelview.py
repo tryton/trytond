@@ -330,7 +330,7 @@ class ModelView(Model):
                             relation = field.model_name
                         else:
                             relation = field.get_target(self.pool)._name
-                    except:
+                    except Exception:
                         relation = False
                     if relation and element.tag == 'field':
                         childs = False

@@ -114,7 +114,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
                 for i in grouping:
                     if not isinstance(i, int):
                         return False
-            except:
+            except Exception:
                 return False
         return True
 
@@ -126,7 +126,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
             try:
                 datetime_strftime(datetime.datetime.now(),
                         lang.date.encode('utf-8'))
-            except:
+            except Exception:
                 return False
             if '%Y' not in lang.date:
                 return False

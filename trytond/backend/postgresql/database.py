@@ -191,7 +191,7 @@ class Database(DatabaseInterface):
             db_name = db_name.encode('utf-8')
             try:
                 database = Database(db_name).connect()
-            except:
+            except Exception:
                 continue
             cursor2 = database.cursor()
             if cursor2.test():
@@ -290,7 +290,7 @@ class Cursor(CursorInterface):
                 res = self.cursor.execute(sql, params)
             else:
                 res = self.cursor.execute(sql)
-        except:
+        except Exception:
             logger = logging.getLogger('sql')
             logger.error('Wrong SQL: ' + (self.cursor.query or ''))
             raise

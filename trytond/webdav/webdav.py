@@ -359,7 +359,7 @@ class Collection(ModelSQL, ModelView):
                 try:
                     if attachment.datas_size:
                         size = str(attachment.datas_size)
-                except:
+                except Exception:
                     pass
                 if attachment.id == object_id:
                     res = size
@@ -480,7 +480,7 @@ class Collection(ModelSQL, ModelView):
                     try:
                         if attachment.datas is not False:
                             data = base64.decodestring(attachment.datas)
-                    except:
+                    except Exception:
                         pass
                     if attachment.id == object_id:
                         res = data
@@ -527,14 +527,14 @@ class Collection(ModelSQL, ModelView):
                     'name': name,
                     'resource': '%s,%s' % (object_name, object_id),
                     }, context=context)
-            except:
+            except Exception:
                 raise DAV_Forbidden
         else:
             try:
                 attachment_obj.write(cursor, user, object_id2, {
                     'datas': base64.encodestring(data or ''),
                     }, context=context)
-            except:
+            except Exception:
                 raise DAV_Forbidden
         return
 
@@ -553,7 +553,7 @@ class Collection(ModelSQL, ModelView):
                 'name': name,
                 'parent': object_id,
                 }, context=context)
-        except:
+        except Exception:
             raise DAV_Forbidden
         return 201
 
@@ -566,7 +566,7 @@ class Collection(ModelSQL, ModelView):
             raise DAV_Forbidden
         try:
             self.delete(cursor, user, object_id, context=context)
-        except:
+        except Exception:
             raise DAV_Forbidden
         return 200
 
@@ -582,7 +582,7 @@ class Collection(ModelSQL, ModelView):
         model_obj = self.pool.get(object_name)
         try:
             model_obj.delete(cursor, user, object_id, context=context)
-        except:
+        except Exception:
             raise DAV_Forbidden
         return 200
 

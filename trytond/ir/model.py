@@ -263,7 +263,7 @@ class ModelAccess(ModelSQL, ModelView):
         for _, model in self.pool.iterobject():
             try:
                 model.fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
@@ -275,7 +275,7 @@ class ModelAccess(ModelSQL, ModelView):
         for _, model in self.pool.iterobject():
             try:
                 model.fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
@@ -287,7 +287,7 @@ class ModelAccess(ModelSQL, ModelView):
         for _, model in self.pool.iterobject():
             try:
                 model.fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
