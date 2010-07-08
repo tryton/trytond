@@ -36,7 +36,7 @@ def extract(lookup_type, date):
             microseconds = int(timepart_full[1])
         date = datetime.datetime(year, month, day, hours, minutes, seconds,
                 microseconds)
-    except:
+    except Exception:
         return None
     if lookup_type.lower() == 'century':
         return date.year / 100 + (date.year % 100 and 1 or 0)
@@ -65,7 +65,7 @@ def date_trunc(_type, date):
         return date
     try:
         tm_tuple = time.strptime(date, '%Y-%m-%d %H:%M:%S')
-    except:
+    except Exception:
         return None
     if _type == 'year':
         return "%i-01-01 00:00:00" % tm_tuple.tm_year
@@ -197,7 +197,7 @@ class Database(DatabaseInterface):
                     db_name = db_file[:-7]
                 try:
                     database = Database(db_name)
-                except:
+                except Exception:
                     continue
                 cursor2 = database.cursor()
                 if cursor2.test():
@@ -292,7 +292,7 @@ class Cursor(CursorInterface):
                         unicode(x, 'utf-8') or x for x in  params])
             else:
                 res = self.cursor.execute(sql)
-        except:
+        except Exception:
             raise
         return res
 
@@ -330,7 +330,7 @@ class Cursor(CursorInterface):
                     "'ir_translation, '"
                     "'ir_lang'"
                     ")")
-        except:
+        except Exception:
             return False
         return len(self.cursor.fetchall()) != 0
 

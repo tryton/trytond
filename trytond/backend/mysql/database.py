@@ -146,7 +146,7 @@ class Database(DatabaseInterface):
         for db_name, in cursor.fetchall():
             try:
                 database = Database(db_name).connect()
-            except:
+            except Exception:
                 continue
             cursor2 = database.cursor()
             if cursor2.test():

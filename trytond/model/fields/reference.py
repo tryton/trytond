@@ -66,11 +66,11 @@ class Reference(Field):
             ref_id_found.setdefault(ref_model, set())
             try:
                 ref_id = safe_eval(ref_id)
-            except:
+            except Exception:
                 pass
             try:
                 ref_id = int(ref_id)
-            except:
+            except Exception:
                 continue
             ctx = context.copy()
             ctx['active_test'] = False

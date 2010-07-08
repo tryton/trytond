@@ -322,7 +322,7 @@ class ModelStorage(Model):
                     try:
                         data[field_name] = data[field_name] and \
                                 data[field_name][0]
-                    except:
+                    except Exception:
                         pass
                 elif ftype in ('one2many',):
                     if data[field_name]:
@@ -728,7 +728,7 @@ class ModelStorage(Model):
                     return False
                 try:
                     relation, value = value.split(',', 1)
-                except:
+                except Exception:
                     warn('reference_syntax_error', value, '/'.join(field))
                     return False
                 relation_obj = self.pool.get(relation)
@@ -756,7 +756,7 @@ class ModelStorage(Model):
                 elif ftype == 'reference':
                     try:
                         relation, value = value.split(',', 1)
-                    except:
+                    except Exception:
                         warn('reference_syntax_error', value, '/'.join(field))
                         return False
                     value = [value]
@@ -766,7 +766,7 @@ class ModelStorage(Model):
                 for word in value:
                     try:
                         module, xml_id = word.rsplit('.', 1)
-                    except:
+                    except Exception:
                         warn('xml_id_syntax_error', word, '/'.join(field))
                         continue
                     db_id = ir_model_data_obj.get_id(cursor, user,

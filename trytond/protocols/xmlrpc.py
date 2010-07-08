@@ -63,12 +63,12 @@ class GenericXMLRPCRequestHandler:
                     }
                 return dispatch(host, port, 'XML-RPC', database_name, user,
                         session, object_type, object_name, method, *params)
-            except:
+            except Exception:
                 tb_s = ''
                 for line in traceback.format_exception(*sys.exc_info()):
                     try:
                         line = line.encode('utf-8', 'ignore')
-                    except:
+                    except Exception:
                         continue
                     tb_s += line
                 for path in sys.path:
@@ -101,7 +101,7 @@ class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
                         password)
                 self.tryton = {'user': user_id, 'session': session}
                 return res
-        except:
+        except Exception:
             pass
         self.send_error(401, 'Unauthorized')
         self.send_header("WWW-Authenticate", 'Basic realm="Tryton"')
@@ -142,7 +142,7 @@ class SimpleXMLRPCRequestHandler(GenericXMLRPCRequestHandler,
             response = self.server._marshaled_dispatch(
                     data, getattr(self, '_dispatch', None)
                 )
-        except: # This should only happen if the module is buggy
+        except Exception: # This should only happen if the module is buggy
             # internal error, report as HTTP server error
             self.send_response(500)
             self.end_headers()
@@ -219,7 +219,7 @@ class XMLRPCDaemon(threading.Thread):
             try:
                 socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                 ipv6 = True
-            except:
+            except Exception:
                 pass
         if secure:
             handler_class = SecureXMLRPCRequestHandler

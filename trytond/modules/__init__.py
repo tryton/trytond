@@ -153,7 +153,7 @@ def create_graph(module_list, force=None):
             try:
                 info = tools.safe_eval(tools.file_open(tryton_file,
                     subdir='').read())
-            except:
+            except Exception:
                 logger.error('%s:eval file %s' % (module, tryton_file))
                 raise
             packages.append((module, info.get('depends', []), info))
@@ -434,7 +434,7 @@ def load_modules(database_name, pool, update=False, lang=None):
 
         try:
             load_module_graph(cursor, graph, pool, lang)
-        except:
+        except Exception:
             cursor.rollback()
             raise
 

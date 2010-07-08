@@ -23,7 +23,7 @@ class NetRPCClientThread(threading.Thread):
         self.running = True
         try:
             pysocket = PySocket(self.sock)
-        except:
+        except Exception:
             self.sock.close()
             self.threads.remove(self)
             return False
@@ -38,7 +38,7 @@ class NetRPCClientThread(threading.Thread):
             timeout = 0
             try:
                 msg = pysocket.receive()
-            except:
+            except Exception:
                 pysocket.disconnect()
                 self.threads.remove(self)
                 return False
@@ -51,7 +51,7 @@ class NetRPCClientThread(threading.Thread):
                 for line in traceback.format_exception(*sys.exc_info()):
                     try:
                         line = line.encode('utf-8', 'ignore')
-                    except:
+                    except Exception:
                         continue
                     tb_s += line
                 for path in sys.path:
@@ -63,7 +63,7 @@ class NetRPCClientThread(threading.Thread):
                 try:
                     pysocket.send(exception.args, exception=True,
                             traceback=tb_s)
-                except:
+                except Exception:
                     pysocket.disconnect()
                     self.threads.remove(self)
                     return False
@@ -83,7 +83,7 @@ class NetRPCServerThread(threading.Thread):
             try:
                 socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                 self.socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-            except:
+            except Exception:
                 pass
         if self.socket is None:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -107,10 +107,10 @@ class NetRPCServerThread(threading.Thread):
                             self.secure)
                     self.threads.append(c_thread)
                     c_thread.start()
-        except:
+        except Exception:
             try:
                 self.socket.close()
-            except:
+            except Exception:
                 pass
             return False
 
@@ -121,7 +121,7 @@ class NetRPCServerThread(threading.Thread):
                 thread = self.threads[0]
                 thread.stop()
                 thread.join()
-            except:
+            except Exception:
                 pass
         try:
             if hasattr(socket, 'SHUT_RDWR'):
@@ -129,5 +129,5 @@ class NetRPCServerThread(threading.Thread):
             else:
                 self.socket.shutdown(2)
             self.socket.close()
-        except:
+        except Exception:
             return False

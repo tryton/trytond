@@ -433,7 +433,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         try:
             self.sax_parser.parse(source)
-        except:
+        except Exception:
             logging.getLogger("convert").error(
                 "Error while parsing xml file:\n" +\
                     self.current_state()
@@ -524,7 +524,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             ref_mode, ref_id = browse_record[key].split(',', 1)
             try:
                 ref_id = safe_eval(ref_id)
-            except:
+            except Exception:
                 pass
             if isinstance(ref_id, (list, tuple)):
                 ref_id = ref_id[0]
@@ -1001,7 +1001,7 @@ def post_import(cursor, pool, module, to_delete):
             model_obj.delete(cursor, user, db_id)
             mdata_delete.append(mdata_id)
             cursor.commit()
-        except:
+        except Exception:
             cursor.rollback()
             tb_s = reduce(lambda x, y: x + y,
                     traceback.format_exception(*sys.exc_info()))
@@ -1022,7 +1022,7 @@ def post_import(cursor, pool, module, to_delete):
             transition_obj.delete(cursor, user, db_id)
             mdata_delete.append(mdata_id)
             cursor.commit()
-        except:
+        except Exception:
             cursor.rollback()
             logging.getLogger("convert").error(
                 'Could not delete id: %d of model workflow.transition' %

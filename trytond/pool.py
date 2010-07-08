@@ -73,7 +73,7 @@ class Pool(object):
                 Pool.classes[type] = {}
             try:
                 register_classes(reload_p=reload_p)
-            except:
+            except Exception:
                 if not reload_p:
                     raise
                 for type in prev_classes:

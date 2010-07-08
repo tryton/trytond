@@ -68,7 +68,7 @@ class Module(ModelSQL, ModelView):
             data = file_p.read()
             info = tools.safe_eval(data)
             file_p.close()
-        except:
+        except Exception:
             return {}
         return info
 

@@ -24,7 +24,7 @@ def _modified(path):
             if mtime != _TIMES[path]:
                 _TIMES[path] = mtime
                 return True
-        except:
+        except Exception:
             return True
     finally:
         _LOCK.release()

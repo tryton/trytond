@@ -92,12 +92,12 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
                 response['result'] = dispatch_method(method, params)
             else:
                 response['result'] = self._dispatch(method, params)
-        except:
+        except Exception:
             tb_s = ''
             for line in traceback.format_exception(*sys.exc_info()):
                 try:
                     line = line.encode('utf-8', 'ignore')
-                except:
+                except Exception:
                     continue
                 tb_s += line
             for path in sys.path:
@@ -175,7 +175,7 @@ class SimpleJSONRPCRequestHandler(GenericJSONRPCRequestHandler,
             response = self.server._marshaled_dispatch(
                     data, getattr(self, '_dispatch', None)
                 )
-        except: # This should only happen if the module is buggy
+        except Exception: # This should only happen if the module is buggy
             # internal error, report as HTTP server error
             self.send_response(500)
             self.end_headers()
@@ -314,7 +314,7 @@ class JSONRPCDaemon(threading.Thread):
             try:
                 socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                 ipv6 = True
-            except:
+            except Exception:
                 pass
         if secure:
             handler_class = SecureJSONRPCRequestHandler

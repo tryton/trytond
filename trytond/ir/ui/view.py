@@ -182,7 +182,7 @@ class View(ModelSQL, ModelView):
         for _, model in self.pool.iterobject():
             try:
                 model.fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
@@ -192,7 +192,7 @@ class View(ModelSQL, ModelView):
         for _, model in self.pool.iterobject():
             try:
                 model.fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
@@ -202,7 +202,7 @@ class View(ModelSQL, ModelView):
         for _, model in self.pool.iterobject():
             try:
                 model.fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
@@ -275,7 +275,7 @@ class ViewTreeWidth(ModelSQL, ModelView):
             # Restart the cache
             try:
                 self.pool.get(view.model).fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         res = super(ViewTreeWidth, self).delete(cursor, user, ids, context=context)
         return res
@@ -287,7 +287,7 @@ class ViewTreeWidth(ModelSQL, ModelView):
             # Restart the cache
             try:
                 self.pool.get(model).fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
@@ -299,7 +299,7 @@ class ViewTreeWidth(ModelSQL, ModelView):
             # Restart the cache
             try:
                 self.pool.get(view.model).fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         res = super(ViewTreeWidth, self).write(cursor, user, ids, vals, context=context)
         views = self.browse(cursor, user, ids)
@@ -307,7 +307,7 @@ class ViewTreeWidth(ModelSQL, ModelView):
             # Restart the cache
             try:
                 self.pool.get(view.model).fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 

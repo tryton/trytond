@@ -65,7 +65,7 @@ if not hasattr(WebDAVServer.DAVRequestHandler, '_config'):
         def get(self, name, default=None):
             try:
                 return self[name]
-            except:
+            except Exception:
                 return default
 
 
@@ -107,7 +107,7 @@ class WebDAVServerThread(threading.Thread):
             try:
                 socket.getaddrinfo(interface or None, port, socket.AF_INET6)
                 ipv6 = True
-            except:
+            except Exception:
                 pass
         if secure:
             handler_class = SecureWebDAVAuthRequestHandler
@@ -193,7 +193,7 @@ class TrytonDAVInterface(iface.dav_interface):
                 try:
                     cursor = database.cursor()
                     lists = database.list(cursor)
-                except:
+                except Exception:
                     lists = []
             finally:
                 cursor.close()

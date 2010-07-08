@@ -102,7 +102,7 @@ class ModelSQL(ModelStorage):
                             try: # XXX ugly hack: some default fct try
                                  # to access the non-existing table
                                 result = fun(*a)
-                            except:
+                            except Exception:
                                 return None
                             clean_results = self._clean_defaults(
                                 {field_name: result})

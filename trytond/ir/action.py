@@ -128,7 +128,7 @@ class ActionKeyword(ModelSQL, ModelView):
             try:
                 self.pool.get(keyword.model.split(',')[0])\
                         .fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return super(ActionKeyword, self).delete(cursor, user, ids,
                 context=context)
@@ -140,7 +140,7 @@ class ActionKeyword(ModelSQL, ModelView):
             try:
                 self.pool.get(vals['model'].split(',')[0])\
                         .fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return super(ActionKeyword, self).create(cursor, user, vals,
                 context=context)
@@ -154,7 +154,7 @@ class ActionKeyword(ModelSQL, ModelView):
             try:
                 self.pool.get(keyword.model.split(',')[0])\
                         .fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         res = super(ActionKeyword, self).write(cursor, user, ids, vals,
                 context=context)
@@ -163,7 +163,7 @@ class ActionKeyword(ModelSQL, ModelView):
             try:
                 self.pool.get(keyword.model.split(',')[0])\
                         .fields_view_get(cursor.dbname)
-            except:
+            except Exception:
                 pass
         return res
 
@@ -186,7 +186,7 @@ class ActionKeyword(ModelSQL, ModelView):
                 context=context):
             try:
                 action_obj = self.pool.get(action_keyword.action.type)
-            except:
+            except Exception:
                 continue
             action_id = action_obj.search(cursor, user, [
                 ('action', '=', action_keyword.action.id),
@@ -289,7 +289,7 @@ class ActionReport(ModelSQL, ModelView):
                     data = base64.encodestring(file_open(
                         report[name[:-8]].replace('/', os.sep),
                         mode='rb').read())
-                except:
+                except Exception:
                     data = False
             res[report.id] = data
         return res
@@ -306,7 +306,7 @@ class ActionReport(ModelSQL, ModelView):
                 data = base64.encodestring(file_open(
                     report.style.replace('/', os.sep),
                     mode='rb').read())
-            except:
+            except Exception:
                 data = False
             res[report.id] = data
         return res
@@ -453,7 +453,7 @@ class ActionActWindow(ModelSQL, ModelView):
             if action.domain:
                 try:
                     value = safe_eval(action.domain, CONTEXT)
-                except:
+                except Exception:
                     return False
                 if isinstance(value, PYSON):
                     if not value.types() == set([list]):
@@ -463,7 +463,7 @@ class ActionActWindow(ModelSQL, ModelView):
                 else:
                     try:
                         fields.domain_validate(value)
-                    except:
+                    except Exception:
                         return False
         return True
 
@@ -473,7 +473,7 @@ class ActionActWindow(ModelSQL, ModelView):
             if action.context:
                 try:
                     value = safe_eval(action.context, CONTEXT)
-                except:
+                except Exception:
                     return False
                 if isinstance(value, PYSON):
                     if not value.types() == set([dict]):
@@ -483,7 +483,7 @@ class ActionActWindow(ModelSQL, ModelView):
                 else:
                     try:
                         fields.context_validate(value)
-                    except:
+                    except Exception:
                         return False
         return True
 
@@ -493,7 +493,7 @@ class ActionActWindow(ModelSQL, ModelView):
             if action.search_value:
                 try:
                     value = safe_eval(action.search_value, CONTEXT)
-                except:
+                except Exception:
                     return False
                 if isinstance(value, PYSON):
                     if not value.types() == set([dict]):
