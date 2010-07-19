@@ -6,9 +6,9 @@ Domain
 ======
 
 Domains_ represent a set of records. A domain is a list of none or
-more clauses. A clause is a condition, which results true or false.
+more clauses. A clause is a condition, which returns true or false.
 A record belongs to a domain, when the final result of the list of
-clauses is true.
+clauses returns true.
 
 .. _Domains: http://en.wikipedia.org/wiki/Data_domain
 
@@ -47,7 +47,7 @@ The definition of an empty domain is::
 
     domain = []
 
-An empty domain without clauses will always return all *active* 
+An empty domain without clauses will always return all *active*
 records. A record is active, when its appropriate
 :class:`~trytond.model.Model` contains a
 :class:`~trytond.model.fields.Boolean` field with name ``active``,
@@ -85,7 +85,7 @@ or OR_. This is illustrated by the following pattern::
 Here the domain is evaluated like this: ``((clause1 AND clause2)
 OR clause3)``. Please note that the ``AND`` operation is implicit
 assumed when no operator is given. While the ``OR`` operation must
-be given explicitly. The former pattern has the same result as the
+be given explicitly. The former pattern is equivalent to the
 following completely explicit domain definition::
 
     domain = [ 'OR',
@@ -110,13 +110,13 @@ The following operators are allowed in the domain syntax.
 to their values. The description of each operator follows this
 pattern, unless otherwise noted::
 
-    result := <field value> <operator> <other value>
+    (<field name>, <operator>, <operand>)
 
 ``=``
 -----
 
-    Is a parity operator. Results true when ``<field value>``
-    equals to ``<other value>``.
+    Is a parity operator. Returns true when ``<field name>``
+    equals to ``<operand>``.
 
 ``!=``
 ------
@@ -126,10 +126,10 @@ pattern, unless otherwise noted::
 ``like``
 --------
 
-    Is a pattern matching operator. Results true when ``<field value>``
-    is contained in the pattern represented by ``<other value>``.
+    Is a pattern matching operator. Returns true when ``<field name>``
+    is contained in the pattern represented by ``<operand>``.
 
-    In ``<other value>`` an underscore (``_``) matches any single
+    In ``<operand>`` an underscore (``_``) matches any single
     character, a percent sign (``%``) matches any string with zero
     or more characters. To use ``_`` or ``%`` as literal, use the
     backslash ``\`` to escape them. All matching is case sensitive.
@@ -154,8 +154,8 @@ pattern, unless otherwise noted::
 ``in``
 ------
 
-    Is a list member operator. Results true when ``<field value>`` is
-    in ``<other value>`` list.
+    Is a list member operator. Returns true when ``<field name>`` is
+    in ``<operand>`` list.
 
 ``not in``
 ----------
@@ -165,51 +165,51 @@ pattern, unless otherwise noted::
 ``<``
 -----
 
-    Is a *less than* operator. The result is true for type string of
-    ``<field value>``  when ``<field value>`` is alphabetically
-    sorted before ``<other value>``.
+    Is a *less than* operator. Returns true for type string of
+    ``<field name>``  when ``<field name>`` is alphabetically
+    sorted before ``<operand>``.
 
-    The result is true for type number of ``<field value>`` when
-    ``<field value>`` is less than ``<other value>``.
+    Returns true for type number of ``<field name>`` when
+    ``<field name>`` is less than ``<operand>``.
 
 ``>``
 -----
 
-    Is a *greater than* operator. The result is true for type string of
-    ``<field value>`` when ``<field value>`` is alphabetically
-    sorted after  ``<other value>``.
+    Is a *greater than* operator. Returns true for type string of
+    ``<field name>`` when ``<field name>`` is alphabetically
+    sorted after  ``<operand>``.
 
-    The result is true for type number of ``<field value>`` when
-    ``<field value>`` is greater ``<other value>``.
+    Returns true for type number of ``<field name>`` when
+    ``<field name>`` is greater ``<operand>``.
 
 ``<=``
 ------
 
-    Is a *less than or equal* operator. Results the same as using the
-    `<`_ operator, but also returns true when ``<field value>`` is
-    equal to ``<other value>``.
+    Is a *less than or equal* operator. Returns the same as using the
+    `<`_ operator, but also returns true when ``<field name>`` is
+    equal to ``<operand>``.
 
 ``>=``
 ------
 
-    Is a *greater than or equal* operator. Results the same as using
-    the `>`_ operator, but also returns true when ``<field value>``
-    is equal to ``<other value>``.
+    Is a *greater than or equal* operator. Returns the same as using
+    the `>`_ operator, but also returns true when ``<field name>``
+    is equal to ``<operand>``.
 
 ``child_of``
 ------------
 
-    Is a parent child comparison operator. When ``<field value>`` is a
-    :class:`~trytond.model.fields.one2many` results true when
-    ``<field value>`` is a child of ``<other value>``. ``<field value>``
-    and ``<other value>`` are represented each by an ``id``.
-    When ``<field value>`` is a :class:`~trytond.model.fields.many2many`
-    not linked to itself, the clause pattern changes to::
+    Is a parent child comparison operator. In case ``<field name>`` is a
+    :class:`~trytond.model.fields.one2many` returns true, if
+    ``<field name>`` is a child of ``<operand>``. ``<field name>``
+    and ``<operand>`` are represented each by an ``id``.
+    In case ``<field name>`` is a :class:`~trytond.model.fields.many2many`
+    not linked to itself, the clause pattern extends to::
 
-        (<field value>, <operator>, <value>, <parent field>)
+        (<field name>, ['child_of'|'not_child_of'], <operand>, <parent field>)
 
-    Where ``<parent field>`` is the name of the field on the target
-    model that is the :class:`~trytond.model.fields.many2one` to parent.
+    Where ``<parent field>`` is the name of the field constituting the
+    :class:`~trytond.model.fields.many2one` on the target model.
 
 ``not child_of``
 ----------------
