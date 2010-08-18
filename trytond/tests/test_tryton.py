@@ -60,6 +60,10 @@ class ModelViewTestCase(unittest.TestCase):
         install_module('workflow')
         install_module('webdav')
 
+    def test0000test(self):
+        self.assertRaises(Exception, install_module,'nosuchmodule')
+        self.assertRaises(Exception, test_view, 'nosuchmodule')
+
     def test0010ir(self):
         '''
         Test ir.
@@ -96,6 +100,12 @@ def install_module(name):
         create(DB_NAME, CONFIG['admin_passwd'], 'en_US', USER_PASSWORD)
     with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
         module_obj = POOL.get('ir.module.module')
+
+        module_ids = module_obj.search([
+            ('name', '=', name),
+            ])
+        assert module_ids
+
         module_ids = module_obj.search([
             ('name', '=', name),
             ('state', '!=', 'installed'),
@@ -125,7 +135,7 @@ def test_view(module_name):
         view_ids = view_obj.search([
             ('module', '=', module_name),
             ])
-
+        assert view_ids, "No views for %s" % module_name
         for view in view_obj.browse(view_ids):
             view_id = view.inherit and view.inherit.id or view.id
             model = view.model
