@@ -59,11 +59,11 @@ Class attributes are:
 
 Instance methods:
 
-.. method:: Model.init(cursor, module_name)
+.. method:: Model.init(module_name)
 
     Registers the model in ``ir.model`` and ``ir.model.field``.
 
-.. method:: Model.raise_user_error(cursor, error[, error_args[, error_description[, error_description_args[, raise_exception[, context]]]]])
+.. method:: Model.raise_user_error(error[, error_args[, error_description[, error_description_args[, raise_exception]]]])
 
     Raises an exception that will be displayed as an error message in the
     client.  ``error`` is the key of the error message in ``_error_messages``
@@ -72,7 +72,7 @@ Instance methods:
     The boolean ``raise_exception`` can be set to ``False`` to retrieve the
     error message strings.
 
-.. method:: Model.raise_user_warning(cursor, user, warning_name, warning[, warning_args[, warning_description[, warning_description_args[, context]]]])
+.. method:: Model.raise_user_warning(warning_name, warning[, warning_args[, warning_description[, warning_description_args]]])
 
     Raises an exception that will be displayed as a warning message on the
     client, if the user has not yet bypassed it. ``warning_name`` is used to
@@ -84,15 +84,14 @@ Instance methods:
         warning states by users.
     ..
 
-.. method:: Model.default_get(cursor, user, fields_names[, context[, with_rec_name]])
+.. method:: Model.default_get(fields_names[, with_rec_name])
 
     Return a dictionary with the default values for each field in
     ``fields_names``. Default values are defined by the returned value of each
-    instance method with the pattern ``default_`field_name`(cursor, user,
-    [context])``. ``with_rec_name`` allow to add `rec_name` value for each
-    many2one field.
+    instance method with the pattern ``default_`field_name`()``.
+    ``with_rec_name`` allow to add `rec_name` value for each many2one field.
 
-.. method:: Model.fields_get(cursor, user[, fields_names[, context]])
+.. method:: Model.fields_get([fields_names])
 
     Return the definition of each field on the model.
 
@@ -106,7 +105,7 @@ It adds requirements to display a view of the model in the client.
 
 Instance methods:
 
-.. method:: ModelView.fields_view_get(cursor, user[, view_id[, view_type[, context[, toolbar[, hexmd5]]]]])
+.. method:: ModelView.fields_view_get([view_id[, view_type[, toolbar[, hexmd5]]]])
 
     Return a view definition used by the client. The definition is::
 
@@ -133,7 +132,7 @@ Instance methods:
             },
         }
 
-.. method:: ModelView.view_header_get(cursor, user, value[, view_type[, context]])
+.. method:: ModelView.view_header_get(value[, view_type])
 
     Return the window title used by the client for the specific view type.
 
@@ -190,25 +189,25 @@ Class attributes are:
 
 Instance methods:
 
-.. method:: ModelStorage.default_create_uid(cursor, user[, context])
+.. method:: ModelStorage.default_create_uid()
 
     Return the default value for :attr:`create_uid`.
 
-.. method:: ModelStorage.default_create_date(cursor, user[, context])
+.. method:: ModelStorage.default_create_date()
 
     Return the default value for :attr:`create_date`.
 
-.. method:: ModelStorage.create(cursor, user, values[, context])
+.. method:: ModelStorage.create(values)
 
     Create a record. ``values`` is a dictionary with fields names as key and
     created values as value.
 
-.. method:: ModelStorage.trigger_create(cursor, user, id[, context])
+.. method:: ModelStorage.trigger_create(id)
 
     Trigger create actions. It will call actions defined in ``ir.trigger`` if
     ``on_create`` is set and ``condition`` is true.
 
-.. method:: ModelStorage.read(cursor, user, ids[, fields_names[, context]])
+.. method:: ModelStorage.read(ids[, fields_names])
 
     Return values for the ids. If ``fields_names`` is set, there will be only
     values for these fields otherwise it will be for all fields.
@@ -216,89 +215,89 @@ Instance methods:
     dictionaries.
     If ``ids`` is an integer, the returned value will be a dictionary.
 
-.. method:: ModelStorage.write(cursor, user, ids, values[, context])
+.. method:: ModelStorage.write(ids, values)
 
     Write ``values`` on records. ``ids`` can be a list of ids or an id.
     ``values`` is a dictionary with fields names as key and writen values as
     value.
 
-.. method:: ModelStorage.trigger_write_get_eligibles(cursor, user, ids[, context])
+.. method:: ModelStorage.trigger_write_get_eligibles(ids)
 
     Return eligible record ids for write actions by triggers. This dictionary
     is to pass to :method:`~ModelStorage.trigger_write`.
 
-.. method:: ModelStorage.trigger_write(cursor, user, eligibles[, context])
+.. method:: ModelStorage.trigger_write(eligibles)
 
     Trigger write actions. It will call actions defined in ``ir.trigger`` if
     ``on_write`` is set and ``condition`` was false before
     :method:`~ModelStorage.write` and true after.
 
-.. method:: ModelStorage.delete(cursor, user, ids[, context])
+.. method:: ModelStorage.delete(ids)
 
     Delete records. ``ids`` can be a list of ids or an id.
 
-.. method:: ModelStorage.trigger_delete(cursor, user, ids[, context])
+.. method:: ModelStorage.trigger_delete(ids)
 
     Trigger delete actions. It will call actions defined in ``ir.trigger`` if
     ``on_delete`` is set and ``condition`` is true.
 
-.. method:: ModelStorage.copy(cursor, user, ids[, default[, context]])
+.. method:: ModelStorage.copy(ids[, default])
 
     Duplicate the records. ``ids`` can be a list of ids or an id. ``default``
     is a dictionary of default value for the created records.
 
-.. method:: ModelStorage.search(cursor, user, domain[, offset[, limit[, order[, context[, count]]]]])
+.. method:: ModelStorage.search(domain[, offset[, limit[, order[, count]]]])
 
     Return a list of ids that match the :ref:`domain <topics-domain>`.
 
-.. method:: ModelStorage.search_count(cursor, user, domain[, context])
+.. method:: ModelStorage.search_count(domain)
 
     Return the number of records that match the :ref:`domain <topics-domain>`.
 
-.. method:: ModelStorage.search_read(cursor, user, domain[, offset[, limit[, order[, context[, fields_names]]]]])
+.. method:: ModelStorage.search_read(domain[, offset[, limit[, order[, fields_names]]]])
 
     Call :meth:`search` and :meth:`read` at once.
     Useful for the client to reduce the number of calls.
 
-.. method:: ModelStorage.get_rec_name(cursor, user, ids, name[, context])
+.. method:: ModelStorage.get_rec_name(ids, name)
 
     Getter for the :class:`trytond.model.fields.Function` field
     :attr:`rec_name`.
 
-.. method:: ModelStorage.search_rec_name(cursor, user, name, clause[, context])
+.. method:: ModelStorage.search_rec_name(name, clause)
 
     Searcher for the :class:`trytond.model.fields.Function` field
     :attr:`rec_name`.
 
-.. method:: ModelStorage.browse(cursor, user, ids[, context])
+.. method:: ModelStorage.browse(ids)
 
     Return a :class:`BrowseRecordList` or a :class:`BrowseRecord` for the ``ids``.
 
-.. method:: ModelStorage.export_data(cursor, user, ids, fields_names[, context])
+.. method:: ModelStorage.export_data(ids, fields_names)
 
     Return a list of list of values for each ``ids``.
     The list of values follows ``fields_names``.
     Relational fields are defined with ``/`` at any depth.
 
-.. method:: ModelStorage.import_data(cursor, user, fields_names, datas[, context])
+.. method:: ModelStorage.import_data(fields_names, datas)
 
     Create records for all values in ``datas``.
     The field names of values must be defined in ``fields_names``.
     It returns a tuple containing: the number of records imported, the last values
     if failed, the exception if failed and the warning if failed.
 
-.. method:: ModelStorage.check_xml_record(cursor, user, ids, values[, context])
+.. method:: ModelStorage.check_xml_record(ids, values)
 
     Verify if the ids are originating from XML data. It is used to prevent
     modification of data coming from XML files. This method must be overiden to
     change this behavior.
 
-.. method:: ModelStorage.check_recursion(cursor, user, ids[, parent])
+.. method:: ModelStorage.check_recursion(ids[, parent])
 
     Helper method that checks if there is no recursion in the tree composed
     with ``parent`` as parent field name.
 
-.. method:: ModelStorage.workflow_trigger_trigger(cursor, user, ids[, context])
+.. method:: ModelStorage.workflow_trigger_trigger(ids)
 
     Trigger a trigger event on the :ref:`workflow <topics-workflow>` of
     records.
@@ -358,16 +357,16 @@ Class attributes are:
 
 Instance methods:
 
-.. method:: ModelSQL.default_sequence(cursor, user[, context])
+.. method:: ModelSQL.default_sequence()
 
     Return default value for sequence field if the model has one.
 
-.. method:: ModelSQL.table_query([context])
+.. method:: ModelSQL.table_query()
 
     Could be overrided to use a custom SQL query instead of a table of the
     database. It should return a tuple containing SQL query and arguments.
 
-.. method:: ModelSQL.search_domain(cursor, user, domain[, active_test[, context]])
+.. method:: ModelSQL.search_domain(domain[, active_test])
 
     Convert a :ref:`domain <topics-domain>` into a tuple containing:
 
@@ -389,19 +388,19 @@ It adds workflow capability to :class:`ModelStorage`.
 
 Instance methods:
 
-.. method:: ModelWorkflow.workflow_trigger_create(cursor, user, ids[, context])
+.. method:: ModelWorkflow.workflow_trigger_create(ids)
 
     Trigger create event on the :ref:`workflow <topics-workflow>` of records.
 
-.. method:: ModelWorkflow.workflow_trigger_write(cursor, user, ids[, context])
+.. method:: ModelWorkflow.workflow_trigger_write(ids)
 
     Trigger write event on the :ref:`workflow <topics-workflow>` of records.
 
-.. method:: ModelWorkflow.workflow_trigger_validate(cursor, user, ids[, context])
+.. method:: ModelWorkflow.workflow_trigger_validate(ids)
 
     Trigger validate event on the :ref:`workflow <topics-workflow>` of records.
 
-.. method:: ModelWorkflow.workflow_trigger_delete(cursor, user, ids[, context])
+.. method:: ModelWorkflow.workflow_trigger_delete(ids)
 
     Trigger delete event on the :ref:`workflow <topics-workflow>` of records.
 
@@ -419,6 +418,6 @@ It is commonly used to store configuration value.
 
 Instance methods:
 
-.. method:: ModelSingleton.get_singleton_id(cursor, user[, context])
+.. method:: ModelSingleton.get_singleton_id()
 
     Return the id of the unique record if there is one.

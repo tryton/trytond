@@ -1,14 +1,16 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-
+from __future__ import with_statement
+import contextlib
+import datetime
+import re
 from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
 from trytond.backend import DatabaseIntegrityError, Database
 from trytond.tools import reduce_ids
 from trytond.const import OPERATORS
-import datetime
-import re
+from trytond.transaction import Transaction
 _RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)
 _RE_CHECK = re.compile('CHECK\s*\((.*)\)', re.I)
 
@@ -34,17 +36,17 @@ class ModelSQL(ModelStorage):
         assert self._table[-9:] != '__history', \
                 'Model _table %s cannot end with "__history"' % self._table
 
-    def init(self, cursor, module_name):
-        super(ModelSQL, self).init(cursor, module_name)
+    def init(self, module_name):
+        super(ModelSQL, self).init(module_name)
 
         if self.table_query():
             return
 
         # create/update table in the database
-        table = TableHandler(cursor, self, module_name)
+        table = TableHandler(Transaction().cursor, self, module_name)
         if self._history:
-            history_table = TableHandler(cursor, self, module_name,
-                    history=True)
+            history_table = TableHandler(Transaction().cursor, self,
+                    module_name, history=True)
         timestamp_field = FIELDS['timestamp']
         integer_field = FIELDS['integer']
         logs = (
@@ -151,13 +153,15 @@ class ModelSQL(ModelStorage):
             if isinstance(field, fields.Many2One) \
                     and field.model_name == self._name \
                     and field.left and field.right:
-                self._rebuild_tree(cursor, 0, field_name, False, 0)
+                with Transaction().set_user(0):
+                    self._rebuild_tree(field_name, False, 0)
 
         for ident, constraint, _ in self._sql_constraints:
             table.add_constraint(ident, constraint)
 
         if self._history:
-            self._update_history_table(cursor)
+            self._update_history_table()
+            cursor = Transaction().cursor
             cursor.execute('SELECT id FROM "' + self._table + '"')
             if cursor.fetchone():
                 cursor.execute('SELECT id FROM "' + self._table + '__history"')
@@ -172,10 +176,11 @@ class ModelSQL(ModelStorage):
                     cursor.execute('UPDATE "' + self._table + '__history" ' \
                             'SET write_date = NULL')
 
-    def _update_history_table(self, cursor):
+    def _update_history_table(self):
         if self._history:
-            table = TableHandler(cursor, self)
-            history_table = TableHandler(cursor, self, history=True)
+            table = TableHandler(Transaction().cursor, self)
+            history_table = TableHandler(Transaction().cursor, self,
+                    history=True)
             for column_name in table._columns:
                 string = ''
                 if column_name in self._columns:
@@ -192,7 +197,7 @@ class ModelSQL(ModelStorage):
             res.append(error)
         return res
 
-    def default_sequence(self, cursor, user, context=None):
+    def default_sequence(self):
         '''
         Return the default value for sequence field.
         '''
@@ -203,6 +208,7 @@ class ModelSQL(ModelStorage):
                 if 'sequence' in model_obj._columns:
                     table = model_obj._table
                     break
+        cursor = Transaction().cursor
         cursor.execute('SELECT MAX(sequence) ' \
                 'FROM "' + table + '"')
         res = cursor.fetchone()
@@ -210,23 +216,20 @@ class ModelSQL(ModelStorage):
             return res[0]
         return 0
 
-    def table_query(self, context=None):
+    def table_query(self):
         '''
         Return None if the model is a real table in the database
         or return a tuple with the SQL query and the arguments.
 
-        :param context: the context
         :return: None or a tuple with a SQL query and arguments
         '''
         return None
 
-    def create(self, cursor, user, values, context=None):
-        super(ModelSQL, self).create(cursor, user, values, context=context)
+    def create(self, values):
+        super(ModelSQL, self).create(values)
+        cursor = Transaction().cursor
 
-        if context is None:
-            context = {}
-
-        if self.table_query(context):
+        if self.table_query():
             return False
 
         values = values.copy()
@@ -254,8 +257,7 @@ class ModelSQL(ModelStorage):
                 default.append(i)
 
         if len(default):
-            defaults = self.default_get(cursor, user, default, context=context,
-                    with_rec_name=False)
+            defaults = self.default_get(default, with_rec_name=False)
             for field in defaults.keys():
                 if '.' in field:
                     del defaults[field]
@@ -285,8 +287,7 @@ class ModelSQL(ModelStorage):
 
         for inherits in tocreate:
             inherits_obj = self.pool.get(inherits)
-            inherits_id = inherits_obj.create(cursor, user, tocreate[inherits],
-                    context=context)
+            inherits_id = inherits_obj.create(tocreate[inherits])
             values[self._inherits[inherits]] = inherits_id
 
         # Insert record
@@ -314,15 +315,14 @@ class ModelSQL(ModelStorage):
                                 (val, field))
                 else:
                     if val not in dict(getattr(self,
-                        self._columns[field].selection)(
-                        cursor, user, context=context)):
+                        self._columns[field].selection)()):
                         raise Exception('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
                                 (val, field))
         upd0 += ', create_uid, create_date'
         upd1 += ', %s, %s'
-        upd2.append(user)
+        upd2.append(Transaction().user)
         upd2.append(datetime.datetime.now())
         try:
             id_new = cursor.nextid(self._table)
@@ -336,9 +336,8 @@ class ModelSQL(ModelStorage):
                         'VALUES (' + upd1[1:] + ')', tuple(upd2))
                 id_new = cursor.lastid()
         except DatabaseIntegrityError, exception:
-            database = Database(cursor.database_name).connect()
-            cursor2 = database.cursor()
-            try:
+            with contextlib.nested(Transaction().new_cursor(),
+                    Transaction().set_user(0)):
                 for field_name in self._columns:
                     field = self._columns[field_name]
                     # Check required fields
@@ -348,56 +347,47 @@ class ModelSQL(ModelStorage):
                                 fields.Float)) and \
                             field_name not in ('create_uid', 'create_date'):
                         if not values.get(field_name):
-                            self.raise_user_error(cursor2, 'required_field',
+                            self.raise_user_error('required_field',
                                     error_args=self._get_error_args(
-                                        cursor2, user, field_name,
-                                        context=context), context=context)
+                                        field_name))
                     if isinstance(field, fields.Many2One) \
                             and values.get(field_name):
                         model_obj = self.pool.get(field.model_name)
-                        create_records = context.get('_create_records', {})\
-                                .get(field.model_name, set())
-                        delete_records = context.get('_delete_records', {})\
-                                .get(field.model_name, set())
-                        if not ((model_obj.search(cursor2, 0, [
+                        create_records = Transaction().create_records.get(
+                                field.model_name, set())
+                        delete_records = Transaction().delete_records.get(
+                                field.model_name, set())
+                        if not ((model_obj.search([
                             ('id', '=', values[field_name]),
-                            ], order=[], context=context) \
-                                    or values[field_name] in create_records) \
-                                and values[field_name] not in delete_records):
-                            self.raise_user_error(cursor2,
-                                    'foreign_model_missing',
+                            ], order=[])
+                            or values[field_name] in create_records)
+                            and values[field_name] not in delete_records):
+                            self.raise_user_error('foreign_model_missing',
                                     error_args=self._get_error_args(
-                                        cursor2, user, field_name,
-                                        context=context), context=context)
+                                        field_name))
                 for name, _, error in self._sql_constraints:
                     if name in exception[0]:
-                        self.raise_user_error(cursor2, error, context=context)
+                        self.raise_user_error(error)
                 for name, error in self._sql_error_messages:
                     if name in exception[0]:
-                        self.raise_user_error(cursor2, error, context=context)
-            finally:
-                cursor2.close()
+                        self.raise_user_error(error)
             raise
 
-        domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
-                self._name, mode='create', context=context)
+        domain1, domain2 = self.pool.get('ir.rule').domain_get(self._name,
+                mode='create')
         if domain1:
             cursor.execute('SELECT id FROM "' + self._table + '" ' \
                     'WHERE id = %s AND (' + domain1 + ')',
                     [id_new] + domain2)
             if not cursor.fetchone():
-                self.raise_user_error(cursor, 'access_error',
-                        self._description, context=context)
+                self.raise_user_error('access_error', self._description)
 
-        context.setdefault('_create_records', {})
-        context['_create_records'].setdefault(self._name, set())
-        context['_create_records'][self._name].add(id_new)
+        Transaction().create_records.setdefault(self._name, set()).add(id_new)
 
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
-            self._columns[field].set(cursor, user, [id_new], self, field,
-                    values[field], context=context)
+            self._columns[field].set([id_new], self, field, values[field])
 
         if self._history:
             cursor.execute('INSERT INTO "' + self._table + '__history" ' \
@@ -406,7 +396,7 @@ class ModelSQL(ModelStorage):
                     'FROM "' + self._table + '" ' \
                     'WHERE id = %s',(id_new,))
 
-        self._validate(cursor, user, [id_new], context=context)
+        self._validate([id_new])
 
         # Check for Modified Preorder Tree Traversal
         for k in self._columns:
@@ -414,21 +404,17 @@ class ModelSQL(ModelStorage):
             if isinstance(field, fields.Many2One) \
                     and field.model_name == self._name \
                     and field.left and field.right:
-                self._update_tree(cursor, user, id_new, k, field.left,
-                        field.right)
+                self._update_tree(id_new, k, field.left, field.right)
 
-        self.trigger_create(cursor, user, id_new, context=context)
+        self.trigger_create(id_new)
 
         return id_new
 
-    def read(self, cursor, user, ids, fields_names=None, context=None):
+    def read(self, ids, fields_names=None):
         rule_obj = self.pool.get('ir.rule')
         translation_obj = self.pool.get('ir.translation')
-        super(ModelSQL, self).read(cursor, user, ids,
-                fields_names=fields_names, context=context)
-
-        if context is None:
-            context = {}
+        super(ModelSQL, self).read(ids, fields_names=fields_names)
+        cursor = Transaction().cursor
 
         if not fields_names:
             fields_names = list(set(self._columns.keys() \
@@ -443,8 +429,7 @@ class ModelSQL(ModelStorage):
             return []
 
         # construct a clause for the rules :
-        domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
-                mode='read', context=context)
+        domain1, domain2 = rule_obj.domain_get(self._name, mode='read')
 
         fields_related = {}
         datetime_fields = []
@@ -474,8 +459,8 @@ class ModelSQL(ModelStorage):
         table_query = ''
         table_args = []
 
-        if self.table_query(context):
-            table_query, table_args = self.table_query(context)
+        if self.table_query():
+            table_query, table_args = self.table_query()
             table_query = '(' + table_query + ') AS '
 
         in_max = cursor.IN_MAX
@@ -483,18 +468,20 @@ class ModelSQL(ModelStorage):
         history_clause = ''
         history_limit = ''
         history_args = []
-        if self._history and context.get('_datetime') and not table_query:
+        if (self._history
+                and Transaction().context.get('_datetime')
+                and not table_query):
             in_max = 1
             table_query = '"' + self._table + '__history" AS '
             history_clause = ' AND (COALESCE(write_date, create_date) <= %s)'
             history_order = ' ORDER BY COALESCE(write_date, create_date) DESC'
             history_limit = cursor.limit_clause('', 1)
-            history_args = [context['_datetime']]
+            history_args = [Transaction().context['_datetime']]
         if len(fields_pre) :
             fields_pre2 = ['"%s"."%s" AS "%s"' % (self._table, x, x)
                     for x in fields_pre if x != '_timestamp']
             if '_timestamp' in fields_pre:
-                if not self.table_query(context):
+                if not self.table_query():
                     fields_pre2 += ['CAST(EXTRACT(EPOCH FROM '
                             '(COALESCE("%s".write_date, "%s".create_date))) AS %s'
                             ') AS _timestamp' %
@@ -534,10 +521,9 @@ class ModelSQL(ModelStorage):
                         if rowcount == -1 or rowcount is None:
                             rowcount = len(cursor.fetchall())
                         if rowcount == len({}.fromkeys(sub_ids)):
-                            self.raise_user_error(cursor, 'access_error',
-                                    self._description, context=context)
-                    self.raise_user_error(cursor, 'read_error',
-                            self._description, context=context)
+                            self.raise_user_error('access_error',
+                                    self._description)
+                    self.raise_user_error('read_error', self._description)
                 res.extend(dictfetchall)
         else:
             res = [{'id': x} for x in ids]
@@ -547,9 +533,8 @@ class ModelSQL(ModelStorage):
                 continue
             if getattr(self._columns[field], 'translate', False):
                 ids = [x['id'] for x in res]
-                res_trans = translation_obj._get_ids(cursor,
-                        self._name + ',' + field, 'model',
-                        context.get('language') or 'en_US', ids)
+                res_trans = translation_obj._get_ids( self._name + ',' + field,
+                        'model', Transaction().language, ids)
                 for i in res:
                     i[field] = res_trans.get(i['id'], False) or i[field]
 
@@ -571,10 +556,8 @@ class ModelSQL(ModelStorage):
                     for field_related in fields_related[inherit_field]:
                         inherit_related_fields.append(
                                 inherit_field + '.' + field_related)
-            res2 = self.pool.get(table).read(cursor, user,
-                    [x[field] for x in res],
-                    fields_names=inherits_fields + inherit_related_fields,
-                    context=context)
+            res2 = self.pool.get(table).read([x[field] for x in res],
+                    fields_names=inherits_fields + inherit_related_fields)
 
             res3 = {}
             for i in res2:
@@ -604,18 +587,15 @@ class ModelSQL(ModelStorage):
                 continue
             if hasattr(self._columns[field], 'datetime_field') \
                     and self._columns[field].datetime_field:
-                ctx = context.copy()
                 for record in res:
-                    ctx['_datetime'] = \
-                            record[self._columns[field].datetime_field]
-                    res2 = self._columns[field].get(cursor, user,
-                            [record['id']], self, field, values=[record],
-                            context=ctx)
+                    with Transaction().set_context(_datetime=
+                            record[self._columns[field].datetime_field]):
+                        res2 = self._columns[field].get( [record['id']], self,
+                                field, values=[record])
                     record[field] = res2[record['id']]
                 continue
             # get the value of that field for all records/ids
-            res2 = self._columns[field].get(cursor, user, ids, self, field,
-                    values=res, context=context)
+            res2 = self._columns[field].get(ids, self, field, values=res)
             for record in res:
                 record[field] = res2[record['id']]
         for key in func_fields:
@@ -623,17 +603,15 @@ class ModelSQL(ModelStorage):
             field = field_list[0]
             _, datetime_field = key
             if datetime_field:
-                ctx = context.copy()
                 for record in res:
-                    ctx['_datetime'] = record[datetime_field]
-                    res2 = self._columns[field].get(cursor, user,
-                            [record['id']], self, field_list, values=[record],
-                            context=ctx)
+                    with Transaction().set_context(
+                            _datetime=record[datetime_field]):
+                        res2 = self._columns[field].get([record['id']], self,
+                                field_list, values=[record])
                     for field in res2:
                         record[field] = res2[field][record['id']]
                 continue
-            res2 = self._columns[field].get(cursor, user, ids, self,
-                    field_list, values=res, context=context)
+            res2 = self._columns[field].get(ids, self, field_list, values=res)
             for field in res2:
                 for record in res:
                     record[field] = res2[field][record['id']]
@@ -652,22 +630,21 @@ class ModelSQL(ModelStorage):
                 obj = self.pool.get(self._columns[field].model_name)
                 if hasattr(self._columns[field], 'datetime_field') \
                         and self._columns[field].datetime_field:
-                    ctx = context.copy()
                     for record in res:
                         if not record[field]:
                             continue
-                        ctx['_datetime'] = \
-                                record[self._columns[field].datetime_field]
-                        record2 = obj.read(cursor, user, record[field],
-                                fields_related[field], context=ctx)
+                        with Transaction().set_context(_datetime=
+                                record[self._columns[field].datetime_field]):
+                            record2 = obj.read(record[field],
+                                    fields_related[field])
                         record_id = record2['id']
                         del record2['id']
                         fields_related2values[field].setdefault(record_id, {})
                         fields_related2values[
                                 field][record_id][record['id']] = record2
                 else:
-                    for record in obj.read(cursor, user, [x[field] for x in res
-                        if x[field]], fields_related[field], context=context):
+                    for record in obj.read([x[field] for x in res
+                        if x[field]], fields_related[field]):
                         record_id = record['id']
                         del record['id']
                         fields_related2values[field].setdefault(record_id, {})
@@ -685,8 +662,7 @@ class ModelSQL(ModelStorage):
                     if not record_id:
                         continue
                     obj = self.pool.get(model_name)
-                    record2 = obj.read(cursor, user, record_id,
-                            fields_related[field], context=context)
+                    record2 = obj.read(record_id, fields_related[field])
                     del record2['id']
                     fields_related2values[field][record_id] = record2
 
@@ -722,21 +698,19 @@ class ModelSQL(ModelStorage):
             return res[0]
         return res
 
-    def write(self, cursor, user, ids, values, context=None):
+    def write(self, ids, values):
+        cursor = Transaction().cursor
 
         # Call before cursor cache cleaning
-        trigger_eligibles = self.trigger_write_get_eligibles(cursor, user,
-                isinstance(ids, (int, long)) and [ids] or ids, context=context)
+        trigger_eligibles = self.trigger_write_get_eligibles(
+                isinstance(ids, (int, long)) and [ids] or ids)
 
-        super(ModelSQL, self).write(cursor, user, ids, values, context=context)
-
-        if context is None:
-            context = {}
+        super(ModelSQL, self).write(ids, values)
 
         if not ids:
             return True
 
-        if self.table_query(context):
+        if self.table_query():
             return True
 
         values = values.copy()
@@ -754,10 +728,10 @@ class ModelSQL(ModelStorage):
                     update_tree = True
             if update_tree:
                 for object_id in ids:
-                    self.write(cursor, user, object_id, values, context=context)
+                    self.write(object_id, values)
                 return True
 
-        if context.get('_timestamp', False):
+        if Transaction().timestamp:
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 clause = ('(id = %s AND '
@@ -767,9 +741,9 @@ class ModelSQL(ModelStorage):
                         ') > %s)')
                 args = []
                 for i in sub_ids:
-                    if context['_timestamp'].get(self._name + ',' + str(i)):
+                    if Transaction().timestamp.get(self._name + ',' + str(i)):
                         args.append(i)
-                        args.append(context['_timestamp'][
+                        args.append(Transaction().timestamp[
                             self._name + ',' +str(i)])
                 if args:
                     cursor.execute("SELECT id " \
@@ -780,8 +754,8 @@ class ModelSQL(ModelStorage):
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
             for i in ids:
-                if context['_timestamp'].get(self._name + ',' + str(i)):
-                    del context['_timestamp'][self._name + ',' +str(i)]
+                if Transaction().timestamp.get(self._name + ',' + str(i)):
+                    del Transaction().timestamp[self._name + ',' +str(i)]
 
         # Clean values
         for key in ('create_uid', 'create_date', 'write_uid', 'write_date',
@@ -797,8 +771,8 @@ class ModelSQL(ModelStorage):
         for field in values:
             if field in self._columns:
                 if not hasattr(self._columns[field], 'set'):
-                    if (not getattr(self._columns[field], 'translate', False)) \
-                            or (context.get('language') or 'en_US') == 'en_US':
+                    if ((not getattr(self._columns[field], 'translate', False))
+                            or (Transaction().language == 'en_US')):
                         upd0.append(('"' + field + '"', '%s'))
                         upd1.append(FIELDS[self._columns[field]._type]\
                                 .sql_format(values[field]))
@@ -823,8 +797,7 @@ class ModelSQL(ModelStorage):
                                 (val, field))
                 else:
                     if val not in dict(getattr(self,
-                        self._columns[field].selection)(
-                        cursor, user, context=context)):
+                        self._columns[field].selection)()):
                         raise Exception('ValidateError',
                         'The value "%s" for the field "%s" ' \
                                 'is not in the selection' % \
@@ -832,11 +805,11 @@ class ModelSQL(ModelStorage):
 
         upd0.append(('write_uid', '%s'))
         upd0.append(('write_date', '%s'))
-        upd1.append(user)
+        upd1.append(Transaction().user)
         upd1.append(datetime.datetime.now())
 
-        domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor,
-                user, self._name, mode='write', context=context)
+        domain1, domain2 = self.pool.get('ir.rule').domain_get(self._name,
+                mode='write')
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
         for i in range(0, len(ids), cursor.IN_MAX):
@@ -860,19 +833,17 @@ class ModelSQL(ModelStorage):
                     if rowcount == -1 or rowcount is None:
                         rowcount = len(cursor.fetchall())
                     if rowcount == len({}.fromkeys(sub_ids)):
-                        self.raise_user_error(cursor, 'access_error',
-                            self._description, context=context)
-                self.raise_user_error(cursor, 'write_error',
-                        self._description, context=context)
+                        self.raise_user_error('access_error',
+                                self._description)
+                self.raise_user_error('write_error', self._description)
             try:
                 cursor.execute('UPDATE "' + self._table + '" ' \
                         'SET ' + \
                         ','.join([x[0] + ' = '+ x[1] for x in upd0]) + ' ' \
                         'WHERE ' + red_sql, upd1 + red_ids)
             except DatabaseIntegrityError, exception:
-                database = Database(cursor.database_name).connect()
-                cursor2 = database.cursor()
-                try:
+                with contextlib.nested(Transaction().new_cursor(),
+                        Transaction().set_user(0)):
                     for field_name in values:
                         if field_name not in self._columns:
                             continue
@@ -885,54 +856,43 @@ class ModelSQL(ModelStorage):
                                 field_name not in ('create_uid',
                                     'create_date'):
                             if not values[field_name]:
-                                self.raise_user_error(cursor2,
-                                        'required_field',
+                                self.raise_user_error('required_field',
                                         error_args=self._get_error_args(
-                                            cursor2, user, field_name,
-                                            context=context),
-                                        context=context)
+                                            field_name))
                         if isinstance(field, fields.Many2One) \
                                 and values[field_name]:
                             model_obj = self.pool.get(field.model_name)
-                            create_records = context.get('_create_records', {})\
-                                    .get(field.model_name, set())
-                            delete_records = context.get('_delete_records', {})\
-                                    .get(field.model_name, set())
-                            if not ((model_obj.search(cursor2, 0, [
+                            create_records = Transaction().create_records.get(
+                                    field.model_name, set())
+                            delete_records = Transaction().delete_records.get(
+                                    field.model_name, set())
+                            if not ((model_obj.search([
                                 ('id', '=', values[field_name]),
-                                ], order=[], context=context) or
-                                values[field_name] in create_records) and
-                                values[field_name] not in delete_records):
-                                self.raise_user_error(cursor2,
-                                        'foreign_model_missing',
+                                ], order=[])
+                                or values[field_name] in create_records)
+                                and values[field_name] not in delete_records):
+                                self.raise_user_error( 'foreign_model_missing',
                                         error_args=self._get_error_args(
-                                            cursor2, user, field_name,
-                                            context=context), context=context)
+                                            field_name))
                     for name, _, error in self._sql_constraints:
                         if name in exception[0]:
-                            self.raise_user_error(cursor2, error,
-                                    context=context)
+                            self.raise_user_error(error)
                     for name, error in self._sql_error_messages:
                         if name in exception[0]:
-                            self.raise_user_error(cursor2, error,
-                                    context=context)
-                finally:
-                    cursor2.close()
+                            self.raise_user_error(error)
                 raise
 
         for field in direct:
             if getattr(self._columns[field], 'translate', False):
-                self.pool.get('ir.translation')._set_ids(cursor, user,
+                self.pool.get('ir.translation')._set_ids(
                         self._name + ',' + field, 'model',
-                        context.get('language') or 'en_US', ids,
-                        values[field])
+                        Transaction().language, ids, values[field])
 
         # call the 'set' method of fields
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
-            self._columns[field].set(cursor, user, ids, self, field,
-                    values[field], context=context)
+            self._columns[field].set(ids, self, field, values[field])
 
         if self._history:
             columns = ['"' + str(x) + '"' for x in self._columns
@@ -959,10 +919,9 @@ class ModelSQL(ModelStorage):
             for val in updend:
                 if self._inherit_fields[val][0] == table:
                     values2[val] = values[val]
-            self.pool.get(table).write(cursor, user, nids, values2,
-                    context=context)
+            self.pool.get(table).write(nids, values2)
 
-        self._validate(cursor, user, ids, context=context)
+        self._validate(ids)
 
         # Check for Modified Preorder Tree Traversal
         for k in self._columns:
@@ -975,35 +934,33 @@ class ModelSQL(ModelStorage):
                             'You can not update fields: "%s", "%s"' %
                             (field.left, field.right))
                 if len(ids) == 1:
-                    self._update_tree(cursor, user, ids[0], k,
-                            field.left, field.right)
+                    self._update_tree(ids[0], k, field.left, field.right)
                 else:
-                    self._rebuild_tree(cursor, 0, k, False, 0)
+                    with Transaction().set_user(0):
+                        self._rebuild_tree(k, False, 0)
 
-        self.trigger_write(cursor, user, trigger_eligibles, context=context)
+        self.trigger_write(trigger_eligibles)
 
         return True
 
-    def delete(self, cursor, user, ids, context=None):
-        if context is None:
-            context = {}
-
+    def delete(self, ids):
+        cursor = Transaction().cursor
         if not ids:
             return True
 
-        if self.table_query(context):
+        if self.table_query():
             return True
 
         if isinstance(ids, (int, long)):
             ids = [ids]
 
-        if context.get('_delete') and context['_delete'].get(self._name):
+        if Transaction().delete and Transaction().delete.get(self._name):
             ids = ids[:]
-            for del_id in context['_delete'][self._name]:
+            for del_id in Transaction().delete[self._name]:
                 for i in range(ids.count(del_id)):
                     ids.remove(del_id)
 
-        if context.get('_timestamp', False):
+        if Transaction().timestamp:
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 clause = ('(id = %s AND '
@@ -1013,9 +970,9 @@ class ModelSQL(ModelStorage):
                         ') > %s)')
                 args = []
                 for i in sub_ids:
-                    if context['_timestamp'].get(self._name + ',' + str(i)):
+                    if Transaction().timestamp.get(self._name + ',' + str(i)):
                         args.append(i)
-                        args.append(context['_timestamp'][
+                        args.append(Transaction().timestamp[
                             self._name + ',' +str(i)])
                 if args:
                     cursor.execute("SELECT id " \
@@ -1026,8 +983,8 @@ class ModelSQL(ModelStorage):
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
             for i in ids:
-                if context['_timestamp'].get(self._name + ',' + str(i)):
-                    del context['_timestamp'][self._name + ',' +str(i)]
+                if Transaction().timestamp.get(self._name + ',' + str(i)):
+                    del Transaction().timestamp[self._name + ',' +str(i)]
 
         tree_ids = {}
         for k in self._columns:
@@ -1045,7 +1002,7 @@ class ModelSQL(ModelStorage):
         foreign_keys_todelete = []
         for _, model in self.pool.iterobject():
             if hasattr(model, 'table_query') \
-                    and model.table_query(context):
+                    and model.table_query():
                 continue
             for field_name, field in model._columns.iteritems():
                 if isinstance(field, fields.Many2One) \
@@ -1060,13 +1017,10 @@ class ModelSQL(ModelStorage):
                     else:
                         foreign_keys_tocheck.append((model, field_name))
 
-        delete_ctx = context.copy()
-        delete_ctx.setdefault('_delete', {})
-        delete_ctx['_delete'].setdefault(self._name, set())
-        delete_ctx['_delete'][self._name].update(ids)
+        Transaction().delete.setdefault(self._name, set()).update(ids)
 
-        domain1, domain2 = self.pool.get('ir.rule').domain_get(cursor, user,
-                self._name, mode='delete', context=context)
+        domain1, domain2 = self.pool.get('ir.rule').domain_get(self._name,
+                mode='delete')
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
 
@@ -1081,18 +1035,16 @@ class ModelSQL(ModelStorage):
                 if rowcount == -1 or rowcount is None:
                     rowcount = len(cursor.fetchall())
                 if not rowcount == len({}.fromkeys(sub_ids)):
-                    self.raise_user_error(cursor, 'access_error',
-                            self._description, context=context)
+                    self.raise_user_error('access_error', self._description)
 
-        self.trigger_delete(cursor, user, ids, context=context)
+        self.trigger_delete(ids)
 
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
             red_sql, red_ids = reduce_ids('id', sub_ids)
 
-            context.setdefault('_delete_records', {})
-            context['_delete_records'].setdefault(self._name, set())
-            context['_delete_records'][self._name].update(sub_ids)
+            Transaction().delete_records.setdefault(self._name,
+                    set()).update(sub_ids)
 
             for model, field_name in foreign_keys_toupdate:
                 if not hasattr(model, 'search') \
@@ -1103,9 +1055,9 @@ class ModelSQL(ModelStorage):
                         'WHERE ' + red_sql2, red_ids2)
                 model_ids = [x[0] for x in cursor.fetchall()]
                 if model_ids:
-                    model.write(cursor, user, model_ids, {
+                    model.write(model_ids, {
                         field_name: False,
-                        }, context=context)
+                        })
 
             for model, field_name in foreign_keys_todelete:
                 if not hasattr(model, 'search') \
@@ -1116,39 +1068,33 @@ class ModelSQL(ModelStorage):
                         'WHERE ' + red_sql2, red_ids2)
                 model_ids = [x[0] for x in cursor.fetchall()]
                 if model_ids:
-                    model.delete(cursor, user, model_ids, context=delete_ctx)
+                    model.delete(model_ids)
 
             for model, field_name in foreign_keys_tocheck:
-                if model.search(cursor, 0, [
-                    (field_name, 'in', sub_ids),
-                    ], order=[], context=context):
-                    error_args = []
-                    error_args.append(self._get_error_args(cursor, user, 'id',
-                        context=context)[1])
-                    error_args.extend(list(model._get_error_args(cursor,
-                        user, field_name, context=context)))
-                    self.raise_user_error(cursor, 'foreign_model_exist',
-                            error_args=tuple(error_args), context=context)
+                with Transaction().set_user(0):
+                    if model.search([
+                        (field_name, 'in', sub_ids),
+                        ], order=[]):
+                        error_args = []
+                        error_args.append(self._get_error_args('id')[1])
+                        error_args.extend(list(
+                            model._get_error_args(field_name)))
+                        self.raise_user_error('foreign_model_exist',
+                                error_args=tuple(error_args))
 
-            super(ModelSQL, self).delete(cursor, user, sub_ids, context=context)
+            super(ModelSQL, self).delete(sub_ids)
 
             try:
                 cursor.execute('DELETE FROM "'+self._table+'" ' \
                         'WHERE ' + red_sql, red_ids)
             except DatabaseIntegrityError:
-                database = Database(cursor.database_name).connect()
-                cursor2 = database.cursor()
-                try:
+                with Transaction().new_cursor():
                     for name, _, error in self._sql_constraints:
                         if name in exception[0]:
-                            self.raise_user_error(cursor2, error,
-                                    context=context)
+                            self.raise_user_error(error)
                     for name, error in self._sql_error_messages:
                         if name in exception[0]:
-                            self.raise_user_error(cursor2, error,
-                                    context=context)
-                finally:
-                    cursor2.close()
+                            self.raise_user_error(error)
                 raise
 
         if self._history:
@@ -1160,23 +1106,20 @@ class ModelSQL(ModelStorage):
         for k in tree_ids.keys():
             field = self._columns[k]
             if len(tree_ids[k]) == 1:
-                self._update_tree(cursor, user, tree_ids[k][0], k,
-                        field.left, field.right)
+                self._update_tree(tree_ids[k][0], k, field.left, field.right)
             else:
-                self._rebuild_tree(cursor, 0, k, False, 0)
+                with Transaction().set_user(0):
+                    self._rebuild_tree(k, False, 0)
 
         return True
 
-    def search(self, cursor, user, domain, offset=0, limit=None, order=None,
-            context=None, count=False, query_string=False):
+    def search(self, domain, offset=0, limit=None, order=None, count=False,
+            query_string=False):
         rule_obj = self.pool.get('ir.rule')
-
-        if context is None:
-            context = {}
+        cursor = Transaction().cursor
 
         # Get domain clauses
-        qu1, qu2, tables, tables_args = self.search_domain(cursor, user,
-                domain, context=context)
+        qu1, qu2, tables, tables_args = self.search_domain(domain)
 
         # Get order by
         order_by = []
@@ -1185,8 +1128,7 @@ class ModelSQL(ModelStorage):
         for field, otype in order:
             if otype.upper() not in ('DESC', 'ASC'):
                 raise Exception('Error', 'Wrong order type (%s)!' % otype)
-            order_by2, tables2, tables2_args = self._order_calc(cursor, user,
-                    field, otype, context=context)
+            order_by2, tables2, tables2_args = self._order_calc(field, otype)
             order_by += order_by2
             for table in tables2:
                 if table not in tables:
@@ -1202,8 +1144,7 @@ class ModelSQL(ModelStorage):
             raise Exception('Error', 'Wrong offset type (%s)!' % type(offset))
 
         # construct a clause for the rules :
-        domain1, domain2 = rule_obj.domain_get(cursor, user, self._name,
-                mode='read', context=context)
+        domain1, domain2 = rule_obj.domain_get(self._name, mode='read')
         if domain1:
             if qu1:
                 qu1 += ' AND ' + domain1
@@ -1220,7 +1161,7 @@ class ModelSQL(ModelStorage):
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
         select_fields = ['"' + self._table + '".id AS id']
-        if self._history and context.get('_datetime') \
+        if self._history and Transaction().context.get('_datetime') \
                 and not query_string:
             select_fields += ['COALESCE("' + self._table + '".write_date, "' + \
                     self._table + '".create_date) AS _datetime']
@@ -1232,7 +1173,7 @@ class ModelSQL(ModelStorage):
                     and (x[0] != 'id')
                     and (not getattr(x[1], 'translate', False) \
                         and x[1]._type not in ('text', 'binary'))]
-            if not self.table_query(context):
+            if not self.table_query():
                 select_fields += ['CAST(EXTRACT(EPOCH FROM '
                         '(COALESCE("' + self._table + '".write_date, '
                         '"' + self._table + '".create_date))) AS ' + \
@@ -1249,10 +1190,10 @@ class ModelSQL(ModelStorage):
                 '"' + self._table + '"', cursor.IN_MAX), tables_args + qu2)
 
         datas = cursor.dictfetchall()
-        cache = cursor.get_cache(context)
+        cache = cursor.get_cache()
         cache.setdefault(self._name, {})
-        delete_records = context.setdefault('_delete_records', {}
-                ).setdefault(self._name, set())
+        delete_records = Transaction().delete_records.setdefault(self._name,
+                set())
         keys = None
         for data in datas:
             if data['id'] in delete_records:
@@ -1274,8 +1215,9 @@ class ModelSQL(ModelStorage):
 
         if len(datas) >= cursor.IN_MAX:
             select_fields2 = [select_fields[0]]
-            if self._history and context.get('_datetime') \
-                    and not query_string:
+            if (self._history
+                    and Transaction().context.get('_datetime')
+                    and not query_string):
                 select_fields2 += [select_fields[1]]
             cursor.execute(
                 'SELECT * FROM (' + \
@@ -1287,7 +1229,7 @@ class ModelSQL(ModelStorage):
                     tables_args + qu2)
             datas = cursor.dictfetchall()
 
-        if self._history and context.get('_datetime'):
+        if self._history and Transaction().context.get('_datetime'):
             res = []
             ids_date = {}
             for data in datas:
@@ -1302,48 +1244,41 @@ class ModelSQL(ModelStorage):
 
         return [x['id'] for x in datas]
 
-    def search_domain(self, cursor, user, domain, active_test=True,
-            context=None):
+    def search_domain(self, domain, active_test=True):
         '''
         Return SQL clause and arguments for the domain
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param domain: a domain like in search
         :param active_test: a boolean to add 'active' test
-        :param context: the context
         :return: a tuple with
             - a SQL clause string
             - a list of arguments for the SQL clause
             - a list of tables used in the SQL clause
             - a list of arguments for the tables
         '''
-        domain = self._search_domain_active(domain, active_test=active_test,
-                context=context)
+        domain = self._search_domain_active(domain, active_test=active_test)
 
         table_query = ''
         tables_args = []
-        if self.table_query(context):
-            table_query, tables_args = self.table_query(context)
+        if self.table_query():
+            table_query, tables_args = self.table_query()
             table_query = '(' + table_query + ') AS '
 
-        if self._history and context.get('_datetime'):
+        if self._history and Transaction().context.get('_datetime'):
             table_query = '"' + self._table + '__history" AS '
 
         tables = [table_query + '"' + self._table + '"']
 
-        qu1, qu2 = self.__search_domain_oper(cursor, user, domain, tables,
-                tables_args, context=context)
-        if self._history and context.get('_datetime'):
+        qu1, qu2 = self.__search_domain_oper(domain, tables, tables_args)
+        if self._history and Transaction().context.get('_datetime'):
             if qu1:
                 qu1 += ' AND'
             qu1 += ' (COALESCE("' + self._table + '".write_date, "' + \
                     self._table + '".create_date) <= %s)'
-            qu2 += [context['_datetime']]
+            qu2 += [Transaction().context['_datetime']]
         return qu1, qu2, tables, tables_args
 
-    def __search_domain_oper(self, cursor, user, domain, tables, tables_args,
-            context=None):
+    def __search_domain_oper(self, domain, tables, tables_args):
         operator = 'AND'
         if len(domain) and isinstance(domain[0], basestring):
             if domain[0] not in ('AND', 'OR'):
@@ -1362,16 +1297,15 @@ class ModelSQL(ModelStorage):
             elif isinstance(arg, list):
                 list_args.append(arg)
 
-        qu1, qu2 = self.__search_domain_calc(cursor, user,
-                tuple_args, tables, tables_args, context=context)
+        qu1, qu2 = self.__search_domain_calc(tuple_args, tables, tables_args)
         if len(qu1):
             qu1 = (' ' + operator + ' ').join(qu1)
         else:
             qu1 = ''
 
         for domain2 in list_args:
-            qu1b, qu2b = self.__search_domain_oper(cursor, user, domain2,
-                    tables, tables_args, context=context)
+            qu1b, qu2b = self.__search_domain_oper(domain2, tables,
+                    tables_args)
             if not qu1b:
                 qu1b = FIELDS['boolean'].sql_format(True)
             if qu1 and qu1b:
@@ -1383,11 +1317,9 @@ class ModelSQL(ModelStorage):
             qu1 = '(' + qu1 + ')'
         return qu1, qu2
 
-    def __search_domain_calc(self, cursor, user, domain, tables, tables_args,
-            context=None):
-        if context is None:
-            context = {}
+    def __search_domain_calc(self, domain, tables, tables_args):
         domain = domain[:]
+        cursor = Transaction().cursor
 
         for arg in domain:
             if arg[1] not in OPERATORS:
@@ -1402,8 +1334,8 @@ class ModelSQL(ModelStorage):
                 itable = self.pool.get(self._inherit_fields[fargs[0]][0])
                 table_query = ''
                 table_arg = []
-                if itable.table_query(context):
-                    table_query, table_args = self.table_query(context)
+                if itable.table_query():
+                    table_query, table_args = self.table_query()
                     table_query = '(' + table_query + ') AS '
                 table_join = 'LEFT JOIN ' + table_query + \
                         '"' + itable._table + '" ON ' \
@@ -1423,18 +1355,15 @@ class ModelSQL(ModelStorage):
                 if field._type == 'many2one':
                     if hasattr(field, 'search'):
                         domain.extend([(fargs[0], 'in',
-                                self.pool.get(field.model_name).search(cursor,
-                                    user,[
+                                self.pool.get(field.model_name).search([
                                         (fargs[1], domain[i][1], domain[i][2]),
-                                    ], order=[], context=context))])
+                                    ], order=[]))])
                         domain.pop(i)
                     else:
                         domain[i] = (fargs[0], 'inselect',
-                                self.pool.get(field.model_name).search(cursor,
-                                    user, [
+                                self.pool.get(field.model_name).search([
                                         (fargs[1], domain[i][1], domain[i][2]),
-                                    ], order=[], context=context,
-                                    query_string=True),
+                                    ], order=[], query_string=True),
                                 table)
                         i += 1
                     continue
@@ -1444,23 +1373,22 @@ class ModelSQL(ModelStorage):
                             (domain[i][0], self._name))
             if hasattr(field, 'search'):
                 clause = domain.pop(i)
-                domain.extend(field.search(cursor, user, table, clause[0],
-                    clause, context=context))
+                domain.extend(field.search(table, clause[0], clause))
             elif field._type == 'one2many':
                 field_obj = self.pool.get(field.model_name)
 
                 if isinstance(domain[i][2], basestring):
                     # get the ids of the records of the "distant" resource
-                    ids2 = [x[0] for x in field_obj.search(cursor, user, [
+                    ids2 = [x[0] for x in field_obj.search([
                         ('rec_name', domain[i][1], domain[i][2]),
-                        ], order=[], context=context)]
+                        ], order=[])]
                 else:
                     ids2 = domain[i][2]
 
                 table_query = ''
                 table_args = []
-                if field_obj.table_query(context):
-                    table_query, table_args = field_obj.table_query(context)
+                if field_obj.table_query():
+                    table_query, table_args = field_obj.table_query()
                     table_query = '(' + table_query + ') AS '
 
                 if ids2 == True or ids2 == False:
@@ -1508,9 +1436,9 @@ class ModelSQL(ModelStorage):
                     target_obj = field.get_target(self.pool)
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
-                        ids2 = [x[0] for x in target_obj.search(cursor, user, [
+                        ids2 = [x[0] for x in target_obj.search([
                             ('rec_name', 'ilike', domain[i][2]),
-                            ], order=[], context=context)]
+                            ], order=[])]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
                     else:
@@ -1519,9 +1447,10 @@ class ModelSQL(ModelStorage):
                     def _rec_get(ids, table, parent):
                         if not ids:
                             return []
-                        ids2 = table.search(cursor, user,
-                                [(parent, 'in', ids), (parent, '!=', False)],
-                                order=[], context=context)
+                        ids2 = table.search([
+                            (parent, 'in', ids),
+                            (parent, '!=', False),
+                            ], order=[])
                         return ids + _rec_get(ids2, table, parent)
 
                     if target_obj._name != table._name:
@@ -1529,9 +1458,9 @@ class ModelSQL(ModelStorage):
                             raise Exception('Error', 'Programming error: ' \
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
-                        ids2 = target_obj.search(cursor, user,
-                                [(domain[i][3], 'child_of', ids2)],
-                                order=[], context=context)
+                        ids2 = target_obj.search([
+                            (domain[i][3], 'child_of', ids2),
+                            ], order=[])
                         relation_obj = self.pool.get(field.relation_name)
                         red_sql, red_ids = reduce_ids('"' + field.target + '"',
                                 ids2)
@@ -1553,10 +1482,9 @@ class ModelSQL(ModelStorage):
                                 table, domain[i][0]))
                 else:
                     if isinstance(domain[i][2], basestring):
-                        res_ids = [x[0] for x in target_obj.search(cursor, user,
-                            [
-                                ('rec_name', domain[i][1], domain[i][2]),
-                            ], order=[], context=context)]
+                        res_ids = [x[0] for x in target_obj.search([
+                            ('rec_name', domain[i][1], domain[i][2]),
+                            ], order=[])]
                     elif isinstance(domain[i][2], (int, long)) \
                             and not isinstance(domain[i][2], bool):
                         res_ids = [domain[i][2]]
@@ -1590,9 +1518,9 @@ class ModelSQL(ModelStorage):
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
                         field_obj = self.pool.get(field.model_name)
-                        ids2 = [x[0] for x in field_obj.search(cursor, user, [
+                        ids2 = [x[0] for x in field_obj.search([
                             ('rec_name', 'like', domain[i][2]),
-                            ], order=[], context=context)]
+                            ], order=[])]
                     elif isinstance(domain[i][2], (int, long)):
                         ids2 = [domain[i][2]]
                     else:
@@ -1601,9 +1529,10 @@ class ModelSQL(ModelStorage):
                     def _rec_get(ids, table, parent):
                         if not ids:
                             return []
-                        ids2 = table.search(cursor, user,
-                                [(parent, 'in', ids), (parent, '!=', False)],
-                                context=context)
+                        ids2 = table.search([
+                            (parent, 'in', ids),
+                            (parent, '!=', False),
+                            ])
                         return ids + _rec_get(ids2, table, parent)
 
                     if field.model_name != table._name:
@@ -1611,10 +1540,9 @@ class ModelSQL(ModelStorage):
                             raise Exception('Error', 'Programming error: ' \
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
-                        ids2 = self.pool.get(field.model_name).search(cursor,
-                                user, [
-                                    (domain[i][3], 'child_of', ids2),
-                                ], order=[], context=context)
+                        ids2 = self.pool.get(field.model_name).search([
+                            (domain[i][3], 'child_of', ids2),
+                            ], order=[])
                         if domain[i][1] == 'child_of':
                             domain[i] = (domain[i][0], 'in', ids2, table)
                         else:
@@ -1650,9 +1578,9 @@ class ModelSQL(ModelStorage):
                 else:
                     if isinstance(domain[i][2], basestring):
                         field_obj = self.pool.get(field.model_name)
-                        res_ids = field_obj.search(cursor, user, [
+                        res_ids = field_obj.search([
                             (field_obj._rec_name, domain[i][1], domain[i][2]),
-                            ], order=[], context=context)
+                            ], order=[])
                         domain[i] = (domain[i][0], 'in', res_ids, table)
                     else:
                         domain[i] += (table,)
@@ -1694,20 +1622,20 @@ class ModelSQL(ModelStorage):
                                     'AND ir_translation.fuzzy = %s)' % \
                                 (table._table, table._name, domain[i][0],
                                         FIELDS['boolean'].sql_format(False))
-                    table_join_args = [context.get('language') or 'en_US']
+                    table_join_args = [Transaction().language]
 
                     table_query = ''
                     table_args = []
-                    if table.table_query(context):
-                        table_query, table_args = table.table_query(context)
+                    if table.table_query():
+                        table_query, table_args = table.table_query()
                         table_query = '(' + table_query  + ') AS '
 
                     translation_obj = self.pool.get('ir.translation')
 
-                    qu1, qu2, tables, table_args = translation_obj.search_domain(
-                            cursor, user, [
+                    qu1, qu2, tables, table_args = \
+                            translation_obj.search_domain([
                                 ('value', domain[i][1], domain[i][2]),
-                                ], context=context)
+                                ])
                     qu1 = qu1.replace('"ir_translation"."value"',
                             'COALESCE(NULLIF("ir_translation"."value", \'\'), '
                             '"%s"."%s")' % (table._table, domain[i][0]))
@@ -1852,16 +1780,13 @@ class ModelSQL(ModelStorage):
 
         return qu1, qu2
 
-    def _order_calc(self, cursor, user, field, otype, context=None):
+    def _order_calc(self, field, otype):
         order_by = []
         tables = []
         tables_args = {}
         field_name = None
         table_name = None
         link_field = None
-
-        if context is None:
-            context = {}
 
         if field in self._columns:
             table_name = self._table
@@ -1885,8 +1810,8 @@ class ModelSQL(ModelStorage):
                     field_name = obj._order_name
 
                 if field_name:
-                    order_by, tables, tables_args = obj._order_calc(cursor,
-                            user, field_name, otype, context=context)
+                    order_by, tables, tables_args = obj._order_calc(field_name,
+                            otype)
                     table_join = 'LEFT JOIN "' + table_name + '" AS ' \
                             '"' + table_name + '.' + link_field + '" ON ' \
                             '"%s.%s".id = "%s".%s' % (table_name, link_field,
@@ -1920,8 +1845,8 @@ class ModelSQL(ModelStorage):
                 if obj2 and field_name:
                     table_name2 = obj2._table
                     link_field2 = obj._inherits[obj2._name]
-                    order_by, tables, tables_args = obj2._order_calc(cursor,
-                            user, field_name, otype, context=context)
+                    order_by, tables, tables_args = \
+                            obj2._order_calc(field_name, otype)
 
                     table_join = 'LEFT JOIN "' + table_name + '" AS ' \
                             '"' + table_name + '.' + link_field + '" ON ' \
@@ -2012,8 +1937,7 @@ class ModelSQL(ModelStorage):
                                     FIELDS['boolean'].sql_format(False))
                 if table_join not in tables:
                     tables.append(table_join)
-                    tables_args[table_join] = [
-                            context.get('language') or 'en_US']
+                    tables_args[table_join] = [Transaction().language]
                 order_by.append('COALESCE(NULLIF(' \
                         + '"' + translation_table + '".value, \'\'), ' \
                         + '"' + table_name + '".' + field_name + ') ' + otype)
@@ -2022,12 +1946,11 @@ class ModelSQL(ModelStorage):
             if field_name in self._columns \
                     and self._columns[field_name]._type == 'selection' \
                     and self._columns[field_name].order_field is None:
-                selections = self.fields_get(cursor, user, [field_name],
-                        context=context)[field_name]['selection']
+                selections = self.fields_get([field_name]
+                        )[field_name]['selection']
                 if not isinstance(selections, (tuple, list)):
                     selections = getattr(self,
-                            self._columns[field_name].selection)(cursor,
-                                    user, context=context)
+                            self._columns[field_name].selection)()
                 order = 'CASE ' + table_name + '.' + field_name
                 for selection in selections:
                     order += ' WHEN \'%s\' THEN \'%s\'' % selection
@@ -2050,8 +1973,7 @@ class ModelSQL(ModelStorage):
             obj = self.pool.get(self._inherit_fields[field][0])
             table_name = obj._table
             link_field = self._inherits[obj._name]
-            order_by, tables, tables_args = obj._order_calc(cursor, user, field,
-                    otype, context=context)
+            order_by, tables, tables_args = obj._order_calc(field, otype)
             table_join = 'LEFT JOIN "' + table_name + '" ON ' \
                     '"%s".id = "%s".%s' % \
                     (table_name, self._table, link_field)
@@ -2061,18 +1983,20 @@ class ModelSQL(ModelStorage):
 
         raise Exception('Error', 'Wrong field name (%s) in order!' % field)
 
-    def _rebuild_tree(self, cursor, user, parent, parent_id, left):
+    def _rebuild_tree(self, parent, parent_id, left):
         '''
         Rebuild left, right value for the tree.
         '''
+        cursor = Transaction().cursor
         right = left + 1
 
-        child_ids = self.search(cursor, 0, [
-            (parent, '=', parent_id),
-            ])
+        with Transaction().set_user(0):
+            child_ids = self.search([
+                (parent, '=', parent_id),
+                ])
 
         for child_id in child_ids:
-            right = self._rebuild_tree(cursor, user, parent, child_id, right)
+            right = self._rebuild_tree(parent, child_id, right)
 
         field = self._columns[parent]
 
@@ -2083,7 +2007,7 @@ class ModelSQL(ModelStorage):
                     'WHERE id = %s', (left, right, parent_id))
         return right + 1
 
-    def _update_tree(self, cursor, user, object_id, field_name, left, right):
+    def _update_tree(self, object_id, field_name, left, right):
         '''
         Update left, right values for the tree.
         Remarks:
@@ -2091,6 +2015,7 @@ class ModelSQL(ModelStorage):
                 the number of children node
             - the order of the tree respects the default _order
         '''
+        cursor = Transaction().cursor
         cursor.execute('SELECT "' + left + '", "' + right + '" ' \
                 'FROM "' + self._table + '" ' \
                 'WHERE id = %s', (object_id,))
@@ -2130,7 +2055,8 @@ class ModelSQL(ModelStorage):
         child_ids = [x[0] for x in cursor.fetchall()]
 
         if len(child_ids) > cursor.IN_MAX:
-            return self._rebuild_tree(cursor, 0, field_name, False, 0)
+            with Transaction().set_user(0):
+                return self._rebuild_tree(field_name, False, 0)
 
         red_child_sql, red_child_ids = reduce_ids('id', child_ids)
         # ids for left update
@@ -2172,9 +2098,11 @@ class ModelSQL(ModelStorage):
                 'WHERE ' + red_child_sql, red_child_ids)
 
         # Use root user to by-pass rules
-        brother_ids = self.search(cursor, 0, [
-            (field_name, '=', parent_id),
-            ], context={'active_test': False})
+        with contextlib.nested(Transaction().set_user(0),
+                Transaction().set_context(active_test=False)):
+            brother_ids = self.search([
+                (field_name, '=', parent_id),
+                ])
         if brother_ids[-1] != object_id:
             next_id = brother_ids[brother_ids.index(object_id) + 1]
             cursor.execute('SELECT "' + left + '" ' \
@@ -2202,8 +2130,9 @@ class ModelSQL(ModelStorage):
                             + str(current_left - next_left) + ' ' \
                     'WHERE ' + red_child_sql, red_child_ids)
 
-    def _validate(self, cursor, user, ids, context=None):
-        super(ModelSQL, self)._validate(cursor, user, ids, context=context)
+    def _validate(self, ids):
+        super(ModelSQL, self)._validate(ids)
+        cursor = Transaction().cursor
         if cursor.has_constraint():
             return
         # Works only for a single transaction
@@ -2231,7 +2160,7 @@ class ModelSQL(ModelStorage):
                             reduce(lambda x, y: x + list(y), fetchall, []))
 
                     if cursor.fetchone():
-                        self.raise_user_error(cursor, error, context=context)
+                        self.raise_user_error(error)
                 continue
             match = _RE_CHECK.match(sql)
             if match:
@@ -2244,5 +2173,5 @@ class ModelSQL(ModelStorage):
                             'WHERE NOT (' + sql + ') ' \
                                 'AND ' + red_sql, red_ids)
                     if cursor.fetchone():
-                        self.raise_user_error(cursor, error, context=context)
+                        self.raise_user_error(error)
                     continue

@@ -1,10 +1,11 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.pool import Pool
 import copy
 from threading import Lock
 from random import randint
 from sys import maxint
+from trytond.pool import Pool
+from trytond.transaction import Transaction
 
 
 class Wizard(object):
@@ -26,7 +27,8 @@ class Wizard(object):
         self._lock = Lock()
         self._datas = {}
 
-    def init(self, cursor, module_name):
+    def init(self, module_name):
+        cursor = Transaction().cursor
         for state in self.states.keys():
             if self.states[state]['result']['type'] == 'form':
                 for button in \
@@ -73,17 +75,14 @@ class Wizard(object):
                         (self._name, 'en_US', 'error', error, '', module_name,
                             False))
 
-    def raise_user_error(self, cursor, error, error_args=None,
-            error_description='', error_description_args=None, context=None):
+    def raise_user_error(self, error, error_args=None, error_description='',
+            error_description_args=None):
         translation_obj = self.pool.get('ir.translation')
-
-        if context is None:
-            context = {}
 
         error = self._error_messages.get(error, error)
 
-        res = translation_obj._get_source(cursor, self._name, 'error',
-                context.get('language', 'en_US'), error)
+        res = translation_obj._get_source(self._name, 'error',
+                Transaction().language, error)
         if res:
             error = res
 
@@ -94,8 +93,8 @@ class Wizard(object):
             error_description = self._error_messages.get(error_description,
                     error_description)
 
-            res = translation_obj._get_source(cursor, self._name, 'error',
-                    context.get('language', 'en_US'), error_description)
+            res = translation_obj._get_source(self._name, 'error',
+                    Transaction().language, error_description)
             if res:
                 error_description = res
 
@@ -105,34 +104,32 @@ class Wizard(object):
             raise Exception('UserError', error, error_description)
         raise Exception('UserError', error)
 
-    def create(self, cursor, user):
+    def create(self):
         self._lock.acquire()
         wiz_id = 0
         while True:
             wiz_id = randint(0, maxint)
             if wiz_id not in self._datas:
                 break
-        self._datas[wiz_id] = {'user': user, '_wiz_id': wiz_id}
+        self._datas[wiz_id] = {'user': Transaction().user, '_wiz_id': wiz_id}
         self._lock.release()
         return wiz_id
 
-    def delete(self, cursor, user, wiz_id):
+    def delete(self, wiz_id):
         if wiz_id not in self._datas:
             return
-        if self._datas[wiz_id]['user'] != user:
+        if self._datas[wiz_id]['user'] != Transaction().user:
             raise Exception('AccessDenied')
         self._lock.acquire()
         del self._datas[wiz_id]
         self._lock.release()
 
-    def execute(self, cursor, user, wiz_id, data, state='init', context=None):
+    def execute(self, wiz_id, data, state='init'):
         translation_obj = self.pool.get('ir.translation')
         wizard_size_obj = self.pool.get('ir.action.wizard_size')
-        if context is None:
-            context = {}
         res = {}
 
-        if self._datas.get(wiz_id, {}).get('user') != user:
+        if self._datas.get(wiz_id, {}).get('user') != Transaction().user:
             raise Exception('AccessDenied')
         self._datas[wiz_id].update(data)
         data = self._datas[wiz_id]
@@ -144,7 +141,7 @@ class Wizard(object):
         # iterate through the list of actions defined for this state
         for action in state_def.get('actions', []):
             # execute them
-            action_res = getattr(self, action)(cursor, user, data, context)
+            action_res = getattr(self, action)(data)
             assert isinstance(action_res, dict), \
                     'The return value of wizard actions ' \
                     'should be a dictionary'
@@ -154,22 +151,18 @@ class Wizard(object):
         if state_def.get('actions'):
             res['datas'] = actions_res
 
-        lang = context.get('language', 'en_US')
         if result_def['type'] == 'action':
-            res['action'] = getattr(self, result_def['action'])(cursor, user,
-                    data, context)
+            res['action'] = getattr(self, result_def['action'])(data)
         elif result_def['type'] == 'form':
             obj = self.pool.get(result_def['object'])
 
-            view = obj.fields_view_get(cursor, user, view_type='form',
-                    context=context, toolbar=False)
+            view = obj.fields_view_get(view_type='form', toolbar=False)
             fields = view['fields']
             arch = view['arch']
 
             button_list = copy.copy(result_def['state'])
 
-            default_values = obj.default_get(cursor, user, fields.keys(),
-                    context=context)
+            default_values = obj.default_get(fields.keys())
             for field in default_values.keys():
                 if '.' in field:
                     continue
@@ -178,9 +171,9 @@ class Wizard(object):
             # translate buttons
             for i, button  in enumerate(button_list):
                 button_name = button[0]
-                res_trans = translation_obj._get_source(cursor,
+                res_trans = translation_obj._get_source(
                         self._name + ',' + state + ',' + button_name,
-                        'wizard_button', lang)
+                        'wizard_button', Transaction().language)
                 if res_trans:
                     button = list(button)
                     button[1] = res_trans
@@ -189,13 +182,11 @@ class Wizard(object):
             res['fields'] = fields
             res['arch'] = arch
             res['state'] = button_list
-            res['size'] = wizard_size_obj.get_size(cursor, user, self._name,
-                    result_def['object'], context=context)
+            res['size'] = wizard_size_obj.get_size(self._name,
+                    result_def['object'])
         elif result_def['type'] == 'choice':
-            next_state = getattr(self, result_def['next_state'])(cursor, user,
-                    data, context)
+            next_state = getattr(self, result_def['next_state'])(data)
             if next_state == 'end':
                 return {'type': 'state', 'state': 'end'}
-            return self.execute(cursor, user, wiz_id, data, next_state,
-                    context=context)
+            return self.execute(wiz_id, data, next_state)
         return res

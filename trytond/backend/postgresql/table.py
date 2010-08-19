@@ -264,7 +264,7 @@ class TableHandler(TableHandlerInterface):
                 # Populate column with default values:
                 default = None
                 if default_fun is not None:
-                    default = default_fun(self.cursor, 0, {})
+                    default = default_fun()
                 self.cursor.execute('UPDATE "' + self.table_name + '" '\
                                     'SET "' + column_name + '" = %s',
                                     (column_format(default),))

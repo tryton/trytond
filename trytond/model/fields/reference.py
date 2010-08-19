@@ -1,8 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-
+from __future__ import with_statement
 from trytond.model.fields.field import Field
 from trytond.tools import safe_eval
+from trytond.transaction import Transaction
 
 
 class Reference(Field):
@@ -30,21 +31,16 @@ class Reference(Field):
 
     __init__.__doc__ += Field.__init__.__doc__
 
-    def get(self, cursor, user, ids, model, name, values=None, context=None):
+    def get(self, ids, model, name, values=None):
         '''
         Replace removed reference id by False.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids
         :param model: a string with the name of the model
         :param name: a string with the name of the field
         :param values: a dictionary with the read values
-        :param context: the context
         :return: a dictionary with ids as key and values as value
         '''
-        if context is None:
-            context = {}
         if values is None:
             values = {}
         res = {}
@@ -72,14 +68,13 @@ class Reference(Field):
                 ref_id = int(ref_id)
             except Exception:
                 continue
-            ctx = context.copy()
-            ctx['active_test'] = False
-            if ref_id \
-                and ref_id not in ref_id_found[ref_model] \
-                and not ref_obj.search(cursor, user, [
-                    ('id', '=', ref_id),
-                    ], order=[], context=ctx):
-                ref_id = False
+            with Transaction().set_context(active_test=False):
+                if ref_id \
+                    and ref_id not in ref_id_found[ref_model] \
+                    and not ref_obj.search([
+                        ('id', '=', ref_id),
+                        ], order=[]):
+                    ref_id = False
             if ref_id:
                 ref_id_found[ref_model].add(ref_id)
             res[i] = ref_model + ',' + str(ref_id)

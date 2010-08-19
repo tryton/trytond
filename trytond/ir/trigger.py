@@ -7,6 +7,7 @@ from trytond.pyson import Eval, Or
 from trytond.tools import Cache, safe_eval
 from trytond.backend import TableHandler
 from trytond.tools import reduce_ids
+from trytond.transaction import Transaction
 
 
 class Trigger(ModelSQL, ModelView):
@@ -60,21 +61,21 @@ class Trigger(ModelSQL, ModelView):
         })
         self._order.insert(0, ('name', 'ASC'))
 
-    def check_condition(self, cursor, user, ids):
+    def check_condition(self, ids):
         '''
         Check condition
         '''
-        for trigger in self.browse(cursor, user, ids):
+        for trigger in self.browse(ids):
             try:
                 compile(trigger.condition, '', 'eval')
             except (SyntaxError, TypeError):
                 return False
         return True
 
-    def default_active(self, cursor, user, context=None):
+    def default_active(self):
         return True
 
-    def on_change_on_time(self, cursor, user, values, context=None):
+    def on_change_on_time(self, values):
         if values.get('on_time'):
             return {
                     'on_create': False,
@@ -83,21 +84,21 @@ class Trigger(ModelSQL, ModelView):
                     }
         return {}
 
-    def on_change_on_create(self, cursor, user, values, context=None):
+    def on_change_on_create(self, values):
         if values.get('on_create'):
             return {
                     'on_time': False,
                     }
         return {}
 
-    def on_change_on_write(self, cursor, user, values, context=None):
+    def on_change_on_write(self, values):
         if values.get('on_write'):
             return {
                     'on_time': False,
                     }
         return {}
 
-    def on_change_on_delete(self, cursor, user, values, context=None):
+    def on_change_on_delete(self, values):
         if values.get('on_delete'):
             return {
                     'on_time': False,
@@ -105,12 +106,10 @@ class Trigger(ModelSQL, ModelView):
         return {}
 
     @Cache('ir_trigger.get_triggers')
-    def get_triggers(self, cursor, user, model_name, mode):
+    def get_triggers(self, model_name, mode):
         """
         Return trigger ids for a model and a mode
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param model_name: the name of the model
         :param mode: the mode that can be 'create', 'write', 'delete' or 'time'
         :return: a list of ir.trigger ids
@@ -118,50 +117,42 @@ class Trigger(ModelSQL, ModelView):
         assert mode in ['create', 'write', 'delete', 'time'], \
                 'Invalid trigger mode'
 
-        if user == 0:
+        if Transaction().user == 0:
             return [] # XXX is it want we want?
 
-        trigger_ids = self.search(cursor, user, [
+        trigger_ids = self.search([
             ('model.model', '=', model_name),
             ('on_%s' % mode, '=', True),
             ])
         return trigger_ids
 
-    def eval(self, cursor, user, trigger, record, context=None):
+    def eval(self, trigger, record):
         """
         Evaluate the condition of trigger
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param trigger: a BrowseRecord of ir.trigger
         :param record: a BrowseRecord of the tested model
-        :param context: the context
         :return: a boolean
         """
-        if context is None:
-            context = {}
         model_obj = self.pool.get(trigger.model.model)
         env = {}
-        env.update(context)
         env['current_date'] = datetime.datetime.today()
         env['time'] = time
-        env['context'] = context
+        env['context'] = Transaction().context
         env['self'] = record
         return bool(safe_eval(trigger.condition, env))
 
-    def trigger_action(self, cursor, user, ids, trigger_id, context=None):
+    def trigger_action(self, ids, trigger_id):
         """
         Trigger the action define on trigger_id for the ids
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: the list of record ids triggered
         :param trigger_id: the trigger id
-        :param context: the context
         """
         trigger_log_obj = self.pool.get('ir.trigger.log')
-        trigger = self.browse(cursor, user, trigger_id, context=context)
+        trigger = self.browse(trigger_id)
         model_obj = self.pool.get(trigger.action_model.model)
+        cursor = Transaction().cursor
 
         # Filter on limit_number
         if trigger.limit_number:
@@ -216,56 +207,48 @@ class Trigger(ModelSQL, ModelView):
             ids = new_ids
 
         if ids:
-            getattr(model_obj, trigger.action_function)(cursor, user, ids,
-                    trigger_id, context=context)
+            getattr(model_obj, trigger.action_function)(ids, trigger_id)
         if trigger.limit_number or trigger.minimum_delay:
             for record_id in ids:
-                trigger_log_obj.create(cursor, user, {
+                trigger_log_obj.create({
                     'trigger': trigger.id,
                     'record_id': record_id,
-                    }, context=context)
+                    })
 
-    def trigger_time(self, cursor, user, context=None):
+    def trigger_time(self):
         '''
         Trigger time actions
-
-        :param cursor: the database cursor
-        :param user: the user id
-        :param context: the context
         '''
-        trigger_ids = self.search(cursor, user, [
+        trigger_ids = self.search([
             ('on_time', '=', True),
-            ], context=context)
-        for trigger in self.browse(cursor, user, trigger_ids, context=context):
+            ])
+        for trigger in self.browse(trigger_ids):
             model_obj = self.pool.get(trigger.model.model)
             triggered_ids = []
             # TODO add a domain
-            record_ids = model_obj.search(cursor, user, [], context=context)
-            for record in model_obj.browse(cursor, user, record_ids,
-                    context=context):
-                if self.eval(cursor, user, trigger, record, context=context):
+            record_ids = model_obj.search([])
+            for record in model_obj.browse(record_ids):
+                if self.eval(trigger, record):
                     triggered_ids.append(record.id)
             if triggered_ids:
-                self.trigger_action(cursor, user, triggered_ids, trigger.id,
-                        context=context)
+                self.trigger_action(triggered_ids, trigger.id)
 
-    def create(self, cursor, user, values, context=None):
-        res = super(Trigger, self).create(cursor, user, values, context=context)
+    def create(self, values):
+        res = super(Trigger, self).create(values)
         # Restart the cache on the get_triggers method of ir.trigger
-        self.get_triggers(cursor.dbname)
+        self.get_triggers.reset()
         return res
 
-    def write(self, cursor, user, ids, values, context=None):
-        res = super(Trigger, self).write(cursor, user, ids, values,
-                context=context)
+    def write(self, ids, values):
+        res = super(Trigger, self).write(ids, values)
         # Restart the cache on the get_triggers method of ir.trigger
-        self.get_triggers(cursor.dbname)
+        self.get_triggers.reset()
         return res
 
-    def delete(self, cursor, user, ids, context=None):
-        res = super(Trigger, self).delete(cursor, user, ids, context=context)
+    def delete(self, ids):
+        res = super(Trigger, self).delete(ids)
         # Restart the cache on the get_triggers method of ir.trigger
-        self.get_triggers(cursor.dbname)
+        self.get_triggers.reset()
         return res
 
 Trigger()
@@ -278,10 +261,10 @@ class TriggerLog(ModelSQL):
     trigger = fields.Many2One('ir.trigger', 'Trigger', required=True)
     record_id = fields.Integer('Record ID', required=True)
 
-    def init(self, cursor, module_name):
-        super(TriggerLog, self).init(cursor, module_name)
+    def init(self, module_name):
+        super(TriggerLog, self).init(module_name)
 
-        table = TableHandler(cursor, self, module_name)
+        table = TableHandler(Transaction().cursor, self, module_name)
         table.index_action(['trigger', 'record_id'], 'add')
 
 TriggerLog()

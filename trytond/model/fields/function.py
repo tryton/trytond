@@ -47,37 +47,29 @@ class Function(Field):
             return object.__setattr__(self, name, value)
         return setattr(self._field, name, value)
 
-    def search(self, cursor, user, model, name, clause, context=None):
+    def search(self, model, name, clause):
         '''
         Call the searcher.
 
-        :param cursor: The database cursor.
-        :param user: The user id.
         :param model: The model.
         :param name: The name of the field.
         :param clause: The search domain clause. See ModelStorage.search
-        :param context: The context.
         :return: a list of domain clause.
         '''
         if not self.searcher:
-            model.raise_user_error(cursor, 'search_function_missing',
-                    name, context=context)
-        return getattr(model, self.searcher)(cursor, user, name, tuple(clause),
-                context=context)
+            model.raise_user_error('search_function_missing', name)
+        return getattr(model, self.searcher)(name, tuple(clause))
 
-    def get(self, cursor, user, ids, model, name, values=None, context=None):
+    def get(self, ids, model, name, values=None):
         '''
         Call the getter.
         If the function has ``names`` in the function definition then
         it will call it with a list of name.
 
-        :param cursor: The database cursor.
-        :param user: The user id.
         :param ids: A list of ids.
         :param model: The model.
         :param name: The name of the field or a list of name field.
         :param values:
-        :param context: The contest.
         :return: a dictionary with ids as key and values as value or
             a dictionary with name as key and a dictionary as value if
             name is a list of field name.
@@ -86,33 +78,26 @@ class Function(Field):
             names = name
             # Test is the function works with a list of names
             if 'names' in inspect.getargspec(getattr(model, self.getter))[0]:
-                return getattr(model, self.getter)(cursor, user, ids, names,
-                        context=context)
+                return getattr(model, self.getter)(ids, names)
             res = {}
             for name in names:
-                res[name] = getattr(model, self.getter)(cursor, user, ids,
-                        name, context=context)
+                res[name] = getattr(model, self.getter)(ids, name)
             return res
         else:
             # Test is the function works with a list of names
             if 'names' in inspect.getargspec(getattr(model, self.getter))[0]:
                 name = [name]
-            return getattr(model, self.getter)(cursor, user, ids, name,
-                    context=context)
+            return getattr(model, self.getter)(ids, name)
 
 
-    def set(self, cursor, user, ids, model, name, value, context=None):
+    def set(self, ids, model, name, value):
         '''
         Call the setter.
 
-        :param cursor: The database cursor.
-        :param user: The user id.
         :param ids: A list of ids.
         :param model: The model.
         :param name: The name of the field.
         :param value: The value to set.
-        :param context: The context.
         '''
         if self.setter:
-            getattr(model, self.setter)(cursor, user, ids, name, value,
-                    context=context)
+            getattr(model, self.setter)(ids, name, value)

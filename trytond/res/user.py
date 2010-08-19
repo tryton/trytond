@@ -1,12 +1,14 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "User"
+from __future__ import with_statement
 import copy
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.wizard import Wizard
 from trytond.tools import Cache, safe_eval
 from trytond.backend import TableHandler
 from trytond.security import get_connections
+from trytond.transaction import Transaction
 import string
 import random
 try:
@@ -83,9 +85,9 @@ class User(ModelSQL, ModelView):
             'wrong_password': 'Wrong password!',
             })
 
-    def init(self, cursor, module_name):
-        super(User, self).init(cursor, module_name)
-        table = TableHandler(cursor, self, module_name)
+    def init(self, module_name):
+        super(User, self).init(module_name)
+        table = TableHandler(Transaction().cursor, self, module_name)
 
         # Migration from 1.6
 
@@ -100,56 +102,56 @@ class User(ModelSQL, ModelView):
                 ):
             table.not_null_action(field, action='remove')
 
-    def default_password(self, cursor, user, context=None):
+    def default_password(self):
         return False
 
-    def default_active(self, cursor, user, context=None):
+    def default_active(self):
         return 1
 
-    def default_menu(self, cursor, user, context=None):
+    def default_menu(self):
         action_obj = self.pool.get('ir.action')
-        action_ids = action_obj.search(cursor, user, [
+        action_ids = action_obj.search([
             ('usage', '=', 'menu'),
-            ], limit=1, context=context)
+            ], limit=1)
         if action_ids:
             return action_ids[0]
         return False
 
-    def default_action(self, cursor, user, context=None):
-        return self.default_menu(cursor, user, context=context)
+    def default_action(self):
+        return self.default_menu()
 
-    def get_language_direction(self, cursor, user, ids, name, context=None):
+    def get_language_direction(self, ids, name):
         res = {}
         lang_obj = self.pool.get('ir.lang')
-        default_direction = lang_obj.default_direction(cursor, user, context=context)
-        for user in self.browse(cursor, user, ids, context=context):
+        default_direction = lang_obj.default_direction()
+        for user in self.browse(ids):
             if user.language:
                 res[user.id] = user.language.direction
             else:
                 res[user.id] = default_direction
         return res
 
-    def get_status_bar(self, cursor, user_id, ids, name, context=None):
+    def get_status_bar(self, ids, name):
         res = {}
-        for user in self.browse(cursor, user_id, ids, context=context):
+        for user in self.browse(ids):
             res[user.id] = user.name
         return res
 
-    def get_connections(self, cursor, user, ids, name, context=None):
+    def get_connections(self, ids, name):
         res = {}
+        transaction = Transaction()
         for user_id in ids:
-            res[user_id] = get_connections(cursor.database_name, user_id)
+            res[user_id] = get_connections(transaction.cursor.database_name,
+                    transaction.user)
         return res
 
-    def _convert_vals(self, cursor, user, vals, context=None):
+    def _convert_vals(self, vals):
         vals = vals.copy()
         action_obj = self.pool.get('ir.action')
         if 'action' in vals:
-            vals['action'] = action_obj.get_action_id(cursor, user,
-                    vals['action'], context=context)
+            vals['action'] = action_obj.get_action_id(vals['action'])
         if 'menu' in vals:
-            vals['menu'] = action_obj.get_action_id(cursor, user,
-                    vals['menu'], context=context)
+            vals['menu'] = action_obj.get_action_id(vals['menu'])
         if 'password' in vals:
             if vals['password'] == 'x' * 10:
                 del vals['password']
@@ -159,47 +161,46 @@ class User(ModelSQL, ModelView):
                 vals['password'] += vals['salt']
         return vals
 
-    def create(self, cursor, user, vals, context=None):
-        vals = self._convert_vals(cursor, user, vals, context=context)
-        res = super(User, self).create(cursor, user, vals, context=context)
+    def create(self, vals):
+        vals = self._convert_vals(vals)
+        res = super(User, self).create(vals)
         # Restart the cache for _get_login
-        self._get_login(cursor.dbname)
+        self._get_login.reset()
         return res
 
-    def write(self, cursor, user, ids, vals, context=None):
-        vals = self._convert_vals(cursor, user, vals, context=context)
-        res = super(User, self).write(cursor, user, ids, vals, context=context)
+    def write(self, ids, vals):
+        vals = self._convert_vals(vals)
+        res = super(User, self).write(ids, vals)
         # Restart the cache for domain_get method
-        self.pool.get('ir.rule').domain_get(cursor.dbname)
+        self.pool.get('ir.rule').domain_get.reset()
         # Restart the cache for get_groups
-        self.get_groups(cursor.dbname)
+        self.get_groups.reset()
         # Restart the cache for _get_login
-        self._get_login(cursor.dbname)
+        self._get_login.reset()
         # Restart the cache for get_preferences
-        self.get_preferences(cursor.dbname)
+        self.get_preferences.reset()
         # Restart the cache of check
-        self.pool.get('ir.model.access').check(cursor.dbname)
+        self.pool.get('ir.model.access').check.reset()
         # Restart the cache
         for _, model in self.pool.iterobject():
             try:
-                model.fields_view_get(cursor.dbname)
+                model.fields_view_get.reset()
             except Exception:
                 pass
         return res
 
-    def delete(self, cursor, user, ids, context=None):
+    def delete(self, ids):
         if isinstance(ids, (int, long)):
             ids = [ids]
         if 0 in ids:
-            self.raise_user_error(cursor, 'rm_root', context=context)
-        res = super(User, self).delete(cursor, user, ids, context=context)
+            self.raise_user_error('rm_root')
+        res = super(User, self).delete(ids)
         # Restart the cache for _get_login
-        self._get_login(cursor.dbname)
+        self._get_login.reset()
         return res
 
-    def read(self, cursor, user, ids, fields_names=None, context=None):
-        res = super(User, self).read(cursor, user, ids, fields_names=fields_names,
-                context=context)
+    def read(self, ids, fields_names=None):
+        res = super(User, self).read(ids, fields_names=fields_names)
         if isinstance(ids, (int, long)):
             if 'password' in res:
                 res['password'] = 'x' * 10
@@ -209,15 +210,15 @@ class User(ModelSQL, ModelView):
                     val['password'] = 'x' * 10
         return res
 
-    def search_rec_name(self, cursor, user, name, clause, context=None):
-        ids = self.search(cursor, user, [
+    def search_rec_name(self, name, clause):
+        ids = self.search([
             ('login', '=', clause[2]),
-            ], order=[], context=context)
+            ], order=[])
         if len(ids) == 1:
             return [('id', '=', ids[0])]
         return [(self._rec_name,) + clause[1:]]
 
-    def copy(self, cursor, user, ids, default=None, context=None):
+    def copy(self, ids, default=None):
         if default is None:
             default = {}
         default = default.copy()
@@ -231,18 +232,16 @@ class User(ModelSQL, ModelView):
 
         new_ids = []
         user_id = user
-        for user in self.browse(cursor, user_id, ids, context=context):
+        for user in self.browse(ids):
             default['login'] = user.login + ' (copy)'
-            new_id = super(User, self).copy(cursor, user_id, user.id, default,
-                context=context)
+            new_id = super(User, self).copy(user.id, default)
             new_ids.append(new_id)
 
         if int_id:
             return new_ids[0]
         return new_ids
 
-    def _get_preferences(self, cursor, user_id, user, context_only=False,
-            context=None):
+    def _get_preferences(self, user, context_only=False):
         res = {}
         if context_only:
             fields = self._context_fields
@@ -276,56 +275,48 @@ class User(ModelSQL, ModelView):
         return res
 
     @Cache('res_user.get_preferences')
-    def get_preferences(self, cursor, user_id, context_only=False, context=None):
-        user = self.browse(cursor, 0, user_id, context=context)
-        res = self._get_preferences(cursor, user_id, user,
-                context_only=context_only, context=context)
-        return res
+    def get_preferences(self, context_only=False):
+        user = Transaction().user
+        with Transaction().set_user(0):
+            user = self.browse(user)
+        return self._get_preferences(user, context_only=context_only)
 
-    def set_preferences(self, cursor, user_id, values, old_password=False,
-            context=None):
+    def set_preferences(self, values, old_password=False):
         '''
         Set user preferences.
 
-        :param cursor: the database cursor
-        :param user_id: the user id
         :param values: a dictionary with values
         :param old_password: the previous password if password is in values
-        :param context: the context
         '''
         lang_obj = self.pool.get('ir.lang')
         values_clean = values.copy()
         fields = self._preferences_fields + self._context_fields
+        user_id = Transaction().user
         for field in values:
             if field not in fields or field == 'groups':
                 del values_clean[field]
             if field == 'password':
-                user = self.browse(cursor, 0, user_id, context=context)
-                if not self.get_login(cursor, 0, user.login, old_password,
-                        context=context):
-                    self.raise_user_error(cursor, 'wrong_password',
-                            context=context)
+                with Transaction.set_user(0):
+                    user = self.browse(user_id)
+                    if not self.get_login(user.login, old_password):
+                        self.raise_user_error('wrong_password')
             if field == 'language':
-                lang_ids = lang_obj.search(cursor, user_id, [
+                lang_ids = lang_obj.search([
                     ('code', '=', values['language']),
-                    ], context=context)
+                    ])
                 if lang_ids:
                     values_clean['language'] = lang_ids[0]
                 else:
                     del values_clean['language']
-        self.write(cursor, 0, user_id, values_clean, context=context)
+        with Transaction().set_user(0):
+            self.write(user_id, values_clean)
 
-    def get_preferences_fields_view(self, cursor, user, context=None):
+    def get_preferences_fields_view(self):
         model_data_obj = self.pool.get('ir.model.data')
         lang_obj = self.pool.get('ir.lang')
 
-        if context is None:
-            context = {}
-
-        view_id = model_data_obj.get_id(cursor, user, 'res',
-                'user_view_form_preferences')
-        res = self.fields_view_get(cursor, user, view_id=view_id,
-                context=context)
+        view_id = model_data_obj.get_id('res', 'user_view_form_preferences')
+        res = self.fields_view_get(view_id=view_id)
         res = copy.deepcopy(res)
         for field in res['fields']:
             if field not in ('groups', 'language_direction'):
@@ -336,18 +327,17 @@ class User(ModelSQL, ModelView):
             del res['fields']['language']['relation']
             res['fields']['language']['type'] = 'selection'
             res['fields']['language']['selection'] = []
-            lang_ids = lang_obj.search(cursor, user, ['OR',
+            lang_ids = lang_obj.search(['OR',
                 ('translatable', '=', True),
                 ('code', '=', 'en_US'),
-                ], context=None)
-            ctx = context.copy()
-            ctx['translate_name'] = True
-            for lang in lang_obj.browse(cursor, user, lang_ids, context=ctx):
-                res['fields']['language']['selection'].append(
-                        (lang.code, lang.name))
+                ])
+            with Transaction().set_context(translate_name=True):
+                for lang in lang_obj.browse(lang_ids):
+                    res['fields']['language']['selection'].append(
+                            (lang.code, lang.name))
         return res
 
-    def timezones(self, cursor, user, context=None):
+    def timezones(self):
         try:
             import pytz
             res = [(x, x) for x in pytz.common_timezones]
@@ -356,20 +346,17 @@ class User(ModelSQL, ModelView):
         return res
 
     @Cache('res_user.get_groups')
-    def get_groups(self, cursor, user, context=None):
+    def get_groups(self):
         '''
         Return a list of group ids for the user
 
-        :param cursor: the database cursor
-        :param user: the user id
-        :param context: the context
         :return: a list of group ids
         '''
-        return self.read(cursor, user, user, ['groups'],
-                context=context)['groups']
+        return self.read(Transaction().user, ['groups'])['groups']
 
     @Cache('res_user._get_login')
-    def _get_login(self, cursor, user, login, context=None):
+    def _get_login(self, login):
+        cursor = Transaction().cursor
         cursor.execute('SELECT id, password, salt ' \
                 'FROM "' + self._table + '" '
                 'WHERE login = %s AND active', (login,))
@@ -378,19 +365,15 @@ class User(ModelSQL, ModelView):
             return None, None, None
         return res
 
-    def get_login(self, cursor, user, login, password, context=None):
+    def get_login(self, login, password):
         '''
         Return user id if password matches
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param login: the login name
         :param password: the password
-        :param context: the context
         :return: integer
         '''
-        user_id, user_password, salt = self._get_login(cursor, user,
-                login, context=context)
+        user_id, user_password, salt = self._get_login(login)
         if not user_id:
             return 0
         password += salt or ''
@@ -416,12 +399,13 @@ class UserGroup(ModelSQL):
     gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE', select=1,
             required=True)
 
-    def init(self, cursor, module_name):
+    def init(self, module_name):
+        cursor = Transaction().cursor
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'res_group_user_rel', self._table)
         TableHandler.sequence_rename(cursor, 'res_group_user_rel_id_seq',
                 self._table + '_id_seq')
-        super(UserGroup, self).init(cursor, module_name)
+        super(UserGroup, self).init(module_name)
 
 UserGroup()
 
@@ -443,18 +427,17 @@ class Warning(ModelSQL, ModelView):
     name = fields.Char('Name', required=True, select=1)
     always = fields.Boolean('Always')
 
-    def check(self, cursor, user, warning_name, context=None):
+    def check(self, warning_name):
         if not user:
             return False
-        warning_ids = self.search(cursor, user, [
+        warning_ids = self.search([
             ('user', '=', user),
             ('name', '=', warning_name),
-            ], context=context)
+            ])
         if not warning_ids:
             return True
-        warnings = self.browse(cursor, user, warning_ids, context=context)
-        self.delete(cursor, user, [x.id for x in warnings if not x.always],
-                context=context)
+        warnings = self.browse(warning_ids)
+        self.delete([x.id for x in warnings if not x.always])
         return False
 
 Warning()
@@ -502,12 +485,12 @@ class UserConfig(Wizard):
         },
     }
 
-    def _reset(self, cursor, user, data, context=None):
+    def _reset(self, data):
         return {}
 
-    def _add(self, cursor, user, data, context=None):
+    def _add(self, data):
         res_obj = self.pool.get('res.user')
-        res_obj.create(cursor, user, data['form'], context=context)
+        res_obj.create(data['form'])
         return {}
 
 UserConfig()

@@ -1,9 +1,11 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from __future__ import with_statement
 from trytond.backend import Database
 from trytond.session import Session
 from trytond.pool import Pool
 from trytond.config import CONFIG
+from trytond.transaction import Transaction
 import time
 
 
@@ -13,17 +15,15 @@ _USER_TRY = {}
 def login(dbname, loginname, password, cache=True):
     _USER_TRY.setdefault(dbname, {})
     _USER_TRY[dbname].setdefault(loginname, 0)
-    database = Database(dbname).connect()
-    cursor = database.cursor()
-    database_list = Pool.database_list()
-    pool = Pool(dbname)
-    if not dbname in database_list:
-        pool.init()
-    user_obj = pool.get('res.user')
-    password = password.decode('utf-8')
-    user_id = user_obj.get_login(cursor, 0, loginname, password)
-    cursor.commit()
-    cursor.close()
+    with Transaction().start(dbname, 0) as transaction:
+        database_list = Pool.database_list()
+        pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
+        user_obj = pool.get('res.user')
+        password = password.decode('utf-8')
+        user_id = user_obj.get_login(loginname, password)
+        transaction.cursor.commit()
     if user_id:
         _USER_TRY[dbname][loginname] = 0
         if cache:

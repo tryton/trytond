@@ -1,9 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.model import Model
-from trytond.tools import Cache, safe_eval
-from trytond.modules import create_graph, get_module_list
-from trytond.pyson import PYSONEncoder, CONTEXT
 from lxml import etree
 try:
     import hashlib
@@ -11,6 +7,11 @@ except ImportError:
     hashlib = None
     import md5
 import copy
+from trytond.model import Model
+from trytond.tools import Cache, safe_eval
+from trytond.modules import create_graph, get_module_list
+from trytond.pyson import PYSONEncoder, CONTEXT
+from trytond.transaction import Transaction
 
 def _find(tree, element):
     if element.tag == 'xpath':
@@ -94,16 +95,13 @@ class ModelView(Model):
         self._rpc['fields_view_get'] = False
 
     @Cache('modelview.fields_view_get')
-    def fields_view_get(self, cursor, user, view_id=None, view_type='form',
-            context=None, toolbar=False, hexmd5=None):
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
+            hexmd5=None):
         '''
         Return a view definition.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param view_id: the id of the view, if None the first one will be used
         :param view_type: the type of the view if view_id is None
-        :param context: the context
         :param toolbar: if True the result will contain a toolbar key with
             keyword action definitions for the view
         :param hexmd5: if filled, the function will return True if the result
@@ -115,16 +113,13 @@ class ModelView(Model):
            - toolbar: a dictionary with the keyword action definitions
            - md5: the check sum of the dictionary without this checksum
         '''
-
-        if context is None:
-            context = {}
-
         result = {'model': self._name}
 
         test = True
         model = True
         sql_res = False
         inherit_view_id = False
+        cursor = Transaction().cursor
         while test:
             if view_id:
                 where = (model and (" and model='%s'" % (self._name,))) or ''
@@ -157,8 +152,8 @@ class ModelView(Model):
             # Check if view is not from an inherited model
             if sql_res[5] != self._name:
                 inherit_obj = self.pool.get(sql_res[5])
-                result['arch'] = inherit_obj.fields_view_get(cursor, user,
-                        result['view_id'], context=context)['arch']
+                result['arch'] = inherit_obj.fields_view_get(
+                        result['view_id'])['arch']
                 view_id = inherit_view_id
 
             # get all views which inherit from (ie modify) this view
@@ -183,7 +178,8 @@ class ModelView(Model):
                     raise_p = True
             for arch, domain, _ in sql_inherit:
                 if domain:
-                    if not safe_eval(domain, {'context': context}):
+                    if not safe_eval(domain,
+                            {'context': Transaction().context}):
                         continue
                 if not arch or not arch.strip():
                     continue
@@ -192,7 +188,7 @@ class ModelView(Model):
         # otherwise, build some kind of default view
         else:
             if view_type == 'form':
-                res = self.fields_get(cursor, user, context=context)
+                res = self.fields_get()
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
                 '''<form string="%s">''' % (self._description,)
                 for i in res:
@@ -222,20 +218,16 @@ class ModelView(Model):
         # Update arch and compute fields from arch
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(result['arch'], parser)
-        xarch, xfields = self._view_look_dom_arch(cursor, user, tree,
-                result['type'], context=context)
+        xarch, xfields = self._view_look_dom_arch(tree, result['type'])
         result['arch'] = xarch
         result['fields'] = xfields
 
         # Add toolbar
         if toolbar:
             action_obj = self.pool.get('ir.action.keyword')
-            prints = action_obj.get_keyword(cursor, user, 'form_print',
-                    (self._name, 0), context=context)
-            actions = action_obj.get_keyword(cursor, user, 'form_action',
-                    (self._name, 0), context=context)
-            relates = action_obj.get_keyword(cursor, user, 'form_relate',
-                    (self._name, 0), context=context)
+            prints = action_obj.get_keyword('form_print', (self._name, 0))
+            actions = action_obj.get_keyword('form_action', (self._name, 0))
+            relates = action_obj.get_keyword('form_relate', (self._name, 0))
             result['toolbar'] = {
                 'print': prints,
                 'action': actions,
@@ -251,38 +243,33 @@ class ModelView(Model):
             return True
         return result
 
-    def view_header_get(self, cursor, user, value, view_type='form',
-            context=None):
+    def view_header_get(self, value, view_type='form'):
         """
         Overload this method if you need a window title.
         which depends on the context
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param value: the default header string
         :param view_type: the type of the view
-        :param context: the context
         :return: the header string of the view
         """
         return value
 
-    def _view_look_dom_arch(self, cursor, user, tree, type, context=None):
+    def _view_look_dom_arch(self, tree, type):
         fields_width = {}
         tree_root = tree.getroottree().getroot()
 
         if type == 'tree':
             viewtreewidth_obj = self.pool.get('ir.ui.view_tree_width')
-            viewtreewidth_ids = viewtreewidth_obj.search(cursor, user, [
+            viewtreewidth_ids = viewtreewidth_obj.search([
                 ('model', '=', self._name),
-                ('user', '=', user),
-                ], context=context)
-            for viewtreewidth in viewtreewidth_obj.browse(cursor, user,
-                    viewtreewidth_ids, context=context):
+                ('user', '=', Transaction().user),
+                ])
+            for viewtreewidth in viewtreewidth_obj.browse(viewtreewidth_ids):
                 if viewtreewidth.width > 0:
                     fields_width[viewtreewidth.field] = viewtreewidth.width
 
-        fields_def = self.__view_look_dom(cursor, user, tree_root, type,
-                fields_width=fields_width, context=context)
+        fields_def = self.__view_look_dom(tree_root, type,
+                fields_width=fields_width)
 
         for field_name in fields_def.keys():
             if field_name in self._columns:
@@ -298,20 +285,17 @@ class ModelView(Model):
             fields_def.setdefault('active', {'name': 'active', 'select': "2"})
 
         arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
-        fields2 = self.fields_get(cursor, user, fields_def.keys(), context)
+        fields2 = self.fields_get(fields_def.keys())
         for field in fields_def:
             if field in fields2:
                 fields2[field].update(fields_def[field])
         return arch, fields2
 
-    def __view_look_dom(self, cursor, user, element, type, fields_width=None,
-            context=None):
+    def __view_look_dom(self, element, type, fields_width=None):
         translation_obj = self.pool.get('ir.translation')
 
         if fields_width is None:
             fields_width = {}
-        if context is None:
-            context = {}
         result = False
         fields_attrs = {}
         childs = True
@@ -342,30 +326,28 @@ class ModelView(Model):
                                 def _translate_field(field):
                                     if field.get('string'):
                                         trans = translation_obj._get_source(
-                                                cursor, self._name, 'view',
-                                                context['language'],
+                                                self._name, 'view',
+                                                Transaction().language,
                                                 field.get('string'))
                                         if trans:
                                             field.set('string', trans)
                                     if field.get('sum'):
                                         trans = translation_obj._get_source(
-                                                cursor, self._name, 'view',
-                                                context['language'],
+                                                self._name, 'view',
+                                                Transaction().language,
                                                 field.get('sum'))
                                         if trans:
                                             field.set('sum', trans)
                                     for field_child in field:
                                         _translate_field(field_child)
-                                if 'language' in context:
+                                if Transaction().language != 'en_US':
                                     _translate_field(field2)
 
                                 relation_obj = self.pool.get(relation)
                                 if hasattr(relation_obj, '_view_look_dom_arch'):
                                     xarch, xfields = \
                                             relation_obj._view_look_dom_arch(
-                                                    cursor, user,
-                                                    field2, field.tag,
-                                                    context=context)
+                                                    field2, field.tag)
                                     views[field.tag] = {
                                         'arch': xarch,
                                         'fields': xfields
@@ -385,26 +367,24 @@ class ModelView(Model):
                     CONTEXT)))
 
         # translate view
-        if ('language' in context) and not result:
+        if Transaction().language != 'en_US' and not result:
             for attr in ('string', 'sum', 'confirm', 'help'):
                 if element.get(attr):
-                    trans = translation_obj._get_source(cursor,
-                            self._name, 'view', context['language'],
-                            element.get(attr))
+                    trans = translation_obj._get_source(self._name, 'view',
+                            Transaction().language, element.get(attr))
                     if trans:
                         element.set(attr, trans)
 
         # Set header string
         if element.tag in ('form', 'tree', 'graph'):
-            element.set('string', self.view_header_get(cursor, user,
-                element.get('string') or '', view_type=element.tag,
-                context=context))
+            element.set('string', self.view_header_get(
+                element.get('string') or '', view_type=element.tag))
 
         if element.tag == 'tree' and element.get('sequence'):
             fields_attrs.setdefault(element.get('sequence'), {})
 
         if childs:
             for field in element:
-                fields_attrs.update(self.__view_look_dom(cursor, user, field,
-                    type, fields_width=fields_width, context=context))
+                fields_attrs.update(self.__view_look_dom(field, type,
+                    fields_width=fields_width))
         return fields_attrs

@@ -1,14 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from trytond.model import Model
-from trytond.model import fields
-from trytond.model.browse import BrowseRecordList, BrowseRecord, \
-        BrowseRecordNull
-from trytond.model.browse import EvalEnvironment
-from trytond.tools import safe_eval
-from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
-from trytond.const import OPERATORS
+from __future__ import with_statement
 import datetime
 import time
 from decimal import Decimal
@@ -19,6 +12,15 @@ try:
 except ImportError:
     import StringIO
 import csv
+from trytond.model import Model
+from trytond.model import fields
+from trytond.model.browse import BrowseRecordList, BrowseRecord, \
+        BrowseRecordNull
+from trytond.model.browse import EvalEnvironment
+from trytond.tools import safe_eval
+from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
+from trytond.const import OPERATORS
+from trytond.transaction import Transaction
 
 
 class ModelStorage(Model):
@@ -49,21 +51,21 @@ class ModelStorage(Model):
         })
         self._constraints = []
 
-    def default_create_uid(self, cursor, user, context=None):
+    def default_create_uid(self):
         "Default value for uid field."
-        return int(user)
+        return int(Transaction().user)
 
-    def default_create_date(self, cursor, user, context=None):
+    def default_create_date(self):
         "Default value for create_date field."
         return datetime.datetime.today()
 
-    def __clean_xxx2many_cache(self, cursor, user, context=None):
+    def __clean_xxx2many_cache(self):
         # Clean cursor cache
         to_clean = [(model._name, field_name)
                 for model_name, model in self.pool.iterobject(type='model')
                 for field_name, target_name in model._xxx2many_targets
                 if target_name == self._name]
-        for cache in cursor.cache.values():
+        for cache in Transaction().cursor.cache.values():
             for cache in (cache, cache.get('_language_cache', {}).values()):
                 for model_name, field_name in to_clean:
                     if model_name in cache:
@@ -71,88 +73,70 @@ class ModelStorage(Model):
                             if field_name in cache[model_name][model_id]:
                                 del cache[model_name][model_id][field_name]
 
-    def create(self, cursor, user, values, context=None):
+    def create(self, values):
         '''
         Create records.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param values: a dictionary with fields names as key
                 and created values as value
-        :param context: the context
         :return: the id of the created record
         '''
         model_access_obj = self.pool.get('ir.model.access')
-        model_access_obj.check(cursor, user, self._name, 'create',
-                context=context)
-        self.__clean_xxx2many_cache(cursor, user, context=context)
+        model_access_obj.check(self._name, 'create')
+        self.__clean_xxx2many_cache()
         return False
 
-    def trigger_create(self, cursor, user, id, context=None):
+    def trigger_create(self, id):
         '''
         Trigger create actions
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param id: the created id
-        :param context: the context
         '''
         trigger_obj = self.pool.get('ir.trigger')
-        trigger_ids = trigger_obj.get_triggers(cursor, user, self._name, 'create')
+        trigger_ids = trigger_obj.get_triggers(self._name, 'create')
         if not trigger_ids:
             return
-        record = self.browse(cursor, user, id, context=context)
-        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        record = self.browse(id)
+        triggers = trigger_obj.browse(trigger_ids)
         for trigger in triggers:
-            if trigger_obj.eval(cursor, user, trigger, record, context=context):
-                trigger_obj.trigger_action(cursor, user, [id], trigger.id,
-                        context=context)
+            if trigger_obj.eval(trigger, record):
+                trigger_obj.trigger_action([id], trigger.id)
 
-    def read(self, cursor, user, ids, fields_names=None, context=None):
+    def read(self, ids, fields_names=None):
         '''
         Read records.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids or an id
         :param fields_names: fields names to read if None read all fields
-        :param context: the context
         :return: a list of dictionnary or a dictionnary if ids is an id
             the dictionnaries will have fields names as key
             and fields value as value. The list will not be in the same order.
         '''
         model_access_obj = self.pool.get('ir.model.access')
 
-        model_access_obj.check(cursor, user, self._name, 'read',
-                context=context)
+        model_access_obj.check(self._name, 'read')
         if isinstance(ids, (int, long)):
             return {}
         return []
 
-    def write(self, cursor, user, ids, values, context=None):
+    def write(self, ids, values):
         '''
         Write values on records.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids or an id
         :param values: a dictionary with fields names as key
                 and written values as value
-        :param context: the context
         :return: True if succeed
         '''
         model_access_obj = self.pool.get('ir.model.access')
 
-        model_access_obj.check(cursor, user, self._name, 'write',
-                context=context)
-        if not self.check_xml_record(cursor, user, ids, values,
-                context=context):
-            self.raise_user_error(cursor, 'write_xml_record',
-                                  error_description='xml_record_desc',
-                                  context=context)
+        model_access_obj.check(self._name, 'write')
+        if not self.check_xml_record(ids, values):
+            self.raise_user_error('write_xml_record',
+                    error_description='xml_record_desc')
 
         # Clean cursor cache
-        for cache in cursor.cache.values():
+        for cache in Transaction().cursor.cache.values():
             for cache in (cache, cache.get('_language_cache', {}).values()):
                 if self._name in cache:
                     if isinstance(ids, (int, long)):
@@ -161,82 +145,68 @@ class ModelStorage(Model):
                         if i in cache[self._name]:
                             cache[self._name][i] = {}
         if ids:
-            self.__clean_xxx2many_cache(cursor, user, context=context)
+            self.__clean_xxx2many_cache()
         return False
 
-    def trigger_write_get_eligibles(self, cursor, user, ids, context=None):
+    def trigger_write_get_eligibles(self, ids):
         '''
         Return eligible ids for write actions by triggers
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids
-        :param context: the context
         :return: a dictionary of the lists of eligible ids by triggers
         '''
         trigger_obj = self.pool.get('ir.trigger')
-        trigger_ids = trigger_obj.get_triggers(cursor, user, self._name, 'write')
+        trigger_ids = trigger_obj.get_triggers(self._name, 'write')
         if not trigger_ids:
             return {}
-        records = self.browse(cursor, user, ids, context=context)
-        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        records = self.browse(ids)
+        triggers = trigger_obj.browse(trigger_ids)
         eligibles = {}
         for trigger in triggers:
             eligibles[trigger.id] = []
             for record in records:
-                if not trigger_obj.eval(cursor, user, trigger, record,
-                        context=context):
+                if not trigger_obj.eval(trigger, record):
                     eligibles[trigger.id].append(record.id)
         return eligibles
 
-    def trigger_write(self, cursor, user, eligibles, context=None):
+    def trigger_write(self, eligibles):
         '''
         Trigger write actions
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param eligibles: a dictionary of the lists of eligible ids by triggers
-        :param context: the context
         '''
         trigger_obj = self.pool.get('ir.trigger')
         trigger_ids = eligibles.keys()
         if not trigger_ids:
             return
-        records = self.browse(cursor, user, chain(*eligibles.values()),
-                context=context)
+        records = self.browse(chain(*eligibles.values()))
         id2record = dict((x.id, x) for x in records)
-        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        triggers = trigger_obj.browse(trigger_ids)
         for trigger in triggers:
             triggered_ids = []
             for record_id in eligibles[trigger.id]:
                 record = id2record[record_id]
-                if trigger_obj.eval(cursor, user, trigger, record, context=context):
+                if trigger_obj.eval(trigger, record):
                     triggered_ids.append(record.id)
             if triggered_ids:
-                trigger_obj.trigger_action(cursor, user, triggered_ids,
-                        trigger.id, context=context)
+                trigger_obj.trigger_action(triggered_ids, trigger.id)
 
-    def delete(self, cursor, user, ids, context=None):
+    def delete(self, ids):
         '''
         Delete records.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids or an id
-        :param context: the context
         :return: True if succeed
         '''
         model_access_obj = self.pool.get('ir.model.access')
 
-        model_access_obj.check(cursor, user, self._name, 'delete',
-                context=context)
-        if not self.check_xml_record(cursor, user, ids, None, context=context):
-            self.raise_user_error(cursor, 'delete_xml_record',
-                                  error_description='xml_record_desc',
-                                  context=context)
+        model_access_obj.check(self._name, 'delete')
+        if not self.check_xml_record(ids, None):
+            self.raise_user_error('delete_xml_record',
+                    error_description='xml_record_desc')
 
         # Clean cursor cache
-        for cache in cursor.cache.values():
+        for cache in Transaction().cursor.cache.values():
             for cache in (cache, cache.get('_language_cache', {}).values()):
                 if self._name in cache:
                     if isinstance(ids, (int, long)):
@@ -245,50 +215,41 @@ class ModelStorage(Model):
                         if i in cache[self._name]:
                             del cache[self._name][i]
         if ids:
-            self.__clean_xxx2many_cache(cursor, user, context=context)
+            self.__clean_xxx2many_cache()
         return False
 
-    def trigger_delete(self, cursor, user, ids, context=None):
+    def trigger_delete(self, ids):
         '''
         Trigger delete actions
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: the deleted ids
-        :param context: the context
         '''
         trigger_obj = self.pool.get('ir.trigger')
-        trigger_ids = trigger_obj.get_triggers(cursor, user, self._name, 'delete')
+        trigger_ids = trigger_obj.get_triggers(self._name, 'delete')
         if not trigger_ids:
             return
-        records = self.browse(cursor, user, ids, context=context)
-        triggers = trigger_obj.browse(cursor, user, trigger_ids, context=context)
+        records = self.browse(ids)
+        triggers = trigger_obj.browse(trigger_ids)
         for trigger in triggers:
             triggered_ids = []
             for record in records:
-                if trigger_obj.eval(cursor, user, trigger, record, context=context):
+                if trigger_obj.eval(trigger, record):
                     triggered_ids.append(record.id)
             if triggered_ids:
-                trigger_obj.trigger_action(cursor, user, triggered_ids,
-                        trigger.id, context=context)
+                trigger_obj.trigger_action(triggered_ids, trigger.id)
 
-    def copy(self, cursor, user, ids, default=None, context=None):
+    def copy(self, ids, default=None):
         '''
         Duplicate the record(s) in ids.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids or an id
         :param default: a dictionary with field name as keys and
             new value for the field as value
-        :param context: the context
         :return: a list of new ids or the new id
         '''
         lang_obj = self.pool.get('ir.lang')
         if default is None:
             default = {}
-        if context is None:
-            context = {}
 
         int_id = False
         if isinstance(ids, (int, long)):
@@ -297,8 +258,7 @@ class ModelStorage(Model):
 
         if 'state' not in default:
             if 'state' in self._defaults:
-                default['state'] = self._defaults['state'](cursor, user,
-                        context)
+                default['state'] = self._defaults['state']()
 
         def convert_data(field_defs, data):
             data = data.copy()
@@ -337,22 +297,19 @@ class ModelStorage(Model):
 
         new_ids = {}
         fields_names = self._columns.keys()
-        datas = self.read(cursor, user, ids, fields_names=fields_names,
-                context=context)
-        field_defs = self.fields_get(cursor, user, fields_names=fields_names,
-                context=context)
+        datas = self.read(ids, fields_names=fields_names)
+        field_defs = self.fields_get(fields_names=fields_names)
         for data in datas:
             data_id = data['id']
             data, data_o2m = convert_data(field_defs, data)
-            new_ids[data_id] = self.create(cursor, user, data, context=context)
+            new_ids[data_id] = self.create(data)
             for field_name in data_o2m:
                 relation_model = self.pool.get(
                         field_defs[field_name]['relation'])
                 relation_field = field_defs[field_name]['relation_field']
                 if relation_field:
-                    relation_model.copy(cursor, user, data_o2m[field_name],
-                            default={relation_field: new_ids[data_id]},
-                            context=context)
+                    relation_model.copy(data_o2m[field_name],
+                            default={relation_field: new_ids[data_id]})
 
         fields_translate = {}
         for field_name, field in field_defs.iteritems():
@@ -361,36 +318,30 @@ class ModelStorage(Model):
                 fields_translate[field_name] = field
 
         if fields_translate:
-            lang_ids = lang_obj.search(cursor, user, [
+            lang_ids = lang_obj.search([
                 ('translatable', '=', True),
-                ], context=context)
+                ])
             if lang_ids:
-                lang_ids += lang_obj.search(cursor, user, [
+                lang_ids += lang_obj.search([
                     ('code', '=', 'en_US'),
-                    ], context=context)
-                langs = lang_obj.browse(cursor, user, lang_ids, context=context)
+                    ])
+                langs = lang_obj.browse(lang_ids)
                 for lang in langs:
-                    ctx = context.copy()
-                    ctx['language'] = lang.code
-                    datas = self.read(cursor, user, ids,
-                            fields_names=fields_translate.keys() + ['id'],
-                            context=ctx)
-                    for data in datas:
-                        data_id = data['id']
-                        data, _ = convert_data(fields_translate, data)
-                        self.write(cursor, user, new_ids[data_id], data,
-                                context=ctx)
+                    with Transaction().set_context(language=lang.code):
+                        datas = self.read(ids,
+                                fields_names=fields_translate.keys() + ['id'])
+                        for data in datas:
+                            data_id = data['id']
+                            data, _ = convert_data(fields_translate, data)
+                            self.write(new_ids[data_id], data)
         if int_id:
             return new_ids.values()[0]
         return new_ids.values()
 
-    def search(self, cursor, user, domain, offset=0, limit=None, order=None,
-            context=None, count=False):
+    def search(self, domain, offset=0, limit=None, order=None, count=False):
         '''
         Return a list of ids that match the domain.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param domain: a list of tuples or lists
             lists are constructed like this:
             ``['operator', args, args, ...]``
@@ -406,7 +357,6 @@ class ModelStorage(Model):
         :param order: a list of tuples that are constructed like this:
             ``('field name', 'DESC|ASC')``
             allowing to specify the order of result
-        :param context: the context
         :param count: a boolean to return only the length of the result
         :return: a list of ids or an integer
         '''
@@ -414,43 +364,36 @@ class ModelStorage(Model):
             return 0
         return []
 
-    def search_count(self, cursor, user, domain, context=None):
+    def search_count(self, domain):
         '''
         Return the number of records that match the domain. (See search)
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param domain: a domain like in search
-        :param context: the context
         :return: an integer
         '''
-        res = self.search(cursor, user, domain, context=context, count=True)
+        res = self.search(domain, count=True)
         if isinstance(res, list):
             return len(res)
         return res
 
-    def search_read(self, cursor, user, domain, offset=0, limit=None,
-            order=None, context=None, fields_names=None):
+    def search_read(self, domain, offset=0, limit=None, order=None,
+            fields_names=None):
         '''
         Call search and read functions at once.
         Useful for the client to reduce the number of calls.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param domain: a domain like in search
         :param offset: an integer to specify the offset for the result
         :param limit: an integer to specify the number of records
         :param order: a list of tuples that are constructed like this:
             ('field name', 'DESC|ASC')
             allowing to to specify the order of result
-        :param context: the context
         :param fields_names: fields names to read if None read all fields
         :return: a list of dictionaries or a dictionary if limit is 1
             the dictionaries will have field names as key
             and field values as value
         '''
-        ids = self.search(cursor, user, domain, offset=offset, limit=limit,
-                order=order, context=context)
+        ids = self.search(domain, offset=offset, limit=limit, order=order)
 
         if not fields_names:
             fields_names = list(set(self._columns.keys() \
@@ -459,7 +402,7 @@ class ModelStorage(Model):
             fields_names.append('id')
 
         res = []
-        for model in self.browse(cursor, user, ids, context=context):
+        for model in self.browse(ids):
             record = {}
             for fields_name in set(fields_names):
                 fields_split = fields_name.split('.')
@@ -485,16 +428,14 @@ class ModelStorage(Model):
             return res[0]
         return res
 
-    def _search_domain_active(self, domain, active_test=True, context=None):
-        if context is None:
-            context = {}
-
+    def _search_domain_active(self, domain, active_test=True):
         domain = domain[:]
         # if the object has a field named 'active', filter out all inactive
         # records unless they were explicitely asked for
-        if not (('active' in self._columns or \
-                'active' in self._inherit_fields.keys()) \
-                and (active_test and context.get('active_test', True))):
+        if not (('active' in self._columns
+            or 'active' in self._inherit_fields.keys())
+            and (active_test
+                and Transaction().context.get('active_test', True))):
             return domain
 
         def process(domain):
@@ -521,16 +462,13 @@ class ModelStorage(Model):
             return domain
         return process(domain)
 
-    def get_rec_name(self, cursor, user, ids, name, context=None):
+    def get_rec_name(self, ids, name):
         '''
         Return a dictionary with id as key and rec_name as value.
         It is used by the Function field rec_name.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids
         :param name: the name of the Function field
-        :param context: the context
         :return: a dictionary
         '''
         if not ids:
@@ -540,42 +478,35 @@ class ModelStorage(Model):
         if rec_name not in self._columns \
                 and rec_name not in self._inherit_fields.keys():
             rec_name = 'id'
-        for record in self.browse(cursor, user, ids, context=context):
+        for record in self.browse(ids):
             res[record.id] = unicode(record[rec_name])
         return res
 
-    def search_rec_name(self, cursor, user, name, clause, context=None):
+    def search_rec_name(self, name, clause):
         '''
         Return a list of arguments for search on rec_name.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param name: the name of the Function field
         :param clause: a domain clause
-        :param context: the context
         :return: a list of domain clause
         '''
         return [(self._rec_name,) + clause[1:]]
 
-    def browse(self, cursor, user, ids, context=None):
+    def browse(self, ids):
         '''
         Return a BrowseRecordList for the ids
             or BrowseRecord if ids is a integer.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids or an id
-        :param context: the context
         :return: a BrowseRecordList or a BrowseRecord
         '''
         if isinstance(ids, (int, long)):
-            return BrowseRecord(cursor, user, ids, self, context=context)
+            return BrowseRecord(ids, self)
         local_cache = {}
-        return BrowseRecordList((BrowseRecord(cursor, user, x, self,
-            local_cache=local_cache, context=context) for x in ids),
-            context=context)
+        return BrowseRecordList((BrowseRecord(x, self, local_cache=local_cache)
+            for x in ids))
 
-    def __export_row(self, cursor, user, record, fields_names, context=None):
+    def __export_row(self, record, fields_names):
         lines = []
         data = ['' for x in range(len(fields_names))]
         done = []
@@ -595,10 +526,10 @@ class ModelStorage(Model):
                     pyson_invisible = PYSONEncoder().encode(
                             field.states['invisible'])
                     env = EvalEnvironment(value, model_obj)
-                    env.update(context)
+                    env.update(Transaction().context)
                     env['current_date'] = datetime.datetime.today()
                     env['time'] = time
-                    env['context'] = context
+                    env['context'] = Transaction().context
                     env['active_id'] = value.id
                     invisible = PYSONDecoder(env).decode(pyson_invisible)
                     if invisible:
@@ -613,8 +544,8 @@ class ModelStorage(Model):
                         break
                     done.append(child_fields_names)
                     for child_record in value:
-                        child_lines = self.__export_row(cursor, user,
-                                child_record, child_fields_names, context)
+                        child_lines = self.__export_row(child_record,
+                                child_fields_names)
                         if first:
                             for child_fpos in xrange(len(fields_names)):
                                 if child_lines and child_lines[0][child_fpos]:
@@ -632,34 +563,29 @@ class ModelStorage(Model):
                 data[fpos] = value
         return [data] + lines
 
-    def export_data(self, cursor, user, ids, fields_names, context=None):
+    def export_data(self, ids, fields_names):
         '''
         Return list of list of values for each id in ids.
         The list of values follows fields_names.
         Relational fields are defined with '/' at any depth.
 
-        :param cursor: the database cursor
         :param ids: a list of ids
         :param fields_names: a list of field names
-        :param context: the context
         :return: a list of list of values for each id in ids
         '''
         fields_names = [x.split('/') for x in fields_names]
         datas = []
-        for record in self.browse(cursor, user, ids, context):
-            datas += self.__export_row(cursor, user, record, fields_names, context)
+        for record in self.browse(ids):
+            datas += self.__export_row(record, fields_names)
         return datas
 
-    def import_data(self, cursor, user, fields_names, datas, context=None):
+    def import_data(self, fields_names, datas):
         '''
         Create records for all values in datas.
         The field names of values must be defined in fields_names.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param fields_names: a list of fields names
         :param datas: the data to import
-        :param context: the context
         :return: a tuple with
             - the number of records imported
             - the last values if failed
@@ -669,15 +595,14 @@ class ModelStorage(Model):
         def process_lines(self, datas, prefix, fields_def, position=0):
 
             def warn(msgname, *args):
-                msg = self.raise_user_error(cursor, msgname, args,
-                      raise_exception=False, context=context)
+                msg = self.raise_user_error(msgname, args,
+                        raise_exception=False)
                 warnings.warn(msg)
 
             def get_selection(selection, value):
                 res = False
                 if not isinstance(selection, (tuple, list)):
-                    selection = getattr(self, selection)(cursor, user,
-                            context=context)
+                    selection = getattr(self, selection)()
                 for key, _ in selection:
                     if str(key) == value:
                         res = key
@@ -690,9 +615,9 @@ class ModelStorage(Model):
                 if not value:
                     return False
                 relation_obj = self.pool.get(relation)
-                res = relation_obj.search(cursor, user, [
+                res = relation_obj.search([
                     ('rec_name', '=', value),
-                    ], limit=2, context=context)
+                    ], limit=2)
                 if len(res) < 1:
                     warn('relation_not_found', value, relation)
                     res = False
@@ -710,9 +635,9 @@ class ModelStorage(Model):
                 relation_obj = self.pool.get(relation)
                 for word in csv.reader(StringIO.StringIO(value), delimiter=',',
                         quoting=csv.QUOTE_NONE, escapechar='\\').next():
-                    res2 = relation_obj.search(cursor, user, [
+                    res2 = relation_obj.search([
                         ('rec_name', '=', word),
-                        ], limit=2, context=context)
+                        ], limit=2)
                     if len(res2) < 1:
                         warn('relation_not_found', word, relation)
                     elif len(res2) > 1:
@@ -732,9 +657,9 @@ class ModelStorage(Model):
                     warn('reference_syntax_error', value, '/'.join(field))
                     return False
                 relation_obj = self.pool.get(relation)
-                res = relation_obj.search(cursor, user, [
+                res = relation_obj.search([
                     ('rec_name', '=', value),
-                    ], limit=2, context=context)
+                    ], limit=2)
                 if len(res) < 1:
                     warn('relation_not_found', value, relation)
                     res = False
@@ -769,8 +694,7 @@ class ModelStorage(Model):
                     except Exception:
                         warn('xml_id_syntax_error', word, '/'.join(field))
                         continue
-                    db_id = ir_model_data_obj.get_id(cursor, user,
-                            module, xml_id)
+                    db_id = ir_model_data_obj.get_id(module, xml_id)
                     res_ids.append(db_id)
                 if ftype == 'many2many' and res_ids:
                     return [('set', res_ids)]
@@ -835,8 +759,8 @@ class ModelStorage(Model):
             # Import one2many fields
             nbrmax = 1
             for field in todo:
-                newfd = self.pool.get(fields_def[field]['relation']).fields_get(
-                        cursor, user, context=context)
+                newfd = self.pool.get(fields_def[field]['relation']
+                        ).fields_get()
                 res = process_lines(self, datas, prefix + [field], newfd,
                         position)
                 (newrow, max2, _) = res
@@ -873,13 +797,11 @@ class ModelStorage(Model):
         warning_stream = StringIO.StringIO()
         warnings.addHandler(logging.StreamHandler(warning_stream))
 
-        if context is None:
-            context = {}
         len_fields_names = len(fields_names)
         for data in datas:
             assert len(data) == len_fields_names
         fields_names = [x.split('/') for x in fields_names]
-        fields_def = self.fields_get(cursor, user, context=context)
+        fields_def = self.fields_get()
         done = 0
 
         warning = ''
@@ -890,24 +812,24 @@ class ModelStorage(Model):
                         process_lines(self, datas, [], fields_def)
                 warning = warning_stream.getvalue()
                 if warning:
-                    cursor.rollback()
+                    # XXX should raise Exception
+                    Transaction().cursor.rollback()
                     return (-1, res, warning, '')
-                new_id = self.create(cursor, user, res, context=context)
-                trans_ctx = context.copy()
+                new_id = self.create(res)
                 for lang in translate:
-                    trans_ctx['language'] = lang
-                    self.write(cursor, user, new_id, translate[lang],
-                            context=trans_ctx)
+                    with Transaction().set_context(language=lang):
+                        self.write(new_id, translate[lang])
             except Exception, exp:
                 logger = logging.getLogger('import')
                 logger.error(exp)
-                cursor.rollback()
+                # XXX should raise Exception
+                Transaction().cursor.rollback()
                 warning = '\n'.join(map(str, exp[1:]) + [warning])
                 return (-1, res, exp, warning)
             done += 1
         return (done, 0, 0, 0)
 
-    def check_xml_record(self, cursor, user, ids, values, context=None):
+    def check_xml_record(self, ids, values):
         """
         Check if a list of records and their corresponding fields are
         originating from xml data. This is used by write and delete
@@ -918,48 +840,43 @@ class ModelStorage(Model):
         equal to None, no field by field check is performed, False is
         returned as soon as one of the record comes from the xml.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids or an id
         :param values: a dictionary with field names as key and
             written values as value
-        :param context: the context
         :return: True or False
         """
         model_data_obj = self.pool.get('ir.model.data')
         # Allow root user to update/delete
-        if user == 0:
+        if Transaction().user == 0:
             return True
         if isinstance(ids, (int, long)):
             ids = [ids]
-        model_data_ids = model_data_obj.search(cursor, 0, [
-            ('model', '=', self._name),
-            ('db_id', 'in', ids),
-            ], context=context)
-        if not model_data_ids:
-            return True
-        if values == None:
-            return False
-        for line in model_data_obj.browse(cursor, 0, model_data_ids,
-                context=context):
-            if not line.values:
-                continue
-            xml_values = safe_eval(line.values, {
-                'Decimal': Decimal,
-                'datetime': datetime,
-                })
-            for key, val in values.iteritems():
-                if key in xml_values and val != xml_values[key]:
-                    return False
+        with Transaction().set_user(0):
+            model_data_ids = model_data_obj.search([
+                ('model', '=', self._name),
+                ('db_id', 'in', ids),
+                ])
+            if not model_data_ids:
+                return True
+            if values == None:
+                return False
+            for line in model_data_obj.browse(model_data_ids):
+                if not line.values:
+                    continue
+                xml_values = safe_eval(line.values, {
+                    'Decimal': Decimal,
+                    'datetime': datetime,
+                    })
+                for key, val in values.iteritems():
+                    if key in xml_values and val != xml_values[key]:
+                        return False
         return True
 
-    def check_recursion(self, cursor, user, ids, parent='parent'):
+    def check_recursion(self, ids, parent='parent'):
         '''
         Function that checks if there is no recursion in the tree
         composed with parent as parent field name.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of ids
         :param parent: the parent field name
         :return: True or False
@@ -977,7 +894,7 @@ class ModelStorage(Model):
                     'Unsupported field type "%s" for field "%s" on "%s"' % \
                     (parent_type, parent, self._name))
 
-        records = self.browse(cursor, user, ids)
+        records = self.browse(ids)
         visited = set()
 
         for record in records:
@@ -1000,46 +917,38 @@ class ModelStorage(Model):
 
         return True
 
-    def _get_error_args(self, cursor, user, field_name, context=None):
+    def _get_error_args(self, field_name):
         model_field_obj = self.pool.get('ir.model.field')
         error_args = (field_name, self._name)
         if model_field_obj:
-            model_field_ids = model_field_obj.search(cursor,
-                    user, [
+            model_field_ids = model_field_obj.search([
                         ('name', '=', field_name),
                         ('model.model', '=', self._name),
-                        ], context=context, limit=1)
+                        ], limit=1)
             if model_field_ids:
-                model_field = model_field_obj.browse(cursor,
-                        user, model_field_ids[0],
-                        context=context)
+                model_field = model_field_obj.browse(model_field_ids[0])
                 error_args = (model_field.field_description,
                         model_field.model.name)
         return error_args
 
 
-    def _validate(self, cursor, user, ids, context=None):
-        if context is None:
-            context = {}
+    def _validate(self, ids):
+        if (Transaction().user == 0
+                and Transaction().context.get('user')):
+            with Transaction().set_user(Transaction().context.get('user')):
+                return self._validate(ids)
 
-        if user == 0 and context.get('user'):
-            ctx = context.copy()
-            del ctx['user']
-            return self._validate(cursor, context['user'], ids, context=ctx)
-
-        context = context.copy()
         for field in self._constraints:
-            if not getattr(self, field[0])(cursor, user, ids):
-                self.raise_user_error(cursor, field[1], context=context)
+            if not getattr(self, field[0])(ids):
+                self.raise_user_error(field[1])
 
         if not 'res.user' in self.pool.object_name_list() \
-                or user == 0:
+                or Transaction().user == 0:
             ctx_pref = {
             }
         else:
             user_obj = self.pool.get('res.user')
-            ctx_pref = user_obj.get_preferences(cursor, user,
-                context_only=True, context=context)
+            ctx_pref = user_obj.get_preferences(context_only=True)
 
         def is_pyson(test):
             if isinstance(test, PYSON):
@@ -1053,150 +962,133 @@ class ModelStorage(Model):
                             return True
             return False
 
-        context.update(ctx_pref)
-        records = self.browse(cursor, user, ids, context=context)
-        for field_name, field in self._columns.iteritems():
-            if isinstance(field, fields.Function) and \
-                    not field.setter:
-                continue
-            # validate domain
-            if field._type in ('many2one', 'many2many', 'one2many') \
-                    and field.domain:
-                if field._type in ('many2one', 'one2many'):
-                    relation_obj = self.pool.get(field.model_name)
-                else:
-                    relation_obj = field.get_target(self.pool)
-                if is_pyson(field.domain):
-                    pyson_domain = PYSONEncoder().encode(field.domain)
-                    ctx = context.copy()
-                    ctx.update(ctx_pref)
-                    for record in records:
-                        env = EvalEnvironment(record, self)
-                        env.update(ctx)
-                        env['current_date'] = datetime.datetime.today()
-                        env['time'] = time
-                        env['context'] = context
-                        env['active_id'] = record.id
-                        domain = PYSONDecoder(env).decode(pyson_domain)
-                        relation_ids = []
-                        if record[field_name]:
-                            if field._type in ('many2one',):
-                                relation_ids.append(record[field_name].id)
-                            else:
-                                relation_ids.extend(
-                                        [x.id for x in record[field_name]])
-                        if relation_ids and not relation_obj.search(cursor,
-                                user, [
-                                    'AND',
-                                    [('id', 'in', relation_ids)],
-                                    domain,
-                                    ], context=context):
-                            self.raise_user_error(cursor,
-                                    'domain_validation_record',
-                                    error_args=self._get_error_args(cursor,
-                                        user, field_name, context=context),
-                                    context=context)
-                else:
-                    relation_ids = []
-                    for record in records:
-                        if record[field_name]:
-                            if field._type in ('many2one',):
-                                relation_ids.append(record[field_name].id)
-                            else:
-                                relation_ids.extend(
-                                        [x.id for x in record[field_name]])
-                    if relation_ids:
-                        find_ids = relation_obj.search(cursor, user, [
-                            'AND',
-                            [('id', 'in', relation_ids)],
-                            field.domain,
-                            ], context=context)
-                        if not set(relation_ids) == set(find_ids):
-                            self.raise_user_error(cursor,
-                                    'domain_validation_record',
-                                    error_args=self._get_error_args(cursor,
-                                        user, field_name, context=context),
-                                    context=context)
-            # validate states required
-            if field.states and 'required' in field.states:
-                if is_pyson(field.states['required']):
-                    ctx = context.copy()
-                    ctx.update(ctx_pref)
-                    pyson_required = PYSONEncoder().encode(
-                            field.states['required'])
-                    for record in records:
-                        env = EvalEnvironment(record, self)
-                        env.update(ctx)
-                        env['current_date'] = datetime.datetime.today()
-                        env['time'] = time
-                        env['context'] = context
-                        env['active_id'] = record.id
-                        required = PYSONDecoder(env).decode(pyson_required)
-                        if required and not record[field_name]:
-                            self.raise_user_error(cursor,
-                                    'required_validation_record',
-                                    error_args=self._get_error_args(cursor,
-                                        user, field_name, context=context),
-                                    context=context)
-                else:
-                    if field.states['required']:
+        with Transaction().set_context(ctx_pref):
+            records = self.browse(ids)
+            for field_name, field in self._columns.iteritems():
+                if isinstance(field, fields.Function) and \
+                        not field.setter:
+                    continue
+                # validate domain
+                if field._type in ('many2one', 'many2many', 'one2many') \
+                        and field.domain:
+                    if field._type in ('many2one', 'one2many'):
+                        relation_obj = self.pool.get(field.model_name)
+                    else:
+                        relation_obj = field.get_target(self.pool)
+                    if is_pyson(field.domain):
+                        pyson_domain = PYSONEncoder().encode(field.domain)
                         for record in records:
-                            if not record[field_name]:
-                                self.raise_user_error(cursor,
+                            env = EvalEnvironment(record, self)
+                            env.update(Transaction().context)
+                            env['current_date'] = datetime.datetime.today()
+                            env['time'] = time
+                            env['context'] = Transaction().context
+                            env['active_id'] = record.id
+                            domain = PYSONDecoder(env).decode(pyson_domain)
+                            relation_ids = []
+                            if record[field_name]:
+                                if field._type in ('many2one',):
+                                    relation_ids.append(record[field_name].id)
+                                else:
+                                    relation_ids.extend(
+                                            [x.id for x in record[field_name]])
+                            if relation_ids and not relation_obj.search([
+                                        'AND',
+                                        [('id', 'in', relation_ids)],
+                                        domain,
+                                        ]):
+                                self.raise_user_error(
+                                        'domain_validation_record',
+                                        error_args=self._get_error_args(
+                                            field_name))
+                    else:
+                        relation_ids = []
+                        for record in records:
+                            if record[field_name]:
+                                if field._type in ('many2one',):
+                                    relation_ids.append(record[field_name].id)
+                                else:
+                                    relation_ids.extend(
+                                            [x.id for x in record[field_name]])
+                        if relation_ids:
+                            find_ids = relation_obj.search([
+                                'AND',
+                                [('id', 'in', relation_ids)],
+                                field.domain,
+                                ])
+                            if not set(relation_ids) == set(find_ids):
+                                self.raise_user_error(
+                                        'domain_validation_record',
+                                        error_args=self._get_error_args(
+                                            field_name))
+                # validate states required
+                if field.states and 'required' in field.states:
+                    if is_pyson(field.states['required']):
+                        pyson_required = PYSONEncoder().encode(
+                                field.states['required'])
+                        for record in records:
+                            env = EvalEnvironment(record, self)
+                            env.update(Transaction().context)
+                            env['current_date'] = datetime.datetime.today()
+                            env['time'] = time
+                            env['context'] = Transaction().context
+                            env['active_id'] = record.id
+                            required = PYSONDecoder(env).decode(pyson_required)
+                            if required and not record[field_name]:
+                                self.raise_user_error(
                                         'required_validation_record',
-                                        error_args=self._get_error_args(cursor,
-                                            user, field_name, context=context),
-                                        context=context)
-            # validate required
-            if field.required:
-                for record in records:
-                    if isinstance(record[field_name], (BrowseRecordNull,
-                        type(None), type(False))) and not record[field_name]:
-                        self.raise_user_error(cursor,
-                                'required_validation_record',
-                                error_args=self._get_error_args(cursor,
-                                    user, field_name, context=context),
-                                context=context)
-            # validate size
-            if hasattr(field, 'size') and field.size:
-                for record in records:
-                    if len(record[field_name] or '') > field.size:
-                        self.raise_user_error(cursor,
-                                'size_validation_record',
-                                error_args=self._get_error_args(cursor,
-                                    user, field_name, context=context),
-                                context=context)
+                                        error_args=self._get_error_args(
+                                            field_name))
+                    else:
+                        if field.states['required']:
+                            for record in records:
+                                if not record[field_name]:
+                                    self.raise_user_error(
+                                            'required_validation_record',
+                                            error_args=self._get_error_args(
+                                                field_name))
+                # validate required
+                if field.required:
+                    for record in records:
+                        if isinstance(record[field_name], (BrowseRecordNull,
+                            type(None), type(False))) and not record[field_name]:
+                            self.raise_user_error(
+                                    'required_validation_record',
+                                    error_args=self._get_error_args(field_name))
+                # validate size
+                if hasattr(field, 'size') and field.size:
+                    for record in records:
+                        if len(record[field_name] or '') > field.size:
+                            self.raise_user_error(
+                                    'size_validation_record',
+                                    error_args=self._get_error_args(field_name))
 
-            # validate digits
-            if hasattr(field, 'digits') and field.digits:
-                if is_pyson(field.digits):
-                    pyson_digits = PYSONEncoder().encode(field.digits)
-                    ctx = context.copy()
-                    ctx.update(ctx_pref)
-                    for record in records:
-                        env = EvalEnvironment(record, self)
-                        env.update(ctx)
-                        env['current_date'] = datetime.datetime.today()
-                        env['time'] = time
-                        env['context'] = context
-                        env['active_id'] = record.id
-                        digits = PYSONDecoder(env).decode(pyson_digits)
-                        if not round(record[field_name], digits[1]) == \
-                                float(record[field_name]):
-                            self.raise_user_error(cursor,
-                                    'digits_validation_record',
-                                    error_args=self._get_error_args(cursor,
-                                        user, field_name, context=context),
-                                    context=context)
-                else:
-                    for record in records:
-                        if not round(record[field_name], field.digits[1]) == \
-                                float(record[field_name]):
-                            self.raise_user_error(cursor,
-                                    'digits_validation_record',
-                                    error_args=self._get_error_args(cursor,
-                                        user, field_name, context=context),
-                                    context=context)
+                # validate digits
+                if hasattr(field, 'digits') and field.digits:
+                    if is_pyson(field.digits):
+                        pyson_digits = PYSONEncoder().encode(field.digits)
+                        for record in records:
+                            env = EvalEnvironment(record, self)
+                            env.update(Transaction().context)
+                            env['current_date'] = datetime.datetime.today()
+                            env['time'] = time
+                            env['context'] = Transaction().context
+                            env['active_id'] = record.id
+                            digits = PYSONDecoder(env).decode(pyson_digits)
+                            if not round(record[field_name], digits[1]) == \
+                                    float(record[field_name]):
+                                self.raise_user_error(
+                                        'digits_validation_record',
+                                        error_args=self._get_error_args(
+                                            field_name))
+                    else:
+                        for record in records:
+                            if not round(record[field_name], field.digits[1]) == \
+                                    float(record[field_name]):
+                                self.raise_user_error(
+                                        'digits_validation_record',
+                                        error_args=self._get_error_args(
+                                            field_name))
 
     def _clean_defaults(self, defaults):
         vals = {}
@@ -1222,14 +1114,11 @@ class ModelStorage(Model):
                 vals[field] = defaults[field]
         return vals
 
-    def workflow_trigger_trigger(self, cursor, user, ids, context=None):
+    def workflow_trigger_trigger(self, ids):
         '''
         Trigger a trigger event.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of id or an id
-        :param context: the context
         '''
         trigger_obj = self.pool.get('workflow.trigger')
         instance_obj = self.pool.get('workflow.instance')
@@ -1237,12 +1126,12 @@ class ModelStorage(Model):
         if isinstance(ids, (int, long)):
             ids = [ids]
 
-        trigger_ids = trigger_obj.search(cursor, 0, [
-            ('res_id', 'in', ids),
-            ('model', '=', self._name),
-            ], context=context)
-        instances = set([trigger.instance \
-                for trigger in trigger_obj.browse(cursor, 0, trigger_ids,
-                    context=context)])
+        with Transaction().set_user(0):
+            trigger_ids = trigger_obj.search([
+                ('res_id', 'in', ids),
+                ('model', '=', self._name),
+                ])
+            instances = set([trigger.instance for trigger in
+                trigger_obj.browse(trigger_ids)])
         for instance in instances:
-            instance_obj.update(cursor, user, instance, context=context)
+            instance_obj.update(instance)

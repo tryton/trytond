@@ -24,7 +24,7 @@ class BooleanDefault(ModelSQL):
     boolean = fields.Boolean(string='Boolean', help='Test boolean',
             required=False)
 
-    def default_boolean(self, cursor, user, context=None):
+    def default_boolean(self):
         return True
 
 BooleanDefault()
@@ -47,7 +47,7 @@ class IntegerDefault(ModelSQL):
     integer = fields.Integer(string='Integer', help='Test integer',
             required=False)
 
-    def default_integer(self, cursor, user, context=None):
+    def default_integer(self):
         return 5
 
 IntegerDefault()
@@ -80,7 +80,7 @@ class FloatDefault(ModelSQL):
     float = fields.Float(string='Float', help='Test float',
             required=False)
 
-    def default_float(self, cursor, user, context=None):
+    def default_float(self):
         return 5.5
 
 FloatDefault()
@@ -124,7 +124,7 @@ class NumericDefault(ModelSQL):
     numeric = fields.Numeric(string='Numeric', help='Test numeric',
             required=False)
 
-    def default_numeric(self, cursor, user, context=None):
+    def default_numeric(self):
         return Decimal('5.5')
 
 NumericDefault()
@@ -168,7 +168,7 @@ class CharDefault(ModelSQL):
     char = fields.Char(string='Char', size=None, help='Test char',
             required=False)
 
-    def default_char(self, cursor, user, context=None):
+    def default_char(self):
         return 'Test'
 
 CharDefault()
@@ -221,7 +221,7 @@ class TextDefault(ModelSQL):
     text = fields.Text(string='Text', size=None, help='Test text',
             required=False)
 
-    def default_text(self, cursor, user, context=None):
+    def default_text(self):
         return 'Test'
 
 TextDefault()
@@ -274,7 +274,7 @@ class ShaDefault(ModelSQL):
     sha = fields.Sha(string='Sha', help='Test sha',
             required=False)
 
-    def default_sha(self, cursor, user, context=None):
+    def default_sha(self):
         return 'Sha'
 
 ShaDefault()
@@ -307,7 +307,7 @@ class DateDefault(ModelSQL):
     date = fields.Date(string='Date', help='Test date',
             required=False)
 
-    def default_date(self, cursor, user, context=None):
+    def default_date(self):
         return datetime.date(2000, 1, 1)
 
 DateDefault()
@@ -340,7 +340,7 @@ class DateTimeDefault(ModelSQL):
     datetime = fields.DateTime(string='DateTime', help='Test datetime',
             required=False)
 
-    def default_datetime(self, cursor, user, context=None):
+    def default_datetime(self):
         return datetime.datetime(2000, 1, 1, 12, 0, 0, 0)
 
 DateTimeDefault()

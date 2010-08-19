@@ -1,11 +1,12 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"Lang"
+from __future__ import with_statement
+import time
+import datetime
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.tools import safe_eval, datetime_strftime
-import time
-import datetime
+from trytond.transaction import Transaction
 from time_locale import TIME_LOCALE
 
 
@@ -47,68 +48,61 @@ class Lang(ModelSQL, ModelView, Cacheable):
             'invalid_date': 'The date format is not valid!',
         })
 
-    def search_rec_name(self, cursor, user, name, clause, context=None):
-        ids = self.search(cursor, user, [('code',) + clause[1:]],
-                order=[], context=context)
+    def search_rec_name(self, name, clause):
+        ids = self.search([('code',) + clause[1:]], order=[])
         if ids:
-            ids += self.search(cursor, user, [('name',) + clause[1:]],
-                    order=[], context=context)
+            ids += self.search([('name',) + clause[1:]], order=[])
             return [('id', 'in', ids)]
         return [('name',) + clause[1:]]
 
-    def read(self, cursor, user, ids, fields_names=None, context=None):
+    def read(self, ids, fields_names=None):
         translation_obj = self.pool.get('ir.translation')
-        if context is None:
-            context = {}
-        res = super(Lang, self).read(cursor, user, ids,
-                fields_names=fields_names, context=context)
-        if context.get('translate_name', False) \
-                and (not fields_names or 'name' in fields_names):
-            ctx = context.copy()
-            ctx['language'] = self.default_code(cursor, user, context=context)
-            del ctx['translate_name']
-            res2 = self.read(cursor, user, ids,
-                    fields_names=['id', 'code', 'name'], context=ctx)
+        res = super(Lang, self).read(ids, fields_names=fields_names)
+        if (Transaction().context.get('translate_name')
+                and (not fields_names or 'name' in fields_names)):
+            with Transaction.set_context(
+                    language=self.default_code(),
+                    translate_name=False):
+                res2 = self.read(ids, fields_names=['id', 'code', 'name'])
             for record2 in res2:
                 for record in res:
                     if record['id'] == record2['id']:
                         break
-                res_trans = translation_obj._get_ids(cursor,
-                        self._name + ',name', 'model',
-                        record2['code'], [record2['id']])
+                res_trans = translation_obj._get_ids(self._name + ',name',
+                        'model', record2['code'], [record2['id']])
                 record['name'] = res_trans.get(record2['id'], False) \
                         or record2['name']
         return res
 
-    def default_code(self, cursor, user, context=None):
+    def default_code(self):
         return 'en_US'
 
-    def default_active(self, cursor, user, context=None):
-        return 1
+    def default_active(self):
+        return True
 
-    def default_translatable(self, cursor, user, context=None):
-        return 0
+    def default_translatable(self):
+        return False
 
-    def default_direction(self, cursor, user, context=None):
+    def default_direction(self):
         return 'ltr'
 
-    def default_date(self, cursor, user, context=None):
+    def default_date(self):
         return '%m/%d/%Y'
 
-    def default_grouping(self, cursor, user, context=None):
+    def default_grouping(self):
         return '[]'
 
-    def default_decimal_point(self, cursor, user, context=None):
+    def default_decimal_point(self):
         return '.'
 
-    def default_thousands_sep(self, cursor, user, context=None):
+    def default_thousands_sep(self):
         return ','
 
-    def check_grouping(self, cursor, user, ids):
+    def check_grouping(self, ids):
         '''
         Check if grouping is list of numbers
         '''
-        for lang in self.browse(cursor, user, ids):
+        for lang in self.browse(ids):
             try:
                 grouping = safe_eval(lang.grouping)
                 for i in grouping:
@@ -118,11 +112,11 @@ class Lang(ModelSQL, ModelView, Cacheable):
                 return False
         return True
 
-    def check_date(self, cursor, user, ids):
+    def check_date(self, ids):
         '''
         Check the date format
         '''
-        for lang in self.browse(cursor, user, ids):
+        for lang in self.browse(ids):
             try:
                 datetime_strftime(datetime.datetime.now(),
                         lang.date.encode('utf-8'))
@@ -147,40 +141,36 @@ class Lang(ModelSQL, ModelView, Cacheable):
                 return False
         return True
 
-    def check_xml_record(self, cursor, user, ids, values, context=None):
+    def check_xml_record(self, ids, values):
         return True
 
-    def get_translatable_languages(self, cursor, user, context=None):
-        res = self.get(cursor, 'translatable_languages')
+    def get_translatable_languages(self):
+        res = self.get('translatable_languages')
         if res is None:
-            lang_ids = self.search(cursor, user, [
+            lang_ids = self.search([
                     ('translatable', '=', True),
-                    ], context=context)
-            res = [x.code for x in self.browse(cursor, user, lang_ids,
-                context=context)]
-            self.add(cursor, 'translatable_languages', res)
+                    ])
+            res = [x.code for x in self.browse(lang_ids)]
+            self.add('translatable_languages', res)
         return res
 
-    def create(self, cursor, user, vals, context=None):
+    def create(self, vals):
         # Clear cache
-        if self.get(cursor, 'translatable_languages'):
-            self.invalidate(cursor, 'translatable_languages')
-        return super(Lang, self).create(cursor, user, vals,
-                     context=context)
+        if self.get('translatable_languages'):
+            self.invalidate('translatable_languages')
+        return super(Lang, self).create(vals)
 
-    def write(self, cursor, user, ids, vals, context=None):
+    def write(self, ids, vals):
         # Clear cache
-        if self.get(cursor, 'translatable_languages'):
-            self.invalidate(cursor, 'translatable_languages')
-        return super(Lang, self).write(cursor, user, ids, vals,
-                     context=context)
+        if self.get('translatable_languages'):
+            self.invalidate('translatable_languages')
+        return super(Lang, self).write(ids, vals)
 
-    def delete(self, cursor, user, ids, context=None):
+    def delete(self, ids):
         # Clear cache
-        if self.get(cursor, 'translatable_languages'):
-            self.invalidate(cursor, 'translatable_languages')
-        return super(Lang, self).delete(cursor, user, ids,
-                     context=context)
+        if self.get('translatable_languages'):
+            self.invalidate('translatable_languages')
+        return super(Lang, self).delete(ids)
 
     def _group(self, lang, s, monetary=False):
         # Code from _group in locale.py
@@ -241,9 +231,9 @@ class Lang(ModelSQL, ModelView, Cacheable):
         # Code from format in locale.py
         if not lang:
             lang = {
-                'decimal_point': self.default_decimal_point(None, None),
-                'thousands_sep': self.default_thousands_sep(None, None),
-                'grouping': self.default_grouping(None, None),
+                'decimal_point': self.default_decimal_point(),
+                'thousands_sep': self.default_thousands_sep(),
+                'grouping': self.default_grouping(),
             }
 
         # this is only for one-percent-specifier strings and this should be checked
@@ -291,9 +281,9 @@ class Lang(ModelSQL, ModelView, Cacheable):
         # Code from currency in locale.py
         if not lang:
             lang = {
-                'decimal_point': self.default_decimal_point(None, None),
-                'thousands_sep': self.default_thousands_sep(None, None),
-                'grouping': self.default_grouping(None, None),
+                'decimal_point': self.default_decimal_point(),
+                'thousands_sep': self.default_thousands_sep(),
+                'grouping': self.default_grouping(),
             }
 
         # check for illegal values

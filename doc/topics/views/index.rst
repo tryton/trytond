@@ -105,7 +105,7 @@ Each form view must start with this tag.
     * ``on_write``: The name of a function that will be called when the record
       is saved.  The function must have this syntax:
 
-      ``on_write(self, cursor, user, ids, context=None)``
+      ``on_write(self, ids)``
 
     * ``col``: The number of column for the view.
 
@@ -204,7 +204,7 @@ Display a button.
         * ``object``: the name of the function that will called.  The function
           must have this syntax:
 
-          ``button(self, cursor, user, ids, context=None)``
+          ``button(self, ids)``
 
         * ``action``: the id of the ir.action that will be called.
 
@@ -317,7 +317,7 @@ Each tree view must start with this tag.
     * ``on_write``: The name of a function that will be called when a record is
       saved.  The function must have this syntax:
 
-      ``on_write(self, cursor, user, ids, context=None)``
+      ``on_write(self, ids)``
 
     * ``editable``: If it is set to ``top`` or ``bottom``, the list becomes
       editable and the new record will be added on ``top`` or ``bottom`` of the

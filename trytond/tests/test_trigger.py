@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-
+from __future__ import with_statement
 import unittest
 import sys
 import time
@@ -26,8 +26,10 @@ except ImportError:
             for j in range(i+1, r):
                 indices[j] = indices[j-1] + 1
             yield tuple(pool[i] for i in indices)
-from trytond.tests.test_tryton import POOL, DB, USER, CONTEXT, install_module
+from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
+        install_module
 from trytond.test.trigger import TRIGGER_LOGS
+from trytond.transaction import Transaction
 
 
 class TriggerTestCase(unittest.TestCase):
@@ -46,402 +48,396 @@ class TriggerTestCase(unittest.TestCase):
         '''
         Test constraints
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            model_id = self.model.search([
+                ('model', '=', 'test.triggered'),
+                ])[0]
 
-        model_id = self.model.search(cursor, USER, [
-            ('model', '=', 'test.triggered'),
-            ], context=CONTEXT)[0]
+            values = {
+                'name': 'Test',
+                'model': model_id,
+                'on_time': True,
+                'condition': 'True',
+                'action_model': model_id,
+                'action_function': 'test',
+            }
+            self.assert_(self.trigger.create(values))
 
-        values = {
-            'name': 'Test',
-            'model': model_id,
-            'on_time': True,
-            'condition': 'True',
-            'action_model': model_id,
-            'action_function': 'test',
-        }
-        self.assert_(self.trigger.create(cursor, USER, values, context=CONTEXT))
+            # on_exclusive
+            for i in range(1, 4):
+                for combination in combinations(['create', 'write', 'delete'], i):
+                    combination_values = values.copy()
+                    for mode in combination:
+                        combination_values['on_%s' % mode] = True
+                    self.failUnlessRaises(Exception, self.trigger.create,
+                            combination_values)
 
-        # on_exclusive
-        for i in range(1, 4):
-            for combination in combinations(['create', 'write', 'delete'], i):
-                combination_values = values.copy()
-                for mode in combination:
-                    combination_values['on_%s' % mode] = True
-                self.failUnlessRaises(Exception, self.trigger.create, cursor, USER,
-                        combination_values, context=CONTEXT)
+            # check_condition
+            condition_values = values.copy()
+            condition_values['condition'] = '='
+            self.failUnlessRaises(Exception, self.trigger.create,
+                    condition_values)
 
-        # check_condition
-        condition_values = values.copy()
-        condition_values['condition'] = '='
-        self.failUnlessRaises(Exception, self.trigger.create, cursor, USER,
-                condition_values, context=CONTEXT)
-
-        # Restart the cache on the get_triggers method of ir.trigger
-        self.trigger.get_triggers(cursor.dbname)
-        cursor.rollback()
-        cursor.close()
+            # Restart the cache on the get_triggers method of ir.trigger
+            self.trigger.get_triggers.reset()
+            transaction.cursor.rollback()
 
     def test0020on_create(self):
         '''
         Test on_create
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            model_id = self.model.search([
+                ('model', '=', 'test.triggered'),
+                ])[0]
 
-        model_id = self.model.search(cursor, USER, [
-            ('model', '=', 'test.triggered'),
-            ], context=CONTEXT)[0]
+            trigger_id = self.trigger.create({
+                'name': 'Test',
+                'model': model_id,
+                'on_create': True,
+                'condition': 'True',
+                'action_model': model_id,
+                'action_function': 'trigger',
+                })
 
-        trigger_id = self.trigger.create(cursor, USER, {
-            'name': 'Test',
-            'model': model_id,
-            'on_create': True,
-            'condition': 'True',
-            'action_model': model_id,
-            'action_function': 'trigger',
-            }, context=CONTEXT)
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # Trigger with condition
+            self.trigger.write(trigger_id, {
+                'condition': 'self.name == "Bar"',
+                })
 
-        # Trigger with condition
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'self.name == "Bar"',
-            }, context=CONTEXT)
+            # Matching condition
+            triggered_id = self.triggered.create({
+                'name': 'Bar',
+                })
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # Matching condition
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Bar',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # Non matching condition
+            triggered_id = self.triggered.create({
+                'name': 'Foo',
+                })
+            self.assert_(TRIGGER_LOGS == [])
 
-        # Non matching condition
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [])
+            # With limit number
+            self.trigger.write(trigger_id, {
+                'condition': 'True',
+                'limit_number': 1,
+                })
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # With limit number
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'True',
-            'limit_number': 1,
-            }, context=CONTEXT)
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # With minimum delay
+            self.trigger.write(trigger_id, {
+                'limit_number': 0,
+                'minimum_delay': 1,
+                })
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # With minimum delay
-        self.trigger.write(cursor, USER, trigger_id, {
-            'limit_number': 0,
-            'minimum_delay': 1,
-            }, context=CONTEXT)
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
-
-        # Restart the cache on the get_triggers method of ir.trigger
-        self.trigger.get_triggers(cursor.dbname)
-        cursor.rollback()
-        cursor.close()
+            # Restart the cache on the get_triggers method of ir.trigger
+            self.trigger.get_triggers.reset()
+            transaction.cursor.rollback()
 
     def test0030on_write(self):
         '''
         Test on_write
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            model_id = self.model.search([
+                ('model', '=', 'test.triggered'),
+                ])[0]
 
-        model_id = self.model.search(cursor, USER, [
-            ('model', '=', 'test.triggered'),
-            ], context=CONTEXT)[0]
+            trigger_id = self.trigger.create({
+                'name': 'Test',
+                'model': model_id,
+                'on_write': True,
+                'condition': 'True',
+                'action_model': model_id,
+                'action_function': 'trigger',
+                })
 
-        trigger_id = self.trigger.create(cursor, USER, {
-            'name': 'Test',
-            'model': model_id,
-            'on_write': True,
-            'condition': 'True',
-            'action_model': model_id,
-            'action_function': 'trigger',
-            }, context=CONTEXT)
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
+            self.triggered.write(triggered_id, {
+                'name': 'Foo',
+                })
+            self.assert_(TRIGGER_LOGS == [])
 
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [])
+            # Trigger with condition
+            self.trigger.write(trigger_id, {
+                'condition': 'self.name == "Bar"',
+                })
 
-        # Trigger with condition
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'self.name == "Bar"',
-            }, context=CONTEXT)
+            # Matching condition
+            self.triggered.write(triggered_id, {
+                'name': 'Bar',
+                })
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # Matching condition
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Bar',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # No change in condition
+            self.triggered.write(triggered_id, {
+                'name': 'Bar',
+                })
+            self.assert_(TRIGGER_LOGS == [])
 
-        # No change in condition
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Bar',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [])
+            # Different change in condition
+            self.triggered.write(triggered_id, {
+                'name': 'Foo',
+                })
+            self.assert_(TRIGGER_LOGS == [])
 
-        # Different change in condition
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [])
+            # With limit number
+            self.trigger.write(trigger_id, {
+                'condition': 'self.name == "Bar"',
+                'limit_number': 1,
+                })
+            triggered_id = self.triggered.create({
+                'name': 'Foo',
+                })
+            self.triggered.write(triggered_id, {
+                'name': 'Bar',
+                })
+            self.triggered.write(triggered_id, {
+                'name': 'Foo',
+                })
+            self.triggered.write(triggered_id, {
+                'name': 'Bar',
+                })
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # With limit number
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'self.name == "Bar"',
-            'limit_number': 1,
-            }, context=CONTEXT)
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Bar',
-            }, context=CONTEXT)
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Bar',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # With minimum delay
+            self.trigger.write(trigger_id, {
+                'limit_number': 0,
+                'minimum_delay': sys.maxint,
+                })
+            triggered_id = self.triggered.create({
+                'name': 'Foo',
+                })
+            for name in ('Bar', 'Foo', 'Bar'):
+                self.triggered.write(triggered_id, {
+                    'name': name,
+                    })
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # With minimum delay
-        self.trigger.write(cursor, USER, trigger_id, {
-            'limit_number': 0,
-            'minimum_delay': sys.maxint,
-            }, context=CONTEXT)
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        for name in ('Bar', 'Foo', 'Bar'):
-            self.triggered.write(cursor, USER, triggered_id, {
-                'name': name,
-                }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            self.trigger.write(trigger_id, {
+                'minimum_delay': 0.02,
+                })
+            triggered_id = self.triggered.create({
+                'name': 'Foo',
+                })
+            for name in ('Bar', 'Foo'):
+                self.triggered.write(triggered_id, {
+                    'name': name,
+                    })
+            time.sleep(1.2)
+            self.triggered.write(triggered_id, {
+                'name': 'Bar',
+                })
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id),
+                ([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
+            TRIGGER_LOGS.pop()
 
-        self.trigger.write(cursor, USER, trigger_id, {
-            'minimum_delay': 0.02,
-            }, context=CONTEXT)
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        for name in ('Bar', 'Foo'):
-            self.triggered.write(cursor, USER, triggered_id, {
-                'name': name,
-                }, context=CONTEXT)
-        time.sleep(1.2)
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Bar',
-            }, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id),
-            ([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
-        TRIGGER_LOGS.pop()
-
-        # Restart the cache on the get_triggers method of ir.trigger
-        self.trigger.get_triggers(cursor.dbname)
-        cursor.rollback()
-        cursor.close()
+            # Restart the cache on the get_triggers method of ir.trigger
+            self.trigger.get_triggers.reset()
+            transaction.cursor.rollback()
 
     def test0040on_delete(self):
         '''
         Test on_delete
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            model_id = self.model.search([
+                ('model', '=', 'test.triggered'),
+                ])[0]
 
-        model_id = self.model.search(cursor, USER, [
-            ('model', '=', 'test.triggered'),
-            ], context=CONTEXT)[0]
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
+            trigger_id = self.trigger.create({
+                'name': 'Test',
+                'model': model_id,
+                'on_delete': True,
+                'condition': 'True',
+                'action_model': model_id,
+                'action_function': 'trigger',
+                })
 
-        trigger_id = self.trigger.create(cursor, USER, {
-            'name': 'Test',
-            'model': model_id,
-            'on_delete': True,
-            'condition': 'True',
-            'action_model': model_id,
-            'action_function': 'trigger',
-            }, context=CONTEXT)
+            self.triggered.delete(triggered_id)
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
+            Transaction().delete = {}
 
-        self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # Trigger with condition
+            self.trigger.write(trigger_id, {
+                'condition': 'self.name == "Bar"',
+                })
 
-        # Trigger with condition
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'self.name == "Bar"',
-            }, context=CONTEXT)
+            triggered_id = self.triggered.create({
+                'name': 'Bar',
+                })
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Bar',
-            }, context=CONTEXT)
+            # Matching condition
+            self.triggered.delete(triggered_id)
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
+            Transaction().delete = {}
 
-        # Matching condition
-        self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            triggered_id = self.triggered.create({
+                'name': 'Foo',
+                })
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Foo',
-            }, context=CONTEXT)
+            # Non matching condition
+            self.triggered.delete(triggered_id)
+            self.assert_(TRIGGER_LOGS == [])
+            Transaction().delete = {}
 
-        # Non matching condition
-        self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [])
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
+            # With limit number
+            self.trigger.write(trigger_id, {
+                'condition': 'True',
+                'limit_number': 1,
+                })
+            self.triggered.delete(triggered_id)
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
+            Transaction().delete = {}
+            # Delete trigger logs because SQLite reuse the same triggered_id
+            self.trigger_log.delete( self.trigger_log.search([
+                ('trigger', '=', trigger_id),
+                ]))
 
-        # With limit number
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'True',
-            'limit_number': 1,
-            }, context=CONTEXT)
-        self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
-        # Delete trigger logs because SQLite reuse the same triggered_id
-        self.trigger_log.delete(cursor, USER,
-                self.trigger_log.search(cursor, USER, [
-                    ('trigger', '=', trigger_id),
-                    ], context=CONTEXT))
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
+            # With minimum delay
+            self.trigger.write(trigger_id, {
+                'limit_number': 0,
+                'minimum_delay': 1,
+                })
+            self.triggered.delete(triggered_id)
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
+            Transaction().delete = {}
 
-        # With minimum delay
-        self.trigger.write(cursor, USER, trigger_id, {
-            'limit_number': 0,
-            'minimum_delay': 1,
-            }, context=CONTEXT)
-        self.triggered.delete(cursor, USER, triggered_id, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
-
-        # Restart the cache on the get_triggers method of ir.trigger
-        self.trigger.get_triggers(cursor.dbname)
-        cursor.rollback()
-        cursor.close()
+            # Restart the cache on the get_triggers method of ir.trigger
+            self.trigger.get_triggers.reset()
+            transaction.cursor.rollback()
 
     def test0050on_time(self):
         '''
         Test on_time
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            model_id = self.model.search([
+                ('model', '=', 'test.triggered'),
+                ])[0]
 
-        model_id = self.model.search(cursor, USER, [
-            ('model', '=', 'test.triggered'),
-            ], context=CONTEXT)[0]
+            trigger_id = self.trigger.create({
+                'name': 'Test',
+                'model': model_id,
+                'on_time': True,
+                'condition': 'True',
+                'action_model': model_id,
+                'action_function': 'trigger',
+                })
 
-        trigger_id = self.trigger.create(cursor, USER, {
-            'name': 'Test',
-            'model': model_id,
-            'on_time': True,
-            'condition': 'True',
-            'action_model': model_id,
-            'action_function': 'trigger',
-            }, context=CONTEXT)
+            triggered_id = self.triggered.create({
+                'name': 'Test',
+                })
+            self.trigger.trigger_time()
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        triggered_id = self.triggered.create(cursor, USER, {
-            'name': 'Test',
-            }, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # Trigger with condition
+            self.trigger.write(trigger_id, {
+                'condition': 'self.name == "Bar"',
+                })
 
-        # Trigger with condition
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'self.name == "Bar"',
-            }, context=CONTEXT)
+            # Matching condition
+            self.triggered.write(triggered_id, {
+                'name': 'Bar',
+                })
+            self.trigger.trigger_time()
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # Matching condition
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Bar',
-            }, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # Non matching condition
+            self.triggered.write(triggered_id, {
+                'name': 'Foo',
+                })
+            self.trigger.trigger_time()
+            self.assert_(TRIGGER_LOGS == [])
 
-        # Non matching condition
-        self.triggered.write(cursor, USER, triggered_id, {
-            'name': 'Foo',
-            }, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [])
+            # With limit number
+            self.trigger.write(trigger_id, {
+                'condition': 'True',
+                'limit_number': 1,
+                })
+            self.trigger.trigger_time()
+            self.trigger.trigger_time()
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
 
-        # With limit number
-        self.trigger.write(cursor, USER, trigger_id, {
-            'condition': 'True',
-            'limit_number': 1,
-            }, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # Delete trigger logs of limit number test
+            self.trigger_log.delete( self.trigger_log.search([
+                ('trigger', '=', trigger_id),
+                ]))
 
-        # Delete trigger logs of limit number test
-        self.trigger_log.delete(cursor, USER,
-                self.trigger_log.search(cursor, USER, [
-                    ('trigger', '=', trigger_id),
-                    ], context=CONTEXT))
+            # With minimum delay
+            self.trigger.write(trigger_id, {
+                'limit_number': 0,
+                'minimum_delay': sys.maxint,
+                })
+            self.trigger.trigger_time()
+            self.trigger.trigger_time()
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
+            Transaction().delete = {}
 
-        # With minimum delay
-        self.trigger.write(cursor, USER, trigger_id, {
-            'limit_number': 0,
-            'minimum_delay': sys.maxint,
-            }, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
+            # Delete trigger logs of previous minimum delay test
+            self.trigger_log.delete(self.trigger_log.search([
+                ('trigger', '=', trigger_id),
+                ]))
 
-        # Delete trigger logs of previous minimum delay test
-        self.trigger_log.delete(cursor, USER,
-                self.trigger_log.search(cursor, USER, [
-                    ('trigger', '=', trigger_id),
-                    ], context=CONTEXT))
+            self.trigger.write(trigger_id, {
+                'minimum_delay': 0.02,
+                })
+            self.trigger.trigger_time()
+            time.sleep(1.2)
+            self.trigger.trigger_time()
+            self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id),
+                ([triggered_id], trigger_id)])
+            TRIGGER_LOGS.pop()
+            TRIGGER_LOGS.pop()
+            Transaction().delete = {}
 
-        self.trigger.write(cursor, USER, trigger_id, {
-            'minimum_delay': 0.02,
-            }, context=CONTEXT)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        time.sleep(1.2)
-        self.trigger.trigger_time(cursor, USER, context=CONTEXT)
-        self.assert_(TRIGGER_LOGS == [([triggered_id], trigger_id),
-            ([triggered_id], trigger_id)])
-        TRIGGER_LOGS.pop()
-        TRIGGER_LOGS.pop()
-
-        # Restart the cache on the get_triggers method of ir.trigger
-        self.trigger.get_triggers(cursor.dbname)
-        cursor.rollback()
-        cursor.close()
+            # Restart the cache on the get_triggers method of ir.trigger
+            self.trigger.get_triggers.reset()
+            transaction.cursor.rollback()
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TriggerTestCase)

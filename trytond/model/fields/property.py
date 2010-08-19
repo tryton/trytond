@@ -5,6 +5,7 @@ import copy
 from trytond.model.fields.function import Function
 from trytond.model.fields.field import Field
 from trytond import backend
+from trytond.transaction import Transaction
 
 
 class Property(Function):
@@ -23,56 +24,47 @@ class Property(Function):
     def __copy__(self):
         return Property(copy.copy(self._field))
 
-    def get(self, cursor, user, ids, model, name, values=None, context=None):
+    def get(self, ids, model, name, values=None):
         '''
         Retreive the property.
 
-        :param cursor: The database cursor.
-        :param user: The user id.
         :param ids: A list of ids.
         :param model: The model.
         :param name: The name of the field or a list of name field.
         :param values:
-        :param context: The contest.
         :return: a dictionary with ids as key and values as value
         '''
         property_obj = model.pool.get('ir.property')
-        res = property_obj.get(cursor, user, name, model._name, ids,
-                context=context)
+        res = property_obj.get(name, model._name, ids)
         return res
 
 
-    def set(self, cursor, user, ids, model, name, value, context=None):
+    def set(self, ids, model, name, value):
         '''
         Set the property.
 
-        :param cursor: The database cursor.
-        :param user: The user id.
         :param ids: A list of ids.
         :param model: The model.
         :param name: The name of the field.
         :param value: The value to set.
-        :param context: The context.
         '''
         property_obj = model.pool.get('ir.property')
-        return property_obj.set(cursor, user, name, model._name, ids,
+        return property_obj.set(name, model._name, ids,
                 (value and getattr(self, 'model_name', '')  + ',' + str(value)) or
-                False, context=context)
+                False)
 
 
-    def search(self, cursor, user, model, name, clause, context=None):
+    def search(self, model, name, clause):
         '''
-        :param cursor: The database cursor.
-        :param user: The user id.
         :param model: The model.
         :param clause: The search domain clause. See ModelStorage.search
-        :param context: The context.
         :return: New list of domain.
         '''
         rule_obj = model.pool.get('ir.rule')
         property_obj = model.pool.get('ir.property')
         model_obj = model.pool.get('ir.model')
         field_obj = model.pool.get('ir.model.field')
+        cursor = Transaction().cursor
 
         field_class = backend.FIELDS[self._type]
         if not field_class:
@@ -82,8 +74,7 @@ class Property(Function):
             return []
         sql_type = sql_type[0]
 
-        property_query, property_val = rule_obj.domain_get(
-            cursor, user, 'ir.property', context=context)
+        property_query, property_val = rule_obj.domain_get('ir.property')
 
         #Fetch res ids that comply with the domain
         cursor.execute(
@@ -136,11 +127,10 @@ class Property(Function):
         else:
             other_ids = [x[0] for x in cursor.fetchall()]
 
-            res_ids = model.search(
-                cursor, user,
-                ['OR', ('id', 'in', [x[0] for x in props]),
-                 ('id', 'not in', other_ids)],
-                context=context)
+            res_ids = model.search(['OR',
+                ('id', 'in', [x[0] for x in props]),
+                ('id', 'not in', other_ids)
+                ])
 
             return [('id', 'in', res_ids)]
 

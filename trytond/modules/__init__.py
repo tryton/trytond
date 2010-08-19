@@ -1,15 +1,18 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.backend import Database
+from __future__ import with_statement
 import os, sys, imp
 import itertools
-from trytond.config import CONFIG
-import trytond.tools as tools
-from trytond.tools import Cache
 import zipfile
 import zipimport
 import traceback
 import logging
+import contextlib
+from trytond.backend import Database
+from trytond.tools import Cache
+import trytond.tools as tools
+from trytond.config import CONFIG
+from trytond.transaction import Transaction
 
 OPJ = os.path.join
 MODULES_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -193,12 +196,13 @@ def create_graph(module_list, force=None):
         logger.error('%s:Unmet dependency %s' % (package, missings))
     return graph, packages, later
 
-def load_module_graph(cursor, graph, pool, lang=None):
+def load_module_graph(graph, pool, lang=None):
     if lang is None:
         lang = ['en_US']
     modules_todo = []
     models_to_update_history = set()
     logger = logging.getLogger('modules')
+    cursor = Transaction().cursor
 
     modules = [x.name for x in graph]
     cursor.execute('SELECT name, state FROM ir_module_module ' \
@@ -224,16 +228,13 @@ def load_module_graph(cursor, graph, pool, lang=None):
             for type in objects.keys():
                 for obj in objects[type]:
                     logger.info('%s:init %s' % (module, obj._name))
-                    obj.init(cursor, module)
+                    obj.init(module)
             for model in objects['model']:
                 if hasattr(model, '_history'):
                     models_to_update_history.add(model._name)
 
             #Instanciate a new parser for the package:
-            tryton_parser = tools.TrytondXmlHandler(
-                cursor=cursor,
-                pool=pool,
-                module=module,)
+            tryton_parser = tools.TrytondXmlHandler(pool=pool, module=module)
 
             for filename in package.datas.get('xml', []):
                 filename = filename.replace('/', os.sep)
@@ -269,8 +270,7 @@ def load_module_graph(cursor, graph, pool, lang=None):
                     continue
                 logger.info('%s:loading %s' % (module, filename))
                 translation_obj = pool.get('ir.translation')
-                translation_obj.translation_import(cursor, 0, lang2, module,
-                                                   trans_file)
+                translation_obj.translation_import(lang2, module, trans_file)
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))
@@ -279,11 +279,11 @@ def load_module_graph(cursor, graph, pool, lang=None):
         # Create missing reports
         from trytond.report import Report
         report_obj = pool.get('ir.action.report')
-        report_ids = report_obj.search(cursor, 0, [
+        report_ids = report_obj.search([
             ('module', '=', module),
             ])
         report_names = pool.object_name_list(type='report')
-        for report in report_obj.browse(cursor, 0, report_ids):
+        for report in report_obj.browse(report_ids):
             report_name = report.report_name
             if report_name not in report_names:
                 report = object.__new__(Report)
@@ -297,12 +297,12 @@ def load_module_graph(cursor, graph, pool, lang=None):
         model = pool.get(model_name)
         if model._history:
             logger.info('history:update %s' % model._name)
-            model._update_history_table(cursor)
+            model._update_history_table()
 
     # Vacuum :
     while modules_todo:
         (module, to_delete) = modules_todo.pop()
-        tools.post_import(cursor, pool, module, to_delete)
+        tools.post_import(pool, module, to_delete)
 
 
     cursor.commit()
@@ -407,9 +407,13 @@ def register_classes(reload_p=False):
 
 def load_modules(database_name, pool, update=False, lang=None):
     res = True
-    database = Database(database_name).connect()
-    cursor = database.cursor()
-    try:
+    if not Transaction().cursor:
+        contextmanager = Transaction().start(database_name, 0)
+    else:
+        contextmanager = contextlib.nested(Transaction().new_cursor(),
+                Transaction().set_user(0))
+    with contextmanager:
+        cursor = Transaction().cursor
         force = []
         if update:
             if 'all' in CONFIG['init']:
@@ -433,7 +437,7 @@ def load_modules(database_name, pool, update=False, lang=None):
         graph = create_graph(module_list, force)[0]
 
         try:
-            load_module_graph(cursor, graph, pool, lang)
+            load_module_graph(graph, pool, lang)
         except Exception:
             cursor.rollback()
             raise
@@ -449,7 +453,7 @@ def load_modules(database_name, pool, update=False, lang=None):
                             'WHERE module = %s ' \
                             'ORDER BY id DESC', (mod_name,))
                     for rmod, rid in cursor.fetchall():
-                        pool.get(rmod).delete(cursor, 0, rid)
+                        pool.get(rmod).delete(rid)
                     cursor.commit()
                 cursor.execute("UPDATE ir_module_module SET state = %s " \
                         "WHERE state IN ('to remove')", ('uninstalled',))
@@ -457,9 +461,7 @@ def load_modules(database_name, pool, update=False, lang=None):
                 res = False
 
         module_obj = pool.get('ir.module.module')
-        module_obj.update_list(cursor, 0)
+        module_obj.update_list()
         cursor.commit()
-    finally:
-        cursor.close()
-        Cache.resets(database_name)
+    Cache.resets(database_name)
     return res

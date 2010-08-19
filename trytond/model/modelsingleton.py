@@ -8,34 +8,27 @@ class ModelSingleton(ModelStorage):
     Define a singleton model in Tryton.
     """
 
-    def get_singleton_id(self, cursor, user, context=None):
+    def get_singleton_id(self):
         '''
         Return the id of the unique record if there is one.
-
-        :param cursor: the database cursor
-        :param user: the user id
-        :param context: the context
         '''
-        singleton_ids = super(ModelSingleton, self).search(cursor, user, [],
-                limit=1, context=context)
+        singleton_ids = super(ModelSingleton, self).search([], limit=1)
         if singleton_ids:
             return singleton_ids[0]
         return False
 
-    def create(self, cursor, user, values, context=None):
-        singleton_id = self.get_singleton_id(cursor, user, context=context)
+    def create(self, values):
+        singleton_id = self.get_singleton_id()
         if singleton_id:
-            self.write(cursor, user, singleton_id, values, context=context)
+            self.write(singleton_id, values)
         else:
-            singleton_id = super(ModelSingleton, self).create(cursor,
-                    user, values, context=context)
+            singleton_id = super(ModelSingleton, self).create(values)
         return singleton_id
 
-    def read(self, cursor, user, ids, fields_names=None, context=None):
-        singleton_id = self.get_singleton_id(cursor, user, context=context)
+    def read(self, ids, fields_names=None):
+        singleton_id = self.get_singleton_id()
         if not singleton_id:
-            res = self.default_get(cursor, user, fields_names, context=context,
-                    with_rec_name=False)
+            res = self.default_get(fields_names, with_rec_name=False)
             if not isinstance(ids, (int, long)):
                 res['id'] = ids[0]
                 res = [res]
@@ -46,65 +39,58 @@ class ModelSingleton(ModelStorage):
             ids2 = singleton_id
         else:
             ids2 = [singleton_id]
-        res = super(ModelSingleton, self).read(cursor, user, ids2,
-                fields_names=fields_names, context=context)
+        res = super(ModelSingleton, self).read(ids2, fields_names=fields_names)
         if isinstance(ids, (int, long)):
             res['id'] = ids
         else:
             res[0]['id'] = ids[0]
         return res
 
-    def write(self, cursor, user, ids, values, context=None):
-        singleton_id = self.get_singleton_id(cursor, user, context=context)
+    def write(self, ids, values):
+        singleton_id = self.get_singleton_id()
         if not singleton_id:
-            return self.create(cursor, user, values, context=context)
+            return self.create(values)
         if isinstance(ids, (int, long)):
             ids = singleton_id
         else:
             ids = [singleton_id]
-        return super(ModelSingleton, self).write(cursor, user, ids, values,
-                context=context)
+        return super(ModelSingleton, self).write(ids, values)
 
-    def delete(self, cursor, user, ids, context=None):
-        singleton_id = self.get_singleton_id(cursor, user, context=context)
+    def delete(self, ids):
+        singleton_id = self.get_singleton_id()
         if not singleton_id:
             return True
         if isinstance(ids, (int, long)):
             ids = singleton_id
         else:
             ids = [singleton_id]
-        return super(ModelSingleton, self).delete(cursor, user, ids,
-                context=context)
+        return super(ModelSingleton, self).delete(ids)
 
-    def copy(self, cursor, user, ids, default=None, context=None):
+    def copy(self, ids, default=None):
         if default:
-            self.write(cursor, user, ids, default, context=context)
+            self.write(ids, default)
         return ids
 
-    def search(self, cursor, user, domain, offset=0, limit=None, order=None,
-            context=None, count=False):
-        res = super(ModelSingleton, self).search(cursor, user, domain,
-                offset=offset, limit=limit, order=order, context=context,
-                count=count)
+    def search(self, domain, offset=0, limit=None, order=None, count=False):
+        res = super(ModelSingleton, self).search(domain, offset=offset,
+                limit=limit, order=order, count=count)
         if not res:
             if count:
                 return 1
             return [1]
         return res
 
-    def default_get(self, cursor, user, fields_names, context=None,
-            with_rec_name=True):
-        res = super(ModelSingleton, self).default_get(cursor, user,
-                fields_names, context=context, with_rec_name=with_rec_name)
-        singleton_id = self.get_singleton_id(cursor, user, context=context)
+    def default_get(self, fields_names, with_rec_name=True):
+        res = super(ModelSingleton, self).default_get(fields_names,
+                with_rec_name=with_rec_name)
+        singleton_id = self.get_singleton_id()
         if singleton_id:
             if with_rec_name:
                 fields_names = fields_names[:]
                 for field in fields_names[:]:
                     if self._columns[field]._type in ('many2one',):
                         fields_names.append(field + '.rec_name')
-            res = self.read(cursor, user, singleton_id,
-                    fields_names=fields_names, context=context)
+            res = self.read(singleton_id, fields_names=fields_names)
             for field in (x for x in res.keys() if x not in fields_names):
                 del res[field]
         return res

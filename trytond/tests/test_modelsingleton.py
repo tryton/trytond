@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-
+from __future__ import with_statement
 import unittest
-from trytond.tests.test_tryton import POOL, DB, USER, CONTEXT, install_module
+from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
+        install_module
+from trytond.transaction import Transaction
 
 
 class ModelSingletonTestCase(unittest.TestCase):
@@ -20,129 +22,104 @@ class ModelSingletonTestCase(unittest.TestCase):
         '''
         Test read method.
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            singleton = self.singleton.read(1, ['name'])
+            self.assert_(singleton['name'] == 'test')
+            self.assert_(singleton['id'] == 1)
 
-        singleton = self.singleton.read(cursor, USER, 1, ['name'], CONTEXT)
-        self.assert_(singleton['name'] == 'test')
-        self.assert_(singleton['id'] == 1)
+            singleton = self.singleton.read([1], ['name'])[0]
+            self.assert_(singleton['name'] == 'test')
+            self.assert_(singleton['id'] == 1)
 
-        singleton = self.singleton.read(cursor, USER, [1], ['name'], CONTEXT)[0]
-        self.assert_(singleton['name'] == 'test')
-        self.assert_(singleton['id'] == 1)
-
-        cursor.rollback()
-        cursor.close()
+            transaction.cursor.rollback()
 
     def test0020create(self):
         '''
         Test create method.
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            singleton_id = self.singleton.create({'name': 'bar'})
+            self.assert_(singleton_id)
 
-        singleton_id = self.singleton.create(cursor, USER, {'name': 'bar'},
-                CONTEXT)
-        self.assert_(singleton_id)
+            singleton = self.singleton.read(singleton_id, ['name'])
+            self.assert_(singleton['name'] == 'bar')
 
-        singleton = self.singleton.read(cursor, USER, singleton_id, ['name'],
-                CONTEXT)
-        self.assert_(singleton['name'] == 'bar')
+            singleton2_id = self.singleton.create({'name': 'foo'})
+            self.assert_(singleton2_id == singleton_id)
 
-        singleton2_id = self.singleton.create(cursor, USER, {'name': 'foo'},
-                CONTEXT)
-        self.assert_(singleton2_id == singleton_id)
+            singleton = self.singleton.read(singleton_id, ['name'])
+            self.assert_(singleton['name'] == 'foo')
 
-        singleton = self.singleton.read(cursor, USER, singleton_id, ['name'],
-                CONTEXT)
-        self.assert_(singleton['name'] == 'foo')
+            singleton_ids = self.singleton.search([])
+            self.assert_(len(singleton_ids) == 1)
 
-        singleton_ids = self.singleton.search(cursor, USER, [], 0, None, None,
-                CONTEXT)
-        self.assert_(len(singleton_ids) == 1)
-
-        cursor.rollback()
-        cursor.close()
+            transaction.cursor.rollback()
 
     def test0030copy(self):
         '''
         Test copy method.
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            singleton_id = self.singleton.search([])[0]
 
-        singleton_id = self.singleton.search(cursor, USER, [], 0, None, None,
-                CONTEXT)[0]
+            singleton2_id = self.singleton.copy(singleton_id)
+            self.assert_(singleton2_id == singleton_id)
 
-        singleton2_id = self.singleton.copy(cursor, USER, singleton_id, None,
-                CONTEXT)
-        self.assert_(singleton2_id == singleton_id)
+            singleton_ids = self.singleton.search([])
+            self.assert_(len(singleton_ids) == 1)
 
-        singleton_ids = self.singleton.search(cursor, USER, [], 0, None, None,
-                CONTEXT)
-        self.assert_(len(singleton_ids) == 1)
+            singleton3_id = self.singleton.copy(singleton_id, {'name': 'bar'})
+            self.assert_(singleton3_id == singleton_id)
 
-        singleton3_id = self.singleton.copy(cursor, USER, singleton_id,
-                {'name': 'bar'}, CONTEXT)
-        self.assert_(singleton3_id == singleton_id)
+            singleton_ids = self.singleton.search([])
+            self.assert_(len(singleton_ids) == 1)
 
-        singleton_ids = self.singleton.search(cursor, USER, [], 0, None, None,
-                CONTEXT)
-        self.assert_(len(singleton_ids) == 1)
-
-        cursor.rollback()
-        cursor.close()
+            transaction.cursor.rollback()
 
     def test0040default_get(self):
         '''
         Test default_get method.
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            default = self.singleton.default_get(['name'])
+            self.assert_(default == {'name': 'test'})
 
-        default = self.singleton.default_get(cursor, USER, ['name'], CONTEXT)
-        self.assert_(default == {'name': 'test'})
+            default = self.singleton.default_get(['create_uid'])
+            self.assert_(len(default) == 2)
 
-        default = self.singleton.default_get(cursor, USER, ['create_uid'],
-                CONTEXT)
-        self.assert_(len(default) == 2)
+            default = self.singleton.default_get(['create_uid'],
+                    with_rec_name=False)
+            self.assert_(len(default) == 1)
 
-        default = self.singleton.default_get(cursor, USER, ['create_uid'],
-                CONTEXT, False)
-        self.assert_(len(default) == 1)
+            self.singleton.create({'name': 'bar'})
 
-        self.singleton.create(cursor, USER, {'name': 'bar'}, CONTEXT)
+            default = self.singleton.default_get(['name'])
+            self.assert_(default == {'name': 'bar'})
 
-        default = self.singleton.default_get(cursor, USER, ['name'], CONTEXT)
-        self.assert_(default == {'name': 'bar'})
+            default = self.singleton.default_get(['create_uid'])
+            self.assert_(len(default) == 2)
 
-        default = self.singleton.default_get(cursor, USER, ['create_uid'],
-                CONTEXT)
-        self.assert_(len(default) == 2)
+            default = self.singleton.default_get(['create_uid'],
+                    with_rec_name=False)
+            self.assert_(len(default) == 1)
 
-        default = self.singleton.default_get(cursor, USER, ['create_uid'],
-                CONTEXT, False)
-        self.assert_(len(default) == 1)
-
-        cursor.rollback()
-        cursor.close()
+            transaction.cursor.rollback()
 
     def test0050search(self):
         '''
         Test search method.
         '''
-        cursor = DB.cursor()
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            singleton_ids = self.singleton.search([])
+            self.assert_(singleton_ids == [1])
 
-        singleton_ids = self.singleton.search(cursor, USER, [], 0, None, None,
-                CONTEXT)
-        self.assert_(singleton_ids == [1])
+            singleton_ids = self.singleton.search([])
+            self.assert_(singleton_ids == [1])
 
-        singleton_ids = self.singleton.search(cursor, USER, [], 0, 1, None,
-                CONTEXT)
-        self.assert_(singleton_ids == [1])
+            singleton_ids = self.singleton.search([], count=True)
+            self.assert_(singleton_ids == 1)
 
-        singleton_ids = self.singleton.search(cursor, USER, [], 0, None, None,
-                CONTEXT, True)
-        self.assert_(singleton_ids == 1)
-
-        cursor.rollback()
-        cursor.close()
+            transaction.cursor.rollback()
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ModelSingletonTestCase)

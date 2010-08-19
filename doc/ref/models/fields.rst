@@ -99,7 +99,7 @@ method ``on_change_<field name>`` of the model when the user changes the
 current field value and will give the values of each fields in this list. The
 method signature is::
 
-    on_change_<field name>(cursor, user, values[, context])
+    on_change_<field name>(values)
 
 This method must return a dictionary with the values of fields to be updated.
 
@@ -119,7 +119,7 @@ around. If this attribute is set, the client will call the method
 fields defined in the list and will give the values of each fields in this
 list. The method signature is::
 
-    on_change_with_<field name>(cursor, user, values[, context])
+    on_change_with_<field name>(values)
 
 This method must return the new value of the field.
 
@@ -308,7 +308,7 @@ A string field with limited values to choice.
     It can also be the name of a method on the model, that will return an
     appropriate list. The signature of the method is::
 
-        selection(cursor, user[, context])
+        selection()
 
     .. note::
         The method is automaticly added to :attr:`trytond.model.Model._rpc` if
@@ -512,14 +512,14 @@ A function field can emulate any other given `field`.
     getting values.
     The signature of the method is::
 
-        getter(cursor, user, ids, name[, context])
+        getter(ids, name)
 
     where `name` is the name of the field, and it must return a dictionary with
     a value for each ids.
 
     Or the signature of the method is::
 
-        getter(cursor, user, ids, names[, context])
+        getter(ids, names)
 
     where `names` is a list of name fields, and it must return a dictionary
     containing for each names a dictionary with a value for each ids.
@@ -532,7 +532,7 @@ A function field can emulate any other given `field`.
     the value.
     The signature of the method id::
 
-        setter(cursor, user, ids, name, value[, context])
+        setter(ids, name, value)
 
     where `name` is the name of the field and `value` the value to set.
 
@@ -542,7 +542,7 @@ A function field can emulate any other given `field`.
     on the field.
     The signature of the method is::
 
-        searcher(cursor, user, name, clause[, context])
+        searcher(name, clause)
 
     where `name` is the name of the field and `clause` is a
     :ref:`domain clause <topics-domain>`.
@@ -550,19 +550,19 @@ A function field can emulate any other given `field`.
 
 Instance methods:
 
-.. method:: Function.get(cursor, user, ids, model, name[, values[, context]])
+.. method:: Function.get(ids, model, name[, values])
 
     Call the :attr:`~Function.getter` classmethod where `model` is the
     :class:`~trytond.model.Model` instance of the field, `name` is the name of
     the field.
 
-.. method:: Function.set(cursor, user, ids, model, name, value[, context])
+.. method:: Function.set(ids, model, name, value)
 
     Call the :attr:`~Function.setter` classmethod where `model` is the
     :class:`~trytond.model.Model` instance of the field, `name` is the name of
     the field, `value` is the value to set.
 
-.. method:: Function.search(cursor, user, model, name, clause[, context])
+.. method:: Function.search(model, name, clause)
 
     Call the :attr:`~Function.searcher` classmethod where `model` is the
     :class:`~trytond.model.Model` instance of the field, `name` is the name of
@@ -580,14 +580,14 @@ A property field that is like a :class:`Function` field but with predifined
 
 Instance methods:
 
-.. method:: Property.get(cursor, user, ids, model, name[, values[, context])
+.. method:: Property.get(ids, model, name[, values])
 
     Same as :meth:`Function.get`.
 
-.. method:: Property.set(cursor, user, ids, model, name, value[, context])
+.. method:: Property.set(ids, model, name, value)
 
     Same as :meth:`Function.set`.
 
-.. method:: Property.search(cursor, user, model, name, clause[, context])
+.. method:: Property.search(model, name, clause)
 
     Same as :meth:`Function.search`.
