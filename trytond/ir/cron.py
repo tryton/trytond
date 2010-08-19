@@ -1,20 +1,15 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"""
-SPEC: Execute "model.function(*eval(args))" periodically
-   date        : date to execute the job or NULL if directly
-   delete_after: delete the ir.cron entry after execution
-   interval_*  : period
-   max_repeat  : number of execution or NULL if endlessly
-"""
-
-from trytond.backend import Database
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import safe_eval
+from __future__ import with_statement
+import contextlib
 import datetime
 from dateutil.relativedelta import relativedelta
 import traceback
 import sys
+from trytond.backend import Database
+from trytond.model import ModelView, ModelSQL, fields
+from trytond.tools import safe_eval
+from trytond.transaction import Transaction
 
 _INTERVALTYPES = {
     'work_days': lambda interval: relativedelta(days=interval),
@@ -67,46 +62,46 @@ class Cron(ModelSQL, ModelView):
                             "properly: \"%s\"\n Traceback: \n\n%s\n"
             })
 
-    def default_nextcall(self, cursor, user, context=None):
+    def default_nextcall(self):
         return datetime.datetime.now()
 
-    def default_priority(self, cursor, user, context=None):
+    def default_priority(self):
         return 5
 
-    def default_user(self, cursor, user, context=None):
-        return int(user)
+    def default_user(self):
+        return int(Transaction().user)
 
-    def default_interval_number(self, cursor, user, context=None):
+    def default_interval_number(self):
         return 1
 
-    def default_interval_type(self, cursor, user, context=None):
+    def default_interval_type(self):
         return 'months'
 
-    def default_numbercall(self, cursor, user, context=None):
+    def default_numbercall(self):
         return 1
 
-    def default_active(self, cursor, user, context=None):
+    def default_active(self):
         return True
 
-    def default_doall(self, cursor, user, context=None):
+    def default_doall(self):
         return True
 
-    def default_running(self, cursor, user, context=None):
+    def default_running(self):
         return False
 
-    def check_xml_record(self, cursor, user, ids, values, context=None):
+    def check_xml_record(self, ids, values):
         return True
 
-    def _callback(self, cursor, cron):
+    def _callback(self, cron):
         try:
             args = (cron['args'] or []) and safe_eval(cron['args'])
             obj = self.pool.get(cron['model'])
             if not obj and hasattr(obj, cron['function']):
                 return False
             fct = getattr(obj, cron['function'])
-            fct(cursor, cron['user'], *args)
+            fct(cron['user'], *args)
         except Exception, error:
-            cursor.rollback()
+            Transaction().cursor.rollback()
 
             tb_s = ''
             for line in traceback.format_exception(*sys.exc_info()):
@@ -123,50 +118,47 @@ class Cron(ModelSQL, ModelView):
             request_obj = self.pool.get('res.request')
             try:
                 user_obj = self.pool.get('res.user')
-                req_user = user_obj.browse(cursor, cron['user'], cron['request_user'])
-                rid = request_obj.create(
-                    cursor, cron['user'],
-                    {'name': self.raise_user_error(
-                            cursor, 'request_title', raise_exception=False,
-                            context={'language': req_user.language and \
-                                         req_user.language.code or "en_US"}),
-                     'priority': '2',
-                     'act_from': cron['user'],
-                     'act_to': cron['request_user'],
-                     'body': self.raise_user_error(
-                            cursor, 'request_body', (cron['name'], tb_s),
+                with contextlib.nested(Transaction().set_user(cron['user']),
+                        Transaction().set_context(language=req_user.language)):
+                    req_user = user_obj.browse(cron['request_user'])
+                    rid = request_obj.create({
+                        'name': self.raise_user_error('request_title',
                             raise_exception=False),
-                     'date_sent': datetime.datetime.now(),
-                     'references': [
-                            ('create',{'reference': "ir.cron,%s"%cron['id']})],
-                     'state': 'waiting',
-                     'trigger_date': datetime.datetime.now(),
-                     })
-                cursor.commit()
+                         'priority': '2',
+                         'act_from': cron['user'],
+                         'act_to': cron['request_user'],
+                         'body': self.raise_user_error('request_body',
+                             (cron['name'], tb_s), raise_exception=False),
+                         'date_sent': datetime.datetime.now(),
+                         'references': [
+                                ('create', {
+                                    'reference': "ir.cron,%s" % cron['id'],
+                                    }),
+                                ],
+                         'state': 'waiting',
+                         'trigger_date': datetime.datetime.now(),
+                         })
+                Transaction().cursor.commit()
             except Exception:
-                cursor.rollback()
+                Transaction().cursor.rollback()
 
     def pool_jobs(self, db_name):
         now = datetime.datetime.now()
-        try:
-            database = Database(db_name).connect()
-            cursor = database.cursor()
-        except Exception:
-            return
-        try:
+        with Transaction().start(db_name, 0) as transaction:
             try:
-                cursor.lock(self._table)
-                cursor.execute('SELECT * FROM ir_cron ' \
-                        'WHERE numbercall <> 0 ' \
-                            'AND active ' \
-                            'AND nextcall <= %s ' \
-                            'AND NOT running ' \
+                transaction.cursor.lock(self._table)
+                transaction.cursor.execute('SELECT * FROM ir_cron '
+                        'WHERE numbercall <> 0 '
+                            'AND active '
+                            'AND nextcall <= %s '
+                            'AND NOT running '
                             'ORDER BY priority', (datetime.datetime.now(),))
-                crons = cursor.dictfetchall()
+                crons = transaction.cursor.dictfetchall()
 
                 for cron in crons:
-                    cursor.execute('UPDATE ir_cron SET running = %s ' \
-                                       'WHERE id = %s', (True, cron['id']))
+                    transaction.cursor.execute('UPDATE ir_cron '
+                        'SET running = %s '
+                        'WHERE id = %s', (True, cron['id']))
                     nextcall = cron['nextcall']
                     numbercall = cron['numbercall']
                     done = False
@@ -175,7 +167,7 @@ class Cron(ModelSQL, ModelView):
                         if numbercall > 0:
                             numbercall -= 1
                         if not done or cron['doall']:
-                            self._callback(cursor, cron)
+                            self._callback(cron)
                         if numbercall:
                             nextcall += _INTERVALTYPES[cron['interval_type']](
                                     cron['interval_number'])
@@ -186,15 +178,16 @@ class Cron(ModelSQL, ModelView):
                     if not numbercall:
                         addsql = ', active = %s'
                         addsql_param = [False]
-                    cursor.execute("UPDATE ir_cron SET nextcall = %s, " \
-                                "running = %s, numbercall = %s" + addsql + " " \
-                                "WHERE id = %s", [nextcall, False, numbercall] \
-                                + addsql_param + [cron['id']])
-                    cursor.commit()
-            except Exception, e:
-                cursor.rollback()
+                    transaction.cursor.execute("UPDATE ir_cron "
+                        "SET nextcall = %s, "
+                            "running = %s, "
+                            "numbercall = %s" + addsql + " "
+                        "WHERE id = %s",
+                        [nextcall, False, numbercall] + addsql_param +
+                        [cron['id']])
+                    transaction.cursor.commit()
+            except Exception:
+                transaction.cursor.rollback()
                 raise
-        finally:
-            cursor.close()
 
 Cron()

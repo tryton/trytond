@@ -1,8 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.tools import Cache
 from threading import Lock
 import time
+from trytond.tools import Cache
+from trytond.transaction import Transaction
 
 
 class Cacheable(object):
@@ -17,46 +18,50 @@ class Cacheable(object):
         self._timestamp = None
         Cache._cache_instance.append(self)
 
-    def add(self, cursor, key, value):
+    def add(self, key, value):
+        dbname = Transaction().cursor.dbname
         self._lock.acquire()
         try:
-            self._cache.setdefault(cursor.dbname, {})
+            self._cache.setdefault(dbname, {})
 
             lower = None
-            if len(self._cache[cursor.dbname]) > self._max_len:
+            if len(self._cache[dbname]) > self._max_len:
                 mintime = time.time() - self._timeout
-                for key2 in self._cache[cursor.dbname].keys():
-                    last_time = self._cache[cursor.dbname][key2][1]
+                for key2 in self._cache[dbname].keys():
+                    last_time = self._cache[dbname][key2][1]
                     if mintime > last_time:
-                        del self._cache[cursor.dbname][key2]
+                        del self._cache[dbname][key2]
                     else:
                         if not lower or lower[1] > last_time:
                             lower = (key2, last_time)
-            if len(self._cache[cursor.dbname]) > self._max_len and lower:
-                del self._cache[cursor.dbname][lower[0]]
+            if len(self._cache[dbname]) > self._max_len and lower:
+                del self._cache[dbname][lower[0]]
 
-            self._cache[cursor.dbname][key] = (value, time.time())
+            self._cache[dbname][key] = (value, time.time())
         finally:
             self._lock.release()
 
-    def invalidate(self, cursor, key):
+    def invalidate(self, key):
+        dbname = Transaction().cursor.dbname
         self._lock.acquire()
         try:
-            del self._cache[cursor.dbname][key]
+            del self._cache[dbname][key]
         finally:
             self._lock.release()
 
-    def get(self, cursor, key):
+    def get(self, key):
+        dbname = Transaction().cursor.dbname
         try:
-            return self._cache[cursor.dbname][key][0]
+            return self._cache[dbname][key][0]
         except KeyError:
             return None
 
-    def clear(self, cursor):
+    def clear(self):
+        dbname = Transaction().cursor.dbname
         self._lock.acquire()
         try:
-            self._cache.setdefault(cursor.dbname, {})
-            self._cache[cursor.dbname].clear()
-            Cache.reset(cursor.dbname, self._name)
+            self._cache.setdefault(dbname, {})
+            self._cache[dbname].clear()
+            Cache.reset(dbname, self._name)
         finally:
             self._lock.release()

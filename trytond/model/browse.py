@@ -1,6 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from __future__ import with_statement
+import contextlib
 from trytond.model import fields
+from trytond.transaction import Transaction
 
 class BrowseRecordList(list):
     '''
@@ -8,9 +11,8 @@ class BrowseRecordList(list):
     '''
     #TODO: execute an object method on BrowseRecordList
 
-    def __init__(self, lst, context=None):
+    def __init__(self, lst):
         super(BrowseRecordList, self).__init__(lst)
-        self.context = context
 
     def get_eval(self):
         return [record.get_eval() for record in self]
@@ -42,18 +44,15 @@ class BrowseRecord(object):
     An object that represents record defined by a ORM object.
     '''
 
-    def __init__(self, cursor, user, record_id, model, local_cache=None,
-            context=None):
-        self._cursor = cursor
-        self._user = user
+    def __init__(self, record_id, model, local_cache=None):
+        self._cursor = Transaction().cursor
+        self._user = Transaction().user
         self._id = record_id
         self._model = model
         self._model_name = self._model._name
-        if context is None:
-            context = {}
-        self._context = context
+        self._context = Transaction().context
 
-        cache = cursor.get_cache(self._context)
+        cache = self._cursor.get_cache(self._context)
         cache.setdefault(model._name, {})
         cache.setdefault('_language_cache', {})
         self._data = cache[model._name]
@@ -131,46 +130,51 @@ class BrowseRecord(object):
                     if not self._data.setdefault(x, {}).has_key(name) \
                     and not self._local_data.setdefault(x, {}).has_key(name)]
             # read the data
-            datas = self._model.read(self._cursor, self._user, ids,
-                    [x[0] for x in ffields], context=self._context)
+            with contextlib.nested(Transaction().set_cursor(self._cursor),
+                    Transaction().set_user(self._user),
+                    Transaction().set_context(self._context)):
+                datas = self._model.read(ids, [x[0] for x in ffields])
 
-            # create browse records for 'remote' models
-            for data in datas:
-                for i, j in ffields:
-                    model = None
-                    if hasattr(j, 'model_name') and \
-                            j.model_name in self._model.pool.object_name_list():
-                        model = self._model.pool.get(j.model_name)
-                    elif hasattr(j, 'get_target'):
-                        model = j.get_target(self._model.pool)
-                    if model and j._type in ('many2one',):
-                        if not data[i] and not (isinstance(data[i], (int, long))
-                                and not isinstance(data[i], type(False))):
-                            data[i] = BrowseRecordNull()
-                        else:
-                            ctx = self._context
-                            if hasattr(j, 'datetime_field') and \
-                                    j.datetime_field:
-                                ctx = self._context.copy()
-                                ctx['_datetime'] = data[j.datetime_field]
-                            data[i] = BrowseRecord(self._cursor, self._user,
-                                    data[i], model,
-                                    local_cache=self._local_cache, context=ctx)
-                    elif model and j._type in ('one2many', 'many2many') \
-                            and len(data[i]):
-                        ctx = self._context
-                        if hasattr(j, 'datetime_field') and j.datetime_field:
-                            ctx = self._context.copy()
-                            ctx['_datetime'] = data[j.datetime_field]
-                        data[i] = BrowseRecordList([BrowseRecord(self._cursor,
-                            self._user,
-                            isinstance(x, (list, tuple)) and x[0] or x, model,
-                            local_cache=self._local_cache,
-                            context=ctx) for x in data[i]], ctx)
-                    if isinstance(j, fields.Function):
-                        self._local_data.setdefault(data['id'], {})[i] = data[i]
-                        del data[i]
-                self._data[data['id']].update(data)
+                # create browse records for 'remote' models
+                for data in datas:
+                    for i, j in ffields:
+                        model = None
+                        if (hasattr(j, 'model_name') and
+                                j.model_name in
+                                self._model.pool.object_name_list()):
+                            model = self._model.pool.get(j.model_name)
+                        elif hasattr(j, 'get_target'):
+                            model = j.get_target(self._model.pool)
+                        if model and j._type in ('many2one',):
+                            if (not data[i]
+                                    and not (isinstance(data[i], (int, long))
+                                        and not isinstance(data[i],
+                                            type(False)))):
+                                data[i] = BrowseRecordNull()
+                            else:
+                                _datetime = None
+                                if (hasattr(j, 'datetime_field')
+                                        and j.datetime_field):
+                                    _datetime = data[j.datetime_field]
+                                with Transaction().set_context(
+                                        _datetime=_datetime):
+                                    data[i] = BrowseRecord(data[i], model,
+                                            local_cache=self._local_cache)
+                        elif (model
+                                and j._type in ('one2many', 'many2many')
+                                and len(data[i])):
+                            _datetime = None
+                            if hasattr(j, 'datetime_field') and j.datetime_field:
+                                _datetime = data[j.datetime_field]
+                            with Transaction().set_context(
+                                    _datetime=_datetime):
+                                data[i] = BrowseRecordList(BrowseRecord(
+                                    x, model, local_cache=self._local_cache)
+                                    for x in data[i])
+                        if isinstance(j, fields.Function):
+                            self._local_data.setdefault(data['id'], {})[i] = data[i]
+                            del data[i]
+                    self._data[data['id']].update(data)
         if name in self._local_data[self._id]:
             return self._local_data[self._id][name]
         return self._data[self._id][name]

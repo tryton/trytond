@@ -10,7 +10,7 @@ class Singleton(ModelSingleton, ModelSQL):
 
     name = fields.Char('Name')
 
-    def default_name(self, cursor, user, context=None):
+    def default_name(self):
         return 'test'
 
 Singleton()

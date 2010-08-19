@@ -15,13 +15,10 @@ class Date(Model):
             'today': False,
             })
 
-    def today(self, cursor, user, context=None):
+    def today(self):
         '''
         Current date
 
-        :param cursor: the database cursor
-        :param user: the user id
-        :param context: the context
         :return: a current datetime.date
         '''
         return datetime.date.today()

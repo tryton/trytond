@@ -1,10 +1,11 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
+import copy
 from trytond.model import fields
 from trytond.pool import Pool
 from trytond.pyson import PYSONEncoder
-import copy
+from trytond.transaction import Transaction
 
 
 class Model(object):
@@ -109,7 +110,7 @@ class Model(object):
                 model_obj = self.pool.get(model_name)
                 if hasattr(model_obj, name) and \
                         callable(getattr(model_obj, name)):
-                    def func(cursor, user, *args, **kwargs):
+                    def func(*args, **kwargs):
                         if args:
                             ids = args[0]
                             int_id = False
@@ -120,12 +121,11 @@ class Model(object):
                                     isinstance(y, (int, long)), ids, True):
                                 # Replace ids by the parent ids
                                 ids = [getattr(x, field_name).id for x in
-                                        self.browse(cursor, user, ids)]
+                                        self.browse(ids)]
                             if int_id:
                                 ids = ids[0]
                             args = tuple([ids] + list(args[1:]))
-                        return getattr(model_obj, name)(cursor, user, *args,
-                                **kwargs)
+                        return getattr(model_obj, name)(*args, **kwargs)
                     return func
             raise
 
@@ -199,14 +199,14 @@ class Model(object):
 
     _xxx2many_targets = property(fget=_getxxx2many_targets)
 
-    def init(self, cursor, module_name):
+    def init(self, module_name):
         """
         Add model in ir.model and ir.model.field.
 
-        :param cursor: the database cursor
         :param module_name: the module name
         """
 
+        cursor = Transaction().cursor
         # Add model in ir_model
         cursor.execute("SELECT id FROM ir_model WHERE model = %s",
                 (self._name,))
@@ -391,14 +391,13 @@ class Model(object):
     def _get_error_messages(self):
         return self._error_messages.values()
 
-    def raise_user_error(self, cursor, error, error_args=None,
+    def raise_user_error(self, error, error_args=None,
             error_description='', error_description_args=None,
-            raise_exception=True, context=None):
+            raise_exception=True):
         '''
         Raise an exception that will be displayed as an error message
         in the client.
 
-        :param cursor: the database cursor
         :param error: the key of the dictionary _error_messages used
             for error message
         :param error_args: the arguments that will be used
@@ -410,24 +409,17 @@ class Model(object):
         :param raise_exception: if set to False return the error string
             (or tuple if error_description is not empty) instead of raising an
             exception.
-        :param context: the context in which the language key will
-            be used for translation
         '''
         translation_obj = self.pool.get('ir.translation')
 
-        if context is None:
-            context = {}
-
         error = self._error_messages.get(error, error)
 
-        res = translation_obj._get_source(cursor, self._name, 'error',
-                context.get('language') or 'en_US', error)
+        language = Transaction().context.get('language') or 'en_US'
+        res = translation_obj._get_source(self._name, 'error', language, error)
         if not res:
-            res = translation_obj._get_source(cursor, error, 'error',
-                    context.get('language') or 'en_US')
+            res = translation_obj._get_source(error, 'error', language)
         if not res:
-            res = translation_obj._get_source(cursor, error, 'error',
-                        'en_US')
+            res = translation_obj._get_source(error, 'error', 'en_US')
 
         if res:
             error = res
@@ -442,14 +434,14 @@ class Model(object):
             error_description = self._error_messages.get(error_description,
                     error_description)
 
-            res = translation_obj._get_source(cursor, self._name, 'error',
-                    context.get('language') or 'en_US', error_description)
+            res = translation_obj._get_source(self._name, 'error', language,
+                    error_description)
             if not res:
-                res = translation_obj._get_source(cursor, error_description,
-                        'error', context.get('language') or 'en_US')
+                res = translation_obj._get_source(error_description, 'error',
+                        language)
             if not res:
-                res = translation_obj._get_source(cursor, error_description,
-                        'error', 'en_US')
+                res = translation_obj._get_source(error_description, 'error',
+                        'en_US')
 
             if res:
                 error_description = res
@@ -469,15 +461,13 @@ class Model(object):
         else:
             return error
 
-    def raise_user_warning(self, cursor, user, warning_name, warning,
+    def raise_user_warning(self, warning_name, warning,
             warning_args=None, warning_description='',
-            warning_description_args=None, context=None):
+            warning_description_args=None):
         '''
         Raise an exception that will be displayed as a warning message
         in the client, if the user has not yet bypassed it.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param warning_name: the unique warning name
         :param warning: the key of the dictionary _error_messages used
             for warning message
@@ -487,34 +477,27 @@ class Model(object):
             _error_messages used for warning description
         :param warning_description_args: the arguments that will be used
             for "%"-based substitution
-        :param context: the context in wich the language key will
-            be used for translation
         '''
         warning_obj = self.pool.get('res.user.warning')
-        if warning_obj.check(cursor, user, warning_name, context=context):
+        if warning_obj.check(warning_name):
             if warning_description:
-                warning, warning_description = self.raise_user_error(cursor,
-                        warning, error_args=warning_args,
+                warning, warning_description = self.raise_user_error(warning,
+                        error_args=warning_args,
                         error_description=warning_description,
                         error_description_args=warning_description_args,
-                        raise_exception=False, context=context)
+                        raise_exception=False)
                 raise Exception('UserWarning', warning_name, warning,
                         warning_description)
             else:
-                warning = self.raise_user_error(cursor, warning,
-                        error_args=warning_args, raise_exception=False,
-                        context=context)
+                warning = self.raise_user_error(warning,
+                        error_args=warning_args, raise_exception=False)
                 raise Exception('UserWarning', warning_name, warning)
 
-    def default_get(self, cursor, user, fields_names, context=None,
-            with_rec_name=True):
+    def default_get(self, fields_names, with_rec_name=True):
         '''
         Return a dict with the default values for each field in fields_names.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param fields_names: a list of fields names
-        :param context: the context
         :param with_rec_name: a boolean to add rec_name value
         :return: a dictionary with field name as key
             and default value as value
@@ -522,35 +505,32 @@ class Model(object):
         value = {}
         # get the default values for the inherited fields
         for i in self._inherits.keys():
-            value.update(self.pool.get(i).default_get(cursor, user,
-                fields_names, context=context, with_rec_name=with_rec_name))
+            value.update(self.pool.get(i).default_get(fields_names,
+                with_rec_name=with_rec_name))
 
         # get the default values defined in the object
         for field in fields_names:
             if field in self._defaults:
-                value[field] = self._defaults[field](cursor, user, context)
+                value[field] = self._defaults[field]()
             if field in self._columns:
                 if self._columns[field]._type == 'boolean' and \
                         not field in value:
                     value[field] = False
                 if isinstance(self._columns[field], fields.Property):
                     property_obj = self.pool.get('ir.property')
-                    value[field] = property_obj.get(cursor, user, field,
-                            self._name)
+                    value[field] = property_obj.get(field, self._name)
                 if with_rec_name and \
                         self._columns[field]._type in ('many2one',) and \
                         value.get(field):
                     obj = self.pool.get(self._columns[field].model_name)
                     if 'rec_name' in obj._columns:
-                        value[field + '.rec_name'] = obj.browse(cursor,
-                                user, value[field],
-                                context=context).rec_name
+                        value[field + '.rec_name'] = obj.browse(value[field]
+                                ).rec_name
 
         # get the default values set by the user and override the default
         # values defined in the object
         ir_default_obj = self.pool.get('ir.default')
-        defaults = ir_default_obj.get_default(cursor, user,
-                self._name, False, context=context)
+        defaults = ir_default_obj.get_default(self._name, False)
         for field, field_value in defaults.items():
             if field in fields_names:
                 fld_def = (field in self._columns) and self._columns[field] \
@@ -560,14 +540,13 @@ class Model(object):
                         continue
                     obj = self.pool.get(fld_def.model_name)
                     if not hasattr(obj, 'search') \
-                            or not obj.search(cursor, user, [
+                            or not obj.search([
                                 ('id', '=', field_value),
                                 ]):
                         continue
                     if with_rec_name and 'rec_name' in obj._columns:
-                        value[field + '.rec_name'] = obj.browse(cursor,
-                                user, field_value,
-                                context=context).rec_name
+                        value[field + '.rec_name'] = obj.browse(field_value
+                                ).rec_name
                 if fld_def._type in ('many2many'):
                     if not isinstance(field_value, list):
                         continue
@@ -575,7 +554,7 @@ class Model(object):
                     field_value2 = []
                     for i in range(len(field_value)):
                         if not hasattr(obj, 'search') \
-                                or not obj.search(cursor, user, [
+                                or not obj.search([
                                     ('id', '=', field_value[i]),
                                     ]):
                             continue
@@ -595,39 +574,35 @@ class Model(object):
                                 obj2 = self.pool.get(
                                         obj._columns[field2].model_name)
                                 if not hasattr(obj2, 'search') \
-                                        or not obj2.search(cursor, user, [
+                                        or not obj2.search([
                                             ('id', '=', field_value[i][field2]),
                                             ]):
                                     continue
                                 if with_rec_name and \
                                         'rec_name' in obj2._columns:
                                     field_value[i][field2 + '.rec_name'] = \
-                                            obj2.browse(cursor, user,
+                                            obj2.browse(
                                                     field_value[i][field2],
-                                                    context=context).rec_name
+                                                    ).rec_name
                             # TODO add test for many2many and one2many
                             field_value2[i][field2] = field_value[i][field2]
                     field_value = field_value2
                 value[field] = field_value
-        value = self._default_on_change(cursor, user, value, context=context)
+        value = self._default_on_change(value)
         return value
 
-    def _default_on_change(self, cursor, user, value, context=None):
+    def _default_on_change(self, value):
         """
         Call on_change function for the default value
         and return new default value
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param value: a dictionnary with the default value
-        :param context: the context
         :return: a new dictionnary of default value
         """
         res = value.copy()
         val = {}
         for i in self._inherits.keys():
-            val.update(self.pool.get(i)._default_on_change(cursor, user,
-                value, context=context))
+            val.update(self.pool.get(i)._default_on_change(value))
         for field in value.keys():
             if field in self._columns:
                 if self._columns[field].on_change:
@@ -638,45 +613,38 @@ class Model(object):
                                 and self._columns[arg]._type == 'many2one':
                             if isinstance(args[arg], (list, tuple)):
                                 args[arg] = args[arg][0]
-                    val.update(getattr(self, 'on_change_' + field)(cursor,
-                        user, args, context=context))
+                    val.update(getattr(self, 'on_change_' + field)(args))
                 if self._columns[field]._type in ('one2many',):
                     obj = self.pool.get(self._columns[field].model_name)
                     for val2 in res[field]:
-                        val2.update(obj._default_on_change(cursor, user,
-                            val2, context=context))
+                        val2.update(obj._default_on_change(val2))
         res.update(val)
         return res
 
-    def fields_get(self, cursor, user, fields_names=None, context=None):
+    def fields_get(self, fields_names=None):
         """
         Return the definition of each field on the model.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param fields_names: a list of field names or None for all fields
-        :param context: the context
         :return: a dictionary with field name as key and definition as value
         """
-        if context is None:
-            context = {}
         res = {}
         translation_obj = self.pool.get('ir.translation')
         model_access_obj = self.pool.get('ir.model.access')
         for parent in self._inherits:
-            res.update(self.pool.get(parent).fields_get(cursor, user,
-                fields_names, context))
-        write_access = model_access_obj.check(cursor, user, self._name, 'write',
-                raise_exception=False, context=context)
+            res.update(self.pool.get(parent).fields_get(fields_names))
+        write_access = model_access_obj.check(self._name, 'write',
+                raise_exception=False)
 
         #Add translation to cache
+        language = Transaction().context.get('language') or 'en_US'
         trans_args = []
         for field in (x for x in self._columns.keys()
                 if ((not fields_names) or x in fields_names)):
-            trans_args.append((self._name + ',' + field, 'field',
-                context.get('language') or 'en_US', None))
-            trans_args.append((self._name + ',' + field, 'help',
-                context.get('language') or 'en_US', None))
+            trans_args.append((self._name + ',' + field, 'field', language,
+                None))
+            trans_args.append((self._name + ',' + field, 'help', language,
+                None))
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)) \
                         and ((hasattr(self._columns[field],
@@ -687,9 +655,8 @@ class Model(object):
                     sel = self._columns[field].selection
                     for (key, val) in sel:
                         trans_args.append((self._name + ',' + field,
-                            'selection', context.get('language') or 'en_US',
-                            val))
-        translation_obj._get_sources(cursor, trans_args)
+                            'selection', language, val))
+        translation_obj._get_sources(trans_args)
 
         encoder = PYSONEncoder()
 
@@ -730,23 +697,23 @@ class Model(object):
                     and not self._columns[field].order_field:
                 res[field]['sortable'] = False
 
-            if context.get('language'):
+            if Transaction().context.get('language'):
                 # translate the field label
-                res_trans = translation_obj._get_source(cursor,
+                res_trans = translation_obj._get_source(
                         self._name + ',' + field, 'field',
-                        context['language'])
+                        Transaction().context['language'])
                 if res_trans:
                     res[field]['string'] = res_trans
-                help_trans = translation_obj._get_source(cursor,
+                help_trans = translation_obj._get_source(
                         self._name + ',' + field, 'help',
-                        context['language'])
+                        Transaction().context['language'])
                 if help_trans:
                     res[field]['help'] = help_trans
 
             if hasattr(self._columns[field], 'selection'):
                 if isinstance(self._columns[field].selection, (tuple, list)):
                     sel = copy.copy(self._columns[field].selection)
-                    if context.get('language') and \
+                    if Transaction().context.get('language') and \
                             ((hasattr(self._columns[field],
                                 'translate_selection') \
                                 and self._columns[field].translate_selection) \
@@ -755,9 +722,9 @@ class Model(object):
                         # translate each selection option
                         sel2 = []
                         for (key, val) in sel:
-                            val2 = translation_obj._get_source(cursor,
+                            val2 = translation_obj._get_source(
                                     self._name + ',' + field, 'selection',
-                                    context.get('language') or 'en_US', val)
+                                    language, val)
                             sel2.append((key, val2 or val))
                         sel = sel2
                     res[field]['selection'] = sel

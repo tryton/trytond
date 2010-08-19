@@ -227,16 +227,14 @@ context.  Now the invoice report will be able to access the employee object.
 
   class InvoiceReport(Report):
       _name = 'account.invoice'
-      def parse(self, cursor, user_id, report, objects, datas, context):
+      def parse(self, report, objects, datas, localcontext):
           employee_obj = self.pool.get('company.employee')
           employee = False
-          if context.get('employee', False):
-              employee = employee_obj.browse(cursor, user_id,
-                                             context['employee'],
-                                             context=context)
-          context['employee'] = employee
-          return super(InvoiceReport, self).parse(cursor, user_id, report,
-                                                  objects, datas, context)
+          if Transaction().context.get('employee'):
+              employee = employee_obj.browse(Transaction().context['employee'])
+          localcontext['employee'] = employee
+          return super(InvoiceReport, self).parse(report, objects, datas,
+                   localcontext)
   InvoiceReport()
 
 

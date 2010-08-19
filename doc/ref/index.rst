@@ -9,3 +9,4 @@ API Reference
 
     models/index
     pyson
+    tools/singleton

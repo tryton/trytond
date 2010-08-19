@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from __future__ import with_statement
 from trytond.pool import Pool
 from trytond import security
 from trytond.tools import Cache
@@ -8,6 +9,7 @@ from trytond.backend import Database
 from trytond.config import CONFIG
 from trytond.version import VERSION
 from trytond.monitor import monitor
+from trytond.transaction import Transaction
 import traceback
 import logging
 import time
@@ -109,9 +111,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
 
     user = security.check(database_name, user, session)
 
-    database = Database(database_name).connect()
-    cursor = database.cursor()
-    try:
+    with Transaction().start(database_name, user) as transaction:
         try:
             Cache.clean(database_name)
             database_list = Pool.database_list()
@@ -124,9 +124,18 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                         '%s %s is not allowed!' % \
                         (method, object_type, object_name))
 
-            res = getattr(obj, method)(cursor, user, *args, **kargs)
+            if 'context' in kargs:
+                context = kargs.pop('context')
+            else:
+                args = list(args)
+                context = args.pop()
+            if '_timestamp' in context:
+                transaction.timestamp = context['_timestamp']
+                del context['_timestamp']
+            transaction.context = context
+            res = getattr(obj, method)(*args, **kargs)
             if obj._rpc[method]:
-                cursor.commit()
+                transaction.cursor.commit()
         except Exception, exception:
             if CONFIG['verbose'] or (exception.args \
                     and str(exception.args[0]) not in \
@@ -139,13 +148,11 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                         '%s %s from %s@%s:%d/%s:\n' % \
                         (method, object_type, object_name, user, host, port,
                             database_name) + tb_s.decode('utf-8', 'ignore'))
-            cursor.rollback()
+            transaction.cursor.rollback()
             raise
-    finally:
-        if not (object_name == 'res.request' and method == 'request_get'):
-            user.reset_timestamp()
-        cursor.close()
-        Cache.resets(database_name)
+    if not (object_name == 'res.request' and method == 'request_get'):
+        user.reset_timestamp()
+    Cache.resets(database_name)
     return res
 
 def create(database_name, password, lang, admin_password):
@@ -162,28 +169,25 @@ def create(database_name, password, lang, admin_password):
     res = False
     logger = logging.getLogger('database')
 
-    database = Database().connect()
-    cursor = database.cursor(autocommit=True)
     try:
+        database = Database().connect()
+        cursor = database.cursor(autocommit=True)
         try:
             database.create(cursor, database_name)
             cursor.commit()
             cursor.close(close=True)
-
-            database = Database(database_name).connect()
-            cursor = database.cursor()
-            database.init(cursor)
-            cursor.commit()
+        except Exception:
             cursor.close()
+            raise
 
-            cursor = None
-            database = None
+        with Transaction().start(database_name, 0) as transaction:
+            database.init(transaction.cursor)
+            transaction.cursor.commit()
 
-            pool = Pool(database_name)
-            pool.init(update=True, lang=[lang])
-            database = Database(database_name).connect()
-            cursor = database.cursor()
-
+        pool = Pool(database_name)
+        pool.init(update=True, lang=[lang])
+        with Transaction().start(database_name, 0) as transaction:
+            cursor = transaction.cursor
             #XXX replace with model write
             if lang != 'en_US':
                 cursor.execute('UPDATE ir_lang ' \
@@ -203,20 +207,17 @@ def create(database_name, password, lang, admin_password):
                     'WHERE login = \'admin\'', (admin_password,))
             module_obj = pool.get('ir.module.module')
             if module_obj:
-                module_obj.update_list(cursor, 0)
+                module_obj.update_list()
             cursor.commit()
             res = True
-        except Exception:
-            logger.error('CREATE DB: %s failed' % (database_name,))
-            tb_s = reduce(lambda x, y: x+y,
-                    traceback.format_exception(*sys.exc_info()))
-            logger.error('Exception in call: \n' + tb_s)
-            raise
-        else:
-            logger.info('CREATE DB: %s' % (database_name,))
-    finally:
-        if cursor:
-            cursor.close()
+    except Exception:
+        logger.error('CREATE DB: %s failed' % (database_name,))
+        tb_s = reduce(lambda x, y: x+y,
+                traceback.format_exception(*sys.exc_info()))
+        logger.error('Exception in call: \n' + tb_s)
+        raise
+    else:
+        logger.info('CREATE DB: %s' % (database_name,))
     return res
 
 def drop(database_name, password):

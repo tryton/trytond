@@ -1,13 +1,13 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"model"
+import datetime
+import base64
+import re
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import Cache
 from trytond.report import Report
 from trytond.wizard import Wizard
-import datetime
-import base64
-import re
+from trytond.transaction import Transaction
 IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 
 
@@ -37,11 +37,11 @@ class Model(ModelSQL, ModelView):
         })
         self._order.insert(0, ('model', 'ASC'))
 
-    def check_module(self, cursor, user, ids):
+    def check_module(self, ids):
         '''
         Check module
         '''
-        for model in self.browse(cursor, user, ids):
+        for model in self.browse(ids):
             if model.module and not IDENTIFIER.match(model.module):
                 return False
         return True
@@ -79,28 +79,26 @@ class ModelField(ModelSQL, ModelView):
         })
         self._order.insert(0, ('name', 'ASC'))
 
-    def default_name(self, cursor, user, context=None):
+    def default_name(self):
         return 'No Name'
 
-    def default_field_description(self, cursor, user, context=None):
+    def default_field_description(self):
         return 'No description available'
 
-    def check_name(self, cursor, user, ids):
+    def check_name(self, ids):
         '''
         Check name
         '''
-        for field in self.browse(cursor, user, ids):
+        for field in self.browse(ids):
             if not IDENTIFIER.match(field.name):
                 return False
         return True
 
-    def read(self, cursor, user, ids, fields_names=None, context=None):
+    def read(self, ids, fields_names=None):
         translation_obj = self.pool.get('ir.translation')
 
-        if context is None:
-            context = {}
         to_delete = []
-        if context.get('language'):
+        if Transaction().context.get('language'):
             if fields_names is None:
                 fields_names = self._columns.keys()
 
@@ -113,12 +111,11 @@ class ModelField(ModelSQL, ModelView):
                     fields_names.append('name')
                     to_delete.append('name')
 
-        res = super(ModelField, self).read(cursor, user, ids,
-                fields_names=fields_names, context=context)
+        res = super(ModelField, self).read(ids, fields_names=fields_names)
 
-        if context.get('language') \
-                and ('field_description' in fields_names \
-                or 'help' in fields_names):
+        if (Transaction().context.get('language')
+                and ('field_description' in fields_names
+                    or 'help' in fields_names)):
             model_ids = set()
             for rec in res:
                 if isinstance(rec['model'], (list, tuple)):
@@ -126,6 +123,7 @@ class ModelField(ModelSQL, ModelView):
                 else:
                     model_ids.add(rec['model'])
             model_ids = list(model_ids)
+            cursor = Transaction().cursor
             cursor.execute('SELECT id, model FROM ir_model WHERE id IN ' \
                     '(' + ','.join(('%s',) * len(model_ids)) + ')', model_ids)
             id2model = dict(cursor.fetchall())
@@ -137,28 +135,27 @@ class ModelField(ModelSQL, ModelView):
                 else:
                     model_id = rec['model']
                 if 'field_description' in fields_names:
-                    trans_args.append(
-                            (id2model[model_id] + ',' + rec['name'],
-                                'field', context['language'], None))
+                    trans_args.append((id2model[model_id] + ',' + rec['name'],
+                        'field', Transaction().language, None))
                 if 'help' in fields_names:
                     trans_args.append((id2model[model_id] + ',' + rec['name'],
-                            'help', context['language'], None))
-            translation_obj._get_sources(cursor, trans_args)
+                            'help', Transaction().language, None))
+            translation_obj._get_sources(trans_args)
             for rec in res:
                 if isinstance(rec['model'], (list, tuple)):
                     model_id = rec['model'][0]
                 else:
                     model_id = rec['model']
                 if 'field_description' in fields_names:
-                    res_trans = translation_obj._get_source(cursor,
+                    res_trans = translation_obj._get_source(
                             id2model[model_id] + ',' + rec['name'],
-                                'field', context['language'])
+                            'field', Transaction().language)
                     if res_trans:
                         rec['field_description'] = res_trans
                 if 'help' in fields_names:
-                    res_trans = translation_obj._get_source(cursor,
+                    res_trans = translation_obj._get_source(
                             id2model[model_id] + ',' + rec['name'],
-                            'help', context['language'])
+                            'help', Transaction().language)
                     if res_trans:
                         rec['help'] = res_trans
 
@@ -199,41 +196,42 @@ class ModelAccess(ModelSQL, ModelView):
             'delete': 'You can not delete this document! (%s)',
             })
 
-    def check_xml_record(self, cursor, user, ids, values, context=None):
+    def check_xml_record(self, ids, values):
         return True
 
-    def default_perm_read(self, cursor, user, context=None):
+    def default_perm_read(self):
         return False
 
-    def default_perm_write(self, cursor, user, context=None):
+    def default_perm_write(self):
         return False
 
-    def default_perm_create(self, cursor, user, context=None):
+    def default_perm_create(self):
         return False
 
-    def default_perm_delete(self, cursor, user, context=None):
+    def default_perm_delete(self):
         return False
 
     @Cache('ir_model_access.check')
-    def check(self, cursor, user, model_name, mode='read',
-            raise_exception=True, context=None):
+    def check(self, model_name, mode='read', raise_exception=True):
         assert mode in ['read', 'write', 'create', 'delete'], \
                 'Invalid access mode for security'
         model_obj = self.pool.get(model_name)
         if hasattr(model_obj, 'table_query') \
-                and model_obj.table_query(context):
+                and model_obj.table_query():
             return False
-        if user == 0:
+        if Transaction().user == 0:
             return True
         ir_model_obj = self.pool.get('ir.model')
         user_group_obj = self.pool.get('res.user-res.group')
+        cursor = Transaction().cursor
         cursor.execute('SELECT MAX(CASE WHEN a.perm_'+mode+' THEN 1 else 0 END) '
             'FROM ir_model_access a '
                 'JOIN "' + ir_model_obj._table + '" m '
                     'ON (a.model = m.id) '
                 'JOIN "' + user_group_obj._table + '" gu '
                     'ON (gu.gid = a."group") '
-            'WHERE m.model = %s AND gu.uid = %s', (model_name, user,))
+            'WHERE m.model = %s AND gu.uid = %s',
+            (model_name, Transaction().user,))
         row = cursor.fetchall()
         if row[0][0] is None:
             cursor.execute('SELECT ' \
@@ -248,45 +246,40 @@ class ModelAccess(ModelSQL, ModelView):
 
         if not row[0][0]:
             if raise_exception:
-                self.raise_user_error(cursor, mode, model_name,
-                        context=context)
+                self.raise_user_error(mode, model_name)
             else:
                 return False
         return True
 
-    # Methods to clean the cache on the Check Method.
-    def write(self, cursor, user, ids, vals, context=None):
-        res = super(ModelAccess, self).write(cursor, user, ids, vals,
-                context=context)
-        self.check(cursor.dbname)
+    def write(self, ids, vals):
+        res = super(ModelAccess, self).write(ids, vals)
         # Restart the cache
+        self.check.reset()
         for _, model in self.pool.iterobject():
             try:
-                model.fields_view_get(cursor.dbname)
+                model.fields_view_get.reset()
             except Exception:
                 pass
         return res
 
-    def create(self, cursor, user, vals, context=None):
-        res = super(ModelAccess, self).create(cursor, user, vals,
-                context=context)
-        self.check(cursor.dbname)
+    def create(self, vals):
+        res = super(ModelAccess, self).create(vals)
         # Restart the cache
+        self.check.reset()
         for _, model in self.pool.iterobject():
             try:
-                model.fields_view_get(cursor.dbname)
+                model.fields_view_get.reset()
             except Exception:
                 pass
         return res
 
-    def delete(self, cursor, user, ids, context=None):
-        res = super(ModelAccess, self).delete(cursor, user, ids,
-                context=context)
-        self.check(cursor.dbname)
+    def delete(self, ids):
+        res = super(ModelAccess, self).delete(ids)
         # Restart the cache
+        self.check.reset()
         for _, model in self.pool.iterobject():
             try:
-                model.fields_view_get(cursor.dbname)
+                model.fields_view_get.reset()
             except Exception:
                 pass
         return res
@@ -318,37 +311,33 @@ class ModelData(ModelSQL, ModelView):
                 'The triple (fs_id, module, model) must be unique!'),
         ]
 
-    def default_date_init(self, cursor, user, context=None):
+    def default_date_init(self):
         return datetime.datetime.now()
 
-    def default_inherit(self, cursor, user, context=None):
+    def default_inherit(self):
         return False
 
-    def default_noupdate(self, cursor, user, context=None):
+    def default_noupdate(self):
         return False
 
-    def get_id(self, cursor, user, module, fs_id, context=None):
+    def get_id(self, module, fs_id):
         """
         Return for an fs_id the corresponding db_id.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param module: the module name
         :param fs_id: the id in the xml file
-        :param context: the context
 
         :return: the database id
         """
-        ids = self.search(cursor, user, [
+        ids = self.search([
             ('module', '=', module),
             ('fs_id', '=', fs_id),
             ('inherit', '=', False),
-            ], limit=1, context=context)
+            ], limit=1)
         if not ids:
             raise Exception("Reference to %s not found" % \
                                 ".".join([module,fs_id]))
-        return self.read(cursor, user, ids[0], ['db_id'],
-                context=context)['db_id']
+        return self.read(ids[0], ['db_id'])['db_id']
 
 ModelData()
 
@@ -361,7 +350,7 @@ class PrintModelGraphInit(ModelView):
     filter = fields.Text('Filter', help="Entering a Python "
             "Regular Expression will exclude matching models from the graph.")
 
-    def default_level(self, cursor, user, context=None):
+    def default_level(self):
         return 1
 
 PrintModelGraphInit()
@@ -395,49 +384,41 @@ PrintModelGraph()
 class ModelGraph(Report):
     _name = 'ir.model.graph'
 
-    def execute(self, cursor, user, ids, datas, context=None):
+    def execute(self, ids, datas):
         import pydot
         model_obj = self.pool.get('ir.model')
         action_report_obj = self.pool.get('ir.action.report')
-
-        if context is None:
-            context = {}
 
         if not datas['form']['filter']:
             filter = None
         else:
             filter = re.compile(datas['form']['filter'], re.VERBOSE)
-        action_report_ids = action_report_obj.search(cursor, user, [
+        action_report_ids = action_report_obj.search([
             ('report_name', '=', self._name)
-            ], context=context)
+            ])
         if not action_report_ids:
             raise Exception('Error', 'Report (%s) not find!' % self._name)
-        action_report = action_report_obj.browse(cursor, user,
-                action_report_ids[0], context=context)
+        action_report = action_report_obj.browse(action_report_ids[0])
 
-        models = model_obj.browse(cursor, user, ids, context=context)
+        models = model_obj.browse(ids)
 
         graph = pydot.Dot(fontsize="8")
         graph.set('center', '1')
         graph.set('ratio', 'auto')
-        self.fill_graph(cursor, user, models, graph,
-                level=datas['form']['level'], filter=filter, context=context)
+        self.fill_graph(models, graph, level=datas['form']['level'],
+                filter=filter)
         data = graph.create(prog='dot', format='png')
         return ('png', base64.encodestring(data), False, action_report.name)
 
-    def fill_graph(self, cursor, user, models, graph, level=1, filter=None,
-                context=None):
+    def fill_graph(self, models, graph, level=1, filter=None):
         '''
         Fills a pydot graph with a models structure.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param models: a BrowseRecordList of ir.model
         :param graph: a pydot.Graph
         :param level: the depth to dive into model reationships
         :param filter: a compiled regular expression object to filter specific
             models
-        :param context: the context
         '''
         import pydot
         model_obj = self.pool.get('ir.model')
@@ -451,14 +432,13 @@ class ModelGraph(Report):
                     if field.relation and not graph.get_node(field.relation):
                         sub_models.add(field.relation)
             if sub_models:
-                model_ids = model_obj.search(cursor, user, [
+                model_ids = model_obj.search([
                     ('model', 'in', list(sub_models)),
-                    ], context=context)
-                sub_models = model_obj.browse(cursor, user, model_ids,
-                        context=context)
+                    ])
+                sub_models = model_obj.browse(model_ids)
                 if set(sub_models) != set(models):
-                    self.fill_graph(cursor, user, sub_models, graph,
-                            level=level - 1, filter=filter, context=context)
+                    self.fill_graph(sub_models, graph, level=level - 1,
+                            filter=filter)
 
         for model in models:
             if filter and re.search(filter, model.model):

@@ -11,7 +11,7 @@ class Triggered(ModelSQL):
 
     name = fields.Char('Name')
 
-    def trigger(self, cursor, user, ids, trigger_id, context=None):
+    def trigger(self, ids, trigger_id):
         '''
         Trigger function for test
         '''

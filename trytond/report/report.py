@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.pool import Pool
 import copy
 import xml
 from xml import dom
@@ -16,7 +15,10 @@ import time
 import os
 import datetime
 from base64 import decodestring
-
+import traceback
+import inspect
+import logging
+import tempfile
 import warnings
 warnings.simplefilter("ignore")
 import relatorio.reporting
@@ -25,14 +27,11 @@ try:
     from relatorio.templates.opendocument import Manifest, MANIFEST
 except ImportError:
     Manifest = None
-
-import tempfile
 from genshi.filters import Translator
-import traceback
 from trytond.config import CONFIG
 from trytond.backend import DatabaseIntegrityError
-import inspect
-import logging
+from trytond.pool import Pool
+from trytond.transaction import Transaction
 
 PARENTS = {
     'table-row': 1,
@@ -53,9 +52,7 @@ class ReportFactory:
 
 class TranslateFactory:
 
-    def __init__(self, cursor, user, report_name, language, translation):
-        self.cursor = cursor
-        self.user = user
+    def __init__(self, report_name, language, translation):
         self.report_name = report_name
         self.language = language
         self.translation = translation
@@ -64,7 +61,7 @@ class TranslateFactory:
     def __call__(self, text):
         if self.language not in self.cache:
             self.cache[self.language] = {}
-            translation_ids = self.translation.search(self.cursor, self.user, [
+            translation_ids = self.translation.search([
                 ('lang', '=', self.language),
                 ('type', '=', 'odt'),
                 ('name', '=', self.report_name),
@@ -73,8 +70,7 @@ class TranslateFactory:
                 ('fuzzy', '=', False),
                 ('res_id', '=', 0),
                 ])
-            for translation in self.translation.browse(self.cursor, self.user,
-                    translation_ids):
+            for translation in self.translation.browse(translation_ids):
                 self.cache[self.language][translation.src] = translation.value
         return self.cache[self.language].get(text, text)
 
@@ -93,63 +89,65 @@ class Report(object):
             'execute': False,
         }
 
-    def init(self, cursor, module_name):
+    def init(self, module_name):
         pass
 
-    def execute(self, cursor, user, ids, datas, context=None):
+    def execute(self, ids, datas):
         '''
         Execute the report.
 
-        :param cursor: the database cursor
-        :param user: the user id
         :param ids: a list of record ids on which execute report
         :param datas: a dictionary with datas that will be set in
             local context of the report
-        :param context: the context
         :return: a tuple with:
             report type,
             base64 encoded data,
             a boolean to direct print,
             the report name
         '''
-        if context is None:
-            context = {}
         action_report_obj = self.pool.get('ir.action.report')
-        action_report_ids = action_report_obj.search(cursor, user, [
+        action_report_ids = action_report_obj.search([
             ('report_name', '=', self._name)
-            ], context=context)
+            ])
         if not action_report_ids:
             raise Exception('Error', 'Report (%s) not find!' % self._name)
-        action_report = action_report_obj.browse(cursor, user,
-                action_report_ids[0], context=context)
+        action_report = action_report_obj.browse(action_report_ids[0])
         objects = None
         if action_report.model:
-            objects = self._get_objects(cursor, user, ids, action_report.model,
-                    datas, context)
-        type, data = self.parse(cursor, user, action_report,
-                objects, datas, context)
+            objects = self._get_objects(ids, action_report.model, datas)
+        type, data = self.parse(action_report, objects, datas, {})
         return (type, base64.encodestring(data), action_report.direct_print,
                 action_report.name)
 
-    def _get_objects(self, cursor, user, ids, model, datas, context):
+    def _get_objects(self, ids, model, datas):
         model_obj = self.pool.get(model)
-        return model_obj.browse(cursor, user, ids, context=context)
+        return model_obj.browse(ids)
 
-    def parse(self, cursor, user, report, objects, datas, context):
-        localcontext = {}
+    def parse(self, report, objects, datas, localcontext):
+        '''
+        Parse the report.
+
+        :param report: a BrowseRecord of the ir.action.report
+        :param objects: a BrowseRecordList of the records on which parse report
+        :param datas: a dictionary with datas that will be set in local context
+            of the report
+        :param localcontext: the context used to parse the report
+        :return: a tuple with:
+            report type
+            report
+        '''
         localcontext['datas'] = datas
-        localcontext['user'] = self.pool.get('res.user').\
-                browse(cursor, user, user, context=context)
+        localcontext['user'] = self.pool.get('res.user'
+                ).browse(Transaction().user)
         localcontext['formatLang'] = lambda *args, **kargs: \
-                self.format_lang(*((cursor, user) + args), **kargs)
+                self.format_lang(*args, **kargs)
         localcontext['decodestring'] = decodestring
         localcontext['StringIO'] = StringIO.StringIO
         localcontext['time'] = time
         localcontext['datetime'] = datetime
-        localcontext.update(context)
+        localcontext['context'] = Transaction().context
 
-        translate = TranslateFactory(cursor, user, self._name,
-                context.get('language', 'en_US'),
+        translate = TranslateFactory(self._name, Transaction().language,
                 self.pool.get('ir.translation'))
         localcontext['setLang'] = lambda language: translate.set_language(language)
 
@@ -304,8 +302,8 @@ class Report(object):
                 return res
         return None
 
-    def format_lang(self, cursor, user, value, lang, digits=2, grouping=True,
-            monetary=False, date=False, currency=None, symbol=True):
+    def format_lang(self, value, lang, digits=2, grouping=True, monetary=False,
+            date=False, currency=None, symbol=True):
         lang_obj = self.pool.get('ir.lang')
 
         if date:
@@ -313,8 +311,8 @@ class Report(object):
                 locale_format = lang.date
                 code = lang.code
             else:
-                locale_format = lang_obj.default_date(cursor, user)
-                code = lang_obj.default_code(cursor, user)
+                locale_format = lang_obj.default_date()
+                code = lang_obj.default_code()
             if not isinstance(value, time.struct_time):
                 # assume string, parse it
                 if len(str(value)) == 10:

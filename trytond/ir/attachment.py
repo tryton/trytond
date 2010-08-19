@@ -1,9 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"Attachment"
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.config import CONFIG
-from trytond.backend import TableHandler
+from __future__ import with_statement
 import os
 try:
     import hashlib
@@ -11,6 +8,11 @@ except ImportError:
     hashlib = None
     import md5
 import base64
+from trytond.model import ModelView, ModelSQL, fields
+from trytond.config import CONFIG
+from trytond.backend import TableHandler
+from trytond.transaction import Transaction
+
 
 class Attachment(ModelSQL, ModelView):
     "Attachment"
@@ -34,9 +36,10 @@ class Attachment(ModelSQL, ModelView):
                 'The  names of attachments must be unique by resource!'),
         ]
 
-    def init(self, cursor, module_name):
-        super(Attachment, self).init(cursor, module_name)
+    def init(self, module_name):
+        super(Attachment, self).init(module_name)
 
+        cursor = Transaction().cursor
         table = TableHandler(cursor, self, module_name)
 
         # Migration from 1.4 res_model and res_id merged into resource
@@ -49,27 +52,26 @@ class Attachment(ModelSQL, ModelView):
             table.drop_column('res_model')
             table.drop_column('res_id')
 
-    def default_resource(self, cursor, user, context=None):
+    def default_resource(self):
         if context is None:
             context = {}
         return context.get('resource')
 
-    def default_collision(self, cursor, user, context=None):
+    def default_collision(self):
         return 0
 
-    def models_get(self, cursor, user, context=None):
+    def models_get(self):
         model_obj = self.pool.get('ir.model')
-        model_ids = model_obj.search(cursor, user, [], context=context)
+        model_ids = model_obj.search([])
         res = []
-        for model in model_obj.browse(cursor, user, model_ids,
-                context=context):
+        for model in model_obj.browse(model_ids):
             res.append([model.model, model.name])
         return res
 
-    def get_datas(self, cursor, user, ids, name, context=None):
+    def get_datas(self, ids, name):
         res = {}
-        db_name = cursor.dbname
-        for attachment in self.browse(cursor, user, ids, context=context):
+        db_name = Transaction().cursor.dbname
+        for attachment in self.browse(ids):
             value = False
             if name == 'datas_size':
                 value = 0
@@ -95,9 +97,10 @@ class Attachment(ModelSQL, ModelView):
             res[attachment.id] = value
         return res
 
-    def set_datas(self, cursor, user, ids, name, value, context=None):
+    def set_datas(self, ids, name, value):
         if value is False or value is None:
             return
+        cursor = Transaction().cursor
         db_name = cursor.dbname
         directory = os.path.join(CONFIG['data_path'], db_name)
         if not os.path.isdir(directory):
@@ -144,48 +147,44 @@ class Attachment(ModelSQL, ModelView):
             file_p = open(filename, 'wb')
             file_p.write(data)
             file_p.close()
-        self.write(cursor, user, ids, {
+        self.write(ids, {
             'digest': digest,
             'collision': collision,
-            }, context=context)
+            })
 
-    def check_access(self, cursor, user, ids, mode='read', context=None):
+    def check_access(self, ids, mode='read'):
         model_access_obj = self.pool.get('ir.model.access')
-        if user == 0:
+        if Transaction().user == 0:
             return
         if not ids:
             return
         if isinstance(ids, (int, long)):
             ids = [ids]
         model_names = set()
-        for attachment in self.browse(cursor, 0, ids, context=context):
-            if attachment.resource:
-                model_names.add(attachment.resource.split(',')[0])
+        with Transaction().set_user(0):
+            for attachment in self.browse(ids):
+                if attachment.resource:
+                    model_names.add(attachment.resource.split(',')[0])
         for model_name in model_names:
-            model_access_obj.check(cursor, user, model_name, mode=mode,
-                    context=context)
+            model_access_obj.check(model_name, mode=mode)
 
-    def read(self, cursor, user, ids, fields_names=None, context=None):
-        self.check_access(cursor, user, ids, mode='read', context=context)
-        return super(Attachment, self).read(cursor, user, ids,
-                fields_names=fields_names, context=context)
+    def read(self, ids, fields_names=None):
+        self.check_access(ids, mode='read')
+        return super(Attachment, self).read(ids, fields_names=fields_names)
 
-    def delete(self, cursor, user, ids, context=None):
-        self.check_access(cursor, user, ids, mode='delete', context=context)
-        return super(Attachment, self).delete(cursor, user, ids,
-                context=context)
+    def delete(self, ids):
+        self.check_access(ids, mode='delete')
+        return super(Attachment, self).delete(ids)
 
-    def write(self, cursor, user, ids, vals, context=None):
-        self.check_access(cursor, user, ids, mode='write', context=context)
-        res = super(Attachment, self).write(cursor, user, ids, vals,
-                context=context)
-        self.check_access(cursor, user, ids, mode='write', context=context)
+    def write(self, ids, vals):
+        self.check_access(ids, mode='write')
+        res = super(Attachment, self).write(ids, vals)
+        self.check_access(ids, mode='write')
         return res
 
-    def create(self, cursor, user, vals, context=None):
-        res = super(Attachment, self).create(cursor, user, vals,
-                context=context)
-        self.check_access(cursor, user, res, mode='create', context=context)
+    def create(self, vals):
+        res = super(Attachment, self).create(vals)
+        self.check_access(res, mode='create')
         return res
 
 Attachment()

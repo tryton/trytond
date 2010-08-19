@@ -33,6 +33,7 @@ from trytond.modules import register_classes
 from trytond.pool import Pool
 from trytond.backend import Database
 from trytond.protocols.dispatcher import create
+from trytond.transaction import Transaction
 
 register_classes()
 
@@ -93,57 +94,54 @@ def install_module(name):
     cursor.close()
     if DB_NAME not in databases:
         create(DB_NAME, CONFIG['admin_passwd'], 'en_US', USER_PASSWORD)
-    cursor = DB.cursor()
-    module_obj = POOL.get('ir.module.module')
-    module_ids = module_obj.search(cursor, USER, [
-        ('name', '=', name),
-        ('state', '!=', 'installed'),
-        ])
+    with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        module_obj = POOL.get('ir.module.module')
+        module_ids = module_obj.search([
+            ('name', '=', name),
+            ('state', '!=', 'installed'),
+            ])
 
-    if not module_ids:
-        cursor.close()
-        return
+        if not module_ids:
+            return
 
-    module_obj.button_install(cursor, USER, module_ids, CONTEXT)
-    cursor.commit()
+        module_obj.button_install(module_ids)
+        transaction.cursor.commit()
 
-    install_upgrade_obj = POOL.get('ir.module.module.install_upgrade',
-            type='wizard')
-    wiz_id = install_upgrade_obj.create(cursor, USER)
-    cursor.commit()
-    install_upgrade_obj.execute(cursor, USER, wiz_id, {}, 'start', CONTEXT)
-    cursor.commit()
-    install_upgrade_obj.delete(cursor, USER, wiz_id)
-    cursor.commit()
-    cursor.close()
+        install_upgrade_obj = POOL.get('ir.module.module.install_upgrade',
+                type='wizard')
+        wiz_id = install_upgrade_obj.create()
+        transaction.cursor.commit()
+        install_upgrade_obj.execute(wiz_id, {}, 'start')
+        transaction.cursor.commit()
+        install_upgrade_obj.delete(wiz_id)
+        transaction.cursor.commit()
 
 def test_view(module_name):
     '''
     Test validity of all views of the module
     '''
-    cursor = DB.cursor()
-    view_obj = POOL.get('ir.ui.view')
-    view_ids = view_obj.search(cursor, USER, [
-        ('module', '=', module_name),
-        ])
+    with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        view_obj = POOL.get('ir.ui.view')
+        view_ids = view_obj.search([
+            ('module', '=', module_name),
+            ])
 
-    for view in view_obj.browse(cursor, USER, view_ids, context=CONTEXT):
-        view_id = view.inherit and view.inherit.id or view.id
-        model = view.model
-        model_obj = POOL.get(model)
-        res = model_obj.fields_view_get(cursor, USER, view_id, context=CONTEXT)
-        assert res['model'] == model
-        tree = etree.fromstring(res['arch'])
-        tree_root = tree.getroottree().getroot()
+        for view in view_obj.browse(view_ids):
+            view_id = view.inherit and view.inherit.id or view.id
+            model = view.model
+            model_obj = POOL.get(model)
+            res = model_obj.fields_view_get(view_id)
+            assert res['model'] == model
+            tree = etree.fromstring(res['arch'])
+            tree_root = tree.getroottree().getroot()
 
-        for element in tree_root.iter():
-            if element.tag in ('field', 'label', 'separator', 'group'):
-                for attr in ('name', 'icon'):
-                    field = element.get(attr)
-                    if field:
-                        assert field in res['fields']
-    cursor.rollback()
-    cursor.close()
+            for element in tree_root.iter():
+                if element.tag in ('field', 'label', 'separator', 'group'):
+                    for attr in ('name', 'icon'):
+                        field = element.get(attr)
+                        if field:
+                            assert field in res['fields']
+        transaction.cursor.rollback()
 
 def suite():
     '''

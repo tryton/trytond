@@ -27,7 +27,7 @@ class MPTT(ModelSQL, ModelView):
             'recursive_mptt': 'You can not create recursive Tree!',
         })
 
-    def default_active(self, cursor, user, context=None):
+    def default_active(self):
         return True
 
 MPTT()

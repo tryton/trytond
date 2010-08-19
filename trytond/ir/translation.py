@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"Translation"
+from __future__ import with_statement
+import contextlib
 import base64
 try:
     import cStringIO as StringIO
@@ -11,6 +12,7 @@ from xml import dom
 from xml.dom import minidom
 from difflib import SequenceMatcher
 import csv
+import os
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.wizard import Wizard
@@ -18,7 +20,7 @@ from trytond import tools
 from trytond.tools import file_open, reduce_ids
 from trytond.backend import TableHandler
 from trytond.pyson import PYSONEncoder
-import os
+from trytond.transaction import Transaction
 
 TRANSLATION_TYPE = [
     ('field', 'Field'),
@@ -65,36 +67,37 @@ class Translation(ModelSQL, ModelView, Cacheable):
         ]
         self._max_len = 10240
 
-    def init(self, cursor, module_name):
-        super(Translation, self).init(cursor, module_name)
+    def init(self, module_name):
+        super(Translation, self).init(module_name)
 
-        table = TableHandler(cursor, self, module_name)
+        table = TableHandler(Transaction().cursor, self, module_name)
         table.index_action(['lang', 'type', 'name'], 'add')
         table.index_action(['lang', 'type', 'name', 'src'], 'add')
 
-    def default_fuzzy(self, cursor, user, context=None):
+    def default_fuzzy(self):
         return False
 
-    def get_model(self, cursor, user, ids, name, context=None):
+    def get_model(self, ids, name):
         res = {}
-        for translation in self.browse(cursor, user, ids, context=context):
+        for translation in self.browse(ids):
             res[translation.id] = translation.name.split(',')[0]
         return res
 
-    def search_model(self, cursor, user, name, clause, context=None):
+    def search_model(self, name, clause):
+        cursor = Transaction().cursor
         cursor.execute('SELECT id FROM "%s" '
             'WHERE split_part(name, \',\', 1) %s %%s' %
             (self._table, clause[1]), (clause[2],))
         return [('id', 'in', [x[0] for x in cursor.fetchall()])]
 
-    def get_language(self, cursor, user, context):
+    def get_language(self):
         lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [], context=context)
-        langs = lang_obj.browse(cursor, user, lang_ids, context=context)
+        lang_ids = lang_obj.search([])
+        langs = lang_obj.browse(lang_ids)
         res = [(lang.code, lang.name) for lang in langs]
         return res
 
-    def _get_ids(self, cursor, name, ttype, lang, ids):
+    def _get_ids(self, name, ttype, lang, ids):
         model_fields_obj = self.pool.get('ir.model.field')
         model_obj = self.pool.get('ir.model')
 
@@ -104,15 +107,16 @@ class Translation(ModelSQL, ModelView, Cacheable):
         lang = unicode(lang)
         if name.split(',')[0] in ('ir.model.field', 'ir.model'):
             field_name = name.split(',')[1]
-            if name.split(',')[0] == 'ir.model.field':
-                if field_name == 'field_description':
-                    ttype = u'field'
+            with Transaction().set_user(0):
+                if name.split(',')[0] == 'ir.model.field':
+                    if field_name == 'field_description':
+                        ttype = u'field'
+                    else:
+                        ttype = u'help'
+                    records = model_fields_obj.browse(ids)
                 else:
-                    ttype = u'help'
-                records = model_fields_obj.browse(cursor, 0, ids)
-            else:
-                ttype = u'model'
-                records = model_obj.browse(cursor, 0, ids)
+                    ttype = u'model'
+                    records = model_obj.browse(ids)
 
             trans_args = []
             for record in records:
@@ -121,23 +125,23 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 else:
                     name = record.model + ',' + field_name
                 trans_args.append((name, ttype, lang, None))
-            self._get_sources(cursor, trans_args)
+            self._get_sources(trans_args)
 
             for record in records:
                 if ttype in ('field', 'help'):
                     name = record.model.model + ',' + record.name
                 else:
                     name = record.model + ',' + field_name
-                translations[record.id] = self._get_source(cursor,
-                        name, ttype, lang)
+                translations[record.id] = self._get_source(name, ttype, lang)
             return translations
         for obj_id in ids:
-            trans = self.get(cursor, (lang, ttype, name, obj_id))
+            trans = self.get((lang, ttype, name, obj_id))
             if trans is not None:
                 translations[obj_id] = trans
             else:
                 to_fetch.append(obj_id)
         if to_fetch:
+            cursor = Transaction().cursor
             for i in range(0, len(to_fetch), cursor.IN_MAX):
                 sub_to_fetch = to_fetch[i:i + cursor.IN_MAX]
                 red_sql, red_ids = reduce_ids('res_id', sub_to_fetch)
@@ -152,15 +156,15 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND ' + red_sql,
                         [lang, ttype, name, False] + red_ids)
                 for res_id, value in cursor.fetchall():
-                    self.add(cursor, (lang, ttype, name, res_id), value)
+                    self.add((lang, ttype, name, res_id), value)
                     translations[res_id] = value
         for res_id in ids:
             if res_id not in translations:
-                self.add(cursor, (lang, ttype, name, res_id), False)
+                self.add((lang, ttype, name, res_id), False)
                 translations[res_id] = False
         return translations
 
-    def _set_ids(self, cursor, user, name, ttype, lang, ids, value):
+    def _set_ids(self, name, ttype, lang, ids, value):
         model_fields_obj = self.pool.get('ir.model.field')
         model_obj = self.pool.get('ir.model')
 
@@ -171,102 +175,105 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     ttype = 'field'
                 else:
                     ttype = 'help'
-                records = model_fields_obj.browse(cursor, user, ids)
+                records = model_fields_obj.browse(ids)
             else:
                 ttype = 'model'
-                records = model_obj.browse(cursor, user, ids)
+                records = model_obj.browse(ids)
             for record in records:
                 if ttype in ('field', 'help'):
                     name = record.model + ',' + record.name
-                ids2 = self.search(cursor, user, [
+                ids2 = self.search([
                     ('lang', '=', lang),
                     ('type', '=', ttype),
                     ('name', '=', name),
                     ])
-                if not ids2:
-                    self.create(cursor, 0, {
-                        'name': name,
-                        'lang': lang,
-                        'type': ttype,
-                        'src': record[field_name],
-                        'value': value,
-                        'fuzzy': False,
-                        })
-                else:
-                    self.write(cursor, 0, ids, {
-                        'src': record[field_name],
-                        'value': value,
-                        'fuzzy': False,
-                        })
+                with Transaction().set_user(0):
+                    if not ids2:
+                        self.create({
+                            'name': name,
+                            'lang': lang,
+                            'type': ttype,
+                            'src': record[field_name],
+                            'value': value,
+                            'fuzzy': False,
+                            })
+                    else:
+                        self.write(ids, {
+                            'src': record[field_name],
+                            'value': value,
+                            'fuzzy': False,
+                            })
             return len(ids)
         model_obj = self.pool.get(model_name)
-        for record in model_obj.browse(cursor, user, ids):
-            ids2 = self.search(cursor, user, [
+        for record in model_obj.browse(ids):
+            ids2 = self.search([
                 ('lang', '=', lang),
                 ('type', '=', ttype),
                 ('name', '=', name),
                 ('res_id', '=', record.id),
                 ])
-            if not ids2:
-                self.create(cursor, 0, {
-                    'name': name,
-                    'lang': lang,
-                    'type': ttype,
-                    'res_id': record.id,
-                    'value': value,
-                    'src': record[field_name],
-                    'fuzzy': False,
-                    })
-            else:
-                self.write(cursor, 0, ids2, {
-                    'value': value,
-                    'src': record[field_name],
-                    'fuzzy': False,
-                    })
+            with Transaction().set_user(0):
+                if not ids2:
+                    self.create({
+                        'name': name,
+                        'lang': lang,
+                        'type': ttype,
+                        'res_id': record.id,
+                        'value': value,
+                        'src': record[field_name],
+                        'fuzzy': False,
+                        })
+                else:
+                    self.write(ids2, {
+                        'value': value,
+                        'src': record[field_name],
+                        'fuzzy': False,
+                        })
         return len(ids)
 
-    def _get_source(self, cursor, name, ttype, lang, source=None):
+    def _get_source(self, name, ttype, lang, source=None):
         name = unicode(name)
         ttype = unicode(ttype)
         lang = unicode(lang)
         if source is not None:
             source = unicode(source)
-        trans = self.get(cursor, (lang, ttype, name, source))
+        trans = self.get((lang, ttype, name, source))
         if trans is not None:
             return trans
 
+        cursor = Transaction().cursor
         if source:
-            cursor.execute('SELECT value ' \
-                    'FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type = %s ' \
-                        'AND name = %s ' \
-                        'AND src = %s ' \
-                        'AND value != \'\' ' \
-                        'AND value IS NOT NULL ' \
-                        'AND fuzzy = %s ' \
+            cursor.execute('SELECT value '
+                    'FROM ir_translation '
+                    'WHERE lang = %s '
+                        'AND type = %s '
+                        'AND name = %s '
+                        'AND src = %s '
+                        'AND value != \'\' '
+                        'AND value IS NOT NULL '
+                        'AND fuzzy = %s '
                         'AND res_id = 0',
                     (lang, ttype, str(name), source, False))
         else:
-            cursor.execute('SELECT value ' \
-                    'FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type = %s ' \
-                        'AND name = %s ' \
-                        'AND value != \'\' ' \
-                        'AND value IS NOT NULL ' \
-                        'AND fuzzy = %s ' \
+            cursor.execute('SELECT value '
+                    'FROM ir_translation '
+                    'WHERE lang = %s '
+                        'AND type = %s '
+                        'AND name = %s '
+                        'AND value != \'\' '
+                        'AND value IS NOT NULL '
+                        'AND fuzzy = %s '
                         'AND res_id = 0',
                     (lang, ttype, str(name), False))
         res = cursor.fetchone()
         if res:
-            self.add(cursor, (lang, ttype, name, source), res[0])
+            self.add((lang, ttype, name, source), res[0])
             return res[0]
         else:
-            self.add(cursor, (lang, ttype, name, source), False)
+            self.add((lang, ttype, name, source), False)
             return False
 
-    def _get_sources(self, cursor, args):
+    def _get_sources(self, args):
         '''
         Take a list of (name, ttype, lang, source).
         Add the translations to the cache.
@@ -274,10 +281,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
         '''
         res = {}
         clause = []
+        cursor = Transaction().cursor
         if len(args) > cursor.IN_MAX:
             for i in range(0, len(args), cursor.IN_MAX):
                 sub_args = args[i:i + cursor.IN_MAX]
-                res.update(self._get_sources(cursor, sub_args))
+                res.update(self._get_sources(sub_args))
             return res
         for name, ttype, lang, source in args:
             name = unicode(name)
@@ -285,12 +293,12 @@ class Translation(ModelSQL, ModelView, Cacheable):
             lang = unicode(lang)
             if source is not None:
                 source = unicode(source)
-            trans = self.get(cursor, (lang, ttype, name, source))
+            trans = self.get((lang, ttype, name, source))
             if trans is not None:
                 res[(name, ttype, lang, source)] = trans
             else:
                 res[(name, ttype, lang, source)] = False
-                self.add(cursor, (lang, ttype, name, source), False)
+                self.add((lang, ttype, name, source), False)
                 if source:
                     clause += [('(lang = %s ' \
                             'AND type = %s ' \
@@ -321,18 +329,18 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     if (name, ttype, lang, source) not in args:
                         source = None
                     res[(name, ttype, lang, source)] = value
-                    self.add(cursor, (lang, ttype, name, source), value)
+                    self.add((lang, ttype, name, source), value)
         return res
 
-    def delete(self, cursor, user, ids, context=None):
-        self.clear(cursor)
-        self.fields_view_get(cursor.dbname)
-        return super(Translation, self).delete(cursor, user, ids,
-                context=context)
+    def delete(self, ids):
+        self.clear()
+        self.fields_view_get.reset()
+        return super(Translation, self).delete(ids)
 
-    def create(self, cursor, user, vals, context=None):
-        self.clear(cursor)
-        self.fields_view_get(cursor.dbname)
+    def create(self, vals):
+        self.clear()
+        self.fields_view_get.reset()
+        cursor = Transaction().cursor
         if not vals.get('module'):
             if vals.get('type', '') in ('odt', 'view', 'wizard_button',
                     'selection', 'error'):
@@ -360,28 +368,20 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 if fetchone:
                     vals = vals.copy()
                     vals['module'], vals['src'] = fetchone
-        return super(Translation, self).create(cursor, user, vals,
-                context=context)
+        return super(Translation, self).create(vals)
 
-    def write(self, cursor, user, ids, vals, context=None):
-        self.clear(cursor)
-        self.fields_view_get(cursor.dbname)
-        return super(Translation, self).write(cursor, user, ids, vals,
-                context=context)
+    def write(self, ids, vals):
+        self.clear()
+        self.fields_view_get.reset()
+        return super(Translation, self).write(ids, vals)
 
-    def translation_import(self, cursor, user, lang, module, datas,
-            context=None):
-        if context is None:
-            context = {}
-        ctx = context.copy()
-        ctx['module'] = module
+    def translation_import(self, lang, module, datas):
         model_data_obj = self.pool.get('ir.model.data')
-        model_data_ids = model_data_obj.search(cursor, user, [
+        model_data_ids = model_data_obj.search([
             ('module', '=', module),
-            ], context=context)
+            ])
         fs_id2model_data = {}
-        for model_data in model_data_obj.browse(cursor, user, model_data_ids,
-                context=context):
+        for model_data in model_data_obj.browse(model_data_ids):
             fs_id2model_data.setdefault(model_data.model, {})
             fs_id2model_data[model_data.model][model_data.fs_id] = model_data
 
@@ -392,12 +392,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
 
         id2translation = {}
         key2ids = {}
-        module_translation_ids = self.search(cursor, user, [
+        module_translation_ids = self.search([
             ('lang', '=', lang),
             ('module', '=', module),
-            ], context=context)
-        for translation in self.browse(cursor, user, module_translation_ids,
-                context=context):
+            ])
+        for translation in self.browse(module_translation_ids):
             if translation.type in ('odt', 'view', 'wizard_button',
                     'selection', 'error'):
                 key = (translation.name, translation.res_id, translation.type,
@@ -437,54 +436,51 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 raise Exception('Unknow translation type: %s' % ttype)
             ids = key2ids.get(key, [])
 
-            if not ids:
-                translation_ids.append(self.create(cursor, 0, {
-                    'name': name,
-                    'res_id': res_id,
-                    'lang': lang,
-                    'type': ttype,
-                    'src': src,
-                    'value': value,
-                    'fuzzy': fuzzy,
-                    'module': module,
-                    }, context=ctx))
-            else:
-                ids2 = []
-                for translation_id in ids:
-                    translation = id2translation[translation_id]
-                    if translation.value != value \
-                            or translation.fuzzy != fuzzy:
-                        ids2.append(translation.id)
-                if ids2 and not noupdate:
-                    self.write(cursor, 0, ids2, {
+            with contextlib.nested(Transaction().set_user(0),
+                    Transaction().set_context(module=module)):
+                if not ids:
+                    translation_ids.append(self.create({
+                        'name': name,
+                        'res_id': res_id,
+                        'lang': lang,
+                        'type': ttype,
+                        'src': src,
                         'value': value,
                         'fuzzy': fuzzy,
-                        }, context=ctx)
-                translation_ids += ids
+                        'module': module,
+                        }))
+                else:
+                    ids2 = []
+                    for translation_id in ids:
+                        translation = id2translation[translation_id]
+                        if translation.value != value \
+                                or translation.fuzzy != fuzzy:
+                            ids2.append(translation.id)
+                    if ids2 and not noupdate:
+                        self.write(ids2, {
+                            'value': value,
+                            'fuzzy': fuzzy,
+                            })
+                    translation_ids += ids
 
         if translation_ids:
-            all_translation_ids = self.search(cursor, user, [
+            all_translation_ids = self.search([
                 ('module', '=', module),
                 ('lang', '=', lang),
-                ], context=context)
+                ])
             translation_ids_to_delete = [x for x in all_translation_ids
                     if x not in translation_ids]
-            self.delete(cursor, user, translation_ids_to_delete,
-                    context=context)
+            self.delete(translation_ids_to_delete)
         return len(translation_ids)
 
-    def translation_export(self, cursor, user, lang, module, context=None):
+    def translation_export(self, lang, module):
         model_data_obj = self.pool.get('ir.model.data')
 
-        if context is None:
-            context = {}
-
-        model_data_ids = model_data_obj.search(cursor, user, [
+        model_data_ids = model_data_obj.search([
             ('module', '=', module),
-            ], context=context)
+            ])
         db_id2fs_id = {}
-        for model_data in model_data_obj.browse(cursor, user, model_data_ids,
-                context=context):
+        for model_data in model_data_obj.browse(model_data_ids):
             db_id2fs_id.setdefault(model_data.model, {})
             db_id2fs_id[model_data.model][model_data.db_id] = model_data.fs_id
 
@@ -492,19 +488,17 @@ class Translation(ModelSQL, ModelView, Cacheable):
         writer = csv.writer(buf, 'TRYTON')
         writer.writerow(HEADER)
 
-        ctx = context.copy()
-        ctx['language'] = 'en_US'
-        translation_ids = self.search(cursor, user, [
-            ('lang', '=', lang),
-            ('module', '=', module),
-            ], order=[
-                ('type', 'ASC'),
-                ('name', 'ASC'),
-                ('src', 'ASC'),
-                ('res_id', 'ASC'),
-            ], context=ctx)
-        for translation in self.browse(cursor, user, translation_ids,
-                context=context):
+        with Transaction().set_context(language='en_US'):
+            translation_ids = self.search([
+                ('lang', '=', lang),
+                ('module', '=', module),
+                ], order=[
+                    ('type', 'ASC'),
+                    ('name', 'ASC'),
+                    ('src', 'ASC'),
+                    ('res_id', 'ASC'),
+                ])
+        for translation in self.browse(translation_ids):
             row = []
             for field in HEADER:
                 if field == 'res_id':
@@ -594,19 +588,17 @@ class ReportTranslationSet(Wizard):
             strings.extend(self._translate_report(child))
         return strings
 
-    def _set_report_translation(self, cursor, user, data, context):
+    def _set_report_translation(self, data):
         report_obj = self.pool.get('ir.action.report')
 
-        ctx = context.copy()
-        ctx['active_test'] = False
-
-        report_ids = report_obj.search(cursor, user, [], context=ctx)
+        with Transaction().set_context(active_test=False):
+            report_ids = report_obj.search([])
 
         if not report_ids:
             return {}
 
-        reports = report_obj.browse(cursor, user, report_ids, context=context)
-
+        reports = report_obj.browse(report_ids)
+        cursor = Transaction().cursor
         for report in reports:
             cursor.execute('SELECT id, name, src FROM ir_translation ' \
                     'WHERE lang = %s ' \
@@ -748,25 +740,22 @@ class TranslationClean(Wizard):
         },
     }
 
-    def _clean_translation(self, cursor, user, data, context):
+    def _clean_translation(self, data):
         translation_obj = self.pool.get('ir.translation')
         model_data_obj = self.pool.get('ir.model.data')
         report_obj = self.pool.get('ir.action.report')
 
-        ctx = context.copy()
-        ctx['active_test'] = False
-
         offset = 0
+        cursor = Transaction().cursor
         limit = cursor.IN_MAX
         while True:
             to_delete = []
-            translation_ids = translation_obj.search(cursor, user, [],
-                    offset=offset, limit=limit, context=context)
+            translation_ids = translation_obj.search([], offset=offset,
+                    limit=limit)
             if not translation_ids:
                 break
             offset += limit
-            for translation in translation_obj.browse(cursor, user,
-                    translation_ids, context=context):
+            for translation in translation_obj.browse(translation_ids):
                 if translation.type == 'field':
                     try:
                         model_name, field_name = translation.name.split(',', 1)
@@ -803,11 +792,12 @@ class TranslationClean(Wizard):
                         to_delete.append(translation.id)
                         continue
                 elif translation.type == 'odt':
-                    if not report_obj.search(cursor, user, [
-                        ('report_name', '=', translation.name),
-                        ], context=ctx):
-                        to_delete.append(translation.id)
-                        continue
+                    with Transaction().set_context(active_test=False):
+                        if not report_obj.search([
+                            ('report_name', '=', translation.name),
+                            ]):
+                            to_delete.append(translation.id)
+                            continue
                 elif translation.type == 'selection':
                     try:
                         model_name, field_name = translation.name.split(',', 1)
@@ -924,16 +914,15 @@ class TranslationClean(Wizard):
                         to_delete.append(translation.id)
                         continue
             # skip translation handled in ir.model.data
-            mdata_ids = model_data_obj.search(
-                cursor, user,
-                [('db_id', 'in', to_delete), ('model', '=', 'ir.translation')],
-                context=context)
-            for mdata in model_data_obj.browse(cursor, user, mdata_ids,
-                                               context=context):
+            mdata_ids = model_data_obj.search([
+                ('db_id', 'in', to_delete),
+                ('model', '=', 'ir.translation'),
+                ])
+            for mdata in model_data_obj.browse(mdata_ids):
                 if mdata.db_id in to_delete:
                     to_delete.remove(mdata.db_id)
 
-            translation_obj.delete(cursor, user, to_delete, context=context)
+            translation_obj.delete(to_delete)
         return {}
 
 TranslationClean()
@@ -946,11 +935,10 @@ class TranslationUpdateInit(ModelView):
     lang = fields.Selection('get_language', string='Language',
         required=True)
 
-    def get_language(self, cursor, user, context):
+    def get_language(self):
         lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [('translatable', '=', True)],
-                context=context)
-        langs = lang_obj.browse(cursor, user, lang_ids, context=context)
+        lang_ids = lang_obj.search([('translatable', '=', True)])
+        langs = lang_obj.browse(lang_ids)
         res = [(lang.code, lang.name) for lang in langs if lang.code != 'en_US']
         return res
 
@@ -961,8 +949,9 @@ class TranslationUpdate(Wizard):
     "Update translation"
     _name = "ir.translation.update"
 
-    def _update_translation(self, cursor, user, data, context):
+    def _update_translation(self, data):
         translation_obj = self.pool.get('ir.translation')
+        cursor = Transaction().cursor
         cursor.execute('SELECT name, res_id, type, src, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
@@ -975,14 +964,15 @@ class TranslationUpdate(Wizard):
                     ' \'selection\', \'error\')',
                 (data['form']['lang'],))
         for row in cursor.dictfetchall():
-            translation_obj.create(cursor, 0, {
-                'name': row['name'],
-                'res_id': row['res_id'],
-                'lang': data['form']['lang'],
-                'type': row['type'],
-                'src': row['src'],
-                'module': row['module'],
-                })
+            with Transaction().set_user(0):
+                translation_obj.create({
+                    'name': row['name'],
+                    'res_id': row['res_id'],
+                    'lang': data['form']['lang'],
+                    'type': row['type'],
+                    'src': row['src'],
+                    'module': row['module'],
+                    })
         cursor.execute('SELECT name, res_id, type, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
@@ -993,13 +983,14 @@ class TranslationUpdate(Wizard):
                     'AND type in (\'field\', \'model\', \'help\')',
                 (data['form']['lang'],))
         for row in cursor.dictfetchall():
-            translation_obj.create(cursor, 0, {
-                'name': row['name'],
-                'res_id': row['res_id'],
-                'lang': data['form']['lang'],
-                'type': row['type'],
-                'module': row['module'],
-                })
+            with Transaction().set_user(0):
+                translation_obj.create({
+                    'name': row['name'],
+                    'res_id': row['res_id'],
+                    'lang': data['form']['lang'],
+                    'type': row['type'],
+                    'module': row['module'],
+                    })
         cursor.execute('SELECT name, res_id, type, src ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
@@ -1046,18 +1037,17 @@ class TranslationUpdate(Wizard):
                     'AND lang = %s', (False, data['form']['lang'],))
         return {}
 
-    def _action_translation_open(self, cursor, user, data, context):
+    def _action_translation_open(self, data):
         model_data_obj = self.pool.get('ir.model.data')
         act_window_obj = self.pool.get('ir.action.act_window')
 
-        model_data_ids = model_data_obj.search(cursor, user, [
+        model_data_ids = model_data_obj.search([
             ('fs_id', '=', 'act_translation_form'),
             ('module', '=', 'ir'),
             ('inherit', '=', False),
-            ], limit=1, context=context)
-        model_data = model_data_obj.browse(cursor, user, model_data_ids[0],
-                context=context)
-        res = act_window_obj.read(cursor, user, model_data.db_id, context=context)
+            ], limit=1)
+        model_data = model_data_obj.browse(model_data_ids[0])
+        res = act_window_obj.read(model_data.db_id)
         res['pyson_domain'] = PYSONEncoder().encode([
             ('module', '!=', False),
             ('lang', '=', data['form']['lang']),
@@ -1098,21 +1088,21 @@ class TranslationExportInit(ModelView):
     module = fields.Selection('get_module', string='Module',
        required=True)
 
-    def get_language(self, cursor, user, context):
+    def get_language(self):
         lang_obj = self.pool.get('ir.lang')
-        lang_ids = lang_obj.search(cursor, user, [
+        lang_ids = lang_obj.search([
             ('translatable', '=', True),
-            ], context=context)
-        langs = lang_obj.browse(cursor, user, lang_ids, context=context)
+            ])
+        langs = lang_obj.browse(lang_ids)
         res = [(lang.code, lang.name) for lang in langs]
         return res
 
-    def get_module(self, cursor, user, context):
+    def get_module(self):
         module_obj = self.pool.get('ir.module.module')
-        module_ids = module_obj.search(cursor, user, [
+        module_ids = module_obj.search([
             ('state', 'in', ['installed', 'to upgrade', 'to remove']),
-            ], context=context)
-        modules = module_obj.browse(cursor, user, module_ids, context=context)
+            ])
+        modules = module_obj.browse(module_ids)
         res =  [(module.name, module.name) for module in modules]
         return res
 
@@ -1132,10 +1122,10 @@ class TranslationExport(Wizard):
     "Export translation"
     _name = "ir.translation.export"
 
-    def _export_translation(self, cursor, user, data, context):
+    def _export_translation(self, data):
         translation_obj = self.pool.get('ir.translation')
-        file_data = translation_obj.translation_export(cursor, user,
-                data['form']['lang'], data['form']['module'], context=context)
+        file_data = translation_obj.translation_export(data['form']['lang'],
+                data['form']['module'])
         return {
             'file': base64.encodestring(file_data),
         }

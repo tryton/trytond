@@ -19,6 +19,7 @@ except ImportError:
 import dis
 import datetime
 from decimal import Decimal
+from trytond.transaction import Transaction
 
 def find_in_path(name):
     if os.name == "nt":
@@ -191,29 +192,25 @@ class Cache(object):
         self._lock = Lock()
 
     def __call__(self, function):
-        arg_names = inspect.getargspec(function)[0][2:]
+        arg_names = inspect.getargspec(function)[0]
 
-        def cached_result(self2, cursor=None, *args, **kwargs):
+        def reset():
+            dbname = Transaction().cursor.dbname
+            Cache.reset(dbname, self._name)
+            self._lock.acquire()
+            try:
+                self._cache[dbname] = {}
+            finally:
+                self._lock.release()
+            return True
+
+        def call(model, *args, **kwargs):
             result = None
             find = False
-            if isinstance(cursor, basestring):
-                Cache.reset(cursor, self._name)
-                self._lock.acquire()
-                try:
-                    self._cache[cursor] = {}
-                finally:
-                    self._lock.release()
-                return True
+            cursor = Transaction().cursor
             # Update named arguments with positional argument values
             kwargs_origin = kwargs.copy()
             kwargs.update(dict(zip(arg_names, args)))
-            if 'context' in kwargs:
-                if isinstance(kwargs['context'], dict):
-                    kwargs['context'] = kwargs['context'].copy()
-                    for i in ('_timestamp', '_delete', '_create_records',
-                            '_delete_records'):
-                        if i in kwargs['context']:
-                            del kwargs['context'][i]
             kwargs = kwargs.items()
             kwargs.sort()
 
@@ -235,13 +232,15 @@ class Cache(object):
                         else:
                             if not lower or lower[1] > last_time:
                                 lower = (key, last_time)
-                if len(self._cache[cursor.dbname]) > self.max_len and lower:
+                if (len(self._cache[cursor.dbname]) > self.max_len
+                        and lower):
                     del self._cache[cursor.dbname][lower[0]]
             finally:
                 self._lock.release()
 
             # Work out key as a tuple
-            key = (id(self2), repr(kwargs))
+            key = (id(model), Transaction().user, repr(Transaction().context),
+                    repr(kwargs))
 
             # Check cache and return cached value if possible
             self._lock.acquire()
@@ -250,7 +249,8 @@ class Cache(object):
                     (value, last_time) = self._cache[cursor.dbname][key]
                     mintime = time.time() - self.timeout
                     if self.timeout <= 0 or mintime <= last_time:
-                        self._cache[cursor.dbname][key] = (value, time.time())
+                        self._cache[cursor.dbname][key] = (value,
+                                time.time())
                         result = value
                         find = True
             finally:
@@ -258,8 +258,7 @@ class Cache(object):
 
             if not find:
                 # Work out new value, cache it and return it
-                # Should copy() this value to avoid futur modf of the cacle ?
-                result = function(self2, cursor, *args, **kwargs_origin)
+                result = function(model, *args, **kwargs_origin)
 
                 self._lock.acquire()
                 try:
@@ -268,8 +267,9 @@ class Cache(object):
                     self._lock.release()
             return result
 
-        cached_result.__doc__ = function.__doc__
-        return cached_result
+        call.__doc__ = function.__doc__
+        call.reset = reset
+        return call
 
     @staticmethod
     def clean(dbname):

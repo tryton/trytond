@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"Module"
+from __future__ import with_statement
 import os
 from trytond.model import ModelView, ModelSQL, fields
 import trytond.tools as tools
@@ -8,6 +8,7 @@ from trytond.modules import MODULES_PATH, create_graph, get_module_list
 from trytond.wizard import Wizard
 from trytond.backend import Database
 from trytond.pool import Pool
+from trytond.transaction import Transaction
 
 
 class Module(ModelSQL, ModelView):
@@ -54,7 +55,7 @@ class Module(ModelSQL, ModelView):
                     'depends on installed modules:',
             })
 
-    def default_state(self, cursor, user, context=None):
+    def default_state(self):
         return 'uninstalled'
 
     @staticmethod
@@ -72,34 +73,34 @@ class Module(ModelSQL, ModelView):
             return {}
         return info
 
-    def get_version(self, cursor, user, ids, name, context=None):
+    def get_version(self, ids, name):
         res = {}
-        for module in self.browse(cursor, user, ids, context=context):
+        for module in self.browse(ids):
             res[module.id] = Module.get_module_info(
                     module.name).get('version', '')
         return res
 
-    def delete(self, cursor, user, ids, context=None):
+    def delete(self, ids):
         if not ids:
             return True
         if isinstance(ids, (int, long)):
             ids = [ids]
-        for module in self.browse(cursor, user, ids, context=context):
+        for module in self.browse(ids):
             if module.state in (
                     'installed',
                     'to upgrade',
                     'to remove',
                     'to install',
                     ):
-                self.raise_user_error(cursor, 'delete_state', context=context)
-        return super(Module, self).delete(cursor, user, ids, context=context)
+                self.raise_user_error('delete_state')
+        return super(Module, self).delete(ids)
 
-    def on_write(self, cursor, user, ids, context=None):
+    def on_write(self, ids):
         if not ids:
             return
         res = []
         graph, packages, later = create_graph(get_module_list())
-        for module in self.browse(cursor, user, ids, context=context):
+        for module in self.browse(ids):
             if module.name not in graph:
                 continue
             def get_parents(name, graph):
@@ -119,21 +120,20 @@ class Module(ModelSQL, ModelView):
                 childs.update(childs2)
                 return childs
             dependencies.update(get_childs(module.name, graph))
-            res += self.search(cursor, user, [
+            res += self.search([
                 ('name', 'in', list(dependencies)),
-                ], context=context)
+                ])
         return list({}.fromkeys(res))
 
-    def state_install(self, cursor, user, ids, context=None):
+    def state_install(self, ids):
         graph, packages, later = create_graph(get_module_list())
-        for module in self.browse(cursor, user, ids, context=context):
+        for module in self.browse(ids):
             if module.name not in graph:
                 missings = []
                 for package, deps, datas in packages:
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
-                self.raise_user_error(cursor, 'missing_dep',
-                        (missings, module.name), context=context)
+                self.raise_user_error('missing_dep', (missings, module.name))
             def get_parents(name, graph):
                 parents = set()
                 for node in graph:
@@ -143,24 +143,23 @@ class Module(ModelSQL, ModelView):
                     parents.update(get_parents(parent, graph))
                 return parents
             dependencies = list(get_parents(module.name, graph))
-            module_install_ids = self.search(cursor, user, [
+            module_install_ids = self.search([
                 ('name', 'in', dependencies),
                 ('state', '=', 'uninstalled'),
-                ], context=context)
-            self.write(cursor, user, module_install_ids + [module.id], {
+                ])
+            self.write(module_install_ids + [module.id], {
                 'state': 'to install',
-                }, context=context)
+                })
 
-    def state_upgrade(self, cursor, user, ids, context=None):
+    def state_upgrade(self, ids):
         graph, packages, later = create_graph(get_module_list())
-        for module in self.browse(cursor, user, ids):
+        for module in self.browse(ids):
             if module.name not in graph:
                 missings = []
                 for package, deps, datas in packages:
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
-                self.raise_user_error(cursor, user, 'missing_dep',
-                        (missings, module.name), context=context)
+                self.raise_user_error('missing_dep', (missings, module.name))
             def get_childs(name, graph):
                 childs = set(x.name for x in graph[name].childs)
                 childs2 = set()
@@ -169,25 +168,26 @@ class Module(ModelSQL, ModelView):
                 childs.update(childs2)
                 return childs
             dependencies = list(get_childs(module.name, graph))
-            module_installed_ids = self.search(cursor, user, [
+            module_installed_ids = self.search([
                 ('name', 'in', dependencies),
                 ('state', '=', 'installed'),
-                ], context=context)
-            self.write(cursor, user, module_installed_ids + [module.id], {
+                ])
+            self.write(module_installed_ids + [module.id], {
                 'state': 'to upgrade',
-                }, context=context)
+                })
 
-    def button_install(self, cursor, user, ids, context=None):
-        return self.state_install(cursor, user, ids, context=context)
+    def button_install(self, ids):
+        return self.state_install(ids)
 
-    def button_install_cancel(self, cursor, user, ids, context=None):
-        self.write(cursor, user, ids, {
+    def button_install_cancel(self, ids):
+        self.write(ids, {
             'state': 'uninstalled',
-            }, context=context)
+            })
         return True
 
-    def button_uninstall(self, cursor, user, ids, context=None):
-        for module in self.browse(cursor, user, ids, context=context):
+    def button_uninstall(self, ids):
+        cursor = Transaction().cursor
+        for module in self.browse(ids):
             cursor.execute('SELECT m.state, m.name ' \
                     'FROM ir_module_module_dependency d ' \
                     'JOIN ir_module_module m on (d.module = m.id) ' \
@@ -197,148 +197,134 @@ class Module(ModelSQL, ModelView):
                             (module.name,))
             res = cursor.fetchall()
             if res:
-                self.raise_user_error(cursor, 'uninstall_dep',
+                self.raise_user_error('uninstall_dep',
                         error_description='\n'.join(
-                            '\t%s: %s' % (x[0], x[1]) for x in res),
-                        context=context)
-        self.write(cursor, user, ids, {'state': 'to remove'})
+                            '\t%s: %s' % (x[0], x[1]) for x in res))
+        self.write(ids, {'state': 'to remove'})
         return True
 
-    def button_uninstall_cancel(self, cursor, user, ids, context=None):
-        self.write(cursor, user, ids, {'state': 'installed'}, context=context)
+    def button_uninstall_cancel(self, ids):
+        self.write(ids, {'state': 'installed'})
         return True
 
-    def button_upgrade(self, cursor, user, ids, context=None):
-        return self.state_upgrade(cursor, user, ids, context)
+    def button_upgrade(self, ids):
+        return self.state_upgrade(ids)
 
-    def button_upgrade_cancel(self, cursor, user, ids, context=None):
-        self.write(cursor, user, ids, {'state': 'installed'}, context=context)
+    def button_upgrade_cancel(self, ids):
+        self.write(ids, {'state': 'installed'})
         return True
 
     # update the list of available packages
-    def update_list(self, cursor, user, context=None):
+    def update_list(self):
         lang_obj = self.pool.get('ir.lang')
-
-        if context is None:
-            context = {}
-
         res = 0
+        with Transaction().set_context(language=False):
+            lang_ids = lang_obj.search([
+                ('translatable', '=', True),
+                ])
+            lang_codes = [x.code for x in lang_obj.browse(lang_ids)]
 
-        context = context.copy()
-        if 'language' in context:
-            del context['language']
+            module_names = get_module_list()
 
-        lang_ids = lang_obj.search(cursor, user, [
-            ('translatable', '=', True),
-            ], context=context)
-        lang_codes = [x.code for x in lang_obj.browse(cursor, user, lang_ids,
-            context=context)]
-
-        module_names = get_module_list()
-
-        module_ids = self.search(cursor, user, [], context=context)
-        modules = self.browse(cursor, user, module_ids, context=context)
-        name2module = {}
-        for module in modules:
-            name2module.setdefault(module.name, {})
-            name2module[module.name]['en_US'] = module
-        for code in lang_codes:
-            ctx = context.copy()
-            ctx['language'] = code
-            modules = self.browse(cursor, user, module_ids, context=ctx)
+            module_ids = self.search([])
+            modules = self.browse(module_ids)
+            name2module = {}
             for module in modules:
-                name2module[module.name][code] = module
-
-        # iterate through installed modules and mark them as being so
-        for name in module_names:
-            mod_name = name
-            if mod_name in name2module.keys():
-                mod = name2module[mod_name]['en_US']
-                tryton = Module.get_module_info(mod_name)
-
-                if mod.description != tryton.get('description',
-                        '').decode('utf-8', 'ignore') \
-                        or mod.shortdesc != tryton.get('name',
-                                '').decode('utf-8', 'ignore') \
-                        or mod.author != tryton.get('author',
-                                '').decode('utf-8', 'ignore') \
-                        or mod.website != tryton.get('website',
-                                '').decode('utf-8', 'ignore'):
-                    self.write(cursor, user, mod.id, {
-                        'description': tryton.get('description', ''),
-                        'shortdesc': tryton.get('name', ''),
-                        'author': tryton.get('author', ''),
-                        'website': tryton.get('website', ''),
-                        }, context=context)
-
-                for code in lang_codes:
-                    mod2 = name2module[mod_name][code]
-                    if mod2.description != \
-                            tryton.get('description_' + code,
-                                    tryton.get('description', '')
-                                    ).decode('utf-8', 'ignore') \
-                            or mod2.shortdesc != \
-                            tryton.get('name_' + code,
-                                    tryton.get('name', '')
-                                    ).decode('utf-8', 'ignore'):
-                        ctx = context.copy()
-                        ctx['language'] = code
-                        self.write(cursor, user, mod.id, {
-                            'description': tryton.get('description_' + code,
-                                ''),
-                            'shortdesc': tryton.get('name_' + code, ''),
-                            }, context=ctx)
-
-                self._update_dependencies(cursor, user, mod,
-                        tryton.get('depends', []), context=context)
-                continue
-
-            if name in ['ir', 'workflow', 'res', 'webdav']:
-                mod_path = os.path.join(
-                        os.path.dirname(MODULES_PATH), name)
-            else:
-                mod_path = os.path.join(MODULES_PATH, name)
-
-            tryton = Module.get_module_info(mod_name)
-            if not tryton:
-                continue
-            new_id = self.create(cursor, user, {
-                'name': mod_name,
-                'state': 'uninstalled',
-                'description': tryton.get('description', ''),
-                'shortdesc': tryton.get('name', ''),
-                'author': tryton.get('author', 'Unknown'),
-                'website': tryton.get('website', ''),
-            }, context=context)
+                name2module.setdefault(module.name, {})
+                name2module[module.name]['en_US'] = module
             for code in lang_codes:
-                ctx = context.copy()
-                ctx['language'] = code
-                self.write(cursor, user, new_id, {
-                    'description': tryton.get('description_' + code, ''),
-                    'shortdesc': tryton.get('name_' + code, ''),
-                    }, context=ctx)
-            res += 1
-            name2module.setdefault(mod_name, {})
-            name2module[mod_name]['en_US'] = self.browse(cursor, user, new_id,
-                    context=context)
-            self._update_dependencies(cursor, user, name2module[mod_name]['en_US'],
-                    tryton.get('depends', []), context=context)
+                with Transaction().set_context(language=code):
+                    modules = self.browse(module_ids)
+                for module in modules:
+                    name2module[module.name][code] = module
+
+            # iterate through installed modules and mark them as being so
+            for name in module_names:
+                mod_name = name
+                if mod_name in name2module.keys():
+                    mod = name2module[mod_name]['en_US']
+                    tryton = Module.get_module_info(mod_name)
+
+                    if mod.description != tryton.get('description',
+                            '').decode('utf-8', 'ignore') \
+                            or mod.shortdesc != tryton.get('name',
+                                    '').decode('utf-8', 'ignore') \
+                            or mod.author != tryton.get('author',
+                                    '').decode('utf-8', 'ignore') \
+                            or mod.website != tryton.get('website',
+                                    '').decode('utf-8', 'ignore'):
+                        self.write(mod.id, {
+                            'description': tryton.get('description', ''),
+                            'shortdesc': tryton.get('name', ''),
+                            'author': tryton.get('author', ''),
+                            'website': tryton.get('website', ''),
+                            })
+
+                    for code in lang_codes:
+                        mod2 = name2module[mod_name][code]
+                        if mod2.description != \
+                                tryton.get('description_' + code,
+                                        tryton.get('description', '')
+                                        ).decode('utf-8', 'ignore') \
+                                or mod2.shortdesc != \
+                                tryton.get('name_' + code,
+                                        tryton.get('name', '')
+                                        ).decode('utf-8', 'ignore'):
+                            with Transaction().set_context(language=code):
+                                self.write(mod.id, {
+                                    'description': tryton.get(
+                                        'description_' + code, ''),
+                                    'shortdesc': tryton.get(
+                                        'name_' + code, ''),
+                                    })
+
+                    self._update_dependencies(mod, tryton.get('depends', []))
+                    continue
+
+                if name in ['ir', 'workflow', 'res', 'webdav']:
+                    mod_path = os.path.join(
+                            os.path.dirname(MODULES_PATH), name)
+                else:
+                    mod_path = os.path.join(MODULES_PATH, name)
+
+                tryton = Module.get_module_info(mod_name)
+                if not tryton:
+                    continue
+                new_id = self.create({
+                    'name': mod_name,
+                    'state': 'uninstalled',
+                    'description': tryton.get('description', ''),
+                    'shortdesc': tryton.get('name', ''),
+                    'author': tryton.get('author', 'Unknown'),
+                    'website': tryton.get('website', ''),
+                })
+                for code in lang_codes:
+                    with Transaction().set_context(language=code):
+                        self.write(new_id, {
+                            'description': tryton.get(
+                                'description_' + code, ''),
+                            'shortdesc': tryton.get('name_' + code, ''),
+                            })
+                res += 1
+                name2module.setdefault(mod_name, {})
+                name2module[mod_name]['en_US'] = self.browse(new_id)
+                self._update_dependencies(name2module[mod_name]['en_US'],
+                        tryton.get('depends', []))
         return res
 
-    def _update_dependencies(self, cursor, user, module, depends=None,
-            context=None):
+    def _update_dependencies(self, module, depends=None):
         dependency_obj = self.pool.get('ir.module.module.dependency')
-        dependency_obj.delete(cursor, user, [x.id for x in module.dependencies
-            if x.name not in depends], context=context)
+        dependency_obj.delete([x.id for x in module.dependencies
+            if x.name not in depends])
         if depends is None:
             depends = []
         dependency_names = [x.name for x in module.dependencies]
         for depend in depends:
             if depend not in dependency_names:
-                dependency_obj.create(cursor, user, {
+                dependency_obj.create({
                     'module': module.id,
                     'name': depend,
-                    }, context=context)
+                    })
 
 Module()
 
@@ -366,16 +352,15 @@ class ModuleDependency(ModelSQL, ModelView):
                 'Dependency must be unique by module!'),
         ]
 
-    def get_state(self, cursor, user, ids, name, context=None):
+    def get_state(self, ids, name):
         result = {}
         module_obj = self.pool.get('ir.module.module')
-        for dependency in self.browse(cursor, user, ids):
-            ids = module_obj.search(cursor, user, [
+        for dependency in self.browse(ids):
+            ids = module_obj.search([
                 ('name', '=', dependency.name),
-                ], context=context)
+                ])
             if ids:
-                result[dependency.id] = module_obj.browse(cursor, user, ids[0],
-                        context=context).state
+                result[dependency.id] = module_obj.browse(ids[0]).state
             else:
                 result[dependency.id] = 'unknown'
         return result
@@ -398,10 +383,10 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
         super(ModuleConfigWizardItem, self).__init__()
         self._order.insert(0, ('sequence', 'ASC'))
 
-    def default_state(self, cursor, user, context=None):
+    def default_state(self):
         return 'open'
 
-    def default_sequence(self, cursor, user, context=None):
+    def default_sequence(self):
         return 10
 
 ModuleConfigWizardItem()
@@ -450,33 +435,33 @@ class ModuleConfigWizard(Wizard):
         },
     }
 
-    def _first(self, cursor, user, data, context=None):
-        res = self._next(cursor, user, data, context=context)
+    def _first(self, data):
+        res = self._next(data)
         if res == 'wizard':
             return 'first'
         return res
 
-    def _action_wizard(self, cursor, user, data, context=None):
+    def _action_wizard(self, data):
         item_obj = self.pool.get('ir.module.module.config_wizard.item')
-        item_ids = item_obj.search(cursor, user, [
+        item_ids = item_obj.search([
             ('state', '=', 'open'),
-            ], limit=1, context=context)
+            ], limit=1)
         if item_ids:
-            item = item_obj.browse(cursor, user, item_ids[0], context=context)
-            item_obj.write(cursor, user, item.id, {
+            item = item_obj.browse(item_ids[0])
+            item_obj.write(item.id, {
                 'state': 'done',
-                }, context=context)
+                })
             return {
                     'type': 'ir.action.wizard',
                     'wiz_name': item.name,
                     }
         return {}
 
-    def _next(self, cursor, user, data, context=None):
+    def _next(self, data):
         item_obj = self.pool.get('ir.module.module.config_wizard.item')
-        item_ids = item_obj.search(cursor, user, [
+        item_ids = item_obj.search([
             ('state', '=', 'open'),
-            ], context=context)
+            ])
         if item_ids:
             return 'wizard'
         return 'end'
@@ -505,35 +490,30 @@ class ModuleInstallUpgrade(Wizard):
     "Install / Upgrade modules"
     _name = 'ir.module.module.install_upgrade'
 
-    def _get_install(self, cursor, user, data, context):
+    def _get_install(self, data):
         module_obj = self.pool.get('ir.module.module')
-        module_ids = module_obj.search(cursor, user, [
+        module_ids = module_obj.search([
             ('state', 'in', ['to upgrade', 'to remove', 'to install']),
-            ], context=context)
-        modules = module_obj.browse(cursor, user, module_ids, context=context)
+            ])
+        modules = module_obj.browse(module_ids)
         return {
             'module_info': '\n'.join(x.name + ': ' + x.state \
                     for x in modules),
         }
 
-    def _upgrade_module(self, cursor, user, data, context):
+    def _upgrade_module(self, data):
         module_obj = self.pool.get('ir.module.module')
         lang_obj = self.pool.get('ir.lang')
-        dbname = cursor.dbname
-        db = Database(dbname).connect()
-        cursor = db.cursor()
-        try:
-            module_ids = module_obj.search(cursor, user, [
+        dbname = Transaction().cursor.dbname
+        with Transaction().new_cursor() as transaction:
+            module_ids = module_obj.search([
                 ('state', 'in', ['to upgrade', 'to remove', 'to install']),
-                ], context=context)
-            lang_ids = lang_obj.search(cursor, user, [
+                ])
+            lang_ids = lang_obj.search([
                 ('translatable', '=', True),
-                ], context=context)
-            lang = [x.code for x in lang_obj.browse(cursor, user, lang_ids,
-                context=context)]
-        finally:
-            cursor.commit()
-            cursor.close()
+                ])
+            lang = [x.code for x in lang_obj.browse(lang_ids)]
+            transaction.cursor.commit()
         if module_ids:
             pool = Pool(dbname)
             pool.init(update=True, lang=lang)
@@ -582,15 +562,14 @@ class ModuleInstallUpgrade(Wizard):
         },
     }
 
-    def _menu(self, cursor, user, data, context=None):
+    def _menu(self, data):
         model_data_obj = self.pool.get('ir.model.data')
         act_window_obj = self.pool.get('ir.action.act_window')
-        act_window_id = model_data_obj.get_id(cursor, user, 'ir',
-                'act_menu_tree', context=context)
-        res = act_window_obj.read(cursor, user, act_window_id, context=context)
+        act_window_id = model_data_obj.get_id('ir', 'act_menu_tree')
+        res = act_window_obj.read(act_window_id)
         return res
 
-    def _config(self, cursor, user, data, context=None):
+    def _config(self, data):
         return {
                 'type': 'ir.action.wizard',
                 'wiz_name': 'ir.module.module.config_wizard',
@@ -612,12 +591,11 @@ class ModuleConfig(Wizard):
         },
     }
 
-    def _action_open(self, cursor, user, datas, context=None):
+    def _action_open(self, datas):
         model_data_obj = self.pool.get('ir.model.data')
         act_window_obj = self.pool.get('ir.action.act_window')
-        act_window_id = model_data_obj.get_id(cursor, user, 'ir',
-                'act_module_form', context=context)
-        res = act_window_obj.read(cursor, user, act_window_id, context=context)
+        act_window_id = model_data_obj.get_id('ir', 'act_module_form')
+        res = act_window_obj.read(act_window_id)
         return res
 
 ModuleConfig()

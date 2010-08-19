@@ -1,7 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"UI menu"
+from __future__ import with_statement
 from trytond.model import ModelView, ModelSQL, fields
+from trytond.transaction import Transaction
 
 def one_in(i, j):
     """Check the presence of an element of setA in setB
@@ -98,18 +99,18 @@ class UIMenu(ModelSQL, ModelView):
         super(UIMenu, self).__init__()
         self._order.insert(0, ('sequence', 'ASC'))
 
-    def default_icon(self, cursor, user, context=None):
+    def default_icon(self):
         return 'tryton-open'
 
-    def default_sequence(self, cursor, user, context=None):
+    def default_sequence(self):
         return 10
 
-    def default_active(self, cursor, user, context=None):
+    def default_active(self):
         return True
 
-    def get_full_name(self, cursor, user, ids, name, context):
+    def get_full_name(self, ids, name):
         res = {}
-        for menu in self.browse(cursor, user, ids, context=context):
+        for menu in self.browse(ids):
             res[menu.id] = self._get_one_full_name(menu)
         return res
 
@@ -122,22 +123,21 @@ class UIMenu(ModelSQL, ModelView):
             parent_path = ''
         return parent_path + menu.name
 
-    def search(self, cursor, user, domain, offset=0, limit=None, order=None,
-            context=None, count=False, query_string=False):
-        res = super(UIMenu, self).search(cursor, user, domain, offset=offset,
-                limit=limit, order=order, context=context, count=count,
-                query_string=query_string)
+    def search(self, domain, offset=0, limit=None, order=None, count=False,
+            query_string=False):
+        res = super(UIMenu, self).search(domain, offset=offset, limit=limit,
+                order=order, count=count, query_string=query_string)
         if query_string:
             return res
 
         def check_menu(res):
             if not res:
                 return []
-            menus = self.browse(cursor, user, res, context=context)
+            menus = self.browse(res)
             parent_ids = [x.parent.id for x in menus if x.parent]
-            parent_ids = self.search(cursor, user, [
+            parent_ids = self.search([
                 ('id', 'in', parent_ids),
-                ], context=context)
+                ])
             parent_ids = check_menu(parent_ids)
             return [x.id for x in menus
                     if (x.parent.id in parent_ids) or not x.parent]
@@ -145,29 +145,24 @@ class UIMenu(ModelSQL, ModelView):
         res = check_menu(res)
         return res
 
-    def get_action(self, cursor, user, ids, name, context=None):
+    def get_action(self, ids, name):
         action_keyword_obj = self.pool.get('ir.action.keyword')
-
-        if context is None:
-            context = {}
-        ctx = context.copy()
-        ctx['active_test'] = False
-
         res = {}
         for menu_id in ids:
             res[menu_id] = False
-        action_keyword_ids = action_keyword_obj.search(cursor, user, [
-            ('keyword', '=', 'tree_open'),
-            ('model', 'in', [self._name + ',' + str(x) for x in ids]),
-            ], context=ctx)
-        for action_keyword in action_keyword_obj.browse(cursor, user,
-                action_keyword_ids, context=context):
+        with Transaction().set_context(active_test=False):
+            action_keyword_ids = action_keyword_obj.search([
+                ('keyword', '=', 'tree_open'),
+                ('model', 'in', [self._name + ',' + str(x) for x in ids]),
+                ])
+        for action_keyword in action_keyword_obj.browse(action_keyword_ids):
             model_id = int(
                     action_keyword.model.split(',')[1].split(',')[0].strip('('))
             action_obj = self.pool.get(action_keyword.action.type)
-            action_id = action_obj.search(cursor, user, [
-                ('action', '=', action_keyword.action.id),
-                ], context=ctx)
+            with Transaction().set_context(active_test=False):
+                action_id = action_obj.search([
+                    ('action', '=', action_keyword.action.id),
+                    ])
             if action_id:
                 action_id = action_id[0]
             else:
@@ -175,37 +170,33 @@ class UIMenu(ModelSQL, ModelView):
             res[model_id] = action_keyword.action.type + ',' + str(action_id)
         return res
 
-    def set_action(self, cursor, user, ids, name, value, context=None):
-        if context is None:
-            context = {}
+    def set_action(self, ids, name, value):
         if not value:
             return
-        ctx = context.copy()
-        if '_timestamp' in ctx:
-            del ctx['_timestamp']
         action_keyword_obj = self.pool.get('ir.action.keyword')
         action_keyword_ids = []
+        cursor = Transaction().cursor
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            action_keyword_ids += action_keyword_obj.search(cursor, user, [
+            action_keyword_ids += action_keyword_obj.search([
                 ('keyword', '=', 'tree_open'),
                 ('model', 'in', [self._name + ',' + str(menu_id)
                     for menu_id in sub_ids]),
-                ], context=context)
+                ])
         if action_keyword_ids:
-            action_keyword_obj.delete(cursor, user, action_keyword_ids,
-                    context=ctx)
+            with Transaction().set_context(_timestamp=False):
+                action_keyword_obj.delete(action_keyword_ids)
         action_type, action_id = value.split(',')
         if not int(action_id):
             return
         action_obj = self.pool.get(action_type)
-        action = action_obj.browse(cursor, user, int(action_id),
-                context=context)
+        action = action_obj.browse(int(action_id))
         for menu_id in ids:
-            action_keyword_obj.create(cursor, user, {
-                'keyword': 'tree_open',
-                'model': self._name + ',' + str(menu_id),
-                'action': action.action.id,
-                }, context=ctx)
+            with Transaction().set_context(_timestamp=False):
+                action_keyword_obj.create({
+                    'keyword': 'tree_open',
+                    'model': self._name + ',' + str(menu_id),
+                    'action': action.action.id,
+                    })
 
 UIMenu()

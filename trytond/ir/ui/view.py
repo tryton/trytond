@@ -1,14 +1,15 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-"View"
-from trytond.model import ModelView, ModelSQL, fields
-from difflib import SequenceMatcher
+from __future__ import with_statement
 import os
 import logging
 from lxml import etree
+from difflib import SequenceMatcher
+from trytond.model import ModelView, ModelSQL, fields
 from trytond.backend import TableHandler
 from trytond.pyson import PYSONEncoder, CONTEXT, Eval, Not, Bool, Equal
 from trytond.tools import safe_eval
+from trytond.transaction import Transaction
 
 
 class View(ModelSQL, ModelView):
@@ -46,25 +47,26 @@ class View(ModelSQL, ModelView):
         })
         self._order.insert(0, ('priority', 'ASC'))
 
-    def init(self, cursor, module_name):
-        super(View, self).init(cursor, module_name)
-        table = TableHandler(cursor, self, module_name)
+    def init(self, module_name):
+        super(View, self).init(module_name)
+        table = TableHandler(Transaction().cursor, self, module_name)
 
         # Migration from 1.0 arch no more required
         table.not_null_action('arch', action='remove')
 
-    def default_arch(self, cursor, user, context=None):
+    def default_arch(self):
         return '<?xml version="1.0"?>'
 
-    def default_priority(self, cursor, user, context=None):
+    def default_priority(self):
         return 16
 
-    def default_module(self, cursor, user, context=None):
-        return context and context.get('module', '') or ''
+    def default_module(self):
+        return Transaction().context.get('module') or ''
 
-    def check_xml(self, cursor, user, ids):
+    def check_xml(self, ids):
         "Check XML"
-        views = self.browse(cursor, user, ids)
+        cursor = Transaction().cursor
+        views = self.browse(ids)
         for view in views:
             cursor.execute('SELECT id, name, src FROM ir_translation ' \
                     'WHERE lang = %s ' \
@@ -126,15 +128,16 @@ class View(ModelSQL, ModelView):
                 return False
 
             strings = self._translate_view(root_element)
-            view_ids = self.search(cursor, 0, [
-                ('model', '=', view.model),
-                ('id', '!=', view.id),
-                ('module', '=', view.module),
-                ])
-            for view2 in self.browse(cursor, 0, view_ids):
-                tree2 = etree.fromstring(view2.arch)
-                root2_element = tree2.getroottree().getroot()
-                strings += self._translate_view(root2_element)
+            with Transaction().set_user(0):
+                view_ids = self.search([
+                    ('model', '=', view.model),
+                    ('id', '!=', view.id),
+                    ('module', '=', view.module),
+                    ])
+                for view2 in self.browse(view_ids):
+                    tree2 = etree.fromstring(view2.arch)
+                    root2_element = tree2.getroottree().getroot()
+                    strings += self._translate_view(root2_element)
             if not strings:
                 continue
             for string in {}.fromkeys(strings).keys():
@@ -176,32 +179,32 @@ class View(ModelSQL, ModelView):
                         (view.model, 'view', view.module) + tuple(strings))
         return True
 
-    def delete(self, cursor, user, ids, context=None):
-        res = super(View, self).delete(cursor, user, ids, context=context)
+    def delete(self, ids):
+        res = super(View, self).delete(ids)
         # Restart the cache
         for _, model in self.pool.iterobject():
             try:
-                model.fields_view_get(cursor.dbname)
+                model.fields_view_get.reset()
             except Exception:
                 pass
         return res
 
-    def create(self, cursor, user, vals, context=None):
-        res = super(View, self).create(cursor, user, vals, context=context)
+    def create(self, vals):
+        res = super(View, self).create(vals)
         # Restart the cache
         for _, model in self.pool.iterobject():
             try:
-                model.fields_view_get(cursor.dbname)
+                model.fields_view_get.reset()
             except Exception:
                 pass
         return res
 
-    def write(self, cursor, user, ids, vals, context=None):
-        res = super(View, self).write(cursor, user, ids, vals, context=context)
+    def write(self, ids, vals):
+        res = super(View, self).write(ids, vals)
         # Restart the cache
         for _, model in self.pool.iterobject():
             try:
-                model.fields_view_get(cursor.dbname)
+                model.fields_view_get.reset()
             except Exception:
                 pass
         return res
@@ -236,15 +239,15 @@ class ViewShortcut(ModelSQL, ModelView):
         self._rpc.update({'get_sc': False})
         self._order.insert(0, ('sequence', 'ASC'))
 
-    def get_sc(self, cursor, user, user_id, model='ir.ui.menu', context=None):
+    def get_sc(self, user_id, model='ir.ui.menu'):
         "Provide user's shortcuts"
-        ids = self.search(cursor, user, [
+        ids = self.search([
             ('user_id','=',user_id),
             ('resource','=',model),
-            ], context=context)
-        return self.read(cursor, user, ids, ['res_id', 'name'], context=context)
+            ])
+        return self.read(ids, ['res_id', 'name'])
 
-    def default_resource(self, cursor, user, context=None):
+    def default_resource(self):
         return 'ir.ui.menu'
 
 ViewShortcut()
@@ -267,68 +270,68 @@ class ViewTreeWidth(ModelSQL, ModelView):
             'set_width': True,
         })
 
-    def delete(self, cursor, user, ids, context=None):
+    def delete(self, ids):
         if isinstance(ids, (int, long)):
             ids = [ids]
-        views = self.browse(cursor, user, ids, context=context)
+        views = self.browse(ids)
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get(cursor.dbname)
+                self.pool.get(view.model).fields_view_get.reset()
             except Exception:
                 pass
-        res = super(ViewTreeWidth, self).delete(cursor, user, ids, context=context)
+        res = super(ViewTreeWidth, self).delete(ids)
         return res
 
-    def create(self, cursor, user, vals, context=None):
-        res = super(ViewTreeWidth, self).create(cursor, user, vals, context=context)
+    def create(self, vals):
+        res = super(ViewTreeWidth, self).create(vals)
         if 'model' in vals:
             model = vals['model']
             # Restart the cache
             try:
-                self.pool.get(model).fields_view_get(cursor.dbname)
+                self.pool.get(model).fields_view_get.reset()
             except Exception:
                 pass
         return res
 
-    def write(self, cursor, user, ids, vals, context=None):
+    def write(self, ids, vals):
         if isinstance(ids, (int, long)):
             ids = [ids]
-        views = self.browse(cursor, user, ids)
+        views = self.browse(ids)
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get(cursor.dbname)
+                self.pool.get(view.model).fields_view_get.reset()
             except Exception:
                 pass
-        res = super(ViewTreeWidth, self).write(cursor, user, ids, vals, context=context)
-        views = self.browse(cursor, user, ids)
+        res = super(ViewTreeWidth, self).write(ids, vals)
+        views = self.browse(ids)
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get(cursor.dbname)
+                self.pool.get(view.model).fields_view_get.reset()
             except Exception:
                 pass
         return res
 
-    def set_width(self, cursor, user, model, fields, context=None):
+    def set_width(self, model, fields):
         '''
         Set width for the current user on the model.
         fields is a dictionary with key: field name and value: width.
         '''
-        ids = self.search(cursor, user, [
-            ('user', '=', user),
+        ids = self.search([
+            ('user', '=', Transaction().user),
             ('model', '=', model),
             ('field', 'in', fields.keys()),
-            ], context=context)
-        self.delete(cursor, user, ids, context=context)
+            ])
+        self.delete(ids)
 
         for field in fields.keys():
-            self.create(cursor, user, {
+            self.create({
                 'model': model,
                 'field': field,
-                'user': user,
+                'user': Transaction().user,
                 'width': fields[field],
-                }, context=context)
+                })
 
 ViewTreeWidth()
