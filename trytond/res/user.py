@@ -3,12 +3,6 @@
 "User"
 from __future__ import with_statement
 import copy
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.wizard import Wizard
-from trytond.tools import Cache, safe_eval
-from trytond.backend import TableHandler
-from trytond.security import get_connections
-from trytond.transaction import Transaction
 import string
 import random
 try:
@@ -16,6 +10,13 @@ try:
 except ImportError:
     hashlib = None
     import sha
+from trytond.model import ModelView, ModelSQL, fields
+from trytond.wizard import Wizard
+from trytond.tools import safe_eval
+from trytond.backend import TableHandler
+from trytond.security import get_connections
+from trytond.transaction import Transaction
+from trytond.cache import Cache
 from trytond.pyson import Eval, Greater
 
 

@@ -4,9 +4,10 @@ from decimal import Decimal
 import datetime
 import time
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import Cache, safe_eval
+from trytond.tools import safe_eval
 from trytond.pyson import Eval
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 
 
 class Default(ModelSQL, ModelView):

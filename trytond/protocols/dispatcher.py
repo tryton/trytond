@@ -2,14 +2,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from __future__ import with_statement
-from trytond.pool import Pool
-from trytond import security
-from trytond.tools import Cache
-from trytond.backend import Database
-from trytond.config import CONFIG
-from trytond.version import VERSION
-from trytond.monitor import monitor
-from trytond.transaction import Transaction
 import traceback
 import logging
 import time
@@ -21,6 +13,14 @@ except ImportError:
     import sha
 import base64
 import pydoc
+from trytond.pool import Pool
+from trytond import security
+from trytond.backend import Database
+from trytond.config import CONFIG
+from trytond.version import VERSION
+from trytond.monitor import monitor
+from trytond.transaction import Transaction
+from trytond.cache import Cache
 
 def dispatch(host, port, protocol, database_name, user, session, object_type,
         object_name, method, *args, **kargs):

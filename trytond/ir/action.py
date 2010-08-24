@@ -4,10 +4,11 @@ from __future__ import with_statement
 import base64
 import os
 from trytond.model import ModelView, ModelSQL, ModelStorage, fields
-from trytond.tools import file_open, Cache, safe_eval
+from trytond.tools import file_open, safe_eval
 from trytond.backend import TableHandler
 from trytond.pyson import PYSONEncoder, CONTEXT, PYSON
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 
 
 class Action(ModelSQL, ModelView):

@@ -22,10 +22,11 @@ from trytond.protocols.sslsocket import SSLSocket
 from trytond.config import CONFIG
 from trytond.security import login
 from trytond.version import PACKAGE, VERSION, WEBSITE
-from trytond.tools.misc import Cache, LocalDict
+from trytond.tools.misc import LocalDict
 from trytond.backend import Database
 from trytond.pool import Pool
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 _TRYTON_RELOAD = False
 domimpl = xml.dom.minidom.getDOMImplementation()
 

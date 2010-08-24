@@ -4,10 +4,10 @@ import datetime
 import base64
 import re
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import Cache
 from trytond.report import Report
 from trytond.wizard import Wizard
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 
 
