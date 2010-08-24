@@ -60,7 +60,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
         res = super(Lang, self).read(ids, fields_names=fields_names)
         if (Transaction().context.get('translate_name')
                 and (not fields_names or 'name' in fields_names)):
-            with Transaction.set_context(
+            with Transaction().set_context(
                     language=self.default_code(),
                     translate_name=False):
                 res2 = self.read(ids, fields_names=['id', 'code', 'name'])
