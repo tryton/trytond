@@ -9,10 +9,11 @@ import traceback
 import logging
 import contextlib
 from trytond.backend import Database
-from trytond.tools import Cache
 import trytond.tools as tools
 from trytond.config import CONFIG
 from trytond.transaction import Transaction
+from trytond.cache import Cache
+import trytond.convert as convert
 
 OPJ = os.path.join
 MODULES_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -234,7 +235,7 @@ def load_module_graph(graph, pool, lang=None):
                     models_to_update_history.add(model._name)
 
             #Instanciate a new parser for the package:
-            tryton_parser = tools.TrytondXmlHandler(pool=pool, module=module)
+            tryton_parser = convert.TrytondXmlHandler(pool=pool, module=module)
 
             for filename in package.datas.get('xml', []):
                 filename = filename.replace('/', os.sep)
@@ -302,7 +303,7 @@ def load_module_graph(graph, pool, lang=None):
     # Vacuum :
     while modules_todo:
         (module, to_delete) = modules_todo.pop()
-        tools.post_import(pool, module, to_delete)
+        convert.post_import(pool, module, to_delete)
 
 
     cursor.commit()

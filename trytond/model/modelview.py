@@ -8,10 +8,10 @@ except ImportError:
     import md5
 import copy
 from trytond.model import Model
-from trytond.tools import Cache, safe_eval
-from trytond.modules import create_graph, get_module_list
+from trytond.tools import safe_eval
 from trytond.pyson import PYSONEncoder, CONTEXT
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 
 def _find(tree, element):
     if element.tag == 'xpath':
@@ -82,6 +82,7 @@ class ModelView(Model):
         ModelView.__modules_list = None
 
     def _get_modules_list(self):
+        from trytond.modules import create_graph, get_module_list
         if ModelView.__modules_list:
             return ModelView.__modules_list
         graph = create_graph(get_module_list())[0]

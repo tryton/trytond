@@ -4,10 +4,11 @@ import datetime
 import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pyson import Eval, Or
-from trytond.tools import Cache, safe_eval
+from trytond.tools import safe_eval
 from trytond.backend import TableHandler
 from trytond.tools import reduce_ids
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 
 
 class Trigger(ModelSQL, ModelView):

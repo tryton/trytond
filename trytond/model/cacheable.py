@@ -2,8 +2,8 @@
 #this repository contains the full copyright notices and license terms.
 from threading import Lock
 import time
-from trytond.tools import Cache
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 
 
 class Cacheable(object):
