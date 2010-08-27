@@ -53,9 +53,7 @@ class Attachment(ModelSQL, ModelView):
             table.drop_column('res_id')
 
     def default_resource(self):
-        if context is None:
-            context = {}
-        return context.get('resource')
+        return Transaction().context.get('resource')
 
     def default_collision(self):
         return 0
