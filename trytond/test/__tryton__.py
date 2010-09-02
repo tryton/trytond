@@ -8,6 +8,7 @@
     'depends': ['ir', 'res'],
     'xml': [
         'import_data.xml',
+        'sequence.xml',
     ],
     'translation': [
     ],

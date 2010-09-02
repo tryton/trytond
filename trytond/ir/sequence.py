@@ -3,9 +3,10 @@
 from __future__ import with_statement
 from string import Template
 import datetime
+import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import datetime_strftime
-from trytond.pyson import In, Eval
+from trytond.pyson import In, Eval, Not
 from trytond.transaction import Transaction
 
 
@@ -24,29 +25,63 @@ class Sequence(ModelSQL, ModelView):
     _name = 'ir.sequence'
     _description = __doc__
     name = fields.Char('Sequence Name', required=True, translate=True)
-    code = fields.Selection('code_get', 'Sequence Type', required=True,
+    code = fields.Selection('code_get', 'Sequence Code', required=True,
             states={
                 'readonly': In('code', Eval('context', {})),
             })
     active = fields.Boolean('Active')
     prefix = fields.Char('Prefix')
     suffix = fields.Char('Suffix')
-    number_next = fields.Integer('Next Number')
-    number_increment = fields.Integer('Increment Number')
-    padding = fields.Integer('Number padding')
+    type = fields.Selection([
+        ('incremental', 'Incremental'),
+        ('decimal timestamp', 'Decimal Timestamp'),
+        ('hexadecimal timestamp', 'Hexadecimal Timestamp'),
+        ], 'Type')
+    number_next = fields.Integer('Next Number',
+            states={
+                'invisible': Not(In(Eval('type'), ['incremental'])),
+            }, depends=['type'])
+    number_increment = fields.Integer('Increment Number',
+            states={
+                'invisible': Not(In(Eval('type'), ['incremental'])),
+            }, depends=['type'])
+    padding = fields.Integer('Number padding',
+            states={
+                'invisible': Not(In(Eval('type'), ['incremental'])),
+            }, depends=['type'])
+    timestamp_rounding = fields.Integer('Timestamp Rounding', required=True,
+            states={
+                'invisible': Not(In(Eval('type'),
+                    ['decimal timestamp', 'hexadecimal timestamp'])),
+            }, depends=['type'])
+    timestamp_offset = fields.Float('Timestamp Offset',
+            states={
+                'invisible': Not(In(Eval('type'),
+                    ['decimal timestamp', 'hexadecimal timestamp'])),
+            }, depends=['type'])
+    last_timestamp = fields.Integer('Last Timestamp',
+            states={
+                'invisible': Not(In(Eval('type'),
+                    ['decimal timestamp', 'hexadecimal timestamp'])),
+            }, depends=['type'])
 
     def __init__(self):
         super(Sequence, self).__init__()
         self._constraints += [
             ('check_prefix_suffix', 'invalid_prefix_suffix'),
+            ('check_last_timestamp', 'future_last_timestamp'),
         ]
         self._error_messages.update({
             'missing': 'Missing sequence!',
             'invalid_prefix_suffix': 'Invalid prefix/suffix!',
+            'future_last_timestamp': 'Last Timestamp could not be in future!',
             })
 
     def default_active(self):
         return True
+
+    def default_type(self):
+        return 'incremental'
 
     def default_number_increment(self):
         return 1
@@ -56,6 +91,15 @@ class Sequence(ModelSQL, ModelView):
 
     def default_padding(self):
         return 0
+
+    def default_timestamp_rounding(self):
+        return 1.0
+
+    def default_timestamp_offset(self):
+        return 946681200.0 # Offset for 2000-01-01
+
+    def default_last_timestamp(self):
+        return 0.0
 
     def default_code(self):
         return Transaction().context.get('code', False)
@@ -77,6 +121,15 @@ class Sequence(ModelSQL, ModelView):
                 return False
         return True
 
+    def check_last_timestamp(self, ids):
+        "Check last_timestamp"
+
+        for sequence in self.browse(ids):
+            next_timestamp = self._timestamp(sequence)
+            if sequence.last_timestamp > next_timestamp:
+                return False
+        return True
+
     def _process(self, string, date=None):
         date_obj = self.pool.get('ir.date')
         if not date:
@@ -89,6 +142,35 @@ class Sequence(ModelSQL, ModelView):
                 month=month,
                 day=day,
                 )
+
+    def _timestamp(self, sequence):
+        return int((time.time() - sequence.timestamp_offset)
+                / sequence.timestamp_rounding)
+
+    def _get_sequence(self, sequence):
+        if sequence.type == 'incremental':
+            #Pre-fetch number_next
+            number_next = sequence.number_next or 0
+
+            with Transaction().set_user(0):
+                self.write(sequence.id, {
+                        'number_next': number_next + sequence.number_increment,
+                        })
+            return '%%0%sd' % sequence.padding % number_next
+        elif sequence.type in ('decimal timestamp', 'hexadecimal timestamp'):
+            timestamp = sequence.last_timestamp
+            while timestamp == sequence.last_timestamp:
+                timestamp = self._timestamp(sequence)
+            with Transaction().set_user(0):
+                self.write(sequence.id, {
+                    'last_timestamp': timestamp,
+                    })
+            if sequence.type == 'decimal timestamp':
+                return '%d' % timestamp
+            else:
+                return hex(timestamp)[2:].upper()
+        return ''
+
 
     def get_id(self, domain):
         '''
@@ -108,21 +190,11 @@ class Sequence(ModelSQL, ModelView):
             if sequence_ids:
                 with Transaction().set_user(0):
                     sequence = self.browse(sequence_ids[0])
-                    #Pre-fetch number_next
-                    number_next = sequence.number_next
-
-                    self.write(sequence.id, {
-                            'number_next': (number_next +
-                                sequence.number_increment),
-                            })
-
-                if number_next:
-                    return (self._process(sequence.prefix, date=date) +
-                            '%%0%sd' % sequence.padding % number_next +
-                            self._process(sequence.suffix, date=date))
-                else:
-                    return (self._process(sequence.prefix, date=date) +
-                            self._process(sequence.suffix, date=date))
+                return '%s%s%s' % (
+                        self._process(sequence.prefix, date=date),
+                        self._get_sequence(sequence),
+                        self._process(sequence.suffix, date=date),
+                        )
         self.raise_user_error('missing')
 
     def get(self, code):
