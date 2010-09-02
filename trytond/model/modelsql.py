@@ -1187,11 +1187,9 @@ class ModelSQL(ModelStorage):
                 (order_by and ' ORDER BY ' + order_by or ''), limit, offset)
         if query_string:
             return (query_str, tables_args + qu2)
-        cursor.execute(cursor.limit_clause(
-            'SELECT * FROM (' + query_str + ') AS ' \
-                '"' + self._table + '"', cursor.IN_MAX), tables_args + qu2)
+        cursor.execute(query_str, tables_args + qu2)
 
-        datas = cursor.dictfetchall()
+        datas = cursor.dictfetchmany(cursor.IN_MAX)
         cache = cursor.get_cache()
         cache.setdefault(self._name, {})
         delete_records = Transaction().delete_records.setdefault(self._name,
