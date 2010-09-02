@@ -1,3 +1,4 @@
+* Add timestamp sequence
 * New transaction management
 * Make _timestamp numeric instead of datetime to work with XML-RPC and JSON-RPC
 * Add ir.trigger to trigger ModelStorage change
