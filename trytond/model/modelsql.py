@@ -1482,9 +1482,9 @@ class ModelSQL(ModelStorage):
                                 table, domain[i][0]))
                 else:
                     if isinstance(domain[i][2], basestring):
-                        res_ids = [x[0] for x in target_obj.search([
+                        res_ids = target_obj.search([
                             ('rec_name', domain[i][1], domain[i][2]),
-                            ], order=[])]
+                            ], order=[])
                     elif isinstance(domain[i][2], (int, long)) \
                             and not isinstance(domain[i][2], bool):
                         res_ids = [domain[i][2]]
