@@ -505,6 +505,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.rule.group" id="rule_group_sequence">
             <field name="model" search="[('model', '=', 'ir.sequence')]"/>
             <field name="global_p" eval="True"/>
+            <field name="perm_read" eval="False"/>
         </record>
         <record model="ir.rule" id="rule_sequence">
             <field name="field" search="[('name', '=', 'groups'), ('model.model', '=', 'ir.sequence')]"/>
@@ -516,6 +517,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.rule.group" id="rule_group_sequence_strict">
             <field name="model" search="[('model', '=', 'ir.sequence.strict')]"/>
             <field name="global_p" eval="True"/>
+            <field name="perm_read" eval="False"/>
         </record>
         <record model="ir.rule" id="rule_sequence_strict">
             <field name="field" search="[('name', '=', 'groups'), ('model.model', '=', 'ir.sequence.strict')]"/>
