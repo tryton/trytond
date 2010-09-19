@@ -221,7 +221,7 @@ class RequestHistory(ModelSQL, ModelView):
         return datetime.datetime.now()
 
     def write(self, ids, vals):
-        raise
+        pass
 
 RequestHistory()
 
