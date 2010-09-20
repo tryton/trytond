@@ -1103,7 +1103,7 @@ class ModelSQL(ModelStorage):
             for obj_id in ids:
                 cursor.execute('INSERT INTO "' + self._table + '__history" ' \
                         '(id, write_uid, write_date) VALUES (%s, %s, %s)',
-                        (obj_id, user, datetime.datetime.now()))
+                        (obj_id, Transaction().user, datetime.datetime.now()))
 
         for k in tree_ids.keys():
             field = self._columns[k]
