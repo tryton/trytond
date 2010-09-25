@@ -102,6 +102,9 @@ class NetRPCServerThread(threading.Thread):
             while self.running:
                 if not int(CONFIG['max_thread']) \
                         or len(self.threads) < int(CONFIG['max_thread']):
+                    (rlist, _, _) = select.select([self.socket], [], [], 1)
+                    if not rlist:
+                        continue
                     (clientsocket, _) = self.socket.accept()
                     c_thread = NetRPCClientThread(clientsocket, self.threads,
                             self.secure)
