@@ -86,7 +86,8 @@ class SequenceTestCase(unittest.TestCase):
                 })
             timestamp = self.sequence.get_id(sequence_id)
             sequence = self.sequence.read(sequence_id, ['last_timestamp'])
-            self.assertEqual(timestamp, hex(sequence['last_timestamp'])[2:].upper())
+            self.assertEqual(timestamp,
+                    hex(int(sequence['last_timestamp']))[2:].upper())
 
             self.assertNotEqual(self.sequence.get_id(sequence_id), timestamp)
 
