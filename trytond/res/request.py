@@ -63,7 +63,7 @@ class Request(ModelSQL, ModelView):
            'History', readonly=True)
 
     def default_act_from(self):
-        return int(user)
+        return int(Transaction().user)
 
     def default_state(self):
         return 'draft'
@@ -212,10 +212,10 @@ class RequestHistory(ModelSQL, ModelView):
         return 'No Name'
 
     def default_act_from(self):
-        return int(user)
+        return int(Transaction().user)
 
     def default_act_to(self):
-        return int(user)
+        return int(Transaction().user)
 
     def default_date_sent(self):
         return datetime.datetime.now()
