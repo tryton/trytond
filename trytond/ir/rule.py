@@ -109,7 +109,7 @@ class Rule(ModelSQL, ModelView):
         res.update({"False": "False", "True": "True", "User": "user.id"})
         if not recur:
             recur = []
-        with Transaction().set_context(language='es_US'):
+        with Transaction().set_context(language='en_US'):
             obj_fields = self.pool.get(obj_name).fields_get()
         key = obj_fields.keys()
         key.sort()
