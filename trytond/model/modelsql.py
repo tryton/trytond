@@ -384,6 +384,12 @@ class ModelSQL(ModelStorage):
 
         Transaction().create_records.setdefault(self._name, set()).add(id_new)
 
+        for field in values:
+            if getattr(self._columns[field], 'translate', False):
+                self.pool.get('ir.translation')._set_ids(
+                        self._name + ',' + field, 'model',
+                        Transaction().language, [id_new], values[field])
+
         upd_todo.sort(lambda x, y: self._columns[x].priority - \
                 self._columns[y].priority)
         for field in upd_todo:
