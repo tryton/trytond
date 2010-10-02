@@ -586,6 +586,10 @@ class Model(object):
                     field_value = field_value2
                 value[field] = field_value
         value = self._default_on_change(value)
+        if not with_rec_name:
+            for field in value.keys():
+                if field.endswith('.rec_name'):
+                    del value[field]
         return value
 
     def _default_on_change(self, value):
