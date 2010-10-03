@@ -9,6 +9,7 @@ from decimal import Decimal
 from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
         install_module
 from trytond.transaction import Transaction
+from trytond.protocols.datatype import Float
 
 
 class FieldsTestCase(unittest.TestCase):
@@ -547,6 +548,13 @@ class FieldsTestCase(unittest.TestCase):
             float7 = self.float.read(float7_id, ['float'])
             self.assert_(float7['float'] == 0.123456789012345)
 
+            float8_id = self.float.create({
+                'float': Float('1.1'),
+                })
+
+            float8 = self.float.read(float8_id, ['float'])
+            self.assertEqual(float8['float'], 1.1)
+
             transaction.cursor.rollback()
 
     def test0040numeric(self):
@@ -761,6 +769,13 @@ class FieldsTestCase(unittest.TestCase):
             numeric7 = self.numeric.read(numeric7_id, ['numeric'])
             self.assert_(numeric7['numeric'] ==
                     Decimal('0.1234567890123456789'))
+
+            numeric8_id = self.numeric.create({
+                'numeric': Float('1.1'),
+                })
+
+            numeric8 = self.numeric.read(numeric8_id, ['numeric'])
+            self.assertEqual(numeric8['numeric'], Decimal('1.1'))
 
             transaction.cursor.rollback()
 
