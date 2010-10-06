@@ -46,6 +46,27 @@ class Model(ModelSQL, ModelView):
                 return False
         return True
 
+    def create(self, vals):
+        property_obj = self.pool.get('ir.property')
+        res = super(Model, self).create(vals)
+        # Restart the cache of models_get
+        property_obj.models_get.reset()
+        return res
+
+    def write(self, ids, vals):
+        property_obj = self.pool.get('ir.property')
+        res = super(Model, self).write(ids, vals)
+        # Restart the cache of models_get
+        property_obj.models_get.reset()
+        return res
+
+    def delete(self, ids):
+        property_obj = self.pool.get('ir.property')
+        res = super(Model, self).delete(ids)
+        # Restart the cache of models_get
+        property_obj.models_get.reset()
+        return res
+
 Model()
 
 
