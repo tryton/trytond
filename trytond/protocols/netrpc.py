@@ -4,6 +4,7 @@ from trytond.pysocket import PySocket
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.config import CONFIG
 from trytond.protocols.dispatcher import dispatch
+from trytond.protocols.common import endsocket
 import threading
 import select
 import traceback
@@ -13,7 +14,7 @@ import sys
 
 class NetRPCClientThread(threading.Thread):
     def __init__(self, sock, threads, secure):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name='NetRPCClientThread')
         self.sock = sock
         self.threads = threads
         self.running = False
@@ -77,7 +78,7 @@ class NetRPCClientThread(threading.Thread):
 
 class NetRPCServerThread(threading.Thread):
     def __init__(self, interface, port, secure=False):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name='NetRPCServerThread')
         self.socket = None
         if socket.has_ipv6:
             try:
@@ -127,10 +128,6 @@ class NetRPCServerThread(threading.Thread):
             except Exception:
                 pass
         try:
-            if hasattr(socket, 'SHUT_RDWR'):
-                self.socket.shutdown(socket.SHUT_RDWR)
-            else:
-                self.socket.shutdown(2)
-            self.socket.close()
+            endsocket(self.socket)
         except Exception:
             return False

@@ -185,18 +185,18 @@ class TrytonServer(object):
                     return
             if CONFIG['netrpc']:
                 netrpcd.stop()
+                netrpcd.join()
             if CONFIG['xmlrpc']:
                 xmlrpcd.stop()
+                xmlrpcd.join()
             if CONFIG['jsonrpc']:
                 jsonrpcd.stop()
+                jsonrpcd.join()
             if CONFIG['webdav']:
                 webdavd.stop()
+                webdavd.join()
             if CONFIG['pidfile']:
                 os.unlink(CONFIG['pidfile'])
-            for thread in threading.enumerate():
-                if thread == threading.currentThread():
-                    continue
-                thread.join()
             logging.getLogger('server').info('stopped')
             logging.shutdown()
             sys.exit(0)
