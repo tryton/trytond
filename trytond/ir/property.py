@@ -4,6 +4,7 @@ from __future__ import with_statement
 from decimal import Decimal
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
+from trytond.cache import Cache
 
 
 class Property(ModelSQL, ModelView):
@@ -16,6 +17,7 @@ class Property(ModelSQL, ModelView):
     field = fields.Many2One('ir.model.field', 'Field',
         ondelete='CASCADE', required=True, select=1)
 
+    @Cache('ir_property.models_get')
     def models_get(self):
         cursor = Transaction().cursor
         cursor.execute('SELECT model, name FROM ir_model ORDER BY name ASC')
@@ -30,7 +32,6 @@ class Property(ModelSQL, ModelView):
         :param res_ids: a list of record ids
         :return: a dictionary
         """
-        model_field_obj = self.pool.get('ir.model.field')
         model_access_obj = self.pool.get('ir.model.access')
         res = {}
 
@@ -40,52 +41,44 @@ class Property(ModelSQL, ModelView):
         if not isinstance(names, list):
             names_list = False
             names = [names]
+        if res_ids is None:
+            res_ids = []
 
-        field_ids = model_field_obj.search([
-            ('name', 'in', names),
-            ('model.model', '=', model),
-            ], order=[])
-        fields = model_field_obj.browse(field_ids)
+        model_obj = self.pool.get(model)
+        fields = dict((name, field)
+                for name, field in model_obj._columns.iteritems()
+                if name in names)
 
-        default_ids = self.search([
-            ('field', 'in', field_ids),
-            ('res', '=', False),
+        property_ids = self.search([
+            ('field.name', 'in', names),
+            ['OR',
+                ('res', '=', False),
+                ('res', 'in', ['%s,%s' % (model, x) for x in res_ids]),
+                ],
             ], order=[])
+        properties = self.browse(property_ids)
+
         default_vals = dict((x, False) for x in names)
-        if default_ids:
-            for property in self.browse(default_ids):
-                value = property.value
-                val = False
-                if value:
-                    if value.split(',')[0]:
-                        try:
-                            val = int(value.split(',')[1]\
-                                    .split(',')[0].strip('('))
-                        except ValueError:
-                            val = False
+        for property in (x for x in properties if not x.res):
+            value = property.value
+            val = False
+            if value:
+                if value.split(',')[0]:
+                    try:
+                        val = int(value.split(',')[1]\
+                                .split(',')[0].strip('('))
+                    except ValueError:
+                        val = False
+                else:
+                    if property.field.ttype == 'numeric':
+                        val = Decimal(value.split(',')[1])
+                    elif property.field.ttype in ('char', 'selection'):
+                        val = value.split(',')[1]
                     else:
-                        if property.field.ttype == 'numeric':
-                            val = Decimal(value.split(',')[1])
-                        elif property.field.ttype in ('char', 'selection'):
-                            val = value.split(',')[1]
-                        else:
-                            raise Exception('Not implemented')
-                default_vals[property.field.name] = val
-
-        id_found = {}
+                        raise Exception('Not implemented')
+            default_vals[property.field.name] = val
 
         if not res_ids:
-            for field in fields:
-                if field.ttype == 'many2one':
-                    obj = self.pool.get(field.relation)
-                    id_found.setdefault(field.relation, set())
-                    if (default_vals[field.name] not in id_found[field.relation]
-                            and not obj.search([
-                                ('id', '=', default_vals[field.name]),
-                                ], order=[])):
-                        default_vals[field.name] = False
-                    if default_vals[field.name]:
-                        id_found[field.relation].add(default_vals[field.name])
             if not names_list:
                 return default_vals[names[0]]
             return default_vals
@@ -93,12 +86,7 @@ class Property(ModelSQL, ModelView):
         for name in names:
             res[name] = dict((x, default_vals[name]) for x in res_ids)
 
-        property_ids = self.search([
-            ('field', 'in', field_ids),
-            ('res', 'in', [model + ',' + str(obj_id) \
-                    for obj_id in  res_ids]),
-            ], order=[])
-        for property in self.browse(property_ids):
+        for property in (x for x in properties if x.res):
             val = False
             if property.value:
                 if property.value.split(',')[0]:
@@ -117,20 +105,6 @@ class Property(ModelSQL, ModelView):
             res[property.field.name][
                     int(property.res.split(',')[1].split(',')[0].strip('('))] = val
 
-        for field in fields:
-            if field.ttype == 'many2one':
-                obj = self.pool.get(field.relation)
-                id_found.setdefault(field.relation, set())
-                if set(res[field.name].values()).issubset(
-                        id_found[field.relation]):
-                    continue
-                obj_ids = obj.search([
-                    ('id', 'in', res[field.name].values()),
-                    ], order=[])
-                id_found[field.relation].update(obj_ids)
-                for res_id in res[field.name]:
-                    if res[field.name][res_id] not in obj_ids:
-                        res[field.name][res_id] = False
         if not names_list:
             return res[names[0]]
         return res
@@ -161,7 +135,8 @@ class Property(ModelSQL, ModelView):
             ('name', '=', name),
             ('model.model', '=', model),
             ], order=[], limit=1)[0]
-        field = model_field_obj.browse(field_id)
+        model_obj = self.pool.get(model)
+        field = model_obj._columns[name]
 
         property_ids = self.search([
             ('field', '=', field_id),
@@ -186,9 +161,9 @@ class Property(ModelSQL, ModelView):
                     except ValueError:
                         default_val = False
                 else:
-                    if field.ttype == 'numeric':
+                    if field._type == 'numeric':
                         default_val = Decimal(value.split(',')[1])
-                    elif field.ttype in ('char', 'selection'):
+                    elif field._type in ('char', 'selection'):
                         default_val = value.split(',')[1]
                     else:
                         raise Exception('Not implemented')

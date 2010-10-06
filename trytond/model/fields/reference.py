@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from __future__ import with_statement
+import contextlib
 from trytond.model.fields.field import Field
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
@@ -46,7 +47,7 @@ class Reference(Field):
         res = {}
         for i in values:
             res[i['id']] = i[name]
-        ref_id_found = {}
+        ref_to_check = {}
         for i in ids:
             if not (i in res):
                 res[i] = False
@@ -56,10 +57,6 @@ class Reference(Field):
             ref_model, ref_id = res[i].split(',', 1)
             if not ref_model:
                 continue
-            if ref_model not in model.pool.object_name_list():
-                continue
-            ref_obj = model.pool.get(ref_model)
-            ref_id_found.setdefault(ref_model, set())
             try:
                 ref_id = safe_eval(ref_id)
             except Exception:
@@ -68,14 +65,26 @@ class Reference(Field):
                 ref_id = int(ref_id)
             except Exception:
                 continue
-            with Transaction().set_context(active_test=False):
-                if ref_id \
-                    and ref_id not in ref_id_found[ref_model] \
-                    and not ref_obj.search([
-                        ('id', '=', ref_id),
-                        ], order=[]):
-                    ref_id = False
-            if ref_id:
-                ref_id_found[ref_model].add(ref_id)
+            if not ref_id:
+                continue
             res[i] = ref_model + ',' + str(ref_id)
+            ref_to_check.setdefault(ref_model, (set(), []))
+            ref_to_check[ref_model][0].add(ref_id)
+            ref_to_check[ref_model][1].append(i)
+
+        # Check if reference ids still exist
+        with contextlib.nested(Transaction().set_context(active_test=False),
+                Transaction().set_user(0)):
+            for ref_model, (ref_ids, ids) in ref_to_check.iteritems():
+                if ref_model not in model.pool.object_name_list():
+                    res.update(dict((i, False) for i in ids))
+                    continue
+                ref_obj = model.pool.get(ref_model)
+                ref_ids = ref_obj.search([
+                    ('id', 'in', list(ref_ids)),
+                    ], order=[])
+                refs = [ref_model + ',' + str(ref_id) for ref_id in ref_ids]
+                for i in ids:
+                    if res[i] not in refs:
+                        res[i] = False
         return res
