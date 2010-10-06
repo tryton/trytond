@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import threading
 import SocketServer
 import socket
 import os
@@ -19,6 +18,7 @@ from DAV.constants import COLLECTION, DAV_VERSION_1, DAV_VERSION_2
 from DAV.utils import get_uriparentpath, get_urifilename, quote_uri
 from DAV.davcmd import copyone, copytree, moveone, movetree, delone, deltree
 from trytond.protocols.sslsocket import SSLSocket
+from trytond.protocols.common import daemon
 from trytond.config import CONFIG
 from trytond.security import login
 from trytond.version import PACKAGE, VERSION, WEBSITE
@@ -96,47 +96,23 @@ class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
         self.server_activate()
 
 
-class WebDAVServerThread(threading.Thread):
+class WebDAVServerThread(daemon):
 
     def __init__(self, interface, port, secure=False):
-        threading.Thread.__init__(self)
-        self.secure = secure
-        self.running = False
-        ipv6 = False
-        if socket.has_ipv6:
-            try:
-                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                ipv6 = True
-            except Exception:
-                pass
-        if secure:
+        daemon.__init__(self, interface, port, secure, 
+                name='WebDAVServerThread')
+        if self.secure:
             handler_class = SecureWebDAVAuthRequestHandler
             server_class = SecureThreadedHTTPServer
-            if ipv6:
+            if self.ipv6:
                 server_class = SecureThreadedHTTPServer6
         else:
             handler_class = WebDAVAuthRequestHandler
             server_class = BaseThreadedHTTPServer
-            if ipv6:
+            if self.ipv6:
                 server_class = BaseThreadedHTTPServer6
         handler_class.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
         self.server = server_class((interface, port), handler_class)
-
-    def stop(self):
-        self.running = False
-        if os.name != 'nt':
-            if hasattr(socket, 'SHUT_RDWR'):
-                self.server.socket.shutdown(socket.SHUT_RDWR)
-            else:
-                self.server.socket.shutdown(2)
-        self.server.socket.close()
-
-    def run(self):
-        self.running = True
-        while self.running:
-            self.server.handle_request()
-        return True
-
 
 class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
     address_family = socket.AF_INET6

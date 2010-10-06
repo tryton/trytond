@@ -4,10 +4,10 @@ from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
 from trytond.protocols.datatype import Float
+from trytond.protocols.common import daemon
 import SimpleXMLRPCServer
 import SimpleHTTPServer
 import SocketServer
-import threading
 import traceback
 import socket
 import sys
@@ -303,42 +303,19 @@ class SecureThreadedJSONRPCServer6(SecureThreadedJSONRPCServer):
     address_family = socket.AF_INET6
 
 
-class JSONRPCDaemon(threading.Thread):
+class JSONRPCDaemon(daemon):
 
     def __init__(self, interface, port, secure=False):
-        threading.Thread.__init__(self)
-        self.secure = secure
-        self.running = False
-        ipv6 = False
-        if socket.has_ipv6:
-            try:
-                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                ipv6 = True
-            except Exception:
-                pass
-        if secure:
+        daemon.__init__(self, interface, port, secure, name='JSONRPCDaemon')
+        
+        if self.secure:
             handler_class = SecureJSONRPCRequestHandler
             server_class = SecureThreadedJSONRPCServer
-            if ipv6:
+            if self.ipv6:
                 server_class = SecureThreadedJSONRPCServer6
         else:
             handler_class = SimpleJSONRPCRequestHandler
             server_class = SimpleThreadedJSONRPCServer
-            if ipv6:
+            if self.ipv6:
                 server_class = SimpleThreadedJSONRPCServer6
         self.server = server_class((interface, port), handler_class, 0)
-
-    def stop(self):
-        self.running = False
-        if os.name != 'nt':
-            if hasattr(socket, 'SHUT_RDWR'):
-                self.server.socket.shutdown(socket.SHUT_RDWR)
-            else:
-                self.server.socket.shutdown(2)
-        self.server.socket.close()
-
-    def run(self):
-        self.running = True
-        while self.running:
-            self.server.handle_request()
-        return True

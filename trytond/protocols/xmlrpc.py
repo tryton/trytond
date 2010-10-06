@@ -4,11 +4,11 @@ from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
 from trytond.protocols.datatype import Float
+from trytond.protocols.common import daemon
 from trytond import security
 import SimpleXMLRPCServer
 import SocketServer
 import xmlrpclib
-import threading
 import traceback
 import socket
 import sys
@@ -208,42 +208,18 @@ class SecureThreadedXMLRPCServer6(SecureThreadedXMLRPCServer):
     address_family = socket.AF_INET6
 
 
-class XMLRPCDaemon(threading.Thread):
+class XMLRPCDaemon(daemon):
 
     def __init__(self, interface, port, secure=False):
-        threading.Thread.__init__(self)
-        self.secure = secure
-        self.running = False
-        ipv6 = False
-        if socket.has_ipv6:
-            try:
-                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
-                ipv6 = True
-            except Exception:
-                pass
-        if secure:
+        daemon.__init__(self, interface, port, secure, name='XMLRPCDaemon')
+        if self.secure:
             handler_class = SecureXMLRPCRequestHandler
             server_class = SecureThreadedXMLRPCServer
-            if ipv6:
+            if self.ipv6:
                 server_class = SecureThreadedXMLRPCServer6
         else:
             handler_class = SimpleXMLRPCRequestHandler
             server_class = SimpleThreadedXMLRPCServer
-            if ipv6:
+            if self.ipv6:
                 server_class = SimpleThreadedXMLRPCServer6
         self.server = server_class((interface, port), handler_class, 0)
-
-    def stop(self):
-        self.running = False
-        if os.name != 'nt':
-            if hasattr(socket, 'SHUT_RDWR'):
-                self.server.socket.shutdown(socket.SHUT_RDWR)
-            else:
-                self.server.socket.shutdown(2)
-        self.server.socket.close()
-
-    def run(self):
-        self.running = True
-        while self.running:
-            self.server.handle_request()
-        return True
