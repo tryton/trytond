@@ -64,6 +64,8 @@ XML description
 
 Here is the list of common attributes:
 
+    * ``id``: A unique identifier for the tag if there is no name attribute
+
     * ``expand``: A boolean to specify if the label should expand to take up
       any extra vertical space.
 
