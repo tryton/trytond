@@ -65,6 +65,12 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 'UNIQUE (name, res_id, lang, type, src, module)',
                 'Translation must be unique'),
         ]
+        self._constraints += [
+            ('check_unique_model', 'unique_model'),
+        ]
+        self._error_messages.update({
+            'unique_model': "Translation of type 'model' must be unique!",
+            })
         self._max_len = 10240
 
     def init(self, module_name):
@@ -76,6 +82,20 @@ class Translation(ModelSQL, ModelView, Cacheable):
 
     def default_fuzzy(self):
         return False
+
+    def check_unique_model(self, ids):
+        "Check unique model"
+        cursor = Transaction().cursor
+        query = ('SELECT count(1) FROM "%s" '
+                'WHERE type = %%s '
+                    'AND res_id != 0 '
+                'GROUP BY name, res_id, lang, type, src '
+                'HAVING count(1) > 1' % self._table)
+        cursor.execute(query, ('model',))
+        rowcount = cursor.rowcount
+        if rowcount == -1 or rowcount is None:
+            rowcount = len(cursor.fetchall())
+        return not bool(rowcount)
 
     def get_model(self, ids, name):
         res = {}
@@ -167,6 +187,9 @@ class Translation(ModelSQL, ModelView, Cacheable):
     def _set_ids(self, name, ttype, lang, ids, value):
         model_fields_obj = self.pool.get('ir.model.field')
         model_obj = self.pool.get('ir.model')
+
+        if lang == 'en_US':
+            return 0
 
         model_name, field_name = name.split(',')
         if model_name in ('ir.model.field', 'ir.model'):
