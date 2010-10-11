@@ -412,7 +412,8 @@ def load_modules(database_name, pool, update=False, lang=None):
         contextmanager = Transaction().start(database_name, 0)
     else:
         contextmanager = contextlib.nested(Transaction().new_cursor(),
-                Transaction().set_user(0))
+                Transaction().set_user(0),
+                Transaction().set_context(language='en_US'))
     with contextmanager:
         cursor = Transaction().cursor
         force = []
