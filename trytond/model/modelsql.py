@@ -4,6 +4,7 @@ from __future__ import with_statement
 import contextlib
 import datetime
 import re
+from decimal import Decimal
 from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
@@ -489,10 +490,9 @@ class ModelSQL(ModelStorage):
             if '_timestamp' in fields_pre:
                 if not self.table_query():
                     fields_pre2 += ['CAST(EXTRACT(EPOCH FROM '
-                            '(COALESCE("%s".write_date, "%s".create_date))) AS %s'
-                            ') AS _timestamp' %
-                            (self._table, self._table,
-                                FIELDS['numeric'].sql_type(self.create_date)[1])]
+                            '(COALESCE("%s".write_date, "%s".create_date)))'
+                            'AS VARCHAR) AS _timestamp' %
+                            (self._table, self._table)]
 
             for i in range(0, len(ids), in_max):
                 sub_ids = ids[i:i + in_max]
@@ -749,8 +749,8 @@ class ModelSQL(ModelStorage):
                 for i in sub_ids:
                     if Transaction().timestamp.get(self._name + ',' + str(i)):
                         args.append(i)
-                        args.append(Transaction().timestamp[
-                            self._name + ',' +str(i)])
+                        args.append(Decimal(Transaction().timestamp[
+                            self._name + ',' +str(i)]))
                 if args:
                     cursor.execute("SELECT id " \
                             'FROM "' + self._table + '" ' \
@@ -1184,8 +1184,7 @@ class ModelSQL(ModelStorage):
             if not self.table_query():
                 select_fields += ['CAST(EXTRACT(EPOCH FROM '
                         '(COALESCE("' + self._table + '".write_date, '
-                        '"' + self._table + '".create_date))) AS ' + \
-                        FIELDS['numeric'].sql_type(self.create_date)[1] + \
+                        '"' + self._table + '".create_date))) AS VARCHAR'
                         ') AS _timestamp']
         query_str = cursor.limit_clause(
                 'SELECT ' + ','.join(select_fields) + ' FROM ' + \
