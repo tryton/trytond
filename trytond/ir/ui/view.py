@@ -140,7 +140,7 @@ class View(ModelSQL, ModelView):
                     strings += self._translate_view(root2_element)
             if not strings:
                 continue
-            for string in set({}.fromkeys(strings).keys()):
+            for string in set(strings):
                 done = False
                 if string in trans_views:
                     del trans_views[string]
