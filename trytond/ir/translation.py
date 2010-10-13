@@ -510,17 +510,13 @@ class Translation(ModelSQL, ModelView, Cacheable):
         buf = StringIO.StringIO()
         writer = csv.writer(buf, 'TRYTON')
         writer.writerow(HEADER)
+        rows = []
 
         with Transaction().set_context(language='en_US'):
             translation_ids = self.search([
                 ('lang', '=', lang),
                 ('module', '=', module),
-                ], order=[
-                    ('type', 'ASC'),
-                    ('name', 'ASC'),
-                    ('src', 'ASC'),
-                    ('res_id', 'ASC'),
-                ])
+                ], order=[])
         for translation in self.browse(translation_ids):
             row = []
             for field in HEADER:
@@ -540,7 +536,10 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     value = value.encode('utf-8')
                     row.append(value)
             if len(row) == len(HEADER):
-                writer.writerow(row)
+                rows.append(row)
+
+        rows.sort()
+        writer.writerows(rows)
 
         file_data = buf.getvalue()
         buf.close()
