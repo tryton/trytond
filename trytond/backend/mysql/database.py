@@ -17,6 +17,7 @@ import tempfile
 QUOTE_SEPARATION = re.compile(r"(.*?)('.*?')", re.DOTALL)
 EXTRACT_EPOCH_PATTERN = re.compile(r'EXTRACT\s*\(\s*EPOCH\s+FROM',
         re.I)
+CAST_VARCHAR_PATTERN = re.compile(r'CAST\s*\((.*)AS VARCHAR\)', re.I)
 DatabaseIntegrityError = None
 DatabaseOperationalError = None
 
@@ -236,6 +237,8 @@ class Cursor(CursorInterface):
         for nquote, quote in QUOTE_SEPARATION.findall(sql+"''"):
             nquote = nquote.replace('ilike', 'like')
             nquote = re.sub(EXTRACT_EPOCH_PATTERN, r'UNIX_TIMESTAMP(',
+                    nquote)
+            nquote = re.sub(CAST_VARCHAR_PATTERN, r'CAST(\1AS CHAR)',
                     nquote)
             buf += nquote + quote
         sql = buf[:-2]
