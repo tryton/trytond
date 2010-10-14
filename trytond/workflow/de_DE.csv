@@ -2,6 +2,10 @@ type,name,res_id,src,value,fuzzy
 error,workflow,0,No workflow defined!,Kein Workflow definiert!,0
 error,workflow.instance,0,No workflow instance defined!,Keine Workflowinstanz definiert!,0
 field,"workflow,activities",0,Activities,Aktivitäten,0
+field,"workflow,model",0,Resource Model,Modell Ressource,0
+field,"workflow,name",0,Name,Name,0
+field,"workflow,on_create",0,On Create,Bei der Erstellung,0
+field,"workflow,rec_name",0,Name,Name,0
 field,"workflow.activity,action",0,Action,Aktion,0
 field,"workflow.activity,flow_start",0,Flow Start,Flow Start,0
 field,"workflow.activity,flow_stop",0,Flow Stop,Flow Stop,0
@@ -24,10 +28,6 @@ field,"workflow.instance,transitions",0,Transitions,Übergänge,0
 field,"workflow.instance,uid",0,User ID,Benutzer ID,0
 field,"workflow.instance,workflow",0,Workflow,Workflow,0
 field,"workflow.instance,workitems",0,Workitems,Elemente,0
-field,"workflow,model",0,Resource Model,Modell Ressource,0
-field,"workflow,name",0,Name,Name,0
-field,"workflow,on_create",0,On Create,Bei der Erstellung,0
-field,"workflow,rec_name",0,Name,Name,0
 field,"workflow.transition,act_from",0,Source Activity,Quelle der Aktivität,0
 field,"workflow.transition,act_to",0,Destination Activity,Bestimmung der Aktivität,0
 field,"workflow.transition,condition",0,Condition,Bedingung,0
@@ -61,9 +61,9 @@ model,"ir.ui.menu,name",menu_transition_form,Transitions,Übergänge,0
 model,"ir.ui.menu,name",menu_workflow,Workflow,Workflow,0
 model,"ir.ui.menu,name",menu_workflow_form,Workflows,Workflows,0
 model,"ir.ui.menu,name",menu_workitem_form,Workitems,Elemente,0
+model,"workflow,name",0,Workflow,Workflow,0
 model,"workflow.activity,name",0,Workflow activity,Workflow Aktivität,0
 model,"workflow.instance,name",0,Workflow instance,Workflow Instanz,0
-model,"workflow,name",0,Workflow,Workflow,0
 model,"workflow.transition,name",0,Workflow transition,Workflow Übergang,0
 model,"workflow.transition-workflow.instance,name",0,Workflow Transition - Instance,Workflow Übergang - Instanz,0
 model,"workflow.trigger,name",0,Workflow trigger,Workflow Trigger,0
