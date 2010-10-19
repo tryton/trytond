@@ -507,7 +507,7 @@ class Model(object):
 
         # get the default values defined in the object
         for field in fields_names:
-            if field in self._defaults:
+            if field in self._defaults and field not in self._inherit_fields:
                 value[field] = self._defaults[field]()
             if field in self._columns:
                 if self._columns[field]._type == 'boolean' and \
