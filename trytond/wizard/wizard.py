@@ -3,7 +3,7 @@
 import copy
 from threading import Lock
 from random import randint
-from sys import maxint
+from xmlrpclib import MAXINT
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 
@@ -108,7 +108,7 @@ class Wizard(object):
         self._lock.acquire()
         wiz_id = 0
         while True:
-            wiz_id = randint(0, maxint)
+            wiz_id = randint(0, MAXINT)
             if wiz_id not in self._datas:
                 break
         self._datas[wiz_id] = {'user': Transaction().user, '_wiz_id': wiz_id}
