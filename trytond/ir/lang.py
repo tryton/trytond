@@ -8,6 +8,7 @@ from trytond.model.cacheable import Cacheable
 from trytond.tools import safe_eval, datetime_strftime
 from trytond.transaction import Transaction
 from time_locale import TIME_LOCALE
+from locale import CHAR_MAX
 
 
 class Lang(ModelSQL, ModelView, Cacheable):
@@ -174,6 +175,20 @@ class Lang(ModelSQL, ModelView, Cacheable):
 
     def _group(self, lang, s, monetary=False):
         # Code from _group in locale.py
+
+        # Iterate over grouping intervals
+        def _grouping_intervals(grouping):
+            for interval in grouping:
+                # if grouping is -1, we are done
+                if interval == CHAR_MAX:
+                    return
+                # 0: re-use last group ad infinitum
+                if interval == 0:
+                    while True:
+                        yield last_interval
+                yield interval
+                last_interval = interval
+
         if monetary:
             thousands_sep = monetary['mon_thousands_sep']
             grouping = safe_eval(monetary['mon_grouping'])
@@ -186,34 +201,28 @@ class Lang(ModelSQL, ModelView, Cacheable):
         seps = 0
         spaces = ""
         if s[-1] == ' ':
-            sp = s.find(' ')
-            spaces = s[sp:]
-            s = s[:sp]
-        while s and grouping:
-            # if grouping is -1, we are done
-            if grouping[0] == -1:
+            stripped = s.rstrip()
+            right_spaces = s[len(stripped):]
+            s = stripped
+        else:
+            right_spaces = ''
+        left_spaces = ''
+        groups = []
+        for interval in _grouping_intervals(grouping):
+            if not s or s[-1] not in "0123456789":
+                # only non-digit characters remain (sign, spaces)
+                left_spaces = s
+                s = ''
                 break
-            # 0: re-use last group ad infinitum
-            elif grouping[0] != 0:
-                #process last group
-                group = grouping[0]
-                grouping = grouping[1:]
-            if result:
-                result = s[-group:] + thousands_sep + result
-                seps += 1
-            else:
-                result = s[-group:]
-            s = s[:-group]
-            if s and s[-1] not in "0123456789":
-                # the leading string is only spaces and signs
-                return s + result + spaces, seps
-        if not result:
-            return s + spaces, seps
+            groups.append(s[-interval:])
+            s = s[:-interval]
         if s:
-            result = s + thousands_sep + result
-            seps += 1
-        return result + spaces, seps
-
+            groups.append(s)
+        groups.reverse()
+        return (
+            left_spaces + thousands_sep.join(groups) + right_spaces,
+            len(thousands_sep) * (len(groups) - 1)
+        )
 
     def format(self, lang, percent, value, grouping=False, monetary=None, *additional):
         '''
@@ -229,6 +238,19 @@ class Lang(ModelSQL, ModelView, Cacheable):
         :return: the formatted string
         '''
         # Code from format in locale.py
+
+        # Strip a given amount of excess padding from the given string
+        def _strip_padding(s, amount):
+            lpos = 0
+            while amount and s[lpos] == ' ':
+                lpos += 1
+                amount -= 1
+            rpos = len(s) - 1
+            while amount and s[rpos] == ' ':
+                rpos -= 1
+                amount -= 1
+            return s[lpos:rpos+1]
+
         if not lang:
             lang = {
                 'decimal_point': self.default_decimal_point(),
@@ -255,14 +277,13 @@ class Lang(ModelSQL, ModelView, Cacheable):
             else:
                 decimal_point = lang['decimal_point']
             formatted = decimal_point.join(parts)
-            while seps:
-                sp = formatted.find(' ')
-                if sp == -1: break
-                formatted = formatted[:sp] + formatted[sp+1:]
-                seps -= 1
+            if seps:
+                formatted = _strip_padding(formatted, seps)
         elif percent[-1] in 'diu':
             if grouping:
-                formatted = self._group(lang, formatted, monetary=monetary)[0]
+                formatted, seps = self._group(lang, formatted, monetary=monetary)
+            if seps:
+                formatted = _strip_padding(formatted, seps)
         return formatted
 
 
