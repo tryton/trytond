@@ -102,6 +102,11 @@ class Transaction(local):
             self.context.update(kwargs)
         return manager
 
+    def reset_context(self):
+        manager = _AttributeManager(context=self.context)
+        self.context = {}
+        return manager
+
     def set_user(self, user, set_context=False):
         manager = _AttributeManager(user=self.user,
                 context=self.context.copy())
