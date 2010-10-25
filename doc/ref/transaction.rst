@@ -58,7 +58,7 @@ database transaction.
 .. method:: Transaction.set_cursor(cursor)
 
     Modify the cursor of the transaction and return a `context manager`_. The
-    previous cursor will be retored when exiting the `with` statement.
+    previous cursor will be restored when exiting the `with` statement.
 
 .. method:: Transaction.new_cursor()
 

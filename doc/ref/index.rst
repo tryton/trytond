@@ -9,4 +9,5 @@ API Reference
 
     models/index
     pyson
+    transaction
     tools/singleton
