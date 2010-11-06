@@ -297,7 +297,7 @@ class User(ModelSQL, ModelView):
             if field not in fields or field == 'groups':
                 del values_clean[field]
             if field == 'password':
-                with Transaction.set_user(0):
+                with Transaction().set_user(0):
                     user = self.browse(user_id)
                     if not self.get_login(user.login, old_password):
                         self.raise_user_error('wrong_password')
