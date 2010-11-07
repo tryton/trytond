@@ -1,5 +1,5 @@
 CREATE TABLE ir_model (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     model VARCHAR,
     name VARCHAR,
     info TEXT,
@@ -7,7 +7,7 @@ CREATE TABLE ir_model (
 );
 
 CREATE TABLE ir_model_field (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     model INTEGER,
     name VARCHAR,
     relation VARCHAR,
@@ -19,7 +19,7 @@ CREATE TABLE ir_model_field (
 
 
 CREATE TABLE ir_ui_view (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     model VARCHAR,
     "type" VARCHAR,
     arch TEXT,
@@ -28,14 +28,14 @@ CREATE TABLE ir_ui_view (
 );
 
 CREATE TABLE ir_ui_menu (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     parent INTEGER,
     name VARCHAR,
     icon VARCHAR
 );
 
 CREATE TABLE ir_translation (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     lang VARCHAR,
     src TEXT,
     name VARCHAR,
@@ -47,7 +47,7 @@ CREATE TABLE ir_translation (
 );
 
 CREATE TABLE ir_lang (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR,
     code VARCHAR,
     translatable BOOLEAN,
@@ -56,7 +56,7 @@ CREATE TABLE ir_lang (
 );
 
 CREATE TABLE res_user (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR,
     active BOOLEAN,
     login VARCHAR,
@@ -66,25 +66,25 @@ CREATE TABLE res_user (
 INSERT INTO res_user (id, login, password, name, active) VALUES (0, 'root', NULL, 'Root', 0);
 
 CREATE TABLE res_group (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR
 );
 
 CREATE TABLE "res_user-res_group" (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     uid INTEGER,
     gid INTEGER
 );
 
 CREATE TABLE wkf (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR,
     model VARCHAR,
     on_create BOOLEAN
 );
 
 CREATE TABLE wkf_activity (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     workflow INTEGER,
     subflow INTEGER,
     split_mode VARCHAR,
@@ -98,7 +98,7 @@ CREATE TABLE wkf_activity (
 );
 
 CREATE TABLE wkf_transition (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     act_from INTEGER,
     act_to INTEGER,
     condition VARCHAR,
@@ -108,7 +108,7 @@ CREATE TABLE wkf_transition (
 );
 
 CREATE TABLE wkf_instance (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     workflow INTEGER,
     uid INTEGER DEFAULT 0,
     res_id INTEGER DEFAULT 0,
@@ -117,7 +117,7 @@ CREATE TABLE wkf_instance (
 );
 
 CREATE TABLE wkf_workitem (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     activity INTEGER,
     instance INTEGER,
     subflow INTEGER,
@@ -125,13 +125,13 @@ CREATE TABLE wkf_workitem (
 );
 
 CREATE TABLE wkf_witm_trans (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     trans_id INTEGER,
     inst_id INTEGER
 );
 
 CREATE TABLE ir_module_module (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     create_uid INTEGER,
     create_date TIMESTAMP,
     write_date TIMESTAMP,
@@ -146,7 +146,7 @@ CREATE TABLE ir_module_module (
 );
 
 CREATE TABLE ir_module_module_dependency (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     create_uid INTEGER,
     create_date TIMESTAMP,
     write_date TIMESTAMP,
