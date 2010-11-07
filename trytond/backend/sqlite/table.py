@@ -21,21 +21,47 @@ class TableHandler(TableHandlerInterface):
         if not self.table_exist(self.cursor, self.table_name):
             if not self.history:
                 self.cursor.execute('CREATE TABLE "%s" ' \
-                        '(id INTEGER PRIMARY KEY)' % \
+                        '(id INTEGER PRIMARY KEY AUTOINCREMENT)' % \
                         self.table_name)
             else:
                 self.cursor.execute('CREATE TABLE "%s" ' \
-                        '(__id INTEGER PRIMARY KEY, ' \
+                        '(__id INTEGER PRIMARY KEY AUTOINCREMENT, ' \
                         'id INTEGER)' % self.table_name)
 
         self._update_definitions()
 
     @staticmethod
     def table_exist(cursor, table_name):
-        cursor.execute("SELECT name FROM sqlite_master " \
+        cursor.execute("SELECT sql FROM sqlite_master " \
                            "WHERE type = 'table' AND name = %s",
                        (table_name,))
-        return bool(cursor.fetchone())
+        res = cursor.fetchone()
+        if not res:
+            return False
+        sql, = res
+
+        # Migration from 1.6 add autoincrement
+
+        if not 'AUTOINCREMENT' in sql.upper():
+            temp_sql = sql.replace(table_name, '_temp_%s' % table_name)
+            cursor.execute(temp_sql)
+            cursor.execute('PRAGMA table_info("' + table_name + '")')
+            columns = ['"%s"' % column for _, column, _, _, _, _
+                    in cursor.fetchall()]
+            cursor.execute(('INSERT INTO "_temp_%s" '
+                    '(' + ','.join(columns) + ') '
+                    'SELECT ' + ','.join(columns) +
+                    ' FROM "%s"') % (table_name, table_name))
+            cursor.execute('DROP TABLE "%s"' % table_name)
+            new_sql = sql.replace('PRIMARY KEY',
+                    'PRIMARY KEY AUTOINCREMENT')
+            cursor.execute(new_sql)
+            cursor.execute(('INSERT INTO "%s" '
+                    '(' + ','.join(columns) + ') '
+                    'SELECT ' + ','.join(columns) +
+                    ' FROM "_temp_%s"') % (table_name, table_name))
+            cursor.execute('DROP TABLE "_temp_%s"' % table_name)
+        return True
 
     @staticmethod
     def table_rename(cursor, old_name, new_name):
