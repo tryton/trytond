@@ -41,7 +41,7 @@ class Trigger(ModelSQL, ModelView):
     limit_number = fields.Integer('Limit Number', help='Limit the number of '
             'call to "Action Function" by records.\n'
             '0 for no limit.')
-    minimum_delay = fields.Float('Minimum Delay', help='Set a minimu delay '
+    minimum_delay = fields.Float('Minimum Delay', help='Set a minimum delay '
             'in minutes between call to "Action Function" for the same record.\n'
             '0 for no delay.')
     action_model = fields.Many2One('ir.model', 'Action Model', required=True)
