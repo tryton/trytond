@@ -111,7 +111,7 @@ class Cron(ModelSQL, ModelView):
                     continue
                 tb_s += line
             try:
-                tb_s += error.message.decode('utf-8', 'ignore')
+                tb_s += str(error).decode('utf-8', 'ignore')
             except Exception:
                 pass
 
