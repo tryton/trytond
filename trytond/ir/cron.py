@@ -118,9 +118,9 @@ class Cron(ModelSQL, ModelView):
             request_obj = self.pool.get('res.request')
             try:
                 user_obj = self.pool.get('res.user')
+                req_user = user_obj.browse(cron['request_user'])
                 with contextlib.nested(Transaction().set_user(cron['user']),
                         Transaction().set_context(language=req_user.language)):
-                    req_user = user_obj.browse(cron['request_user'])
                     rid = request_obj.create({
                         'name': self.raise_user_error('request_title',
                             raise_exception=False),
