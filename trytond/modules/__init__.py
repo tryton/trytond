@@ -133,7 +133,6 @@ def create_graph(module_list, force=None):
         force = []
     graph = Graph()
     packages = []
-    logger = logging.getLogger('modules')
 
     for module in module_list:
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
@@ -154,15 +153,11 @@ def create_graph(module_list, force=None):
                 tryton_file = OPJ(ep.dist.location, '__tryton__.py')
                 mod_path = os.path.dirname(ep.dist.location)
         if os.path.isfile(tryton_file) or zipfile.is_zipfile(mod_path+'.zip'):
-            try:
-                info = tools.safe_eval(tools.file_open(tryton_file,
-                    subdir='').read())
-            except Exception:
-                logger.error('%s:eval file %s' % (module, tryton_file))
-                raise
+            info = tools.safe_eval(tools.file_open(tryton_file,
+                subdir='').read())
             packages.append((module, info.get('depends', []), info))
         elif module != 'all':
-            logger.error('%s:Module not found!' % (module,))
+            raise Exception('Module %s not found' % module)
 
     current, later = set([x[0] for x in packages]), set()
     while packages and current > later:
@@ -194,7 +189,7 @@ def create_graph(module_list, force=None):
         if package not in later:
             continue
         missings = [x for x in deps if x not in graph]
-        logger.error('%s:Unmet dependency %s' % (package, missings))
+        raise Exception('%s unmet dependencies: %s' % (package, missings))
     return graph, packages, later
 
 def load_module_graph(graph, pool, lang=None):
