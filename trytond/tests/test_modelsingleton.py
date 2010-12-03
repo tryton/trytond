@@ -27,7 +27,7 @@ class ModelSingletonTestCase(unittest.TestCase):
             self.assert_(singleton['name'] == 'test')
             self.assert_(singleton['id'] == 1)
 
-            singleton = self.singleton.read([1], ['name'])[0]
+            singleton, = self.singleton.read([1], ['name'])
             self.assert_(singleton['name'] == 'test')
             self.assert_(singleton['id'] == 1)
 
