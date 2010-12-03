@@ -497,6 +497,28 @@ Instance methods:
 
     Return the target :class:`~trytond.model.Model`.
 
+One2One
+-------
+
+.. class:: One2One(relation_name, origin, target, string[, datetime_field[, \**options]])
+
+A one-to-one relation field.
+
+.. warning::
+    It is on the relation_name :class:`~trytond.model.Model` that the
+    unicity of the couple (origin, target) must be checked.
+..
+
+.. attribute:: One2One.datetime_field
+
+    Same as :attr:`Many2One.datetime_field`
+
+Instance methods:
+
+.. method:: One2One.get_target(pool)
+
+    Return the target :class:`~trytond.model.Model`.
+
 Function
 --------
 

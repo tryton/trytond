@@ -18,3 +18,4 @@ from one2many import *
 from many2many import *
 from function import *
 from property import *
+from one2one import *

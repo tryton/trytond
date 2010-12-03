@@ -60,6 +60,10 @@ class FieldsTestCase(unittest.TestCase):
         self.datetime_default = POOL.get('test.datetime_default')
         self.datetime_required = POOL.get('test.datetime_required')
 
+        self.one2one = POOL.get('test.one2one')
+        self.one2one_target = POOL.get('test.one2one.target')
+        self.one2one_required = POOL.get('test.one2one_required')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -2069,6 +2073,127 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(datetime9_id)
             datetime9 = self.datetime.read(datetime9_id, ['datetime'])
             self.assert_(datetime9['datetime'] == today)
+
+            transaction.cursor.rollback()
+
+    def test0100one2one(self):
+        '''
+        Test One2One.
+        '''
+        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+            target1_id = self.one2one_target.create({
+                'name': 'target1',
+                })
+            one2one1_id = self.one2one.create({
+                'name': 'origin1',
+                'one2one': target1_id,
+                })
+            self.assert_(one2one1_id)
+
+            one2one1 = self.one2one.read(one2one1_id, ['one2one',
+                'one2one.name'])
+            self.assert_(one2one1['one2one'] == target1_id)
+            self.assert_(one2one1['one2one.name'] == 'target1')
+
+            one2one_ids = self.one2one.search([
+                ('one2one', '=', 'target1'),
+                ])
+            self.assert_(one2one_ids == [one2one1_id])
+
+            one2one_ids = self.one2one.search([
+                ('one2one', '!=', 'target1'),
+                ])
+            self.assert_(one2one_ids == [])
+
+            one2one_ids = self.one2one.search([
+                ('one2one', 'in', [target1_id]),
+                ])
+            self.assert_(one2one_ids == [one2one1_id])
+
+            one2one_ids = self.one2one.search([
+                ('one2one', 'in', [0]),
+                ])
+            self.assert_(one2one_ids == [])
+
+            one2one_ids = self.one2one.search([
+                ('one2one', 'not in', [target1_id]),
+                ])
+            self.assert_(one2one_ids == [])
+
+            one2one_ids = self.one2one.search([
+                ('one2one', 'not in', [0]),
+                ])
+            self.assert_(one2one_ids == [one2one1_id])
+
+            one2one_ids = self.one2one.search([
+                ('one2one.name', '=', 'target1'),
+                ])
+            self.assert_(one2one_ids == [one2one1_id])
+
+            one2one_ids = self.one2one.search([
+                ('one2one.name', '!=', 'target1'),
+                ])
+            self.assert_(one2one_ids == [])
+
+            one2one = self.one2one.browse(one2one1_id)
+            self.assert_(one2one.one2one.name == 'target1')
+
+            one2one2_id = self.one2one.create({
+                'name': 'origin2',
+                })
+            self.assert_(one2one2_id)
+
+            one2one2 = self.one2one.read(one2one2_id, ['one2one'])
+            self.assert_(one2one2['one2one'] == False)
+
+            one2one_ids = self.one2one.search([
+                ('one2one', '=', False),
+                ])
+            self.assert_(one2one_ids == [one2one2_id])
+
+            target2_id = self.one2one_target.create({
+                'name': 'target2',
+                })
+            self.one2one.write(one2one2_id, {
+                'one2one': target2_id,
+                })
+            target2_id = self.one2one_target.search([
+                ('name', '=', 'target2'),
+                ])[0]
+            one2one2 = self.one2one.read(one2one2_id, ['one2one'])
+            self.assert_(one2one2['one2one'] == target2_id)
+
+            self.one2one.write(one2one2_id, {
+                'one2one': False,
+                })
+            one2one2 = self.one2one.read(one2one2_id, ['one2one'])
+            self.assert_(one2one2['one2one'] == False)
+
+            one2one2 = self.one2one.browse(one2one2_id)
+            self.assert_(not one2one2.one2one)
+
+            self.failUnlessRaises(Exception, self.one2one.create, {
+                'name': 'one2one3',
+                'one2one': target1_id,
+                })
+
+            self.failUnlessRaises(Exception, self.one2one.write, one2one2_id, {
+                'one2one': target1_id,
+                })
+
+            self.failUnlessRaises(Exception, self.one2one_required.create, {
+                'name': 'one2one3',
+                })
+
+            target3_id = self.one2one_target.create({
+                'name': 'target3_id',
+                })
+
+            one2one3_id = self.one2one_required.create({
+                'name': 'one2one3',
+                'one2one': target3_id,
+                })
+            self.assert_(one2one3_id)
 
             transaction.cursor.rollback()
 
