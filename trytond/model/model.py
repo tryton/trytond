@@ -534,7 +534,7 @@ class Model(object):
                         field = self._columns[field_name]
                     else:
                         field = self._inherit_fields[field_name][2]
-                    if field._type in ('many2one',):
+                    if field._type in ('many2one', 'one2one'):
                         if not isinstance(field_value, (int, long)):
                             continue
                         obj = self.pool.get(field.model_name)
@@ -740,6 +740,7 @@ class Model(object):
                     'one2many',
                     'many2many',
                     'many2one',
+                    'one2one',
                     ):
                 if hasattr(self._columns[field], 'model_name'):
                     relation = copy.copy(self._columns[field].model_name)

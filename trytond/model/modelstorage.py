@@ -278,7 +278,7 @@ class ModelStorage(Model):
                     data[field_name] = default[field_name]
                 elif ftype == 'function':
                     del data[field_name]
-                elif ftype == 'many2one':
+                elif ftype in ('many2one', 'one2one'):
                     try:
                         data[field_name] = data[field_name] and \
                                 data[field_name][0]
@@ -648,6 +648,9 @@ class ModelStorage(Model):
                     res = [('set', res)]
                 return res
 
+            def get_one2one(relation, value):
+                return ('set', get_many2one(relation, value))
+
             def get_reference(value):
                 if not value:
                     return False
@@ -749,6 +752,8 @@ class ModelStorage(Model):
                         res = get_many2one(this_field_def['relation'], value)
                     elif field_type == 'many2many':
                         res = get_many2many(this_field_def['relation'], value)
+                    elif field_type == 'one2one':
+                        res = get_one2one(this_field_def['relation'], value)
                     elif field_type == 'reference':
                         res = get_reference(value)
                     else:
@@ -969,8 +974,9 @@ class ModelStorage(Model):
                         not field.setter:
                     continue
                 # validate domain
-                if field._type in ('many2one', 'many2many', 'one2many') \
-                        and field.domain:
+                if (field._type in
+                        ('many2one', 'many2many', 'one2many', 'one2one')
+                    and field.domain):
                     if field._type in ('many2one', 'one2many'):
                         relation_obj = self.pool.get(field.model_name)
                     else:
@@ -1095,7 +1101,7 @@ class ModelStorage(Model):
         for field in defaults.keys():
             fld_def = (field in self._columns) and self._columns[field] \
                     or self._inherit_fields[field][2]
-            if fld_def._type in ('many2one',):
+            if fld_def._type in ('many2one', 'one2one'):
                 if isinstance(defaults[field], (list, tuple)):
                     vals[field] = defaults[field][0]
                 else:

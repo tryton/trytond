@@ -632,8 +632,11 @@ class ModelSQL(ModelStorage):
             if field not in fields_related.keys():
                 continue
             fields_related2values.setdefault(field, {})
-            if self._columns[field]._type == 'many2one':
-                obj = self.pool.get(self._columns[field].model_name)
+            if self._columns[field]._type in ('many2one', 'one2one'):
+                if hasattr(self._columns[field], 'model_name'):
+                    obj = self.pool.get(self._columns[field].model_name)
+                else:
+                    obj = self._columns[field].get_target(self.pool)
                 if hasattr(self._columns[field], 'datetime_field') \
                         and self._columns[field].datetime_field:
                     for record in res:
@@ -678,7 +681,7 @@ class ModelSQL(ModelStorage):
                     if field not in self._columns:
                         continue
                     for related in fields_related[field]:
-                        if self._columns[field]._type == 'many2one':
+                        if self._columns[field]._type in ('many2one', 'one2one'):
                             if record[field]:
                                 record[field + '.' + related] = \
                                         fields_related2values[field]\
@@ -1358,18 +1361,37 @@ class ModelSQL(ModelStorage):
                 field = table._columns.get(fargs[0], False)
             if len(fargs) > 1:
                 if field._type == 'many2one':
+                    target_obj = self.pool.get(field.model_name)
                     if hasattr(field, 'search'):
-                        domain.extend([(fargs[0], 'in',
-                                self.pool.get(field.model_name).search([
-                                        (fargs[1], domain[i][1], domain[i][2]),
-                                    ], order=[]))])
+                        domain.extend([(fargs[0], 'in', target_obj.search([
+                            (fargs[1], domain[i][1], domain[i][2]),
+                            ], order=[]))])
                         domain.pop(i)
                     else:
-                        domain[i] = (fargs[0], 'inselect',
-                                self.pool.get(field.model_name).search([
-                                        (fargs[1], domain[i][1], domain[i][2]),
-                                    ], order=[], query_string=True),
-                                table)
+                        domain[i] = (fargs[0], 'inselect', target_obj.search([
+                            (fargs[1], domain[i][1], domain[i][2]),
+                            ], order=[], query_string=True), table)
+                        i += 1
+                    continue
+                elif field._type in ('one2one', 'many2many'):
+                    if hasattr(field, 'model_name'):
+                        target_obj = self.pool.get(field.model_name)
+                    else:
+                        target_obj = field.get_target(self.pool)
+                    relation_obj = self.pool.get(field.relation_name)
+                    if hasattr(field, 'search'):
+                        domain.extend([(fargs[0], 'in', target_obj.search([
+                            (fargs[1], domain[i][1], domain[i][2]),
+                            ], order=[]))])
+                        domain.pop(i)
+                    else:
+                        query1, query2 = target_obj.search([
+                            (fargs[1], domain[i][1], domain[i][2]),
+                            ], order=[], query_string=True)
+                        query1 = ('SELECT "%s" FROM "%s" WHERE "%s" IN (%s)' %
+                                (field.origin, relation_obj._table,
+                                    field.target, query1))
+                        domain[i] = ('id', 'inselect', (query1, query2))
                         i += 1
                     continue
                 else:
@@ -1433,7 +1455,7 @@ class ModelSQL(ModelStorage):
 
                         domain[i] = ('id', 'in', ids3)
                 i += 1
-            elif field._type == 'many2many':
+            elif field._type in ('many2many', 'one2one'):
                 # XXX must find a solution for long id list
                 if hasattr(field, 'model_name'):
                     target_obj = self.pool.get(field.model_name)
