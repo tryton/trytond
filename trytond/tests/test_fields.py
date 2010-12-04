@@ -2176,14 +2176,17 @@ class FieldsTestCase(unittest.TestCase):
                 'name': 'one2one3',
                 'one2one': target1_id,
                 })
+            transaction.cursor.rollback()
 
             self.failUnlessRaises(Exception, self.one2one.write, one2one2_id, {
                 'one2one': target1_id,
                 })
+            transaction.cursor.rollback()
 
             self.failUnlessRaises(Exception, self.one2one_required.create, {
                 'name': 'one2one3',
                 })
+            transaction.cursor.rollback()
 
             target3_id = self.one2one_target.create({
                 'name': 'target3_id',
