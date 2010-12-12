@@ -2,11 +2,14 @@
 #this repository contains the full copyright notices and license terms.
 {
     'name': 'Workflow',
+    'name_bg_BG': 'Работен процес',
     'name_de_DE': 'Workflow',
     'name_es_ES': 'Flujo de trabajo',
     'name_fr_FR': 'Workflow',
     'name_ru_RU': 'Бизнес процессы',
     'description': '''Basic module providing concept and administration of workflows.
+''',
+    'description_bg_BG': '''Основен модул даващ идея и администрация на работни процеси.
 ''',
     'description_de_DE': '''Basismodul für Konzept und Administration von Workflows
 ''',
@@ -22,6 +25,7 @@
         'workflow.xml',
         ],
     'translation': [
+        'bg_BG.csv',
         'fr_FR.csv',
         'de_DE.csv',
         'es_ES.csv',

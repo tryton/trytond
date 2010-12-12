@@ -2,12 +2,17 @@
 #this repository contains the full copyright notices and license terms.
 {
     'name': 'Res',
+    'name_bg_BG': 'Ресурс',
     'name_de_DE': 'Benutzerverwaltung',
     'name_es_ES': 'Gestión de usuarios',
     'name_fr_FR': 'Ressource',
     'name_ru_RU': 'Базовые ресурсы сервера',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of users and internal communication.
+''',
+    'description_bg_BG': '''Основен модул управляващ вътрешните задачи на приложението
+
+ - Предоставя идеи и администрация на потребители и вътрешна комуникация
 ''',
     'description_de_DE': '''Basismodul für interne Aufgaben der Anwendung
 
@@ -33,6 +38,7 @@ Fournit les concepts et l'administration des utilisateurs et de la communication
         'ir.xml',
         ],
     'translation': [
+        'bg_BG.csv',
         'fr_FR.csv',
         'de_DE.csv',
         'es_ES.csv',
