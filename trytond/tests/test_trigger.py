@@ -6,6 +6,7 @@ from __future__ import with_statement
 import unittest
 import sys
 import time
+from xmlrpclib import MAXINT
 try:
     from itertools import combinations
 except ImportError:
@@ -225,7 +226,7 @@ class TriggerTestCase(unittest.TestCase):
             # With minimum delay
             self.trigger.write(trigger_id, {
                 'limit_number': 0,
-                'minimum_delay': sys.maxint,
+                'minimum_delay': MAXINT,
                 })
             triggered_id = self.triggered.create({
                 'name': 'Foo',
@@ -410,7 +411,7 @@ class TriggerTestCase(unittest.TestCase):
             # With minimum delay
             self.trigger.write(trigger_id, {
                 'limit_number': 0,
-                'minimum_delay': sys.maxint,
+                'minimum_delay': MAXINT,
                 })
             self.trigger.trigger_time()
             self.trigger.trigger_time()
