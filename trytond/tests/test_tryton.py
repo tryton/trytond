@@ -12,6 +12,7 @@ if os.path.isdir(DIR):
     sys.path.insert(0, os.path.dirname(DIR))
 
 import unittest
+import doctest
 from lxml import etree
 import time
 import imp
@@ -227,7 +228,15 @@ def modules_suite():
                         break
                 if not found:
                     suite_.addTest(test)
-    return suite_
+    tests = []
+    doc_tests = []
+    for test in suite_:
+        if isinstance(test, doctest.DocTestCase):
+            doc_tests.append(test)
+        else:
+            tests.append(test)
+    tests.extend(doc_tests)
+    return unittest.TestSuite(tests)
 
 if __name__ == '__main__':
     if not _MODULES:

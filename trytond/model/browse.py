@@ -15,7 +15,7 @@ class BrowseRecordList(list):
         super(BrowseRecordList, self).__init__(lst)
 
     def get_eval(self):
-        return [record.get_eval() for record in self]
+        return [record.id for record in self]
 
 
 class BrowseRecordNull(object):
@@ -145,7 +145,7 @@ class BrowseRecord(object):
                             model = self._model.pool.get(j.model_name)
                         elif hasattr(j, 'get_target'):
                             model = j.get_target(self._model.pool)
-                        if model and j._type in ('many2one',):
+                        if model and j._type in ('many2one', 'one2one'):
                             if (not data[i]
                                     and not (isinstance(data[i], (int, long))
                                         and not isinstance(data[i],
