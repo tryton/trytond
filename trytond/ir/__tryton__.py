@@ -2,12 +2,17 @@
 #this repository contains the full copyright notices and license terms.
 {
     'name': 'IR',
+    'name_bg_BG': 'Вътрешна администрация',
     'name_de_DE': 'Interne Administration',
     'name_es_ES': 'Administración interna',
     'name_fr_FR': 'Administration Interne',
     'name_ru_RU': 'Внутреннее управление',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of models, actions, sequences, localizations, cron jobs etc.
+''',
+    'description_bg_BG': '''Общ модул за вътрешните задачи на приложението
+
+ - Предлага предсатва и адмнинистрация на модули, десйтвия, последователности, преводи, планировщици и тн.
 ''',
     'description_de_DE': '''Basismodul für interne Aufgaben der Anwendung
 
@@ -43,6 +48,7 @@ Fournit les concepts et l'administration des modèles, actions, séquences, loca
         'trigger.xml',
         ],
     'translation': [
+        'bg_BG.csv',
         'fr_FR.csv',
         'de_DE.csv',
         'es_ES.csv',

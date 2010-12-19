@@ -354,3 +354,72 @@ class DateTimeRequired(ModelSQL):
             required=True)
 
 DateTimeRequired()
+
+
+class One2One(ModelSQL):
+    'One2One'
+    _name = 'test.one2one'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    one2one = fields.One2One('test.one2one.relation', 'origin', 'target',
+            string='One2One', help='Test one2one', required=False)
+
+One2One()
+
+
+class One2OneTarget(ModelSQL):
+    'One2One Target'
+    _name = 'test.one2one.target'
+    name = fields.Char('Name', required=True)
+
+One2OneTarget()
+
+
+class One2OneRelation(ModelSQL):
+    'One2One Relation'
+    _name = 'test.one2one.relation'
+    _description = __doc__
+    origin = fields.Many2One('test.one2one', 'Origin')
+    target = fields.Many2One('test.one2one.target', 'Target')
+
+    def __init__(self):
+        super(One2OneRelation, self).__init__()
+        self._sql_constraints += [
+            ('origin_unique', 'UNIQUE(origin)',
+                'Origin must be unique'),
+            ('target_unique', 'UNIQUE(target)',
+                'Target must be unique'),
+        ]
+
+One2OneRelation()
+
+
+class One2OneRequired(ModelSQL):
+    'One2One'
+    _name = 'test.one2one_required'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    one2one = fields.One2One('test.one2one_required.relation', 'origin', 'target',
+            string='One2One', help='Test one2one', required=True)
+
+One2OneRequired()
+
+
+class One2OneRequiredRelation(ModelSQL):
+    'One2One Relation'
+    _name = 'test.one2one_required.relation'
+    _description = __doc__
+    origin = fields.Many2One('test.one2one_required', 'Origin')
+    target = fields.Many2One('test.one2one.target', 'Target')
+
+    def __init__(self):
+        super(One2OneRequiredRelation, self).__init__()
+        self._sql_constraints += [
+            ('origin_unique', 'UNIQUE(origin)',
+                'Origin must be unique'),
+            ('target_unique', 'UNIQUE(target)',
+                'Target must be unique'),
+        ]
+
+One2OneRequiredRelation()
+

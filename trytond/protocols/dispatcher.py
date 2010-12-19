@@ -51,6 +51,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             return time.tzname[0]
         elif method == 'list_lang':
             return [
+                ('bg_BG', 'Български'),
                 ('cs_CZ', 'Čeština'),
                 ('de_DE', 'Deutsch'),
                 ('en_US', 'English'),
