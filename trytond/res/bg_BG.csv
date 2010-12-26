@@ -160,7 +160,7 @@ view,res.user,0,Preferences,Предпочитания,0
 view,res.user,0,User,Потребител,0
 view,res.user,0,Users,Потребители,0
 view,res.user.config.init,0,Add Users,Добавяне на потребители,0
-view,res.user.config.init,0,Be careful that the login must be unique!,Вмимавайте потребителско има да е уникално,0
+view,res.user.config.init,0,Be careful that the login must be unique!,Вмимавайте потребителско име да е уникално,0
 view,res.user.config.init,0,You can now add some users into the system.,Сега може да добавите потребители към системата.,0
 view,res.user.warning,0,Warning,Предупреждение,0
 view,res.user.warning,0,Warnings,Предупреждения,0
