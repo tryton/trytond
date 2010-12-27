@@ -11,8 +11,7 @@ class Boolean(ModelSQL):
     'Boolean'
     _name = 'test.boolean'
     _description = __doc__
-    boolean = fields.Boolean(string='Boolean', help='Test boolean',
-            required=False)
+    boolean = fields.Boolean(string='Boolean', help='Test boolean')
 
 Boolean()
 
@@ -21,8 +20,7 @@ class BooleanDefault(ModelSQL):
     'Boolean Default'
     _name = 'test.boolean_default'
     _description = __doc__
-    boolean = fields.Boolean(string='Boolean', help='Test boolean',
-            required=False)
+    boolean = fields.Boolean(string='Boolean', help='Test boolean')
 
     def default_boolean(self):
         return True
