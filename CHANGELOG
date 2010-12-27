@@ -1,3 +1,4 @@
+* Model doesn't convert anymore ids for inherited methods
 * Remove required attribute on Boolean fields
 * Add One2One field
 * Add AUTOINCREMENT to sqlite primary key
