@@ -391,8 +391,6 @@ class ModelSQL(ModelStorage):
                         self._name + ',' + field, 'model',
                         Transaction().language, [id_new], values[field])
 
-        upd_todo.sort(lambda x, y: self._columns[x].priority - \
-                self._columns[y].priority)
         for field in upd_todo:
             self._columns[field].set([id_new], self, field, values[field])
 
@@ -898,8 +896,6 @@ class ModelSQL(ModelStorage):
                         Transaction().language, ids, values[field])
 
         # call the 'set' method of fields
-        upd_todo.sort(lambda x, y: self._columns[x].priority - \
-                self._columns[y].priority)
         for field in upd_todo:
             self._columns[field].set(ids, self, field, values[field])
 

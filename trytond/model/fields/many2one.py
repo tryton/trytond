@@ -12,9 +12,9 @@ class Many2One(Field):
 
     def __init__(self, model_name, string='', left=None, right=None,
             ondelete='SET NULL', datetime_field=None, help='', required=False,
-            readonly=False, domain=None, states=None, priority=0,
-            change_default=False, select=0, on_change=None,
-            on_change_with=None, depends=None, order_field=None, context=None):
+            readonly=False, domain=None, states=None, change_default=False,
+            select=0, on_change=None, on_change_with=None, depends=None,
+            order_field=None, context=None):
         '''
         :param model_name: The name of the target model.
         :param left: The name of the field to store the left value for
@@ -38,8 +38,7 @@ class Many2One(Field):
                 depends = [datetime_field]
         super(Many2One, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
-                states=states, priority=priority,
-                change_default=change_default, select=select,
+                states=states, change_default=change_default, select=select,
                 on_change=on_change, on_change_with=on_change_with,
                 depends=depends, order_field=order_field, context=context)
         self.model_name = model_name

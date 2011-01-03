@@ -65,14 +65,6 @@ one. Possible keys are ``required``, ``readonly`` and ``invisible``.
 The values are :class:`~trytond.pyson.PYSON` statements that will be evaluated
 with the values of the record.
 
-``priority``
-------------
-
-.. attribute:: Field.priority
-
-Give the order in which setter methods (if exist) are called on a model.
-Default is 0. Lower priority called first.
-
 ``change_default``
 ------------------
 
