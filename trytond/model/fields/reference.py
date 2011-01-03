@@ -14,9 +14,9 @@ class Reference(Field):
     _type = 'reference'
 
     def __init__(self, string='', selection=None, help='', required=False,
-            readonly=False, domain=None, states=None, priority=0,
-            change_default=False, select=0, on_change=None,
-            on_change_with=None, depends=None, order_field=None, context=None):
+            readonly=False, domain=None, states=None, change_default=False,
+            select=0, on_change=None, on_change_with=None, depends=None,
+            order_field=None, context=None):
         '''
         :param selection: A list or a function name that returns a list.
             The list must be a list of tuples. First member is an internal name
@@ -24,8 +24,7 @@ class Reference(Field):
         '''
         super(Reference, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
-                states=states, priority=priority,
-                change_default=change_default, select=select,
+                states=states, change_default=change_default, select=select,
                 on_change=on_change, on_change_with=on_change_with,
                 depends=depends, order_field=order_field, context=context)
         self.selection = selection or None

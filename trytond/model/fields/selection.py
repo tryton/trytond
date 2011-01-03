@@ -12,7 +12,7 @@ class Selection(Field):
 
     def __init__(self, selection, string='', sort=True, translate=True,
             help='', required=False, readonly=False, domain=None, states=None,
-            priority=0, change_default=False, select=0, on_change=None,
+            change_default=False, select=0, on_change=None,
             on_change_with=None, depends=None, order_field=None, context=None):
         '''
         :param selection: A list or a function name that returns a list.
@@ -22,10 +22,9 @@ class Selection(Field):
         '''
         super(Selection, self).__init__(string=string,  help=help,
                 required=required, readonly=readonly, domain=domain,
-                states=states, priority=priority, change_default=change_default,
-                select=select, on_change=on_change,
-                on_change_with=on_change_with, depends=depends,
-                order_field=order_field, context=context)
+                states=states, change_default=change_default, select=select,
+                on_change=on_change, on_change_with=on_change_with,
+                depends=depends, order_field=order_field, context=context)
         if hasattr(selection, 'copy'):
             self.selection = selection.copy()
         else:

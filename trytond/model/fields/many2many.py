@@ -13,8 +13,8 @@ class Many2Many(Field):
 
     def __init__(self, relation_name, origin, target, string='', order=None,
             datetime_field=None, help='', required=False, readonly=False,
-            domain=None, states=None, priority=0, change_default=False,
-            select=0, on_change=None, on_change_with=None, depends=None,
+            domain=None, states=None, change_default=False, select=0,
+            on_change=None, on_change_with=None, depends=None,
             order_field=None, context=None):
         '''
         :param relation_name: The name of the relation model
@@ -34,8 +34,7 @@ class Many2Many(Field):
                 depends = [datetime_field]
         super(Many2Many, self).__init__(string=string, help=help,
                 required=required, readonly=readonly, domain=domain,
-                states=states, priority=priority,
-                change_default=change_default, select=select,
+                states=states, change_default=change_default, select=select,
                 on_change=on_change, on_change_with=on_change_with,
                 depends=depends, order_field=order_field, context=context)
         self.relation_name = relation_name
