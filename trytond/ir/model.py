@@ -15,7 +15,7 @@ class Model(ModelSQL, ModelView):
     "Model"
     _name = 'ir.model'
     _description = __doc__
-    name = fields.Char('Model Description', translate=True)
+    name = fields.Char('Model Description', translate=True, loading='lazy')
     model = fields.Char('Model Name', required=True)
     info = fields.Text('Information')
     module = fields.Char('Module',
@@ -78,11 +78,12 @@ class ModelField(ModelSQL, ModelView):
     relation = fields.Char('Model Relation')
     model = fields.Many2One('ir.model', 'Model', required=True,
        select=1, ondelete='CASCADE')
-    field_description = fields.Char('Field Description', translate=True)
+    field_description = fields.Char('Field Description', translate=True,
+            loading='lazy')
     ttype = fields.Char('Field Type')
     groups = fields.Many2Many('ir.model.field-res.group', 'field_id',
             'group_id', 'Groups')
-    help = fields.Text('Help', translate=True)
+    help = fields.Text('Help', translate=True, loading='lazy')
     module = fields.Char('Module',
        help="Module in which this field is defined")
 

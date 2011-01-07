@@ -13,7 +13,7 @@ class Char(Field):
     def __init__(self, string='', size=None, help='', required=False,
             readonly=False, domain=None, states=None, change_default=False,
             translate=False, select=0, on_change=None, on_change_with=None,
-            depends=None, order_field=None, context=None):
+            depends=None, order_field=None, context=None, loading='eager'):
         '''
         :param translate: A boolean. If ``True`` the field is translatable.
         :param size: A integer. If set defines the maximum size of the values.
@@ -22,7 +22,8 @@ class Char(Field):
                 readonly=readonly, domain=domain, states=states,
                 change_default=change_default, select=select,
                 on_change=on_change, on_change_with=on_change_with,
-                depends=depends, order_field=order_field, context=context)
+                depends=depends, order_field=order_field, context=context,
+                loading=loading)
         self.translate = translate
         self.size = size
     __init__.__doc__ += Field.__init__.__doc__

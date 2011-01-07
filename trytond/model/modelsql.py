@@ -1174,12 +1174,12 @@ class ModelSQL(ModelStorage):
                     self._table + '".create_date) AS _datetime']
         if not query_string:
             select_fields += [
-                    '"' + self._table + '"."' + x[0] + '" AS "' + x[0] + '"' \
-                    for x in self._columns.iteritems() \
-                    if not hasattr(x[1], 'get') \
-                    and (x[0] != 'id')
-                    and (not getattr(x[1], 'translate', False) \
-                        and x[1]._type not in ('text', 'binary'))]
+                    '"' + self._table + '"."' + name + '" AS "' + name + '"' \
+                    for name, field in self._columns.iteritems() \
+                    if not hasattr(field, 'get')
+                    and name != 'id'
+                    and not getattr(field, 'translate', False)
+                    and field.loading == 'eager']
             if not self.table_query():
                 select_fields += ['CAST(EXTRACT(EPOCH FROM '
                         '(COALESCE("' + self._table + '".write_date, '

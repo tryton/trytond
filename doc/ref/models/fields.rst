@@ -148,6 +148,13 @@ This is often used to allow ordering on :class:`Function` fields.
 A dictionary which will update the current context when opening a *relation
 field*.
 
+``loading``
+-----------
+
+.. attribute:: Field.loading
+
+Define how the field must be loaded: ``lazy`` or ``eager``.
+
 Field types
 ===========
 
@@ -190,6 +197,11 @@ A single line string field.
 
     If true, the value of the field is translatable. The value readed and
     stored will depend on the ``language`` defined in the context.
+
+.. warning::
+    Note that you may need to set :attribute:`Fields.loading` to ``lazy``
+    when :attribute:`Char.translate` is ``True``.
+..
 
 Sha
 ---

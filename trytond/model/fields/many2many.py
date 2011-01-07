@@ -15,7 +15,7 @@ class Many2Many(Field):
             datetime_field=None, help='', required=False, readonly=False,
             domain=None, states=None, change_default=False, select=0,
             on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None):
+            order_field=None, context=None, loading='lazy'):
         '''
         :param relation_name: The name of the relation model
             or the name of the target model for ModelView only.
@@ -36,7 +36,8 @@ class Many2Many(Field):
                 required=required, readonly=readonly, domain=domain,
                 states=states, change_default=change_default, select=select,
                 on_change=on_change, on_change_with=on_change_with,
-                depends=depends, order_field=order_field, context=context)
+                depends=depends, order_field=order_field, context=context,
+                loading=loading)
         self.relation_name = relation_name
         self.origin = origin
         self.target = target

@@ -14,12 +14,15 @@ class Function(Field):
     Define function field (any).
     '''
 
-    def __init__(self, field, getter, setter=None, searcher=None):
+    def __init__(self, field, getter, setter=None, searcher=None,
+            loading='lazy'):
         '''
         :param field: The field of the function.
         :param getter: The name of the function for getting values.
         :param setter: The name of the function to set value.
         :param searcher: The name of the function to search.
+        :param loading: Define how the field must be loaded:
+            ``lazy`` or ``eager``.
         '''
         assert isinstance(field, Field)
         self._field = field
@@ -29,6 +32,8 @@ class Function(Field):
         if not self.setter:
             self._field.readonly = True
         self.searcher = searcher
+        assert loading in ('lazy', 'eager'), 'loading must be "lazy" or "eager"'
+        self.loading = loading
 
     __init__.__doc__ += Field.__init__.__doc__
 
