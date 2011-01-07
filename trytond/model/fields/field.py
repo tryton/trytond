@@ -55,7 +55,7 @@ class Field(object):
     def __init__(self, string='', help='', required=False, readonly=False,
             domain=None, states=None, change_default=False, select=0,
             on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None):
+            order_field=None, context=None, loading='eager'):
         '''
         :param string: A string for label of the field.
         :param help: A multi-line help string.
@@ -84,6 +84,8 @@ class Field(object):
             ordering records on the field.
         :param context: A dictionary which will be given to open the relation
             fields.
+        :param loading: Define how the field must be loaded:
+            ``lazy`` or ``eager``.
         '''
         assert string, 'a string is required'
         self.string = string
@@ -105,6 +107,8 @@ class Field(object):
         self.order_field = order_field
         self.__context = None
         self.context = context or {}
+        assert loading in ('lazy', 'eager'), 'loading must be "lazy" or "eager"'
+        self.loading = loading
 
     def _get_domain(self):
         return self.__domain

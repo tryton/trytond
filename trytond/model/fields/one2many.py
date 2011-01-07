@@ -19,7 +19,7 @@ class One2Many(Field):
             order=None, datetime_field=None, help='', required=False,
             readonly=False, domain=None, states=None, change_default=False,
             select=0, on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None):
+            order_field=None, context=None, loading='lazy'):
         '''
         :param model_name: The name of the target model.
         :param field: The name of the field that handle the reverse many2one.
@@ -40,7 +40,8 @@ class One2Many(Field):
                 required=required, readonly=readonly, domain=domain,
                 states=states, change_default=change_default, select=select,
                 on_change=on_change, on_change_with=on_change_with,
-                depends=depends, order_field=order_field, context=context)
+                depends=depends, order_field=order_field, context=context,
+                loading=loading)
         self.model_name = model_name
         self.field = field
         self.__add_remove = None

@@ -666,6 +666,7 @@ class Model(object):
                     'on_change_with',
                     'sort',
                     'datetime_field',
+                    'loading',
                     ):
                 if getattr(self._columns[field], arg, None) != None:
                     res[field][arg] = copy.copy(getattr(self._columns[field],

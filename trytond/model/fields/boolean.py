@@ -12,11 +12,13 @@ class Boolean(Field):
 
     def __init__(self, string='', help='', readonly=False, domain=None,
             states=None, change_default=False, select=0, on_change=None,
-            on_change_with=None, depends=None, order_field=None, context=None):
+            on_change_with=None, depends=None, order_field=None, context=None,
+            loading='eager'):
         super(Boolean, self).__init__(string=string, help=help, required=False,
                 readonly=readonly, domain=domain, states=states,
                 change_default=change_default, select=select,
                 on_change=on_change, on_change_with=on_change_with,
-                depends=depends, order_field=order_field, context=context)
+                depends=depends, order_field=order_field, context=context,
+                loading=loading)
 
     __init__.__doc__ = Field.__init__.__doc__

@@ -89,38 +89,26 @@ class BrowseRecord(object):
                         'does not exist in model "%s"!' \
                         % (name, self._model._name))
 
-            if not hasattr(col, 'get'):
-                # gen the list of "local" (ie not inherited)
-                ffields = [x for x in self._model._columns.items() \
-                        if not hasattr(x[1], 'get') \
-                        and (x[0] not in self._data[self._id] \
-                            or x[0] not in self._local_data[self._id]) \
-                        and ((not getattr(x[1], 'translate', False) \
-                                and x[1]._type not in ('text', 'binary')) \
-                            or x[0] == name)]
-                # gen the list of inherited fields
-                inherits = [(x[0], x[1][2]) for x in \
-                        self._model._inherit_fields.items()]
-                # complete the field list with the inherited fields
-                ffields += [x for x in inherits if not hasattr(x[1], 'get') \
-                        and (x[0] not in self._data[self._id] \
-                            or x[0] not in self._local_data[self._id]) \
-                        and x[0] not in self._model._columns \
-                        and ((not getattr(x[1], 'translate', False) \
-                                and x[1]._type not in ('text', 'binary')) \
-                            or x[0] == name)]
-            # otherwise we fetch only that field
+            if col.loading == 'eager':
+                ffields = dict((fname, field) for fname, (_, _, field)
+                        in self._model._inherit_fields.iteritems()
+                        if field.loading == 'eager'
+                        and fname not in self._model._columns)
+                ffields.update(dict((fname, field) for fname, field
+                        in self._model._columns.iteritems()
+                        if field.loading == 'eager'))
             else:
-                ffields = [(name, col)]
+                ffields = {name: col}
 
             # add datetime_field
-            for i, j in ffields:
-                if hasattr(j, 'datetime_field') and j.datetime_field:
-                    if j.datetime_field in self._model._columns:
-                        col = self._model._columns[j.datetime_field]
+            for field in ffields:
+                if hasattr(field, 'datetime_field') and field.datetime_field:
+                    if field.datetime_field in self._model._columns:
+                        date_field = self._model._columns[field.datetime_field]
                     else:
-                        col = self._model._inherit_fields[j.datetime_field][2]
-                    ffields.append((j.datetime_field, col))
+                        date_field = self._model._inherit_fields[
+                                field.datetime_field][2]
+                    ffields[field.datetime_field] = datetime_field
 
             if len(self._data) <= self._cursor.IN_MAX:
                 iterids = self._data.iterkeys()
@@ -133,11 +121,11 @@ class BrowseRecord(object):
             with contextlib.nested(Transaction().set_cursor(self._cursor),
                     Transaction().set_user(self._user),
                     Transaction().set_context(self._context)):
-                datas = self._model.read(ids, [x[0] for x in ffields])
+                datas = self._model.read(ids, ffields.keys())
 
                 # create browse records for 'remote' models
                 for data in datas:
-                    for i, j in ffields:
+                    for i, j in ffields.iteritems():
                         model = None
                         if (hasattr(j, 'model_name') and
                                 j.model_name in
