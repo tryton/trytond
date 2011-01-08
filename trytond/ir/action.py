@@ -278,9 +278,9 @@ class ActionReport(ModelSQL, ModelView):
             data = report[name + '_data']
             if not data and report[name[:-8]]:
                 try:
-                    data = base64.encodestring(file_open(
-                        report[name[:-8]].replace('/', os.sep),
-                        mode='rb').read())
+                    with file_open( report[name[:-8]].replace('/', os.sep),
+                            mode='rb') as fp:
+                        data = base64.encodestring(fp.read())
                 except Exception:
                     data = False
             res[report.id] = data
@@ -293,9 +293,9 @@ class ActionReport(ModelSQL, ModelView):
         res = {}
         for report in self.browse(ids):
             try:
-                data = base64.encodestring(file_open(
-                    report.style.replace('/', os.sep),
-                    mode='rb').read())
+                with file_open( report.style.replace('/', os.sep),
+                        mode='rb') as fp:
+                    data = base64.encodestring(fp.read())
             except Exception:
                 data = False
             res[report.id] = data

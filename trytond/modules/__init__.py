@@ -153,8 +153,8 @@ def create_graph(module_list, force=None):
                 tryton_file = OPJ(ep.dist.location, '__tryton__.py')
                 mod_path = os.path.dirname(ep.dist.location)
         if os.path.isfile(tryton_file) or zipfile.is_zipfile(mod_path+'.zip'):
-            info = tools.safe_eval(tools.file_open(tryton_file,
-                subdir='').read())
+            with tools.file_open(tryton_file, subdir='') as fp:
+                info = tools.safe_eval(fp.read())
             packages.append((module, info.get('depends', []), info))
         elif module != 'all':
             raise Exception('Module %s not found' % module)
@@ -241,16 +241,16 @@ def load_module_graph(graph, pool, lang=None):
                 ext = os.path.splitext(filename)[1]
                 if ext == '.sql':
                     if mode == 'init':
-                        queries = tools.file_open(OPJ(module,
-                            filename)).read().split(';')
+                        with tools.file_open(OPJ(module, filename)) as fp:
+                            queries = fp.read().split(';')
                         for query in queries:
                             new_query = ' '.join(query.split())
                             if new_query:
                                 cursor.execute(new_query)
                 else:
                     # Feed the parser with xml content:
-                    tryton_parser.parse_xmlstream(
-                        tools.file_open(OPJ(module, filename)))
+                    with tools.file_open(OPJ(module, filename)) as fp:
+                        tryton_parser.parse_xmlstream(fp)
 
             modules_todo.append((module, list(tryton_parser.to_delete)))
 
@@ -259,14 +259,10 @@ def load_module_graph(graph, pool, lang=None):
                 lang2 = os.path.splitext(filename)[0]
                 if lang2 not in lang:
                     continue
-                try:
-                    trans_file = tools.file_open(OPJ(module, filename))
-                except IOError:
-                    logger.error('%s:file %s not found!' % (module, filename))
-                    continue
                 logger.info('%s:loading %s' % (module, filename))
-                translation_obj = pool.get('ir.translation')
-                translation_obj.translation_import(lang2, module, trans_file)
+                with tools.file_open(OPJ(module, filename)) as trans_file:
+                    translation_obj = pool.get('ir.translation')
+                    translation_obj.translation_import(lang2, module, trans_file)
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))

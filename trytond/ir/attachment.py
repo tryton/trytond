@@ -87,9 +87,8 @@ class Attachment(ModelSQL, ModelView):
                         pass
                 else:
                     try:
-                        file_p = open(filename, 'rb')
-                        value = base64.encodestring(file_p.read())
-                        file_p.close()
+                        with open(filename, 'rb') as file_p:
+                            value = base64.encodestring(file_p.read())
                     except IOError:
                         pass
             res[attachment.id] = value
@@ -114,9 +113,8 @@ class Attachment(ModelSQL, ModelView):
         filename = os.path.join(directory, digest)
         collision = 0
         if os.path.isfile(filename):
-            file_p = open(filename, 'rb')
-            data2 = file_p.read()
-            file_p.close()
+            with open(filename, 'rb') as file_p:
+                data2 = file_p.read()
             if data != data2:
                 cursor.execute('SELECT DISTINCT(collision) FROM ir_attachment ' \
                         'WHERE digest = %s ' \
@@ -128,9 +126,8 @@ class Attachment(ModelSQL, ModelView):
                     filename = os.path.join(directory,
                             digest + '-' + str(collision2))
                     if os.path.isfile(filename):
-                        file_p = open(filename, 'rb')
-                        data2 = file_p.read()
-                        file_p.close()
+                        with open(filename, 'rb') as file_p:
+                            data2 = file_p.read()
                         if data == data2:
                             collision = collision2
                             break
@@ -138,13 +135,11 @@ class Attachment(ModelSQL, ModelView):
                     collision = collision2 + 1
                     filename = os.path.join(directory,
                             digest + '-' + str(collision))
-                    file_p = open(filename, 'wb')
-                    file_p.write(data)
-                    file_p.close()
+                    with open(filename, 'wb') as file_p:
+                        file_p.write(data)
         else:
-            file_p = open(filename, 'wb')
-            file_p.write(data)
-            file_p.close()
+            with open(filename, 'wb') as file_p:
+                file_p.write(data)
         self.write(ids, {
             'digest': digest,
             'collision': collision,

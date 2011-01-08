@@ -3,6 +3,7 @@
 """
 %prog [options]
 """
+from __future__ import with_statement
 import logging
 import logging.handlers
 import sys, os, signal
@@ -202,10 +203,8 @@ class TrytonServer(object):
             sys.exit(0)
 
         if CONFIG['pidfile']:
-            fd_pid = open(CONFIG['pidfile'], 'w')
-            pidtext = "%d" % (os.getpid())
-            fd_pid.write(pidtext)
-            fd_pid.close()
+            with open(CONFIG['pidfile'], 'w') as fd_pid:
+                fd_pid.write("%d" % (os.getpid()))
 
         signal.signal(signal.SIGINT, handler)
         signal.signal(signal.SIGTERM, handler)

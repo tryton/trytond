@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-
+from __future__ import with_statement
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
 from trytond.session import Session
@@ -166,9 +166,8 @@ class Database(DatabaseInterface):
             raise Exception('Wrong database name!')
         path = os.path.join(CONFIG['data_path'],
                 database_name + '.sqlite')
-        file_p = open(path, 'rb')
-        data = file_p.read()
-        file_p.close()
+        with open(path, 'rb') as file_p:
+            data = file_p.read()
         return data
 
     @staticmethod
@@ -181,9 +180,8 @@ class Database(DatabaseInterface):
                 database_name + '.sqlite')
         if os.path.isfile(path):
             raise Exception('Database already exists!')
-        file_p = open(path, 'wb')
-        file_p.write(data)
-        file_p.close()
+        with open(path, 'wb') as file_p:
+            file_p.write(data)
 
     @staticmethod
     def list(cursor):
@@ -213,15 +211,17 @@ class Database(DatabaseInterface):
     def init(cursor):
         from trytond.tools import safe_eval
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
-        for line in open(sql_file).read().split(';'):
-            if (len(line)>0) and (not line.isspace()):
-                cursor.execute(line)
+        with open(sql_file) as fp:
+            for line in fp.read().split(';'):
+                if (len(line)>0) and (not line.isspace()):
+                    cursor.execute(line)
 
         for i in ('ir', 'workflow', 'res', 'webdav'):
             root_path = os.path.join(os.path.dirname(__file__), '..', '..')
             tryton_file = os.path.join(root_path, i, '__tryton__.py')
             mod_path = os.path.join(root_path, i)
-            info = safe_eval(open(tryton_file).read())
+            with open(tryton_file) as fp:
+                info = safe_eval(fp.read())
             active = info.get('active', False)
             if active:
                 state = 'to install'

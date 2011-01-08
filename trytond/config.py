@@ -134,7 +134,11 @@ class ConfigManager(object):
         parser = ConfigParser.ConfigParser()
         if not self.configfile:
             return
-        parser.readfp(open(self.configfile))
+        fp = open(self.configfile)
+        try:
+            parser.readfp(fp)
+        finally:
+            fp.close()
         for (name, value) in parser.items('options'):
             if value == 'True' or value == 'true':
                 value = True

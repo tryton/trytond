@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-
+from __future__ import with_statement
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
 from trytond.session import Session
@@ -130,7 +130,8 @@ class Database(DatabaseInterface):
 
         if os.name == "nt":
             tmpfile = (os.environ['TMP'] or 'C:\\') + os.tmpnam()
-            open(tmpfile, 'wb').write(data)
+            with open(tmpfile, 'wb') as fp:
+                fp.write(data)
             args2 = list(args2)
             args2.append(' ' + tmpfile)
             args2 = tuple(args2)
@@ -213,15 +214,17 @@ class Database(DatabaseInterface):
     def init(cursor):
         from trytond.tools import safe_eval
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
-        for line in open(sql_file).read().split(';'):
-            if (len(line)>0) and (not line.isspace()):
-                cursor.execute(line)
+        with open(sql_file) as fp:
+            for line in fp.read().split(';'):
+                if (len(line)>0) and (not line.isspace()):
+                    cursor.execute(line)
 
         for i in ('ir', 'workflow', 'res', 'webdav'):
             root_path = os.path.join(os.path.dirname(__file__), '..', '..')
             tryton_file = os.path.join(root_path, i, '__tryton__.py')
             mod_path = os.path.join(root_path, i)
-            info = safe_eval(open(tryton_file).read())
+            with open(tryton_file) as fp:
+                info = safe_eval(fp.read())
             active = info.get('active', False)
             if active:
                 state = 'to install'
