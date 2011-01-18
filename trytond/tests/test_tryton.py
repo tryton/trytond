@@ -11,6 +11,13 @@ DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
 if os.path.isdir(DIR):
     sys.path.insert(0, os.path.dirname(DIR))
 
+if sys.version_info[:2] <= (2, 5):
+    # ugly monkeypatch to make doctests work. For the reasons see
+    # http://mail.python.org/pipermail/python-dev/2008-July/081420.html
+    # It can go away once we drop Python 2.5
+    import decimal
+    decimal.Decimal.__repr__ = lambda s: "Decimal('%s')" % str(s)
+
 import unittest
 import doctest
 from lxml import etree
