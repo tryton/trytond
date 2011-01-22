@@ -90,13 +90,26 @@ class BrowseRecord(object):
                         % (name, self._model._name))
 
             if col.loading == 'eager':
+                field_access_obj = self._model.pool.get('ir.model.field.access')
+                fread_accesses = {}
+                for inherit_name in self._model._inherits:
+                    inherit_obj = self._model.pool.get(inherit_name)
+                    fread_accesses.update(field_access_obj.check(inherit_name,
+                        inherit_obj._columns.keys(), 'read', access=True))
+                fread_accesses.update(field_access_obj.check(self._model._name,
+                    self._model._columns.keys(), 'read', access=True))
+                to_remove = set(x for x, y in fread_accesses.iteritems()
+                        if not y and x != name)
+
                 ffields = dict((fname, field) for fname, (_, _, field)
                         in self._model._inherit_fields.iteritems()
                         if field.loading == 'eager'
-                        and fname not in self._model._columns)
+                        and fname not in self._model._columns
+                        and fname not in to_remove)
                 ffields.update(dict((fname, field) for fname, field
                         in self._model._columns.iteritems()
-                        if field.loading == 'eager'))
+                        if field.loading == 'eager'
+                        and fname not in to_remove))
             else:
                 ffields = {name: col}
 

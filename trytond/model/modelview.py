@@ -256,8 +256,44 @@ class ModelView(Model):
         return value
 
     def _view_look_dom_arch(self, tree, type):
+        field_access_obj = self.pool.get('ir.model.field.access')
+
         fields_width = {}
         tree_root = tree.getroottree().getroot()
+
+        # Find field without read access
+        fread_accesses = field_access_obj.check(self._name,
+                self._columns.keys(), 'read', access=True)
+        fields_to_remove = list(x for x, y in fread_accesses.iteritems()
+                if not y)
+        for name, field in self._columns.iteritems():
+            for field_to_remove in fields_to_remove:
+                if field_to_remove in field.depends:
+                    fields_to_remove.append(name)
+
+        # Find field inherited without read access
+        for inherit_name in self._inherits:
+            inherit_obj = self.pool.get(inherit_name)
+            fread_accesses = field_access_obj.check(inherit_obj._name,
+                    inherit_obj._columns.keys(), 'read', access=True)
+            fields_to_remove += list(x for x, y in fread_accesses.iteritems()
+                    if not y and x not in self._columns.keys())
+            for name, field in inherit_obj._columns.iteritems():
+                for field_to_remove in fields_to_remove:
+                    if field_to_remove in field.depends:
+                        fields_to_remove.append(name)
+
+        # Remove field without read access
+        for field in fields_to_remove:
+            for element in tree.xpath(
+                    '//field[@name="%s"] | //label[@name="%s"]'
+                    % (field, field)):
+                if type == 'form':
+                    element.tag = 'label'
+                    element.attrib.clear()
+                elif type == 'tree':
+                    parent = element.getparent()
+                    parent.remove(element)
 
         if type == 'tree':
             viewtreewidth_obj = self.pool.get('ir.ui.view_tree_width')

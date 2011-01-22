@@ -235,38 +235,36 @@ class ModelAccess(ModelSQL, ModelView):
 
     @Cache('ir_model_access.check')
     def check(self, model_name, mode='read', raise_exception=True):
+        '''
+        Check access for model_name
+
+        :param model_name: the model name
+        :param mode: 'read', 'write', 'create' or 'delete'
+        :param raise_exception: raise an exception if the test failed
+
+        :return: a boolean
+        '''
         assert mode in ['read', 'write', 'create', 'delete'], \
                 'Invalid access mode for security'
-        model_obj = self.pool.get(model_name)
-        if hasattr(model_obj, 'table_query') \
-                and model_obj.table_query():
-            return False
         if Transaction().user == 0:
             return True
+
         ir_model_obj = self.pool.get('ir.model')
         user_group_obj = self.pool.get('res.user-res.group')
         cursor = Transaction().cursor
-        cursor.execute('SELECT MAX(CASE WHEN a.perm_'+mode+' THEN 1 else 0 END) '
-            'FROM ir_model_access a '
-                'JOIN "' + ir_model_obj._table + '" m '
-                    'ON (a.model = m.id) '
-                'JOIN "' + user_group_obj._table + '" gu '
-                    'ON (gu.gid = a."group") '
-            'WHERE m.model = %s AND gu.uid = %s',
-            (model_name, Transaction().user,))
-        row = cursor.fetchall()
-        if row[0][0] is None:
-            cursor.execute('SELECT ' \
-                        'MAX(CASE WHEN perm_' + mode + ' THEN 1 else 0 END) ' \
-                    'FROM ir_model_access a ' \
-                    'JOIN ir_model m ' \
-                        'ON (a.model = m.id) ' \
-                    'WHERE a."group" IS NULL AND m.model = %s', (model_name,))
-            row = cursor.fetchall()
-            if row[0][0] is None:
-                return True
 
-        if not row[0][0]:
+        cursor.execute('SELECT MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
+                'FROM "%s" AS a '
+                'JOIN "%s" AS m '
+                    'ON (a.model = m.id) '
+                'LEFT JOIN "%s" AS gu '
+                    'ON (gu.gid = a."group") '
+                'WHERE m.model = %%s AND (gu.uid = %%s OR a."group" IS NULL)'
+                % (mode, self._table, ir_model_obj._table,
+                    user_group_obj._table),
+                (model_name, Transaction().user))
+        access, = cursor.fetchone()
+        if not access and access is not None:
             if raise_exception:
                 self.raise_user_error(mode, model_name)
             else:
@@ -307,6 +305,125 @@ class ModelAccess(ModelSQL, ModelView):
         return res
 
 ModelAccess()
+
+
+class ModelFieldAccess(ModelSQL, ModelView):
+    "Model Field Access"
+    _name = 'ir.model.field.access'
+    _description = __doc__
+    _rec_name = 'field'
+    field = fields.Many2One('ir.model.field', 'Field', required=True,
+            ondelete='CASCADE')
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE')
+    perm_read = fields.Boolean('Read Access')
+    perm_write = fields.Boolean('Write Access')
+    description = fields.Text('Description')
+
+    def __init__(self):
+        super(ModelFieldAccess, self).__init__()
+        self._sql_constraints += [
+            ('field_group_uniq', 'UNIQUE("field", "group")',
+                'Only one record by field and group is allowed!'),
+        ]
+        self._error_messages.update({
+            'read': 'You can not read the field! (%s.%s)',
+            'write': 'You can not write on the field! (%s.%s)',
+            })
+
+    def check_xml_record(self, ids, values):
+        return True
+
+    def default_perm_read(self):
+        return False
+
+    def default_perm_write(self):
+        return False
+
+    @Cache('ir_model_field_access.check')
+    def check(self, model_name, fields, mode='read', raise_exception=True,
+            access=False):
+        '''
+        Check access for fields on model_name.
+
+        :param model_name: the model name
+        :param fields: a list of fields
+        :param mode: 'read' or 'write'
+        :param raise_exception: raise an exception if the test failed
+        :param access: return a dictionary with access right instead of boolean
+
+        :return: a boolean
+        '''
+        assert mode in ('read', 'write'), 'Invalid access mode'
+        if Transaction().user == 0:
+            if access:
+                return dict((x, True) for x in fields)
+            return True
+
+        ir_model_obj = self.pool.get('ir.model')
+        ir_model_field_obj = self.pool.get('ir.model.field')
+        user_group_obj = self.pool.get('res.user-res.group')
+
+        cursor = Transaction().cursor
+
+        cursor.execute('SELECT f.name, '
+                'MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
+                'FROM "%s" AS a '
+                'JOIN "%s" AS f '
+                    'ON (a.field = f.id) '
+                'JOIN "%s" AS m '
+                    'ON (f.model = m.id) '
+                'LEFT JOIN "%s" AS gu '
+                    'ON (gu.gid = a."group") '
+                'WHERE m.model = %%s AND (gu.uid = %%s OR a."group" IS NULL) '
+                'GROUP BY f.name'
+                % (mode, self._table, ir_model_field_obj._table,
+                    ir_model_obj._table, user_group_obj._table),
+                (model_name, Transaction().user))
+        accesses = dict(cursor.fetchall())
+        if access:
+            return accesses
+        for field in fields:
+            if not accesses.get(field, True):
+                if raise_exception:
+                    self.raise_user_error(mode, (model_name, field))
+                else:
+                    return False
+        return True
+
+    def write(self, ids, vals):
+        res = super(ModelFieldAccess, self).write(ids, vals)
+        # Restart the cache
+        self.check.reset()
+        for _, model in self.pool.iterobject():
+            try:
+                model.fields_view_get.reset()
+            except Exception:
+                pass
+        return res
+
+    def create(self, vals):
+        res = super(ModelFieldAccess, self).create(vals)
+        # Restart the cache
+        self.check.reset()
+        for _, model in self.pool.iterobject():
+            try:
+                model.fields_view_get.reset()
+            except Exception:
+                pass
+        return res
+
+    def delete(self, ids):
+        res = super(ModelFieldAccess, self).delete(ids)
+        # Restart the cache
+        self.check.reset()
+        for _, model in self.pool.iterobject():
+            try:
+                model.fields_view_get.reset()
+            except Exception:
+                pass
+        return res
+
+ModelFieldAccess()
 
 
 class ModelData(ModelSQL, ModelView):

@@ -190,6 +190,63 @@ this repository contains the full copyright notices and license terms. -->
         <menuitem parent="ir.menu_models"
             action="act_model_access_form" id="menu_model_access_form"/>
 
+        <record model="ir.ui.view" id="model_field_access_view_tree">
+            <field name="model">ir.model.field.access</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Field Access">
+                    <field name="perm_read" select="2"/>
+                    <field name="perm_write" select="2"/>
+                    <field name="field" select="1"/>
+                    <field name="group" select="1"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="model_field_access_view_form">
+            <field name="model">ir.model.field.access</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Field Access">
+                    <label name="field"/>
+                    <field name="field"/>
+                    <label name="group"/>
+                    <field name="group"/>
+                    <newline/>
+                    <label name="perm_read"/>
+                    <field name="perm_read"/>
+                    <label name="perm_write"/>
+                    <field name="perm_write"/>
+                    <separator name="description" colspan="4"/>
+                    <field name="description" colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_model_field_access_form">
+            <field name="name">Fields Access</field>
+            <field name="res_model">ir.model.field.access</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_model_field_access_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="model_field_access_view_tree"/>
+            <field name="act_window" ref="act_model_field_access_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_model_field_access_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="model_field_access_view_form"/>
+            <field name="act_window" ref="act_model_field_access_form"/>
+        </record>
+        <menuitem parent="menu_model_access_form"
+            action="act_model_field_access_form" id="menu_model_field_access_form"/>
+
         <record model="ir.action.report" id="report_model_graph">
             <field name="name">Graph</field>
             <field name="model">ir.model</field>
