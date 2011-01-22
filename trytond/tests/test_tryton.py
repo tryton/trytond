@@ -194,6 +194,8 @@ def all_suite():
     suite_.addTests(test_protocols_datatype.suite())
     import trytond.tests.test_sequence as test_sequence
     suite_.addTests(test_sequence.suite())
+    import trytond.tests.test_access as test_access
+    suite_.addTests(test_access.suite())
     return suite_
 
 def modules_suite():

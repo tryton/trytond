@@ -82,7 +82,11 @@ class ModelStorage(Model):
         :return: the id of the created record
         '''
         model_access_obj = self.pool.get('ir.model.access')
+        model_field_access_obj = self.pool.get('ir.model.field.access')
+
         model_access_obj.check(self._name, 'create')
+        model_field_access_obj.check(self._name,
+                [x for x in values if x in self._columns], 'write')
         self.__clean_xxx2many_cache()
         return False
 
@@ -113,8 +117,11 @@ class ModelStorage(Model):
             and fields value as value. The list will not be in the same order.
         '''
         model_access_obj = self.pool.get('ir.model.access')
+        model_field_access_obj = self.pool.get('ir.model.field.access')
 
         model_access_obj.check(self._name, 'read')
+        model_field_access_obj.check(self._name,
+                fields_names or self._columns.keys(), 'read')
         if isinstance(ids, (int, long)):
             return {}
         return []
@@ -129,8 +136,11 @@ class ModelStorage(Model):
         :return: True if succeed
         '''
         model_access_obj = self.pool.get('ir.model.access')
+        model_field_access_obj = self.pool.get('ir.model.field.access')
 
         model_access_obj.check(self._name, 'write')
+        model_field_access_obj.check(self._name,
+                [x for x in values if x in self._columns], 'write')
         if not self.check_xml_record(ids, values):
             self.raise_user_error('write_xml_record',
                     error_description='xml_record_desc')

@@ -619,6 +619,8 @@ class Model(object):
         res = {}
         translation_obj = self.pool.get('ir.translation')
         model_access_obj = self.pool.get('ir.model.access')
+        field_access_obj = self.pool.get('ir.model.field.access')
+
         for parent in self._inherits:
             res.update(self.pool.get(parent).fields_get(fields_names))
         write_access = model_access_obj.check(self._name, 'write',
@@ -648,6 +650,8 @@ class Model(object):
 
         encoder = PYSONEncoder()
 
+        fwrite_accesses = field_access_obj.check(self._name, fields_names or
+                self._columns.keys(), 'write', access=True)
         for field in (x for x in self._columns.keys()
                 if ((not fields_names) or x in fields_names)):
             res[field] = {'type': self._columns[field]._type}
@@ -671,7 +675,7 @@ class Model(object):
                 if getattr(self._columns[field], arg, None) != None:
                     res[field][arg] = copy.copy(getattr(self._columns[field],
                         arg))
-            if not write_access:
+            if not write_access or not fwrite_accesses.get(field, True):
                 res[field]['readonly'] = True
                 if res[field].get('states') and \
                         'readonly' in res[field]['states']:

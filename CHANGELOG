@@ -1,3 +1,4 @@
+* Add model field access
 * Add loading attribute on fields
 * Remove priority attribute on fields
 * Model doesn't convert anymore ids for inherited methods
