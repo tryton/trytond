@@ -303,6 +303,8 @@ def get_module_list():
     module_list = set()
     if os.path.exists(MODULES_PATH) and os.path.isdir(MODULES_PATH):
         for file in os.listdir(MODULES_PATH):
+            if file.startswith('.'):
+                continue
             if os.path.isdir(OPJ(MODULES_PATH, file)):
                 module_list.add(file)
             elif file[-4:] == '.zip':
