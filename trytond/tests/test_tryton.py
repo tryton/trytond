@@ -225,18 +225,18 @@ def modules_suite():
         else:
             continue
         for test in test_mod.suite():
-            if hasattr(test, '__eq__'):
-                if test not in suite_:
-                    suite_.addTest(test)
-            else:
-                found = False
-                for other in suite_:
-                    if type(test) == type(other) and \
-                            test._testMethodName == other._testMethodName:
+            found = False
+            for other in suite_:
+                if type(test) == type(other):
+                    if isinstance(test, doctest.DocTestCase):
+                        if str(test) == str(other):
+                            found = True
+                            break
+                    elif test._testMethodName == other._testMethodName:
                         found = True
                         break
-                if not found:
-                    suite_.addTest(test)
+            if not found:
+                suite_.addTest(test)
     tests = []
     doc_tests = []
     for test in suite_:
