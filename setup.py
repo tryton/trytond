@@ -12,9 +12,13 @@ SIMPLEJSON = []
 if sys.version_info < (2, 6):
     SIMPLEJSON = ['simplejson']
 
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 setup(name=PACKAGE,
     version=VERSION,
     description='Tryton server',
+    long_description=read('README'),
     author='B2CK',
     author_email='info@b2ck.com',
     url=WEBSITE,
