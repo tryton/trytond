@@ -125,6 +125,8 @@ attlist.field &= attribute spell { text }?
 attlist.field &= attribute float_time { text }?
 attlist.field &= attribute img_width { text }?
 attlist.field &= attribute img_height { text }?
+attlist.field &=
+  [a:defaultValue = "0"] attribute filename_visible { "0" | "1" }?
 image = element image { attlist.image, empty }
 attlist.image &= attribute name { text }
 attlist.image &= [ a:defaultValue = "1" ] attribute colspan { text }?
