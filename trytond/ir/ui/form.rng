@@ -452,6 +452,16 @@
       <attribute name="img_height"/>
     </optional>
   </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="filename_visible" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
   <define name="image">
     <element name="image">
       <ref name="attlist.image"/>

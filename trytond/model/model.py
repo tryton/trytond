@@ -671,8 +671,9 @@ class Model(object):
                     'sort',
                     'datetime_field',
                     'loading',
+                    'filename',
                     ):
-                if getattr(self._columns[field], arg, None) != None:
+                if getattr(self._columns[field], arg, None) is not None:
                     res[field][arg] = copy.copy(getattr(self._columns[field],
                         arg))
             if not write_access or not fwrite_accesses.get(field, True):
