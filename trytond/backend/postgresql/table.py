@@ -208,7 +208,8 @@ class TableHandler(TableHandlerInterface):
             self.cursor.execute('COMMENT ON COLUMN "%s"."%s" IS \'%s\'' %
                     (self.table_name, column_name, string.replace("'", "''")))
         if self.column_exist(column_name):
-            if column_name in ('create_date', 'write_date'):
+            if (column_name in ('create_date', 'write_date')
+                    and column_type[1].lower() != 'timestamp(6)'):
                 #Migrate dates from timestamp(0) to timestamp
                 self.cursor.execute('ALTER TABLE "' + self.table_name + '" ' \
                         'ALTER COLUMN "' + column_name + '" TYPE timestamp')
