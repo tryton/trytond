@@ -1,3 +1,4 @@
+* Add support for file link to BinaryField
 * Add model field access
 * Add loading attribute on fields
 * Remove priority attribute on fields
