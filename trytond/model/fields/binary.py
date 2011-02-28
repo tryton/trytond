@@ -12,14 +12,19 @@ class Binary(Field):
 
     def __init__(self, string='', help='', required=False, readonly=False,
             domain=None, states=None, change_default=False, select=0,
-            on_change=None, on_change_with=None, depends=None,
+            on_change=None, on_change_with=None, depends=None, filename=None,
             order_field=None, context=None, loading='lazy'):
+        if filename is not None:
+            self.filename = filename
+            if depends is None:
+                depends = [filename]
+            else:
+                depends.append(filename)
         super(Binary, self).__init__(string=string, help=help,
-                required=required, readonly=readonly, domain=domain,
-                states=states, change_default=change_default, select=select,
-                on_change=on_change, on_change_with=on_change_with,
-                depends=depends, order_field=order_field, context=context,
-                loading=loading)
+            required=required, readonly=readonly, domain=domain, states=states,
+            change_default=change_default, select=select, on_change=on_change,
+            on_change_with=on_change_with, depends=depends,
+            order_field=order_field, context=context, loading=loading)
 
     @staticmethod
     def get(ids, model, name, values=None):

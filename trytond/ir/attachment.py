@@ -19,11 +19,10 @@ class Attachment(ModelSQL, ModelView):
     _name = 'ir.attachment'
     _description = __doc__
     name = fields.Char('Attachment Name', required=True)
-    datas = fields.Function(fields.Binary('Datas'), 'get_datas',
-            setter='set_datas')
+    datas = fields.Function(fields.Binary('Data', filename='name'),
+        'get_datas', setter='set_datas')
     description = fields.Text('Description')
-    resource = fields.Reference('Resource', selection='models_get',
-            select=1)
+    resource = fields.Reference('Resource', selection='models_get', select=1)
     link = fields.Char('Link')
     digest = fields.Char('Digest', size=32)
     collision = fields.Integer('Collision')
