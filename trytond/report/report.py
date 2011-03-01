@@ -2,8 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 import copy
 import xml
-from xml import dom
-from xml.dom import minidom
 import sys
 import base64
 try:
@@ -28,6 +26,7 @@ try:
 except ImportError:
     Manifest = None
 from genshi.filters import Translator
+import lxml.etree
 from trytond.config import CONFIG
 from trytond.backend import DatabaseIntegrityError
 from trytond.pool import Pool
@@ -176,37 +175,40 @@ class Report(object):
 
         if report.style_content:
             pictures = []
-            dom_style = xml.dom.minidom.parseString(style_xml)
-            node_style = dom_style.documentElement
 
             #cStringIO difference:
             #calling StringIO() with a string parameter creates a read-only object
-            style2_io = StringIO.StringIO()
-            style2_io.write(base64.decodestring(report.style_content))
-            style2_z = zipfile.ZipFile(style2_io, mode='r')
-            style2_xml = style2_z.read('styles.xml')
-            for file in style2_z.namelist():
+            new_style_io = StringIO.StringIO()
+            new_style_io.write(base64.decodestring(report.style_content))
+            new_style_z = zipfile.ZipFile(new_style_io, mode='r')
+            new_style_xml = new_style_z.read('styles.xml')
+            for file in new_style_z.namelist():
                 if file.startswith('Pictures'):
-                    picture = style2_z.read(file)
+                    picture = new_style_z.read(file)
                     pictures.append((file, picture))
                     if manifest:
                         manifest.add_file_entry(file)
-            style2_z.close()
-            style2_io.close()
-            dom_style2 = xml.dom.minidom.parseString(style2_xml)
-            node_style2 = dom_style2.documentElement
-            style_header_node2 = self.find(node_style2, 'master-styles')
-            style_header_node = self.find(node_style, 'master-styles')
-            style_header_node.parentNode.replaceChild(style_header_node2,
-                    style_header_node)
-            style_header_node2 = self.find(node_style2, 'automatic-styles')
-            style_header_node = self.find(node_style, 'automatic-styles')
-            style_header_node.parentNode.replaceChild(style_header_node2,
-                    style_header_node)
+            new_style_z.close()
+            new_style_io.close()
+
+            style_tree = lxml.etree.parse(StringIO.StringIO(style_xml))
+            style_root = style_tree.getroot()
+
+            new_style_tree = lxml.etree.parse(StringIO.StringIO(new_style_xml))
+            new_style_root = new_style_tree.getroot()
+
+            for style in ('master-styles', 'automatic-styles'):
+                node, = style_tree.xpath(
+                        '/office:document-styles/office:%s' % style,
+                        namespaces=style_root.nsmap)
+                new_node, = new_style_tree.xpath(
+                        '/office:document-styles/office:%s' % style,
+                        namespaces=new_style_root.nsmap)
+                node.getparent().replace(node, new_node)
 
             outzip.writestr(style_info,
-                    '<?xml version="1.0" encoding="UTF-8"?>' + \
-                            dom_style.documentElement.toxml('utf-8'))
+                    lxml.etree.tostring(style_tree, encoding='utf-8',
+                        xml_declaration=True))
 
             for file, picture in pictures:
                 outzip.writestr(file, picture)
@@ -292,16 +294,6 @@ class Report(object):
         if not res_data:
             Exception('Error', 'Error converting to PDF')
         return res_data
-
-    def find(self, tnode, tag):
-        for node in tnode.childNodes:
-            if node.nodeType == node.ELEMENT_NODE \
-                    and node.localName == tag:
-                return node
-            res = self.find(node, tag)
-            if res is not None:
-                return res
-        return None
 
     def format_lang(self, value, lang, digits=2, grouping=True, monetary=False,
             date=False, currency=None, symbol=True):
