@@ -62,7 +62,7 @@ class MenuitemTagHandler:
 
             # TODO maybe use a prefetch for this:
             cursor.execute(cursor.limit_clause(
-            "SELECT a.name, a.type, act.view_type, v.type " \
+            "SELECT a.name, a.type, act.view_type, v.type, icon.name " \
             "FROM ir_action a " \
                 "LEFT JOIN ir_action_report report ON (a.id = report.action) " \
                 "LEFT JOIN ir_action_act_window act ON (a.id = act.action) " \
@@ -70,14 +70,15 @@ class MenuitemTagHandler:
                 "LEFT JOIN ir_action_url url ON (a.id = url.action) " \
                 "LEFT JOIN ir_action_act_window_view wv ON " \
                     "(act.id = wv.act_window) " \
-                "LEFT JOIN ir_ui_view v on (v.id = wv.view) " \
+                "LEFT JOIN ir_ui_view v ON (v.id = wv.view) " \
+                "LEFT JOIN ir_ui_icon icon ON (a.icon = icon.id) " \
             "WHERE report.id = %s " \
                 "OR act.id = %s " \
                 "OR wizard.id = %s " \
                 "OR url.id = %s " \
             "ORDER by wv.sequence", 1),
             (action_id, action_id, action_id, action_id))
-            action_name, action_type, view_type, view_mode = \
+            action_name, action_type, view_type, view_mode, icon_name = \
                     cursor.fetchone()
 
             values['action'] = '%s,%s' % (action_type, action_id)
@@ -85,6 +86,8 @@ class MenuitemTagHandler:
             icon = attributes.get('icon', '')
             if icon:
                 values['icon'] = icon
+            elif icon_name:
+                values['icon'] = icon_name
             elif action_type == 'ir.action.wizard':
                 values['icon'] = 'tryton-executable'
             elif action_type == 'ir.action.report':
@@ -125,7 +128,6 @@ class MenuitemTagHandler:
                 values['name'] = action_name
 
         self.values = values
-
 
     def characters(self, data):
         pass

@@ -181,6 +181,7 @@ page =
      | vpaned)*
   }
 attlist.page &= attribute angle { text }?
+attlist.page &= attribute icon { text }?
 attlist.page &=
   [ a:defaultValue = "Unknown" ] attribute string { text }?
 attlist.page &= [ a:defaultValue = "4" ] attribute col { text }?

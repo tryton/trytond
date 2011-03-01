@@ -673,6 +673,11 @@
   </define>
   <define name="attlist.page" combine="interleave">
     <optional>
+      <attribute name="icon"/>
+    </optional>
+  </define>
+  <define name="attlist.page" combine="interleave">
+    <optional>
       <attribute name="string" a:defaultValue="Unknown"/>
     </optional>
   </define>
