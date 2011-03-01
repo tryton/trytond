@@ -22,6 +22,7 @@ class Action(ModelSQL, ModelView):
             'Keywords')
     groups = fields.Many2Many('ir.action-res.group', 'action_id', 'gid',
             'Groups')
+    icon = fields.Many2One('ir.ui.icon', 'Icon')
     active = fields.Boolean('Active', select=2)
 
     def __init__(self):
@@ -183,15 +184,18 @@ class ActionKeyword(ModelSQL, ModelView):
                 ('action', '=', action_keyword.action.id),
                 ])
             if action_id:
-                res.append(action_obj.read(action_id[0]))
+                columns = set(action_obj._columns.keys()
+                    + action_obj._inherit_fields.keys())
+                columns.add('icon.rec_name')
                 if action_keyword.action.type == 'ir.action.report':
-                    del res[-1]['report_content_data']
-                    del res[-1]['report_content']
-                    del res[-1]['style_content']
-                    res[-1]['email'] = encoder.encode(res[-1]['email'])
+                    to_remove = ('report_content_data', 'report_content',
+                        'style_content')
                 elif action_keyword.action.type == 'ir.action.act_window':
-                    for field in ('domain', 'context', 'search_value'):
-                        del res[-1][field]
+                    to_remove = ('domain', 'context', 'search_value')
+                else:
+                    to_remove = set()
+                columns.difference_update(to_remove)
+                res.append(action_obj.read(action_id[0], list(columns)))
         return res
 
 ActionKeyword()
