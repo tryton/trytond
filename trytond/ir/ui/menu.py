@@ -12,65 +12,52 @@ def one_in(i, j):
             return True
     return False
 
-ICONS = [(x, x) for x in [
-    'tryton-accessories',
+CLIENT_ICONS = [(x, x) for x in (
+    'tryton-attachment-hi',
     'tryton-attachment',
+    'tryton-cancel',
     'tryton-clear',
     'tryton-close',
-    'tryton-calculator',
-    'tryton-calendar',
-    'tryton-clock',
     'tryton-connect',
     'tryton-copy',
-    'tryton-currency',
     'tryton-delete',
-    'tryton-development',
     'tryton-dialog-error',
     'tryton-dialog-information',
     'tryton-dialog-warning',
     'tryton-disconnect',
     'tryton-executable',
-    'tryton-find',
     'tryton-find-replace',
+    'tryton-find',
     'tryton-folder-new',
-    'tryton-folder-saved-search',
     'tryton-fullscreen',
-    'tryton-graph',
     'tryton-go-home',
     'tryton-go-jump',
     'tryton-go-next',
     'tryton-go-previous',
     'tryton-help',
-    'tryton-image-missing',
-    'tryton-information',
-    'tryton-lock',
-    'tryton-list',
+    'tryton-icon',
     'tryton-list-add',
     'tryton-list-remove',
     'tryton-locale',
+    'tryton-lock',
     'tryton-log-out',
     'tryton-mail-message-new',
+    'tryton-mail-message',
     'tryton-new',
-    'tryton-noimage',
+    'tryton-ok',
     'tryton-open',
-    'tryton-package',
-    'tryton-preferences',
-    'tryton-preferences-system',
     'tryton-preferences-system-session',
-    'tryton-presentation',
+    'tryton-preferences-system',
+    'tryton-preferences',
     'tryton-print',
-    'tryton-readonly',
     'tryton-refresh',
     'tryton-save-as',
     'tryton-save',
-    'tryton-spreadsheet',
     'tryton-start-here',
-    'tryton-tree',
-    'tryton-system',
     'tryton-system-file-manager',
-    'tryton-users',
-    'tryton-web-browser',
-]]
+    'tryton-system',
+    'tryton-undo',
+    'tryton-web-browser')]
 
 
 class UIMenu(ModelSQL, ModelView):
@@ -85,7 +72,7 @@ class UIMenu(ModelSQL, ModelView):
        'menu_id', 'gid', 'Groups')
     complete_name = fields.Function(fields.Char('Complete Name',
         order_field='name'), 'get_full_name')
-    icon = fields.Selection(ICONS, 'Icon', translate=False)
+    icon = fields.Selection('list_icons', 'Icon')
     action = fields.Function(fields.Reference('Action',
         selection=[
             ('ir.action.report', 'ir.action.report'),
@@ -107,6 +94,11 @@ class UIMenu(ModelSQL, ModelView):
 
     def default_active(self):
         return True
+
+    def list_icons(self):
+        icon_obj = self.pool.get('ir.ui.icon')
+        return sorted(CLIENT_ICONS
+            + [(name, name) for _, name in icon_obj.list_icons()])
 
     def get_full_name(self, ids, name):
         res = {}
