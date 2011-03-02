@@ -33,6 +33,7 @@ Fournit les concepts et l'administration des modèles, actions, séquences, loca
         'ui/ui.xml',
         'ui/menu.xml',
         'ui/view.xml',
+        'ui/icons.xml',
         'action.xml',
         'model.xml',
         'sequence.xml',
