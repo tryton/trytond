@@ -300,7 +300,8 @@ class Cursor(CursorInterface):
     def lock(self, table):
         # Lock of table doesn't work because MySQL require
         # that the session locks all tables that will be accessed
-        self.cursor.execute('FLUSH TABLES WITH READ LOCK')
+        # but 'FLUSH TABLES WITH READ LOCK' creates deadlock
+        pass
 
     def has_constraint(self):
         return False
