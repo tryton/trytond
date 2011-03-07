@@ -30,8 +30,8 @@ Fournit les concepts et l'administration des modèles, actions, séquences, loca
     'active': True,
     'xml': [
         'ir.xml',
-        'ui/icons.xml',
         'ui/ui.xml',
+        'ui/icon.xml',
         'ui/menu.xml',
         'ui/view.xml',
         'action.xml',
