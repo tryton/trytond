@@ -62,21 +62,35 @@ Elements of the view are put on the screen following the rules:
 XML description
 ---------------
 
-Here is the list of common attributes:
+List of attributes shared by many form elements:
 
-    * ``id``: A unique identifier for the tag if there is no name attribute
+    .. _common-attributes-id:
+
+    * ``id``: A unique identifier for the tag if there is no name attribute.
+
+    .. _common-attributes-expand:
 
     * ``expand``: A boolean to specify if the label should expand to take up
       any extra vertical space.
 
+    .. _common-attributes-fill:
+
     * ``fill``: A boolean to specify if the label should fill the vertical
       space allocated to it in the table cell.
 
+    .. _common-attributes-xexpand:
+
     * ``xexpand``: The same as expand but for horizontal space.
+
+    .. _common-attributes-xfill:
 
     * ``xfill``: The same as fill but for horizontal space.
 
+    .. _common-attributes-colspan:
+
     * ``colspan``: The number of columns the widget must take in the table.
+
+    .. _common-attributes-states:
 
     * ``states``: A string of :ref:`PYSON statement <topics-pyson>` that will
       be evaluated with the values of the current record.
@@ -92,8 +106,10 @@ Here is the list of common attributes:
         * ``icon``: Only for button, it must return the icon name to use or
           False.
 
-    * ``help``: The string that will be displayed when the cursor stay over the
-      widget.
+    .. _common-attributes-help:
+
+    * ``help``: The string that will be displayed when the cursor hovers over
+      the widget.
 
 
 form
@@ -109,7 +125,7 @@ Each form view must start with this tag.
 
       ``on_write(self, ids)``
 
-    * ``col``: The number of column for the view.
+    * ``col``: The number of columns for the view.
 
     * ``cursor``: The name of the field that must have the cursor by default.
 
@@ -127,6 +143,23 @@ Display static string.
       left.  0.0 means no free space to the left.  1.0 means all free space to
       the left.
 
+    * ``id``: see common-attributes-id_.
+
+    * ``expand``: see in common-attributes-expand_.
+
+    * ``fill``: see in common-attributes-fill_.
+
+    * ``xexpand``: see in common-attributes-xexpand_.
+
+    * ``xfill``: see in common-attributes-xfill_.
+
+    * ``colspan``: see in common-attributes-colspan_.
+
+    * ``states``: see in common-attributes-states_.
+
+    * ``help``: see in common-attributes-help_.
+
+    * Requires that either ``id`` or ``name`` is defined.
 
 field
 ^^^^^
@@ -164,6 +197,17 @@ Display a field of the object with the value of the current record.
     * ``domain``: Only for One2Many, Many2One, Many2Many fields, it defines the
       domain that must be used when searching for related records.
 
+    * ``expand``: see in common-attributes-expand_.
+
+    * ``fill``: see in common-attributes-fill_.
+
+    * ``xexpand``: see in common-attributes-xexpand_.
+
+    * ``xfill``: see in common-attributes-xfill_.
+
+    * ``colspan``: see in common-attributes-colspan_.
+
+    * ``help``: see in common-attributes-help_.
 
 image
 ^^^^^
@@ -172,6 +216,17 @@ Display an image.
 
     * ``name``: the name of the image. It must be the name with the extension
       of an image from ``tryton/share/pixmaps/``.
+
+    * ``expand``: see in common-attributes-expand_.
+
+    * ``fill``: see in common-attributes-fill_.
+
+    * ``colspan``: see in common-attributes-colspan_.
+
+    * ``states``: see in common-attributes-states_.
+
+    * ``help``: see in common-attributes-help_.
+
 
 separator
 ^^^^^^^^^
@@ -182,6 +237,20 @@ Display a horizontal separator.
 
     * ``name``: The name of the field from which the description will be used
       for string.
+
+    * ``id``: see in common-attributes-id_.
+
+    * ``expand``: see in common-attributes-expand_.
+
+    * ``fill``: see in common-attributes-fill_.
+
+    * ``colspan``: see in common-attributes-colspan_.
+
+    * ``states``: see in common-attributes-states_.
+
+    * ``help``: see in common-attributes-help_.
+
+    * Requires that either ``id`` or ``name`` is defined.
 
 newline
 ^^^^^^^
@@ -210,8 +279,16 @@ Display a button.
 
         * ``action``: the id of the ir.action that will be called.
 
+    * ``icon``
+
     * ``confirm``: A text that will be displayed in a confirmation popup when
       the button is clicked.
+
+    * ``colspan``: see in common-attributes-colspan_.
+
+    * ``states``: see in common-attributes-states_.
+
+    * ``help``: see in common-attributes-help_.
 
 notebook
 ^^^^^^^^
@@ -219,6 +296,8 @@ notebook
 It adds a notebook widget which can contain page tags.
 
     * ``tabpos``: It can be ``up``, ``down``, ``left``, ``right``.
+
+    * ``colspan``: see in common-attributes-colspan_.
 
 page
 ^^^^
@@ -232,6 +311,12 @@ Define a new tab inside a notebook.
 
     * ``col``: The number of columns for the page view.
 
+    * ``id``: see in common-attributes-id_.
+
+    * ``states``: see in common-attributes-states_.
+
+    * Requires that either ``id`` or ``name`` is defined.
+
 group
 ^^^^^
 
@@ -244,11 +329,28 @@ Create a sub-table in a cell.
 
     * ``col``: The number of columns for the group contains.
 
+    * ``id``: see in common-attributes-id_.
+
+    * ``expand``: see in common-attributes-expand_.
+
+    * ``fill``: see in common-attributes-fill_.
+
+    * ``colspan``: see in common-attributes-colspan_.
+
+    * ``states``: see in common-attributes-states_.
+
+    * Requires that either ``id`` or ``name`` is defined.
+
 hpaned, vpaned
 ^^^^^^^^^^^^^^
 
     * ``position``: The pixel position of divider, a negative value means that
       the position is unset.
+
+    * ``id``: see in common-attributes-id_.
+
+    * ``colspan``: see in common-attributes-colspan_. The default
+      for panes is 4 columns.
 
 child1, child2
 ^^^^^^^^^^^^^^
