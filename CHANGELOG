@@ -1,3 +1,4 @@
+* Add warning to wizards
 * Add server-side icons
 * Add support for file link to BinaryField
 * Add model field access

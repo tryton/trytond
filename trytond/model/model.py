@@ -3,12 +3,13 @@
 
 import copy
 from trytond.model import fields
+from trytond.error import WarningErrorMixin
 from trytond.pool import Pool
 from trytond.pyson import PYSONEncoder
 from trytond.transaction import Transaction
 
 
-class Model(object):
+class Model(WarningErrorMixin):
     """
     Define a model in Tryton.
     """
@@ -371,108 +372,6 @@ class Model(object):
 
     def _get_error_messages(self):
         return self._error_messages.values()
-
-    def raise_user_error(self, error, error_args=None,
-            error_description='', error_description_args=None,
-            raise_exception=True):
-        '''
-        Raise an exception that will be displayed as an error message
-        in the client.
-
-        :param error: the key of the dictionary _error_messages used
-            for error message
-        :param error_args: the arguments that will be used
-            for "%"-based substitution
-        :param error_description: the key of the dictionary
-            _error_messages used for error description
-        :param error_description_args: the arguments that will be used
-            for "%"-based substitution
-        :param raise_exception: if set to False return the error string
-            (or tuple if error_description is not empty) instead of raising an
-            exception.
-        '''
-        translation_obj = self.pool.get('ir.translation')
-
-        error = self._error_messages.get(error, error)
-
-        language = Transaction().context.get('language') or 'en_US'
-        res = translation_obj._get_source(self._name, 'error', language, error)
-        if not res:
-            res = translation_obj._get_source(error, 'error', language)
-        if not res:
-            res = translation_obj._get_source(error, 'error', 'en_US')
-
-        if res:
-            error = res
-
-        if error_args:
-            try:
-                error = error % error_args
-            except TypeError:
-                pass
-
-        if error_description:
-            error_description = self._error_messages.get(error_description,
-                    error_description)
-
-            res = translation_obj._get_source(self._name, 'error', language,
-                    error_description)
-            if not res:
-                res = translation_obj._get_source(error_description, 'error',
-                        language)
-            if not res:
-                res = translation_obj._get_source(error_description, 'error',
-                        'en_US')
-
-            if res:
-                error_description = res
-
-            if error_description_args:
-                try:
-                    error_description = error_description % \
-                            error_description_args
-                except TypeError:
-                    pass
-            if raise_exception:
-                raise Exception('UserError', error, error_description)
-            else:
-                return (error, error_description)
-        if raise_exception:
-            raise Exception('UserError', error)
-        else:
-            return error
-
-    def raise_user_warning(self, warning_name, warning,
-            warning_args=None, warning_description='',
-            warning_description_args=None):
-        '''
-        Raise an exception that will be displayed as a warning message
-        in the client, if the user has not yet bypassed it.
-
-        :param warning_name: the unique warning name
-        :param warning: the key of the dictionary _error_messages used
-            for warning message
-        :param warning_args: the arguments that will be used for
-            "%"-based substitution
-        :param warning_description: the key of the dictionary
-            _error_messages used for warning description
-        :param warning_description_args: the arguments that will be used
-            for "%"-based substitution
-        '''
-        warning_obj = self.pool.get('res.user.warning')
-        if warning_obj.check(warning_name):
-            if warning_description:
-                warning, warning_description = self.raise_user_error(warning,
-                        error_args=warning_args,
-                        error_description=warning_description,
-                        error_description_args=warning_description_args,
-                        raise_exception=False)
-                raise Exception('UserWarning', warning_name, warning,
-                        warning_description)
-            else:
-                warning = self.raise_user_error(warning,
-                        error_args=warning_args, raise_exception=False)
-                raise Exception('UserWarning', warning_name, warning)
 
     def default_get(self, fields_names, with_rec_name=True):
         '''
