@@ -6,9 +6,10 @@ from random import randint
 from xmlrpclib import MAXINT
 from trytond.pool import Pool
 from trytond.transaction import Transaction
+from trytond.error import WarningErrorMixin
 
 
-class Wizard(object):
+class Wizard(WarningErrorMixin):
     _name = ""
     states = {}
     pool = None
@@ -74,35 +75,6 @@ class Wizard(object):
                         'VALUES (%s, %s, %s, %s, %s, %s, %s)',
                         (self._name, 'en_US', 'error', error, '', module_name,
                             False))
-
-    def raise_user_error(self, error, error_args=None, error_description='',
-            error_description_args=None):
-        translation_obj = self.pool.get('ir.translation')
-
-        error = self._error_messages.get(error, error)
-
-        res = translation_obj._get_source(self._name, 'error',
-                Transaction().language, error)
-        if res:
-            error = res
-
-        if error_args:
-            error = error % error_args
-
-        if error_description:
-            error_description = self._error_messages.get(error_description,
-                    error_description)
-
-            res = translation_obj._get_source(self._name, 'error',
-                    Transaction().language, error_description)
-            if res:
-                error_description = res
-
-            if error_description_args:
-                error_description = error_description % error_description_args
-
-            raise Exception('UserError', error, error_description)
-        raise Exception('UserError', error)
 
     def create(self):
         self._lock.acquire()
