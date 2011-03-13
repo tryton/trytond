@@ -69,6 +69,8 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             except Exception:
                 return False
         elif method == 'list':
+            if CONFIG['prevent_dblist']:
+                raise Exception('AccessDenied')
             database = Database().connect()
             try:
                 cursor = database.cursor()
