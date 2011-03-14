@@ -49,6 +49,7 @@ class ConfigManager(object):
             'session_timeout': 600,
             'psyco': False,
             'auto_reload': True,
+            'prevent_dblist': False,
             'init': {},
             'update': {},
         }

@@ -1,3 +1,4 @@
+* Add new configuration option to prevent database listing
 * Add warning to wizards
 * Add server-side icons
 * Add support for file link to BinaryField
