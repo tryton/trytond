@@ -53,8 +53,9 @@ class Model(WarningErrorMixin):
         fields_names = self._columns.keys()
         fields_names += self._inherit_fields.keys()
         for field_name in fields_names:
-            if getattr(self, 'default_' + field_name, False):
-                res[field_name] = getattr(self, 'default_' + field_name)
+            default_method = getattr(self, 'default_%s' % field_name, False)
+            if callable(default_method):
+                res[field_name] = default_method
         self.__defaults = res
         return res
 
