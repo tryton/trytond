@@ -12,21 +12,43 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.config import CONFIG
 from trytond.backend import TableHandler
 from trytond.transaction import Transaction
+from trytond.pyson import Not, Equal, Eval
+
+def firstline(description):
+    try:
+        return (x for x in description.splitlines() if x.strip()).next()
+    except StopIteration:
+        return ''
 
 
 class Attachment(ModelSQL, ModelView):
     "Attachment"
     _name = 'ir.attachment'
     _description = __doc__
-    name = fields.Char('Attachment Name', required=True)
-    datas = fields.Function(fields.Binary('Data', filename='name'),
-        'get_datas', setter='set_datas')
+    name = fields.Char('Name', required=True)
+    type = fields.Selection([
+        ('data', 'Data'),
+        ('link', 'Link'),
+        ], 'Type', required=True)
+    data = fields.Function(fields.Binary('Data', filename='name', states={
+        'invisible': Not(Equal(Eval('type'), 'data')),
+        }, depends=['type']), 'get_data', setter='set_data')
     description = fields.Text('Description')
+    resume = fields.Function(fields.Char('Resume',
+        on_change_with=['description']), 'get_resume')
     resource = fields.Reference('Resource', selection='models_get', select=1)
-    link = fields.Char('Link')
+    link = fields.Char('Link', states={
+        'invisible': Not(Equal(Eval('type'), 'link')),
+        }, depends=['type'])
     digest = fields.Char('Digest', size=32)
     collision = fields.Integer('Collision')
-    datas_size = fields.Function(fields.Integer('Datas size'), 'get_datas')
+    data_size = fields.Function(fields.Integer('Data size', states={
+        'invisible': Not(Equal(Eval('type'), 'data')),
+        }, depends=['type']), 'get_data')
+    last_modification = fields.Function(fields.DateTime('Last Modification'),
+            'get_last_modification')
+    last_user = fields.Function(fields.Char('Last User'),
+        'get_last_user')
 
     def __init__(self):
         super(Attachment, self).__init__()
@@ -36,9 +58,14 @@ class Attachment(ModelSQL, ModelView):
         ]
 
     def init(self, module_name):
+        cursor = Transaction().cursor
+        # Migration from 1.8 rename datas into data
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('datas', 'data')
+        table.column_rename('datas_size', 'data_size')
+
         super(Attachment, self).init(module_name)
 
-        cursor = Transaction().cursor
         table = TableHandler(cursor, self, module_name)
 
         # Migration from 1.4 res_model and res_id merged into resource
@@ -50,6 +77,9 @@ class Attachment(ModelSQL, ModelView):
             'SET "resource" = "res_model"||\',\'||"res_id"' % self._table)
             table.drop_column('res_model')
             table.drop_column('res_id')
+
+    def default_type(self):
+        return 'data'
 
     def default_resource(self):
         return Transaction().context.get('resource')
@@ -65,12 +95,12 @@ class Attachment(ModelSQL, ModelView):
             res.append([model.model, model.name])
         return res
 
-    def get_datas(self, ids, name):
+    def get_data(self, ids, name):
         res = {}
         db_name = Transaction().cursor.dbname
         for attachment in self.browse(ids):
             value = False
-            if name == 'datas_size':
+            if name == 'data_size':
                 value = 0
             if attachment.digest:
                 filename = attachment.digest
@@ -78,7 +108,7 @@ class Attachment(ModelSQL, ModelView):
                     filename = filename + '-' + str(attachment.collision)
                 filename = os.path.join(CONFIG['data_path'], db_name,
                         filename[0:2], filename[2:4], filename)
-                if name == 'datas_size':
+                if name == 'data_size':
                     try:
                         statinfo = os.stat(filename)
                         value = statinfo.st_size
@@ -93,7 +123,7 @@ class Attachment(ModelSQL, ModelView):
             res[attachment.id] = value
         return res
 
-    def set_datas(self, ids, name, value):
+    def set_data(self, ids, name, value):
         if value is False or value is None:
             return
         cursor = Transaction().cursor
@@ -144,6 +174,23 @@ class Attachment(ModelSQL, ModelView):
             'collision': collision,
             })
 
+    def get_resume(self, ids, name):
+        return dict((x.id, firstline(x.description or ''))
+            for x in self.browse(ids))
+
+    def on_change_with_resume(self, values):
+        return firstline(values.get('description') or '')
+
+    def get_last_modification(self, ids, name):
+        return dict((x.id, x.write_date if x.write_date else x.create_date)
+            for x in self.browse(ids))
+
+    def get_last_user(self, ids, name):
+        with Transaction().set_user(0):
+            return dict( (x.id, x.write_uid.rec_name if x.write_uid
+                else x.create_uid.rec_name) for x in self.browse(ids))
+
+
     def check_access(self, ids, mode='read'):
         model_access_obj = self.pool.get('ir.model.access')
         if Transaction().user == 0:
@@ -178,5 +225,19 @@ class Attachment(ModelSQL, ModelView):
         res = super(Attachment, self).create(vals)
         self.check_access(res, mode='create')
         return res
+
+    def view_header_get(self, value, view_type='form'):
+        ir_model_obj = self.pool.get('ir.model')
+        value = super(Attachment, self).view_header_get(value,
+                view_type=view_type)
+        resource = Transaction().context.get('resource')
+        if resource:
+            model_name, record_id = resource.split(',', 1)
+            ir_model_id, = ir_model_obj.search([('model', '=', model_name)])
+            ir_model = ir_model_obj.browse(ir_model_id)
+            model_obj = self.pool.get(model_name)
+            record = model_obj.browse(int(record_id))
+            value = '%s - %s - %s' % (ir_model.name, record.rec_name, value)
+        return value
 
 Attachment()
