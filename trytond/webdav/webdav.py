@@ -337,8 +337,8 @@ class Collection(ModelSQL, ModelView):
             for attachment in attachments:
                 size = '0'
                 try:
-                    if attachment.datas_size:
-                        size = str(attachment.datas_size)
+                    if attachment.data_size:
+                        size = str(attachment.data_size)
                 except Exception:
                     pass
                 if attachment.id == object_id:
@@ -455,8 +455,8 @@ class Collection(ModelSQL, ModelView):
                 for attachment in attachments:
                     data = DAV_NotFound
                     try:
-                        if attachment.datas is not False:
-                            data = base64.decodestring(attachment.datas)
+                        if attachment.data is not False:
+                            data = base64.decodestring(attachment.data)
                     except Exception:
                         pass
                     if attachment.id == object_id:
@@ -496,7 +496,7 @@ class Collection(ModelSQL, ModelView):
             try:
                 attachment_obj.create({
                     'name': name,
-                    'datas': base64.encodestring(data or ''),
+                    'data': base64.encodestring(data or ''),
                     'name': name,
                     'resource': '%s,%s' % (object_name, object_id),
                     })
@@ -505,7 +505,7 @@ class Collection(ModelSQL, ModelView):
         else:
             try:
                 attachment_obj.write(object_id2, {
-                    'datas': base64.encodestring(data or ''),
+                    'data': base64.encodestring(data or ''),
                     })
             except Exception:
                 raise DAV_Forbidden

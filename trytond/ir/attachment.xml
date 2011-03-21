@@ -11,20 +11,29 @@ this repository contains the full copyright notices and license terms. -->
                 <form string="Attachments" col="2">
                     <label name="resource"/>
                     <field name="resource"/>
-                    <label name="name"/>
-                    <field name="name"/>
-                    <label name="datas"/>
-                    <field name="datas"/>
-                    <label name="link"/>
-                    <field name="link" widget="url"/>
-                    <notebook colspan="2">
-                        <page string="Preview" name="preview" col="1">
-                            <field name="datas" widget="image"/>
-                        </page>
+                    <group id="content" col="2" colspan="1">
+                        <label name="name"/>
+                        <group id="name_data" col="2" colspan="1">
+                            <field name="name"/>
+                            <field name="data" xexpand="0"/>
+                        </group>
+                        <label name="type"/>
+                        <field name="type"/>
+                        <label name="link"/>
+                        <field name="link" widget="url"/>
+                    </group>
+                    <field name="data" widget="image" readonly="1"/>
+                    <notebook>
                         <page name="description" col="1">
                             <field name="description"/>
                         </page>
                     </notebook>
+                    <group id="last" col="4" colspan="2">
+                        <label name="last_user"/>
+                        <field name="last_user"/>
+                        <label name="last_modification"/>
+                        <field name="last_modification"/>
+                    </group>
                 </form>
                 ]]>
             </field>
@@ -37,7 +46,10 @@ this repository contains the full copyright notices and license terms. -->
                 <tree string="Attachments" fill="1">
                     <field name="resource" select="1"/>
                     <field name="name" select="1"/>
-                    <field name="datas_size"/>
+                    <field name="data_size"/>
+                    <field name="resume"/>
+                    <field name="last_user"/>
+                    <field name="last_modification"/>
                 </tree>
                 ]]>
             </field>

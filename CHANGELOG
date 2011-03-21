@@ -1,3 +1,5 @@
+* Add type, last user and last modification on ir.attachment
+* Rename datas into data on ir.attachment
 * Add new configuration option to prevent database listing
 * Add warning to wizards
 * Add server-side icons
