@@ -174,7 +174,6 @@ class ActionKeyword(ModelSQL, ModelView):
             ('keyword', '=', keyword),
             ('model', '=', model + ',0'),
             ]))
-        encoder = PYSONEncoder()
         for action_keyword in self.browse(action_keyword_ids):
             try:
                 action_obj = self.pool.get(action_keyword.action.type)
@@ -225,6 +224,7 @@ class ActionReport(ModelSQL, ModelView):
         string='Extension', required=True)
     module = fields.Char('Module', readonly=True, select=1)
     email = fields.Char('Email')
+    pyson_email = fields.Function(fields.Char('PySON Email'), 'get_pyson')
 
     def __init__(self):
         super(ActionReport, self).__init__()
@@ -303,6 +303,18 @@ class ActionReport(ModelSQL, ModelView):
             except Exception:
                 data = False
             res[report.id] = data
+        return res
+
+    def get_pyson(self, ids, name):
+        res = {}
+        encoder = PYSONEncoder()
+        field = name[6:]
+        defaults = {
+            'email': '{}',
+        }
+        for act in self.browse(ids):
+            res[act.id] = encoder.encode(safe_eval(act[field] or
+                defaults.get(field, 'False'), CONTEXT))
         return res
 
     def copy(self, ids, default=None):
