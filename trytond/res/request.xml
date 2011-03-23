@@ -91,7 +91,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="request_view_form"/>
             <field name="act_window" ref="act_request_form"/>
         </record>
-        <menuitem parent="res.menu_res"
+        <menuitem parent="res.menu_res" groups="group_admin"
             action="act_request_form" id="menu_request_form"/>
         <record model="ir.ui.view" id="request_link_view_form">
             <field name="model">res.request.link</field>
@@ -138,7 +138,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="request_link_view_form"/>
             <field name="act_window" ref="act_request_link_form"/>
         </record>
-        <menuitem parent="res.menu_res"
+        <menuitem parent="res.menu_res" groups="group_admin"
             action="act_request_link_form" id="menu_request_link_form"/>
 
         <record model="ir.ui.view" id="request_history_view_tree">

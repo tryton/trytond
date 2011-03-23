@@ -20,7 +20,10 @@
     'description_ru_RU': '''Базовый модуль обеспечения и управления встроенными функциями WebDAV.
 ''',
     'active': True,
-    'depends': ['ir'],
+    'depends': [
+        'ir',
+        'res',
+    ],
     'xml': [
         'webdav.xml',
     ],

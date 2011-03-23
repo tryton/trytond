@@ -4,7 +4,7 @@ this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
         <menuitem name="Workflow" id="menu_workflow"
-            parent="ir.menu_administration"/>
+            parent="ir.menu_administration" groups="res.group_admin"/>
         <record model="ir.ui.view" id="workflow_view_form">
             <field name="model">workflow</field>
             <field name="type">form</field>
@@ -52,7 +52,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="workflow_view_form"/>
             <field name="act_window" ref="act_workflow_form"/>
         </record>
-        <menuitem parent="menu_workflow"
+        <menuitem parent="menu_workflow" groups="res.group_admin"
             action="act_workflow_form" id="menu_workflow_form"/>
         <record model="ir.model.access" id="access_workflow">
             <field name="model" search="[('model', '=', 'workflow')]"/>
@@ -184,7 +184,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="activity_view_form"/>
             <field name="act_window" ref="act_activity_form"/>
         </record>
-        <menuitem parent="menu_workflow"
+        <menuitem parent="menu_workflow" groups="res.group_admin"
             action="act_activity_form" id="menu_activity_form"/>
         <record model="ir.model.access" id="access_workflow_activity">
             <field name="model" search="[('model', '=', 'workflow.activity')]"/>
@@ -259,7 +259,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="transition_view_form"/>
             <field name="act_window" ref="act_transition_form"/>
         </record>
-        <menuitem parent="menu_workflow"
+        <menuitem parent="menu_workflow" groups="res.group_admin"
             action="act_transition_form" id="menu_transition_form"/>
         <record model="ir.model.access" id="access_workflow_transition">
             <field name="model" search="[('model', '=', 'workflow.transition')]"/>
@@ -328,7 +328,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="instance_view_form"/>
             <field name="act_window" ref="act_instance_form"/>
         </record>
-        <menuitem parent="menu_workflow"
+        <menuitem parent="menu_workflow" groups="res.group_admin"
             action="act_instance_form" id="menu_instance_form"/>
 
         <record model="ir.ui.view" id="workitem_view_form">
@@ -380,7 +380,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="workitem_view_form"/>
             <field name="act_window" ref="act_workitem_form"/>
         </record>
-        <menuitem parent="menu_workflow"
+        <menuitem parent="menu_workflow" groups="res.group_admin"
             action="act_workitem_form" id="menu_workitem_form"/>
     </data>
 </tryton>

@@ -3,7 +3,7 @@
 this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
-        <menuitem name="WebDAV" id="menu_webdav"
+        <menuitem name="WebDAV" id="menu_webdav" groups="res.group_admin"
             parent="ir.menu_administration"/>
         <record model="ir.ui.view" id="collection_view_tree">
             <field name="model">webdav.collection</field>
@@ -49,7 +49,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="collection_view_tree"/>
             <field name="act_window" ref="act_collection_tree"/>
         </record>
-        <menuitem parent="menu_webdav"
+        <menuitem parent="menu_webdav" groups="res.group_admin"
             action="act_collection_tree" id="menu_collection_tree"/>
         <record model="ir.action.act_window" id="act_collection_form">
             <field name="name">Collections</field>
@@ -69,7 +69,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="act_window" ref="act_collection_form"/>
         </record>
         <menuitem name="Edit Collections" parent="menu_collection_tree"
-            action="act_collection_form" id="menu_collection_form"/>
+            action="act_collection_form" id="menu_collection_form"
+            groups="res.group_admin"/>
         <record model="ir.action.act_window" id="act_collection_form2">
             <field name="name">Collections</field>
             <field name="res_model">webdav.collection</field>
@@ -88,6 +89,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="act_window" ref="act_collection_form2"/>
         </record>
         <menuitem name="New Collection" parent="menu_collection_tree"
-            action="act_collection_form2" id="menu_collection_form2"/>
+            action="act_collection_form2" id="menu_collection_form2"
+            groups="res.group_admin"/>
     </data>
 </tryton>
