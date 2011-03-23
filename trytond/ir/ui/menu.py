@@ -123,19 +123,15 @@ class UIMenu(ModelSQL, ModelView):
         if query_string:
             return res
 
-        def check_menu(res):
-            if not res:
-                return []
+        if res:
             menus = self.browse(res)
             parent_ids = [x.parent.id for x in menus if x.parent]
             parent_ids = self.search([
                 ('id', 'in', parent_ids),
                 ])
-            parent_ids = check_menu(parent_ids)
-            return [x.id for x in menus
+            res = [x.id for x in menus
                     if (x.parent.id in parent_ids) or not x.parent]
 
-        res = check_menu(res)
         if count:
             return len(res)
         return res
