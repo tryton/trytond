@@ -1080,6 +1080,17 @@ class ModelStorage(Model):
                                     'size_validation_record',
                                     error_args=self._get_error_args(field_name))
 
+                def digits_test(value, digits, field_name):
+                    def raise_user_error():
+                        self.raise_user_error('digits_validation_record',
+                            error_args=self._get_error_args(field_name))
+                    if isinstance(value, Decimal):
+                        if not (value.quantize(Decimal(str(10.0**-digits[1])))
+                                == value):
+                            raise_user_error()
+                    else:
+                        if not (round(value, digits[1]) == float(value)):
+                            raise_user_error()
                 # validate digits
                 if hasattr(field, 'digits') and field.digits:
                     if is_pyson(field.digits):
@@ -1092,20 +1103,11 @@ class ModelStorage(Model):
                             env['context'] = Transaction().context
                             env['active_id'] = record.id
                             digits = PYSONDecoder(env).decode(pyson_digits)
-                            if not round(record[field_name], digits[1]) == \
-                                    float(record[field_name]):
-                                self.raise_user_error(
-                                        'digits_validation_record',
-                                        error_args=self._get_error_args(
-                                            field_name))
+                            digits_test(record[field_name], digits, field_name)
                     else:
                         for record in records:
-                            if not round(record[field_name], field.digits[1]) == \
-                                    float(record[field_name]):
-                                self.raise_user_error(
-                                        'digits_validation_record',
-                                        error_args=self._get_error_args(
-                                            field_name))
+                            digits_test(record[field_name], field.digits,
+                                field_name)
 
     def _clean_defaults(self, defaults):
         vals = {}

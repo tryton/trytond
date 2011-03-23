@@ -763,6 +763,11 @@ class FieldsTestCase(unittest.TestCase):
 
             self.failUnlessRaises(Exception, self.numeric_digits.write,
                     numeric6_id, {
+                        'numeric': Decimal('0.10000000000000001'),
+                        })
+
+            self.failUnlessRaises(Exception, self.numeric_digits.write,
+                    numeric6_id, {
                         'digits': 0,
                         })
 
