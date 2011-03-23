@@ -1,8 +1,30 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 "Group"
+from itertools import chain
 from trytond.model import ModelView, ModelSQL, fields
+from trytond.transaction import Transaction
 
+
+class MenuMany2Many(fields.Many2Many):
+
+    def get(self, ids, model, name, values=None):
+        menu_obj = self.get_target(model.pool)
+        res = super(MenuMany2Many, self).get(ids, model, name,
+                values=values)
+        menu_ids = list(set(chain(*res.values())))
+        test_ids = []
+        for i in range(0, len(menu_ids), Transaction().cursor.IN_MAX):
+            sub_ids = menu_ids[i:i + Transaction().cursor.IN_MAX]
+            test_ids.append(menu_obj.search([
+                ('id', 'in', sub_ids),
+                ]))
+        menu_ids = set(chain(*test_ids))
+        for ids in res.itervalues():
+            for id_ in ids[:]:
+                if id_ not in menu_ids:
+                    ids.remove(id_)
+        return res
 
 class Group(ModelSQL, ModelView):
     "Group"
@@ -14,7 +36,7 @@ class Group(ModelSQL, ModelView):
     rule_groups = fields.Many2Many('ir.rule.group-res.group',
        'group_id', 'rule_group_id', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
-    menu_access = fields.Many2Many('ir.ui.menu-res.group',
+    menu_access = MenuMany2Many('ir.ui.menu-res.group',
        'gid', 'menu_id', 'Access Menu')
 
     def __init__(self):
