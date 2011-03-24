@@ -123,6 +123,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="user_view_form"/>
             <field name="act_window" ref="act_user_form"/>
         </record>
+        <menuitem parent="res.menu_res" groups="group_admin"
+            action="act_user_form" id="menu_user_form"/>
+
         <record model="ir.model.access" id="access_user">
             <field name="model" search="[('model', '=', 'res.user')]"/>
             <field name="perm_read" eval="True"/>

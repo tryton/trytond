@@ -6,8 +6,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="res.group" id="group_admin">
             <field name="name">Administration</field>
         </record>
-        <menuitem parent="res.menu_res" groups="group_admin"
-            action="act_user_form" id="menu_user_form"/>
         <record model="ir.ui.view" id="group_view_form">
             <field name="model">res.group</field>
             <field name="type">form</field>
