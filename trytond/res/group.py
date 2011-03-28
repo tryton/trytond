@@ -45,6 +45,29 @@ class Group(ModelSQL, ModelView):
             ('name_uniq', 'unique (name)', 'The name of the group must be unique!')
         ]
 
+    def copy(self, ids, default=None):
+        int_id = isinstance(ids, (int, long))
+        if int_id:
+            ids = [ids]
+
+        if default is None:
+            default = {}
+        default = default.copy()
+
+        new_ids = []
+        for group in self.browse(ids):
+            i = 1
+            while True:
+                name = '%s (%d)' % (group.name, i)
+                if not self.search([('name', '=', name)], order=[]):
+                    break
+                i += 1
+            default['name'] = name
+            new_ids.append(super(Group, self).copy(group.id, default=default))
+        if int_id:
+            return new_ids[0]
+        return new_ids
+
     def create(self, vals):
         res = super(Group, self).create(vals)
         # Restart the cache on the domain_get method
