@@ -33,6 +33,8 @@ class Group(ModelSQL, ModelView):
     name = fields.Char('Name', required=True, select=1, translate=True)
     model_access = fields.One2Many('ir.model.access', 'group',
        'Access Model')
+    field_access = fields.One2Many('ir.model.field.access', 'group',
+        'Access Field')
     rule_groups = fields.Many2Many('ir.rule.group-res.group',
        'group_id', 'rule_group_id', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
