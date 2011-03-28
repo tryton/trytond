@@ -110,7 +110,7 @@ class Model(WarningErrorMixin):
             if hasattr(model_obj, name) and \
                     callable(getattr(model_obj, name)):
                 return getattr(model_obj, name)
-        raise AttributeError
+        raise AttributeError(name)
 
     def _inherits_reload(self):
         """
