@@ -12,7 +12,6 @@ from translation import *
 from export import *
 from rule import *
 import module
-from default import *
 from cache import *
 from date import *
 from trigger import *
