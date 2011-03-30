@@ -384,7 +384,6 @@ class Model(WarningErrorMixin):
             and default value as value
         '''
         property_obj = self.pool.get('ir.property')
-        ir_default_obj = self.pool.get('ir.default')
         value = {}
 
         # get the default values defined in the object
@@ -408,70 +407,6 @@ class Model(WarningErrorMixin):
                     value[field_name + '.rec_name'] = obj.browse(
                         value[field_name]).rec_name
 
-        # get the default values set by the user and override the default
-        # values defined in the object
-        for name in (self._inherits.keys() + [self._name]):
-            defaults = ir_default_obj.get_default(name, False)
-            for field_name, field_value in defaults.items():
-                if field_name in fields_names:
-                    if field_name in self._columns:
-                        field = self._columns[field_name]
-                    else:
-                        field = self._inherit_fields[field_name][2]
-                    if field._type in ('many2one', 'one2one'):
-                        if not isinstance(field_value, (int, long)):
-                            continue
-                        obj = self.pool.get(field.model_name)
-                        if not hasattr(obj, 'search') \
-                                or not obj.search([
-                                    ('id', '=', field_value),
-                                    ]):
-                            continue
-                        if with_rec_name and 'rec_name' in obj._columns:
-                            value[field_name + '.rec_name'] = obj.browse(
-                                    field_value).rec_name
-                    if field._type in ('many2many'):
-                        if not isinstance(field_value, list):
-                            continue
-                        obj = field.get_target(self.pool)
-                        field_value2 = []
-                        for i in range(len(field_value)):
-                            if not hasattr(obj, 'search') \
-                                    or not obj.search([
-                                        ('id', '=', field_value[i]),
-                                        ]):
-                                continue
-                            field_value2.append(field_value[i])
-                        field_value = field_value2
-                    if field._type in ('one2many'):
-                        if not isinstance(field_value, list):
-                            continue
-                        obj = self.pool.get(field.model_name)
-                        field_value2 = []
-                        for i in range(len(field_value or [])):
-                            field_value2.append({})
-                            for field2 in field_value[i].keys():
-                                if (field2 in obj._columns
-                                        and obj._columns[field2]._type
-                                        in ('many2one',)):
-                                    obj2 = self.pool.get(
-                                            obj._columns[field2].model_name)
-                                    if not hasattr(obj2, 'search'):
-                                        continue
-                                    if not obj2.search([
-                                        ('id', '=', field_value[i][field2]),
-                                        ]):
-                                        continue
-                                    if (with_rec_name
-                                            and 'rec_name' in obj2._columns):
-                                        field_value[i][field2 + '.rec_name'] = (
-                                                obj2.browse(
-                                                    field_value[i][field2],
-                                                    ).rec_name)
-                                # TODO add test for many2many and one2many
-                                field_value2[i][field2] = field_value[i][field2]
-                        field_value = field_value2
-                    value[field_name] = field_value
         value = self._default_on_change(value)
         if not with_rec_name:
             for field in value.keys():

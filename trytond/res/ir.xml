@@ -558,9 +558,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.menu" id="ir.menu_module_install_upgrade">
             <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_default_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
-        </record>
         <record model="ir.ui.menu" id="ir.menu_trigger_form">
             <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
         </record>
