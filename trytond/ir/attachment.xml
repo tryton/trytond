@@ -47,7 +47,7 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="resource" select="1"/>
                     <field name="name" select="1"/>
                     <field name="data_size"/>
-                    <field name="resume"/>
+                    <field name="summary"/>
                     <field name="last_user"/>
                     <field name="last_modification"/>
                 </tree>

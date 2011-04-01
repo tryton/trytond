@@ -34,8 +34,8 @@ class Attachment(ModelSQL, ModelView):
         'invisible': Not(Equal(Eval('type'), 'data')),
         }, depends=['type']), 'get_data', setter='set_data')
     description = fields.Text('Description')
-    resume = fields.Function(fields.Char('Resume',
-        on_change_with=['description']), 'get_resume')
+    summary = fields.Function(fields.Char('Summary',
+        on_change_with=['description']), 'get_summary')
     resource = fields.Reference('Resource', selection='models_get', select=1)
     link = fields.Char('Link', states={
         'invisible': Not(Equal(Eval('type'), 'link')),
@@ -174,11 +174,11 @@ class Attachment(ModelSQL, ModelView):
             'collision': collision,
             })
 
-    def get_resume(self, ids, name):
+    def get_summary(self, ids, name):
         return dict((x.id, firstline(x.description or ''))
             for x in self.browse(ids))
 
-    def on_change_with_resume(self, values):
+    def on_change_with_summary(self, values):
         return firstline(values.get('description') or '')
 
     def get_last_modification(self, ids, name):
