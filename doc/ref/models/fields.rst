@@ -198,6 +198,17 @@ A single line string field.
     If true, the value of the field is translatable. The value readed and
     stored will depend on the ``language`` defined in the context.
 
+.. attribute:: Char.autocomplete
+
+    A list of field names. If this attribute is set, the client will call the
+    method ``autocomplete_<field name>`` of the model when the user changes one
+    of those field value. The method signature is::
+
+        autocomplete_<field name>(values)
+
+    This method must return a list of string that will populate the
+    ComboboxEntry in the client.
+
 .. warning::
     Note that you may need to set :attribute:`Fields.loading` to ``lazy``
     when :attribute:`Char.translate` is ``True``.
