@@ -94,14 +94,12 @@ class Model(WarningErrorMixin):
                     and not isinstance(field.selection, (list, tuple)) \
                     and field.selection not in self._rpc:
                 self._rpc[field.selection] = False
-            if field.on_change:
-                on_change = 'on_change_' + field_name
-                if on_change not in self._rpc:
-                    self._rpc[on_change] = False
-            if field.on_change_with:
-                on_change_with = 'on_change_with_' + field_name
-                if on_change_with not in self._rpc:
-                    self._rpc[on_change_with] = False
+
+            for attribute in ('on_change', 'on_change_with', 'autocomplete'):
+                function_name = '%s_%s' % (attribute, field_name)
+                if (getattr(field, attribute, False)
+                        and callable(getattr(self, function_name, False))):
+                    self._rpc.setdefault(function_name, False)
 
     def __getattr__(self, name):
         # Search if a function exists in inherits parents
@@ -503,6 +501,7 @@ class Model(WarningErrorMixin):
                     'on_change',
                     'add_remove',
                     'on_change_with',
+                    'autocomplete',
                     'sort',
                     'datetime_field',
                     'loading',

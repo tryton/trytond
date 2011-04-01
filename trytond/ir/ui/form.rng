@@ -371,16 +371,6 @@
   </define>
   <define name="attlist.field" combine="interleave">
     <optional>
-      <attribute name="completion" a:defaultValue="0">
-        <choice>
-          <value>0</value>
-          <value>1</value>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="attlist.field" combine="interleave">
-    <optional>
       <attribute name="invisible" a:defaultValue="0">
         <choice>
           <value>0</value>
