@@ -1,3 +1,4 @@
+* Added autocompletion on fields.Char
 * Remove ir.default
 * Add type, last user and last modification on ir.attachment
 * Rename datas into data on ir.attachment
