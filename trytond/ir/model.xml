@@ -54,7 +54,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_model_form">
             <field name="name">Models</field>
             <field name="res_model">ir.model</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_model_form_view1">
@@ -113,7 +112,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_model_fields_form">
             <field name="name">Fields</field>
             <field name="res_model">ir.model.field</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_model_fields_form_view1">
@@ -173,7 +171,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_model_access_form">
             <field name="name">Models Access</field>
             <field name="res_model">ir.model.access</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_model_access_form_view1">
@@ -230,7 +227,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_model_field_access_form">
             <field name="name">Fields Access</field>
             <field name="res_model">ir.model.field.access</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_model_field_access_form_view1">

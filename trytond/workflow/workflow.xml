@@ -38,7 +38,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_workflow_form">
             <field name="name">Workflows</field>
             <field name="res_model">workflow</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_workflow_form_view1">
@@ -170,7 +169,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_activity_form">
             <field name="name">Activities</field>
             <field name="res_model">workflow.activity</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_activity_form_view1">
@@ -245,7 +243,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_transition_form">
             <field name="name">Transitions</field>
             <field name="res_model">workflow.transition</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_transition_form_view1">
@@ -314,7 +311,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_instance_form">
             <field name="name">Instances</field>
             <field name="res_model">workflow.instance</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_instance_form_view1">
@@ -366,7 +362,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_workitem_form">
             <field name="name">Workitems</field>
             <field name="res_model">workflow.workitem</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_workitem_form_view1">

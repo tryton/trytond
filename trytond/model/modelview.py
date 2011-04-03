@@ -219,7 +219,8 @@ class ModelView(Model):
         # Update arch and compute fields from arch
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(result['arch'], parser)
-        xarch, xfields = self._view_look_dom_arch(tree, result['type'])
+        xarch, xfields = self._view_look_dom_arch(tree, result['type'],
+                result['field_childs'])
         result['arch'] = xarch
         result['fields'] = xfields
 
@@ -255,7 +256,7 @@ class ModelView(Model):
         """
         return value
 
-    def _view_look_dom_arch(self, tree, type):
+    def _view_look_dom_arch(self, tree, type, field_children=None):
         field_access_obj = self.pool.get('ir.model.field.access')
 
         fields_width = {}
@@ -307,6 +308,17 @@ class ModelView(Model):
 
         fields_def = self.__view_look_dom(tree_root, type,
                 fields_width=fields_width)
+
+        if field_children:
+            fields_def.setdefault(field_children, {'name': field_children})
+            model, field = None, None
+            if field_children in self._columns:
+                model = self
+                field = self._columns[field_children]
+            elif field_children in self._inherit_fields:
+                model_name, model, field = self._inherit_fields[field_children]
+            if model and field and field.model_name == model._name:
+                fields_def.setdefault(field.field, {'name': field.field})
 
         for field_name in fields_def.keys():
             if field_name in self._columns:

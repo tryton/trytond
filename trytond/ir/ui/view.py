@@ -10,6 +10,7 @@ from trytond.backend import TableHandler
 from trytond.pyson import PYSONEncoder, CONTEXT, Eval, Not, Bool, Equal
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
+from trytond.wizard import Wizard
 
 
 class View(ModelSQL, ModelView):
@@ -251,6 +252,81 @@ class ViewShortcut(ModelSQL, ModelView):
         return 'ir.ui.menu'
 
 ViewShortcut()
+
+
+class AddShortcut(Wizard):
+    'Add shortcut'
+    _name = 'ir.ui.view_sc.add'
+
+    states = {
+        'init': {
+            'result': {
+                'type': 'action',
+                'action': '_add_shortcut',
+                'state': 'end',
+            },
+        },
+    }
+
+    def _add_shortcut(self, data):
+        view_sc_obj = self.pool.get('ir.ui.view_sc')
+        model_obj = self.pool.get(data['model'])
+
+        record = model_obj.browse(data['id'])
+        view_sc_obj.create({
+            'name': record.rec_name,
+            'res_id': record.id,
+            'user_id': Transaction().user,
+            'resource': model_obj._name,
+            })
+        return {}
+
+AddShortcut()
+
+
+class OpenShortcut(Wizard):
+    'Open a shortcut'
+    _name = 'ir.ui.view_sc.open'
+
+    states = {
+        'init': {
+            'result': {
+                'type': 'action',
+                'action': '_open',
+                'state': 'end',
+            }
+        }
+    }
+
+    def _open(self, data):
+        view_sc_obj = self.pool.get('ir.ui.view_sc')
+        action_keyword_obj = self.pool.get('ir.action.keyword')
+
+        view_sc = view_sc_obj.browse(data['id'])
+        models = (
+                '%s,%d' % (view_sc.resource, view_sc.res_id),
+                '%s,0' % (view_sc.resource),
+                )
+        action_keyword_ids = None
+        for model in models:
+            action_keyword_ids = action_keyword_obj.search([
+                ('keyword', '=', 'tree_open'),
+                ('model', '=', model),
+                ])
+            if action_keyword_ids:
+                break
+        if not action_keyword_ids:
+            return {}
+        action_keyword = action_keyword_obj.browse(action_keyword_ids[0])
+        action_obj = self.pool.get(action_keyword.action.type)
+        action_ids = action_obj.search([
+            ('action.id', '=', action_keyword.action.id),
+            ])
+        if not action_ids:
+            return {}
+        return action_obj.read(action_ids[0])
+
+OpenShortcut()
 
 
 class ViewTreeWidth(ModelSQL, ModelView):

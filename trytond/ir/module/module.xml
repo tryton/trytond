@@ -76,7 +76,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Modules</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.module.module</field>
-            <field name="view_type">form</field>
             <field name="domain">[('name', '!=', 'test')]</field>
         </record>
         <record model="ir.action.act_window.view"
@@ -110,7 +109,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_config_wizard_item_form">
             <field name="name">Config Wizard Items</field>
             <field name="res_model">ir.module.module.config_wizard.item</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_config_wizard_item_form_view1">
