@@ -39,7 +39,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Default Properties</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.property</field>
-            <field name="view_type">form</field>
             <field name="domain">[('res','=',False)]</field>
         </record>
         <record model="ir.action.act_window.view"
@@ -60,7 +59,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Properties</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.property</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_property_form_view1">

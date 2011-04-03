@@ -59,7 +59,6 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_trigger_form">
             <field name="name">Triggers</field>
             <field name="res_model">ir.trigger</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view" id="act_trigger_form_view1">
             <field name="sequence" eval="10"/>

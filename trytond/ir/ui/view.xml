@@ -69,7 +69,9 @@ this repository contains the full copyright notices and license terms. -->
                 <![CDATA[
                 <form string="Shortcut">
                     <label name="name"/>
-                    <field name="name"/>
+                    <field name="name" colspan="3"/>
+                    <label name="resource"/>
+                    <field name="resource"/>
                     <label name="res_id"/>
                     <field name="res_id"/>
                     <label name="user_id"/>
@@ -112,6 +114,35 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <menuitem parent="menu_ui"
             action="act_view_sc_form" id="menu_view_sc"/>
+
+        <record model="ir.ui.view" id="view_sc_view_board">
+            <field name="model">ir.ui.view_sc</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Shortcuts" keyword_open="1" fill="1"
+                    sequence="sequence">
+                    <field name="name"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.action.wizard" id="act_view_sc_add">
+            <field name="name">Add Shortcut</field>
+            <field name="wiz_name">ir.ui.view_sc.add</field>
+        </record>
+
+        <record model="ir.action.wizard" id="act_view_sc_open">
+            <field name="name">Open Shortcut</field>
+            <field name="wiz_name">ir.ui.view_sc.open</field>
+        </record>
+
+        <record model="ir.action.keyword" id="act_view_sc_open_keyword1">
+            <field name="action" ref="act_view_sc_open"/>
+            <field name="keyword">tree_open</field>
+            <field name="model">ir.ui.view_sc,0</field>
+        </record>
 
         <record model="ir.ui.view" id="view_tree_width_view_form">
             <field name="model">ir.ui.view_tree_width</field>

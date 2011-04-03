@@ -55,7 +55,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Actions</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.action</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_form_view1">
@@ -141,7 +140,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Reports</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.action.report</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_report_form_view1">
@@ -172,8 +170,6 @@ this repository contains the full copyright notices and license terms. -->
                         <page string="General" id="general" col="6">
                             <label name="res_model"/>
                             <field name="res_model"/>
-                            <label name="view_type"/>
-                            <field name="view_type"/>
                             <label name="usage"/>
                             <field name="usage"/>
                             <field name="act_window_views" colspan="6">
@@ -231,7 +227,6 @@ this repository contains the full copyright notices and license terms. -->
                 <tree string="Open Window">
                     <field name="name" select="1"/>
                     <field name="res_model" select="1"/>
-                    <field name="view_type" select="1"/>
                     <field name="domain"/>
                 </tree>
                 ]]>
@@ -241,7 +236,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Window Actions</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.action.act_window</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view" id="act_action_act_window_view1">
             <field name="sequence" eval="1"/>
@@ -316,7 +310,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Wizards</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.action.wizard</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_wizard_form_view1">
@@ -374,7 +367,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Wizard Sizes</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.action.wizard_size</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_wizard_size_form_view1">
@@ -445,7 +437,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">URLs</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">ir.action.url</field>
-            <field name="view_type">form</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_action_url_form_view1">

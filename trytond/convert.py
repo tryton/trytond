@@ -62,7 +62,7 @@ class MenuitemTagHandler:
 
             # TODO maybe use a prefetch for this:
             cursor.execute(cursor.limit_clause(
-            "SELECT a.name, a.type, act.view_type, v.type, icon.name " \
+            "SELECT a.name, a.type, v.type, v.field_childs, icon.name " \
             "FROM ir_action a " \
                 "LEFT JOIN ir_action_report report ON (a.id = report.action) " \
                 "LEFT JOIN ir_action_act_window act ON (a.id = act.action) " \
@@ -78,7 +78,7 @@ class MenuitemTagHandler:
                 "OR url.id = %s " \
             "ORDER by wv.sequence", 1),
             (action_id, action_id, action_id, action_id))
-            action_name, action_type, view_type, view_mode, icon_name = \
+            action_name, action_type, view_type, field_childs, icon_name = \
                     cursor.fetchone()
 
             values['action'] = '%s,%s' % (action_type, action_id)
@@ -94,14 +94,15 @@ class MenuitemTagHandler:
                 values['icon'] = 'tryton-print'
             elif action_type == 'ir.action.act_window':
                 if view_type == 'tree':
-                    values['icon'] = 'tryton-tree'
-                elif view_mode and view_mode.startswith('tree'):
-                    values['icon'] = 'tryton-list'
-                elif view_mode and view_mode.startswith('form'):
+                    if field_childs:
+                        values['icon'] = 'tryton-tree'
+                    else:
+                        values['icon'] = 'tryton-list'
+                elif view_type == 'form':
                     values['icon'] = 'tryton-new'
-                elif view_mode and view_mode.startswith('graph'):
+                elif view_type == 'graph':
                     values['icon'] = 'tryton-graph'
-                elif view_mode and view_mode.startswith('calendar'):
+                elif view_type == 'calendar':
                     values['icon'] = 'tryton-calendar'
             elif action_type == 'ir.action.url':
                 values['icon'] = 'tryton-web-browser'

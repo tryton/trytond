@@ -22,6 +22,7 @@ So generally, they are defined in xml files with this kind of xml:
       <field name="model">model name</field>
       <field name="type">type name</field>
       <!--field name="inherit" ref="inherit_view_id"/-->
+      <!--field name="field_childs">field name</field-->
       <field name="arch" type="xml">
           <![CDATA[
           View XML ...
@@ -404,6 +405,10 @@ trytond/ir/ui/tree.rng. There is also a RNC in trytond/ir/ui/tree.rnc.
 
 Tree view is used to display records inside a list or a tree.
 
+It is a tree if there is a `field_childs` defined and this tree will
+have drag and drop activated if the `field_childs` and the `parent
+field` are defined in the view.
+
 The columns of the view are put on the screen from left to right.
 
 
@@ -437,8 +442,8 @@ Each tree view must start with this tag.
     * ``fill``: A boolean to specify if the last column must fill the remaining
       free space in the view.
 
-    * ``toolbar``: A boolean to specify on tree, if there is a toolbar on the
-      left that takes the first elements of the tree (like for the menu).
+    * ``keyword_open``: A boolean to specify if the client should look for a
+      tree_open action on double click instead of switching view.
 
 field
 ^^^^^

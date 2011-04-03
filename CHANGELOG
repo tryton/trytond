@@ -1,3 +1,4 @@
+* Merge tree and list views
 * Added autocompletion on fields.Char
 * Remove ir.default
 * Add type, last user and last modification on ir.attachment

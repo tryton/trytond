@@ -53,7 +53,7 @@
   </define>
   <define name="attlist.tree" combine="interleave">
     <optional>
-      <attribute name="toolbar" a:defaultValue="0">
+      <attribute name="keyword_open" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>

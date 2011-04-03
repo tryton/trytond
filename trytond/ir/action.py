@@ -390,11 +390,6 @@ class ActionActWindow(ModelSQL, ModelView):
     domain = fields.Char('Domain Value')
     context = fields.Char('Context Value')
     res_model = fields.Char('Model')
-    view_type = fields.Selection([
-        ('tree','Tree'),
-        ('form','Form'),
-        ('board', 'Board'),
-        ], string='Type of view')
     act_window_views = fields.One2Many('ir.action.act_window.view',
             'act_window', 'Views')
     views = fields.Function(fields.Binary('Views'), 'get_views')
@@ -417,11 +412,13 @@ class ActionActWindow(ModelSQL, ModelView):
     def __init__(self):
         super(ActionActWindow, self).__init__()
         self._constraints += [
+            ('check_views', 'invalid_views'),
             ('check_domain', 'invalid_domain'),
             ('check_context', 'invalid_context'),
             ('check_search_value', 'invalid_search_value'),
         ]
         self._error_messages.update({
+            'invalid_views': 'Invalid views!',
             'invalid_domain': 'Invalid domain!',
             'invalid_context': 'Invalid context!',
             'invalid_search_value': 'Invalid search criteria!',
@@ -447,6 +444,25 @@ class ActionActWindow(ModelSQL, ModelView):
 
     def default_search_value(self):
         return '{}'
+
+    def check_views(self, ids):
+        "Check views"
+        for action in self.browse(ids):
+            if action.res_model:
+                for act_window_view in action.act_window_views:
+                    view = act_window_view.view
+                    if view.model != action.res_model:
+                        return False
+                    if view.type == 'board':
+                        return False
+            else:
+                for act_window_view in action.act_window_views:
+                    view= act_window_view.view
+                    if view.model:
+                        return False
+                    if view.type != 'board':
+                        return False
+        return True
 
     def check_domain(self, ids):
         "Check domain"
