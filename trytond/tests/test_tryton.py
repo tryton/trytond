@@ -142,6 +142,7 @@ def test_view(module_name):
         view_obj = POOL.get('ir.ui.view')
         view_ids = view_obj.search([
             ('module', '=', module_name),
+            ('model', '!=', ''),
             ])
         assert view_ids, "No views for %s" % module_name
         for view in view_obj.browse(view_ids):
