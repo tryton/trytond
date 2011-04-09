@@ -17,6 +17,7 @@ this repository contains the full copyright notices and license terms. -->
         </record>
 
         <menuitem name="Administration" id="menu_administration"
-            icon="tryton-preferences-system"/>
+            icon="tryton-preferences-system"
+            sequence="9999"/>
     </data>
 </tryton>
