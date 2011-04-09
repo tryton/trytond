@@ -186,6 +186,7 @@ class Model(WarningErrorMixin):
 
         :param module_name: the module name
         """
+        translation_obj = self.pool.get('ir.translation')
 
         cursor = Transaction().cursor
         # Add model in ir_model
@@ -228,16 +229,18 @@ class Model(WarningErrorMixin):
                     trans_id, = data
             elif cursor.rowcount != 0:
                 trans_id, = cursor.fetchone()
+            src_md5 = translation_obj.get_src_md5(src)
             if not trans_id:
-                cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module, fuzzy) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                        (name, 'en_US', 'model', src, '', module_name, False))
+                cursor.execute('INSERT INTO ir_translation '
+                    '(name, lang, type, src, src_md5, value, module, fuzzy) '
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                    (name, 'en_US', 'model', src, src_md5, '', module_name,
+                        False))
             else:
-                cursor.execute('UPDATE ir_translation ' \
-                        'SET src = %s ' \
-                        'WHERE id = %s',
-                        (src, trans_id))
+                cursor.execute('UPDATE ir_translation '
+                    'SET src = %s, src_md5 = %s '
+                    'WHERE id = %s',
+                        (src, src_md5, trans_id))
 
         # Add field in ir_model_field and update translation
         cursor.execute('SELECT f.id AS id, f.name AS name, ' \
@@ -301,31 +304,33 @@ class Model(WarningErrorMixin):
                         (field.string, field._type, relation,
                             field.help, model_fields[field_name]['id']))
             trans_name = self._name + ',' + field_name
+            string_md5 = translation_obj.get_src_md5(field.string)
             if trans_name not in trans_fields:
                 if field_name not in ('create_uid', 'create_date',
                             'write_uid', 'write_date', 'id'):
-                    cursor.execute('INSERT INTO ir_translation ' \
-                            '(name, lang, type, src, value, module, fuzzy) ' \
-                            'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                            (trans_name, 'en_US', 'field',
-                                field.string, '', module_name, False))
+                    cursor.execute('INSERT INTO ir_translation '
+                        '(name, lang, type, src, src_md5, value, module, fuzzy) '
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                        (trans_name, 'en_US', 'field', field.string,
+                            string_md5, '', module_name, False))
             elif trans_fields[trans_name]['src'] != field.string:
-                cursor.execute('UPDATE ir_translation ' \
-                        'SET src = %s ' \
-                        'WHERE id = %s ',
-                        (field.string, trans_fields[trans_name]['id']))
+                cursor.execute('UPDATE ir_translation '
+                    'SET src = %s, src_md5 = %s '
+                    'WHERE id = %s ',
+                    (field.string, string_md5, trans_fields[trans_name]['id']))
+            help_md5 = translation_obj.get_src_md5(field.help)
             if trans_name not in trans_help:
                 if field.help:
-                    cursor.execute('INSERT INTO ir_translation ' \
-                            '(name, lang, type, src, value, module, fuzzy) ' \
-                            'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                            (trans_name, 'en_US', 'help',
-                                field.help, '', module_name, False))
+                    cursor.execute('INSERT INTO ir_translation '
+                        '(name, lang, type, src, src_md5, value, module, fuzzy) '
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                        (trans_name, 'en_US', 'help', field.help, help_md5, '',
+                            module_name, False))
             elif trans_help[trans_name]['src'] != field.help:
-                cursor.execute('UPDATE ir_translation ' \
-                        'SET src = %s ' \
-                        'WHERE id = %s ',
-                        (field.help, trans_help[trans_name]['id']))
+                cursor.execute('UPDATE ir_translation '
+                    'SET src = %s, src_md5 = %s '
+                    'WHERE id = %s ',
+                    (field.help, help_md5, trans_help[trans_name]['id']))
             if hasattr(field, 'selection') \
                     and isinstance(field.selection, (tuple, list)) \
                     and ((hasattr(field, 'translate_selection') \
@@ -334,12 +339,13 @@ class Model(WarningErrorMixin):
                 for (_, val) in field.selection:
                     if trans_name not in trans_selection \
                             or val not in trans_selection[trans_name]:
-                        cursor.execute('INSERT INTO ir_translation ' \
-                                '(name, lang, type, src, value, ' \
-                                    'module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                                (trans_name, 'en_US', 'selection', val, '',
-                                    module_name, False))
+                        val_md5 = translation_obj.get_src_md5(val)
+                        cursor.execute('INSERT INTO ir_translation '
+                            '(name, lang, type, src, src_md5, value, module, '
+                                'fuzzy) '
+                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                            (trans_name, 'en_US', 'selection', val, val_md5,
+                                '', module_name, False))
         # Clean ir_model_field from field that are no more existing.
         for field_name in model_fields:
             if model_fields[field_name]['module'] == module_name \
@@ -363,11 +369,12 @@ class Model(WarningErrorMixin):
         errors = self._get_error_messages()
         for error in set(errors):
             if error not in trans_error:
-                cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module, fuzzy) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                        (self._name, 'en_US', 'error', error, '', module_name,
-                            False))
+                error_md5 = translation_obj.get_src_md5(error)
+                cursor.execute('INSERT INTO ir_translation '
+                    '(name, lang, type, src, src_md5, value, module, fuzzy) '
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                    (self._name, 'en_US', 'error', error, error_md5, '',
+                        module_name, False))
 
     def _get_error_messages(self):
         return self._error_messages.values()

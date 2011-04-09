@@ -43,6 +43,7 @@ CREATE TABLE ir_translation (
     id BIGINT AUTO_INCREMENT NOT NULL,
     lang VARCHAR(255),
     src TEXT,
+    src_md5 VARCHAR(32) NOT NULL,
     name VARCHAR(255) NOT NULL,
     res_id BIGINT NOT NULL DEFAULT 0,
     value TEXT,

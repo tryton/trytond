@@ -565,6 +565,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         (module, fs_id))
 
         object_ref = self.pool.get(model)
+        translation_obj = self.pool.get('ir.translation')
 
         if self.fs2db.get(module, fs_id):
 
@@ -638,20 +639,22 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                                 (table_name + ',' + field_name,
                                     'en_US', 'model', res_id, module))
                         fetchone = cursor.fetchone()
+                        src_md5 = translation_obj.get_src_md5(
+                            values[field_name])
                         if fetchone:
                             trans_id = fetchone[0]
-                            cursor.execute('UPDATE ir_translation ' \
-                                    'SET src = %s, module = %s ' \
-                                    'WHERE id = %s',
-                                    (values[field_name], module, trans_id))
+                            cursor.execute('UPDATE ir_translation '
+                                'SET src = %s, src_md5 = %s, module = %s '
+                                'WHERE id = %s',
+                                (values[field_name], src_md5, module, trans_id))
                         else:
-                            cursor.execute('INSERT INTO ir_translation ' \
-                                    '(name, lang, type, src, res_id, ' \
-                                        'value, module, fuzzy) ' \
-                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                                    (table_name + ',' + field_name,
-                                        'en_US', 'model', values[field_name],
-                                        res_id, '', module, False))
+                            cursor.execute('INSERT INTO ir_translation '
+                                '(name, lang, type, src, src_md5, res_id, '
+                                    'value, module, fuzzy) '
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                                (table_name + ',' + field_name, 'en_US',
+                                    'model', values[field_name], src_md5,
+                                    res_id, '', module, False))
 
                 for table in inherit_db_ids.keys():
                     data_id = self.modeldata_obj.search([
@@ -783,20 +786,24 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         fetchone = cursor.fetchone()
                         if fetchone:
                             if to_update.get(field_name):
+                                src_md5 = translation_obj.get_src_md5(
+                                    to_update[field_name])
                                 trans_id = fetchone[0]
-                                cursor.execute('UPDATE ir_translation ' \
-                                        'SET src = %s, module = %s ' \
-                                        'WHERE id = %s',
-                                        (to_update[field_name], module,
-                                            trans_id))
+                                cursor.execute('UPDATE ir_translation '
+                                    'SET src = %s, src_md5 = %s, module = %s '
+                                    'WHERE id = %s',
+                                    (to_update[field_name], src_md5, module,
+                                        trans_id))
                         elif values.get(field_name):
-                            cursor.execute('INSERT INTO ir_translation ' \
-                                    '(name, lang, type, src, res_id, ' \
-                                        'value, module, fuzzy) ' \
-                                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                                    (table_name + ',' + field_name,
-                                        'en_US', 'model', values[field_name],
-                                        res_id, '', module, False))
+                            src_md5 = translation_obj.get_src_md5(
+                                values[field_name])
+                            cursor.execute('INSERT INTO ir_translation '
+                                '(name, lang, type, src, src_md5, res_id, '
+                                        'value, module, fuzzy) '
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                                (table_name + ',' + field_name, 'en_US',
+                                    'model', values[field_name], src_md5,
+                                    res_id, '', module, False))
 
             if to_update:
                 # re-read it: this ensure that we store the real value
@@ -877,19 +884,21 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             trans_id, = data
                     elif cursor.rowcount != 0:
                         trans_id, = cursor.fetchone()
+                    src_md5 = translation_obj.get_src_md5(values[field_name]
+                        or '')
                     if trans_id:
-                        cursor.execute('UPDATE ir_translation ' \
-                                'SET src = %s, module = %s ' \
-                                'WHERE id = %s',
-                                (values[field_name], module, trans_id))
+                        cursor.execute('UPDATE ir_translation '
+                            'SET src = %s, src_md5 = %s, module = %s '
+                            'WHERE id = %s',
+                            (values[field_name], src_md5, module, trans_id))
                     else:
-                        cursor.execute('INSERT INTO ir_translation ' \
-                                '(name, lang, type, src, res_id, ' \
-                                    'value, module, fuzzy) ' \
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                                (table_name + ',' + field_name,
-                                    'en_US', 'model', values[field_name],
-                                    res_id, '', module, False))
+                        cursor.execute('INSERT INTO ir_translation '
+                            '(name, lang, type, src, src_md5, res_id, '
+                                'value, module, fuzzy) '
+                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                            (table_name + ',' + field_name, 'en_US', 'model',
+                                values[field_name], src_md5, res_id, '',
+                                module, False))
 
             # re-read it: this ensure that we store the real value
             # in the model_data table:
