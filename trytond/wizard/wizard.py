@@ -29,6 +29,7 @@ class Wizard(WarningErrorMixin):
         self._datas = {}
 
     def init(self, module_name):
+        translation_obj = self.pool.get('ir.translation')
         cursor = Transaction().cursor
         for state in self.states.keys():
             if self.states[state]['result']['type'] == 'form':
@@ -45,19 +46,20 @@ class Wizard(WarningErrorMixin):
                             (module_name, 'en_US', 'wizard_button',
                                 self._name + ',' + state + ',' + button_name))
                     res = cursor.dictfetchall()
+                    value_md5 = translation_obj.get_src_md5(button_value)
                     if not res:
-                        cursor.execute('INSERT INTO ir_translation ' \
-                                '(name, lang, type, src, value, module, fuzzy)'\
-                                ' VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                                (self._name + ',' + state + ',' + button_name,
-                                    'en_US', 'wizard_button', button_value,
-                                    '', module_name, False))
+                        cursor.execute('INSERT INTO ir_translation '
+                            '(name, lang, type, src, src_md5, value, module, '
+                                'fuzzy) '
+                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                            (self._name + ',' + state + ',' + button_name,
+                                'en_US', 'wizard_button', button_value,
+                                value_md5, '', module_name, False))
                     elif res[0]['src'] != button_value:
-                        cursor.execute('UPDATE ir_translation ' \
-                                'SET src = %s, ' \
-                                    'fuzzy = %s '
-                                'WHERE id = %s', (button_value, True,
-                                    res[0]['id']))
+                        cursor.execute('UPDATE ir_translation '
+                            'SET src = %s, src_md5 = %s '
+                            'WHERE id = %s',
+                            (button_value, value_md5, res[0]['id']))
 
         cursor.execute('SELECT id, src FROM ir_translation ' \
                 'WHERE lang = %s ' \
@@ -70,11 +72,12 @@ class Wizard(WarningErrorMixin):
 
         for error in self._error_messages.values():
             if error not in trans_error:
-                cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module, fuzzy) ' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                        (self._name, 'en_US', 'error', error, '', module_name,
-                            False))
+                error_md5 = translation_obj.get_src_md5(error)
+                cursor.execute('INSERT INTO ir_translation '
+                    '(name, lang, type, src, src_md5,  value, module, fuzzy) '
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                    (self._name, 'en_US', 'error', error, error_md5, '',
+                        module_name, False))
 
     def create(self):
         self._lock.acquire()

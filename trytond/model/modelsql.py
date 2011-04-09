@@ -1369,12 +1369,17 @@ class ModelSQL(ModelStorage):
                             ], order=[], query_string=True), table)
                         i += 1
                     continue
-                elif field._type in ('one2one', 'many2many'):
+                elif field._type in ('one2one', 'many2many', 'one2many'):
                     if hasattr(field, 'model_name'):
                         target_obj = self.pool.get(field.model_name)
                     else:
                         target_obj = field.get_target(self.pool)
-                    relation_obj = self.pool.get(field.relation_name)
+                    if hasattr(field, 'relation_name'):
+                        relation_obj = self.pool.get(field.relation_name)
+                        origin, target = field.origin, field.target
+                    else:
+                        relation_obj = target_obj
+                        origin, target = field.field, 'id'
                     if hasattr(field, 'search'):
                         domain.extend([(fargs[0], 'in', target_obj.search([
                             (fargs[1], domain[i][1], domain[i][2]),

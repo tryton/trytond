@@ -13,6 +13,10 @@ from xml.dom import minidom
 from difflib import SequenceMatcher
 import csv
 import os
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.wizard import Wizard
@@ -52,6 +56,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
     type = fields.Selection(TRANSLATION_TYPE, string='Type',
        required=True)
     src = fields.Text('Source')
+    src_md5 = fields.Char('Source MD5', size=32, required=True)
     value = fields.Text('Translation Value')
     module = fields.Char('Module', readonly=True)
     fuzzy = fields.Boolean('Fuzzy')
@@ -61,8 +66,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
     def __init__(self):
         super(Translation, self).__init__()
         self._sql_constraints += [
-            ('translation_uniq',
-                'UNIQUE (name, res_id, lang, type, src, module)',
+            ('translation_md5_uniq',
+                'UNIQUE (name, res_id, lang, type, src_md5, module)',
                 'Translation must be unique'),
         ]
         self._constraints += [
@@ -74,11 +79,33 @@ class Translation(ModelSQL, ModelView, Cacheable):
         self._max_len = 10240
 
     def init(self, module_name):
+        cursor = Transaction().cursor
+        table = TableHandler(cursor, self, module_name)
+        # Migration from 1.8: new field src_md5
+        src_md5_exist = table.column_exist('src_md5')
+        table.drop_constraint('translation_uniq')
+        table.index_action(['lang', 'type', 'name', 'src'], 'remove')
+
         super(Translation, self).init(module_name)
+
+        # Migration from 1.8: fill new field src_md5
+        if not src_md5_exist:
+            offset = 0
+            limit = cursor.IN_MAX
+            translation_ids = True
+            while translation_ids:
+                translation_ids = self.search([], offset=offset, limit=limit)
+                offset += limit
+                for translation in self.browse(translation_ids):
+                    src_md5 = self.get_src_md5(translation.src)
+                    self.write(translation.id, {
+                        'src_md5': src_md5,
+                    })
+            table = TableHandler(cursor, self, module_name)
+            table.not_null_action('src_md5', action='add')
 
         table = TableHandler(Transaction().cursor, self, module_name)
         table.index_action(['lang', 'type', 'name'], 'add')
-        table.index_action(['lang', 'type', 'name', 'src'], 'add')
 
     def default_fuzzy(self):
         return False
@@ -116,6 +143,9 @@ class Translation(ModelSQL, ModelView, Cacheable):
         langs = lang_obj.browse(lang_ids)
         res = [(lang.code, lang.name) for lang in langs]
         return res
+
+    def get_src_md5(self, src):
+        return md5((src or '').encode('utf-8')).hexdigest()
 
     def _get_ids(self, name, ttype, lang, ids):
         model_fields_obj = self.pool.get('ir.model.field')
@@ -391,11 +421,16 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 if fetchone:
                     vals = vals.copy()
                     vals['module'], vals['src'] = fetchone
+        vals = vals.copy()
+        vals['src_md5'] = self.get_src_md5(vals.get('src'))
         return super(Translation, self).create(vals)
 
     def write(self, ids, vals):
         self.clear()
         self.fields_view_get.reset()
+        if 'src' in vals:
+            vals = vals.copy()
+            vals['src_md5'] = self.get_src_md5(vals.get('src'))
         return super(Translation, self).write(ids, vals)
 
     def translation_import(self, lang, module, datas):

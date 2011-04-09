@@ -66,6 +66,7 @@ class View(ModelSQL, ModelView):
 
     def check_xml(self, ids):
         "Check XML"
+        translation_obj = self.pool.get('ir.translation')
         cursor = Transaction().cursor
         views = self.browse(ids)
         for view in views:
@@ -146,6 +147,7 @@ class View(ModelSQL, ModelView):
                 if string in trans_views:
                     del trans_views[string]
                     continue
+                string_md5 = translation_obj.get_src_md5(string)
                 for string_trans in trans_views:
                     if string_trans in strings:
                         continue
@@ -156,19 +158,22 @@ class View(ModelSQL, ModelView):
                         done = True
                         break
                     if seqmatch.ratio() > 0.6:
-                        cursor.execute('UPDATE ir_translation ' \
-                            'SET src = %s, ' \
-                                'fuzzy = %s ' \
+                        cursor.execute('UPDATE ir_translation '
+                            'SET src = %s, '
+                                'src_md5 = %s, '
+                                'fuzzy = %s '
                             'WHERE id = %s ',
-                            (string, True, trans_views[string_trans]['id']))
+                            (string, string_md5, True,
+                                trans_views[string_trans]['id']))
                         del trans_views[string_trans]
                         done = True
                         break
                 if not done:
-                    cursor.execute('INSERT INTO ir_translation ' \
-                        '(name, lang, type, src, value, module, fuzzy)' \
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                        (view.model, 'en_US', 'view', string, '',
+                    cursor.execute('INSERT INTO ir_translation '
+                        '(name, lang, type, src, src_md5, value, module, '
+                            'fuzzy) '
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                        (view.model, 'en_US', 'view', string, string_md5, '',
                             view.module, False))
             if strings:
                 cursor.execute('DELETE FROM ir_translation ' \
