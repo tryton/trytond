@@ -22,7 +22,7 @@ from trytond.model.cacheable import Cacheable
 from trytond.wizard import Wizard
 from trytond import tools
 from trytond.tools import file_open, reduce_ids
-from trytond.backend import TableHandler
+from trytond.backend import TableHandler, FIELDS
 from trytond.pyson import PYSONEncoder
 from trytond.transaction import Transaction
 
@@ -83,6 +83,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
         table = TableHandler(cursor, self, module_name)
         # Migration from 1.8: new field src_md5
         src_md5_exist = table.column_exist('src_md5')
+        if not src_md5_exist:
+            table.add_raw_column('src_md5',
+                FIELDS[self.src_md5._type].sql_type(self.src_md5),
+                FIELDS[self.src_md5._type].sql_format, None,
+                self.src_md5.size, string=self.src_md5.string)
         table.drop_constraint('translation_uniq')
         table.index_action(['lang', 'type', 'name', 'src'], 'remove')
 
