@@ -1390,8 +1390,7 @@ class ModelSQL(ModelStorage):
                             (fargs[1], domain[i][1], domain[i][2]),
                             ], order=[], query_string=True)
                         query1 = ('SELECT "%s" FROM "%s" WHERE "%s" IN (%s)' %
-                                (field.origin, relation_obj._table,
-                                    field.target, query1))
+                                (origin, relation_obj._table, target, query1))
                         domain[i] = ('id', 'inselect', (query1, query2))
                         i += 1
                     continue
