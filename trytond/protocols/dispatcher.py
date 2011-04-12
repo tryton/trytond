@@ -30,6 +30,11 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
 
     if object_type == 'common':
         if method == 'login':
+            try:
+                database = Database(database_name).connect()
+                cursor = database.cursor()
+            except Exception:
+                return False
             res = security.login(database_name, user, session)
             Cache.clean(database_name)
             logger = logging.getLogger('dispatcher')
