@@ -7,7 +7,7 @@ this repository contains the full copyright notices and license terms. -->
             id="menu_localization"/>
          <record model="ir.lang" id="lang_bg">
             <field name="code">bg_BG</field>
-            <field name="name">Български</field>
+            <field name="name">Bulgarian</field>
             <field name="date">%d.%m.%Y</field>
             <field name="grouping">[3, 3, 0]</field>
             <field name="decimal_point">,</field>
