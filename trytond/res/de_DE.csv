@@ -29,6 +29,7 @@ field,"ir.ui.menu-res.group,menu_id",0,Menu,Menü,0
 field,"ir.ui.menu-res.group,rec_name",0,Name,Name,0
 field,"res.group,create_date",0,Creation date,Erstellungsdatum,0
 field,"res.group,create_uid",0,Creation user,Ersteller,0
+field,"res.group,field_access",0,Access Field,Zugriffsberechtigung Feld,0
 field,"res.group,id",0,ID,ID,0
 field,"res.group,menu_access",0,Access Menu,Menü Berechtigungen,0
 field,"res.group,model_access",0,Access Model,Rechteverwaltung,0
