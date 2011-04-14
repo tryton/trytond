@@ -6,6 +6,7 @@
     'name_de_DE': 'Workflow',
     'name_es_ES': 'Flujo de trabajo',
     'name_fr_FR': 'Workflow',
+    'name_nl_NL': 'Werkgang',
     'name_ru_RU': 'Бизнес процессы',
     'description': '''Basic module providing concept and administration of workflows.
 ''',
@@ -17,6 +18,8 @@
 ''',
     'description_fr_FR': '''Module de base fournissant les concepts et l'administration de workflows.
 ''',
+    'description_nl_NL': '''Basismodule voor het instellen en beheren van werkgangen.
+''',
     'description_ru_RU': '''Базовый модуль концепция обеспечения и администрирования рабочих процессов.
 ''',
     'active': True,
@@ -26,10 +29,11 @@
         ],
     'translation': [
         'bg_BG.csv',
-        'fr_FR.csv',
         'de_DE.csv',
-        'es_ES.csv',
         'es_CO.csv',
+        'es_ES.csv',
+        'fr_FR.csv',
+        'nl_NL.csv',
         'ru_RU.csv',
     ],
 }
