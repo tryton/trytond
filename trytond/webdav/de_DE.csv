@@ -67,10 +67,8 @@ field,"workflow.workitem,rec_name",0,Name,Name,0
 field,"workflow.workitem,state",0,State,Status,0
 field,"workflow.workitem,subflow",0,Subflow,Unterflow,0
 model,"ir.action,name",act_collection_form,Collections,Sammlungen,0
-model,"ir.action,name",act_collection_form2,Collections,Sammlungen,0
 model,"ir.action,name",act_collection_tree,Collections,Sammlungen,0
-model,"ir.ui.menu,name",menu_collection_form,Edit Collections,Sammlungen bearbeiten,0
-model,"ir.ui.menu,name",menu_collection_form2,New Collection,Neue Sammlung,0
+model,"ir.ui.menu,name",menu_collection_form,New Collection,Neue Sammlung,0
 model,"ir.ui.menu,name",menu_collection_tree,Collections,Sammlungen,0
 model,"ir.ui.menu,name",menu_webdav,WebDAV,WebDAV,0
 model,"webdav.collection,name",0,Collection,Sammlung,0
