@@ -6,7 +6,7 @@
     'name_de_DE': 'Interne Administration',
     'name_es_ES': 'Administración interna',
     'name_fr_FR': 'Administration Interne',
-    'name_nl_NL': 'Interne administratie'
+    'name_nl_NL': 'Interne administratie',
     'name_ru_RU': 'Внутреннее управление',
     'description': '''Basic module handling internal tasks of the application.
 Provides concepts and administration of models, actions, sequences, localizations, cron jobs etc.
@@ -25,7 +25,7 @@ Provides concepts and administration of models, actions, sequences, localization
     'description_fr_FR': '''Module de base gérant les tâches internes de l'application.
 Fournit les concepts et l'administration des modèles, actions, séquences, localizations, planificateur de tâches etc.
 ''',
-	'description_nl_NL': '''Basismodule voor interne taken binnen het programma.
+    'description_nl_NL': '''Basismodule voor interne taken binnen het programma.
 
  - Instellen en beheren van modellen, acties, reeksen, lokalisaties, herhalende taken enz.
 ''',
