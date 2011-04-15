@@ -448,17 +448,17 @@ model,"ir.date,name",0,Date,Datum,0
 model,"ir.export,name",0,Export,Export,0
 model,"ir.export.line,name",0,Export line,Export Zeile,0
 model,"ir.lang,name",0,Language,Sprache,0
-model,"ir.lang,name",lang_bg,Български,Bulgarisch,0
-model,"ir.lang,name",lang_cs,,Tschechisch,0
+model,"ir.lang,name",lang_bg,Bulgarian,Bulgarisch,0
+model,"ir.lang,name",lang_cs,,,0
 model,"ir.lang,name",lang_cs,Czech,Tschechisch,0
-model,"ir.lang,name",lang_de,,Deutsch,0
+model,"ir.lang,name",lang_de,,,0
 model,"ir.lang,name",lang_de,German,Deutsch,0
 model,"ir.lang,name",lang_en,English,Englisch,0
-model,"ir.lang,name",lang_es,,Spanisch (Spanien),0
+model,"ir.lang,name",lang_es,,,0
 model,"ir.lang,name",lang_es,Spanish (Spain),Spanisch (Spanien),0
-model,"ir.lang,name",lang_es_CO,,Spanisch (Kolumbien),0
+model,"ir.lang,name",lang_es_CO,,,0
 model,"ir.lang,name",lang_es_CO,Spanish (Colombia),Spanisch (Kolumbien),0
-model,"ir.lang,name",lang_fr,,Französisch,0
+model,"ir.lang,name",lang_fr,,,0
 model,"ir.lang,name",lang_fr,French,Französisch,0
 model,"ir.lang,name",lang_ru,Russian,Russisch,0
 model,"ir.model,name",0,Model,Modell,0
