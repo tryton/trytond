@@ -998,6 +998,9 @@ class TranslationUpdateInit(ModelView):
     lang = fields.Selection('get_language', string='Language',
         required=True)
 
+    def default_lang(self):
+        return Transaction().context.get('language', False)
+
     def get_language(self):
         lang_obj = self.pool.get('ir.lang')
         lang_ids = lang_obj.search([('translatable', '=', True)])
@@ -1150,6 +1153,9 @@ class TranslationExportInit(ModelView):
        required=True)
     module = fields.Selection('get_module', string='Module',
        required=True)
+
+    def default_lang(self):
+        return Transaction().context.get('language', False)
 
     def get_language(self):
         lang_obj = self.pool.get('ir.lang')
