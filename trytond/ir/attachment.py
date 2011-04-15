@@ -182,7 +182,8 @@ class Attachment(ModelSQL, ModelView):
         return firstline(values.get('description') or '')
 
     def get_last_modification(self, ids, name):
-        return dict((x.id, x.write_date if x.write_date else x.create_date)
+        return dict((x.id, (x.write_date if x.write_date else x.create_date
+            ).replace(microsecond=0))
             for x in self.browse(ids))
 
     def get_last_user(self, ids, name):
