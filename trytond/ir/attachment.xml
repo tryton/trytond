@@ -9,9 +9,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <form string="Attachments" col="2">
-                    <label name="resource"/>
-                    <field name="resource"/>
                     <group id="content" col="2" colspan="1">
+                        <label name="resource"/>
+                        <field name="resource"/>
                         <label name="name"/>
                         <group id="name_data" col="2" colspan="1">
                             <field name="name"/>
