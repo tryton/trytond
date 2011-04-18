@@ -16,11 +16,11 @@ field,"webdav.collection,model",0,Model,Модел,0
 field,"webdav.collection,name",0,Name,Име,0
 field,"webdav.collection,parent",0,Parent,Родител,0
 field,"webdav.collection,rec_name",0,Name,Име,0
+model,"ir.action,name",,Collections,Колекции,0
 model,"ir.action,name",act_collection_form,Collections,Колекции,0
-model,"ir.action,name",act_collection_form2,Collections,Колекции,0
 model,"ir.action,name",act_collection_tree,Collections,Колекции,0
-model,"ir.ui.menu,name",menu_collection_form,Edit Collections,Редактиране на колекции,0
-model,"ir.ui.menu,name",menu_collection_form2,New Collection,Нова колекция,0
+model,"ir.ui.menu,name",,New Collection,Нова колекция,0
+model,"ir.ui.menu,name",menu_collection_form,New Collection,Редактиране на колекции,0
 model,"ir.ui.menu,name",menu_collection_tree,Collections,Колекции,0
 model,"ir.ui.menu,name",menu_webdav,WebDAV,WebDAV,0
 model,"webdav.collection,name",0,Collection,Колекция,0
