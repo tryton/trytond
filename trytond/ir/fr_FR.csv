@@ -11,6 +11,7 @@ error,foreign_model_missing,0,"The value of field ""%s"" on ""%s"" doesn't exist
 error,ir.action.act_window,0,Invalid context!,Contexte invalide !,0
 error,ir.action.act_window,0,Invalid domain!,Domaine invalide !,0
 error,ir.action.act_window,0,Invalid search criteria!,Critère de recherche invalide !,0
+error,ir.action.act_window,0,Invalid views!,Vues invalides !,0
 error,ir.action.keyword,0,Wrong wizard model!,Mauvais modèle d'assistant,0
 error,ir.action.report,0,The internal name must be unique by module!,Le nom interne doit être unique par module !,0
 error,ir.attachment,0,The  names of attachments must be unique by resource!,Le nom des pièces jointes doivent être unique pour une même ressource !,0
@@ -37,6 +38,9 @@ error,ir.model.access,0,You can not write in this document! (%s),Vous ne pouvez 
 error,ir.model.data,0,"The triple (fs_id, module, model) must be unique!","Le triplet (fs_id, module, model) doit être unique !",0
 error,ir.model.field,0,Model Field Name must be a python identifier!,Le nom du champ doit être un identifiant Python valide !,0
 error,ir.model.field,0,The field name in model must be unique!,Le nom du champ doit être unique sur le modèle !,0
+error,ir.model.field.access,0,Only one record by field and group is allowed!,Seul un enregistrement par champs et par groupe est permis !,0
+error,ir.model.field.access,0,You can not read the field! (%s.%s),Vous ne pouvez lire le champs (%s.%s) !,0
+error,ir.model.field.access,0,You can not write on the field! (%s.%s),Vous ne pouvez écrire sur le champs (%s.%s) !,0
 error,ir.module.module,0,"Missing dependencies %s for module ""%s""","Dépendences %s manquante pour le module ""%s""",0
 error,ir.module.module,0,The modules you are trying to uninstall depends on installed modules:,Les modules que vous essayez de dés-installer dépendent de modules installés :,0
 error,ir.module.module,0,The name of the module must be unique!,Le nom du module doit être unique,0
@@ -73,6 +77,7 @@ error,xml_id_syntax_error,0,Syntax error for XML id %r in %s,Erreur de syntaxe X
 error,xml_record_desc,0,This record is part of the base configuration.,Cet enregistrement fait partie de la configuration de base.,0
 field,"ir.action,active",0,Active,Actif,0
 field,"ir.action,groups",0,Groups,Groupes,0
+field,"ir.action,icon",0,Icon,Icône,1
 field,"ir.action,keywords",0,Keywords,Mots-clés,0
 field,"ir.action,name",0,Name,Nom,0
 field,"ir.action,rec_name",0,Name,Nom,0
@@ -90,7 +95,6 @@ field,"ir.action.act_window,pyson_search_value",0,PySON Search Criteria,Critère
 field,"ir.action.act_window,rec_name",0,Name,Nom,0
 field,"ir.action.act_window,res_model",0,Model,Modèle,0
 field,"ir.action.act_window,search_value",0,Search Criteria,Critères de recherche,0
-field,"ir.action.act_window,view_type",0,Type of view,Type de vue,0
 field,"ir.action.act_window,views",0,Views,Vues,0
 field,"ir.action.act_window,window_name",0,Window Name,Nom de la fenêtre,0
 field,"ir.action.act_window.view,act_window",0,Action,Action,0
@@ -107,6 +111,7 @@ field,"ir.action.report,email",0,Email,E-mail,0
 field,"ir.action.report,extension",0,Extension,Extension,0
 field,"ir.action.report,model",0,Model,Modèle,0
 field,"ir.action.report,module",0,Module,Module,0
+field,"ir.action.report,pyson_email",0,PySON Email,,0
 field,"ir.action.report,rec_name",0,Name,Nom,0
 field,"ir.action.report,report",0,Path,Chemin,0
 field,"ir.action.report,report_content",0,Content,Contenu,0
@@ -130,14 +135,18 @@ field,"ir.action.wizard_size,user",0,User,Utilisateur,0
 field,"ir.action.wizard_size,width",0,Width,Largeur,0
 field,"ir.action.wizard_size,wizard",0,Wizard,Assistant,0
 field,"ir.attachment,collision",0,Collision,Collision,0
-field,"ir.attachment,datas",0,Datas,Données,0
-field,"ir.attachment,datas_size",0,Datas size,Taille des données,0
+field,"ir.attachment,data",0,Data,Données,0
+field,"ir.attachment,data_size",0,Data size,Taille des données,0
 field,"ir.attachment,description",0,Description,Description,0
 field,"ir.attachment,digest",0,Digest,Empreinte,0
+field,"ir.attachment,last_modification",0,Last Modification,Dernière modification,0
+field,"ir.attachment,last_user",0,Last User,Dernier utilisateur,0
 field,"ir.attachment,link",0,Link,Lien,0
-field,"ir.attachment,name",0,Attachment Name,Nom de la pièce jointe,0
+field,"ir.attachment,name",0,Name,Nom de la pièce jointe,0
 field,"ir.attachment,rec_name",0,Name,Nom,0
 field,"ir.attachment,resource",0,Resource,Ressource,0
+field,"ir.attachment,summary",0,Summary,Résumé,1
+field,"ir.attachment,type",0,Type,Type,1
 field,"ir.cache,name",0,Name,Nom,0
 field,"ir.cache,rec_name",0,Name,Nom,0
 field,"ir.cache,timestamp",0,Timestamp,Estampille,0
@@ -156,12 +165,6 @@ field,"ir.cron,rec_name",0,Name,Nom,0
 field,"ir.cron,request_user",0,Request User,Requête utilisateur,0
 field,"ir.cron,running",0,Running,En cours,0
 field,"ir.cron,user",0,Execution User,Utilisateur,0
-field,"ir.default,clause",0,Clause,Clause,0
-field,"ir.default,field",0,Field,Champ,0
-field,"ir.default,model",0,Model,Modèle,0
-field,"ir.default,rec_name",0,Name,Nom,0
-field,"ir.default,user",0,User,Utilisateur,0
-field,"ir.default,value",0,Value,Valeur,0
 field,"ir.export,export_fields",0,Fields,Champs,0
 field,"ir.export,name",0,Name,Nom,0
 field,"ir.export,rec_name",0,Name,Nom,0
@@ -212,6 +215,12 @@ field,"ir.model.field,name",0,Name,Nom,0
 field,"ir.model.field,rec_name",0,Name,Nom,0
 field,"ir.model.field,relation",0,Model Relation,Relation du modèle,0
 field,"ir.model.field,ttype",0,Field Type,Champ du type,0
+field,"ir.model.field.access,description",0,Description,Description,1
+field,"ir.model.field.access,field",0,Field,Champ,1
+field,"ir.model.field.access,group",0,Group,Groupe,1
+field,"ir.model.field.access,perm_read",0,Read Access,Accès en lecture,1
+field,"ir.model.field.access,perm_write",0,Write Access,Accès en écriture,1
+field,"ir.model.field.access,rec_name",0,Name,Nom de la pièce jointe,1
 field,"ir.model.print_model_graph.init,filter",0,Filter,Filtre,0
 field,"ir.model.print_model_graph.init,level",0,Level,Niveau,0
 field,"ir.module.module,author",0,Author,Auteur,0
@@ -291,6 +300,7 @@ field,"ir.translation,name",0,Field Name,Nom du champ,0
 field,"ir.translation,rec_name",0,Name,Nom,0
 field,"ir.translation,res_id",0,Resource ID,ID de la ressource,0
 field,"ir.translation,src",0,Source,Source,0
+field,"ir.translation,src_md5",0,Source MD5,MD5 de la source,0
 field,"ir.translation,type",0,Type,Type,0
 field,"ir.translation,value",0,Translation Value,Traduction,0
 field,"ir.translation.export.init,lang",0,Language,Langue,0
@@ -313,6 +323,12 @@ field,"ir.trigger,rec_name",0,Name,Nom,0
 field,"ir.trigger.log,rec_name",0,Name,Nom,0
 field,"ir.trigger.log,record_id",0,Record ID,ID du record,0
 field,"ir.trigger.log,trigger",0,Trigger,Déclencheur,0
+field,"ir.ui.icon,icon",0,Icon,Icône,1
+field,"ir.ui.icon,module",0,Module,Module,1
+field,"ir.ui.icon,name",0,Name,Nom de la pièce jointe,1
+field,"ir.ui.icon,path",0,SVG Path,Chemin vers le fichier SVG,0
+field,"ir.ui.icon,rec_name",0,Name,Nom de la pièce jointe,1
+field,"ir.ui.icon,sequence",0,Sequence,Séquence,1
 field,"ir.ui.menu,action",0,Action,Action,0
 field,"ir.ui.menu,active",0,Active,Actif,0
 field,"ir.ui.menu,childs",0,Children,Enfants,0
@@ -373,7 +389,7 @@ Déclenche une action si vrai.",0
 help,"ir.trigger,limit_number",0,"Limit the number of call to ""Action Function"" by records.
 0 for no limit.","Limite le nombre d'appel aux ""Fonction action"" par enregistrement.
 0 signifie pas de limite.",0
-help,"ir.trigger,minimum_delay",0,"Set a minimu delay in minutes between call to ""Action Function"" for the same record.
+help,"ir.trigger,minimum_delay",0,"Set a minimum delay in minutes between call to ""Action Function"" for the same record.
 0 for no delay.","Défini un délais minimum en minutes entre les appels aux ""Fonctions actions"" sur un même modèle.
 0 signifie pas de délais.",0
 model,"ir.action,name",0,Action,Action,0
@@ -386,12 +402,12 @@ model,"ir.action,name",act_action_wizard_size_form,Wizard Sizes,Tailles des assi
 model,"ir.action,name",act_attachment_form,Attachments,Attachements,0
 model,"ir.action,name",act_config_wizard_item_form,Config Wizard Items,Élements de l'assistant de configuration,0
 model,"ir.action,name",act_cron_form,Scheduled Actions,Actions planifiées,0
-model,"ir.action,name",act_default_form,Defaults,Valeurs par défaut,0
 model,"ir.action,name",act_export_form,Exports,Exports,0
+model,"ir.action,name",act_icon_form,Icons,Icônes,0
 model,"ir.action,name",act_lang_form,Languages,Langues,0
-model,"ir.action,name",act_menu_form,Menus,Menus,0
 model,"ir.action,name",act_menu_tree,Menu,Menu,0
 model,"ir.action,name",act_model_access_form,Models Access,Accès aux modèles,0
+model,"ir.action,name",act_model_field_access_form,Fields Access,Droits d'accès,0
 model,"ir.action,name",act_model_fields_form,Fields,Champs,0
 model,"ir.action,name",act_model_form,Models,Modèles,0
 model,"ir.action,name",act_module_config_wizard,Module Configuration,Configuration du module,0
@@ -410,7 +426,9 @@ model,"ir.action,name",act_translation_set_report,Set Report Translations,Mettre
 model,"ir.action,name",act_translation_update,Synchronize Translations,Synchroniser les traductions,0
 model,"ir.action,name",act_trigger_form,Triggers,Déclencheurs,0
 model,"ir.action,name",act_view_form,Views,Vues,0
+model,"ir.action,name",act_view_sc_add,Add Shortcut,Ajouter un raccourci,0
 model,"ir.action,name",act_view_sc_form,View Shortcuts,Raccourcis,0
+model,"ir.action,name",act_view_sc_open,Open Shortcut,Ouvrir le raccourci,0
 model,"ir.action,name",act_view_tree_width_form,View Tree Width,Largeur de la vue arbre,0
 model,"ir.action,name",print_model_graph,Graph,Graphique,0
 model,"ir.action,name",report_model_graph,Graph,Graphique,0
@@ -425,21 +443,23 @@ model,"ir.attachment,name",0,Attachment,Pièce jointe,0
 model,"ir.cache,name",0,Cache,Cache,0
 model,"ir.cron,name",0,Cron,Cron,0
 model,"ir.date,name",0,Date,Date,0
-model,"ir.default,name",0,Default,Défaut,0
 model,"ir.export,name",0,Export,Export,0
 model,"ir.export.line,name",0,Export line,Ligne d'export,0
 model,"ir.lang,name",0,Language,Langue,0
+model,"ir.lang,name",lang_bg,Bulgarian,Bulgare,0
 model,"ir.lang,name",lang_cs,Czech,Tchèque,0
 model,"ir.lang,name",lang_de,German,Allemand,0
 model,"ir.lang,name",lang_en,English,Anglais,0
 model,"ir.lang,name",lang_es,Spanish (Spain),Espagnol (Espagne),0
 model,"ir.lang,name",lang_es_CO,Spanish (Colombia),Espagnol (Colombie),0
 model,"ir.lang,name",lang_fr,French,Français,0
+model,"ir.lang,name",lang_nl,Dutch,Néerlandais,0
 model,"ir.lang,name",lang_ru,Russian,Russe,0
 model,"ir.model,name",0,Model,Modèle,0
 model,"ir.model.access,name",0,Model access,Accès au modèle,0
 model,"ir.model.data,name",0,Model data,Données de modèle,0
 model,"ir.model.field,name",0,Model field,Champ de modèle,0
+model,"ir.model.field.access,name",0,Model Field Access,Droit d'accès aux champs d'un Model,0
 model,"ir.model.print_model_graph.init,name",0,Print Model Graph Init,Imprimer le graphique de modèle - Init,0
 model,"ir.module.module,name",0,Module,Module,0
 model,"ir.module.module.config_wizard.first,name",0,Module Config Wizard First,Assistant de configuration de module - Première,0
@@ -463,6 +483,7 @@ model,"ir.translation.set_report.start,name",0,Update Report Translation,Mise à
 model,"ir.translation.update.init,name",0,Update translation - language,Mise à jour des traductions - Langue,0
 model,"ir.trigger,name",0,Trigger,Déclencheur,0
 model,"ir.trigger.log,name",0,Trigger Log,Journal des déclencheurs,0
+model,"ir.ui.icon,name",0,Icon,Icône,1
 model,"ir.ui.menu,name",0,UI menu,Menu de l'IU,0
 model,"ir.ui.menu,name",menu_act_action,Actions,Actions,0
 model,"ir.ui.menu,name",menu_action,Actions,Actions,0
@@ -475,13 +496,14 @@ model,"ir.ui.menu,name",menu_administration,Administration,Administration,0
 model,"ir.ui.menu,name",menu_attachment_form,Attachments,Pièces jointes,0
 model,"ir.ui.menu,name",menu_config_wizard_item_form,Config Wizard Items,Élements de l'assistant de configuration,0
 model,"ir.ui.menu,name",menu_cron_form,Scheduled Actions,Actions planifiées,0
-model,"ir.ui.menu,name",menu_default_form,Defaults,Valeurs par défaut,0
 model,"ir.ui.menu,name",menu_export_form,Exports,Exportations,0
+model,"ir.ui.menu,name",menu_icon_form,Icons,Icônes,0
 model,"ir.ui.menu,name",menu_ir_sequence_type,Sequence Types,Types de séquence,0
 model,"ir.ui.menu,name",menu_lang_form,Languages,Langues,0
 model,"ir.ui.menu,name",menu_localization,Localization,Localisation,0
-model,"ir.ui.menu,name",menu_menu_form,Menus,Menus,0
+model,"ir.ui.menu,name",menu_menu_tree,Menu,Menu,1
 model,"ir.ui.menu,name",menu_model_access_form,Models Access,Accès au modèles,0
+model,"ir.ui.menu,name",menu_model_field_access_form,Fields Access,Droits d'accès au champs,0
 model,"ir.ui.menu,name",menu_model_form,Models,Modèles,0
 model,"ir.ui.menu,name",menu_models,Models,Modèles,0
 model,"ir.ui.menu,name",menu_module_form,Modules,Modules,0
@@ -508,9 +530,6 @@ model,"ir.ui.menu,name",model_model_fields_form,Fields,Champs,0
 model,"ir.ui.view,name",0,View,Vue,0
 model,"ir.ui.view_sc,name",0,View shortcut,Vue raccourci,0
 model,"ir.ui.view_tree_width,name",0,View Tree Width,Largeur de vue arbre,0
-selection,"ir.action.act_window,view_type",0,Board,Tableau,0
-selection,"ir.action.act_window,view_type",0,Form,Formulaire,0
-selection,"ir.action.act_window,view_type",0,Tree,Arbre,0
 selection,"ir.action.keyword,keyword",0,Action form,Formulaire,0
 selection,"ir.action.keyword,keyword",0,Action tree,Arbre,0
 selection,"ir.action.keyword,keyword",0,Form relate,Formulaire relié,0
@@ -519,6 +538,8 @@ selection,"ir.action.keyword,keyword",0,Open tree,Ouvrir l'arbre,0
 selection,"ir.action.keyword,keyword",0,Print form,Imprimer le formulaire,0
 selection,"ir.action.report,extension",0,ODT Document,Document ODT,0
 selection,"ir.action.report,extension",0,PDF Document,Document PDF,0
+selection,"ir.attachment,type",0,Data,Données,0
+selection,"ir.attachment,type",0,Link,Lien,1
 selection,"ir.cron,interval_type",0,Days,Jours,0
 selection,"ir.cron,interval_type",0,Hours,Heures,0
 selection,"ir.cron,interval_type",0,Minutes,Minutes,0
@@ -656,8 +677,6 @@ view,ir.attachment,0,Preview,Aperçu,0
 view,ir.cron,0,Action to trigger,Action à suivre,0
 view,ir.cron,0,Scheduled Action,Action planifiée,0
 view,ir.cron,0,Scheduled Actions,Actions planifiées,0
-view,ir.default,0,Default,Valeur par défaut,0
-view,ir.default,0,Defaults,Valeurs par défaut,0
 view,ir.export,0,Exports,Exportations,0
 view,ir.lang,0,Date Formatting,Formatage des dates,0
 view,ir.lang,0,Language,Langues,0
@@ -667,6 +686,7 @@ view,ir.model,0,Fields Description,Champs de description,0
 view,ir.model,0,Model Description,Description du modèle,0
 view,ir.model.access,0,Access controls,Contrôles d'accès,0
 view,ir.model.field,0,Fields,Champs,0
+view,ir.model.field.access,0,Field Access,Droits d'accès au champs,0
 view,ir.model.print_model_graph.init,0,Print Model Graph,Imprimer le graphique de modèle,0
 view,ir.module.module,0,Cancel Install,Annuler l'installation,0
 view,ir.module.module,0,Cancel Installation,Annuler l'installation,0
@@ -737,9 +757,12 @@ view,ir.translation.update.init,0,Synchronize Translations,Synchroniser les trad
 view,ir.translation.update.init,0,Update Translations,Mettre à jour les traductions,0
 view,ir.trigger,0,Trigger,Déclencheur,0
 view,ir.trigger,0,Triggers,Déclencheurs,0
+view,ir.ui.icon,0,Icon,Icône,1
+view,ir.ui.icon,0,Icons,Icônes,0
 view,ir.ui.menu,0,Menu,Menu,0
 view,ir.ui.view,0,View,Vue,0
 view,ir.ui.view_sc,0,Shortcut,Raccourcis,0
+view,ir.ui.view_sc,0,Shortcuts,Raccourcis,0
 view,ir.ui.view_tree_width,0,View Tree Width,Largeur de vue arbre,0
 view,ir.ui.view_tree_width,0,Views Tree Width,Largeurs des vues arbres,0
 wizard_button,"ir.model.print_model_graph,init,end",0,Cancel,Annuler,0

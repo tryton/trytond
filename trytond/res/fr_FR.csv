@@ -28,6 +28,7 @@ field,"ir.sequence.type-res.group,sequence_type",0,Sequence Type,Type de séquen
 field,"ir.ui.menu-res.group,gid",0,Group,Groupe,0
 field,"ir.ui.menu-res.group,menu_id",0,Menu,Menu,0
 field,"ir.ui.menu-res.group,rec_name",0,Name,Nom,0
+field,"res.group,field_access",0,Access Field,Droit d'accès,0
 field,"res.group,menu_access",0,Access Menu,Accès aux menus,0
 field,"res.group,model_access",0,Access Model,Accès aux modèles,0
 field,"res.group,name",0,Name,Nom,0
