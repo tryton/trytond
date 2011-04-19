@@ -460,6 +460,7 @@ model,"ir.lang,name",lang_es_CO,,,0
 model,"ir.lang,name",lang_es_CO,Spanish (Colombia),Spanisch (Kolumbien),0
 model,"ir.lang,name",lang_fr,,,0
 model,"ir.lang,name",lang_fr,French,Französisch,0
+model,"ir.lang,name",lang_nl,Dutch,Niederländisch,0
 model,"ir.lang,name",lang_ru,Russian,Russisch,0
 model,"ir.model,name",0,Model,Modell,0
 model,"ir.model.access,name",0,Model access,Modell Zugriff,0
