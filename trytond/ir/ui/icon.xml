@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Icons" sequence="sequence">
-                    <field name="name" select="1"/>
+                    <field name="name" select="1" icon="name"/>
                     <field name="module" select="1"/>
                     <field name="path" select="2"/>
                     <field name="sequence" tree_invisible="1"/>
