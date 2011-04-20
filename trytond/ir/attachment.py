@@ -59,10 +59,6 @@ class Attachment(ModelSQL, ModelView):
 
     def init(self, module_name):
         cursor = Transaction().cursor
-        # Migration from 1.8 rename datas into data
-        table = TableHandler(cursor, self, module_name)
-        table.column_rename('datas', 'data')
-        table.column_rename('datas_size', 'data_size')
 
         super(Attachment, self).init(module_name)
 
