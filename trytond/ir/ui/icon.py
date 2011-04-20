@@ -15,8 +15,8 @@ class Icon(ModelSQL, ModelView):
     _description = __doc__
 
     name = fields.Char('Name', required=True, select=1)
-    module = fields.Char('Module', readonly=True)
-    path = fields.Char('SVG Path', readonly=True)
+    module = fields.Char('Module', readonly=True, required=True)
+    path = fields.Char('SVG Path', readonly=True, required=True)
     icon = fields.Function(fields.Char('Icon', depends=['path']), 'get_icon')
     sequence = fields.Integer('Sequence')
 
