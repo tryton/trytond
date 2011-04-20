@@ -18,6 +18,8 @@ this repository contains the full copyright notices and license terms. -->
                         <page string="General" id="general">
                             <label name="usage"/>
                             <field name="usage"/>
+                            <label name="icon"/>
+                            <field name="icon"/>
                         </page>
                         <page name="keywords">
                             <field name="keywords" colspan="4">
@@ -87,6 +89,9 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="model"/>
                             <label name="report_name"/>
                             <field name="report_name"/>
+                            <label name="icon"/>
+                            <field name="icon"/>
+                            <newline/>
                             <label name="report"/>
                             <field name="report" colspan="3"/>
                             <label name="report_content"/>
@@ -172,6 +177,8 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="res_model"/>
                             <label name="usage"/>
                             <field name="usage"/>
+                            <label name="icon"/>
+                            <field name="icon"/>
                             <field name="act_window_views" colspan="6">
                                 <form string="Views">
                                     <label name="sequence"/>
@@ -265,6 +272,8 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="wiz_name"/>
                             <label name="model"/>
                             <field name="model"/>
+                            <label name="icon"/>
+                            <field name="icon"/>
                             <newline/>
                             <label name="email"/>
                             <field name="email" colspan="3"/>
@@ -397,6 +406,8 @@ this repository contains the full copyright notices and license terms. -->
                         <page string="General" id="general">
                             <label name="url"/>
                             <field name="url"/>
+                            <label name="icon"/>
+                            <field name="icon"/>
                         </page>
                         <page name="keywords">
                             <field name="keywords" colspan="4">
