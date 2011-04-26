@@ -7,6 +7,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
             <field name="field_childs">childs</field>
+            <field name="priority" eval="20"/>
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Menu" keyword_open="1" fill="1">
@@ -15,6 +16,20 @@ this repository contains the full copyright notices and license terms. -->
                 ]]>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="menu_view_list">
+            <field name="model">ir.ui.menu</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="10"/>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Menu" fill="1">
+                    <field name="rec_name" icon="icon"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="menu_view_form">
             <field name="model">ir.ui.menu</field>
             <field name="type">form</field>
