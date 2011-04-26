@@ -17,7 +17,7 @@ field,"webdav.collection,parent",0,Parent,Parent,0
 field,"webdav.collection,rec_name",0,Name,Nom,0
 model,"ir.action,name",act_collection_form,Collections,Collections,0
 model,"ir.action,name",act_collection_tree,Collections,Collections,0
-model,"ir.ui.menu,name",menu_collection_form,New Collection,Editer les collections,0
+model,"ir.ui.menu,name",menu_collection_form,New Collection,Nouvelle collection,0
 model,"ir.ui.menu,name",menu_collection_tree,Collections,Collections,0
 model,"ir.ui.menu,name",menu_webdav,WebDAV,WebDAV,0
 model,"webdav.collection,name",0,Collection,Collection,0
