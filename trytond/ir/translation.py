@@ -713,6 +713,7 @@ class ReportTranslationSet(Wizard):
                 strings += self._translate_report(document.documentElement)
 
             for string in {}.fromkeys(strings).keys():
+                src_md5 = self.get_src_md5(string)
                 done = False
                 if string in trans_reports:
                     del trans_reports[string]
@@ -729,22 +730,24 @@ class ReportTranslationSet(Wizard):
                     if seqmatch.ratio() > 0.6:
                         cursor.execute('UPDATE ir_translation ' \
                                 'SET src = %s, ' \
-                                    'fuzzy = %s ' \
+                                    'fuzzy = %s, ' \
+                                    'src_md5 = %s ' \
                                 'WHERE name = %s ' \
                                     'AND type = %s ' \
                                     'AND src = %s ' \
                                     'AND module = %s',
-                                (string, True, report.report_name, 'odt',
-                                    string_trans, report.module))
+                                (string, True, src_md5, report.report_name,
+                                    'odt', string_trans, report.module))
                         del trans_reports[string_trans]
                         done = True
                         break
                 if not done:
                     cursor.execute('INSERT INTO ir_translation ' \
-                            '(name, lang, type, src, value, module, fuzzy)' \
-                            'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                            '(name, lang, type, src, value, module, fuzzy, '\
+                             'src_md5)' \
+                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
                             (report.report_name, 'en_US', 'odt', string, '',
-                                report.module, False))
+                                report.module, False, src_md5))
             if strings:
                 cursor.execute('DELETE FROM ir_translation ' \
                         'WHERE name = %s ' \
