@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import ConfigParser, optparse, os, sys
-from trytond.version import VERSION
+import ConfigParser, os, sys
 
 
 class ConfigManager(object):
@@ -55,43 +54,8 @@ class ConfigManager(object):
         }
         self.configfile = None
 
-    def parse(self):
-        parser = optparse.OptionParser(version=VERSION)
-
-        parser.add_option("-c", "--config", dest="config",
-                help="specify config file")
-        parser.add_option('--debug', dest='debug_mode', action='store_true',
-                help='enable debug mode (start post-mortem debugger if exceptions occur)')
-        parser.add_option("-v", "--verbose", action="store_true",
-                dest="verbose", help="enable verbose mode")
-
-        parser.add_option("-d", "--database", dest="db_name",
-                help="specify the database name")
-        parser.add_option("-i", "--init", dest="init",
-                help="init a module (use \"all\" for all modules)")
-        parser.add_option("-u", "--update", dest="update",
-                help="update a module (use \"all\" for all modules)")
-
-        parser.add_option("--pidfile", dest="pidfile",
-                help="file where the server pid will be stored")
-        parser.add_option("--logfile", dest="logfile",
-                help="file where the server log will be stored")
-
-        (opt, _) = parser.parse_args()
-
-        if opt.config:
-            self.configfile = opt.config
-        else:
-            prefixdir = os.path.abspath(os.path.normpath(os.path.join(
-                os.path.dirname(sys.prefix), '..')))
-            self.configfile = os.path.join(prefixdir, 'etc', 'trytond.conf')
-            if not os.path.isfile(self.configfile):
-                configdir = os.path.abspath(os.path.normpath(os.path.join(
-                    os.path.dirname(__file__), '..')))
-                self.configfile = os.path.join(configdir, 'etc', 'trytond.conf')
-            if not os.path.isfile(self.configfile):
-                self.configfile = None
-        self.load()
+    def update_cmdline(self, cmdline_options):
+        self.options.update(cmdline_options)
 
         # Verify that we want to log or not, if not the output will go to stdout
         if self.options['logfile'] in ('None', 'False'):
@@ -102,40 +66,24 @@ class ConfigManager(object):
         if self.options['data_path'] in ('None', 'False'):
             self.options['data_path'] = False
 
-        for arg in (
-                'verbose',
-                'debug_mode',
-                'pidfile',
-                'logfile',
-                ):
-            if getattr(opt, arg) is not None:
-                self.options[arg] = getattr(opt, arg)
+    def update_etc(self, configfile=None):
+        if configfile is None:
+            prefixdir = os.path.abspath(os.path.normpath(os.path.join(
+                os.path.dirname(sys.prefix), '..')))
+            configfile = os.path.join(prefixdir, 'etc', 'trytond.conf')
+            if not os.path.isfile(configfile):
+                configdir = os.path.abspath(os.path.normpath(os.path.join(
+                    os.path.dirname(__file__), '..')))
+                configfile = os.path.join(configdir, 'etc', 'trytond.conf')
+            if not os.path.isfile(configfile):
+                configfile = None
 
-        db_name = []
-        if opt.db_name:
-            for i in opt.db_name.split(','):
-                db_name.append(i)
-        self.options['db_name'] = db_name
-
-        init = {}
-        if opt.init:
-            for i in opt.init.split(','):
-                if i != 'test':
-                    init[i] = 1
-        self.options['init'] = init
-
-        update = {}
-        if opt.update:
-            for i in opt.update.split(','):
-                if i != 'test':
-                    update[i] = 1
-        self.options['update'] = update
-
-    def load(self):
-        parser = ConfigParser.ConfigParser()
+        self.configfile = configfile
         if not self.configfile:
             return
+
         fp = open(self.configfile)
+        parser = ConfigParser.ConfigParser()
         try:
             parser.readfp(fp)
         finally:

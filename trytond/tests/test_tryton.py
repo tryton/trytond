@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
 from trytond.config import CONFIG
 CONFIG['db_type'] = 'sqlite'
-CONFIG.parse()
+CONFIG.update_etc()
 if not CONFIG['admin_passwd']:
     CONFIG['admin_passwd'] = 'admin'
 
