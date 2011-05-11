@@ -22,13 +22,14 @@ import random
 
 class TrytonServer(object):
 
-    def __init__(self):
+    def __init__(self, options):
         format = '[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
         datefmt = '%a %b %d %H:%M:%S %Y'
         logging.basicConfig(level=logging.DEBUG, format=format,
                 datefmt=datefmt)
 
-        CONFIG.parse()
+        CONFIG.update_etc(options['configfile'])
+        CONFIG.update_cmdline(options)
 
         if CONFIG['logfile']:
             logf = CONFIG['logfile']
@@ -243,7 +244,3 @@ class TrytonServer(object):
                         args=(dbname,), kwargs={})
                 thread.start()
             time.sleep(60)
-
-if __name__ == "__main__":
-    SERVER = TrytonServer()
-    SERVER.run()
