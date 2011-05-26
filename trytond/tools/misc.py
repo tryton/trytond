@@ -6,7 +6,6 @@ Miscelleanous tools used by tryton
 """
 import os, sys
 import subprocess
-import zipfile
 from threading import local
 import smtplib
 try:
@@ -78,27 +77,27 @@ def file_open(name, mode="r", subdir='modules'):
     from trytond.modules import EGG_MODULES
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    name3 = False
+    egg_name = False
     if subdir == 'modules':
         module_name = name.split(os.sep)[0]
         if module_name in EGG_MODULES:
             epoint = EGG_MODULES[module_name]
             mod_path = os.path.join(epoint.dist.location,
                     *epoint.module_name.split('.')[:-1])
-            name3 = os.path.join(mod_path, name)
-            if not os.path.isfile(name3):
+            egg_name = os.path.join(mod_path, name)
+            if not os.path.isfile(egg_name):
                 # Find module in path
                 for path in sys.path:
                     mod_path = os.path.join(path,
                             *epoint.module_name.split('.')[:-1])
-                    name3 = os.path.join(mod_path, name)
-                    if os.path.isfile(name3):
+                    egg_name = os.path.join(mod_path, name)
+                    if os.path.isfile(egg_name):
                         break
-                if not os.path.isfile(name3):
+                if not os.path.isfile(egg_name):
                     # When testing modules from setuptools location is the
                     # module directory
-                    name3 = os.path.join(os.path.dirname(epoint.dist.location),
-                            name)
+                    egg_name = os.path.join(
+                        os.path.dirname(epoint.dist.location), name)
 
     if subdir:
         if subdir == 'modules'\
@@ -113,33 +112,11 @@ def file_open(name, mode="r", subdir='modules'):
     else:
         name = os.path.join(root_path, name)
 
-    # Check for a zipfile in the path
-    head = name
-    zipname = False
-    name2 = False
-    while True:
-        head, tail = os.path.split(head)
-        if head == root_path:
-            break
-        if not tail:
-            break
-        if zipname:
-            zipname = os.path.join(tail, zipname)
-        else:
-            zipname = tail
-        if zipfile.is_zipfile(head+'.zip'):
-            zfile = zipfile.ZipFile(head+'.zip')
-            try:
-                return StringIO.StringIO(zfile.read(os.path.join(
-                    os.path.basename(head), zipname).replace(
-                        os.sep, '/')))
-            except Exception:
-                name2 = os.path.normpath(os.path.join(head + '.zip', zipname))
-    for i in (name2, name, name3):
+    for i in (name, egg_name):
         if i and os.path.isfile(i):
             return open(i, mode)
 
-    raise IOError, 'File not found : '+str(name)
+    raise IOError('File not found : %s ' % name)
 
 def get_smtp_server():
     """

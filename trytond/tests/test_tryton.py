@@ -23,7 +23,6 @@ import doctest
 from lxml import etree
 import time
 import imp
-import zipimport
 
 _MODULES = False
 if __name__ == '__main__':
@@ -210,14 +209,7 @@ def modules_suite():
     for package in graph:
         module = package.name
         test_module = 'trytond.modules.%s.tests' % module
-        if os.path.isfile(os.path.join(MODULES_PATH, module + '.zip')):
-            mod_path = os.path.join(MODULES_PATH, module + '.zip')
-            zimp = zipimport.zipimporter(mod_path)
-            try:
-                test_mod = zimp.load_module(test_module)
-            except zipimport.ZipImportError:
-                continue
-        elif os.path.isdir(os.path.join(MODULES_PATH, module)) or \
+        if os.path.isdir(os.path.join(MODULES_PATH, module)) or \
                 module in EGG_MODULES:
             try:
                 test_mod = __import__(test_module, fromlist=[''])
