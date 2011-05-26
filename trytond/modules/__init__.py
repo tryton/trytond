@@ -3,8 +3,6 @@
 from __future__ import with_statement
 import os, sys, imp
 import itertools
-import zipfile
-import zipimport
 import traceback
 import logging
 import contextlib
@@ -152,7 +150,7 @@ def create_graph(module_list, force=None):
                 # directory
                 tryton_file = OPJ(ep.dist.location, '__tryton__.py')
                 mod_path = os.path.dirname(ep.dist.location)
-        if os.path.isfile(tryton_file) or zipfile.is_zipfile(mod_path+'.zip'):
+        if os.path.isfile(tryton_file):
             with tools.file_open(tryton_file, subdir='') as fp:
                 info = tools.safe_eval(fp.read())
             packages.append((module, info.get('depends', []), info))
@@ -359,11 +357,7 @@ def register_classes(reload_p=False):
             reload(sys.modules['trytond.modules.' + module])
             continue
 
-        if os.path.isfile(OPJ(MODULES_PATH, module + '.zip')):
-            mod_path = OPJ(MODULES_PATH, module + '.zip')
-            zimp = zipimport.zipimporter(mod_path)
-            zimp.load_module('trytond.modules.' + module)
-        elif os.path.isdir(OPJ(MODULES_PATH, module)):
+        if os.path.isdir(OPJ(MODULES_PATH, module)):
             mod_file, pathname, description = imp.find_module(module,
                     [MODULES_PATH])
             try:
