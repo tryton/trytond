@@ -8,6 +8,7 @@ from trytond.tools import safe_eval
 from trytond.pyson import Eval, Get
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.const import OPERATORS
 
 
 class RuleGroup(ModelSQL, ModelView):
@@ -90,17 +91,21 @@ class Rule(ModelSQL, ModelView):
     field = fields.Many2One('ir.model.field', 'Field',
        domain=[('model', '=', Get(Eval('_parent_rule_group', {}), 'model'))],
        select=1, required=True)
-    operator = fields.Selection([
-       ('=', '='),
-       ('<>', '<>'),
-       ('<=', '<='),
-       ('>=', '>='),
-       ('in', 'in'),
-       ('child_of', 'child_of'),
-       ], 'Operator', required=True, translate=False)
+    operator = fields.Selection([(x, x) for x in OPERATORS], 'Operator',
+        required=True, translate=False)
     operand = fields.Selection('get_operand','Operand', required=True)
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=2,
        required=True, ondelete="CASCADE")
+
+    def init(self, module_name):
+        cursor = Transaction().cursor
+
+        # Migration from 2.0: rename operator '<>' into '!='
+        cursor.execute('UPDATE "%s" '
+            'SET operator = %%s '
+            'WHERE operator = %%s' % self._table, ('!=', '<>'))
+
+        super(Rule, self).init(module_name)
 
     def _operand_get(self, obj_name='', level=3, recur=None, root_tech='', root=''):
         res = {}
@@ -191,11 +196,8 @@ class Rule(ModelSQL, ModelView):
         with contextlib.nested(Transaction().set_user(0),
                 Transaction().set_context(user=0)):
             for rule in self.browse(ids):
-                operator = rule.operator
-                if operator == '<>':
-                    operator = '!='
                 dom = safe_eval("[('%s', '%s', %s)]" % \
-                        (rule.field.name, operator,
+                        (rule.field.name, rule.operator,
                             operand2query[rule.operand]), {
                                 'user': self.pool.get('res.user').browse(user),
                                 'time': time,
