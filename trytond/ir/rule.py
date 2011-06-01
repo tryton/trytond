@@ -100,12 +100,12 @@ class Rule(ModelSQL, ModelView):
     def init(self, module_name):
         cursor = Transaction().cursor
 
+        super(Rule, self).init(module_name)
+
         # Migration from 2.0: rename operator '<>' into '!='
         cursor.execute('UPDATE "%s" '
             'SET operator = %%s '
             'WHERE operator = %%s' % self._table, ('!=', '<>'))
-
-        super(Rule, self).init(module_name)
 
     def _operand_get(self, obj_name='', level=3, recur=None, root_tech='', root=''):
         res = {}
