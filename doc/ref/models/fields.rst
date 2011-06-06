@@ -210,8 +210,8 @@ A single line string field.
     ComboboxEntry in the client.
 
 .. warning::
-    Note that you may need to set :attribute:`Fields.loading` to ``lazy``
-    when :attribute:`Char.translate` is ``True``.
+    Note that you may need to set :attr:`Field.loading` to ``lazy``
+    when :attr:`Char.translate` is ``True``.
 ..
 
 Sha

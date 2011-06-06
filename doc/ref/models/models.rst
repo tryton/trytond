@@ -224,13 +224,13 @@ Instance methods:
 .. method:: ModelStorage.trigger_write_get_eligibles(ids)
 
     Return eligible record ids for write actions by triggers. This dictionary
-    is to pass to :method:`~ModelStorage.trigger_write`.
+    is to pass to :meth:`~ModelStorage.trigger_write`.
 
 .. method:: ModelStorage.trigger_write(eligibles)
 
     Trigger write actions. It will call actions defined in ``ir.trigger`` if
     ``on_write`` is set and ``condition`` was false before
-    :method:`~ModelStorage.write` and true after.
+    :meth:`~ModelStorage.write` and true after.
 
 .. method:: ModelStorage.delete(ids)
 
