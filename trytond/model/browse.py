@@ -2,8 +2,10 @@
 #this repository contains the full copyright notices and license terms.
 from __future__ import with_statement
 import contextlib
+from itertools import islice, ifilter, ifilterfalse
 from trytond.model import fields
 from trytond.transaction import Transaction
+from trytond.const import BROWSE_FIELD_TRESHOLD
 
 class BrowseRecordList(list):
     '''
@@ -89,6 +91,7 @@ class BrowseRecord(object):
                         'does not exist in model "%s"!' \
                         % (name, self._model._name))
 
+            ffields = {}
             if col.loading == 'eager':
                 field_access_obj = self._model.pool.get('ir.model.field.access')
                 fread_accesses = {}
@@ -101,17 +104,39 @@ class BrowseRecord(object):
                 to_remove = set(x for x, y in fread_accesses.iteritems()
                         if not y and x != name)
 
-                ffields = dict((fname, field) for fname, (_, _, field)
-                        in self._model._inherit_fields.iteritems()
-                        if field.loading == 'eager'
-                        and fname not in self._model._columns
+                threshold = BROWSE_FIELD_TRESHOLD
+                inherit_threshold = threshold - len(self._model._columns)
+
+                def not_cached(item):
+                    fname, field = item
+                    return (fname not in self._data[self._id]
+                        and fname not in self._local_data[self._id])
+                def to_load(item):
+                    fname, field = item
+                    return (field.loading == 'eager'
                         and fname not in to_remove)
-                ffields.update(dict((fname, field) for fname, field
-                        in self._model._columns.iteritems()
-                        if field.loading == 'eager'
-                        and fname not in to_remove))
-            else:
-                ffields = {name: col}
+                def overrided(item):
+                    fname, field = item
+                    return fname in self._model._columns
+
+                if inherit_threshold > 0:
+                    ifields = ((fname, field)
+                        for fname, (_, _, field) in
+                        self._model._inherit_fields.iteritems())
+                    ifields = ifilterfalse(overrided,
+                        ifilter(to_load,
+                            ifilter(not_cached, ifields)))
+                    ifields = islice(ifields, 0, inherit_threshold)
+                    ffields.update(ifields)
+                    threshold -= inherit_threshold
+
+                ifields = ifilter(to_load,
+                    ifilter(not_cached,
+                        self._model._columns.iteritems()))
+                ifields = islice(ifields, 0, threshold)
+                ffields.update(ifields)
+
+            ffields[name] = col
 
             # add datetime_field
             for field in ffields:

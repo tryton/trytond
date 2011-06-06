@@ -17,3 +17,5 @@ OPERATORS = (
     '<',
     '>',
 )
+
+BROWSE_FIELD_TRESHOLD = 100
