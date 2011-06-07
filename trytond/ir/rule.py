@@ -163,6 +163,7 @@ class Rule(ModelSQL, ModelView):
         rule_group_user_obj = self.pool.get('ir.rule.group-res.user')
         rule_group_group_obj = self.pool.get('ir.rule.group-res.group')
         user_group_obj = self.pool.get('res.user-res.group')
+        user_obj = self.pool.get('res.user')
 
         cursor = Transaction().cursor
         cursor.execute('SELECT r.id FROM "' + self._table + '" r ' \
@@ -191,15 +192,17 @@ class Rule(ModelSQL, ModelView):
         clause_global = {}
         operand2query = self._operand_get('res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
+        user_id = Transaction().user
+        with Transaction().set_user(0, set_context=True):
+            user = user_obj.browse(user_id)
         # Use root user without context to prevent recursion
-        user = Transaction().user
         with contextlib.nested(Transaction().set_user(0),
                 Transaction().set_context(user=0)):
             for rule in self.browse(ids):
                 dom = safe_eval("[('%s', '%s', %s)]" % \
                         (rule.field.name, rule.operator,
                             operand2query[rule.operand]), {
-                                'user': self.pool.get('res.user').browse(user),
+                                'user': user,
                                 'time': time,
                                 })
 
@@ -226,7 +229,8 @@ class Rule(ModelSQL, ModelView):
                         'FROM "' + rule_group_group_obj._table + '" g_rel ' \
                             'JOIN "' + user_group_obj._table + '" u_rel ' \
                                 'ON g_rel.group_id = u_rel.gid ' \
-                        'WHERE u_rel.uid = %s))', (model_name, user, user))
+                        'WHERE u_rel.uid = %s))',
+            (model_name, user_id, user_id))
         fetchone = cursor.fetchone()
         if fetchone:
             group_id = fetchone[0]
