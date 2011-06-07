@@ -144,10 +144,9 @@ class Database(DatabaseInterface):
                 return
             path = os.path.join(CONFIG['data_path'],
                     database_name + '.sqlite')
-        conn = sqlite.connect(path)
-        cursor = conn.cursor()
-        cursor.close()
-        conn.close()
+        with sqlite.connect(path) as conn:
+            cursor = conn.cursor()
+            cursor.close()
 
     def drop(self, cursor, database_name):
         if database_name == ':memory:':
