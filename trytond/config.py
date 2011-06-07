@@ -1,5 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from __future__ import with_statement
 import ConfigParser, os, sys
 
 
@@ -82,12 +83,9 @@ class ConfigManager(object):
         if not self.configfile:
             return
 
-        fp = open(self.configfile)
         parser = ConfigParser.ConfigParser()
-        try:
+        with open(self.configfile) as fp:
             parser.readfp(fp)
-        finally:
-            fp.close()
         for (name, value) in parser.items('options'):
             if value == 'True' or value == 'true':
                 value = True
