@@ -49,7 +49,7 @@ class Sequence(ModelSQL, ModelView):
             states={
                 'invisible': Not(In(Eval('type'), ['incremental'])),
             }, depends=['type'])
-    timestamp_rounding = fields.Integer('Timestamp Rounding', required=True,
+    timestamp_rounding = fields.Float('Timestamp Rounding', required=True,
             states={
                 'invisible': Not(In(Eval('type'),
                     ['decimal timestamp', 'hexadecimal timestamp'])),
