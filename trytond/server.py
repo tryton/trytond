@@ -235,19 +235,25 @@ class TrytonServer(object):
             import psyco
             psyco.full()
 
+        threads = {}
         while True:
             if CONFIG['auto_reload'] and monitor():
                 try:
                     Pool.start()
                 except Exception:
                     pass
-            for dbname in Pool.database_list():
-                pool = Pool(dbname)
-                if 'ir.cron' not in pool.object_name_list():
-                    continue
-                cron_obj = pool.get('ir.cron')
-                thread = threading.Thread(
-                        target=cron_obj.pool_jobs,
-                        args=(dbname,), kwargs={})
-                thread.start()
+            if CONFIG['cron']:
+                for dbname in Pool.database_list():
+                    thread = threads.get(dbname)
+                    if thread and thread.is_alive():
+                        continue
+                    pool = Pool(dbname)
+                    if 'ir.cron' not in pool.object_name_list():
+                        continue
+                    cron_obj = pool.get('ir.cron')
+                    thread = threading.Thread(
+                            target=cron_obj.run,
+                            args=(dbname,), kwargs={})
+                    thread.start()
+                    threads[dbname] = thread
             time.sleep(60)
