@@ -5,13 +5,15 @@ import contextlib
 import datetime
 import re
 from decimal import Decimal
+from itertools import islice
 from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
 from trytond.backend import DatabaseIntegrityError, Database
 from trytond.tools import reduce_ids
-from trytond.const import OPERATORS
+from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
+from trytond.cache import LRUDict
 _RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)
 _RE_CHECK = re.compile('CHECK\s*\((.*)\)', re.I)
 
@@ -1196,11 +1198,11 @@ class ModelSQL(ModelStorage):
 
         datas = cursor.dictfetchmany(cursor.IN_MAX)
         cache = cursor.get_cache()
-        cache.setdefault(self._name, {})
+        cache.setdefault(self._name, LRUDict(RECORD_CACHE_SIZE))
         delete_records = Transaction().delete_records.setdefault(self._name,
                 set())
         keys = None
-        for data in datas:
+        for data in islice(datas, 0, cache.size_limit):
             if data['id'] in delete_records:
                 continue
             if not keys:
@@ -1215,8 +1217,7 @@ class ModelSQL(ModelStorage):
                         continue
             for k in keys:
                 del data[k]
-            cache[self._name].setdefault(data['id'], {})
-            cache[self._name][data['id']].update(data)
+            cache[self._name].setdefault(data['id'], {}).update(data)
 
         if len(datas) >= cursor.IN_MAX:
             select_fields2 = [select_fields[0]]
