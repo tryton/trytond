@@ -37,6 +37,8 @@ def parse_commandline():
         help="file where the server pid will be stored")
     parser.add_option("--logfile", dest="logfile",
         help="file where the server log will be stored")
+    parser.add_option("--disable-cron", dest="cron",
+        action="store_false", help="disable cron")
 
     (opt, _) = parser.parse_args()
 
@@ -51,6 +53,7 @@ def parse_commandline():
             'debug_mode',
             'pidfile',
             'logfile',
+            'cron',
             ):
         if getattr(opt, arg) is not None:
             options[arg] = getattr(opt, arg)
