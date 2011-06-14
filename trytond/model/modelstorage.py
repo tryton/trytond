@@ -19,8 +19,9 @@ from trytond.model.browse import BrowseRecordList, BrowseRecord, \
 from trytond.model.browse import EvalEnvironment
 from trytond.tools import safe_eval, reduce_domain
 from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
-from trytond.const import OPERATORS
+from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
+from trytond.cache import LRUDict
 
 
 class ModelStorage(Model):
@@ -189,7 +190,7 @@ class ModelStorage(Model):
         trigger_ids = eligibles.keys()
         if not trigger_ids:
             return
-        records = self.browse(chain(*eligibles.values()))
+        records = self.browse(list(chain(*eligibles.values())))
         id2record = dict((x.id, x) for x in records)
         triggers = trigger_obj.browse(trigger_ids)
         for trigger in triggers:
@@ -511,10 +512,10 @@ class ModelStorage(Model):
         :param ids: a list of ids or an id
         :return: a BrowseRecordList or a BrowseRecord
         '''
+        local_cache = LRUDict(RECORD_CACHE_SIZE)
         if isinstance(ids, (int, long)):
-            return BrowseRecord(ids, self)
-        local_cache = {}
-        return BrowseRecordList((BrowseRecord(x, self, local_cache=local_cache)
+            return BrowseRecord(ids, self, [ids], local_cache)
+        return BrowseRecordList((BrowseRecord(x, self, ids, local_cache)
             for x in ids))
 
     def __export_row(self, record, fields_names):

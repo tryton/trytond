@@ -52,6 +52,7 @@ class ConfigManager(object):
             'prevent_dblist': False,
             'init': {},
             'update': {},
+            'cron': True,
         }
         self.configfile = None
 
