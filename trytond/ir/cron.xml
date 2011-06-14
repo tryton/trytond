@@ -12,16 +12,14 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Scheduled Actions">
-                    <field name="nextcall"/>
+                    <field name="next_call"/>
                     <field name="name" select="1"/>
                     <field name="user" select="1"/>
                     <field name="request_user" select="2"/>
-                    <field name="priority" select="2"/>
                     <field name="interval_number"/>
                     <field name="interval_type"/>
-                    <field name="numbercall" select="2"/>
+                    <field name="number_calls" select="2"/>
                     <field name="active" select="2"/>
-                    <field name="running" select="2"/>
                 </tree>
                 ]]>
             </field>
@@ -31,37 +29,33 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <form string="Scheduled Action" col="6">
+                <form string="Scheduled Action">
                     <label name="name"/>
                     <field name="name"/>
+                    <label name="active"/>
+                    <field name="active"/>
                     <label name="user"/>
                     <field name="user"/>
                     <label name="request_user"/>
                     <field name="request_user"/>
-                    <label name="numbercall"/>
-                    <field name="numbercall"/>
-                    <label name="priority"/>
-                    <field name="priority"/>
-                    <label name="active"/>
-                    <field name="active"/>
                     <label name="interval_number"/>
                     <field name="interval_number"/>
                     <label name="interval_type"/>
                     <field name="interval_type"/>
-                    <label name="nextcall"/>
-                    <field name="nextcall"/>
-                    <label name="doall"/>
-                    <field name="doall"/>
-                    <separator string="Action to trigger" colspan="6"
+                    <label name="number_calls"/>
+                    <field name="number_calls"/>
+                    <label name="next_call"/>
+                    <field name="next_call"/>
+                    <label name="repeat_missed"/>
+                    <field name="repeat_missed"/>
+                    <separator string="Action to trigger" colspan="4"
                         id="action_trigger"/>
                     <label name="model"/>
-                    <field name="model"  readonly="1"/>
+                    <field name="model"/>
                     <label name="function"/>
-                    <field name="function" readonly="1"/>
-                    <label name="running"/>
-                    <field name="running"/>
-                    <separator name="args" colspan="6"/>
-                    <field name="args" colspan="6" readonly="1"/>
+                    <field name="function"/>
+                    <label name="args"/>
+                    <field name="args" colspan="3" widget="char"/>
                 </form>
                 ]]>
             </field>
@@ -69,7 +63,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.act_window" id="act_cron_form">
             <field name="name">Scheduled Actions</field>
             <field name="res_model">ir.cron</field>
-            <field name="context">{'active_test': False}</field>
+            <field name="context"></field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_cron_form_view1">

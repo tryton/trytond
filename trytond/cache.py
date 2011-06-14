@@ -7,6 +7,7 @@ from threading import Lock
 from trytond.transaction import Transaction
 from trytond.config import CONFIG
 from trytond.backend import Database
+from trytond.tools import OrderedDict
 
 
 class Cache(object):
@@ -167,3 +168,32 @@ class Cache(object):
             cursor.commit()
             cursor.close()
             Cache._resets_lock.release()
+
+
+class LRUDict(OrderedDict):
+    """
+    Dictionary with a size limit.
+    If size limit is reached, it will remove the first added items.
+    """
+    def __init__(self, size_limit, *args, **kwargs):
+        assert size_limit > 0
+        self.size_limit = size_limit
+        super(LRUDict, self).__init__(*args, **kwargs)
+        self._check_size_limit()
+
+    def __setitem__(self, key, value):
+        super(LRUDict, self).__setitem__(key, value)
+        self._check_size_limit()
+
+    def update(*args, **kwargs):
+        super(LRUDict, self).update(*args, **kwargs)
+        self._check_size_limit()
+
+    def setdefault(self, key, default=None):
+        default = super(LRUDict, self).setdefault(key, default=default)
+        self._check_size_limit()
+        return default
+
+    def _check_size_limit(self):
+        while len(self) > self.size_limit:
+            self.popitem(last=False)
