@@ -63,6 +63,11 @@ class Many2Many(Field):
         for i in ids:
             res[i] = []
 
+        if self.order is None:
+            order = [(self.target, 'ASC')]
+        else:
+            order = self.order
+
         relation_obj = model.pool.get(self.relation_name)
 
         relation_ids = []
@@ -71,12 +76,11 @@ class Many2Many(Field):
             relation_ids.append(relation_obj.search([
                 (self.origin, 'in', sub_ids),
                 (self.target + '.id', '!=', False),
-                ], order=self.order))
+                ], order=order))
         relation_ids = list(chain(*relation_ids))
 
-        for relation in relation_obj.read(relation_ids,
-                [self.origin, self.target]):
-            res[relation[self.origin]].append(relation[self.target])
+        for relation in relation_obj.browse(relation_ids):
+            res[relation[self.origin].id].append(relation[self.target].id)
         return res
 
     def set(self, ids, model, name, values):
