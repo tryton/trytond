@@ -2006,7 +2006,8 @@ class ModelSQL(ModelStorage):
                 tables.insert(0, table_join)
             return order_by, tables, tables_args
 
-        raise Exception('Error', 'Wrong field name (%s) in order!' % field)
+        raise Exception('Error', 'Wrong field name (%s) for %s in order!' %
+            (field, self._name))
 
     def _rebuild_tree(self, parent, parent_id, left):
         '''
