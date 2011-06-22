@@ -150,7 +150,6 @@ class BrowseRecord(object):
                 ffields[field.datetime_field] = datetime_field
 
         def filter_(id_):
-            return True
             if (id_ in self._local_data
                     and name in self._local_data[id_]):
                 return False
