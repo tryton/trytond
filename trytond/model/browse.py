@@ -157,8 +157,9 @@ class BrowseRecord(object):
                 return False
             return True
         index = self._ids.index(self.id)
-        ids = list(islice(ifilter(filter_, chain(self._ids, self._ids)),
-            index, self._cursor.IN_MAX + index))
+        ids = chain(islice(self._ids, index, None),
+            islice(self._ids, 0, max(index - 1, 0)))
+        ids = list(islice(ifilter(filter_, ids), self._cursor.IN_MAX))
         model2ids = {}
         model2cache = {}
         # read the data
