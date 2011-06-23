@@ -627,7 +627,6 @@ this repository contains the full copyright notices and license terms. -->
                         <xpath
                             expr="/form/field[@name=&quot;code&quot;]"
                             position="after">
-                          <separator name="groups" colspan="4"/>
                           <field name="groups" colspan="4"/>
                         </xpath>
                     </data>

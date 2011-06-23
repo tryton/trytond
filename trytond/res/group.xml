@@ -16,15 +16,12 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="name"/>
                     <notebook>
                         <page string="Members" col="2" id="members">
-                            <separator name="users" colspan="2"/>
                             <field name="users" colspan="2"/>
                         </page>
                         <page string="Access Permissions" col="2" id="permissions">
                             <field name="model_access"/>
                             <field name="field_access"/>
-                            <separator name="menu_access" colspan="2"/>
                             <field name="menu_access" colspan="2"/>
-                            <separator name="rule_groups" colspan="2"/>
                             <field name="rule_groups" colspan="2"/>
                         </page>
                     </notebook>
