@@ -3,6 +3,7 @@
 from trytond.modules import load_modules, register_classes
 from threading import RLock
 import logging
+import __builtin__
 
 
 class Pool(object):
@@ -142,7 +143,19 @@ class Pool(object):
             for type in self.classes.keys():
                 if name in self._pool[self.database_name][type]:
                     break
-        return self._pool[self.database_name][type][name]
+        try:
+            return self._pool[self.database_name][type][name]
+        except KeyError:
+            if type == 'report':
+                from trytond.report import Report
+                # Keyword argument 'type' conflicts with builtin function
+                cls = __builtin__.type(str(name), (Report,), {})
+                obj = object.__new__(cls)
+                obj._name = name
+                self.add(obj, type)
+                obj.__init__()
+                return obj
+            raise
 
     def add(self, obj, type='model'):
         '''
