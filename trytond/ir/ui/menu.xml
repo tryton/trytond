@@ -24,7 +24,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Menu" fill="1">
-                    <field name="rec_name" icon="icon"/>
+                    <field name="complete_name" icon="icon" select="1"/>
                 </tree>
                 ]]>
             </field>
@@ -68,14 +68,25 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="menu_view_tree_tree"/>
             <field name="act_window" ref="act_menu_tree"/>
         </record>
+
+        <record model="ir.action.act_window" id="act_menu_list">
+            <field name="name">Menu</field>
+            <field name="res_model">ir.ui.menu</field>
+        </record>
         <record model="ir.action.act_window.view"
-            id="act_menu_form_view2">
-            <field name="sequence" eval="2"/>
+            id="act_menu_list_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="menu_view_list"/>
+            <field name="act_window" ref="act_menu_list"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_menu_list_view2">
+            <field name="sequence" eval="20"/>
             <field name="view" ref="menu_view_form"/>
-            <field name="act_window" ref="act_menu_tree"/>
+            <field name="act_window" ref="act_menu_list"/>
         </record>
 
         <menuitem parent="menu_ui"
-            action="act_menu_tree" id="menu_menu_tree"/>
+            action="act_menu_list" id="menu_menu_list"/>
     </data>
 </tryton>
