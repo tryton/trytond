@@ -50,7 +50,6 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="sequence"/>
                     <label name="complete_name"/>
                     <field name="complete_name" colspan="3"/>
-                    <separator name="groups" colspan="4"/>
                     <field name="groups" colspan="4"/>
                 </form>
                 ]]>

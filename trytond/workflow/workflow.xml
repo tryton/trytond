@@ -95,7 +95,6 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="join_mode"/>
                     <label name="split_mode"/>
                     <field name="split_mode"/>
-                    <separator name="out_transitions" colspan="4"/>
                     <field name="out_transitions" colspan="4">
                         <tree string="Transitions">
                             <field name="act_to"/>
@@ -121,7 +120,6 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="trigger_expr_id"/>
                         </form>
                     </field>
-                    <separator name="in_transitions" colspan="4"/>
                     <field name="in_transitions" colspan="4">
                         <tree string="Transitions">
                             <field name="act_from"/>
