@@ -27,9 +27,9 @@ class RuleGroup(ModelSQL, ModelView):
     rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
             help="The rule is satisfied if at least one test is True")
     groups = fields.Many2Many('ir.rule.group-res.group',
-            'rule_group_id', 'group_id', 'Groups')
+            'rule_group', 'group', 'Groups')
     users = fields.Many2Many('ir.rule.group-res.user',
-            'rule_group_id', 'user_id', 'Users')
+            'rule_group', 'user', 'Users')
     perm_read = fields.Boolean('Read Access')
     perm_write = fields.Boolean('Write Access')
     perm_create = fields.Boolean('Create Access')
@@ -175,14 +175,14 @@ class Rule(ModelSQL, ModelView):
                 "WHERE m.model = %s "
                     "AND g.perm_" + mode + " "
                     "AND (g.id IN (" \
-                            'SELECT rule_group_id ' \
+                            'SELECT rule_group ' \
                             'FROM "' + rule_group_user_obj._table + '" ' \
-                                "WHERE user_id = %s " \
-                            "UNION SELECT rule_group_id " \
+                                'WHERE "user" = %s ' \
+                            "UNION SELECT rule_group " \
                             'FROM "' + rule_group_group_obj._table + '" g_rel ' \
                                 'JOIN "' + user_group_obj._table + '" u_rel ' \
-                                    "ON (g_rel.group_id = u_rel.gid) " \
-                                "WHERE u_rel.uid = %s) " \
+                                    'ON (g_rel."group" = u_rel."group") ' \
+                                'WHERE u_rel."user" = %s) ' \
                         "OR default_p " \
                         "OR g.global_p)",
                 (model_name, Transaction().user, Transaction().user))
@@ -224,14 +224,14 @@ class Rule(ModelSQL, ModelView):
             'WHERE m.model = %s ' \
                 'AND (g.id NOT IN (SELECT rule_group ' \
                         'FROM "' + self._table + '")) ' \
-                'AND (g.id IN (SELECT rule_group_id ' \
+                'AND (g.id IN (SELECT rule_group ' \
                         'FROM "' + rule_group_user_obj._table + '" ' \
-                        'WHERE user_id = %s ' \
-                        'UNION SELECT rule_group_id ' \
+                        'WHERE "user" = %s ' \
+                        'UNION SELECT rule_group ' \
                         'FROM "' + rule_group_group_obj._table + '" g_rel ' \
                             'JOIN "' + user_group_obj._table + '" u_rel ' \
-                                'ON g_rel.group_id = u_rel.gid ' \
-                        'WHERE u_rel.uid = %s))',
+                                'ON g_rel."group" = u_rel."group" ' \
+                        'WHERE u_rel."user" = %s))',
             (model_name, user_id, user_id))
         fetchone = cursor.fetchone()
         if fetchone:

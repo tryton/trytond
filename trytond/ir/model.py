@@ -264,8 +264,8 @@ class ModelAccess(ModelSQL, ModelView):
                 'JOIN "%s" AS m '
                     'ON (a.model = m.id) '
                 'LEFT JOIN "%s" AS gu '
-                    'ON (gu.gid = a."group") '
-                'WHERE m.model = %%s AND (gu.uid = %%s OR a."group" IS NULL)'
+                    'ON (gu."group" = a."group") '
+                'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL)'
                 % (mode, self._table, ir_model_obj._table,
                     user_group_obj._table),
                 (model_name, Transaction().user))
@@ -383,8 +383,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
                 'JOIN "%s" AS m '
                     'ON (f.model = m.id) '
                 'LEFT JOIN "%s" AS gu '
-                    'ON (gu.gid = a."group") '
-                'WHERE m.model = %%s AND (gu.uid = %%s OR a."group" IS NULL) '
+                    'ON (gu."group" = a."group") '
+                'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL) '
                 'GROUP BY f.name'
                 % (mode, self._table, ir_model_field_obj._table,
                     ir_model_obj._table, user_group_obj._table),

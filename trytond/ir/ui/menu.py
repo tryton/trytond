@@ -72,7 +72,7 @@ class UIMenu(ModelSQL, ModelView):
     parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1,
             ondelete='CASCADE')
     groups = fields.Many2Many('ir.ui.menu-res.group',
-       'menu_id', 'gid', 'Groups')
+       'menu', 'group', 'Groups')
     complete_name = fields.Function(fields.Char('Complete Name',
         order_field='name'), 'get_rec_name', searcher='search_rec_name')
     icon = fields.Selection('list_icons', 'Icon')
