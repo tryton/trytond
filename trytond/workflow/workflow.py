@@ -10,6 +10,7 @@ from trytond.tools import exec_command_pipe
 from trytond.backend import TableHandler
 from trytond.pyson import Eval, Equal, Not
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class Workflow(ModelSQL, ModelView):
@@ -172,8 +173,9 @@ class WorkflowInstance(ModelSQL, ModelView):
         return res
 
     def create(self, values):
-        activity_obj = self.pool.get('workflow.activity')
-        workitem_obj = self.pool.get('workflow.workitem')
+        pool = Pool()
+        activity_obj = pool.get('workflow.activity')
+        workitem_obj = pool.get('workflow.workitem')
 
         instance_id = super(WorkflowInstance, self).create(values)
 
@@ -196,7 +198,8 @@ class WorkflowInstance(ModelSQL, ModelView):
     def update(self, instance):
         '''
         '''
-        workitem_obj = self.pool.get('workflow.workitem')
+        pool = Pool()
+        workitem_obj = pool.get('workflow.workitem')
         for workitem in instance.workitems:
             workitem_obj.process(workitem)
         instance = self.browse(instance.id)
@@ -205,7 +208,8 @@ class WorkflowInstance(ModelSQL, ModelView):
     def validate(self, instance, signal, force_running=False):
         '''
         '''
-        workitem_obj = self.pool.get('workflow.workitem')
+        pool = Pool()
+        workitem_obj = pool.get('workflow.workitem')
         for workitem in instance.workitems:
             workitem_obj.process(workitem, signal=signal,
                     force_running=force_running)
@@ -213,7 +217,8 @@ class WorkflowInstance(ModelSQL, ModelView):
         return self._update_end(instance)
 
     def _update_end(self, instance):
-        workitem_obj = self.pool.get('workflow.workitem')
+        pool = Pool()
+        workitem_obj = pool.get('workflow.workitem')
         res = True
         for workitem in instance.workitems:
             if (workitem.state != 'complete') \
@@ -309,7 +314,8 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         :param signal: the signal
         :param force_running: a boolean
         '''
-        trigger_obj = self.pool.get('workflow.trigger')
+        pool = Pool()
+        trigger_obj = pool.get('workflow.trigger')
         activity = workitem.activity
         triggers = False
         if workitem.state == 'active':
@@ -347,7 +353,8 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         workitem._data[workitem.id]['state'] = state
 
     def _execute(self, workitem, activity):
-        instance_obj = self.pool.get('workflow.instance')
+        pool = Pool()
+        instance_obj = pool.get('workflow.instance')
         #send a signal to overflow
         if (workitem.state == 'active') and activity.signal_send:
             for overflow in workitem.overflows:
@@ -409,7 +416,8 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         return True
 
     def _split_test(self, workitem, split_mode, signal=None):
-        instance_obj = self.pool.get('workflow.instance')
+        pool = Pool()
+        instance_obj = pool.get('workflow.instance')
         test = False
         transitions = []
         if split_mode == 'XOR' or split_mode == 'OR':
@@ -443,7 +451,8 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         return False
 
     def _join_test(self, transition, instance):
-        instance_obj = self.pool.get('workflow.instance')
+        pool = Pool()
+        instance_obj = pool.get('workflow.instance')
         activity = transition.act_to
         if activity.join_mode == 'XOR':
             self.create({
@@ -515,9 +524,10 @@ class InstanceGraph(Report):
 
     def execute(self, ids, datas):
         import pydot
-        lang_obj = self.pool.get('ir.lang')
-        workflow_obj = self.pool.get('workflow')
-        instance_obj = self.pool.get('workflow.instance')
+        pool = Pool()
+        lang_obj = pool.get('ir.lang')
+        workflow_obj = pool.get('workflow')
+        instance_obj = pool.get('workflow.instance')
 
         lang_id = lang_obj.search([
             ('code', '=', Transaction().language),
@@ -562,14 +572,16 @@ class InstanceGraph(Report):
         return ('png', base64.encodestring(data), False, workflow.name)
 
     def graph_instance_get(self, graph, instance_id, nested=False):
-        instance_obj = self.pool.get('workflow.instance')
+        pool = Pool()
+        instance_obj = pool.get('workflow.instance')
         instance = instance_obj.browse(instance_id)
         self.graph_get(graph, instance.workflow.id, nested,
                 self.workitem_get(instance.id))
 
     def workitem_get(self, instance_id):
         res = {}
-        workitem_obj = self.pool.get('workflow.workitem')
+        pool = Pool()
+        workitem_obj = pool.get('workflow.workitem')
         workitem_ids = workitem_obj.search([
             ('instance', '=', instance_id),
             ])
@@ -585,9 +597,10 @@ class InstanceGraph(Report):
         import pydot
         if workitem is None:
             workitem = {}
-        activity_obj = self.pool.get('workflow.activity')
-        workflow_obj = self.pool.get('workflow')
-        transition_obj = self.pool.get('workflow.transition')
+        pool = Pool()
+        activity_obj = pool.get('workflow.activity')
+        workflow_obj = pool.get('workflow')
+        transition_obj = pool.get('workflow.transition')
         activity_ids = activity_obj.search([
             ('workflow', '=', workflow_id),
             ])

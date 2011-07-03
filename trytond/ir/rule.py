@@ -9,6 +9,7 @@ from trytond.pyson import Eval, Get
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.const import OPERATORS
+from trytond.pool import Pool
 
 
 class RuleGroup(ModelSQL, ModelView):
@@ -65,19 +66,19 @@ class RuleGroup(ModelSQL, ModelView):
     def delete(self, ids):
         res = super(RuleGroup, self).delete(ids)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def create(self, vals):
         res = super(RuleGroup, self).create(vals)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def write(self, ids, vals):
         res = super(RuleGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
 RuleGroup()
@@ -115,7 +116,7 @@ class Rule(ModelSQL, ModelView):
         if not recur:
             recur = []
         with Transaction().set_context(language='en_US'):
-            obj_fields = self.pool.get(obj_name).fields_get()
+            obj_fields = Pool().get(obj_name).fields_get()
         key = obj_fields.keys()
         key.sort()
         for k in key:
@@ -158,12 +159,13 @@ class Rule(ModelSQL, ModelView):
             with Transaction().set_user(Transaction().context['user']):
                 return self.domain_get(model_name)
 
-        rule_group_obj = self.pool.get('ir.rule.group')
-        model_obj = self.pool.get('ir.model')
-        rule_group_user_obj = self.pool.get('ir.rule.group-res.user')
-        rule_group_group_obj = self.pool.get('ir.rule.group-res.group')
-        user_group_obj = self.pool.get('res.user-res.group')
-        user_obj = self.pool.get('res.user')
+        pool = Pool()
+        rule_group_obj = pool.get('ir.rule.group')
+        model_obj = pool.get('ir.model')
+        rule_group_user_obj = pool.get('ir.rule.group-res.user')
+        rule_group_group_obj = pool.get('ir.rule.group-res.group')
+        user_group_obj = pool.get('res.user-res.group')
+        user_obj = pool.get('res.user')
 
         cursor = Transaction().cursor
         cursor.execute('SELECT r.id FROM "' + self._table + '" r ' \
@@ -187,7 +189,7 @@ class Rule(ModelSQL, ModelView):
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
             return '', []
-        obj = self.pool.get(model_name)
+        obj = pool.get(model_name)
         clause = {}
         clause_global = {}
         operand2query = self._operand_get('res.user', level=1,

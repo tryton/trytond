@@ -5,6 +5,7 @@ import contextlib
 from trytond.model.fields.field import Field
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class Reference(Field):
@@ -42,6 +43,7 @@ class Reference(Field):
         :param values: a dictionary with the read values
         :return: a dictionary with ids as key and values as value
         '''
+        pool = Pool()
         if values is None:
             values = {}
         res = {}
@@ -76,10 +78,10 @@ class Reference(Field):
         with contextlib.nested(Transaction().set_context(active_test=False),
                 Transaction().set_user(0)):
             for ref_model, (ref_ids, ids) in ref_to_check.iteritems():
-                if ref_model not in model.pool.object_name_list():
+                if ref_model not in pool.object_name_list():
                     res.update(dict((i, False) for i in ids))
                     continue
-                ref_obj = model.pool.get(ref_model)
+                ref_obj = pool.get(ref_model)
                 ref_ids = ref_obj.search([
                     ('id', 'in', list(ref_ids)),
                     ], order=[])

@@ -5,6 +5,7 @@ import contextlib
 from itertools import islice, ifilter, ifilterfalse, chain
 from trytond.model import fields
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 from trytond.cache import LRUDict
 from trytond.const import MODEL_CACHE_SIZE, RECORD_CACHE_SIZE, \
         BROWSE_FIELD_TRESHOLD
@@ -59,6 +60,7 @@ class BrowseRecord(object):
         self._model = model
         self._model_name = self._model._name
         self._context = Transaction().context
+        self._pool = Pool()
         self._ids = ids
 
         cache = self._cursor.get_cache(self._context)
@@ -94,10 +96,10 @@ class BrowseRecord(object):
 
         ffields = {}
         if col.loading == 'eager':
-            field_access_obj = self._model.pool.get('ir.model.field.access')
+            field_access_obj = self._pool.get('ir.model.field.access')
             fread_accesses = {}
             for inherit_name in self._model._inherits:
-                inherit_obj = self._model.pool.get(inherit_name)
+                inherit_obj = self._pool.get(inherit_name)
                 fread_accesses.update(field_access_obj.check(inherit_name,
                     inherit_obj._columns.keys(), 'read', access=True))
             fread_accesses.update(field_access_obj.check(self._model._name,
@@ -172,10 +174,10 @@ class BrowseRecord(object):
                     model = None
                     if (hasattr(j, 'model_name') and
                             j.model_name in
-                            self._model.pool.object_name_list()):
-                        model = self._model.pool.get(j.model_name)
+                            self._pool.object_name_list()):
+                        model = self._pool.get(j.model_name)
                     elif hasattr(j, 'get_target'):
-                        model = j.get_target(self._model.pool)
+                        model = j.get_target()
                     if model and j._type in ('many2one', 'one2one'):
                         if (not data[i]
                                 and not (isinstance(data[i], (int, long))
@@ -296,6 +298,7 @@ class EvalEnvironment(dict):
         super(EvalEnvironment, self).__init__()
         self._record = record
         self._model = model
+        self._pool = Pool()
 
     def __getitem__(self, item):
         if item.startswith('_parent_'):
@@ -304,7 +307,7 @@ class EvalEnvironment(dict):
                 model_name = self._model._columns[field].model_name
             else:
                 model_name = self._model._inherit_fields[field][2].model_name
-            model = self._model.pool.get(model_name)
+            model = self._pool.get(model_name)
             return EvalEnvironment(self._record[field], model)
         if item in self._model._columns \
                 or item in self._model._inherit_fields:

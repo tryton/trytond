@@ -18,6 +18,7 @@ from trytond.security import get_connections
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.pyson import Eval, Greater
+from trytond.pool import Pool
 
 
 class User(ModelSQL, ModelView):
@@ -112,7 +113,8 @@ class User(ModelSQL, ModelView):
         return 1
 
     def default_menu(self):
-        action_obj = self.pool.get('ir.action')
+        pool = Pool()
+        action_obj = pool.get('ir.action')
         action_ids = action_obj.search([
             ('usage', '=', 'menu'),
             ], limit=1)
@@ -125,7 +127,8 @@ class User(ModelSQL, ModelView):
 
     def get_language_direction(self, ids, name):
         res = {}
-        lang_obj = self.pool.get('ir.lang')
+        pool = Pool()
+        lang_obj = pool.get('ir.lang')
         default_direction = lang_obj.default_direction()
         for user in self.browse(ids):
             if user.language:
@@ -150,7 +153,8 @@ class User(ModelSQL, ModelView):
 
     def _convert_vals(self, vals):
         vals = vals.copy()
-        action_obj = self.pool.get('ir.action')
+        pool = Pool()
+        action_obj = pool.get('ir.action')
         if 'action' in vals:
             vals['action'] = action_obj.get_action_id(vals['action'])
         if 'menu' in vals:
@@ -175,7 +179,8 @@ class User(ModelSQL, ModelView):
         vals = self._convert_vals(vals)
         res = super(User, self).write(ids, vals)
         # Restart the cache for domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        pool = Pool()
+        pool.get('ir.rule').domain_get.reset()
         # Restart the cache for get_groups
         self.get_groups.reset()
         # Restart the cache for _get_login
@@ -183,9 +188,9 @@ class User(ModelSQL, ModelView):
         # Restart the cache for get_preferences
         self.get_preferences.reset()
         # Restart the cache of check
-        self.pool.get('ir.model.access').check.reset()
+        pool.get('ir.model.access').check.reset()
         # Restart the cache
-        for _, model in self.pool.iterobject():
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -290,7 +295,8 @@ class User(ModelSQL, ModelView):
         :param values: a dictionary with values
         :param old_password: the previous password if password is in values
         '''
-        lang_obj = self.pool.get('ir.lang')
+        pool = Pool()
+        lang_obj = pool.get('ir.lang')
         values_clean = values.copy()
         fields = self._preferences_fields + self._context_fields
         user_id = Transaction().user
@@ -314,8 +320,9 @@ class User(ModelSQL, ModelView):
             self.write(user_id, values_clean)
 
     def get_preferences_fields_view(self):
-        model_data_obj = self.pool.get('ir.model.data')
-        lang_obj = self.pool.get('ir.lang')
+        pool = Pool()
+        model_data_obj = pool.get('ir.model.data')
+        lang_obj = pool.get('ir.lang')
 
         view_id = model_data_obj.get_id('res', 'user_view_form_preferences')
         res = self.fields_view_get(view_id=view_id)
@@ -492,7 +499,8 @@ class UserConfig(Wizard):
         return {}
 
     def _add(self, data):
-        res_obj = self.pool.get('res.user')
+        pool = Pool()
+        res_obj = pool.get('res.user')
         res_obj.create(data['form'])
         return {}
 

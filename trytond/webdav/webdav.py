@@ -7,6 +7,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.version import PACKAGE, VERSION, WEBSITE
 from trytond.tools import reduce_ids, safe_eval
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class Collection(ModelSQL, ModelView):
@@ -47,7 +48,8 @@ class Collection(ModelSQL, ModelView):
         return '[]'
 
     def check_attachment(self, ids):
-        attachment_obj = self.pool.get('ir.attachment')
+        pool = Pool()
+        attachment_obj = pool.get('ir.attachment')
         for collection in self.browse(ids):
             if collection.parent:
                 attachment_ids = attachment_obj.search([
@@ -60,8 +62,9 @@ class Collection(ModelSQL, ModelView):
         return True
 
     def _uri2object(self, uri, object_name=_name, object_id=False, cache=None):
-        attachment_obj = self.pool.get('ir.attachment')
-        report_obj = self.pool.get('ir.action.report')
+        pool = Pool()
+        attachment_obj = pool.get('ir.attachment')
+        report_obj = pool.get('ir.action.report')
         cache_uri = uri
 
         if cache is not None:
@@ -233,7 +236,8 @@ class Collection(ModelSQL, ModelView):
         return object_name, object_id
 
     def get_childs(self, uri, filter=None, cache=None):
-        report_obj = self.pool.get('ir.action.report')
+        pool = Pool()
+        report_obj = pool.get('ir.action.report')
         res = []
         if filter:
             return []
@@ -253,7 +257,7 @@ class Collection(ModelSQL, ModelView):
         if object_name == self._name and object_id:
             collection = self.browse(object_id)
             if collection.model:
-                model_obj = self.pool.get(collection.model.model)
+                model_obj = pool.get(collection.model.model)
                 if not model_obj:
                     return res
                 model_ids = model_obj.search(
@@ -289,7 +293,7 @@ class Collection(ModelSQL, ModelView):
                     cache.setdefault(report_obj._name, {})
                     cache[report_obj._name][report.id] = {}
 
-            attachment_obj = self.pool.get('ir.attachment')
+            attachment_obj = pool.get('ir.attachment')
             attachment_ids = attachment_obj.search([
                 ('resource', '=', '%s,%s' % (object_name, object_id)),
                 ])
@@ -312,11 +316,12 @@ class Collection(ModelSQL, ModelView):
 
     def get_displayname(self, uri, cache=None):
         object_name, object_id = self._uri2object(uri, cache=cache)
-        model_obj = self.pool.get(object_name)
+        model_obj = Pool().get(object_name)
         return model_obj.browse(object_id).rec_name
 
     def get_contentlength(self, uri, cache=None):
-        attachment_obj = self.pool.get('ir.attachment')
+        pool = Pool()
+        attachment_obj = pool.get('ir.attachment')
 
         object_name, object_id = self._uri2object(uri, cache=cache)
         if object_name == 'ir.attachment':
@@ -360,9 +365,10 @@ class Collection(ModelSQL, ModelView):
         return "application/octet-stream"
 
     def get_creationdate(self, uri, cache=None):
+        pool = Pool()
         object_name, object_id = self._uri2object(uri, cache=cache)
         if object_name == 'ir.attachment':
-            model_obj = self.pool.get(object_name)
+            model_obj = pool.get(object_name)
             if object_id:
                 if cache is not None:
                     cache.setdefault(model_obj._name, {})
@@ -394,9 +400,10 @@ class Collection(ModelSQL, ModelView):
         return time.time()
 
     def get_lastmodified(self, uri, cache=None):
+        pool = Pool()
         object_name, object_id = self._uri2object(uri, cache=cache)
         if object_name == 'ir.attachment':
-            model_obj = self.pool.get(object_name)
+            model_obj = pool.get(object_name)
             if object_id:
                 if cache is not None:
                     cache.setdefault(model_obj._name, {})
@@ -430,8 +437,9 @@ class Collection(ModelSQL, ModelView):
 
     def get_data(self, uri, cache=None):
         from DAV.errors import DAV_NotFound
-        attachment_obj = self.pool.get('ir.attachment')
-        report_obj = self.pool.get('ir.action.report')
+        pool = Pool()
+        attachment_obj = pool.get('ir.attachment')
+        report_obj = pool.get('ir.action.report')
 
         if uri:
             object_name, object_id = self._uri2object(uri, cache=cache)
@@ -473,7 +481,7 @@ class Collection(ModelSQL, ModelView):
                     1)[-1].rsplit('.', 1)[0])
                 report = report_obj.browse(report_id)
                 if report.report_name:
-                    report_obj = self.pool.get(report.report_name,
+                    report_obj = pool.get(report.report_name,
                             type='report')
                     val = report_obj.execute([object_id],
                             {'id': object_id, 'ids': [object_id]})
@@ -489,7 +497,8 @@ class Collection(ModelSQL, ModelView):
                 or object_name in ('ir.attachment') \
                 or not object_id:
             raise DAV_Forbidden
-        attachment_obj = self.pool.get('ir.attachment')
+        pool = Pool()
+        attachment_obj = pool.get('ir.attachment')
         object_name2, object_id2 = self._uri2object(uri, cache=cache)
         if not object_id2:
             name = get_urifilename(uri)
@@ -550,7 +559,8 @@ class Collection(ModelSQL, ModelView):
         if object_name != 'ir.attachment' \
                 or not object_id:
             raise DAV_Forbidden
-        model_obj = self.pool.get(object_name)
+        pool = Pool()
+        model_obj = pool.get(object_name)
         try:
             model_obj.delete(object_id)
         except Exception:
@@ -584,7 +594,8 @@ class Attachment(ModelSQL, ModelView):
         })
 
     def check_collection(self, ids):
-        collection_obj = self.pool.get('webdav.collection')
+        pool = Pool()
+        collection_obj = pool.get('webdav.collection')
         for attachment in self.browse(ids):
             if attachment.resource:
                 model_name, record_id = attachment.resource.split(',')

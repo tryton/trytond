@@ -61,7 +61,7 @@ When defining an `ir.action.report` the following attributes are available:
     * ``name``: The name of the report.
 
     * ``report_name``: The name of the report model, for example
-      my_module.my_report.  This is the name you would use with `pool.get`
+      my_module.my_report.  This is the name you would use with `Pool().get`
 
     * ``module_name``: If this report is of an existing model this is its name.
       For example my_module.my_model. Custom reports that aren't of a specific
@@ -228,7 +228,7 @@ context.  Now the invoice report will be able to access the employee object.
   class InvoiceReport(Report):
       _name = 'account.invoice'
       def parse(self, report, objects, datas, localcontext):
-          employee_obj = self.pool.get('company.employee')
+          employee_obj = Pool().get('company.employee')
           employee = False
           if Transaction().context.get('employee'):
               employee = employee_obj.browse(Transaction().context['employee'])

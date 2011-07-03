@@ -104,7 +104,8 @@ class Report(object):
             a boolean to direct print,
             the report name
         '''
-        action_report_obj = self.pool.get('ir.action.report')
+        pool = Pool()
+        action_report_obj = pool.get('ir.action.report')
         action_report_ids = action_report_obj.search([
             ('report_name', '=', self._name)
             ])
@@ -119,7 +120,8 @@ class Report(object):
                 action_report.name)
 
     def _get_objects(self, ids, model, datas):
-        model_obj = self.pool.get(model)
+        pool = Pool()
+        model_obj = pool.get(model)
         return model_obj.browse(ids)
 
     def parse(self, report, objects, datas, localcontext):
@@ -135,8 +137,9 @@ class Report(object):
             report type
             report
         '''
+        pool = Pool()
         localcontext['datas'] = datas
-        localcontext['user'] = self.pool.get('res.user'
+        localcontext['user'] = pool.get('res.user'
                 ).browse(Transaction().user)
         localcontext['formatLang'] = lambda *args, **kargs: \
                 self.format_lang(*args, **kargs)
@@ -147,7 +150,7 @@ class Report(object):
         localcontext['context'] = Transaction().context
 
         translate = TranslateFactory(self._name, Transaction().language,
-                self.pool.get('ir.translation'))
+                pool.get('ir.translation'))
         localcontext['setLang'] = lambda language: translate.set_language(language)
 
         if not report.report_content:
@@ -297,7 +300,8 @@ class Report(object):
 
     def format_lang(self, value, lang, digits=2, grouping=True, monetary=False,
             date=False, currency=None, symbol=True):
-        lang_obj = self.pool.get('ir.lang')
+        pool = Pool()
+        lang_obj = pool.get('ir.lang')
 
         if date:
             if lang:

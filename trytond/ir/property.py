@@ -5,6 +5,7 @@ from decimal import Decimal
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.pool import Pool
 
 
 class Property(ModelSQL, ModelView):
@@ -32,7 +33,8 @@ class Property(ModelSQL, ModelView):
         :param res_ids: a list of record ids
         :return: a dictionary
         """
-        model_access_obj = self.pool.get('ir.model.access')
+        pool = Pool()
+        model_access_obj = pool.get('ir.model.access')
         res = {}
 
         model_access_obj.check(model, 'read')
@@ -44,7 +46,7 @@ class Property(ModelSQL, ModelView):
         if res_ids is None:
             res_ids = []
 
-        model_obj = self.pool.get(model)
+        model_obj = pool.get(model)
         fields = dict((name, field)
                 for name, field in model_obj._columns.iteritems()
                 if name in names)
@@ -126,8 +128,9 @@ class Property(ModelSQL, ModelView):
         :param val: the value
         :return: the id of the record created
         """
-        model_field_obj = self.pool.get('ir.model.field')
-        model_access_obj = self.pool.get('ir.model.access')
+        pool = Pool()
+        model_field_obj = pool.get('ir.model.field')
+        model_access_obj = pool.get('ir.model.access')
 
         model_access_obj.check(model, 'write')
 
@@ -135,7 +138,7 @@ class Property(ModelSQL, ModelView):
             ('name', '=', name),
             ('model.model', '=', model),
             ], order=[], limit=1)[0]
-        model_obj = self.pool.get(model)
+        model_obj = pool.get(model)
         field = model_obj._columns[name]
 
         property_ids = self.search([

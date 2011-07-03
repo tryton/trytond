@@ -13,6 +13,7 @@ from trytond.config import CONFIG
 from trytond.backend import TableHandler
 from trytond.transaction import Transaction
 from trytond.pyson import Not, Equal, Eval
+from trytond.pool import Pool
 
 def firstline(description):
     try:
@@ -84,7 +85,8 @@ class Attachment(ModelSQL, ModelView):
         return 0
 
     def models_get(self):
-        model_obj = self.pool.get('ir.model')
+        pool = Pool()
+        model_obj = pool.get('ir.model')
         model_ids = model_obj.search([])
         res = []
         for model in model_obj.browse(model_ids):
@@ -189,7 +191,8 @@ class Attachment(ModelSQL, ModelView):
 
 
     def check_access(self, ids, mode='read'):
-        model_access_obj = self.pool.get('ir.model.access')
+        pool = Pool()
+        model_access_obj = pool.get('ir.model.access')
         if Transaction().user == 0:
             return
         if not ids:
@@ -224,7 +227,8 @@ class Attachment(ModelSQL, ModelView):
         return res
 
     def view_header_get(self, value, view_type='form'):
-        ir_model_obj = self.pool.get('ir.model')
+        pool = Pool()
+        ir_model_obj = pool.get('ir.model')
         value = super(Attachment, self).view_header_get(value,
                 view_type=view_type)
         resource = Transaction().context.get('resource')
@@ -232,7 +236,7 @@ class Attachment(ModelSQL, ModelView):
             model_name, record_id = resource.split(',', 1)
             ir_model_id, = ir_model_obj.search([('model', '=', model_name)])
             ir_model = ir_model_obj.browse(ir_model_id)
-            model_obj = self.pool.get(model_name)
+            model_obj = pool.get(model_name)
             record = model_obj.browse(int(record_id))
             value = '%s - %s - %s' % (ir_model.name, record.rec_name, value)
         return value

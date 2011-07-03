@@ -13,6 +13,7 @@ from trytond.backend import DatabaseIntegrityError, Database
 from trytond.tools import reduce_ids
 from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 from trytond.cache import LRUDict
 _RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)
 _RE_CHECK = re.compile('CHECK\s*\((.*)\)', re.I)
@@ -44,6 +45,8 @@ class ModelSQL(ModelStorage):
 
         if self.table_query():
             return
+
+        pool = Pool()
 
         # create/update table in the database
         table = TableHandler(Transaction().cursor, self, module_name)
@@ -135,7 +138,7 @@ class ModelSQL(ModelStorage):
                     if field.model_name in ('res.user', 'res.group'):
                         ref = field.model_name.replace('.','_')
                     else:
-                        ref = self.pool.get(field.model_name)._table
+                        ref = pool.get(field.model_name)._table
                     table.add_fk(field_name, ref, field.ondelete)
 
                 table.index_action(
@@ -204,10 +207,11 @@ class ModelSQL(ModelStorage):
         '''
         Return the default value for sequence field.
         '''
+        pool = Pool()
         table = self._table
         if 'sequence' not in self._columns:
             for model in self._inherits:
-                model_obj = self.pool.get(model)
+                model_obj = pool.get(model)
                 if 'sequence' in model_obj._columns:
                     table = model_obj._table
                     break
@@ -231,6 +235,7 @@ class ModelSQL(ModelStorage):
     def create(self, values):
         super(ModelSQL, self).create(values)
         cursor = Transaction().cursor
+        pool = Pool()
 
         if self.table_query():
             return False
@@ -290,7 +295,7 @@ class ModelSQL(ModelStorage):
                     del values[i]
 
         for inherits in tocreate:
-            inherits_obj = self.pool.get(inherits)
+            inherits_obj = pool.get(inherits)
             inherits_id = inherits_obj.create(tocreate[inherits])
             values[self._inherits[inherits]] = inherits_id
 
@@ -356,7 +361,7 @@ class ModelSQL(ModelStorage):
                                         field_name))
                     if isinstance(field, fields.Many2One) \
                             and values.get(field_name):
-                        model_obj = self.pool.get(field.model_name)
+                        model_obj = pool.get(field.model_name)
                         create_records = Transaction().create_records.get(
                                 field.model_name, set())
                         delete_records = Transaction().delete_records.get(
@@ -377,7 +382,7 @@ class ModelSQL(ModelStorage):
                         self.raise_user_error(error)
             raise
 
-        domain1, domain2 = self.pool.get('ir.rule').domain_get(self._name,
+        domain1, domain2 = pool.get('ir.rule').domain_get(self._name,
                 mode='create')
         if domain1:
             cursor.execute('SELECT id FROM "' + self._table + '" ' \
@@ -390,7 +395,7 @@ class ModelSQL(ModelStorage):
 
         for field in values:
             if getattr(self._columns[field], 'translate', False):
-                self.pool.get('ir.translation')._set_ids(
+                pool.get('ir.translation')._set_ids(
                         self._name + ',' + field, 'model',
                         Transaction().language, [id_new], values[field])
 
@@ -419,8 +424,9 @@ class ModelSQL(ModelStorage):
         return id_new
 
     def read(self, ids, fields_names=None):
-        rule_obj = self.pool.get('ir.rule')
-        translation_obj = self.pool.get('ir.translation')
+        pool = Pool()
+        rule_obj = pool.get('ir.rule')
+        translation_obj = pool.get('ir.translation')
         super(ModelSQL, self).read(ids, fields_names=fields_names)
         cursor = Transaction().cursor
 
@@ -563,7 +569,7 @@ class ModelSQL(ModelStorage):
                     for field_related in fields_related[inherit_field]:
                         inherit_related_fields.append(
                                 inherit_field + '.' + field_related)
-            res2 = self.pool.get(table).read([x[field] for x in res],
+            res2 = pool.get(table).read([x[field] for x in res],
                     fields_names=inherits_fields + inherit_related_fields)
 
             res3 = {}
@@ -635,9 +641,9 @@ class ModelSQL(ModelStorage):
             fields_related2values.setdefault(field, {})
             if self._columns[field]._type in ('many2one', 'one2one'):
                 if hasattr(self._columns[field], 'model_name'):
-                    obj = self.pool.get(self._columns[field].model_name)
+                    obj = pool.get(self._columns[field].model_name)
                 else:
-                    obj = self._columns[field].get_target(self.pool)
+                    obj = self._columns[field].get_target()
                 if hasattr(self._columns[field], 'datetime_field') \
                         and self._columns[field].datetime_field:
                     for record in res:
@@ -671,7 +677,7 @@ class ModelSQL(ModelStorage):
                     record_id = int(record_id)
                     if not record_id:
                         continue
-                    obj = self.pool.get(model_name)
+                    obj = pool.get(model_name)
                     record2 = obj.read(record_id, fields_related[field])
                     del record2['id']
                     fields_related2values[field][record_id] = record2
@@ -710,6 +716,8 @@ class ModelSQL(ModelStorage):
 
     def write(self, ids, values):
         cursor = Transaction().cursor
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
 
         # Call before cursor cache cleaning
         trigger_eligibles = self.trigger_write_get_eligibles(
@@ -818,7 +826,7 @@ class ModelSQL(ModelStorage):
         upd1.append(Transaction().user)
         upd1.append(datetime.datetime.now())
 
-        domain1, domain2 = self.pool.get('ir.rule').domain_get(self._name,
+        domain1, domain2 = pool.get('ir.rule').domain_get(self._name,
                 mode='write')
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
@@ -871,7 +879,7 @@ class ModelSQL(ModelStorage):
                                             field_name))
                         if isinstance(field, fields.Many2One) \
                                 and values[field_name]:
-                            model_obj = self.pool.get(field.model_name)
+                            model_obj = pool.get(field.model_name)
                             create_records = Transaction().create_records.get(
                                     field.model_name, set())
                             delete_records = Transaction().delete_records.get(
@@ -894,7 +902,7 @@ class ModelSQL(ModelStorage):
 
         for field in direct:
             if getattr(self._columns[field], 'translate', False):
-                self.pool.get('ir.translation')._set_ids(
+                translation_obj._set_ids(
                         self._name + ',' + field, 'model',
                         Transaction().language, ids, values[field])
 
@@ -927,7 +935,7 @@ class ModelSQL(ModelStorage):
             for val in updend:
                 if self._inherit_fields[val][0] == table:
                     values2[val] = values[val]
-            self.pool.get(table).write(nids, values2)
+            pool.get(table).write(nids, values2)
 
         self._validate(ids)
 
@@ -953,6 +961,7 @@ class ModelSQL(ModelStorage):
 
     def delete(self, ids):
         cursor = Transaction().cursor
+        pool = Pool()
         if not ids:
             return True
 
@@ -1008,7 +1017,7 @@ class ModelSQL(ModelStorage):
         foreign_keys_tocheck = []
         foreign_keys_toupdate = []
         foreign_keys_todelete = []
-        for _, model in self.pool.iterobject():
+        for _, model in pool.iterobject():
             if hasattr(model, 'table_query') \
                     and model.table_query():
                 continue
@@ -1029,7 +1038,7 @@ class ModelSQL(ModelStorage):
 
         Transaction().delete.setdefault(self._name, set()).update(ids)
 
-        domain1, domain2 = self.pool.get('ir.rule').domain_get(self._name,
+        domain1, domain2 = pool.get('ir.rule').domain_get(self._name,
                 mode='delete')
         if domain1:
             domain1 = ' AND (' + domain1 + ') '
@@ -1125,7 +1134,8 @@ class ModelSQL(ModelStorage):
 
     def search(self, domain, offset=0, limit=None, order=None, count=False,
             query_string=False):
-        rule_obj = self.pool.get('ir.rule')
+        pool = Pool()
+        rule_obj = pool.get('ir.rule')
         cursor = Transaction().cursor
 
         # Get domain clauses
@@ -1285,6 +1295,7 @@ class ModelSQL(ModelStorage):
         return qu1, qu2, tables, tables_args
 
     def __search_domain_oper(self, domain, tables, tables_args):
+        pool = Pool()
         operator = 'AND'
         if len(domain) and isinstance(domain[0], basestring):
             if domain[0] not in ('AND', 'OR'):
@@ -1324,6 +1335,7 @@ class ModelSQL(ModelStorage):
         return qu1, qu2
 
     def __search_domain_calc(self, domain, tables, tables_args):
+        pool = Pool()
         domain = domain[:]
         cursor = Transaction().cursor
 
@@ -1337,7 +1349,7 @@ class ModelSQL(ModelStorage):
             table = self
             fargs = domain[i][0].split('.', 1)
             if fargs[0] in self._inherit_fields:
-                itable = self.pool.get(self._inherit_fields[fargs[0]][0])
+                itable = pool.get(self._inherit_fields[fargs[0]][0])
                 table_query = ''
                 table_arg = []
                 if itable.table_query():
@@ -1355,11 +1367,11 @@ class ModelSQL(ModelStorage):
                 if not fargs[0] in self._inherit_fields:
                     raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
                             'exist on "%s"' % (fargs[0], self._name))
-                table = self.pool.get(self._inherit_fields[fargs[0]][0])
+                table = pool.get(self._inherit_fields[fargs[0]][0])
                 field = table._columns.get(fargs[0], False)
             if len(fargs) > 1:
                 if field._type == 'many2one':
-                    target_obj = self.pool.get(field.model_name)
+                    target_obj = pool.get(field.model_name)
                     if hasattr(field, 'search'):
                         domain.extend([(fargs[0], 'in', target_obj.search([
                             (fargs[1], domain[i][1], domain[i][2]),
@@ -1373,11 +1385,11 @@ class ModelSQL(ModelStorage):
                     continue
                 elif field._type in ('one2one', 'many2many', 'one2many'):
                     if hasattr(field, 'model_name'):
-                        target_obj = self.pool.get(field.model_name)
+                        target_obj = pool.get(field.model_name)
                     else:
-                        target_obj = field.get_target(self.pool)
+                        target_obj = field.get_target()
                     if hasattr(field, 'relation_name'):
-                        relation_obj = self.pool.get(field.relation_name)
+                        relation_obj = pool.get(field.relation_name)
                         origin, target = field.origin, field.target
                     else:
                         relation_obj = target_obj
@@ -1404,7 +1416,7 @@ class ModelSQL(ModelStorage):
                 clause = domain.pop(i)
                 domain.extend(field.search(table, clause[0], clause))
             elif field._type == 'one2many':
-                field_obj = self.pool.get(field.model_name)
+                field_obj = pool.get(field.model_name)
 
                 if isinstance(domain[i][2], basestring):
                     # get the ids of the records of the "distant" resource
@@ -1460,9 +1472,9 @@ class ModelSQL(ModelStorage):
             elif field._type in ('many2many', 'one2one'):
                 # XXX must find a solution for long id list
                 if hasattr(field, 'model_name'):
-                    target_obj = self.pool.get(field.model_name)
+                    target_obj = pool.get(field.model_name)
                 else:
-                    target_obj = field.get_target(self.pool)
+                    target_obj = field.get_target()
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
                         ids2 = [x[0] for x in target_obj.search([
@@ -1490,7 +1502,7 @@ class ModelSQL(ModelStorage):
                         ids2 = target_obj.search([
                             (domain[i][3], 'child_of', ids2),
                             ], order=[])
-                        relation_obj = self.pool.get(field.relation_name)
+                        relation_obj = pool.get(field.relation_name)
                         red_sql, red_ids = reduce_ids('"' + field.target + '"',
                                 ids2)
                         query1 = 'SELECT "' + field.origin + '" ' \
@@ -1511,7 +1523,7 @@ class ModelSQL(ModelStorage):
                                 table, domain[i][0]))
                 else:
                     if isinstance(domain[i][2], bool):
-                        relation_obj = self.pool.get(field.relation_name)
+                        relation_obj = pool.get(field.relation_name)
                         query1 = 'SELECT "' + field.origin + '" ' \
                                 'FROM "' + relation_obj._table + '" '\
                                 'WHERE "' + field.origin + '" IS NOT NULL'
@@ -1525,7 +1537,7 @@ class ModelSQL(ModelStorage):
                             target_field = 'rec_name'
                         else:
                             target_field = 'id'
-                        relation_obj = self.pool.get(field.relation_name)
+                        relation_obj = pool.get(field.relation_name)
 
                         query1, query2 = target_obj.search([
                                     (target_field, domain[i][1], domain[i][2]),
@@ -1540,7 +1552,7 @@ class ModelSQL(ModelStorage):
                 # XXX must find a solution for long id list
                 if domain[i][1] in ('child_of', 'not child_of'):
                     if isinstance(domain[i][2], basestring):
-                        field_obj = self.pool.get(field.model_name)
+                        field_obj = pool.get(field.model_name)
                         ids2 = [x[0] for x in field_obj.search([
                             ('rec_name', 'like', domain[i][2]),
                             ], order=[])]
@@ -1563,7 +1575,7 @@ class ModelSQL(ModelStorage):
                             raise Exception('Error', 'Programming error: ' \
                                     'child_of on field "%s" is not allowed!' % \
                                     (domain[i][0],))
-                        ids2 = self.pool.get(field.model_name).search([
+                        ids2 = pool.get(field.model_name).search([
                             (domain[i][3], 'child_of', ids2),
                             ], order=[])
                         if domain[i][1] == 'child_of':
@@ -1600,7 +1612,7 @@ class ModelSQL(ModelStorage):
                                     ids2, table, domain[i][0]), table)
                 else:
                     if isinstance(domain[i][2], basestring):
-                        field_obj = self.pool.get(field.model_name)
+                        field_obj = pool.get(field.model_name)
                         res_ids = field_obj.search([
                             ('rec_name', domain[i][1], domain[i][2]),
                             ], order=[])
@@ -1653,7 +1665,7 @@ class ModelSQL(ModelStorage):
                         table_query, table_args = table.table_query()
                         table_query = '(' + table_query  + ') AS '
 
-                    translation_obj = self.pool.get('ir.translation')
+                    translation_obj = pool.get('ir.translation')
 
                     qu1, qu2, tables, table_args = \
                             translation_obj.search_domain([
@@ -1804,6 +1816,7 @@ class ModelSQL(ModelStorage):
         return qu1, qu2
 
     def _order_calc(self, field, otype):
+        pool = Pool()
         order_by = []
         tables = []
         tables_args = {}
@@ -1821,7 +1834,7 @@ class ModelSQL(ModelStorage):
                 field_name = self._columns[field].order_field
 
             if isinstance(self._columns[field], fields.Many2One):
-                obj = self.pool.get(self._columns[field].model_name)
+                obj = pool.get(self._columns[field].model_name)
                 table_name = obj._table
                 link_field = field
                 field_name = None
@@ -1856,12 +1869,12 @@ class ModelSQL(ModelStorage):
 
                 obj2 = None
                 if obj._rec_name in obj._inherit_fields.keys():
-                    obj2 = self.pool.get(
+                    obj2 = pool.get(
                             obj._inherit_fields[obj._rec_name][0])
                     field_name = obj._rec_name
 
                 if obj._order_name in obj._inherit_fields.keys():
-                    obj2 = self.pool.get(
+                    obj2 = pool.get(
                             obj._inherit_fields[obj._order_name][0])
                     field_name = obj._order_name
 
@@ -1995,7 +2008,7 @@ class ModelSQL(ModelStorage):
                 return order_by, tables, tables_args
 
         if field in self._inherit_fields.keys():
-            obj = self.pool.get(self._inherit_fields[field][0])
+            obj = pool.get(self._inherit_fields[field][0])
             table_name = obj._table
             link_field = self._inherits[obj._name]
             order_by, tables, tables_args = obj._order_calc(field, otype)

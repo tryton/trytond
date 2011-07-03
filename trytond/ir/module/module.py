@@ -216,7 +216,8 @@ class Module(ModelSQL, ModelView):
 
     # update the list of available packages
     def update_list(self):
-        lang_obj = self.pool.get('ir.lang')
+        pool = Pool()
+        lang_obj = pool.get('ir.lang')
         res = 0
         with Transaction().set_context(language=False):
             lang_ids = lang_obj.search([
@@ -313,7 +314,8 @@ class Module(ModelSQL, ModelView):
         return res
 
     def _update_dependencies(self, module, depends=None):
-        dependency_obj = self.pool.get('ir.module.module.dependency')
+        pool = Pool()
+        dependency_obj = pool.get('ir.module.module.dependency')
         dependency_obj.delete([x.id for x in module.dependencies
             if x.name not in depends])
         if depends is None:
@@ -354,7 +356,8 @@ class ModuleDependency(ModelSQL, ModelView):
 
     def get_state(self, ids, name):
         result = {}
-        module_obj = self.pool.get('ir.module.module')
+        pool = Pool()
+        module_obj = pool.get('ir.module.module')
         for dependency in self.browse(ids):
             ids = module_obj.search([
                 ('name', '=', dependency.name),
@@ -442,7 +445,8 @@ class ModuleConfigWizard(Wizard):
         return res
 
     def _action_wizard(self, data):
-        item_obj = self.pool.get('ir.module.module.config_wizard.item')
+        pool = Pool()
+        item_obj = pool.get('ir.module.module.config_wizard.item')
         item_ids = item_obj.search([
             ('state', '=', 'open'),
             ], limit=1)
@@ -458,7 +462,8 @@ class ModuleConfigWizard(Wizard):
         return {}
 
     def _next(self, data):
-        item_obj = self.pool.get('ir.module.module.config_wizard.item')
+        pool = Pool()
+        item_obj = pool.get('ir.module.module.config_wizard.item')
         item_ids = item_obj.search([
             ('state', '=', 'open'),
             ])
@@ -491,7 +496,8 @@ class ModuleInstallUpgrade(Wizard):
     _name = 'ir.module.module.install_upgrade'
 
     def _get_install(self, data):
-        module_obj = self.pool.get('ir.module.module')
+        pool = Pool()
+        module_obj = pool.get('ir.module.module')
         module_ids = module_obj.search([
             ('state', 'in', ['to upgrade', 'to remove', 'to install']),
             ])
@@ -502,9 +508,9 @@ class ModuleInstallUpgrade(Wizard):
         }
 
     def _upgrade_module(self, data):
-        module_obj = self.pool.get('ir.module.module')
-        lang_obj = self.pool.get('ir.lang')
-        dbname = Transaction().cursor.dbname
+        pool = Pool()
+        module_obj = pool.get('ir.module.module')
+        lang_obj = pool.get('ir.lang')
         with Transaction().new_cursor() as transaction:
             module_ids = module_obj.search([
                 ('state', 'in', ['to upgrade', 'to remove', 'to install']),
@@ -515,7 +521,6 @@ class ModuleInstallUpgrade(Wizard):
             lang = [x.code for x in lang_obj.browse(lang_ids)]
             transaction.cursor.commit()
         if module_ids:
-            pool = Pool(dbname)
             pool.init(update=True, lang=lang)
             new_wizard = pool.get('ir.module.module.install_upgrade',
                     type='wizard')
@@ -563,8 +568,9 @@ class ModuleInstallUpgrade(Wizard):
     }
 
     def _menu(self, data):
-        model_data_obj = self.pool.get('ir.model.data')
-        act_window_obj = self.pool.get('ir.action.act_window')
+        pool = Pool()
+        model_data_obj = pool.get('ir.model.data')
+        act_window_obj = pool.get('ir.action.act_window')
         act_window_id = model_data_obj.get_id('ir', 'act_menu_tree')
         res = act_window_obj.read(act_window_id)
         return res
@@ -592,8 +598,9 @@ class ModuleConfig(Wizard):
     }
 
     def _action_open(self, datas):
-        model_data_obj = self.pool.get('ir.model.data')
-        act_window_obj = self.pool.get('ir.action.act_window')
+        pool = Pool()
+        model_data_obj = pool.get('ir.model.data')
+        act_window_obj = pool.get('ir.action.act_window')
         act_window_id = model_data_obj.get_id('ir', 'act_module_form')
         res = act_window_obj.read(act_window_id)
         return res

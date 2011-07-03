@@ -11,6 +11,7 @@ from trytond.pyson import PYSONEncoder, CONTEXT, Eval, Not, Bool, Equal
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard
+from trytond.pool import Pool
 
 
 class View(ModelSQL, ModelView):
@@ -66,7 +67,8 @@ class View(ModelSQL, ModelView):
 
     def check_xml(self, ids):
         "Check XML"
-        translation_obj = self.pool.get('ir.translation')
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
         cursor = Transaction().cursor
         views = self.browse(ids)
         for view in views:
@@ -188,7 +190,8 @@ class View(ModelSQL, ModelView):
     def delete(self, ids):
         res = super(View, self).delete(ids)
         # Restart the cache
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -198,7 +201,8 @@ class View(ModelSQL, ModelView):
     def create(self, vals):
         res = super(View, self).create(vals)
         # Restart the cache
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -208,7 +212,8 @@ class View(ModelSQL, ModelView):
     def write(self, ids, vals):
         res = super(View, self).write(ids, vals)
         # Restart the cache
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -274,8 +279,9 @@ class AddShortcut(Wizard):
     }
 
     def _add_shortcut(self, data):
-        view_sc_obj = self.pool.get('ir.ui.view_sc')
-        model_obj = self.pool.get(data['model'])
+        pool = Pool()
+        view_sc_obj = pool.get('ir.ui.view_sc')
+        model_obj = pool.get(data['model'])
 
         record = model_obj.browse(data['id'])
         view_sc_obj.create({
@@ -304,8 +310,9 @@ class OpenShortcut(Wizard):
     }
 
     def _open(self, data):
-        view_sc_obj = self.pool.get('ir.ui.view_sc')
-        action_keyword_obj = self.pool.get('ir.action.keyword')
+        pool = Pool()
+        view_sc_obj = pool.get('ir.ui.view_sc')
+        action_keyword_obj = pool.get('ir.action.keyword')
 
         view_sc = view_sc_obj.browse(data['id'])
         models = (
@@ -323,7 +330,7 @@ class OpenShortcut(Wizard):
         if not action_keyword_ids:
             return {}
         action_keyword = action_keyword_obj.browse(action_keyword_ids[0])
-        action_obj = self.pool.get(action_keyword.action.type)
+        action_obj = pool.get(action_keyword.action.type)
         action_ids = action_obj.search([
             ('action.id', '=', action_keyword.action.id),
             ])
@@ -352,37 +359,40 @@ class ViewTreeWidth(ModelSQL, ModelView):
         })
 
     def delete(self, ids):
+        pool = Pool()
         if isinstance(ids, (int, long)):
             ids = [ids]
         views = self.browse(ids)
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get.reset()
+                pool.get(view.model).fields_view_get.reset()
             except Exception:
                 pass
         res = super(ViewTreeWidth, self).delete(ids)
         return res
 
     def create(self, vals):
+        pool = Pool()
         res = super(ViewTreeWidth, self).create(vals)
         if 'model' in vals:
             model = vals['model']
             # Restart the cache
             try:
-                self.pool.get(model).fields_view_get.reset()
+                pool.get(model).fields_view_get.reset()
             except Exception:
                 pass
         return res
 
     def write(self, ids, vals):
+        pool = Pool()
         if isinstance(ids, (int, long)):
             ids = [ids]
         views = self.browse(ids)
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get.reset()
+                pool.get(view.model).fields_view_get.reset()
             except Exception:
                 pass
         res = super(ViewTreeWidth, self).write(ids, vals)
@@ -390,7 +400,7 @@ class ViewTreeWidth(ModelSQL, ModelView):
         for view in views:
             # Restart the cache
             try:
-                self.pool.get(view.model).fields_view_get.reset()
+                pool.get(view.model).fields_view_get.reset()
             except Exception:
                 pass
         return res

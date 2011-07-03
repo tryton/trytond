@@ -6,6 +6,7 @@ from trytond.model.fields.function import Function
 from trytond.model.fields.field import Field
 from trytond import backend
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class Property(Function):
@@ -34,7 +35,8 @@ class Property(Function):
         :param values:
         :return: a dictionary with ids as key and values as value
         '''
-        property_obj = model.pool.get('ir.property')
+        pool = Pool()
+        property_obj = pool.get('ir.property')
         res = property_obj.get(name, model._name, ids)
         return res
 
@@ -48,7 +50,8 @@ class Property(Function):
         :param name: The name of the field.
         :param value: The value to set.
         '''
-        property_obj = model.pool.get('ir.property')
+        pool = Pool()
+        property_obj = pool.get('ir.property')
         return property_obj.set(name, model._name, ids,
                 (value and getattr(self, 'model_name', '')  + ',' + str(value)) or
                 False)
@@ -60,10 +63,11 @@ class Property(Function):
         :param clause: The search domain clause. See ModelStorage.search
         :return: New list of domain.
         '''
-        rule_obj = model.pool.get('ir.rule')
-        property_obj = model.pool.get('ir.property')
-        model_obj = model.pool.get('ir.model')
-        field_obj = model.pool.get('ir.model.field')
+        pool = Pool()
+        rule_obj = pool.get('ir.rule')
+        property_obj = pool.get('ir.property')
+        model_obj = pool.get('ir.model')
+        field_obj = pool.get('ir.model.field')
         cursor = Transaction().cursor
 
         field_class = backend.FIELDS[self._type]

@@ -3,6 +3,7 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.backend import TableHandler
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class UIMenuGroup(ModelSQL):
@@ -25,19 +26,19 @@ class UIMenuGroup(ModelSQL):
     def create(self, vals):
         res = super(UIMenuGroup, self).create(vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def write(self, ids, vals):
         res = super(UIMenuGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def delete(self, ids):
         res = super(UIMenuGroup, self).delete(ids)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
 UIMenuGroup()
@@ -63,19 +64,19 @@ class ActionGroup(ModelSQL):
     def create(self, vals):
         res = super(ActionGroup, self).create(vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def write(self, ids, vals):
         res = super(ActionGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def delete(self, ids):
         res = super(ActionGroup, self).delete(ids)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
 ActionGroup()
@@ -147,7 +148,7 @@ class Lang(ModelSQL, ModelView):
     def write(self, ids, vals):
         res = super(Lang, self).write(ids, vals)
         # Restart the cache for get_preferences
-        self.pool.get('res.user').get_preferences.reset()
+        Pool().get('res.user').get_preferences.reset()
         return res
 
 Lang()
@@ -172,21 +173,21 @@ class SequenceTypeGroup(ModelSQL):
             ondelete='CASCADE', select=1, required=True)
 
     def delete(self, ids):
-        rule_obj = self.pool.get('ir.rule')
+        rule_obj = Pool().get('ir.rule')
         res = super(SequenceTypeGroup, self).delete(ids)
         # Restart the cache on the domain_get method of ir.rule
         rule_obj.domain_get.reset()
         return res
 
     def create(self, vals):
-        rule_obj = self.pool.get('ir.rule')
+        rule_obj = Pool().get('ir.rule')
         res = super(SequenceTypeGroup, self).create(vals)
         # Restart the cache on the domain_get method of ir.rule
         rule_obj.domain_get.reset()
         return res
 
     def write(self, ids, vals):
-        rule_obj = self.pool.get('ir.rule')
+        rule_obj = Pool().get('ir.rule')
         res = super(SequenceTypeGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method
         rule_obj.domain_get.reset()
@@ -201,7 +202,7 @@ class Sequence(ModelSQL, ModelView):
         'User Groups'), 'get_groups', searcher='search_groups')
 
     def get_groups(self, ids, name):
-        sequence_type_obj = self.pool.get('ir.sequence.type')
+        sequence_type_obj = Pool().get('ir.sequence.type')
         sequences= self.browse(ids)
         code2seq = {}
         for sequence in sequences:
@@ -221,7 +222,7 @@ class Sequence(ModelSQL, ModelView):
         return res
 
     def search_groups(self, name, clause):
-        sequence_type_obj = self.pool.get('ir.sequence.type')
+        sequence_type_obj = Pool().get('ir.sequence.type')
         ids = sequence_type_obj.search([clause], order=[])
         seq_types = sequence_type_obj.browse(ids)
         codes = set(st.code for st in seq_types)
