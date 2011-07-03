@@ -12,6 +12,12 @@ try:
 except ImportError:
     ssl = None
 import gzip
+try:
+    import hashlib
+except ImportError:
+    hashlib = None
+    import sha
+import os
 
 DNS_CACHE = {}
 MAX_SIZE = 999999999
@@ -32,7 +38,7 @@ def checkfunction(module, klass):
 
 class PySocket:
 
-    def __init__(self, sock=None):
+    def __init__(self, sock=None, fingerprints=None, ca_certs=None):
         self.sock = sock
         self.host = None
         self.hostname = None
@@ -41,6 +47,11 @@ class PySocket:
         self.ssl_sock = None
         self.connected = False
         self.buffer = ''
+        self.fingerprints = fingerprints
+        if ca_certs and os.path.isfile(ca_certs):
+            self.ca_certs = ca_certs
+        else:
+            self.ca_certs = None
 
     def connect(self, host, port=False):
         if not port:
@@ -57,7 +68,7 @@ class PySocket:
                         socket.SOCK_STREAM)
                 self.sock.settimeout(CONNECT_TIMEOUT)
                 self.sock.connect((host, int(port)))
-            except Exception:
+            except socket.error:
                 self.sock = None
         if self.sock is None:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,31 +83,54 @@ class PySocket:
                     sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
                     sock.settimeout(CONNECT_TIMEOUT)
                     sock.connect((host, int(port)))
-                except Exception:
+                except socket.error:
                     sock = None
             if sock is None:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.settimeout(CONNECT_TIMEOUT)
                 sock.connect((host, int(port)))
             if ssl:
-                ssl.wrap_socket(sock)
+                ssl_sock = ssl.wrap_socket(sock)
                 self.ssl = True
             elif hasattr(socket, 'ssl'):
-                socket.ssl(sock)
+                ssl_sock = socket.ssl(sock)
                 self.ssl = True
-        except Exception:
+        except socket.error:
             pass
         self.sock.settimeout(TIMEOUT)
+        fingerprint = None
         if self.ssl:
             if ssl:
-                self.ssl_sock = ssl.wrap_socket(self.sock)
+                self.ssl_sock = ssl.wrap_socket(self.sock,
+                        ca_certs=self.ca_certs, cert_reqs=(self.ca_certs and
+                            ssl.CERT_REQUIRED or ssl.CERT_NONE))
             elif hasattr(socket, 'ssl'):
-                self.ssl_sock = socket.ssl(self.sock)
+                self.ssl_sock = socket.ssl(self.sock, certfile=self.ca_certs)
+            try:
+                peercert = self.ssl_sock.getpeercert(True)
+            except socket.error:
+                peercert = None
+            def format_hash(value):
+                return reduce(lambda x, (i, y): x + y.upper() +
+                        ((i % 2 and i + 1 < len(value)) and ':' or ''),
+                        enumerate(value), '')
+            if peercert and hashlib:
+                fingerprint = format_hash(hashlib.sha1(peercert).hexdigest())
+            elif peercert:
+                fingerprint = format_hash(sha1.new(peercert).hexdigest())
         self.host = host
         self.hostname = hostname
         self.port = port
         self.connected = True
         self.buffer = ''
+        if self.fingerprints is not None:
+            key = (self.hostname, str(self.port))
+            if key in self.fingerprints:
+                if self.fingerprints[key] != fingerprint:
+                    self.disconnect()
+                    raise Exception('BadFingerprint')
+            elif fingerprint:
+                self.fingerprints[key] = fingerprint
 
     def disconnect(self):
         try:
@@ -111,10 +145,10 @@ class PySocket:
                     sock.sock_shutdown(shutdown_value)
                 else:
                     sock.shutdown(shutdown_value)
-            except Exception:
+            except socket.error:
                 pass
             sock.close()
-        except Exception:
+        except socket.error:
             pass
         self.sock = None
         self.ssl = False
@@ -123,20 +157,20 @@ class PySocket:
         self.buffer = ''
 
     def reconnect(self):
-        if self.host and self.port:
+        if self.hostname and self.port:
             self.disconnect()
-            self.connect(self.host, self.port)
+            self.connect(self.hostname, self.port)
 
     def send(self, msg, exception=False, traceback=None):
         msg = cPickle.dumps([msg, traceback], protocol=2)
         gzip_p = False
         if len(msg) > GZIP_THRESHOLD:
-            buf = StringIO.StringIO()
-            output = gzip.GzipFile(mode='wb', fileobj=buf)
+            buffer = StringIO.StringIO()
+            output = gzip.GzipFile(mode='wb', fileobj=buffer)
             output.write(msg)
             output.close()
-            buf.seek(0)
-            msg = buf.getvalue()
+            buffer.seek(0)
+            msg = buffer.getvalue()
             gzip_p = True
         size = len(msg)
         msg = str(size) + ' ' + (exception and "1" or "0") \
@@ -148,14 +182,14 @@ class PySocket:
             while totalsent < size:
                 sent = self.ssl_sock.write(msg[totalsent:])
                 if sent == 0:
-                    raise RuntimeError, "socket connection broken"
+                    raise RuntimeError("socket connection broken")
                 totalsent = totalsent + sent
         else:
             self.sock.sendall(msg)
 
     def receive(self):
         buf = self.buffer
-        buf_list = []
+        L = []
         size_remaining = MAX_LENGHT
         while size_remaining:
             chunk_size = min(size_remaining, 4096)
@@ -164,18 +198,18 @@ class PySocket:
             else:
                 chunk = self.sock.recv(chunk_size)
             if chunk == '':
-                raise RuntimeError, "socket connection broken"
-            buf_list.append(chunk)
+                raise RuntimeError("socket connection broken")
+            L.append(chunk)
             size_remaining -= len(chunk)
             if ' ' in chunk:
                 break
         if size_remaining < 0:
-            raise RuntimeError, "socket connection broken"
-        buf += ''.join(buf_list)
+            raise RuntimeError("socket connection broken")
+        buf += ''.join(L)
         size, msg = buf.split(' ', 1)
         size = int(size)
         if size > MAX_SIZE:
-            raise RuntimeError, "socket connection broken"
+            raise RuntimeError("socket connection broken")
         while len(msg) < 2:
             chunk_size = min(size + 2, 4096)
             if self.ssl:
@@ -183,11 +217,11 @@ class PySocket:
             else:
                 msg += self.sock.recv(chunk_size)
             if msg == '':
-                raise RuntimeError, "socket connection broken"
+                raise RuntimeError("socket connection broken")
         exception = msg[0] != "0"
         gzip_p = msg[1] != "0"
-        buf_list = [msg[2:]]
-        size_remaining = size - len(buf_list[0])
+        L = [msg[2:]]
+        size_remaining = size - len(L[0])
         while size_remaining:
             chunk_size = min(size_remaining, 4096)
             if self.ssl:
@@ -195,10 +229,10 @@ class PySocket:
             else:
                 chunk = self.sock.recv(chunk_size)
             if chunk == '':
-                raise RuntimeError, "socket connection broken"
-            buf_list.append(chunk)
+                raise RuntimeError("socket connection broken")
+            L.append(chunk)
             size_remaining -= len(chunk)
-        msg = ''.join(buf_list)
+        msg = ''.join(L)
         if len(msg) > size:
             self.buffer = msg[size:]
             msg = msg[:size]
