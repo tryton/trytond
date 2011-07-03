@@ -37,10 +37,10 @@ class Group(ModelSQL, ModelView):
     field_access = fields.One2Many('ir.model.field.access', 'group',
         'Access Field')
     rule_groups = fields.Many2Many('ir.rule.group-res.group',
-       'group_id', 'rule_group_id', 'Rules',
+       'group', 'rule_group', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     menu_access = MenuMany2Many('ir.ui.menu-res.group',
-       'gid', 'menu_id', 'Access Menu')
+       'group', 'menu', 'Access Menu')
 
     def __init__(self):
         super(Group, self).__init__()

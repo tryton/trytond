@@ -21,7 +21,7 @@ class Action(ModelSQL, ModelView):
     usage = fields.Char('Usage')
     keywords = fields.One2Many('ir.action.keyword', 'action',
             'Keywords')
-    groups = fields.Many2Many('ir.action-res.group', 'action_id', 'gid',
+    groups = fields.Many2Many('ir.action-res.group', 'action', 'group',
             'Groups')
     icon = fields.Many2One('ir.ui.icon', 'Icon')
     active = fields.Boolean('Active', select=2)

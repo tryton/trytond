@@ -84,10 +84,10 @@ CREATE TABLE res_group (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `res_user-res_group` (
-    uid BIGINT NOT NULL,
-    gid BIGINT NOT NULL,
-    CONSTRAINT `res_user-res_group_uid_fkey` FOREIGN KEY (uid) REFERENCES res_user (id) ON DELETE CASCADE,
-    CONSTRAINT `res_user-res_group_gid_fkey` FOREIGN KEY (gid) REFERENCES res_group (id) ON DELETE CASCADE
+    `user` BIGINT NOT NULL,
+    `group` BIGINT NOT NULL,
+    CONSTRAINT `res_user-res_group_user_fkey` FOREIGN KEY (`user`) REFERENCES res_user (id) ON DELETE CASCADE,
+    CONSTRAINT `res_user-res_group_group_fkey` FOREIGN KEY (`group`) REFERENCES res_group (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE wkf (

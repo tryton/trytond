@@ -73,8 +73,8 @@ CREATE TABLE res_group (
 
 CREATE TABLE "res_user-res_group" (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    uid INTEGER,
-    gid INTEGER
+    "user" INTEGER,
+    "group" INTEGER
 );
 
 CREATE TABLE wkf (

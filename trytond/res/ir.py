@@ -10,9 +10,9 @@ class UIMenuGroup(ModelSQL):
     "UI Menu - Group"
     _name = 'ir.ui.menu-res.group'
     _description = __doc__
-    menu_id = fields.Many2One('ir.ui.menu', 'Menu', ondelete='CASCADE',
+    menu = fields.Many2One('ir.ui.menu', 'Menu', ondelete='CASCADE',
             select=1, required=True)
-    gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -21,6 +21,10 @@ class UIMenuGroup(ModelSQL):
         TableHandler.table_rename(cursor, 'ir_ui_menu_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'ir_ui_menu_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 menu_id and gid renamed into menu group
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('menu_id', 'menu')
+        table.column_rename('gid', 'group')
         super(UIMenuGroup, self).init(module_name)
 
     def create(self, vals):
@@ -48,9 +52,9 @@ class ActionGroup(ModelSQL):
     "Action - Group"
     _name = 'ir.action-res.group'
     _description = __doc__
-    action_id = fields.Many2One('ir.action', 'Action', ondelete='CASCADE',
+    action = fields.Many2One('ir.action', 'Action', ondelete='CASCADE',
             select=1, required=True)
-    gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -59,15 +63,27 @@ class ActionGroup(ModelSQL):
         TableHandler.table_rename(cursor, 'ir_action_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'ir_action_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 action_id and gid renamed into action and group
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('action_id', 'action')
+        table.column_rename('gid', 'group')
         super(ActionGroup, self).init(module_name)
 
     def create(self, vals):
+        action_obj = Pool().get('ir.action')
+        if vals.get('action'):
+            vals = vals.copy()
+            vals['action'] = action_obj.get_action_id(vals['action'])
         res = super(ActionGroup, self).create(vals)
         # Restart the cache on the domain_get method
         Pool().get('ir.rule').domain_get.reset()
         return res
 
     def write(self, ids, vals):
+        action_obj = Pool().get('ir.action')
+        if vals.get('action'):
+            vals = vals.copy()
+            vals['action'] = action_obj.get_action_id(vals['action'])
         res = super(ActionGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method
         Pool().get('ir.rule').domain_get.reset()
@@ -106,9 +122,9 @@ class RuleGroupGroup(ModelSQL):
     "Rule Group - Group"
     _name = 'ir.rule.group-res.group'
     _description = __doc__
-    rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
+    rule_group = fields.Many2One('ir.rule.group', 'Rule Group',
             ondelete='CASCADE', select=1, required=True)
-    group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -117,6 +133,11 @@ class RuleGroupGroup(ModelSQL):
         TableHandler.table_rename(cursor, 'group_rule_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'group_rule_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 rule_group_id and group_id renamed into rule_group
+        # and group
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('rule_group_id', 'rule_group')
+        table.column_rename('group_id', 'group')
         super(RuleGroupGroup, self).init(module_name)
 
 RuleGroupGroup()
@@ -126,9 +147,9 @@ class RuleGroupUser(ModelSQL):
     "Rule Group - User"
     _name = 'ir.rule.group-res.user'
     _description = __doc__
-    rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
+    rule_group = fields.Many2One('ir.rule.group', 'Rule Group',
             ondelete='CASCADE', select=1, required=True)
-    user_id = fields.Many2One('res.user', 'User', ondelete='CASCADE',
+    user = fields.Many2One('res.user', 'User', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -137,6 +158,11 @@ class RuleGroupUser(ModelSQL):
         TableHandler.table_rename(cursor, 'user_rule_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'user_rule_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 rule_group_id and user_id renamed into rule_group
+        # and user
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('rule_group_id', 'rule_group')
+        table.column_rename('user_id', 'user')
         super(RuleGroupUser, self).init(module_name)
 
 RuleGroupUser()

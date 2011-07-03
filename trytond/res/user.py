@@ -37,9 +37,9 @@ class User(ModelSQL, ModelView):
     menu = fields.Many2One('ir.action', 'Menu Action',
             domain=[('usage','=','menu')], required=True)
     groups = fields.Many2Many('res.user-res.group',
-       'uid', 'gid', 'Groups')
+       'user', 'group', 'Groups')
     rule_groups = fields.Many2Many('ir.rule.group-res.user',
-       'user_id', 'rule_group_id', 'Rules',
+       'user', 'rule_group', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     language = fields.Many2One('ir.lang', 'Language',
             domain=['OR', ('translatable', '=', True), ('code', '=', 'en_US')])
@@ -403,9 +403,9 @@ class UserGroup(ModelSQL):
     'User - Group'
     _name = 'res.user-res.group'
     _description = __doc__
-    uid = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=1,
+    user = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=1,
             required=True)
-    gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE', select=1,
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE', select=1,
             required=True)
 
     def init(self, module_name):
@@ -414,6 +414,10 @@ class UserGroup(ModelSQL):
         TableHandler.table_rename(cursor, 'res_group_user_rel', self._table)
         TableHandler.sequence_rename(cursor, 'res_group_user_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 uid and gid rename into user and group
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('uid', 'user')
+        table.column_rename('gid', 'group')
         super(UserGroup, self).init(module_name)
 
 UserGroup()
@@ -422,7 +426,7 @@ UserGroup()
 class Group(ModelSQL, ModelView):
     "Group"
     _name = "res.group"
-    users = fields.Many2Many('res.user-res.group', 'gid', 'uid', 'Users')
+    users = fields.Many2Many('res.user-res.group', 'group', 'user', 'Users')
 
 Group()
 

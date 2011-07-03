@@ -1,3 +1,4 @@
+* Remove support of Many2Many field in record XML
 * Change Pool into a Singleton
 * Remove support of zipped modules
 

@@ -57,8 +57,13 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="group_view_form"/>
             <field name="act_window" ref="act_group_form"/>
         </record>
-        <menuitem parent="res.menu_res" groups="group_admin"
+        <menuitem parent="res.menu_res"
             action="act_group_form" id="menu_group_form"/>
+        <record model="ir.ui.menu-res.group" id="menu_group_form_admin">
+            <field name="menu" ref="menu_group_form"/>
+            <field name="group" ref="group_admin"/>
+        </record>
+
         <record model="ir.model.access" id="access_group">
             <field name="model" search="[('model', '=', 'res.group')]"/>
             <field name="perm_read" eval="True"/>
