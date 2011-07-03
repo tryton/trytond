@@ -3,6 +3,7 @@
 from itertools import chain
 from trytond.model.fields.field import Field
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 def add_remove_validate(value):
     if value:
@@ -70,13 +71,14 @@ class One2Many(Field):
         :param values: a dictionary with the read values
         :return: a dictionary with ids as key and values as value
         '''
+        pool = Pool()
         res = {}
         for i in ids:
             res[i] = []
         ids2 = []
         for i in range(0, len(ids), Transaction().cursor.IN_MAX):
             sub_ids = ids[i:i + Transaction().cursor.IN_MAX]
-            ids2.append(model.pool.get(self.model_name).search([
+            ids2.append(pool.get(self.model_name).search([
                 (self.field, 'in', sub_ids),
                 ], order=self.order))
 
@@ -91,7 +93,7 @@ class One2Many(Field):
                 ids3.append(i)
 
         if ids3:
-            for i in model.pool.get(self.model_name).read(ids3, [self.field]):
+            for i in pool.get(self.model_name).read(ids3, [self.field]):
                 res[i[self.field]].append(i['id'])
 
         index_of_ids2 = dict((i, index) for index, i in enumerate(chain(*ids2)))
@@ -116,9 +118,10 @@ class One2Many(Field):
             (``unlink_all``),
             (``set``, ``<ids>``)
         '''
+        pool = Pool()
         if not values:
             return
-        model = model.pool.get(self.model_name)
+        model = pool.get(self.model_name)
         for act in values:
             if act[0] == 'create':
                 for record_id in ids:

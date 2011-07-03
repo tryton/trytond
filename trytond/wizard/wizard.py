@@ -12,7 +12,6 @@ from trytond.error import WarningErrorMixin
 class Wizard(WarningErrorMixin):
     _name = ""
     states = {}
-    pool = None
 
     def __new__(cls):
         Pool.register(cls, type='wizard')
@@ -29,7 +28,8 @@ class Wizard(WarningErrorMixin):
         self._datas = {}
 
     def init(self, module_name):
-        translation_obj = self.pool.get('ir.translation')
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
         cursor = Transaction().cursor
         for state in self.states.keys():
             if self.states[state]['result']['type'] == 'form':
@@ -100,8 +100,9 @@ class Wizard(WarningErrorMixin):
         self._lock.release()
 
     def execute(self, wiz_id, data, state='init'):
-        translation_obj = self.pool.get('ir.translation')
-        wizard_size_obj = self.pool.get('ir.action.wizard_size')
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
+        wizard_size_obj = pool.get('ir.action.wizard_size')
         res = {}
 
         if self._datas.get(wiz_id, {}).get('user') != Transaction().user:
@@ -129,7 +130,7 @@ class Wizard(WarningErrorMixin):
         if result_def['type'] == 'action':
             res['action'] = getattr(self, result_def['action'])(data)
         elif result_def['type'] == 'form':
-            obj = self.pool.get(result_def['object'])
+            obj = pool.get(result_def['object'])
 
             view = obj.fields_view_get(view_type='form', toolbar=False)
             fields = view['fields']

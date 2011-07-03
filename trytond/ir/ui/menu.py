@@ -3,6 +3,7 @@
 from __future__ import with_statement
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 def one_in(i, j):
     """Check the presence of an element of setA in setB
@@ -106,7 +107,8 @@ class UIMenu(ModelSQL, ModelView):
         return True
 
     def list_icons(self):
-        icon_obj = self.pool.get('ir.ui.icon')
+        pool = Pool()
+        icon_obj = pool.get('ir.ui.icon')
         return sorted(CLIENT_ICONS
             + [(name, name) for _, name in icon_obj.list_icons()])
 
@@ -166,7 +168,8 @@ class UIMenu(ModelSQL, ModelView):
         return res
 
     def get_action(self, ids, name):
-        action_keyword_obj = self.pool.get('ir.action.keyword')
+        pool = Pool()
+        action_keyword_obj = pool.get('ir.action.keyword')
         res = {}
         for menu_id in ids:
             res[menu_id] = False
@@ -178,7 +181,7 @@ class UIMenu(ModelSQL, ModelView):
         for action_keyword in action_keyword_obj.browse(action_keyword_ids):
             model_id = int(
                     action_keyword.model.split(',')[1].split(',')[0].strip('('))
-            action_obj = self.pool.get(action_keyword.action.type)
+            action_obj = pool.get(action_keyword.action.type)
             with Transaction().set_context(active_test=False):
                 action_id = action_obj.search([
                     ('action', '=', action_keyword.action.id),
@@ -193,7 +196,8 @@ class UIMenu(ModelSQL, ModelView):
     def set_action(self, ids, name, value):
         if not value:
             return
-        action_keyword_obj = self.pool.get('ir.action.keyword')
+        pool = Pool()
+        action_keyword_obj = pool.get('ir.action.keyword')
         action_keyword_ids = []
         cursor = Transaction().cursor
         for i in range(0, len(ids), cursor.IN_MAX):
@@ -209,7 +213,7 @@ class UIMenu(ModelSQL, ModelView):
         action_type, action_id = value.split(',')
         if not int(action_id):
             return
-        action_obj = self.pool.get(action_type)
+        action_obj = pool.get(action_type)
         action = action_obj.browse(int(action_id))
         for menu_id in ids:
             with Transaction().set_context(_timestamp=False):

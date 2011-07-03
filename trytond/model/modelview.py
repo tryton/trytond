@@ -12,6 +12,7 @@ from trytond.tools import safe_eval
 from trytond.pyson import PYSONEncoder, CONTEXT
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.pool import Pool
 
 def _find(tree, element):
     if element.tag == 'xpath':
@@ -115,6 +116,7 @@ class ModelView(Model):
            - md5: the check sum of the dictionary without this checksum
         '''
         result = {'model': self._name}
+        pool = Pool()
 
         test = True
         model = True
@@ -152,7 +154,7 @@ class ModelView(Model):
 
             # Check if view is not from an inherited model
             if sql_res[5] != self._name:
-                inherit_obj = self.pool.get(sql_res[5])
+                inherit_obj = pool.get(sql_res[5])
                 result['arch'] = inherit_obj.fields_view_get(
                         result['view_id'])['arch']
                 view_id = inherit_view_id
@@ -226,7 +228,7 @@ class ModelView(Model):
 
         # Add toolbar
         if toolbar:
-            action_obj = self.pool.get('ir.action.keyword')
+            action_obj = pool.get('ir.action.keyword')
             prints = action_obj.get_keyword('form_print', (self._name, 0))
             actions = action_obj.get_keyword('form_action', (self._name, 0))
             relates = action_obj.get_keyword('form_relate', (self._name, 0))
@@ -257,7 +259,8 @@ class ModelView(Model):
         return value
 
     def _view_look_dom_arch(self, tree, type, field_children=None):
-        field_access_obj = self.pool.get('ir.model.field.access')
+        pool = Pool()
+        field_access_obj = pool.get('ir.model.field.access')
 
         fields_width = {}
         tree_root = tree.getroottree().getroot()
@@ -274,7 +277,7 @@ class ModelView(Model):
 
         # Find field inherited without read access
         for inherit_name in self._inherits:
-            inherit_obj = self.pool.get(inherit_name)
+            inherit_obj = pool.get(inherit_name)
             fread_accesses = field_access_obj.check(inherit_obj._name,
                     inherit_obj._columns.keys(), 'read', access=True)
             fields_to_remove += list(x for x, y in fread_accesses.iteritems()
@@ -297,7 +300,7 @@ class ModelView(Model):
                     parent.remove(element)
 
         if type == 'tree':
-            viewtreewidth_obj = self.pool.get('ir.ui.view_tree_width')
+            viewtreewidth_obj = pool.get('ir.ui.view_tree_width')
             viewtreewidth_ids = viewtreewidth_obj.search([
                 ('model', '=', self._name),
                 ('user', '=', Transaction().user),
@@ -341,7 +344,8 @@ class ModelView(Model):
         return arch, fields2
 
     def __view_look_dom(self, element, type, fields_width=None):
-        translation_obj = self.pool.get('ir.translation')
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
 
         if fields_width is None:
             fields_width = {}
@@ -362,7 +366,7 @@ class ModelView(Model):
                         if hasattr(field, 'model_name'):
                             relation = field.model_name
                         else:
-                            relation = field.get_target(self.pool)._name
+                            relation = field.get_target()._name
                     except Exception:
                         relation = False
                     if relation and element.tag == 'field':
@@ -392,7 +396,7 @@ class ModelView(Model):
                                 if Transaction().language != 'en_US':
                                     _translate_field(field2)
 
-                                relation_obj = self.pool.get(relation)
+                                relation_obj = pool.get(relation)
                                 if hasattr(relation_obj, '_view_look_dom_arch'):
                                     xarch, xfields = \
                                             relation_obj._view_look_dom_arch(

@@ -11,6 +11,7 @@ from trytond.backend import Database
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 from trytond.backend import TableHandler
 
 _INTERVALTYPES = {
@@ -130,15 +131,16 @@ class Cron(ModelSQL, ModelView):
         return values
 
     def _callback(self, cron):
+        pool = Pool()
         try:
             args = (cron.args or []) and safe_eval(cron.args)
-            model_obj = self.pool.get(cron.model)
+            model_obj = pool.get(cron.model)
             with Transaction().set_user(cron.user.id):
                 getattr(model_obj, cron.function)(*args)
         except Exception, error:
             Transaction().cursor.rollback()
 
-            request_obj = self.pool.get('res.request')
+            request_obj = pool.get('res.request')
             req_user = cron.request_user
             language = (req_user.language.code if req_user.language
                     else 'en_US')

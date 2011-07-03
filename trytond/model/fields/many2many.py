@@ -3,6 +3,7 @@
 from itertools import chain
 from trytond.model.fields.field import Field
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class Many2Many(Field):
@@ -68,7 +69,7 @@ class Many2Many(Field):
         else:
             order = self.order
 
-        relation_obj = model.pool.get(self.relation_name)
+        relation_obj = Pool().get(self.relation_name)
 
         relation_ids = []
         for i in range(0, len(ids), Transaction().cursor.IN_MAX):
@@ -101,8 +102,8 @@ class Many2Many(Field):
         '''
         if not values:
             return
-        relation_obj = model.pool.get(self.relation_name)
-        target_obj = self.get_target(model.pool)
+        relation_obj = Pool().get(self.relation_name)
+        target_obj = self.get_target()
         for act in values:
             if act[0] == 'create':
                 for record_id in ids:
@@ -177,20 +178,19 @@ class Many2Many(Field):
             else:
                 raise Exception('Bad arguments')
 
-    def get_target(self, pool):
+    def get_target(self):
         '''
         Return the target model.
 
-        :param pool: The pool
         :return: A Model
         '''
-        relation_obj = pool.get(self.relation_name)
+        relation_obj = Pool().get(self.relation_name)
         if not self.target:
             return relation_obj
         if self.target in relation_obj._columns:
-            target_obj = pool.get(
+            target_obj = Pool().get(
                     relation_obj._columns[self.target].model_name)
         else:
-            target_obj = pool.get(
+            target_obj = Pool().get(
                     relation_obj._inherit_fields[self.target][2].model_name)
         return target_obj
