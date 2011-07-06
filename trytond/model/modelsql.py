@@ -291,8 +291,7 @@ class ModelSQL(ModelStorage):
                     continue
                 if inherits in tocreate:
                     tocreate[inherits][i] = values[i]
-                if i not in self._columns:
-                    del values[i]
+                del values[i]
 
         for inherits in tocreate:
             inherits_obj = pool.get(inherits)
