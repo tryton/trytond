@@ -322,8 +322,6 @@ class WorkflowWorkitem(ModelSQL, ModelView):
             triggers = True
             if not self._execute(workitem, activity):
                 return False
-        elif workitem.state == 'running':
-            pass
 
         if workitem.state == 'complete' or force_running:
             res = self._split_test(workitem, activity.split_mode, signal)
