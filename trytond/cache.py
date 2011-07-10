@@ -185,7 +185,7 @@ class LRUDict(OrderedDict):
         super(LRUDict, self).__setitem__(key, value)
         self._check_size_limit()
 
-    def update(*args, **kwargs):
+    def update(self, *args, **kwargs):
         super(LRUDict, self).update(*args, **kwargs)
         self._check_size_limit()
 
