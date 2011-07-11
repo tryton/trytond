@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import contextlib
 import base64
 try:
@@ -17,6 +16,7 @@ try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
+from functools import reduce
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.wizard import Wizard

@@ -98,7 +98,7 @@ class One2Many(Field):
 
         index_of_ids2 = dict((i, index) for index, i in enumerate(chain(*ids2)))
         for val in res.values():
-            val.sort(lambda x, y: cmp(index_of_ids2[x], index_of_ids2[y]))
+            val.sort(key=lambda x: index_of_ids2[x])
         return res
 
     def set(self, ids, model, name, values):

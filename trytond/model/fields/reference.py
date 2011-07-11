@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import contextlib
 from trytond.model.fields.field import Field
 from trytond.tools import safe_eval

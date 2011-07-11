@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 from trytond.backend import Database
 from trytond.session import Session
 from trytond.pool import Pool
@@ -41,7 +40,7 @@ def login(dbname, loginname, password, cache=True):
 
 def logout(dbname, user, session):
     name = ''
-    if _USER_CACHE.get(dbname, {}).has_key(user):
+    if user in _USER_CACHE.get(dbname, {}):
         for i, real_session \
                 in enumerate(_USER_CACHE[dbname][user]):
             if real_session.session == session:
@@ -62,7 +61,7 @@ def check(dbname, user, session):
     result = None
     now = time.time()
     timeout = int(CONFIG['session_timeout'])
-    if _USER_CACHE.get(dbname, {}).has_key(user):
+    if user in _USER_CACHE.get(dbname, {}):
         to_del = []
         for i, real_session \
                 in enumerate(_USER_CACHE[dbname][user]):
@@ -81,7 +80,7 @@ def get_connections(dbname, user):
     res = 0
     now = time.time()
     timeout = int(CONFIG['session_timeout'])
-    if _USER_CACHE.get(dbname, {}).has_key(int(user)):
+    if int(user) in _USER_CACHE.get(dbname, {}):
         for _, session in enumerate(_USER_CACHE[dbname][int(user)]):
             if abs(session.timestamp - now) < timeout:
                 res += 1

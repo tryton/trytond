@@ -1,11 +1,13 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import os, sys, imp
 import itertools
 import traceback
 import logging
 import contextlib
+from functools import reduce
+import imp
+import operator
 from trytond.backend import Database
 import trytond.tools as tools
 from trytond.config import CONFIG
@@ -91,7 +93,7 @@ class Node(Singleton):
         for attr in ('init', 'update'):
             if hasattr(self, attr):
                 setattr(node, attr, True)
-        self.childs.sort(lambda x, y: cmp(x.name, y.name))
+        self.childs.sort(key=operator.attrgetter('name'))
 
     def all_childs(self):
         res = []
@@ -334,7 +336,7 @@ def register_classes(reload_p=False):
                 if i.startswith(module) \
                         and i != module:
                     del sys.modules[i]
-            reload(sys.modules[module])
+            imp.reload(sys.modules[module])
 
     logger = logging.getLogger('modules')
 
@@ -352,7 +354,7 @@ def register_classes(reload_p=False):
                         and i != 'trytond.modules.' + module \
                         and getattr(sys.modules[i], '_TRYTON_RELOAD', True):
                     del sys.modules[i]
-            reload(sys.modules['trytond.modules.' + module])
+            imp.reload(sys.modules['trytond.modules.' + module])
             continue
 
         if os.path.isdir(OPJ(MODULES_PATH, module)):

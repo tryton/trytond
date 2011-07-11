@@ -169,9 +169,8 @@ class ModelView(Model):
             raise_p = False
             while True:
                 try:
-                    sql_inherit.sort(lambda x, y: \
-                            cmp(self._modules_list.index(x[2] or None),
-                                self._modules_list.index(y[2] or None)))
+                    sql_inherit.sort(key=lambda x:
+                        self._modules_list.index(x[2] or None))
                     break
                 except ValueError:
                     if raise_p:
