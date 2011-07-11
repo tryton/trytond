@@ -446,4 +446,6 @@ def reduce_domain(domain):
                 result.extend(sub_domain[1:])
             else:
                 result.append(sub_domain)
+        else:
+            result.append(arg)
     return result
