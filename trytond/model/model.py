@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 import copy
+import collections
 from trytond.model import fields
 from trytond.error import WarningErrorMixin
 from trytond.pool import Pool
@@ -53,7 +54,7 @@ class Model(WarningErrorMixin):
         fields_names += self._inherit_fields.keys()
         for field_name in fields_names:
             default_method = getattr(self, 'default_%s' % field_name, False)
-            if callable(default_method):
+            if isinstance(default_method, collections.Callable):
                 res[field_name] = default_method
         self.__defaults = res
         return res
@@ -97,7 +98,8 @@ class Model(WarningErrorMixin):
             for attribute in ('on_change', 'on_change_with', 'autocomplete'):
                 function_name = '%s_%s' % (attribute, field_name)
                 if (getattr(field, attribute, False)
-                        and callable(getattr(self, function_name, False))):
+                         and isinstance(getattr(self, function_name, False),
+                             collections.Callable)):
                     self._rpc.setdefault(function_name, False)
 
     def __getattr__(self, name):
@@ -105,9 +107,10 @@ class Model(WarningErrorMixin):
         # Search if a function exists in inherits parents
         for model_name, field_name in self._inherits.iteritems():
             model_obj = pool.get(model_name)
-            if hasattr(model_obj, name) and \
-                    callable(getattr(model_obj, name)):
-                return getattr(model_obj, name)
+            if (hasattr(model_obj, name)
+                    and isinstance(getattr(model_obj, name),
+                        collections.Callable)):
+               return getattr(model_obj, name)
         raise AttributeError(name)
 
     def _inherits_reload(self):

@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from __future__ import with_statement
 import datetime
 import time
 from decimal import Decimal
@@ -12,6 +11,9 @@ try:
 except ImportError:
     import StringIO
 import csv
+from functools import reduce
+import traceback
+import sys
 from trytond.model import Model
 from trytond.model import fields
 from trytond.model.browse import BrowseRecordList, BrowseRecord, \
@@ -848,7 +850,9 @@ class ModelStorage(Model):
                 logger.error(exp)
                 # XXX should raise Exception
                 Transaction().cursor.rollback()
-                warning = '\n'.join(map(str, exp[1:]) + [warning])
+                tb_s = reduce(lambda x, y: x + y,
+                        traceback.format_exception(*sys.exc_info()))
+                warning = '%s\n%s' % (tb_s, warning)
                 return (-1, res, exp, warning)
             done += 1
         return (done, 0, 0, 0)

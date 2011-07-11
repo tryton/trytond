@@ -6,6 +6,7 @@ if sys.version_info < (2, 6):
 else:
     import json
 import datetime
+from functools import reduce
 
 
 class PYSON(object):
@@ -405,7 +406,7 @@ class Date(PYSON):
             date = date.replace(year=year)
         if dct['dM']:
             month = date.month + dct['dM']
-            year = date.year + month / 12
+            year = date.year + month // 12
             month = month % 12
             date = date.replace(year=year, month=month)
         if dct['dd']:

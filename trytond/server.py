@@ -3,7 +3,6 @@
 """
 %prog [options]
 """
-from __future__ import with_statement
 import logging
 import logging.handlers
 import sys, os, signal

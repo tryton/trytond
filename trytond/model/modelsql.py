@@ -1,9 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import contextlib
 import datetime
 import re
+from functools import reduce
 from decimal import Decimal
 from itertools import islice
 from trytond.model import ModelStorage
@@ -766,7 +766,7 @@ class ModelSQL(ModelStorage):
                     cursor.execute("SELECT id " \
                             'FROM "' + self._table + '" ' \
                             'WHERE ' + ' OR '.join(
-                                (clause,) * (len(args)/2)), args)
+                                (clause,) * (len(args) // 2)), args)
                     if cursor.fetchone():
                         raise Exception('ConcurrencyException',
                                 'Records were modified in the meanwhile')
