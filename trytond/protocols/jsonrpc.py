@@ -22,10 +22,7 @@ import posixpath
 import urllib
 import datetime
 from decimal import Decimal
-if sys.version_info < (2, 6):
-    import simplejson as json
-else:
-    import json
+import json
 
 def object_hook(dct):
     if '__class__' in dct:
