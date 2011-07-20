@@ -240,7 +240,7 @@ class ModelView(Model):
             - action: a list of available actions
             - relate: a list of available relations
         """
-        action_obj = self.pool.get('ir.action.keyword')
+        action_obj = Pool().get('ir.action.keyword')
         prints = action_obj.get_keyword('form_print', (self._name, 0))
         actions = action_obj.get_keyword('form_action', (self._name, 0))
         relates = action_obj.get_keyword('form_relate', (self._name, 0))
