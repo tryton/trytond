@@ -131,7 +131,7 @@ class Wizard(WarningErrorMixin):
         elif result_def['type'] == 'form':
             obj = self.pool.get(result_def['object'])
 
-            view = obj.fields_view_get(view_type='form', toolbar=False)
+            view = obj.fields_view_get(view_type='form')
             fields = view['fields']
             arch = view['arch']
 
