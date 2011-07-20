@@ -8,9 +8,10 @@ from trytond.error import WarningErrorMixin
 from trytond.pool import Pool
 from trytond.pyson import PYSONEncoder
 from trytond.transaction import Transaction
+from trytond.url import URLMixin
 
 
-class Model(WarningErrorMixin):
+class Model(WarningErrorMixin, URLMixin):
     """
     Define a model in Tryton.
     """
