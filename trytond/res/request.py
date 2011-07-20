@@ -5,6 +5,7 @@ import datetime
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pyson import Eval, In, If, Not, Equal
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 _STATES = [
     ('draft', 'Draft'),
@@ -101,7 +102,8 @@ class Request(ModelSQL, ModelView):
         return res
 
     def request_send(self, ids):
-        request_history_obj = self.pool.get('res.request.history')
+        pool = Pool()
+        request_history_obj = pool.get('res.request.history')
         for request in self.browse(ids):
             values = {
                 'request': request.id,
@@ -177,7 +179,8 @@ class RequestLink(ModelSQL, ModelView):
         return 5
 
     def models_get(self):
-        model_obj = self.pool.get('ir.model')
+        pool = Pool()
+        model_obj = pool.get('ir.model')
         model_ids = model_obj.search([])
         res = []
         for model in model_obj.browse(model_ids):
@@ -239,7 +242,8 @@ class RequestReference(ModelSQL, ModelView):
             required=True)
 
     def links_get(self):
-        request_link_obj = self.pool.get('res.request.link')
+        pool = Pool()
+        request_link_obj = pool.get('res.request.link')
         ids = request_link_obj.search([])
         request_links = request_link_obj.browse(ids)
         return [(x.model, x.name) for x in request_links]

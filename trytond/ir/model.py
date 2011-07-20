@@ -8,6 +8,7 @@ from trytond.report import Report
 from trytond.wizard import Wizard
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.pool import Pool
 IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 
 
@@ -47,21 +48,24 @@ class Model(ModelSQL, ModelView):
         return True
 
     def create(self, vals):
-        property_obj = self.pool.get('ir.property')
+        pool = Pool()
+        property_obj = pool.get('ir.property')
         res = super(Model, self).create(vals)
         # Restart the cache of models_get
         property_obj.models_get.reset()
         return res
 
     def write(self, ids, vals):
-        property_obj = self.pool.get('ir.property')
+        pool = Pool()
+        property_obj = pool.get('ir.property')
         res = super(Model, self).write(ids, vals)
         # Restart the cache of models_get
         property_obj.models_get.reset()
         return res
 
     def delete(self, ids):
-        property_obj = self.pool.get('ir.property')
+        pool = Pool()
+        property_obj = pool.get('ir.property')
         res = super(Model, self).delete(ids)
         # Restart the cache of models_get
         property_obj.models_get.reset()
@@ -117,7 +121,8 @@ class ModelField(ModelSQL, ModelView):
         return True
 
     def read(self, ids, fields_names=None):
-        translation_obj = self.pool.get('ir.translation')
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
 
         to_delete = []
         if Transaction().context.get('language'):
@@ -249,8 +254,9 @@ class ModelAccess(ModelSQL, ModelView):
         if Transaction().user == 0:
             return True
 
-        ir_model_obj = self.pool.get('ir.model')
-        user_group_obj = self.pool.get('res.user-res.group')
+        pool = Pool()
+        ir_model_obj = pool.get('ir.model')
+        user_group_obj = pool.get('res.user-res.group')
         cursor = Transaction().cursor
 
         cursor.execute('SELECT MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
@@ -258,8 +264,8 @@ class ModelAccess(ModelSQL, ModelView):
                 'JOIN "%s" AS m '
                     'ON (a.model = m.id) '
                 'LEFT JOIN "%s" AS gu '
-                    'ON (gu.gid = a."group") '
-                'WHERE m.model = %%s AND (gu.uid = %%s OR a."group" IS NULL)'
+                    'ON (gu."group" = a."group") '
+                'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL)'
                 % (mode, self._table, ir_model_obj._table,
                     user_group_obj._table),
                 (model_name, Transaction().user))
@@ -275,7 +281,8 @@ class ModelAccess(ModelSQL, ModelView):
         res = super(ModelAccess, self).write(ids, vals)
         # Restart the cache
         self.check.reset()
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -286,7 +293,8 @@ class ModelAccess(ModelSQL, ModelView):
         res = super(ModelAccess, self).create(vals)
         # Restart the cache
         self.check.reset()
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -297,7 +305,8 @@ class ModelAccess(ModelSQL, ModelView):
         res = super(ModelAccess, self).delete(ids)
         # Restart the cache
         self.check.reset()
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -359,9 +368,10 @@ class ModelFieldAccess(ModelSQL, ModelView):
                 return dict((x, True) for x in fields)
             return True
 
-        ir_model_obj = self.pool.get('ir.model')
-        ir_model_field_obj = self.pool.get('ir.model.field')
-        user_group_obj = self.pool.get('res.user-res.group')
+        pool = Pool()
+        ir_model_obj = pool.get('ir.model')
+        ir_model_field_obj = pool.get('ir.model.field')
+        user_group_obj = pool.get('res.user-res.group')
 
         cursor = Transaction().cursor
 
@@ -373,8 +383,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
                 'JOIN "%s" AS m '
                     'ON (f.model = m.id) '
                 'LEFT JOIN "%s" AS gu '
-                    'ON (gu.gid = a."group") '
-                'WHERE m.model = %%s AND (gu.uid = %%s OR a."group" IS NULL) '
+                    'ON (gu."group" = a."group") '
+                'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL) '
                 'GROUP BY f.name'
                 % (mode, self._table, ir_model_field_obj._table,
                     ir_model_obj._table, user_group_obj._table),
@@ -394,7 +404,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
         res = super(ModelFieldAccess, self).write(ids, vals)
         # Restart the cache
         self.check.reset()
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -405,7 +416,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
         res = super(ModelFieldAccess, self).create(vals)
         # Restart the cache
         self.check.reset()
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -416,7 +428,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
         res = super(ModelFieldAccess, self).delete(ids)
         # Restart the cache
         self.check.reset()
-        for _, model in self.pool.iterobject():
+        pool = Pool()
+        for _, model in pool.iterobject():
             try:
                 model.fields_view_get.reset()
             except Exception:
@@ -525,8 +538,9 @@ class ModelGraph(Report):
 
     def execute(self, ids, datas):
         import pydot
-        model_obj = self.pool.get('ir.model')
-        action_report_obj = self.pool.get('ir.action.report')
+        pool = Pool()
+        model_obj = pool.get('ir.model')
+        action_report_obj = pool.get('ir.action.report')
 
         if not datas['form']['filter']:
             filter = None
@@ -560,7 +574,8 @@ class ModelGraph(Report):
             models
         '''
         import pydot
-        model_obj = self.pool.get('ir.model')
+        pool = Pool()
+        model_obj = pool.get('ir.model')
 
         sub_models = set()
         if level > 0:

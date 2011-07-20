@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import contextlib
 import time
 from trytond.model import ModelView, ModelSQL, fields
@@ -9,6 +8,7 @@ from trytond.pyson import Eval, Get
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.const import OPERATORS
+from trytond.pool import Pool
 
 
 class RuleGroup(ModelSQL, ModelView):
@@ -26,9 +26,9 @@ class RuleGroup(ModelSQL, ModelView):
     rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
             help="The rule is satisfied if at least one test is True")
     groups = fields.Many2Many('ir.rule.group-res.group',
-            'rule_group_id', 'group_id', 'Groups')
+            'rule_group', 'group', 'Groups')
     users = fields.Many2Many('ir.rule.group-res.user',
-            'rule_group_id', 'user_id', 'Users')
+            'rule_group', 'user', 'Users')
     perm_read = fields.Boolean('Read Access')
     perm_write = fields.Boolean('Write Access')
     perm_create = fields.Boolean('Create Access')
@@ -65,19 +65,19 @@ class RuleGroup(ModelSQL, ModelView):
     def delete(self, ids):
         res = super(RuleGroup, self).delete(ids)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def create(self, vals):
         res = super(RuleGroup, self).create(vals)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def write(self, ids, vals):
         res = super(RuleGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method of ir.rule
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
 RuleGroup()
@@ -115,7 +115,7 @@ class Rule(ModelSQL, ModelView):
         if not recur:
             recur = []
         with Transaction().set_context(language='en_US'):
-            obj_fields = self.pool.get(obj_name).fields_get()
+            obj_fields = Pool().get(obj_name).fields_get()
         key = obj_fields.keys()
         key.sort()
         for k in key:
@@ -158,12 +158,13 @@ class Rule(ModelSQL, ModelView):
             with Transaction().set_user(Transaction().context['user']):
                 return self.domain_get(model_name)
 
-        rule_group_obj = self.pool.get('ir.rule.group')
-        model_obj = self.pool.get('ir.model')
-        rule_group_user_obj = self.pool.get('ir.rule.group-res.user')
-        rule_group_group_obj = self.pool.get('ir.rule.group-res.group')
-        user_group_obj = self.pool.get('res.user-res.group')
-        user_obj = self.pool.get('res.user')
+        pool = Pool()
+        rule_group_obj = pool.get('ir.rule.group')
+        model_obj = pool.get('ir.model')
+        rule_group_user_obj = pool.get('ir.rule.group-res.user')
+        rule_group_group_obj = pool.get('ir.rule.group-res.group')
+        user_group_obj = pool.get('res.user-res.group')
+        user_obj = pool.get('res.user')
 
         cursor = Transaction().cursor
         cursor.execute('SELECT r.id FROM "' + self._table + '" r ' \
@@ -173,21 +174,21 @@ class Rule(ModelSQL, ModelView):
                 "WHERE m.model = %s "
                     "AND g.perm_" + mode + " "
                     "AND (g.id IN (" \
-                            'SELECT rule_group_id ' \
+                            'SELECT rule_group ' \
                             'FROM "' + rule_group_user_obj._table + '" ' \
-                                "WHERE user_id = %s " \
-                            "UNION SELECT rule_group_id " \
+                                'WHERE "user" = %s ' \
+                            "UNION SELECT rule_group " \
                             'FROM "' + rule_group_group_obj._table + '" g_rel ' \
                                 'JOIN "' + user_group_obj._table + '" u_rel ' \
-                                    "ON (g_rel.group_id = u_rel.gid) " \
-                                "WHERE u_rel.uid = %s) " \
+                                    'ON (g_rel."group" = u_rel."group") ' \
+                                'WHERE u_rel."user" = %s) ' \
                         "OR default_p " \
                         "OR g.global_p)",
                 (model_name, Transaction().user, Transaction().user))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
             return '', []
-        obj = self.pool.get(model_name)
+        obj = pool.get(model_name)
         clause = {}
         clause_global = {}
         operand2query = self._operand_get('res.user', level=1,
@@ -222,14 +223,14 @@ class Rule(ModelSQL, ModelView):
             'WHERE m.model = %s ' \
                 'AND (g.id NOT IN (SELECT rule_group ' \
                         'FROM "' + self._table + '")) ' \
-                'AND (g.id IN (SELECT rule_group_id ' \
+                'AND (g.id IN (SELECT rule_group ' \
                         'FROM "' + rule_group_user_obj._table + '" ' \
-                        'WHERE user_id = %s ' \
-                        'UNION SELECT rule_group_id ' \
+                        'WHERE "user" = %s ' \
+                        'UNION SELECT rule_group ' \
                         'FROM "' + rule_group_group_obj._table + '" g_rel ' \
                             'JOIN "' + user_group_obj._table + '" u_rel ' \
-                                'ON g_rel.group_id = u_rel.gid ' \
-                        'WHERE u_rel.uid = %s))',
+                                'ON g_rel."group" = u_rel."group" ' \
+                        'WHERE u_rel."user" = %s))',
             (model_name, user_id, user_id))
         fetchone = cursor.fetchone()
         if fetchone:

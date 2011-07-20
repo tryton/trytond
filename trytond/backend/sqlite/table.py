@@ -127,7 +127,7 @@ class TableHandler(TableHandlerInterface):
             match = re.match(r'(\w+)(\((.*?)\))?', type_)
             if match:
                 typname = match.group(1).upper()
-                size = match.group(3) and int(match.group(3)) or None
+                size = match.group(3) and int(match.group(3)) or 0
             else:
                 typname = type_.upper()
                 size = -1

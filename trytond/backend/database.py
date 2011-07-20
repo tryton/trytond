@@ -1,5 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from trytond.const import CONTEXT_CACHE_SIZE, MODEL_CACHE_SIZE
 
 DatabaseIntegrityError = None
 DatabaseOperationalError = None
@@ -103,7 +104,8 @@ class CursorInterface(object):
     IN_MAX = 1000
 
     def __init__(self):
-        self.cache = {}
+        from trytond.cache import LRUDict
+        self.cache = LRUDict(CONTEXT_CACHE_SIZE)
 
     def get_cache(self, context=None):
         '''
@@ -112,6 +114,7 @@ class CursorInterface(object):
         :param context: the context
         :return: the cache dictionary
         '''
+        from trytond.cache import LRUDict
         if context is None:
             context = {}
         cache_ctx = context.copy()
@@ -119,7 +122,8 @@ class CursorInterface(object):
                 '_delete_records'):
             if i in cache_ctx:
                 del cache_ctx[i]
-        return self.cache.setdefault(repr(cache_ctx), {})
+        return self.cache.setdefault(repr(cache_ctx),
+            LRUDict(MODEL_CACHE_SIZE))
 
     def execute(self, sql, params=None):
         '''

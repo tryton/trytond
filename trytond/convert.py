@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import time
 from xml import sax
 from decimal import Decimal
@@ -110,16 +109,7 @@ class MenuitemTagHandler:
                 values['icon'] = 'tryton-new'
 
         if values.get('groups'):
-            g_names = values['groups'].split(',')
-            groups_value = []
-            for group in g_names:
-                if group.startswith('-'):
-                    group_id = self.mh.get_id(group[1:])
-                    groups_value.append(('remove', group_id))
-                else:
-                    group_id = self.mh.get_id(group)
-                    groups_value.append(('add', group_id))
-            values['groups'] = groups_value
+            raise Exception("Please use separate records for groups")
 
         if not values.get('name'):
             if not action_name:
@@ -205,17 +195,8 @@ class RecordTagHandler:
                 search_model = self.model._columns[field_name].model_name
                 f_obj = self.mh.pool.get(search_model)
                 with Transaction().set_context(active_test=False):
-                    answer = f_obj.browse(f_obj.search(safe_eval(search_attr)))
-
-                if not answer: return
-
-                if self.model._columns[field_name]._type == 'many2many':
-                    self.values[field_name] = [
-                            ('set', [x['id'] for x in answer]),
-                        ]
-
-                elif self.model._columns[field_name]._type == 'many2one':
-                    self.values[field_name] = answer[0]['id']
+                    self.values[field_name], = \
+                            f_obj.search(safe_eval(search_attr))
 
             elif ref_attr:
                 self.values[field_name] = self.mh.get_id(ref_attr)
@@ -527,7 +508,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 ref_id = ref_id[0]
             return ref_mode + ',' + str(ref_id)
         elif field_type in ['one2many', 'many2many']:
-            raise Unhandled_field()
+            raise Unhandled_field("Unhandled field %s" % key)
         else:
             return browse_record[key]
 
@@ -695,13 +676,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             to_update = {}
             for key in values:
 
-                try:
-                    db_field = self._clean_value(key, db_val, object_ref)
-                except Unhandled_field:
-                    logging.getLogger("convert").info(
-                        'Field %s on %s : integrity not tested.'%(key, model))
-                    to_update[key] = values[key]
-                    continue
+                db_field = self._clean_value(key, db_val, object_ref)
 
                 # if the fs value is the same has in the db, whe ignore it
                 val = values[key]
@@ -813,11 +788,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 if not db_val:
                     db_val = object_ref.browse(db_id)
                 for key in to_update:
-                    try:
-                        values[key] = self._clean_value(
-                            key, db_val, object_ref)
-                    except Unhandled_field:
-                        continue
+                    values[key] = self._clean_value( key, db_val, object_ref)
 
             if module != self.module:
                 temp_values = old_values.copy()
@@ -904,11 +875,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # in the model_data table:
             db_val = object_ref.browse(db_id)
             for key in values:
-                try:
-                    values[key] = self._clean_value(key, db_val,
-                            object_ref)
-                except Unhandled_field:
-                    continue
+                values[key] = self._clean_value(key, db_val, object_ref)
 
             for table in inherit_db_ids.keys():
                 self.modeldata_obj.create({

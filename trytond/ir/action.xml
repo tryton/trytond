@@ -33,7 +33,6 @@ this repository contains the full copyright notices and license terms. -->
                             </field>
                         </page>
                         <page name="groups">
-                            <separator name="groups" colspan="4"/>
                             <field name="groups" colspan="4"/>
                         </page>
                     </notebook>
@@ -119,7 +118,6 @@ this repository contains the full copyright notices and license terms. -->
                             </field>
                         </page>
                         <page name="groups">
-                            <separator name="groups" colspan="4"/>
                             <field name="groups" colspan="4"/>
                         </page>
                     </notebook>
@@ -218,7 +216,6 @@ this repository contains the full copyright notices and license terms. -->
                             </field>
                         </page>
                         <page name="groups">
-                            <separator name="groups" colspan="4"/>
                             <field name="groups" colspan="4"/>
                         </page>
                     </notebook>
@@ -294,7 +291,6 @@ this repository contains the full copyright notices and license terms. -->
                             </field>
                         </page>
                         <page name="groups">
-                            <separator name="groups" colspan="4"/>
                             <field name="groups" colspan="4"/>
                         </page>
                     </notebook>
@@ -423,7 +419,6 @@ this repository contains the full copyright notices and license terms. -->
                             </field>
                         </page>
                         <page name="groups">
-                            <separator name="groups" colspan="4"/>
                             <field name="groups" colspan="4"/>
                         </page>
                     </notebook>

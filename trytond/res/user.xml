@@ -9,7 +9,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="signature">Administrator</field>
             <field name="action" ref="ir.act_module_config_wizard"/>
             <field name="menu" ref="ir.act_menu_tree"/>
-            <field name="groups" eval="[('add', ref('group_admin'))]"/>
+        </record>
+        <record model="res.user-res.group" id="user_admin_group_admin">
+            <field name="user" ref="user_admin"/>
+            <field name="group" ref="group_admin"/>
         </record>
         <record model="ir.ui.view" id="user_view_form">
             <field name="model">res.user</field>
@@ -38,9 +41,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="signature" colspan="4"/>
                         </page>
                         <page string="Access Permissions" col="1" id="permissions">
-                            <separator name="groups"/>
                             <field name="groups"/>
-                            <separator name="rule_groups"/>
                             <field name="rule_groups"/>
                         </page>
                         <page string="Preferences" col="2" id="preferences">
@@ -77,7 +78,6 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="signature" colspan="4"/>
                         </page>
                         <page string="Group Membership" col="1" id="membership">
-                            <separator name="groups"/>
                             <field name="groups"/>
                         </page>
                         <page string="Preferences" col="2" id="preferences">
@@ -122,8 +122,12 @@ this repository contains the full copyright notices and license terms. -->
             <field name="view" ref="user_view_form"/>
             <field name="act_window" ref="act_user_form"/>
         </record>
-        <menuitem parent="res.menu_res" groups="group_admin"
+        <menuitem parent="res.menu_res"
             action="act_user_form" id="menu_user_form"/>
+        <record model="ir.ui.menu-res.group" id="menu_user_form_group_admin">
+            <field name="menu" ref="menu_user_form"/>
+            <field name="group" ref="group_admin"/>
+        </record>
 
         <record model="ir.model.access" id="access_user">
             <field name="model" search="[('model', '=', 'res.user')]"/>

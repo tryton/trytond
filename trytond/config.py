@@ -51,6 +51,7 @@ class ConfigManager(object):
             'prevent_dblist': False,
             'init': {},
             'update': {},
+            'cron': True,
         }
         self.configfile = None
 
@@ -82,12 +83,9 @@ class ConfigManager(object):
         if not self.configfile:
             return
 
-        fp = open(self.configfile)
         parser = ConfigParser.ConfigParser()
-        try:
+        with open(self.configfile) as fp:
             parser.readfp(fp)
-        finally:
-            fp.close()
         for (name, value) in parser.items('options'):
             if value == 'True' or value == 'true':
                 value = True

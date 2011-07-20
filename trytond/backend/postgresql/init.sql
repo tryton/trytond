@@ -102,10 +102,10 @@ CREATE SEQUENCE "res_user-res_group_id_seq";
 
 CREATE TABLE "res_user-res_group" (
     id INTEGER DEFAULT NEXTVAL('res_user-res_group_id_seq') NOT NULL,
-    uid INTEGER NOT NULL,
-    gid INTEGER NOT NULL,
-    FOREIGN KEY (uid) REFERENCES res_user (id) ON DELETE CASCADE,
-    FOREIGN KEY (gid) REFERENCES res_group (id) ON DELETE CASCADE,
+    "user" INTEGER NOT NULL,
+    "group" INTEGER NOT NULL,
+    FOREIGN KEY ("user") REFERENCES res_user (id) ON DELETE CASCADE,
+    FOREIGN KEY ("group") REFERENCES res_group (id) ON DELETE CASCADE,
     PRIMARY KEY(id)
 );
 

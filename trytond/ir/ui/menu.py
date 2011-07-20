@@ -1,8 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 def one_in(i, j):
     """Check the presence of an element of setA in setB
@@ -58,6 +58,7 @@ CLIENT_ICONS = [(x, x) for x in (
     'tryton-system',
     'tryton-undo',
     'tryton-web-browser')]
+SEPARATOR = ' / '
 
 
 class UIMenu(ModelSQL, ModelView):
@@ -70,9 +71,9 @@ class UIMenu(ModelSQL, ModelView):
     parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1,
             ondelete='CASCADE')
     groups = fields.Many2Many('ir.ui.menu-res.group',
-       'menu_id', 'gid', 'Groups')
+       'menu', 'group', 'Groups')
     complete_name = fields.Function(fields.Char('Complete Name',
-        order_field='name'), 'get_full_name')
+        order_field='name'), 'get_rec_name', searcher='search_rec_name')
     icon = fields.Selection('list_icons', 'Icon')
     action = fields.Function(fields.Reference('Action',
         selection=[
@@ -86,6 +87,14 @@ class UIMenu(ModelSQL, ModelView):
     def __init__(self):
         super(UIMenu, self).__init__()
         self._order.insert(0, ('sequence', 'ASC'))
+        self._constraints += [
+            ('check_recursion', 'recursive_menu'),
+            ('check_name', 'wrong_name'),
+        ]
+        self._error_messages.update({
+            'recursive_menu': 'You can not create recursive menu!',
+            'wrong_name': 'You can not use "%s" in name field!' % SEPARATOR,
+        })
 
     def default_icon(self):
         return 'tryton-open'
@@ -97,24 +106,45 @@ class UIMenu(ModelSQL, ModelView):
         return True
 
     def list_icons(self):
-        icon_obj = self.pool.get('ir.ui.icon')
+        pool = Pool()
+        icon_obj = pool.get('ir.ui.icon')
         return sorted(CLIENT_ICONS
             + [(name, name) for _, name in icon_obj.list_icons()])
 
-    def get_full_name(self, ids, name):
-        res = {}
+    def check_name(self, ids):
         for menu in self.browse(ids):
-            res[menu.id] = self._get_one_full_name(menu)
+            if SEPARATOR in menu.name:
+                return False
+        return True
+
+    def get_rec_name(self, ids, name):
+        if not ids:
+            return {}
+        res = {}
+        def _name(menu):
+            if menu.id in res:
+                return res[menu.id]
+            elif menu.parent:
+                return _name(menu.parent) + SEPARATOR + menu.name
+            else:
+                return menu.name
+        for menu in self.browse(ids):
+            res[menu.id] = _name(menu)
         return res
 
-    def _get_one_full_name(self, menu, level=6):
-        if level <= 0:
-            return '...'
-        if menu.parent:
-            parent_path = self._get_one_full_name(menu.parent, level-1) + "/"
-        else:
-            parent_path = ''
-        return parent_path + menu.name
+    def search_rec_name(self, name, clause):
+        if isinstance(clause[2], basestring):
+            values = clause[2].split(SEPARATOR)
+            values.reverse()
+            domain = []
+            field = 'name'
+            for name in values:
+                domain.append((field, clause[1], name))
+                field = 'parent.' + field
+            ids = self.search(domain, order=[])
+            return [('id', 'in', ids)]
+        #TODO Handle list
+        return [('name',) + tuple(clause[1:])]
 
     def search(self, domain, offset=0, limit=None, order=None, count=False,
             query_string=False):
@@ -137,7 +167,8 @@ class UIMenu(ModelSQL, ModelView):
         return res
 
     def get_action(self, ids, name):
-        action_keyword_obj = self.pool.get('ir.action.keyword')
+        pool = Pool()
+        action_keyword_obj = pool.get('ir.action.keyword')
         res = {}
         for menu_id in ids:
             res[menu_id] = False
@@ -149,7 +180,7 @@ class UIMenu(ModelSQL, ModelView):
         for action_keyword in action_keyword_obj.browse(action_keyword_ids):
             model_id = int(
                     action_keyword.model.split(',')[1].split(',')[0].strip('('))
-            action_obj = self.pool.get(action_keyword.action.type)
+            action_obj = pool.get(action_keyword.action.type)
             with Transaction().set_context(active_test=False):
                 action_id = action_obj.search([
                     ('action', '=', action_keyword.action.id),
@@ -164,7 +195,8 @@ class UIMenu(ModelSQL, ModelView):
     def set_action(self, ids, name, value):
         if not value:
             return
-        action_keyword_obj = self.pool.get('ir.action.keyword')
+        pool = Pool()
+        action_keyword_obj = pool.get('ir.action.keyword')
         action_keyword_ids = []
         cursor = Transaction().cursor
         for i in range(0, len(ids), cursor.IN_MAX):
@@ -180,7 +212,7 @@ class UIMenu(ModelSQL, ModelView):
         action_type, action_id = value.split(',')
         if not int(action_id):
             return
-        action_obj = self.pool.get(action_type)
+        action_obj = pool.get(action_type)
         action = action_obj.browse(int(action_id))
         for menu_id in ids:
             with Transaction().set_context(_timestamp=False):

@@ -1,8 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.modules import load_modules, register_classes
 from threading import RLock
 import logging
+from trytond.modules import load_modules, register_classes
+from trytond.transaction import Transaction
+import __builtin__
 
 
 class Pool(object):
@@ -15,32 +17,27 @@ class Pool(object):
     _lock = RLock()
     _locks = {}
     _pool = {}
-    _pools = {}
     test = False
+    _instances = {}
 
-    def __new__(cls, database_name):
-        cls._lock.acquire()
-        lock = cls._locks.setdefault(database_name, RLock())
-        cls._lock.release()
-        lock.acquire()
-        if database_name in cls._pools:
-            res = cls._pools[database_name]
-            lock.release()
-            return res
-        lock.release()
-        return object.__new__(cls)
+    def __new__(cls, database_name=None):
+        if database_name is None:
+            database_name = Transaction().cursor.database_name
+        result = cls._instances.get(database_name)
+        if result:
+            return result
+        lock = cls._locks.get(database_name)
+        if not lock:
+            with cls._lock:
+                lock = cls._locks.setdefault(database_name, RLock())
+        with lock:
+            return cls._instances.setdefault(database_name,
+                super(Pool, cls).__new__(cls))
 
-    def __init__(self, database_name):
+    def __init__(self, database_name=None):
+        if database_name is None:
+            database_name = Transaction().cursor.database_name
         self.database_name = database_name
-        self._lock.acquire()
-        lock = self._locks.setdefault(database_name, RLock())
-        self._lock.release()
-        lock.acquire()
-        self._pool.setdefault(database_name, {})
-        for type in self.classes.keys():
-            self._pool[database_name].setdefault(type, {})
-        self._pools.setdefault(database_name, self)
-        lock.release()
 
     @staticmethod
     def register(klass, type='model'):
@@ -57,53 +54,47 @@ class Pool(object):
         if module:
             Pool.classes[type].setdefault(module, []).append(klass)
 
-    @staticmethod
-    def start():
+    @classmethod
+    def start(cls):
         '''
         Start/restart the Pool
         '''
-        Pool._lock.acquire()
-        try:
+        with cls._lock:
             reload_p = False
             prev_classes = {}
-            for type in Pool.classes:
-                if Pool.classes[type]:
+            for type in cls.classes:
+                if cls.classes.get(type):
                     reload_p = True
-                prev_classes[type] = Pool.classes[type]
-                Pool.classes[type] = {}
+                prev_classes[type] = cls.classes.get(type)
+                cls.classes[type] = {}
             try:
                 register_classes(reload_p=reload_p)
             except Exception:
                 if not reload_p:
                     raise
                 for type in prev_classes:
-                    Pool.classes[type] = prev_classes[type]
-            for db_name in Pool.database_list():
-                Pool(db_name).init()
-        finally:
-            Pool._lock.release()
+                    cls.classes[type] = prev_classes[type]
+            for db_name in cls.database_list():
+                cls(db_name).init()
 
-    @staticmethod
-    def stop(database_name):
+    @classmethod
+    def stop(cls, database_name):
         '''
         Stop the Pool
         '''
-        Pool._lock.acquire()
-        lock = Pool._locks.setdefault(database_name, RLock())
-        Pool._lock.release()
-        lock.acquire()
-        if database_name in Pool._pool:
-            del Pool._pool[database_name]
-        if database_name in Pool._pools:
-            del Pool._pools[database_name]
-        lock.release()
+        with cls._lock:
+            if database_name in cls._instances:
+                del cls._instances[database_name]
+        with cls._locks[database_name]:
+            if database_name in cls._pool:
+                del cls._pool[database_name]
 
-    @staticmethod
-    def database_list():
+    @classmethod
+    def database_list(cls):
         '''
         :return: database list
         '''
-        return Pool._pool.keys()
+        return cls._pool.keys()
 
     def init(self, update=False, lang=None):
         '''
@@ -115,11 +106,8 @@ class Pool(object):
         '''
         logger = logging.getLogger('pool')
         logger.info('init pool for "%s"' % self.database_name)
-        self._lock.acquire()
-        lock = self._locks.setdefault(self.database_name, RLock())
-        self._lock.release()
-        lock.acquire()
-        try:
+        with self._locks[self.database_name]:
+            self._pool.setdefault(self.database_name, {})
             #Clean the _pool before loading modules
             for type in self.classes.keys():
                 self._pool[self.database_name][type] = {}
@@ -127,8 +115,6 @@ class Pool(object):
                     lang=lang)
             if restart:
                 self.init()
-        finally:
-            lock.release()
 
     def get(self, name, type='model'):
         '''
@@ -142,7 +128,19 @@ class Pool(object):
             for type in self.classes.keys():
                 if name in self._pool[self.database_name][type]:
                     break
-        return self._pool[self.database_name][type][name]
+        try:
+            return self._pool[self.database_name][type][name]
+        except KeyError:
+            if type == 'report':
+                from trytond.report import Report
+                # Keyword argument 'type' conflicts with builtin function
+                cls = __builtin__.type(str(name), (Report,), {})
+                obj = object.__new__(cls)
+                obj._name = name
+                self.add(obj, type)
+                obj.__init__()
+                return obj
+            raise
 
     def add(self, obj, type='model'):
         '''
@@ -151,8 +149,8 @@ class Pool(object):
         :param obj: the object
         :param type: the type
         '''
-        self._pool[self.database_name][type][obj._name] = obj
-        obj.pool = self
+        with self._locks[self.database_name]:
+            self._pool[self.database_name][type][obj._name] = obj
 
     def object_name_list(self, type='model'):
         '''

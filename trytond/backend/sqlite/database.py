@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
 from trytond.session import Session
@@ -9,6 +8,7 @@ import re
 from decimal import Decimal
 import datetime
 import time
+import sys
 
 _FIX_ROWCOUNT = False
 try:
@@ -144,10 +144,9 @@ class Database(DatabaseInterface):
                 return
             path = os.path.join(CONFIG['data_path'],
                     database_name + '.sqlite')
-        conn = sqlite.connect(path)
-        cursor = conn.cursor()
-        cursor.close()
-        conn.close()
+        with sqlite.connect(path) as conn:
+            cursor = conn.cursor()
+            cursor.close()
 
     def drop(self, cursor, database_name):
         if database_name == ':memory:':
@@ -358,7 +357,10 @@ class Cursor(CursorInterface):
         return select
 
 sqlite.register_converter('NUMERIC', lambda val: Decimal(val))
-sqlite.register_adapter(Decimal, lambda val: buffer(str(val)))
+if sys.version_info[0] == 2:
+    sqlite.register_adapter(Decimal, lambda val: buffer(str(val)))
+else:
+    sqlite.register_adapter(Decimal, lambda val: bytes(str(val)))
 sqlite.register_adapter(Session, int)
 def adapt_datetime(val):
     return val.replace(tzinfo=None).isoformat(" ")

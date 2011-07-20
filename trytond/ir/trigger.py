@@ -9,6 +9,7 @@ from trytond.backend import TableHandler
 from trytond.tools import reduce_ids
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.pool import Pool
 
 
 class Trigger(ModelSQL, ModelView):
@@ -135,7 +136,8 @@ class Trigger(ModelSQL, ModelView):
         :param record: a BrowseRecord of the tested model
         :return: a boolean
         """
-        model_obj = self.pool.get(trigger.model.model)
+        pool = Pool()
+        model_obj = pool.get(trigger.model.model)
         env = {}
         env['current_date'] = datetime.datetime.today()
         env['time'] = time
@@ -150,9 +152,10 @@ class Trigger(ModelSQL, ModelView):
         :param ids: the list of record ids triggered
         :param trigger_id: the trigger id
         """
-        trigger_log_obj = self.pool.get('ir.trigger.log')
+        pool = Pool()
+        trigger_log_obj = pool.get('ir.trigger.log')
         trigger = self.browse(trigger_id)
-        model_obj = self.pool.get(trigger.action_model.model)
+        model_obj = pool.get(trigger.action_model.model)
         cursor = Transaction().cursor
 
         # Filter on limit_number
@@ -220,11 +223,12 @@ class Trigger(ModelSQL, ModelView):
         '''
         Trigger time actions
         '''
+        pool = Pool()
         trigger_ids = self.search([
             ('on_time', '=', True),
             ])
         for trigger in self.browse(trigger_ids):
-            model_obj = self.pool.get(trigger.model.model)
+            model_obj = pool.get(trigger.model.model)
             triggered_ids = []
             # TODO add a domain
             record_ids = model_obj.search([])

@@ -8,10 +8,6 @@ import sys
 
 execfile(os.path.join('trytond', 'version.py'))
 
-SIMPLEJSON = []
-if sys.version_info < (2, 6):
-    SIMPLEJSON = ['simplejson']
-
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
@@ -52,7 +48,6 @@ setup(name=PACKAGE,
         'Natural Language :: Russian',
         'Natural Language :: Spanish',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
@@ -63,7 +58,7 @@ setup(name=PACKAGE,
         'relatorio >= 0.2.0',
         'Genshi',
         'python-dateutil',
-    ] + SIMPLEJSON,
+    ],
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],
         'MySQL': ['MySQL-python'],

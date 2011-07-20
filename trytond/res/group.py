@@ -4,12 +4,13 @@
 from itertools import chain
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class MenuMany2Many(fields.Many2Many):
 
     def get(self, ids, model, name, values=None):
-        menu_obj = self.get_target(model.pool)
+        menu_obj = self.get_target()
         res = super(MenuMany2Many, self).get(ids, model, name,
                 values=values)
         menu_ids = list(set(chain(*res.values())))
@@ -36,10 +37,10 @@ class Group(ModelSQL, ModelView):
     field_access = fields.One2Many('ir.model.field.access', 'group',
         'Access Field')
     rule_groups = fields.Many2Many('ir.rule.group-res.group',
-       'group_id', 'rule_group_id', 'Rules',
+       'group', 'rule_group', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     menu_access = MenuMany2Many('ir.ui.menu-res.group',
-       'gid', 'menu_id', 'Access Menu')
+       'group', 'menu', 'Access Menu')
 
     def __init__(self):
         super(Group, self).__init__()
@@ -72,32 +73,35 @@ class Group(ModelSQL, ModelView):
 
     def create(self, vals):
         res = super(Group, self).create(vals)
+        pool = Pool()
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        pool.get('ir.rule').domain_get.reset()
         # Restart the cache for get_groups
-        self.pool.get('res.user').get_groups.reset()
+        pool.get('res.user').get_groups.reset()
         # Restart the cache for get_preferences
-        self.pool.get('res.user').get_preferences.reset()
+        pool.get('res.user').get_preferences.reset()
         return res
 
     def write(self, ids, vals):
         res = super(Group, self).write(ids, vals)
+        pool = Pool()
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        pool.get('ir.rule').domain_get.reset()
         # Restart the cache for get_groups
-        self.pool.get('res.user').get_groups.reset()
+        pool.get('res.user').get_groups.reset()
         # Restart the cache for get_preferences
-        self.pool.get('res.user').get_preferences.reset()
+        pool.get('res.user').get_preferences.reset()
         return res
 
     def delete(self, ids):
         res = super(Group, self).delete(ids)
+        pool = Pool()
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        pool.get('ir.rule').domain_get.reset()
         # Restart the cache for get_groups
-        self.pool.get('res.user').get_groups.reset()
+        pool.get('res.user').get_groups.reset()
         # Restart the cache for get_preferences
-        self.pool.get('res.user').get_preferences.reset()
+        pool.get('res.user').get_preferences.reset()
         return res
 
 Group()

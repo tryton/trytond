@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import logging
 logging.basicConfig(level=logging.ERROR)
 import sys, os
@@ -10,13 +9,6 @@ DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
     '..', '..', '..', 'trytond')))
 if os.path.isdir(DIR):
     sys.path.insert(0, os.path.dirname(DIR))
-
-if sys.version_info[:2] <= (2, 5):
-    # ugly monkeypatch to make doctests work. For the reasons see
-    # http://mail.python.org/pipermail/python-dev/2008-July/081420.html
-    # It can go away once we drop Python 2.5
-    import decimal
-    decimal.Decimal.__repr__ = lambda s: "Decimal('%s')" % str(s)
 
 import unittest
 import doctest

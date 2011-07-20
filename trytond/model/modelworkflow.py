@@ -1,8 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 from trytond.model import ModelStorage
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class ModelWorkflow(ModelStorage):
@@ -27,7 +27,7 @@ class ModelWorkflow(ModelStorage):
         return res
 
     def delete(self, ids):
-        instance_obj = self.pool.get('workflow.instance')
+        instance_obj = Pool().get('workflow.instance')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -49,8 +49,9 @@ class ModelWorkflow(ModelStorage):
 
         :param ids: a list of id or an id
         '''
-        workflow_obj = self.pool.get('workflow')
-        instance_obj = self.pool.get('workflow.instance')
+        pool = Pool()
+        workflow_obj = pool.get('workflow')
+        instance_obj = pool.get('workflow.instance')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -75,7 +76,7 @@ class ModelWorkflow(ModelStorage):
 
         :param ids: a list of id or an id
         '''
-        instance_obj = self.pool.get('workflow.instance')
+        instance_obj = Pool().get('workflow.instance')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -96,7 +97,7 @@ class ModelWorkflow(ModelStorage):
 
         :param ids: a list of id or an id
         '''
-        instance_obj = self.pool.get('workflow.instance')
+        instance_obj = Pool().get('workflow.instance')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -119,7 +120,7 @@ class ModelWorkflow(ModelStorage):
         '''
         if self._name == 'workflow.instance':
             return
-        instance_obj = self.pool.get('workflow.instance')
+        instance_obj = Pool().get('workflow.instance')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
