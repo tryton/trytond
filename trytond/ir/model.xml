@@ -85,7 +85,7 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="relation"/>
                     <label name="field_description"/>
                     <field name="field_description" colspan="3"/>
-                    <label name="help"/>
+                    <label name="help" fill="1" xalign="0.0"/>
                     <field name="help" colspan="3"/>
                     <label name="module"/>
                     <field name="module"/>

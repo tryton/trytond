@@ -53,6 +53,7 @@ attlist.label &= [ a:defaultValue = "" ] attribute string { text }?
 attlist.label &= ( attribute name { text } | attribute id { text } )
 attlist.label &= attribute states { text }?
 attlist.label &= [ a:defaultValue = "0.0" ] attribute align { text }?
+attlist.label &= [ a:defaultValue = "0.5" ] attribute xalign { text }?
 attlist.label &=
   [ a:defaultValue = "0" ] attribute expand { "0" | "1" }?
 attlist.label &= [ a:defaultValue = "0" ] attribute fill { "0" | "1" }?
