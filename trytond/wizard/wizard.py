@@ -7,9 +7,10 @@ from xmlrpclib import MAXINT
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.error import WarningErrorMixin
+from trytond.url import URLMixin
 
 
-class Wizard(WarningErrorMixin):
+class Wizard(WarningErrorMixin, URLMixin):
     _name = ""
     states = {}
 

@@ -5,8 +5,15 @@
 
 import unittest
 import datetime
+import socket
+import urllib
+
+from trytond.config import CONFIG
 from trytond.tools import reduce_ids, safe_eval, datetime_strftime, \
         reduce_domain
+from trytond.tests.test_tryton import (POOL, DB_NAME, USER, CONTEXT,
+    install_module)
+from trytond.transaction import Transaction
 
 
 class ToolsTestCase(unittest.TestCase):
@@ -125,8 +132,13 @@ class ToolsTestCase(unittest.TestCase):
             self.assertEqual(reduce_domain(i), j,
                     '%s -> %s != %s' % (i, reduce_domain(i), j))
 
+
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ToolsTestCase)
+    func = unittest.TestLoader().loadTestsFromTestCase
+    suite = unittest.TestSuite()
+    for testcase in (ToolsTestCase,):
+        suite.addTests(func(testcase))
+    return suite
 
 if __name__ == '__main__':
     suite = suite()

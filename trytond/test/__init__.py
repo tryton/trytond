@@ -8,3 +8,4 @@ from import_data import *
 from export_data import *
 from trigger import *
 from access import *
+from wizard import *
