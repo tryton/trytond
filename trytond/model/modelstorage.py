@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from __future__ import with_statement
 import datetime
 import time
 from decimal import Decimal
@@ -12,6 +11,9 @@ try:
 except ImportError:
     import StringIO
 import csv
+from functools import reduce
+import traceback
+import sys
 from trytond.model import Model
 from trytond.model import fields
 from trytond.model.browse import BrowseRecordList, BrowseRecord, \
@@ -19,8 +21,10 @@ from trytond.model.browse import BrowseRecordList, BrowseRecord, \
 from trytond.model.browse import EvalEnvironment
 from trytond.tools import safe_eval, reduce_domain
 from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
-from trytond.const import OPERATORS
+from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
+from trytond.pool import Pool
+from trytond.cache import LRUDict
 
 
 class ModelStorage(Model):
@@ -62,7 +66,7 @@ class ModelStorage(Model):
     def __clean_xxx2many_cache(self):
         # Clean cursor cache
         to_clean = [(model._name, field_name)
-                for model_name, model in self.pool.iterobject(type='model')
+                for model_name, model in Pool().iterobject(type='model')
                 for field_name, target_name in model._xxx2many_targets
                 if target_name == self._name]
         for cache in Transaction().cursor.cache.values():
@@ -81,8 +85,9 @@ class ModelStorage(Model):
                 and created values as value
         :return: the id of the created record
         '''
-        model_access_obj = self.pool.get('ir.model.access')
-        model_field_access_obj = self.pool.get('ir.model.field.access')
+        pool = Pool()
+        model_access_obj = pool.get('ir.model.access')
+        model_field_access_obj = pool.get('ir.model.field.access')
 
         model_access_obj.check(self._name, 'create')
         model_field_access_obj.check(self._name,
@@ -96,7 +101,7 @@ class ModelStorage(Model):
 
         :param id: the created id
         '''
-        trigger_obj = self.pool.get('ir.trigger')
+        trigger_obj = Pool().get('ir.trigger')
         trigger_ids = trigger_obj.get_triggers(self._name, 'create')
         if not trigger_ids:
             return
@@ -116,8 +121,9 @@ class ModelStorage(Model):
             the dictionnaries will have fields names as key
             and fields value as value. The list will not be in the same order.
         '''
-        model_access_obj = self.pool.get('ir.model.access')
-        model_field_access_obj = self.pool.get('ir.model.field.access')
+        pool = Pool()
+        model_access_obj = pool.get('ir.model.access')
+        model_field_access_obj = pool.get('ir.model.field.access')
 
         model_access_obj.check(self._name, 'read')
         model_field_access_obj.check(self._name,
@@ -135,8 +141,9 @@ class ModelStorage(Model):
                 and written values as value
         :return: True if succeed
         '''
-        model_access_obj = self.pool.get('ir.model.access')
-        model_field_access_obj = self.pool.get('ir.model.field.access')
+        pool = Pool()
+        model_access_obj = pool.get('ir.model.access')
+        model_field_access_obj = pool.get('ir.model.field.access')
 
         model_access_obj.check(self._name, 'write')
         model_field_access_obj.check(self._name,
@@ -165,7 +172,7 @@ class ModelStorage(Model):
         :param ids: a list of ids
         :return: a dictionary of the lists of eligible ids by triggers
         '''
-        trigger_obj = self.pool.get('ir.trigger')
+        trigger_obj = Pool().get('ir.trigger')
         trigger_ids = trigger_obj.get_triggers(self._name, 'write')
         if not trigger_ids:
             return {}
@@ -185,11 +192,11 @@ class ModelStorage(Model):
 
         :param eligibles: a dictionary of the lists of eligible ids by triggers
         '''
-        trigger_obj = self.pool.get('ir.trigger')
+        trigger_obj = Pool().get('ir.trigger')
         trigger_ids = eligibles.keys()
         if not trigger_ids:
             return
-        records = self.browse(chain(*eligibles.values()))
+        records = self.browse(list(chain(*eligibles.values())))
         id2record = dict((x.id, x) for x in records)
         triggers = trigger_obj.browse(trigger_ids)
         for trigger in triggers:
@@ -208,7 +215,7 @@ class ModelStorage(Model):
         :param ids: a list of ids or an id
         :return: True if succeed
         '''
-        model_access_obj = self.pool.get('ir.model.access')
+        model_access_obj = Pool().get('ir.model.access')
 
         model_access_obj.check(self._name, 'delete')
         if not self.check_xml_record(ids, None):
@@ -234,7 +241,7 @@ class ModelStorage(Model):
 
         :param ids: the deleted ids
         '''
-        trigger_obj = self.pool.get('ir.trigger')
+        trigger_obj = Pool().get('ir.trigger')
         trigger_ids = trigger_obj.get_triggers(self._name, 'delete')
         if not trigger_ids:
             return
@@ -257,7 +264,8 @@ class ModelStorage(Model):
             new value for the field as value
         :return: a list of new ids or the new id
         '''
-        lang_obj = self.pool.get('ir.lang')
+        pool = Pool()
+        lang_obj = pool.get('ir.lang')
         if default is None:
             default = {}
 
@@ -314,7 +322,7 @@ class ModelStorage(Model):
             data, data_o2m = convert_data(field_defs, data)
             new_ids[data_id] = self.create(data)
             for field_name in data_o2m:
-                relation_model = self.pool.get(
+                relation_model = pool.get(
                         field_defs[field_name]['relation'])
                 relation_field = field_defs[field_name]['relation_field']
                 if relation_field:
@@ -511,13 +519,14 @@ class ModelStorage(Model):
         :param ids: a list of ids or an id
         :return: a BrowseRecordList or a BrowseRecord
         '''
+        local_cache = LRUDict(RECORD_CACHE_SIZE)
         if isinstance(ids, (int, long)):
-            return BrowseRecord(ids, self)
-        local_cache = {}
-        return BrowseRecordList((BrowseRecord(x, self, local_cache=local_cache)
+            return BrowseRecord(ids, self, [ids], local_cache)
+        return BrowseRecordList((BrowseRecord(x, self, ids, local_cache)
             for x in ids))
 
     def __export_row(self, record, fields_names):
+        pool = Pool()
         lines = []
         data = ['' for x in range(len(fields_names))]
         done = []
@@ -531,7 +540,7 @@ class ModelStorage(Model):
                 if not isinstance(value, BrowseRecord):
                     break
                 field_name = fields_tree[i]
-                model_obj = self.pool.get(value._model_name)
+                model_obj = pool.get(value._model_name)
                 field = model_obj._columns[field_name]
                 if field.states and 'invisible' in field.states:
                     pyson_invisible = PYSONEncoder().encode(
@@ -603,6 +612,7 @@ class ModelStorage(Model):
             - the exception if failed
             - the warning if failed
         '''
+        pool = Pool()
         def process_lines(self, datas, prefix, fields_def, position=0):
 
             def warn(msgname, *args):
@@ -625,7 +635,7 @@ class ModelStorage(Model):
             def get_many2one(relation, value):
                 if not value:
                     return False
-                relation_obj = self.pool.get(relation)
+                relation_obj = pool.get(relation)
                 res = relation_obj.search([
                     ('rec_name', '=', value),
                     ], limit=2)
@@ -643,7 +653,7 @@ class ModelStorage(Model):
                 if not value:
                     return False
                 res = []
-                relation_obj = self.pool.get(relation)
+                relation_obj = pool.get(relation)
                 for word in csv.reader(StringIO.StringIO(value), delimiter=',',
                         quoting=csv.QUOTE_NONE, escapechar='\\').next():
                     res2 = relation_obj.search([
@@ -670,7 +680,7 @@ class ModelStorage(Model):
                 except Exception:
                     warn('reference_syntax_error', value, '/'.join(field))
                     return False
-                relation_obj = self.pool.get(relation)
+                relation_obj = pool.get(relation)
                 res = relation_obj.search([
                     ('rec_name', '=', value),
                     ], limit=2)
@@ -775,7 +785,7 @@ class ModelStorage(Model):
             # Import one2many fields
             nbrmax = 1
             for field in todo:
-                newfd = self.pool.get(fields_def[field]['relation']
+                newfd = pool.get(fields_def[field]['relation']
                         ).fields_get()
                 res = process_lines(self, datas, prefix + [field], newfd,
                         position)
@@ -806,7 +816,7 @@ class ModelStorage(Model):
                     datas.pop(0)
             return (row, nbrmax, translate)
 
-        ir_model_data_obj = self.pool.get('ir.model.data')
+        ir_model_data_obj = pool.get('ir.model.data')
 
         # logger for collecting warnings for the client
         warnings = logging.Logger("import")
@@ -840,7 +850,9 @@ class ModelStorage(Model):
                 logger.error(exp)
                 # XXX should raise Exception
                 Transaction().cursor.rollback()
-                warning = '\n'.join(map(str, exp[1:]) + [warning])
+                tb_s = reduce(lambda x, y: x + y,
+                        traceback.format_exception(*sys.exc_info()))
+                warning = '%s\n%s' % (tb_s, warning)
                 return (-1, res, exp, warning)
             done += 1
         return (done, 0, 0, 0)
@@ -861,7 +873,7 @@ class ModelStorage(Model):
             written values as value
         :return: True or False
         """
-        model_data_obj = self.pool.get('ir.model.data')
+        model_data_obj = Pool().get('ir.model.data')
         # Allow root user to update/delete
         if Transaction().user == 0:
             return True
@@ -934,7 +946,8 @@ class ModelStorage(Model):
         return True
 
     def _get_error_args(self, field_name):
-        model_field_obj = self.pool.get('ir.model.field')
+        pool = Pool()
+        model_field_obj = pool.get('ir.model.field')
         error_args = (field_name, self._name)
         if model_field_obj:
             model_field_ids = model_field_obj.search([
@@ -949,6 +962,7 @@ class ModelStorage(Model):
 
 
     def _validate(self, ids):
+        pool = Pool()
         if (Transaction().user == 0
                 and Transaction().context.get('user')):
             with Transaction().set_user(Transaction().context.get('user')):
@@ -958,12 +972,12 @@ class ModelStorage(Model):
             if not getattr(self, field[0])(ids):
                 self.raise_user_error(field[1])
 
-        if not 'res.user' in self.pool.object_name_list() \
+        if not 'res.user' in pool.object_name_list() \
                 or Transaction().user == 0:
             ctx_pref = {
             }
         else:
-            user_obj = self.pool.get('res.user')
+            user_obj = pool.get('res.user')
             ctx_pref = user_obj.get_preferences(context_only=True)
 
         def is_pyson(test):
@@ -989,9 +1003,9 @@ class ModelStorage(Model):
                         ('many2one', 'many2many', 'one2many', 'one2one')
                     and field.domain):
                     if field._type in ('many2one', 'one2many'):
-                        relation_obj = self.pool.get(field.model_name)
+                        relation_obj = pool.get(field.model_name)
                     else:
-                        relation_obj = field.get_target(self.pool)
+                        relation_obj = field.get_target()
                     if is_pyson(field.domain):
                         pyson_domain = PYSONEncoder().encode(field.domain)
                         for record in records:
@@ -1110,6 +1124,7 @@ class ModelStorage(Model):
                                 field_name)
 
     def _clean_defaults(self, defaults):
+        pool = Pool()
         vals = {}
         for field in defaults.keys():
             fld_def = (field in self._columns) and self._columns[field] \
@@ -1120,7 +1135,7 @@ class ModelStorage(Model):
                 else:
                     vals[field] = defaults[field]
             elif fld_def._type in ('one2many',):
-                obj = self.pool.get(fld_def.model_name)
+                obj = pool.get(fld_def.model_name)
                 vals[field] = []
                 for defaults2 in defaults[field]:
                     vals2 = obj._clean_defaults(defaults2)
@@ -1139,8 +1154,9 @@ class ModelStorage(Model):
 
         :param ids: a list of id or an id
         '''
-        trigger_obj = self.pool.get('workflow.trigger')
-        instance_obj = self.pool.get('workflow.instance')
+        pool = Pool()
+        trigger_obj = pool.get('workflow.trigger')
+        instance_obj = pool.get('workflow.instance')
 
         if isinstance(ids, (int, long)):
             ids = [ids]

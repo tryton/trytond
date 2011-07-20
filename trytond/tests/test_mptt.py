@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import unittest
 from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
         install_module
@@ -23,8 +22,7 @@ class MPTTTestCase(unittest.TestCase):
             ('parent', '=', parent_id),
             ])
         childs = self.mptt.read(child_ids, ['left', 'right'])
-        childs.sort(lambda x, y: cmp(child_ids.index(x['id']),
-            child_ids.index(y['id'])))
+        childs.sort(key=lambda x: child_ids.index(x['id']))
         for child in childs:
             assert child['left'] > left, \
                     'Record (%d): left %d <= parent left %d' % \
@@ -152,7 +150,7 @@ class MPTTTestCase(unittest.TestCase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
             record_ids = self.mptt.search([])
-            self.mptt.write(record_ids[:len(record_ids)/2], {
+            self.mptt.write(record_ids[:len(record_ids) // 2], {
                     'active': False
                     })
             self.CheckTree()
@@ -186,7 +184,7 @@ class MPTTTestCase(unittest.TestCase):
 
         with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
             record_ids = self.mptt.search([])
-            self.mptt.delete(record_ids[:len(record_ids)/2])
+            self.mptt.delete(record_ids[:len(record_ids) // 2])
             self.CheckTree()
 
             transaction.cursor.rollback()

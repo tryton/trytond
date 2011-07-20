@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import base64
 import os
 from trytond.model import ModelView, ModelSQL, ModelStorage, fields
@@ -9,6 +8,7 @@ from trytond.backend import TableHandler
 from trytond.pyson import PYSONEncoder, CONTEXT, PYSON
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.pool import Pool
 
 
 class Action(ModelSQL, ModelView):
@@ -20,7 +20,7 @@ class Action(ModelSQL, ModelView):
     usage = fields.Char('Usage')
     keywords = fields.One2Many('ir.action.keyword', 'action',
             'Keywords')
-    groups = fields.Many2Many('ir.action-res.group', 'action_id', 'gid',
+    groups = fields.Many2Many('ir.action-res.group', 'action', 'group',
             'Groups')
     icon = fields.Many2One('ir.ui.icon', 'Icon')
     active = fields.Boolean('Active', select=2)
@@ -38,6 +38,7 @@ class Action(ModelSQL, ModelView):
         return True
 
     def get_action_id(self, action_id):
+        pool = Pool()
         with Transaction().set_context(active_test=False):
             if self.search([
                 ('id', '=', action_id),
@@ -49,7 +50,7 @@ class Action(ModelSQL, ModelView):
                     'ir.action.wizard',
                     'ir.action.url',
                     ):
-                action_obj = self.pool.get(action_type)
+                action_obj = pool.get(action_type)
                 action_id2 = action_obj.search([
                     ('id', '=', action_id),
                     ])
@@ -88,7 +89,8 @@ class ActionKeyword(ModelSQL, ModelView):
         })
 
     def check_wizard_model(self, ids):
-        action_wizard_obj = self.pool.get('ir.action.wizard')
+        pool = Pool()
+        action_wizard_obj = pool.get('ir.action.wizard')
         for action_keyword in self.browse(ids):
             if action_keyword.action.type == 'ir.action.wizard':
                 action_wizard_id = action_wizard_obj.search([
@@ -103,13 +105,15 @@ class ActionKeyword(ModelSQL, ModelView):
 
     def _convert_vals(self, vals):
         vals = vals.copy()
-        action_obj = self.pool.get('ir.action')
+        pool = Pool()
+        action_obj = pool.get('ir.action')
         if 'action' in vals:
             vals['action'] = action_obj.get_action_id(vals['action'])
         return vals
 
     def models_get(self):
-        model_obj = self.pool.get('ir.model')
+        pool = Pool()
+        model_obj = pool.get('ir.model')
         model_ids = model_obj.search([])
         res = []
         for model in model_obj.browse(model_ids):
@@ -117,36 +121,39 @@ class ActionKeyword(ModelSQL, ModelView):
         return res
 
     def delete(self, ids):
+        pool = Pool()
         if isinstance(ids, (int, long)):
             ids = [ids]
         for keyword in self.browse(ids):
             # Restart the cache view
             try:
-                self.pool.get(keyword.model.split(',')[0]
+                pool.get(keyword.model.split(',')[0]
                         ).fields_view_get.reset()
             except Exception:
                 pass
         return super(ActionKeyword, self).delete(ids)
 
     def create(self, vals):
+        pool = Pool()
         vals = self._convert_vals(vals)
         if 'model' in vals:
             # Restart the cache view
             try:
-                self.pool.get(vals['model'].split(',')[0]
+                pool.get(vals['model'].split(',')[0]
                         ).fields_view_get.reset()
             except Exception:
                 pass
         return super(ActionKeyword, self).create(vals)
 
     def write(self, ids, vals):
+        pool = Pool()
         vals = self._convert_vals(vals)
         if isinstance(ids, (int, long)):
             ids = [ids]
         for keyword in self.browse(ids):
             # Restart the cache view
             try:
-                self.pool.get(keyword.model.split(',')[0]
+                pool.get(keyword.model.split(',')[0]
                         ).fields_view_get.reset()
             except Exception:
                 pass
@@ -154,13 +161,14 @@ class ActionKeyword(ModelSQL, ModelView):
         for keyword in self.browse(ids):
             # Restart the cache view
             try:
-                self.pool.get(keyword.model.split(',')[0]
+                pool.get(keyword.model.split(',')[0]
                         ).fields_view_get.reset()
             except Exception:
                 pass
         return res
 
     def get_keyword(self, keyword, value):
+        pool = Pool()
         res = []
         model, model_id = value
 
@@ -176,7 +184,7 @@ class ActionKeyword(ModelSQL, ModelView):
             ]))
         for action_keyword in self.browse(action_keyword_ids):
             try:
-                action_obj = self.pool.get(action_keyword.action.type)
+                action_obj = pool.get(action_keyword.action.type)
             except Exception:
                 continue
             action_id = action_obj.search([
@@ -369,7 +377,8 @@ class ActionReport(ModelSQL, ModelView):
         return super(ActionReport, self).write(ids, vals)
 
     def delete(self, ids):
-        action_obj = self.pool.get('ir.action')
+        pool = Pool()
+        action_obj = pool.get('ir.action')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -563,7 +572,8 @@ class ActionActWindow(ModelSQL, ModelView):
         return new_id
 
     def delete(self, ids):
-        action_obj = self.pool.get('ir.action')
+        pool = Pool()
+        action_obj = pool.get('ir.action')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -639,7 +649,8 @@ class ActionWizard(ModelSQL, ModelView):
         return new_id
 
     def delete(self, ids):
-        action_obj = self.pool.get('ir.action')
+        pool = Pool()
+        action_obj = pool.get('ir.action')
 
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -773,7 +784,8 @@ class ActionURL(ModelSQL, ModelView):
         return new_id
 
     def delete(self, ids):
-        action_obj = self.pool.get('ir.action')
+        pool = Pool()
+        action_obj = pool.get('ir.action')
 
         if isinstance(ids, (int, long)):
             ids = [ids]

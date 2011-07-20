@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class WarningErrorMixin(object):
@@ -24,7 +25,7 @@ class WarningErrorMixin(object):
             (or tuple if error_description is not empty) instead of raising an
             exception.
         '''
-        translation_obj = self.pool.get('ir.translation')
+        translation_obj = Pool().get('ir.translation')
 
         error = self._error_messages.get(error, error)
 
@@ -92,7 +93,7 @@ class WarningErrorMixin(object):
         :param warning_description_args: the arguments that will be used
             for "%"-based substitution
         '''
-        warning_obj = self.pool.get('res.user.warning')
+        warning_obj = Pool().get('res.user.warning')
         if warning_obj.check(warning_name):
             if warning_description:
                 warning, warning_description = self.raise_user_error(warning,

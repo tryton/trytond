@@ -1,12 +1,12 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 import time
 import datetime
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.tools import safe_eval, datetime_strftime
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 from time_locale import TIME_LOCALE
 from locale import CHAR_MAX
 
@@ -57,7 +57,8 @@ class Lang(ModelSQL, ModelView, Cacheable):
         return [('name',) + clause[1:]]
 
     def read(self, ids, fields_names=None):
-        translation_obj = self.pool.get('ir.translation')
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
         res = super(Lang, self).read(ids, fields_names=fields_names)
         if (Transaction().context.get('translate_name')
                 and (not fields_names or 'name' in fields_names)):

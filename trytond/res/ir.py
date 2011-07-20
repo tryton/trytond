@@ -3,15 +3,16 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.backend import TableHandler
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class UIMenuGroup(ModelSQL):
     "UI Menu - Group"
     _name = 'ir.ui.menu-res.group'
     _description = __doc__
-    menu_id = fields.Many2One('ir.ui.menu', 'Menu', ondelete='CASCADE',
+    menu = fields.Many2One('ir.ui.menu', 'Menu', ondelete='CASCADE',
             select=1, required=True)
-    gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -20,24 +21,28 @@ class UIMenuGroup(ModelSQL):
         TableHandler.table_rename(cursor, 'ir_ui_menu_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'ir_ui_menu_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 menu_id and gid renamed into menu group
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('menu_id', 'menu')
+        table.column_rename('gid', 'group')
         super(UIMenuGroup, self).init(module_name)
 
     def create(self, vals):
         res = super(UIMenuGroup, self).create(vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def write(self, ids, vals):
         res = super(UIMenuGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def delete(self, ids):
         res = super(UIMenuGroup, self).delete(ids)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
 UIMenuGroup()
@@ -47,9 +52,9 @@ class ActionGroup(ModelSQL):
     "Action - Group"
     _name = 'ir.action-res.group'
     _description = __doc__
-    action_id = fields.Many2One('ir.action', 'Action', ondelete='CASCADE',
+    action = fields.Many2One('ir.action', 'Action', ondelete='CASCADE',
             select=1, required=True)
-    gid = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -58,24 +63,36 @@ class ActionGroup(ModelSQL):
         TableHandler.table_rename(cursor, 'ir_action_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'ir_action_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 action_id and gid renamed into action and group
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('action_id', 'action')
+        table.column_rename('gid', 'group')
         super(ActionGroup, self).init(module_name)
 
     def create(self, vals):
+        action_obj = Pool().get('ir.action')
+        if vals.get('action'):
+            vals = vals.copy()
+            vals['action'] = action_obj.get_action_id(vals['action'])
         res = super(ActionGroup, self).create(vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def write(self, ids, vals):
+        action_obj = Pool().get('ir.action')
+        if vals.get('action'):
+            vals = vals.copy()
+            vals['action'] = action_obj.get_action_id(vals['action'])
         res = super(ActionGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
     def delete(self, ids):
         res = super(ActionGroup, self).delete(ids)
         # Restart the cache on the domain_get method
-        self.pool.get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule').domain_get.reset()
         return res
 
 ActionGroup()
@@ -105,9 +122,9 @@ class RuleGroupGroup(ModelSQL):
     "Rule Group - Group"
     _name = 'ir.rule.group-res.group'
     _description = __doc__
-    rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
+    rule_group = fields.Many2One('ir.rule.group', 'Rule Group',
             ondelete='CASCADE', select=1, required=True)
-    group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -116,6 +133,11 @@ class RuleGroupGroup(ModelSQL):
         TableHandler.table_rename(cursor, 'group_rule_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'group_rule_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 rule_group_id and group_id renamed into rule_group
+        # and group
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('rule_group_id', 'rule_group')
+        table.column_rename('group_id', 'group')
         super(RuleGroupGroup, self).init(module_name)
 
 RuleGroupGroup()
@@ -125,9 +147,9 @@ class RuleGroupUser(ModelSQL):
     "Rule Group - User"
     _name = 'ir.rule.group-res.user'
     _description = __doc__
-    rule_group_id = fields.Many2One('ir.rule.group', 'Rule Group',
+    rule_group = fields.Many2One('ir.rule.group', 'Rule Group',
             ondelete='CASCADE', select=1, required=True)
-    user_id = fields.Many2One('res.user', 'User', ondelete='CASCADE',
+    user = fields.Many2One('res.user', 'User', ondelete='CASCADE',
             select=1, required=True)
 
     def init(self, module_name):
@@ -136,6 +158,11 @@ class RuleGroupUser(ModelSQL):
         TableHandler.table_rename(cursor, 'user_rule_group_rel', self._table)
         TableHandler.sequence_rename(cursor, 'user_rule_group_rel_id_seq',
                 self._table + '_id_seq')
+        # Migration from 2.0 rule_group_id and user_id renamed into rule_group
+        # and user
+        table = TableHandler(cursor, self, module_name)
+        table.column_rename('rule_group_id', 'rule_group')
+        table.column_rename('user_id', 'user')
         super(RuleGroupUser, self).init(module_name)
 
 RuleGroupUser()
@@ -147,7 +174,7 @@ class Lang(ModelSQL, ModelView):
     def write(self, ids, vals):
         res = super(Lang, self).write(ids, vals)
         # Restart the cache for get_preferences
-        self.pool.get('res.user').get_preferences.reset()
+        Pool().get('res.user').get_preferences.reset()
         return res
 
 Lang()
@@ -172,21 +199,21 @@ class SequenceTypeGroup(ModelSQL):
             ondelete='CASCADE', select=1, required=True)
 
     def delete(self, ids):
-        rule_obj = self.pool.get('ir.rule')
+        rule_obj = Pool().get('ir.rule')
         res = super(SequenceTypeGroup, self).delete(ids)
         # Restart the cache on the domain_get method of ir.rule
         rule_obj.domain_get.reset()
         return res
 
     def create(self, vals):
-        rule_obj = self.pool.get('ir.rule')
+        rule_obj = Pool().get('ir.rule')
         res = super(SequenceTypeGroup, self).create(vals)
         # Restart the cache on the domain_get method of ir.rule
         rule_obj.domain_get.reset()
         return res
 
     def write(self, ids, vals):
-        rule_obj = self.pool.get('ir.rule')
+        rule_obj = Pool().get('ir.rule')
         res = super(SequenceTypeGroup, self).write(ids, vals)
         # Restart the cache on the domain_get method
         rule_obj.domain_get.reset()
@@ -201,7 +228,7 @@ class Sequence(ModelSQL, ModelView):
         'User Groups'), 'get_groups', searcher='search_groups')
 
     def get_groups(self, ids, name):
-        sequence_type_obj = self.pool.get('ir.sequence.type')
+        sequence_type_obj = Pool().get('ir.sequence.type')
         sequences= self.browse(ids)
         code2seq = {}
         for sequence in sequences:
@@ -221,7 +248,7 @@ class Sequence(ModelSQL, ModelView):
         return res
 
     def search_groups(self, name, clause):
-        sequence_type_obj = self.pool.get('ir.sequence.type')
+        sequence_type_obj = Pool().get('ir.sequence.type')
         ids = sequence_type_obj.search([clause], order=[])
         seq_types = sequence_type_obj.browse(ids)
         codes = set(st.code for st in seq_types)

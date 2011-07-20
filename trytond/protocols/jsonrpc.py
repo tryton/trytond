@@ -22,10 +22,7 @@ import posixpath
 import urllib
 import datetime
 from decimal import Decimal
-if sys.version_info < (2, 6):
-    import simplejson as json
-else:
-    import json
+import json
 
 def object_hook(dct):
     if '__class__' in dct:
@@ -279,8 +276,6 @@ class SimpleThreadedJSONRPCServer(SocketServer.ThreadingMixIn,
     timeout = 1
 
     def server_bind(self):
-        # Python < 2.6 doesn't handle self.timeout
-        self.socket.settimeout(1)
         self.socket.setsockopt(socket.SOL_SOCKET,
                 socket.SO_REUSEADDR, 1)
         SimpleJSONRPCServer.server_bind(self)

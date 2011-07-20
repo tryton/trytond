@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 import copy
+import collections
 from trytond.model import fields
 from trytond.error import WarningErrorMixin
 from trytond.pool import Pool
@@ -16,7 +17,6 @@ class Model(WarningErrorMixin):
     _name = None
     _inherits = {}
     _description = ''
-    pool = None #XXX change to avoid collision with field
     __columns = None
     __xxx2many_targets = None
     __defaults = None
@@ -54,7 +54,7 @@ class Model(WarningErrorMixin):
         fields_names += self._inherit_fields.keys()
         for field_name in fields_names:
             default_method = getattr(self, 'default_%s' % field_name, False)
-            if callable(default_method):
+            if isinstance(default_method, collections.Callable):
                 res[field_name] = default_method
         self.__defaults = res
         return res
@@ -98,16 +98,19 @@ class Model(WarningErrorMixin):
             for attribute in ('on_change', 'on_change_with', 'autocomplete'):
                 function_name = '%s_%s' % (attribute, field_name)
                 if (getattr(field, attribute, False)
-                        and callable(getattr(self, function_name, False))):
+                         and isinstance(getattr(self, function_name, False),
+                             collections.Callable)):
                     self._rpc.setdefault(function_name, False)
 
     def __getattr__(self, name):
+        pool = Pool()
         # Search if a function exists in inherits parents
         for model_name, field_name in self._inherits.iteritems():
-            model_obj = self.pool.get(model_name)
-            if hasattr(model_obj, name) and \
-                    callable(getattr(model_obj, name)):
-                return getattr(model_obj, name)
+            model_obj = pool.get(model_name)
+            if (hasattr(model_obj, name)
+                    and isinstance(getattr(model_obj, name),
+                        collections.Callable)):
+               return getattr(model_obj, name)
         raise AttributeError(name)
 
     def _inherits_reload(self):
@@ -115,19 +118,20 @@ class Model(WarningErrorMixin):
         Reconstruct _inherit_fields
         """
         res = {}
+        pool = Pool()
         for model in self._inherits:
-            res.update(self.pool.get(model)._inherit_fields)
-            for field_name in self.pool.get(model)._columns.keys():
+            res.update(pool.get(model)._inherit_fields)
+            for field_name in pool.get(model)._columns.keys():
                 res[field_name] = (model, self._inherits[model],
-                        self.pool.get(model)._columns[field_name])
-            for field_name in self.pool.get(model)._inherit_fields.keys():
+                        pool.get(model)._columns[field_name])
+            for field_name in pool.get(model)._inherit_fields.keys():
                 res[field_name] = (model, self._inherits[model],
-                        self.pool.get(model)._inherit_fields[field_name][2])
+                        pool.get(model)._inherit_fields[field_name][2])
         self._inherit_fields = res
         self._reset_xxx2many_targets()
         # Update objects that uses this one to update their _inherits fields
-        for obj_name in self.pool.object_name_list():
-            obj = self.pool.get(obj_name)
+        for obj_name in pool.object_name_list():
+            obj = pool.get(obj_name)
             if self._name in obj._inherits:
                 obj._inherits_reload()
 
@@ -148,7 +152,7 @@ class Model(WarningErrorMixin):
                 continue
             if hasattr(field, 'get_target'):
                 try:
-                    model_name = field.get_target(self.pool)._name
+                    model_name = field.get_target()._name
                 except KeyError:
                     to_cache = False
                     continue
@@ -166,7 +170,7 @@ class Model(WarningErrorMixin):
                 continue
             if hasattr(field, 'get_target'):
                 try:
-                    model_name = field.get_target(self.pool)._name
+                    model_name = field.get_target()._name
                 except KeyError:
                     to_cache = False
                     continue
@@ -186,7 +190,7 @@ class Model(WarningErrorMixin):
 
         :param module_name: the module name
         """
-        translation_obj = self.pool.get('ir.translation')
+        translation_obj = Pool().get('ir.translation')
 
         cursor = Transaction().cursor
         # Add model in ir_model
@@ -388,7 +392,8 @@ class Model(WarningErrorMixin):
         :return: a dictionary with field name as key
             and default value as value
         '''
-        property_obj = self.pool.get('ir.property')
+        pool = Pool()
+        property_obj = pool.get('ir.property')
         value = {}
 
         # get the default values defined in the object
@@ -407,7 +412,7 @@ class Model(WarningErrorMixin):
             if (with_rec_name
                     and field._type in ('many2one',)
                     and value.get(field_name)):
-                obj = self.pool.get(field.model_name)
+                obj = pool.get(field.model_name)
                 if 'rec_name' in obj._columns:
                     value[field_name + '.rec_name'] = obj.browse(
                         value[field_name]).rec_name
@@ -427,10 +432,11 @@ class Model(WarningErrorMixin):
         :param value: a dictionnary with the default value
         :return: a new dictionnary of default value
         """
+        pool = Pool()
         res = value.copy()
         val = {}
         for i in self._inherits.keys():
-            val.update(self.pool.get(i)._default_on_change(value))
+            val.update(pool.get(i)._default_on_change(value))
         for field in value.keys():
             if field in self._columns:
                 if self._columns[field].on_change:
@@ -443,7 +449,7 @@ class Model(WarningErrorMixin):
                                 args[arg] = args[arg][0]
                     val.update(getattr(self, 'on_change_' + field)(args))
                 if self._columns[field]._type in ('one2many',):
-                    obj = self.pool.get(self._columns[field].model_name)
+                    obj = pool.get(self._columns[field].model_name)
                     for val2 in res[field]:
                         val2.update(obj._default_on_change(val2))
         res.update(val)
@@ -457,12 +463,13 @@ class Model(WarningErrorMixin):
         :return: a dictionary with field name as key and definition as value
         """
         res = {}
-        translation_obj = self.pool.get('ir.translation')
-        model_access_obj = self.pool.get('ir.model.access')
-        field_access_obj = self.pool.get('ir.model.field.access')
+        pool = Pool()
+        translation_obj = pool.get('ir.translation')
+        model_access_obj = pool.get('ir.model.access')
+        field_access_obj = pool.get('ir.model.field.access')
 
         for parent in self._inherits:
-            res.update(self.pool.get(parent).fields_get(fields_names))
+            res.update(pool.get(parent).fields_get(fields_names))
         write_access = model_access_obj.check(self._name, 'write',
                 raise_exception=False)
 
@@ -576,8 +583,8 @@ class Model(WarningErrorMixin):
                 if hasattr(self._columns[field], 'model_name'):
                     relation = copy.copy(self._columns[field].model_name)
                 else:
-                    relation = copy.copy(self._columns[field].get_target(
-                        self.pool)._name)
+                    relation = copy.copy(
+                        self._columns[field].get_target()._name)
                 res[field]['relation'] = relation
                 res[field]['domain'] = copy.copy(self._columns[field].domain)
                 res[field]['context'] = copy.copy(self._columns[field].context)

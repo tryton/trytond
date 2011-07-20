@@ -508,7 +508,7 @@ A many-to-many relation field.
 
 Instance methods:
 
-.. method:: Many2Many.get_target(pool)
+.. method:: Many2Many.get_target()
 
     Return the target :class:`~trytond.model.Model`.
 
@@ -530,7 +530,7 @@ A one-to-one relation field.
 
 Instance methods:
 
-.. method:: One2One.get_target(pool)
+.. method:: One2One.get_target()
 
     Return the target :class:`~trytond.model.Model`.
 

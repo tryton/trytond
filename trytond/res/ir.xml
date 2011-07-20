@@ -425,141 +425,186 @@ this repository contains the full copyright notices and license terms. -->
             <field name="operand">False</field>
             <field name="rule_group" ref="rule_group_action"/>
         </record>
-        <record model="ir.action.wizard" id="ir.act_module_install_upgrade">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.action-res.group" id="act_module_install_upgrade_group_admin">
+            <field name="action" ref="ir.act_module_install_upgrade"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.action.wizard" id="ir.act_translation_update">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.action-res.group" id="act_translation_update_group_admin">
+            <field name="action" ref="ir.act_translation_update"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.action.wizard" id="ir.act_translation_export">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.action-res.group" id="act_translation_export_group_admin">
+            <field name="action" ref="ir.act_translation_export"/>
+            <field name="group" ref="group_admin"/>
         </record>
 
-        <record model="ir.ui.menu" id="ir.menu_administration">
-            <field name="groups" eval="[('add', ref('group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_administration_group_admin">
+            <field name="menu" ref="ir.menu_administration"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_ui">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_ui_group_admin">
+            <field name="menu" ref="ir.menu_ui"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_icon_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_icon_form_group_admin">
+            <field name="menu" ref="ir.menu_icon_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_menu_tree">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_menu_tree_group_admin">
+            <field name="menu" ref="ir.menu_menu_list"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_view">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_view_group_admin">
+            <field name="menu" ref="ir.menu_view"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_view_sc">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_view_sc_group_admin">
+            <field name="menu" ref="ir.menu_view_sc"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_view_tree_width">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_view_tree_width_group_admin">
+            <field name="menu" ref="ir.menu_view_tree_width"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_action">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_action_group_admin">
+            <field name="menu" ref="ir.menu_action"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_act_action">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_act_action_group_admin">
+            <field name="menu" ref="ir.menu_act_action"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_action_report_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_action_report_form_group_admin">
+            <field name="menu" ref="ir.menu_action_report_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_action_act_window">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_action_act_window_group_admin">
+            <field name="menu" ref="ir.menu_action_act_window"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_action_wizard">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_action_wizard_group_admin">
+            <field name="menu" ref="ir.menu_action_wizard"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_action_wizard_size">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_action_wizard_size_group_admin">
+            <field name="menu" ref="ir.menu_action_wizard_size"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_action_url">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_action_url_group_admin">
+            <field name="menu" ref="ir.menu_action_url"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_models">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_models_group_admin">
+            <field name="menu" ref="ir.menu_models"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_model_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_model_form_group_admin">
+            <field name="menu" ref="ir.menu_model_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.model_model_fields_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="model_model_fields_form_group_admin">
+            <field name="menu" ref="ir.model_model_fields_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_model_access_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_model_access_form_group_admin">
+            <field name="menu" ref="ir.menu_model_access_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_model_field_access_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_model_field_access_form_group_admin">
+            <field name="menu" ref="ir.menu_model_field_access_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_sequences">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_sequences_group_admin">
+            <field name="menu" ref="ir.menu_sequences"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_sequence_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_sequence_form_group_admin">
+            <field name="menu" ref="ir.menu_sequence_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_sequence_strict_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_sequence_strict_form_group_admin">
+            <field name="menu" ref="ir.menu_sequence_strict_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_ir_sequence_type">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_ir_sequence_type_group_admin">
+            <field name="menu" ref="ir.menu_ir_sequence_type"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_attachment_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_attachment_form_group_admin">
+            <field name="menu" ref="ir.menu_attachment_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_scheduler">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_scheduler_group_admin">
+            <field name="menu" ref="ir.menu_scheduler"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_cron_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_cron_form_group_admin">
+            <field name="menu" ref="ir.menu_cron_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_localization">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_localization_group_admin">
+            <field name="menu" ref="ir.menu_localization"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_lang_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_lang_form_group_admin">
+            <field name="menu" ref="ir.menu_lang_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_translation_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_translation_form_group_admin">
+            <field name="menu" ref="ir.menu_translation_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_translation_set_report">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_translation_set_report_group_admin">
+            <field name="menu" ref="ir.menu_translation_set_report"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_translation_clean">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_translation_clean_group_admin">
+            <field name="menu" ref="ir.menu_translation_clean"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_translation_update">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_translation_update_group_admin">
+            <field name="menu" ref="ir.menu_translation_update"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_translation_export">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_translation_export_group_admin">
+            <field name="menu" ref="ir.menu_translation_export"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_export_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_export_form_group_admin">
+            <field name="menu" ref="ir.menu_export_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_rule_group_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_rule_group_form_group_admin">
+            <field name="menu" ref="ir.menu_rule_group_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_property_form_default">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_property_form_default_group_admin">
+            <field name="menu" ref="ir.menu_property_form_default"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_property_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_property_form_group_admin">
+            <field name="menu" ref="ir.menu_property_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_modules">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_modules_group_admin">
+            <field name="menu" ref="ir.menu_modules"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_module_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_module_form_group_admin">
+            <field name="menu" ref="ir.menu_module_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_config_wizard_item_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_config_wizard_item_form_group_admin">
+            <field name="menu" ref="ir.menu_config_wizard_item_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_module_install_upgrade">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_module_install_upgrade_group_admin">
+            <field name="menu" ref="ir.menu_module_install_upgrade"/>
+            <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu" id="ir.menu_trigger_form">
-            <field name="groups" eval="[('add', ref('res.group_admin'))]"/>
+        <record model="ir.ui.menu-res.group" id="menu_trigger_form_group_admin">
+            <field name="menu" ref="ir.menu_trigger_form"/>
+            <field name="group" ref="group_admin"/>
         </record>
         <record model="ir.ui.view" id="module_view_form">
             <field name="model">ir.module.module</field>
@@ -627,7 +672,6 @@ this repository contains the full copyright notices and license terms. -->
                         <xpath
                             expr="/form/field[@name=&quot;code&quot;]"
                             position="after">
-                          <separator name="groups" colspan="4"/>
                           <field name="groups" colspan="4"/>
                         </xpath>
                     </data>
@@ -662,7 +706,11 @@ this repository contains the full copyright notices and license terms. -->
         <record model="res.user" id="user_trigger">
             <field name="login">user_cron_trigger</field>
             <field name="name">Cron Trigger</field>
-            <field name="groups" eval="[('add', ref('group_admin'))]"/>
+            <field name="active" eval="False"/>
+        </record>
+        <record model="res.user-res.group" id="user_trigger_group_admin">
+            <field name="user" ref="user_trigger"/>
+            <field name="group" ref="group_admin"/>
         </record>
 
         <record model="ir.cron" id="cron_trigger_time">
@@ -672,8 +720,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="active" eval="True"/>
             <field name="interval_number">5</field>
             <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False"/>
+            <field name="number_calls">-1</field>
+            <field name="repeat_missed" eval="False"/>
             <field name="model">ir.trigger</field>
             <field name="function">trigger_time</field>
         </record>

@@ -55,6 +55,9 @@ class Float(float):
             return self.decimal.__eq__(other)
         return super(Float, self).__eq__(other)
 
+    def __hash__(self):
+        return super(Float, self).__hash__()
+
     def __floordiv__(self, other, context=None):
         if isinstance(other, Decimal):
             return self.decimal.__floordiv__(other, context=context)

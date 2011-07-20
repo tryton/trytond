@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from __future__ import with_statement
 from string import Template
 import datetime
 import time
@@ -8,6 +7,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import datetime_strftime
 from trytond.pyson import In, Eval, Not
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class SequenceType(ModelSQL, ModelView):
@@ -49,7 +49,7 @@ class Sequence(ModelSQL, ModelView):
             states={
                 'invisible': Not(In(Eval('type'), ['incremental'])),
             }, depends=['type'])
-    timestamp_rounding = fields.Integer('Timestamp Rounding', required=True,
+    timestamp_rounding = fields.Float('Timestamp Rounding', required=True,
             states={
                 'invisible': Not(In(Eval('type'),
                     ['decimal timestamp', 'hexadecimal timestamp'])),
@@ -105,7 +105,8 @@ class Sequence(ModelSQL, ModelView):
         return Transaction().context.get('code', False)
 
     def code_get(self):
-        sequence_type_obj = self.pool.get('ir.sequence.type')
+        pool = Pool()
+        sequence_type_obj = pool.get('ir.sequence.type')
         sequence_type_ids = sequence_type_obj.search([])
         sequence_types = sequence_type_obj.browse(sequence_type_ids)
         return [(x.code, x.name) for x in sequence_types]
@@ -131,7 +132,8 @@ class Sequence(ModelSQL, ModelView):
         return True
 
     def _process(self, string, date=None):
-        date_obj = self.pool.get('ir.date')
+        pool = Pool()
+        date_obj = pool.get('ir.date')
         if not date:
             date = date_obj.today()
         year = datetime_strftime(date, '%Y')

@@ -3,6 +3,7 @@
 
 from trytond.model.fields.many2many import Many2Many
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 
 class One2One(Many2Many):
@@ -35,7 +36,8 @@ class One2One(Many2Many):
         :param name: A string with the name of the field
         :param value: The id to link
         '''
-        relation_obj = model.pool.get(self.relation_name)
+        pool = Pool()
+        relation_obj = pool.get(self.relation_name)
         relation_ids = relation_obj.search([
             (self.origin, 'in', ids),
             ])
