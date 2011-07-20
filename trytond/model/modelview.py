@@ -94,24 +94,21 @@ class ModelView(Model):
     def __init__(self):
         super(ModelView, self).__init__()
         self._rpc['fields_view_get'] = False
+        self._rpc['view_toolbar_get'] = False
 
     @Cache('modelview.fields_view_get')
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False,
-            hexmd5=None):
+    def fields_view_get(self, view_id=None, view_type='form', hexmd5=None):
         '''
         Return a view definition.
 
         :param view_id: the id of the view, if None the first one will be used
         :param view_type: the type of the view if view_id is None
-        :param toolbar: if True the result will contain a toolbar key with
-            keyword action definitions for the view
         :param hexmd5: if filled, the function will return True if the result
             has the same md5
         :return: a dictionary with keys:
            - model: the model name
            - arch: the xml description of the view
            - fields: a dictionary with the definition of each field in the view
-           - toolbar: a dictionary with the keyword action definitions
            - md5: the check sum of the dictionary without this checksum
         '''
         result = {'model': self._name}
@@ -224,18 +221,6 @@ class ModelView(Model):
         result['arch'] = xarch
         result['fields'] = xfields
 
-        # Add toolbar
-        if toolbar:
-            action_obj = self.pool.get('ir.action.keyword')
-            prints = action_obj.get_keyword('form_print', (self._name, 0))
-            actions = action_obj.get_keyword('form_action', (self._name, 0))
-            relates = action_obj.get_keyword('form_relate', (self._name, 0))
-            result['toolbar'] = {
-                'print': prints,
-                'action': actions,
-                'relate': relates,
-            }
-
         # Compute md5
         if hashlib:
             result['md5'] = hashlib.md5(str(result)).hexdigest()
@@ -244,6 +229,25 @@ class ModelView(Model):
         if hexmd5 == result['md5']:
             return True
         return result
+
+    def view_toolbar_get(self):
+        """
+        Returns the model specific actions.
+
+        :return: a dictionary with keys:
+            - print: a list of available reports
+            - action: a list of available actions
+            - relate: a list of available relations
+        """
+        action_obj = self.pool.get('ir.action.keyword')
+        prints = action_obj.get_keyword('form_print', (self._name, 0))
+        actions = action_obj.get_keyword('form_action', (self._name, 0))
+        relates = action_obj.get_keyword('form_relate', (self._name, 0))
+        return {
+            'print': prints,
+            'action': actions,
+            'relate': relates,
+        }
 
     def view_header_get(self, value, view_type='form'):
         """
