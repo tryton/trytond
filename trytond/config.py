@@ -6,6 +6,7 @@ import ConfigParser, os, sys
 class ConfigManager(object):
     def __init__(self, fname=None):
         self.options = {
+            'hostname': None,
             'interface': '',
             'netrpc': True,
             'netport': 8070,

@@ -31,6 +31,7 @@ from trytond.config import CONFIG
 from trytond.backend import DatabaseIntegrityError
 from trytond.pool import Pool
 from trytond.transaction import Transaction
+from trytond.url import URLMixin
 
 PARENTS = {
     'table-row': 1,
@@ -77,7 +78,7 @@ class TranslateFactory:
         self.language = language
 
 
-class Report(object):
+class Report(URLMixin):
     _name = ""
 
     def __new__(cls):

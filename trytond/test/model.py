@@ -14,3 +14,12 @@ class Singleton(ModelSingleton, ModelSQL):
         return 'test'
 
 Singleton()
+
+
+class URLObject(ModelSQL):
+    _name = 'test.urlobject'
+
+    name = fields.Char('Name')
+
+
+URLObject()
