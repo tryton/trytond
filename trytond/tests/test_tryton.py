@@ -188,6 +188,8 @@ def all_suite():
     suite_.addTests(test_sequence.suite())
     import trytond.tests.test_access as test_access
     suite_.addTests(test_access.suite())
+    import trytond.tests.test_mixins as test_mixins
+    suite_.addTests(test_mixins.suite())
     return suite_
 
 def modules_suite():
