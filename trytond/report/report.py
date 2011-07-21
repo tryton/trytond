@@ -33,13 +33,6 @@ from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.url import URLMixin
 
-PARENTS = {
-    'table-row': 1,
-    'list-item': 1,
-    'body': 0,
-    'section': 0,
-}
-
 
 class ReportFactory:
 
