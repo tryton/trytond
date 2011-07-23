@@ -25,6 +25,20 @@ this repository contains the full copyright notices and license terms. -->
                 ]]>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="collection_view_list">
+            <field name="model">webdav.collection</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                    <tree string="Collections">
+                        <field name="name"/>
+                        <field name="model"/>
+                    </tree>
+                ]]>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="collection_view_form">
             <field name="model">webdav.collection</field>
             <field name="type">form</field>
@@ -69,26 +83,26 @@ this repository contains the full copyright notices and license terms. -->
             <field name="group" ref="res.group_admin"/>
         </record>
 
-        <record model="ir.action.act_window" id="act_collection_form">
+        <record model="ir.action.act_window" id="act_collection_list">
             <field name="name">Collections</field>
             <field name="res_model">webdav.collection</field>
         </record>
         <record model="ir.action.act_window.view"
-            id="act_collection_form_view1">
+            id="act_collection_list_view1">
             <field name="sequence" eval="10"/>
-            <field name="view" ref="collection_view_form"/>
-            <field name="act_window" ref="act_collection_form"/>
+            <field name="view" ref="collection_view_list"/>
+            <field name="act_window" ref="act_collection_list"/>
         </record>
         <record model="ir.action.act_window.view"
-            id="act_collection_form_view2">
+            id="act_collection_lis_view2">
             <field name="sequence" eval="20"/>
-            <field name="view" ref="collection_view_tree"/>
-            <field name="act_window" ref="act_collection_form"/>
+            <field name="view" ref="collection_view_form"/>
+            <field name="act_window" ref="act_collection_list"/>
         </record>
-        <menuitem name="New Collection" parent="menu_collection_tree"
-            action="act_collection_form" id="menu_collection_form"/>
-        <record model="ir.ui.menu-res.group" id="menu_collection_form_group_admin">
-            <field name="menu" ref="menu_collection_form"/>
+        <menuitem name="Collections" parent="menu_collection_tree"
+            action="act_collection_list" id="menu_collection_list"/>
+        <record model="ir.ui.menu-res.group" id="menu_collection_list_group_admin">
+            <field name="menu" ref="menu_collection_list"/>
             <field name="group" ref="res.group_admin"/>
         </record>
     </data>
