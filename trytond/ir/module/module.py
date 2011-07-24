@@ -546,15 +546,8 @@ class ModuleInstallUpgrade(Wizard):
                 'type': 'form',
                 'object': 'ir.module.module.install_upgrade.start',
                 'state': [
-                    ('menu', 'Ok', 'tryton-ok', True),
+                    ('config', 'Ok', 'tryton-ok', True),
                 ],
-            },
-        },
-        'menu': {
-            'result': {
-                'type': 'action',
-                'action': '_menu',
-                'state': 'config',
             },
         },
         'config': {
@@ -565,14 +558,6 @@ class ModuleInstallUpgrade(Wizard):
             },
         },
     }
-
-    def _menu(self, data):
-        pool = Pool()
-        model_data_obj = pool.get('ir.model.data')
-        act_window_obj = pool.get('ir.action.act_window')
-        act_window_id = model_data_obj.get_id('ir', 'act_menu_tree')
-        res = act_window_obj.read(act_window_id)
-        return res
 
     def _config(self, data):
         return {
