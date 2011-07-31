@@ -52,11 +52,11 @@ label = element label { attlist.label, empty }
 attlist.label &= [ a:defaultValue = "" ] attribute string { text }?
 attlist.label &= ( attribute name { text } | attribute id { text } )
 attlist.label &= attribute states { text }?
-attlist.label &= [ a:defaultValue = "0.0" ] attribute align { text }?
-attlist.label &= [ a:defaultValue = "0.5" ] attribute xalign { text }?
+attlist.label &= [ a:defaultValue = "0.0" ] attribute xalign { text }?
+attlist.label &= [ a:defaultValue = "0.5" ] attribute yalign { text }?
 attlist.label &=
-  [ a:defaultValue = "0" ] attribute expand { "0" | "1" }?
-attlist.label &= [ a:defaultValue = "0" ] attribute fill { "0" | "1" }?
+  [ a:defaultValue = "0" ] attribute yexpand { "0" | "1" }?
+attlist.label &= [ a:defaultValue = "0" ] attribute yfill { "0" | "1" }?
 attlist.label &=
   [ a:defaultValue = "0" ] attribute xexpand { "0" | "1" }?
 attlist.label &= [ a:defaultValue = "1" ] attribute xfill { "0" | "1" }?
@@ -92,12 +92,14 @@ attlist.field &=
     | "image"
     | "progressbar"
   }?
-attlist.field &= attribute expand { "0" | "1" }?
-attlist.field &= attribute fill { "0" | "1" }?
+attlist.field &= attribute yexpand { "0" | "1" }?
+attlist.field &= attribute yfill { "0" | "1" }?
 attlist.field &= attribute empty { "0" | "1" }?
 attlist.field &=
   [ a:defaultValue = "1" ] attribute xexpand { "0" | "1" }?
 attlist.field &= [ a:defaultValue = "1" ] attribute xfill { "0" | "1" }?
+attlist.field &= [ a:defaultValue = "0.0" ] attribute xalign { text }?
+attlist.field &= [ a:defaultValue = "0.5" ] attribute yalign { text }?
 attlist.field &= attribute help { text }?
 attlist.field &= attribute width { text }?
 attlist.field &= attribute height { text }?
@@ -130,8 +132,8 @@ image = element image { attlist.image, empty }
 attlist.image &= attribute name { text }
 attlist.image &= [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.image &=
-  [ a:defaultValue = "0" ] attribute expand { "0" | "1" }?
-attlist.image &= [ a:defaultValue = "0" ] attribute fill { "0" | "1" }?
+  [ a:defaultValue = "0" ] attribute yexpand { "0" | "1" }?
+attlist.image &= [ a:defaultValue = "0" ] attribute yfill { "0" | "1" }?
 attlist.image &= attribute help { text }?
 attlist.image &= attribute states { text }?
 separator = element separator { attlist.separator, empty }
@@ -139,13 +141,13 @@ attlist.separator &= [ a:defaultValue = "" ] attribute string { text }?
 attlist.separator &= ( attribute name { text } | attribute id { text} )
 attlist.separator &= attribute states { text }?
 attlist.separator &=
-  [ a:defaultValue = "0.0" ] attribute align { text }?
+  [ a:defaultValue = "0.0" ] attribute xalign { text }?
 attlist.separator &=
   [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.separator &=
-  [ a:defaultValue = "0" ] attribute expand { "0" | "1" }?
+  [ a:defaultValue = "0" ] attribute yexpand { "0" | "1" }?
 attlist.separator &=
-  [ a:defaultValue = "0" ] attribute fill { "0" | "1" }?
+  [ a:defaultValue = "0" ] attribute yfill { "0" | "1" }?
 attlist.separator &= attribute help { text }?
 newline = element newline { attlist.newline, empty }
 attlist.newline &= empty
@@ -203,8 +205,8 @@ group =
 attlist.group &= attribute string { text }?
 attlist.group &= [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.group &=
-  [ a:defaultValue = "0" ] attribute expand { "0" | "1" }?
-attlist.group &= [ a:defaultValue = "1" ] attribute fill { "0" | "1" }?
+  [ a:defaultValue = "0" ] attribute yexpand { "0" | "1" }?
+attlist.group &= [ a:defaultValue = "1" ] attribute yfill { "0" | "1" }?
 attlist.group &= [ a:defaultValue = "1" ] attribute rowspan { text }?
 attlist.group &= [ a:defaultValue = "4" ] attribute col { text }?
 attlist.group &= ( attribute name { text } | attribute id { text } )

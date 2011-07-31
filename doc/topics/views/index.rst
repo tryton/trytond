@@ -69,23 +69,31 @@ List of attributes shared by many form elements:
 
     * ``id``: A unique identifier for the tag if there is no name attribute.
 
-    .. _common-attributes-expand:
+    .. _common-attributes-yexpand:
 
-    * ``expand``: A boolean to specify if the label should expand to take up
+    * ``yexpand``: A boolean to specify if the label should expand to take up
       any extra vertical space.
 
-    .. _common-attributes-fill:
+    .. _common-attributes-yfill:
 
-    * ``fill``: A boolean to specify if the label should fill the vertical
+    * ``yfill``: A boolean to specify if the label should fill the vertical
       space allocated to it in the table cell.
+
+    .. _common-attributes-yalign:
+
+    * ``yalign``: The vertical alignment, from 0.0 to 1.0.
 
     .. _common-attributes-xexpand:
 
-    * ``xexpand``: The same as expand but for horizontal space.
+    * ``xexpand``: The same as yexpand but for horizontal space.
 
     .. _common-attributes-xfill:
 
-    * ``xfill``: The same as fill but for horizontal space.
+    * ``xfill``: The same as yfill but for horizontal space.
+
+    .. _common-attributes-xalign:
+
+    * ``xalign``: The horizontal alignment, from 0.0 to 1.0.
 
     .. _common-attributes-colspan:
 
@@ -140,19 +148,19 @@ Display static string.
     * ``name``: The name of the field whose description will be used for
       string.
 
-    * ``align``: The fraction of horizontal free space that must be put on the
-      left.  0.0 means no free space to the left.  1.0 means all free space to
-      the left.
-
     * ``id``: see common-attributes-id_.
 
-    * ``expand``: see in common-attributes-expand_.
+    * ``yexpand``: see in common-attributes-yexpand_.
 
-    * ``fill``: see in common-attributes-fill_.
+    * ``yfill``: see in common-attributes-yfill_.
+
+    * ``yalign``: see in common-attributes-yalign_.
 
     * ``xexpand``: see in common-attributes-xexpand_.
 
     * ``xfill``: see in common-attributes-xfill_.
+
+    * ``xalign``: see in common-attributes-xalign_.
 
     * ``colspan``: see in common-attributes-colspan_.
 
@@ -198,9 +206,9 @@ Display a field of the object with the value of the current record.
     * ``domain``: Only for One2Many, Many2One, Many2Many fields, it defines the
       domain that must be used when searching for related records.
 
-    * ``expand``: see in common-attributes-expand_.
+    * ``yexpand``: see in common-attributes-yexpand_.
 
-    * ``fill``: see in common-attributes-fill_.
+    * ``yfill``: see in common-attributes-yfill_.
 
     * ``xexpand``: see in common-attributes-xexpand_.
 
@@ -218,9 +226,9 @@ Display an image.
     * ``name``: the name of the image. It must be the name with the extension
       of an image from ``tryton/share/pixmaps/``.
 
-    * ``expand``: see in common-attributes-expand_.
+    * ``yexpand``: see in common-attributes-yexpand_.
 
-    * ``fill``: see in common-attributes-fill_.
+    * ``yfill``: see in common-attributes-yfill_.
 
     * ``colspan``: see in common-attributes-colspan_.
 
@@ -241,9 +249,9 @@ Display a horizontal separator.
 
     * ``id``: see in common-attributes-id_.
 
-    * ``expand``: see in common-attributes-expand_.
+    * ``yexpand``: see in common-attributes-yexpand_.
 
-    * ``fill``: see in common-attributes-fill_.
+    * ``yfill``: see in common-attributes-yfill_.
 
     * ``colspan``: see in common-attributes-colspan_.
 
@@ -332,9 +340,9 @@ Create a sub-table in a cell.
 
     * ``id``: see in common-attributes-id_.
 
-    * ``expand``: see in common-attributes-expand_.
+    * ``yexpand``: see in common-attributes-yexpand_.
 
-    * ``fill``: see in common-attributes-fill_.
+    * ``yfill``: see in common-attributes-yfill_.
 
     * ``colspan``: see in common-attributes-colspan_.
 

@@ -1,3 +1,5 @@
+* Rename expand and fill attributes into yexpand and yfill
+* Add xalign and yalign as field attributes
 * Drop support of Python 2.5
 * Remove support of Many2Many field in record XML
 * Change Pool into a Singleton
