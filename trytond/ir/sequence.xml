@@ -44,11 +44,11 @@ this repository contains the full copyright notices and license terms. -->
                     <separator string="Legend (Placeholders for prefix, suffix)" colspan="4"
                         id="legend"/>
                     <label string="Year:" id="label_year"/>
-                    <label string="${year}" colspan="3" align="0.0" id="year"/>
+                    <label string="${year}" colspan="3" xalign="0.0" xexpand="1" id="year"/>
                     <label string="Month:" id="label_month"/>
-                    <label string="${month}" colspan="3" align="0.0" id="month"/>
+                    <label string="${month}" colspan="3" xalign="0.0" xexpand="1" id="month"/>
                     <label string="Day:" id="label_day"/>
-                    <label string="${day}" colspan="3" align="0.0" id="day"/>
+                    <label string="${day}" colspan="3" xalign="0.0" xexpand="1" id="day"/>
                 </form>
                 ]]>
             </field>
