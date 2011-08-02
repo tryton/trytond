@@ -490,9 +490,9 @@ class UserConfig(Wizard):
             },
         },
         'add': {
+            'actions': ['_add'],
             'result': {
-                'type': 'action',
-                'action': '_add',
+                'type': 'state',
                 'state': 'user',
             },
         },
