@@ -331,63 +331,6 @@ this repository contains the full copyright notices and license terms. -->
         <menuitem parent="menu_action"
             action="act_action_wizard_form" id="menu_action_wizard"/>
 
-        <record model="ir.ui.view" id="action_wizard_size_view_form">
-            <field name="model">ir.action.wizard_size</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Wizard Size">
-                    <label name="wizard"/>
-                    <field name="wizard"/>
-                    <label name="model"/>
-                    <field name="model"/>
-                    <label name="user"/>
-                    <field name="user"/>
-                    <newline/>
-                    <label name="width"/>
-                    <field name="width"/>
-                    <label name="height"/>
-                    <field name="height"/>
-                </form>
-                ]]>
-            </field>
-        </record>
-
-        <record model="ir.ui.view" id="action_wizard_size_view_tree">
-            <field name="model">ir.action.wizard_size</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <tree string="Wizard Sizes">
-                    <field name="wizard"/>
-                    <field name="model"/>
-                    <field name="user"/>
-                    <field name="width"/>
-                    <field name="height"/>
-                </tree>
-                ]]>
-            </field>
-        </record>
-        <record model="ir.action.act_window" id="act_action_wizard_size_form">
-            <field name="name">Wizard Sizes</field>
-            <field name="type">ir.action.act_window</field>
-            <field name="res_model">ir.action.wizard_size</field>
-        </record>
-        <record model="ir.action.act_window.view"
-            id="act_action_wizard_size_form_view1">
-            <field name="sequence" eval="1"/>
-            <field name="view" ref="action_wizard_size_view_tree"/>
-            <field name="act_window" ref="act_action_wizard_size_form"/>
-        </record>
-        <record model="ir.action.act_window.view"
-            id="act_action_wizard_size_form_view2">
-            <field name="sequence" eval="2"/>
-            <field name="view" ref="action_wizard_size_view_form"/>
-            <field name="act_window" ref="act_action_wizard_size_form"/>
-        </record>
-        <menuitem parent="menu_action_wizard"
-            action="act_action_wizard_size_form" id="menu_action_wizard_size"/>
-
         <record model="ir.ui.view" id="action_url_view_form">
             <field name="model">ir.action.url</field>
             <field name="type">form</field>

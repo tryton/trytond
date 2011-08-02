@@ -103,7 +103,6 @@ class Wizard(WarningErrorMixin, URLMixin):
     def execute(self, wiz_id, data, state='init'):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
-        wizard_size_obj = pool.get('ir.action.wizard_size')
         res = {}
 
         if self._datas.get(wiz_id, {}).get('user') != Transaction().user:
@@ -159,8 +158,6 @@ class Wizard(WarningErrorMixin, URLMixin):
             res['fields'] = fields
             res['arch'] = arch
             res['state'] = button_list
-            res['size'] = wizard_size_obj.get_size(self._name,
-                    result_def['object'])
         elif result_def['type'] == 'choice':
             next_state = getattr(self, result_def['next_state'])(data)
             if next_state == 'end':
