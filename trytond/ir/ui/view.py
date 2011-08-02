@@ -251,11 +251,17 @@ class ViewShortcut(ModelSQL, ModelView):
 
     def get_sc(self, user_id, model='ir.ui.menu'):
         "Provide user's shortcuts"
+        result = []
         ids = self.search([
             ('user_id','=',user_id),
             ('resource','=',model),
             ])
-        return self.read(ids, ['res_id', 'name'])
+        for shorcut in self.browse(ids):
+            result.append({
+                    'res_id': shorcut.res_id,
+                    'name': shorcut.name,
+                    })
+        return result
 
     def default_resource(self):
         return 'ir.ui.menu'
