@@ -150,7 +150,8 @@ def test_view(module_name):
                     for attr in ('name', 'icon'):
                         field = element.get(attr)
                         if field:
-                            assert field in res['fields']
+                            assert field in res['fields'], ('Missing field: %s'
+                                % field)
         transaction.cursor.rollback()
 
 def suite():
