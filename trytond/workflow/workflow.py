@@ -72,13 +72,13 @@ class WorkflowActivity(ModelSQL, ModelView):
     action = fields.Text('Action', states={
         'readonly': Equal(Eval('kind'), 'dummy'),
         'required': Equal(Eval('kind'), 'function'),
-        })
+        }, depends=['kind'])
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
     subflow =  fields.Many2One('workflow', 'Subflow', states={
         'readonly': Not(Equal(Eval('kind'), 'subflow')),
         'required': Equal(Eval('kind'), 'subflow'),
-        })
+        }, depends=['kind'])
     signal_send = fields.Char('Signal (subflow.*)')
     out_transitions = fields.One2Many('workflow.transition', 'act_from',
        'Outgoing transitions')
