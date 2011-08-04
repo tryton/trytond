@@ -25,38 +25,39 @@ _READONLY = If(In(Eval('state'), ['waiting', 'closed']),
         If(Equal(Eval('state'), 'chatting'),
             Not(Equal(Eval('act_from'), Eval('_user'))),
             False))
+_DEPENDS = ['state', 'act_from']
 
 class Request(ModelSQL, ModelView):
     "Request"
     _name = 'res.request'
     _description = __doc__
     name = fields.Char('Subject', states={
-        'readonly': _READONLY,
-       }, required=True)
+            'readonly': _READONLY,
+            }, required=True, depends=_DEPENDS)
     active = fields.Boolean('Active')
     priority = fields.Selection(_PRIORITIES, 'Priority', states={
-           'readonly': _READONLY,
-           }, required=True, order_field='priority')
+            'readonly': _READONLY,
+            }, required=True, order_field='priority', depends=_DEPENDS)
     act_from = fields.Many2One('res.user', 'From', required=True,
        readonly=True)
     act_to = fields.Many2One('res.user', 'To', required=True,
             domain=[('active', '=', True)],
             states={
                 'readonly': _READONLY,
-                })
+            }, depends=_DEPENDS)
     body = fields.Text('Body', states={
-       'readonly': _READONLY,
-       })
+            'readonly': _READONLY,
+            }, depends=_DEPENDS)
     date_sent = fields.DateTime('Date', readonly=True)
     trigger_date = fields.DateTime('Trigger Date', states={
-       'readonly': _READONLY,
-       })
+            'readonly': _READONLY,
+            }, depends=_DEPENDS)
     references = fields.One2Many('res.request.reference', 'request',
-            'References', states={
-                'readonly': If(Equal(Eval('state'), 'closed'),
-                    True,
-                    Not(Equal(Eval('act_from', 0), Eval('_user', 0)))),
-            })
+        'References', states={
+            'readonly': If(Equal(Eval('state'), 'closed'),
+                True,
+                Not(Equal(Eval('act_from', 0), Eval('_user', 0)))),
+            }, depends=['state', 'act_from'])
     number_references = fields.Function(fields.Integer('Number of References',
         on_change_with=['references']), 'get_number_references')
     state = fields.Selection(_STATES, 'State', required=True, readonly=True)

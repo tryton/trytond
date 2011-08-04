@@ -33,6 +33,7 @@ from trytond.pool import Pool
 from trytond.backend import Database
 from trytond.protocols.dispatcher import create
 from trytond.transaction import Transaction
+from trytond.pyson import PYSONEncoder, Eval
 
 register_classes()
 
@@ -86,6 +87,22 @@ class ModelViewTestCase(unittest.TestCase):
         Test webdav.
         '''
         test_view('webdav')
+
+
+class FieldDependsTestCase(unittest.TestCase):
+    '''
+    Test Field depends
+    '''
+
+    def setUp(self):
+        install_module('ir')
+        install_module('res')
+        install_module('workflow')
+        install_module('webdav')
+
+    def test0010depends(self):
+        test_depends()
+
 
 def install_module(name):
     '''
@@ -153,6 +170,39 @@ def test_view(module_name):
                             assert field in res['fields']
         transaction.cursor.rollback()
 
+def test_depends():
+    '''
+    Test for missing depends
+    '''
+    class Encoder(PYSONEncoder):
+
+        def __init__(self, *args, **kwargs):
+            super(Encoder, self).__init__(*args, **kwargs)
+            self.fields = set()
+
+        def default(self, obj):
+            if isinstance(obj, Eval):
+                fname = obj._value
+                if not fname.startswith('_parent_'):
+                    self.fields.add(fname)
+            return super(Encoder, self).default(obj)
+
+    with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        for mname, model in Pool().iterobject():
+            for fname, field in model._columns.iteritems():
+                encoder = Encoder()
+                for pyson in (field.domain, field.states):
+                    encoder.encode(pyson)
+                if hasattr(field, 'digits'):
+                    encoder.encode(field.digits)
+                encoder.fields.discard(fname)
+                encoder.fields.discard('context')
+                encoder.fields.discard('_user')
+                depends = set(field.depends)
+                assert encoder.fields <= depends, (
+                    'Missing depends %s in "%s"."%s"' % (
+                        list(encoder.fields - depends), mname, fname))
+
 def suite():
     '''
     Return test suite for other modules
@@ -174,6 +224,8 @@ def all_suite():
     suite_.addTests(test_modelsingleton.suite())
     suite_.addTests(unittest.TestLoader(
         ).loadTestsFromTestCase(ModelViewTestCase))
+    suite_.addTests(unittest.TestLoader(
+        ).loadTestsFromTestCase(FieldDependsTestCase))
     import trytond.tests.test_mptt as test_mptt
     suite_.addTests(test_mptt.suite())
     import trytond.tests.test_importdata as test_importdata

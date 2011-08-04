@@ -100,7 +100,8 @@ class FloatDigits(ModelSQL):
     _description = __doc__
     digits = fields.Integer('Digits')
     float = fields.Float(string='Float', help='Test float',
-            required=False, digits=(16, Eval('digits', 2)))
+        required=False, digits=(16, Eval('digits', 2)),
+        depends=['digits'])
 
 FloatDigits()
 
@@ -144,7 +145,8 @@ class NumericDigits(ModelSQL):
     _description = __doc__
     digits = fields.Integer('Digits')
     numeric = fields.Numeric(string='Numeric', help='Test numeric',
-            required=False, digits=(16, Eval('digits', 2)))
+        required=False, digits=(16, Eval('digits', 2)),
+        depends=['digits'])
 
 NumericDigits()
 
