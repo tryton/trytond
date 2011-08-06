@@ -49,6 +49,7 @@ class ConfigManager(object):
             'init': {},
             'update': {},
             'cron': True,
+            'unoconv': 'pipe,name=trytond;urp;StarOffice.ComponentContext',
         }
         self.configfile = None
 
