@@ -170,14 +170,6 @@ class TrytonServer(object):
                     (CONFIG['secure_jsonrpc'] and ' Secure' or '',
                         CONFIG['jsonport']))
 
-        if CONFIG['netrpc']:
-            from trytond.protocols.netrpc import NetRPCServerThread
-            netrpcd = NetRPCServerThread(CONFIG['interface'], CONFIG['netport'],
-                    CONFIG['secure_netrpc'])
-            self.logger.info("starting NetRPC%s protocol, port %d" % \
-                    (CONFIG['secure_netrpc']  and ' Secure' or '',
-                        CONFIG['netport']))
-
         if CONFIG['webdav']:
             from trytond.protocols.webdav import WebDAVServerThread
             webdavd = WebDAVServerThread(CONFIG['interface'],
@@ -191,9 +183,6 @@ class TrytonServer(object):
                 if signum == signal.SIGUSR1:
                     Pool.start()
                     return
-            if CONFIG['netrpc']:
-                netrpcd.stop()
-                netrpcd.join()
             if CONFIG['xmlrpc']:
                 xmlrpcd.stop()
                 xmlrpcd.join()
@@ -221,8 +210,6 @@ class TrytonServer(object):
             signal.signal(signal.SIGUSR1, handler)
 
         self.logger.info('waiting for connections...')
-        if CONFIG['netrpc']:
-            netrpcd.start()
         if CONFIG['xmlrpc']:
             xmlrpcd.start()
         if CONFIG['jsonrpc']:

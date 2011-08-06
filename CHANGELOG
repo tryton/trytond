@@ -1,3 +1,4 @@
+* Drop NetRPC and activate JSON-RPC by default
 * Remove ir.action.wizard_size
 * Rename expand and fill attributes into yexpand and yfill
 * Add xalign and yalign as field attributes
