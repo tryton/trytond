@@ -17,7 +17,7 @@ Prerequisites
     * Optional: pywebdav 0.9.3 or later (http://code.google.com/p/pywebdav/)
     * Optional: pydot (http://code.google.com/p/pydot/)
     * Optional: pytz (http://pytz.sourceforge.net/)
-    * Optional: openoffice-python (http://pypi.python.org/pypi/openoffice-python/)
+    * Optional: unoconv http://dag.wieers.com/home-made/unoconv/)
     * Optional: sphinx (http://sphinx.pocoo.org/)
 
 Install Tryton
