@@ -27,13 +27,13 @@ class UrlTestCase(unittest.TestCase):
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.assertEqual(self.urlmodel.get_url(),
                 'tryton://%s:%s/%s/model/test.urlobject' % (self.hostname,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                    CONFIG['jsonport'], urllib.quote(DB_NAME)))
 
             server_name = 'michaelscott.paper.test'
             CONFIG['hostname'] = server_name
             self.assertEqual(self.urlmodel.get_url(),
                 'tryton://%s:%s/%s/model/test.urlobject' % (server_name,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                    CONFIG['jsonport'], urllib.quote(DB_NAME)))
 
     def testWizardURL(self):
         "Test wizard URLs"
@@ -41,13 +41,13 @@ class UrlTestCase(unittest.TestCase):
             CONFIG['hostname'] = None
             self.assertEqual(self.urlwizard.get_url(),
                 'tryton://%s:%s/%s/wizard/test.test_wizard' % (self.hostname,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                    CONFIG['jsonport'], urllib.quote(DB_NAME)))
 
             server_name = 'michaelscott.paper.test'
             CONFIG['hostname'] = server_name
             self.assertEqual(self.urlwizard.get_url(),
                 'tryton://%s:%s/%s/wizard/test.test_wizard' % (server_name,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                    CONFIG['jsonport'], urllib.quote(DB_NAME)))
 
 
 def suite():
