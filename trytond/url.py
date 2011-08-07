@@ -20,7 +20,7 @@ class URLMixin(object):
         hostname = CONFIG['hostname'] or unicode(socket.getfqdn(), 'utf8')
         url_part['hostname'] = '.'.join(encodings.idna.ToASCII(part) for part in
             hostname.split('.'))
-        url_part['port'] = CONFIG['netport']
+        url_part['port'] = CONFIG['jsonport']
 
         if isinstance(self, Model):
             url_part['type'] = 'model'
