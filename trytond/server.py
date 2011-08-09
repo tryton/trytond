@@ -154,44 +154,45 @@ class TrytonServer(object):
             sys.exit(0)
 
         # Launch Server
-        if CONFIG['xmlrpc']:
-            from trytond.protocols.xmlrpc import XMLRPCDaemon
-            xmlrpcd = XMLRPCDaemon(CONFIG['interface'], CONFIG['xmlport'],
-                    CONFIG['secure_xmlrpc'])
-            self.logger.info("starting XML-RPC%s protocol, port %d" % \
-                    (CONFIG['secure_xmlrpc'] and ' Secure' or '',
-                        CONFIG['xmlport']))
-
+        jsonrpcd = []
         if CONFIG['jsonrpc']:
             from trytond.protocols.jsonrpc import JSONRPCDaemon
-            jsonrpcd = JSONRPCDaemon(CONFIG['interface'], CONFIG['jsonport'],
-                    CONFIG['secure_jsonrpc'])
-            self.logger.info("starting JSON-RPC%s protocol, port %d" % \
-                    (CONFIG['secure_jsonrpc'] and ' Secure' or '',
-                        CONFIG['jsonport']))
+            for hostname, port in CONFIG['jsonrpc']:
+                jsonrpcd.append(JSONRPCDaemon(hostname, port,
+                    CONFIG['ssl_jsonrpc']))
+                self.logger.info("starting JSON-RPC%s protocol on %s:%d" %
+                    (CONFIG['ssl_jsonrpc'] and ' SSL' or '', hostname or '*',
+                        port))
 
+        xmlrpcd = []
+        if CONFIG['xmlrpc']:
+            from trytond.protocols.xmlrpc import XMLRPCDaemon
+            for hostname, port in CONFIG['xmlrpc']:
+                xmlrpcd.append(XMLRPCDaemon(hostname, port,
+                    CONFIG['ssl_xmlrpc']))
+                self.logger.info("starting XML-RPC%s protocol on %s:%d" %
+                    (CONFIG['ssl_xmlrpc'] and ' SSL' or '', hostname or '*',
+                        port))
+
+        webdavd = []
         if CONFIG['webdav']:
             from trytond.protocols.webdav import WebDAVServerThread
-            webdavd = WebDAVServerThread(CONFIG['interface'],
-                    CONFIG['webdavport'], CONFIG['secure_webdav'])
-            self.logger.info("starting WebDAV%s protocol, port %d" % \
-                    (CONFIG['secure_webdav'] and ' Secure' or '',
-                        CONFIG['webdavport']))
+            for hostname, port in CONFIG['webdav']:
+                webdavd.append(WebDAVServerThread(hostname, port,
+                    CONFIG['ssl_webdav']))
+                self.logger.info("starting WebDAV%s protocol on %s:%d" %
+                    (CONFIG['ssl_webdav'] and ' SSL' or '', hostname or '*',
+                        port))
 
         def handler(signum, frame):
             if hasattr(signal, 'SIGUSR1'):
                 if signum == signal.SIGUSR1:
                     Pool.start()
                     return
-            if CONFIG['xmlrpc']:
-                xmlrpcd.stop()
-                xmlrpcd.join()
-            if CONFIG['jsonrpc']:
-                jsonrpcd.stop()
-                jsonrpcd.join()
-            if CONFIG['webdav']:
-                webdavd.stop()
-                webdavd.join()
+            for servers in (xmlrpcd, jsonrpcd, webdavd):
+                for server in servers:
+                    server.stop()
+                    server.join()
             if CONFIG['pidfile']:
                 os.unlink(CONFIG['pidfile'])
             logging.getLogger('server').info('stopped')
@@ -210,12 +211,9 @@ class TrytonServer(object):
             signal.signal(signal.SIGUSR1, handler)
 
         self.logger.info('waiting for connections...')
-        if CONFIG['xmlrpc']:
-            xmlrpcd.start()
-        if CONFIG['jsonrpc']:
-            jsonrpcd.start()
-        if CONFIG['webdav']:
-            webdavd.start()
+        for servers in (xmlrpcd, jsonrpcd, webdavd):
+            for server in servers:
+                server.start()
 
         if CONFIG['psyco']:
             import psyco

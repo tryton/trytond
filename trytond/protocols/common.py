@@ -25,12 +25,11 @@ class daemon(threading.Thread):
         threading.Thread.__init__(self, name=name)
         self.secure = secure
         self.ipv6 = False
-        if socket.has_ipv6:
-            try:
-                socket.getaddrinfo(interface or None, port, socket.AF_INET6)
+        for family, _, _, _, _ in socket.getaddrinfo(interface or None, port,
+                socket.AF_UNSPEC, socket.SOCK_STREAM):
+            if family == socket.AF_INET6:
                 self.ipv6 = True
-            except Exception:
-                pass
+            break
 
     def stop(self):
         self.server.shutdown()
