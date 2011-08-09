@@ -1,3 +1,4 @@
+* Use SQL sequence on PostgreSQL for ir.sequence
 * Allow to specify more than one interface
 * Use unoconv for report format conversion
 * Allow to use any Opendocument as report template
