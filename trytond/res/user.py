@@ -16,7 +16,7 @@ from trytond.backend import TableHandler
 from trytond.security import get_connections
 from trytond.transaction import Transaction
 from trytond.cache import Cache
-from trytond.pyson import Eval, Greater
+from trytond.pyson import Eval, Bool
 from trytond.pool import Pool
 
 
@@ -31,8 +31,8 @@ class User(ModelSQL, ModelView):
     signature = fields.Text('Signature')
     active = fields.Boolean('Active')
     action = fields.Many2One('ir.action', 'Home Action', states={
-        'required': Greater(Eval('active_id', 0), 0),
-        })
+        'required': Bool(Eval('id')),
+        }, depends=['id'])
     menu = fields.Many2One('ir.action', 'Menu Action',
             domain=[('usage','=','menu')], required=True)
     groups = fields.Many2Many('res.user-res.group',

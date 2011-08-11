@@ -6,7 +6,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
 from trytond.backend import TableHandler
-from trytond.pyson import Eval, Equal, Not, Bool
+from trytond.pyson import Eval, Not, Bool
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 

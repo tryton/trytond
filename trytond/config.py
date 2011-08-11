@@ -2,21 +2,36 @@
 #this repository contains the full copyright notices and license terms.
 import ConfigParser, os, sys
 
+def get_hostname(netloc):
+    if '[' in netloc and ']' in netloc:
+        return netloc.split(']')[0][1:]
+    elif ':' in netloc:
+        return netloc.split(':')[0]
+    else:
+        return netloc
+
+def get_port(netloc, protocol):
+    netloc = netloc.split(']')[-1]
+    if ':' in netloc:
+        return int(netloc.split(':')[1])
+    else:
+        return {
+            'jsonrpc': 8000,
+            'xmlrpc': 8069,
+            'webdav': 8080,
+        }.get(protocol)
 
 class ConfigManager(object):
     def __init__(self, fname=None):
         self.options = {
             'hostname': None,
-            'interface': '',
-            'netrpc': True,
-            'netport': 8070,
-            'xmlrpc': False,
-            'xmlport': 8069,
-            'jsonrpc': False,
-            'jsonport': 8000,
+            'jsonrpc': [('localhost', '8000')],
+            'ssl_jsonrpc': False,
+            'xmlrpc': [],
+            'ssl_xmlrpc': False,
             'jsondata_path': '/var/www/localhost/tryton',
-            'webdav': False,
-            'webdavport': 8080,
+            'webdav': [],
+            'ssl_webdav': False,
             'db_type': 'postgresql',
             'db_host': False,
             'db_port': False,
@@ -31,10 +46,6 @@ class ConfigManager(object):
             'debug_mode': False,
             'pidfile': None,
             'logfile': None,
-            'secure_netrpc': False,
-            'secure_xmlrpc': False,
-            'secure_jsonrpc': False,
-            'secure_webdav': False,
             'privatekey': '/etc/ssl/trytond/server.key',
             'certificate': '/etc/ssl/trytond/server.pem',
             'smtp_server': 'localhost',
@@ -44,7 +55,6 @@ class ConfigManager(object):
             'smtp_user': False,
             'smtp_password': False,
             'data_path': '/var/lib/trytond',
-            'max_thread': 40,
             'multi_server': False,
             'session_timeout': 600,
             'psyco': False,
@@ -53,6 +63,7 @@ class ConfigManager(object):
             'init': {},
             'update': {},
             'cron': True,
+            'unoconv': 'pipe,name=trytond;urp;StarOffice.ComponentContext',
         }
         self.configfile = None
 
@@ -92,8 +103,9 @@ class ConfigManager(object):
                 value = True
             if value == 'False' or value == 'false':
                 value = False
-            if name in ('netport', 'xmlport', 'webdavport', 'jsonport'):
-                value = int(value)
+            if name in ('netrpc', 'xmlrpc', 'jsonrpc', 'webdav'):
+                value = [(get_hostname(netloc).replace('*', ''),
+                    get_port(netloc, name)) for netloc in value.split(',')]
             self.options[name] = value
 
     def get(self, key, default=None):

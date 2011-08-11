@@ -4,7 +4,7 @@ from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
 from trytond.protocols.datatype import Float
-from trytond.protocols.common import daemon
+from trytond.protocols.common import daemon, GZipRequestHandlerMixin
 import SimpleXMLRPCServer
 import SimpleHTTPServer
 import SocketServer
@@ -12,8 +12,6 @@ import traceback
 import socket
 import sys
 import os
-import gzip
-import StringIO
 try:
     import fcntl
 except ImportError:
@@ -31,6 +29,8 @@ def object_hook(dct):
                     dct['hour'], dct['minute'], dct['second'])
         elif dct['__class__'] == 'date':
             return datetime.date(dct['year'], dct['month'], dct['day'])
+        elif dct['__class__'] == 'Decimal':
+            return Decimal(dct['decimal'])
     return dct
 
 class JSONEncoder(json.JSONEncoder):
@@ -52,7 +52,9 @@ class JSONEncoder(json.JSONEncoder):
                     'day': obj.day,
                     }
         elif isinstance(obj, Decimal):
-            return float(obj)
+            return {'__class__': 'Decimal',
+                'decimal': str(obj),
+                }
         return super(JSONEncoder, self).default(obj)
 
 
@@ -64,7 +66,7 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
     reason to instantiate this class directly.
     """
 
-    def _marshaled_dispatch(self, data, dispatch_method=None):
+    def _marshaled_dispatch(self, data, dispatch_method=None, path=None):
         """Dispatches an JSON-RPC method from marshalled (JSON) data.
 
         JSON-RPC methods are dispatched from the marshalled (JSON) data
@@ -75,7 +77,7 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
         existing method through subclassing is the prefered means
         of changing method dispatch behavior.
         """
-        rawreq = json.loads(data, object_hook=object_hook, parse_float=Float)
+        rawreq = json.loads(data, object_hook=object_hook)
 
         req_id = rawreq.get('id', 0)
         method = rawreq['method']
@@ -104,7 +106,7 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
                 traceb = sys.exc_info()[2]
                 pdb.post_mortem(traceb)
             # report exception back to server
-            response['error'] = "%s:\n%s" % (sys.exc_value, tb_s)
+            response['error'] = (str(sys.exc_value), tb_s)
 
         return json.dumps(response, cls=JSONEncoder)
 
@@ -126,7 +128,8 @@ class GenericJSONRPCRequestHandler:
         return res
 
 
-class SimpleJSONRPCRequestHandler(GenericJSONRPCRequestHandler,
+class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
+        GenericJSONRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler,
         SimpleHTTPServer.SimpleHTTPRequestHandler):
     """Simple JSON-RPC request handler class.
@@ -134,71 +137,15 @@ class SimpleJSONRPCRequestHandler(GenericJSONRPCRequestHandler,
     Handles all HTTP POST requests and attempts to decode them as
     JSON-RPC requests.
     """
+    protocol_version = "HTTP/1.1"
     rpc_paths = None
     encode_threshold = 1400 # common MTU
 
-    # Copy from SimpleXMLRPCServer.py with gzip encoding added
-    def do_POST(self):
-        """Handles the HTTP POST request.
-
-        Attempts to interpret all HTTP POST requests as JSON-RPC calls,
-        which are forwarded to the server's _dispatch method for handling.
-        """
-
-        # Check that the path is legal
-        if not self.is_rpc_path_valid():
-            self.report_404()
-            return
-
-        try:
-            # Get arguments by reading body of request.
-            # We read this in chunks to avoid straining
-            # socket.read(); around the 10 or 15Mb mark, some platforms
-            # begin to have problems (bug #792570).
-            max_chunk_size = 10*1024*1024
-            size_remaining = int(self.headers["content-length"])
-            L = []
-            while size_remaining:
-                chunk_size = min(size_remaining, max_chunk_size)
-                L.append(self.rfile.read(chunk_size))
-                size_remaining -= len(L[-1])
-            data = ''.join(L)
-
-            # In previous versions of SimpleXMLRPCServer, _dispatch
-            # could be overridden in this class, instead of in
-            # SimpleXMLRPCDispatcher. To maintain backwards compatibility,
-            # check to see if a subclass implements _dispatch and dispatch
-            # using that method if present.
-            response = self.server._marshaled_dispatch(
-                    data, getattr(self, '_dispatch', None)
-                )
-        except Exception: # This should only happen if the module is buggy
-            # internal error, report as HTTP server error
-            self.send_response(500)
-            self.end_headers()
-        else:
-            # got a valid JSON RPC response
-            self.send_response(200)
-            self.send_header("Content-type", "application/json-rpc")
-
-            # Handle gzip encoding
-            if 'gzip' in self.headers.get('Accept-Encoding', '').split(',') \
-                    and len(response) > self.encode_threshold:
-                buffer = StringIO.StringIO()
-                output = gzip.GzipFile(mode='wb', fileobj=buffer)
-                output.write(response)
-                output.close()
-                buffer.seek(0)
-                response = buffer.getvalue()
-                self.send_header('Content-Encoding', 'gzip')
-
-            self.send_header("Content-length", str(len(response)))
-            self.end_headers()
-            self.wfile.write(response)
-
-            # shut down the connection
-            self.wfile.flush()
-            self.connection.shutdown(1)
+    def send_header(self, keyword, value):
+        if keyword == 'Content-type' and value == 'text/xml':
+            value = 'application/json-rpc'
+        SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.send_header(self,
+            keyword, value)
 
     def translate_path(self, path):
         """Translate a /-separated PATH to the local filename syntax.
@@ -274,6 +221,7 @@ class SimpleJSONRPCServer(SocketServer.TCPServer,
 class SimpleThreadedJSONRPCServer(SocketServer.ThreadingMixIn,
         SimpleJSONRPCServer):
     timeout = 1
+    daemon_threads = True
 
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET,
@@ -304,7 +252,6 @@ class JSONRPCDaemon(daemon):
 
     def __init__(self, interface, port, secure=False):
         daemon.__init__(self, interface, port, secure, name='JSONRPCDaemon')
-        
         if self.secure:
             handler_class = SecureJSONRPCRequestHandler
             server_class = SecureThreadedJSONRPCServer

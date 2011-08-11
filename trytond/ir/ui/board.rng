@@ -44,7 +44,7 @@
   </define>
   <define name="attlist.image" combine="interleave">
     <optional>
-      <attribute name="expand" a:defaultValue="0">
+      <attribute name="yexpand" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -54,7 +54,7 @@
   </define>
   <define name="attlist.image" combine="interleave">
     <optional>
-      <attribute name="fill" a:defaultValue="0">
+      <attribute name="yfill" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -96,7 +96,7 @@
   </define>
   <define name="attlist.separator" combine="interleave">
     <optional>
-      <attribute name="align" a:defaultValue="0.0"/>
+      <attribute name="xalign" a:defaultValue="0.0"/>
     </optional>
   </define>
   <define name="attlist.separator" combine="interleave">
@@ -106,7 +106,7 @@
   </define>
   <define name="attlist.separator" combine="interleave">
     <optional>
-      <attribute name="expand" a:defaultValue="0">
+      <attribute name="yexpand" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -116,7 +116,7 @@
   </define>
   <define name="attlist.separator" combine="interleave">
     <optional>
-      <attribute name="fill" a:defaultValue="0">
+      <attribute name="yfill" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -153,12 +153,17 @@
   </define>
   <define name="attlist.label" combine="interleave">
     <optional>
-      <attribute name="align" a:defaultValue="0.0"/>
+      <attribute name="xalign" a:defaultValue="0.0"/>
     </optional>
   </define>
   <define name="attlist.label" combine="interleave">
     <optional>
-      <attribute name="expand" a:defaultValue="0">
+      <attribute name="yalign" a:defaultValue="0.5"/>
+    </optional>
+  </define>
+  <define name="attlist.label" combine="interleave">
+    <optional>
+      <attribute name="yexpand" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -168,7 +173,7 @@
   </define>
   <define name="attlist.label" combine="interleave">
     <optional>
-      <attribute name="fill" a:defaultValue="0">
+      <attribute name="yfill" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -309,7 +314,7 @@
   </define>
   <define name="attlist.group" combine="interleave">
     <optional>
-      <attribute name="expand" a:defaultValue="0">
+      <attribute name="yexpand" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -319,7 +324,7 @@
   </define>
   <define name="attlist.group" combine="interleave">
     <optional>
-      <attribute name="fill" a:defaultValue="1">
+      <attribute name="yfill" a:defaultValue="1">
         <choice>
           <value>0</value>
           <value>1</value>
