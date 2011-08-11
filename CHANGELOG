@@ -1,4 +1,9 @@
 * Remove use of python code in workflow XML
+* Use SQL sequence on PostgreSQL for ir.sequence
+* Allow to specify more than one interface
+* Use unoconv for report format conversion
+* Allow to use any Opendocument as report template
+* Drop NetRPC and activate JSON-RPC by default
 * Remove ir.action.wizard_size
 * Rename expand and fill attributes into yexpand and yfill
 * Add xalign and yalign as field attributes

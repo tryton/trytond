@@ -74,6 +74,8 @@ When defining an `ir.action.report` the following attributes are available:
       example, my_module/my_style.odt. If no style is to be used this field
       will be blank.
 
+    * ``template_extension``: The template format.
+
 
 Report Usage
 ============
@@ -211,6 +213,7 @@ Then you must activate the new invoice report that exists in your new module:
     <field name="model">account.invoice</field>
     <field name="report">my_module/invoice.odt</field>
     <field name="style">module_name/header_A4.odt</field>
+    <field name="template_extension">odt</field>
   </record>
 
 Passing custom data to a report

@@ -226,10 +226,76 @@ class ActionReport(ModelSQL, ModelView):
     style_content = fields.Function(fields.Binary('Style'),
             'get_style_content')
     direct_print = fields.Boolean('Direct Print')
-    extension = fields.Selection(
-        [('odt', 'ODT Document'),
-         ('pdf', 'PDF Document'),],
-        string='Extension', required=True)
+    template_extension = fields.Selection([
+            ('odt', 'OpenDocument Text'),
+            ('odp', 'OpenDocument Presentation'),
+            ('ods', 'OpenDocument Spreadsheet'),
+            ('odg', 'OpenDocument Graphics'),
+            ], string='Template Extension', required=True)
+    extension = fields.Selection([
+            ('', ''),
+            ('bib', 'BibTex'),
+            ('bmp', 'Windows Bitmap'),
+            ('csv', 'Text CSV'),
+            ('dbf', 'dBase'),
+            ('dif', 'Data Interchange Format'),
+            ('doc', 'Microsoft Word 97/2000/XP'),
+            ('doc6', 'Microsoft Word 6.0'),
+            ('doc95', 'Microsoft Word 95'),
+            ('docbook', 'DocBook'),
+            ('emf', 'Enhanced Metafile'),
+            ('eps', 'Encapsulated PostScript'),
+            ('gif', 'Graphics Interchange Format'),
+            ('html', 'HTML Document'),
+            ('jpg', 'Joint Photographic Experts Group'),
+            ('met', 'OS/2 Metafile'),
+            ('ooxml', 'Microsoft Office Open XML'),
+            ('pbm', 'Portable Bitmap'),
+            ('pct', 'Mac Pict'),
+            ('pdb', 'AportisDoc (Palm)'),
+            ('pdf', 'Portable Document Format'),
+            ('pgm', 'Portable Graymap'),
+            ('png', 'Portable Network Graphic'),
+            ('ppm', 'Portable Pixelmap'),
+            ('ppt', 'Microsoft PowerPoint 97/2000/XP'),
+            ('psw', 'Pocket Word'),
+            ('pwp', 'PlaceWare'),
+            ('pxl', 'Pocket Excel'),
+            ('ras', 'Sun Raster Image'),
+            ('rtf', 'Rich Text Format'),
+            ('latex', 'LaTeX 2e'),
+            ('sda', 'StarDraw 5.0 (OpenOffice.org Impress)'),
+            ('sdc', 'StarCalc 5.0'),
+            ('sdc4', 'StarCalc 4.0'),
+            ('sdc3', 'StarCalc 3.0'),
+            ('sdd', 'StarImpress 5.0'),
+            ('sdd3', 'StarDraw 3.0 (OpenOffice.org Impress)'),
+            ('sdd4', 'StarImpress 4.0'),
+            ('sdw', 'StarWriter 5.0'),
+            ('sdw4', 'StarWriter 4.0'),
+            ('sdw3', 'StarWriter 3.0'),
+            ('slk', 'SYLK'),
+            ('svg', 'Scalable Vector Graphics'),
+            ('svm', 'StarView Metafile'),
+            ('swf', 'Macromedia Flash (SWF)'),
+            ('sxc', 'OpenOffice.org 1.0 Spreadsheet'),
+            ('sxi', 'OpenOffice.org 1.0 Presentation'),
+            ('sxd', 'OpenOffice.org 1.0 Drawing'),
+            ('sxd3', 'StarDraw 3.0'),
+            ('sxd5', 'StarDraw 5.0'),
+            ('sxw', 'Open Office.org 1.0 Text Document'),
+            ('text', 'Text Encoded'),
+            ('tiff', 'Tagged Image File Format'),
+            ('txt', 'Plain Text'),
+            ('wmf', 'Windows Metafile'),
+            ('xhtml', 'XHTML Document'),
+            ('xls', 'Microsoft Excel 97/2000/XP'),
+            ('xls5', 'Microsoft Excel 5.0'),
+            ('xls95', 'Microsoft Excel 95'),
+            ('xpm', 'X PixMap'),
+            ],
+        string='Extension', help='Leave empty for the same as template, '
+        'see unoconv documentation for compatible format')
     module = fields.Char('Module', readonly=True, select=1)
     email = fields.Char('Email')
     pyson_email = fields.Function(fields.Char('PySON Email'), 'get_pyson')
@@ -269,6 +335,12 @@ class ActionReport(ModelSQL, ModelView):
             TableHandler.dropTable(cursor, 'ir.action.report.outputformat',
                       'ir_action_report_outputformat')
 
+        # Migrate from 2.0 remove required on extension
+        table.not_null_action('extension', action='remove')
+        cursor.execute('UPDATE "' + self._table + '" '
+            'SET extension = %s '
+            'WHERE extension = %s', ('', 'odt'))
+
     def default_type(self):
         return 'ir.action.report'
 
@@ -278,8 +350,11 @@ class ActionReport(ModelSQL, ModelView):
     def default_direct_print(self):
         return False
 
-    def default_extension(self):
+    def default_template_extension(self):
         return 'odt'
+
+    def default_extension(self):
+        return ''
 
     def default_module(self):
         return Transaction().context.get('module') or ''

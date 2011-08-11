@@ -15,13 +15,12 @@ class URLMixin(object):
         from trytond.model import Model
         from trytond.wizard import Wizard
         from trytond.report import Report
-        url_part = {}
 
         hostname = CONFIG['hostname'] or unicode(socket.getfqdn(), 'utf8')
-        url_part['hostname'] = '.'.join(encodings.idna.ToASCII(part) for part in
+        hostname = '.'.join(encodings.idna.ToASCII(part) for part in
             hostname.split('.'))
-        url_part['port'] = CONFIG['netport']
 
+        url_part = {}
         if isinstance(self, Model):
             url_part['type'] = 'model'
         elif isinstance(self, Wizard):
@@ -34,6 +33,5 @@ class URLMixin(object):
         url_part['name'] = self._name
         url_part['database'] = Transaction().cursor.database_name
 
-        host_part = '%(hostname)s:%(port)s' % url_part
         local_part = urllib.quote('%(database)s/%(type)s/%(name)s' % url_part)
-        return 'tryton://%s/%s' % (host_part, local_part)
+        return 'tryton://%s/%s' % (hostname, local_part)

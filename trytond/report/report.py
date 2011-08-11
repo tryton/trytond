@@ -1,8 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import copy
-import xml
-import sys
 import base64
 try:
     import cStringIO as StringIO
@@ -13,11 +10,10 @@ import time
 import os
 import datetime
 from base64 import decodestring
-import traceback
 import inspect
-import logging
 import tempfile
 import warnings
+import subprocess
 warnings.simplefilter("ignore")
 import relatorio.reporting
 warnings.resetwarnings()
@@ -28,10 +24,35 @@ except ImportError:
 from genshi.filters import Translator
 import lxml.etree
 from trytond.config import CONFIG
-from trytond.backend import DatabaseIntegrityError
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.url import URLMixin
+
+MIMETYPES = {
+    'odt': 'application/vnd.oasis.opendocument.text',
+    'odp': 'application/vnd.oasis.opendocument.presentation',
+    'ods': 'application/vnd.oasis.opendocument.spreadsheet',
+    'odg': 'application/vnd.oasis.opendocument.graphics',
+    }
+FORMAT2EXT = {
+    'doc6': 'doc',
+    'doc95': 'doc',
+    'docbook': 'xml',
+    'ooxml': 'xml',
+    'latex': 'ltx',
+    'sdc4': 'sdc',
+    'sdc3': 'sdc',
+    'sdd3': 'sdd',
+    'sdd4': 'sdd',
+    'sdw4': 'sdw',
+    'sdw3': 'sdw',
+    'sxd3': 'sxd',
+    'sxd5': 'sxd',
+    'text': 'txt',
+    'xhtml': 'html',
+    'xls5': 'xls',
+    'xls95': 'xls',
+    }
 
 
 class ReportFactory:
@@ -150,7 +171,9 @@ class Report(URLMixin):
         if not report.report_content:
             raise Exception('Error', 'Missing report file!')
 
-        fd, path = tempfile.mkstemp(suffix='.odt', prefix='trytond')
+        fd, path = tempfile.mkstemp(
+            suffix=(os.extsep + report.template_extension),
+            prefix='trytond_')
         outzip = zipfile.ZipFile(path, mode='w')
 
         content_io = StringIO.StringIO()
@@ -220,7 +243,8 @@ class Report(URLMixin):
         # Since Genshi >= 0.6, Translator requires a function type
         translator = Translator(lambda text: translate(text))
 
-        rel_report = relatorio.reporting.Report(path, 'application/vnd.oasis.opendocument.text',
+        mimetype = MIMETYPES[report.template_extension]
+        rel_report = relatorio.reporting.Report(path, mimetype,
                 ReportFactory(), relatorio.reporting.MIMETemplateLoader())
         rel_report.filters.insert(0, translator)
         #convert unicode key into str
@@ -236,61 +260,31 @@ class Report(URLMixin):
                 data = data.getvalue()
         os.close(fd)
         os.remove(path)
-        output_format = report.extension
-        if output_format == 'pdf':
-            data = self.convert_pdf(data)
-        return (output_format, data)
+        output_format = report.extension or report.template_extension
+        if output_format not in MIMETYPES:
+            data = self.unoconv(data, report.template_extension, output_format)
+        oext = FORMAT2EXT.get(output_format, output_format)
+        return (oext, data)
 
-    def convert_pdf(self, data):
-        """
-        Convert report to PDF using OpenOffice.org.
-        This requires OpenOffice.org, pyuno and openoffice-python to
-        be installed.
-        """
-        import tempfile
+    def unoconv(self, data, input_format, output_format):
+        '''
+        Call unoconv to convert the OpenDocument
+        '''
+        fd, path = tempfile.mkstemp(suffix=(os.extsep + input_format),
+            prefix='trytond_')
+        oext = FORMAT2EXT.get(output_format, output_format)
+        with os.fdopen(fd, 'wb+') as fp:
+            fp.write(data)
+        cmd = ['unoconv', '--connection=%s' % CONFIG['unoconv'],
+            '-f', oext, '--stdout', path]
         try:
-            import unohelper # installs import-hook
-            import openoffice.interact
-            import openoffice.officehelper as officehelper
-            from openoffice.streams import OutputStream
-            from com.sun.star.beans import PropertyValue
-        except ImportError, exception:
-            raise Exception('ImportError', str(exception))
-        try:
-            # connect to OOo
-            desktop = openoffice.interact.Desktop()
-        except officehelper.BootstrapException:
-            raise Exception('Error', "Can't connect to (bootstrap) OpenOffice.org")
-
-        res_data = None
-        # Create temporary file (with name) and write data there.
-        # We can not use NamedTemporaryFile here, since this would be
-        # deleted as soon as we close it to allow OOo reading.
-        #TODO use an input stream here
-        fd_odt, odt_name = tempfile.mkstemp()
-        fh_odt = os.fdopen(fd_odt, 'wb+')
-        try:
-            fh_odt.write(data)
-            del data # save memory
-            fh_odt.close()
-            doc = desktop.openFile(odt_name, hidden=False)
-            # Export as PDF
-            buffer = StringIO.StringIO()
-            out_props = (
-                PropertyValue("FilterName", 0, "writer_pdf_Export", 0),
-                PropertyValue("Overwrite", 0, True, 0),
-                PropertyValue("OutputStream", 0, OutputStream(buffer), 0),
-                )
-            doc.storeToURL("private:stream", out_props)
-            res_data = buffer.getvalue()
-            del buffer
-            doc.dispose()
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            stdoutdata, stderrdata = proc.communicate()
+            if proc.wait() != 0:
+                raise Exception(stderrdata)
+            return stdoutdata
         finally:
-            fh_odt.close()
-            os.remove(odt_name)
-        if not res_data:
-            Exception('Error', 'Error converting to PDF')
-        return res_data
+            os.remove(path)
 
     def format_lang(self, value, lang, digits=2, grouping=True, monetary=False,
             date=False, currency=None, symbol=True):

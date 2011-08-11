@@ -26,28 +26,28 @@ class UrlTestCase(unittest.TestCase):
         "Test model URLs"
         with Transaction().start(DB_NAME, USER, CONTEXT):
             self.assertEqual(self.urlmodel.get_url(),
-                'tryton://%s:%s/%s/model/test.urlobject' % (self.hostname,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                'tryton://%s/%s/model/test.urlobject' % (self.hostname,
+                    urllib.quote(DB_NAME)))
 
             server_name = 'michaelscott.paper.test'
             CONFIG['hostname'] = server_name
             self.assertEqual(self.urlmodel.get_url(),
-                'tryton://%s:%s/%s/model/test.urlobject' % (server_name,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                'tryton://%s/%s/model/test.urlobject' % (server_name,
+                    urllib.quote(DB_NAME)))
 
     def testWizardURL(self):
         "Test wizard URLs"
         with Transaction().start(DB_NAME, USER, CONTEXT):
             CONFIG['hostname'] = None
             self.assertEqual(self.urlwizard.get_url(),
-                'tryton://%s:%s/%s/wizard/test.test_wizard' % (self.hostname,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                'tryton://%s/%s/wizard/test.test_wizard' % (self.hostname,
+                    urllib.quote(DB_NAME)))
 
             server_name = 'michaelscott.paper.test'
             CONFIG['hostname'] = server_name
             self.assertEqual(self.urlwizard.get_url(),
-                'tryton://%s:%s/%s/wizard/test.test_wizard' % (server_name,
-                    CONFIG['netport'], urllib.quote(DB_NAME)))
+                'tryton://%s/%s/wizard/test.test_wizard' % (server_name,
+                    urllib.quote(DB_NAME)))
 
 
 def suite():

@@ -32,11 +32,11 @@ class View(ModelSQL, ModelView):
             ondelete='CASCADE')
     field_childs = fields.Char('Children Field', states={
         'invisible': Not(Equal(Eval('type'), 'tree')),
-        })
+        }, depends=['type'])
     module = fields.Char('Module', readonly=True)
     domain = fields.Char('Domain', states={
         'invisible': Not(Bool(Eval('inherit'))),
-        })
+        }, depends=['inherit'])
 
     def __init__(self):
         super(View, self).__init__()
