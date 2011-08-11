@@ -90,12 +90,12 @@ CREATE TABLE wkf_activity (
     subflow INTEGER,
     split_mode VARCHAR,
     join_mode VARCHAR,
-    kind VARCHAR,
     name VARCHAR,
     signal_send VARCHAR,
     flow_start BOOLEAN,
     flow_stop BOOLEAN,
-    action TEXT
+    stop_other BOOLEAN,
+    action VARCHAR
 );
 
 CREATE TABLE wkf_transition (

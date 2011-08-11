@@ -88,10 +88,8 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="name" colspan="3"/>
                     <label name="workflow"/>
                     <field name="workflow"/>
-                    <label name="kind"/>
-                    <field name="kind"/>
-                    <label name="action"/>
-                    <field name="action" colspan="3"/>
+                    <label name="method"/>
+                    <field name="method"/>
                     <label name="subflow"/>
                     <field name="subflow"/>
                     <label name="signal_send"/>
@@ -112,7 +110,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="group"/>
                             <field name="condition"/>
                             <field name="trigger_model"/>
-                            <field name="trigger_expr_id"/>
+                            <field name="trigger_ids"/>
                         </tree>
                         <form string="Transition">
                             <label name="act_to"/>
@@ -126,8 +124,8 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="group"/>
                             <label name="trigger_model"/>
                             <field name="trigger_model"/>
-                            <label name="trigger_expr_id"/>
-                            <field name="trigger_expr_id"/>
+                            <label name="trigger_ids"/>
+                            <field name="trigger_ids"/>
                         </form>
                     </field>
                     <field name="in_transitions" colspan="4">
@@ -137,7 +135,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="group"/>
                             <field name="condition"/>
                             <field name="trigger_model"/>
-                            <field name="trigger_expr_id"/>
+                            <field name="trigger_ids"/>
                         </tree>
                         <form string="Transition">
                             <label name="act_from"/>
@@ -151,8 +149,8 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="group"/>
                             <label name="trigger_model"/>
                             <field name="trigger_model"/>
-                            <label name="trigger_expr_id"/>
-                            <field name="trigger_expr_id"/>
+                            <label name="trigger_ids"/>
+                            <field name="trigger_ids"/>
                         </form>
                     </field>
                 </form>
@@ -167,7 +165,7 @@ this repository contains the full copyright notices and license terms. -->
                 <tree string="Activity">
                     <field name="name" select="1"/>
                     <field name="workflow" select="1"/>
-                    <field name="kind" select="1"/>
+                    <field name="method"/>
                     <field name="flow_start"/>
                     <field name="flow_stop"/>
                 </tree>
@@ -230,8 +228,8 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="group"/>
                     <label name="trigger_model"/>
                     <field name="trigger_model"/>
-                    <label name="trigger_expr_id"/>
-                    <field name="trigger_expr_id"/>
+                    <label name="trigger_ids"/>
+                    <field name="trigger_ids"/>
                 </form>
                 ]]>
             </field>
@@ -248,7 +246,7 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="group"/>
                     <field name="condition"/>
                     <field name="trigger_model"/>
-                    <field name="trigger_expr_id"/>
+                    <field name="trigger_ids"/>
                 </tree>
                 ]]>
             </field>

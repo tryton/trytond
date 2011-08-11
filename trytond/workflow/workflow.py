@@ -1,13 +1,12 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import os
-import expr
 import base64
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
 from trytond.backend import TableHandler
-from trytond.pyson import Eval, Equal, Not
+from trytond.pyson import Eval, Equal, Not, Bool
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 
@@ -63,30 +62,27 @@ class WorkflowActivity(ModelSQL, ModelView):
        ('XOR', 'Xor'),
        ('AND', 'And'),
        ], 'Join Mode', required=True)
-    kind = fields.Selection([
-       ('dummy', 'Dummy'),
-       ('function', 'Function'),
-       ('subflow', 'Subflow'),
-       ('stopall', 'Stop All'),
-       ], 'Kind', required=True)
-    action = fields.Text('Action', states={
-        'readonly': Equal(Eval('kind'), 'dummy'),
-        'required': Equal(Eval('kind'), 'function'),
-        })
+    method = fields.Char('Method')
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
-    subflow =  fields.Many2One('workflow', 'Subflow', states={
-        'readonly': Not(Equal(Eval('kind'), 'subflow')),
-        'required': Equal(Eval('kind'), 'subflow'),
-        })
+    stop_other = fields.Boolean('Stop Other')
+    subflow =  fields.Many2One('workflow', 'Subflow')
     signal_send = fields.Char('Signal (subflow.*)')
     out_transitions = fields.One2Many('workflow.transition', 'act_from',
        'Outgoing transitions')
     in_transitions = fields.One2Many('workflow.transition', 'act_to',
        'Incoming transitions')
 
-    #TODO add a _constraint on subflow without action
-    #to have the same model than the workflow
+    def init(self, module_name):
+        super(WorkflowActivity, self).init(module_name)
+        cursor = Transaction().cursor
+        table = TableHandler(cursor, self, module_name)
+
+        # Migration from 2.0
+        if table.column_exist('kind'):
+            cursor.execute('UPDATE "%s" SET stop_other = %%s '
+                "WHERE kind='stopall'" % self._table, (True,))
+            table.drop_column('kind', exception=True)
 
     def default_kind(self):
         return 'dummy'
@@ -103,6 +99,9 @@ class WorkflowActivity(ModelSQL, ModelView):
     def default_flow_stop(self):
         return False
 
+    def default_stop_other(self):
+        return False
+
 WorkflowActivity()
 
 
@@ -113,7 +112,9 @@ class WorkflowTransition(ModelSQL, ModelView):
     _rec_name = 'signal'
     _description = __doc__
     trigger_model = fields.Char('Trigger Type')
-    trigger_expr_id = fields.Char('Trigger Expr ID')
+    trigger_ids = fields.Char('Trigger Expr ID', states={
+            'required': Bool(Eval('trigger_model')),
+            })
     signal = fields.Char('Signal (button Name)')
     group = fields.Many2One('res.group', 'Group Required')
     condition = fields.Char('Condition', required=True)
@@ -125,7 +126,7 @@ class WorkflowTransition(ModelSQL, ModelView):
             'trans_id', 'inst_id', 'Instances')
 
     def default_condition(self):
-        return 'True'
+        return ''
 
 WorkflowTransition()
 
@@ -327,19 +328,20 @@ class WorkflowWorkitem(ModelSQL, ModelView):
             triggers = triggers and not res
 
         if triggers:
-            for transition in activity.out_transitions:
-                if transition.trigger_model:
-                    ids = expr.eval_expr( workitem.instance.res_type,
-                            workitem.instance.res_id,
-                            transition.trigger_expr_id)
-                    with Transaction().set_user(0):
-                        for res_id in ids:
-                            trigger_obj.create({
-                                'model': transition.trigger_model,
-                                'res_id': res_id,
-                                'instance': workitem.instance.id,
-                                'workitem': workitem.id,
-                                })
+            trigger_transitions = (t for t in activity.out_transitions
+                if t.trigger_model)
+            for transition in trigger_transitions:
+                model_obj = pool.get(workitem.instance.res_type)
+                model_ids_fct = getattr(model_obj, transition.trigger_ids)
+                ids = model_ids_fct(model_obj.browse(workitem.instance.res_id))
+                with Transaction().set_user(0):
+                    for res_id in ids:
+                        trigger_obj.create({
+                            'model': transition.trigger_model,
+                            'res_id': res_id,
+                            'instance': workitem.instance.id,
+                            'workitem': workitem.id,
+                            })
         return True
 
     def _state_set(self, workitem, state):
@@ -358,18 +360,9 @@ class WorkflowWorkitem(ModelSQL, ModelView):
                 instance_obj.validate(overflow.instance, activity.signal_send,
                         force_running=True)
 
-        if activity.kind == 'dummy':
-            if workitem.state == 'active':
-                self._state_set(workitem, 'complete')
-        elif activity.kind == 'function':
-            if workitem.state == 'active':
-                self._state_set(workitem, 'running')
-                expr.execute(workitem.instance.res_type,
-                        workitem.instance.res_id, activity)
-                self._state_set(workitem, 'complete')
-        elif activity.kind == 'stopall':
-            if workitem.state == 'active':
-                self._state_set(workitem, 'running')
+        if workitem.state == 'active':
+            self._state_set(workitem, 'running')
+            if activity.stop_other:
                 ids = self.search([
                     ('instance', '=', workitem.instance.id),
                     ('id', '!=', workitem.id),
@@ -377,40 +370,63 @@ class WorkflowWorkitem(ModelSQL, ModelView):
                 #XXX check if delete must not be replace by _state_set 'complete'
                 with Transaction().set_user(0):
                     self.delete(ids)
-                if activity.action:
-                    expr.execute(workitem.instance.res_type,
-                            workitem.instance.res_id, activity)
-                self._state_set(workitem, 'complete')
-        elif activity.kind == 'subflow':
-            if workitem.state == 'active':
-                self._state_set(workitem, 'running')
-                if activity.action:
-                    id_new = expr.execute(workitem.instance.res_type,
-                            workitem.instance.res_id, activity)
-                    if not id_new:
-                        with Transaction().set_user(0):
-                            self.delete(workitem.id)
-                        return False
+            if activity.method:
+                id_new = self._execute_action(workitem, activity)
+            else:
+                id_new = None
+            if activity.subflow:
+                if activity.method and id_new:
                     with Transaction().set_user(0):
                         instance_id = instance_obj.search([
                             ('res_id', '=', id_new),
                             ('workflow', '=', activity.subflow.id),
                             ], limit=1)[0]
-                else:
+                elif not activity.method:
                     instance_id = instance_obj.create({
                         'res_type': workitem.instance.res_type,
                         'res_id': workitem.instance.res_id,
                         'workflow': activity.subflow.id,
                         })
+                else:
+                    with Transaction().set_user(0):
+                        self.delete(workitem.id)
+                    return False
                 self.write(workitem.id, {
                     'subflow': instance_id,
                     })
                 #XXX must be changed with a cache reset on BrowseRecord
                 workitem._data[workitem.id]['subflow'] = instance_id
-            elif workitem.state == 'running':
-                if workitem.subflow.state == 'complete':
-                    self._state_set(workitem, 'complete')
+            else:
+                self._state_set(workitem, 'complete')
+        elif workitem.state == 'running' and activity.subflow:
+            if workitem.subflow.state == 'complete':
+                self._state_set(workitem, 'complete')
+
         return True
+
+    def _execute_action(self, workitem, activity):
+        model_obj = Pool().get(workitem.instance.res_type)
+        wkf_action = getattr(model_obj, activity.method)
+        return wkf_action(model_obj.browse(workitem.instance.res_id))
+
+    def _activate_transition(self, workitem, transition, signal):
+        pool = Pool()
+        user_obj = pool.get('res.user')
+        if transition.signal:
+            if signal != transition.signal:
+                return False
+
+        if transition.group and Transaction().user != 0:
+            user_groups = user_obj.get_groups()
+            if transition.group.id not in user_groups:
+                return False
+
+        model_obj = pool.get(workitem.instance.res_type)
+        if transition.condition:
+            test_fct = getattr(model_obj, transition.condition)
+            return test_fct(model_obj.browse(workitem.instance.res_id))
+        else:
+            return True
 
     def _split_test(self, workitem, split_mode, signal=None):
         pool = Pool()
@@ -419,8 +435,7 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         transitions = []
         if split_mode == 'XOR' or split_mode == 'OR':
             for transition in workitem.activity.out_transitions:
-                if expr.check(workitem.instance.res_type,
-                        workitem.instance.res_id, transition, signal):
+                if self._activate_transition(workitem, transition, signal):
                     test = True
                     transitions.append(transition)
                     if split_mode == 'XOR':
@@ -428,8 +443,7 @@ class WorkflowWorkitem(ModelSQL, ModelView):
         else:
             test = True
             for transition in workitem.activity.out_transitions:
-                if not expr.check(workitem.instance.res_type,
-                        workitem.instance.res_id, transition, signal):
+                if not self._activate_transition(workitem, transition, signal):
                     test = False
                     break
                 if transition.id not in \
