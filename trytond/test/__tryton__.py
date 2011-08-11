@@ -5,10 +5,11 @@
     'description': '''A module for unittest.
 ''',
     'active': True,
-    'depends': ['ir', 'res'],
+    'depends': ['ir', 'res', 'workflow'],
     'xml': [
         'import_data.xml',
         'sequence.xml',
+        'workflow.xml',
     ],
     'translation': [
     ],
