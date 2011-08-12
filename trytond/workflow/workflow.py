@@ -114,7 +114,7 @@ class WorkflowTransition(ModelSQL, ModelView):
     trigger_model = fields.Char('Trigger Type')
     trigger_ids = fields.Char('Trigger Expr ID', states={
             'required': Bool(Eval('trigger_model')),
-            })
+            }, depends=['trigger_model'])
     signal = fields.Char('Signal (button Name)')
     group = fields.Many2One('res.group', 'Group Required')
     condition = fields.Char('Condition', required=True)
