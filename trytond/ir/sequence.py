@@ -5,7 +5,7 @@ import datetime
 import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import datetime_strftime
-from trytond.pyson import In, Eval, Not
+from trytond.pyson import Eval
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 from trytond.config import CONFIG
@@ -31,8 +31,8 @@ class Sequence(ModelSQL, ModelView):
     _strict = False
     name = fields.Char('Sequence Name', required=True, translate=True)
     code = fields.Selection('code_get', 'Sequence Code', required=True,
-            states={
-                'readonly': In('code', Eval('context', {})),
+        states={
+            'readonly': Eval('context', {}).contains('code'),
             })
     active = fields.Boolean('Active')
     prefix = fields.Char('Prefix')
@@ -43,33 +43,33 @@ class Sequence(ModelSQL, ModelView):
         ('hexadecimal timestamp', 'Hexadecimal Timestamp'),
         ], 'Type')
     number_next_internal = fields.Integer('Next Number',
-            states={
-                'invisible': Not(In(Eval('type'), ['incremental'])),
+        states={
+            'invisible': ~Eval('type').in_(['incremental']),
             }, depends=['type'])
     number_next = fields.Function(number_next_internal, 'get_number_next',
         'set_number_next')
     number_increment = fields.Integer('Increment Number',
-            states={
-                'invisible': Not(In(Eval('type'), ['incremental'])),
+        states={
+            'invisible': ~Eval('type').in_(['incremental']),
             }, depends=['type'])
     padding = fields.Integer('Number padding',
-            states={
-                'invisible': Not(In(Eval('type'), ['incremental'])),
+        states={
+            'invisible': ~Eval('type').in_(['incremental']),
             }, depends=['type'])
     timestamp_rounding = fields.Float('Timestamp Rounding', required=True,
-            states={
-                'invisible': Not(In(Eval('type'),
-                    ['decimal timestamp', 'hexadecimal timestamp'])),
+        states={
+            'invisible': ~Eval('type').in_(
+                ['decimal timestamp', 'hexadecimal timestamp']),
             }, depends=['type'])
     timestamp_offset = fields.Float('Timestamp Offset',
-            states={
-                'invisible': Not(In(Eval('type'),
-                    ['decimal timestamp', 'hexadecimal timestamp'])),
+        states={
+            'invisible': ~Eval('type').in_(
+                ['decimal timestamp', 'hexadecimal timestamp']),
             }, depends=['type'])
     last_timestamp = fields.Integer('Last Timestamp',
-            states={
-                'invisible': Not(In(Eval('type'),
-                    ['decimal timestamp', 'hexadecimal timestamp'])),
+        states={
+            'invisible': ~Eval('type').in_(
+                ['decimal timestamp', 'hexadecimal timestamp']),
             }, depends=['type'])
 
     def __init__(self):

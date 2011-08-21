@@ -11,7 +11,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.config import CONFIG
 from trytond.backend import TableHandler
 from trytond.transaction import Transaction
-from trytond.pyson import Not, Equal, Eval
+from trytond.pyson import Eval
 from trytond.pool import Pool
 
 def firstline(description):
@@ -31,20 +31,20 @@ class Attachment(ModelSQL, ModelView):
         ('link', 'Link'),
         ], 'Type', required=True)
     data = fields.Function(fields.Binary('Data', filename='name', states={
-        'invisible': Not(Equal(Eval('type'), 'data')),
-        }, depends=['type']), 'get_data', setter='set_data')
+                'invisible': Eval('type') != 'data',
+                }, depends=['type']), 'get_data', setter='set_data')
     description = fields.Text('Description')
     summary = fields.Function(fields.Char('Summary',
         on_change_with=['description']), 'get_summary')
     resource = fields.Reference('Resource', selection='models_get', select=1)
     link = fields.Char('Link', states={
-        'invisible': Not(Equal(Eval('type'), 'link')),
-        }, depends=['type'])
+            'invisible': Eval('type') != 'link',
+            }, depends=['type'])
     digest = fields.Char('Digest', size=32)
     collision = fields.Integer('Collision')
     data_size = fields.Function(fields.Integer('Data size', states={
-        'invisible': Not(Equal(Eval('type'), 'data')),
-        }, depends=['type']), 'get_data')
+                'invisible': Eval('type') != 'data',
+                }, depends=['type']), 'get_data')
     last_modification = fields.Function(fields.DateTime('Last Modification'),
             'get_last_modification')
     last_user = fields.Function(fields.Char('Last User'),

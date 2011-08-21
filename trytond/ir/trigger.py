@@ -3,7 +3,7 @@
 import datetime
 import time
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.pyson import Eval, Or
+from trytond.pyson import Eval
 from trytond.tools import safe_eval
 from trytond.backend import TableHandler
 from trytond.tools import reduce_ids
@@ -20,8 +20,9 @@ class Trigger(ModelSQL, ModelView):
     active = fields.Boolean('Active', select=2)
     model = fields.Many2One('ir.model', 'Model', required=True, select=1)
     on_time = fields.Boolean('On Time', select=1, states={
-        'invisible': Or(Eval('on_create', False), Eval('on_write', False),
-            Eval('on_delete', False)),
+            'invisible': (Eval('on_create', False)
+                or Eval('on_write', False)
+                or Eval('on_delete', False)),
         }, depends=['on_create', 'on_write', 'on_delete'],
         on_change=['on_time'])
     on_create = fields.Boolean('On Create', select=1, states={
