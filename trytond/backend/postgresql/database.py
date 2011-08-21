@@ -26,6 +26,7 @@ from trytond.protocols.datatype import Float
 
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
+RE_VERSION = re.compile(r'\S+ (\d+)\.(\d+)')
 
 
 class Database(DatabaseInterface):
@@ -34,6 +35,7 @@ class Database(DatabaseInterface):
     _connpool = None
     _list_cache = None
     _list_cache_timestamp = None
+    _version_cache = {}
 
     def __new__(cls, database_name='template1'):
         if database_name in cls._databases:
@@ -69,7 +71,7 @@ class Database(DatabaseInterface):
             conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         else:
             conn.set_isolation_level(ISOLATION_LEVEL_SERIALIZABLE)
-        return Cursor(self._connpool, conn, self.database_name)
+        return Cursor(self._connpool, conn, self)
 
     def close(self):
         if self._connpool is None:
@@ -85,6 +87,14 @@ class Database(DatabaseInterface):
     def drop(self, cursor, database_name):
         cursor.execute('DROP DATABASE "' + database_name + '"')
         Database._list_cache = None
+
+    def get_version(self, cursor):
+        if self.database_name not in self._version_cache:
+            cursor.execute('SELECT version()')
+            version, = cursor.fetchone()
+            self._version_cache[self.database_name] = map(int,
+                RE_VERSION.search(version).groups())
+        return self._version_cache[self.database_name]
 
     @staticmethod
     def dump(database_name):
@@ -270,12 +280,11 @@ class _Cursor(PsycopgCursor):
 
 class Cursor(CursorInterface):
 
-    def __init__(self, connpool, conn, database_name):
+    def __init__(self, connpool, conn, database):
         super(Cursor, self).__init__()
         self._connpool = connpool
         self._conn = conn
-        self.database_name = database_name
-        self.dbname = self.database_name #XXX to remove
+        self._database = database
         self.cursor = conn.cursor(cursor_factory=_Cursor)
         self.commit()
         self.sql_from_log = {}
@@ -284,6 +293,15 @@ class Cursor(CursorInterface):
             'from': 0,
             'into': 0,
         }
+
+    @property
+    def database_name(self):
+        return self._database.database_name
+
+    # TODO to remove
+    @property
+    def dbname(self):
+        return self.database_name
 
     def __getattr__(self, name):
         return getattr(self.cursor, name)
@@ -400,6 +418,10 @@ class Cursor(CursorInterface):
         if offset is not None and offset != 0:
             select += ' OFFSET %d' % offset
         return select
+
+    def has_returning(self):
+        # RETURNING clause is available since PostgreSQL 8.2
+        return self._database.get_version(self) >= (8, 2)
 
 register_type(UNICODE)
 if PYDATE:

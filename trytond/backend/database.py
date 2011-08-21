@@ -225,3 +225,11 @@ class CursorInterface(object):
         :param value: the auto_increment value
         '''
         pass
+
+    def has_returning(self):
+        '''
+        Return True if database implements RETURNING clause in INSERT or UPDATE
+        statements.
+
+        :return: a boolean
+        '''
