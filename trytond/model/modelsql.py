@@ -333,16 +333,25 @@ class ModelSQL(ModelStorage):
         upd2.append(Transaction().user)
         upd2.append(datetime.datetime.now())
         try:
-            id_new = cursor.nextid(self._table)
-            if id_new:
-                cursor.execute('INSERT INTO "' + self._table + '" ' \
-                        '(id' + upd0 + ') ' \
-                        'VALUES (' + str(id_new) + upd1 + ')', tuple(upd2))
+            if cursor.has_returning():
+                    cursor.execute('INSERT INTO "' + self._table + '" '
+                        '(' + upd0[1:] + ') '
+                        'VALUES (' + upd1[1:] + ') RETURNING id',
+                        tuple(upd2))
+                    id_new, = cursor.fetchone()
             else:
-                cursor.execute('INSERT INTO "' + self._table + '" ' \
-                        '(' + upd0[1:] + ') ' \
-                        'VALUES (' + upd1[1:] + ')', tuple(upd2))
-                id_new = cursor.lastid()
+                id_new = cursor.nextid(self._table)
+                if id_new:
+                    cursor.execute('INSERT INTO "' + self._table + '" '
+                        '(id' + upd0 + ') '
+                        'VALUES (' + str(id_new) + upd1 + ')',
+                        tuple(upd2))
+                else:
+                    cursor.execute('INSERT INTO "' + self._table + '" '
+                        '(' + upd0[1:] + ') '
+                        'VALUES (' + upd1[1:] + ')',
+                        tuple(upd2))
+                    id_new = cursor.lastid()
         except DatabaseIntegrityError, exception:
             with contextlib.nested(Transaction().new_cursor(),
                     Transaction().set_user(0)):

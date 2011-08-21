@@ -1,3 +1,4 @@
+* Add has_returning on Cursor
 * Remove use of python code in workflow XML
 * Use SQL sequence on PostgreSQL for ir.sequence
 * Allow to specify more than one interface
