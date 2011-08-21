@@ -4,7 +4,7 @@ import contextlib
 import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import safe_eval
-from trytond.pyson import Eval, Get
+from trytond.pyson import Eval
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.const import OPERATORS
@@ -89,8 +89,8 @@ class Rule(ModelSQL, ModelView):
     _rec_name = 'field'
     _description = __doc__
     field = fields.Many2One('ir.model.field', 'Field',
-       domain=[('model', '=', Get(Eval('_parent_rule_group', {}), 'model'))],
-       select=1, required=True)
+        domain=[('model', '=', Eval('_parent_rule_group', {}).get('model'))],
+        select=1, required=True)
     operator = fields.Selection([(x, x) for x in OPERATORS], 'Operator',
         required=True, translate=False)
     operand = fields.Selection('get_operand','Operand', required=True)

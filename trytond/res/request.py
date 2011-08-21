@@ -3,7 +3,7 @@
 import time
 import datetime
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.pyson import Eval, In, If, Not, Equal
+from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 
@@ -20,11 +20,11 @@ _PRIORITIES = [
     ('2', 'High'),
 ]
 
-_READONLY = If(In(Eval('state'), ['waiting', 'closed']),
-        True,
-        If(Equal(Eval('state'), 'chatting'),
-            Not(Equal(Eval('act_from'), Eval('_user'))),
-            False))
+_READONLY = If(Eval('state').in_(['waiting', 'closed']),
+    True,
+    If(Eval('state') == 'chatting',
+        Eval('act_from') != Eval('_user'),
+        False))
 _DEPENDS = ['state', 'act_from']
 
 class Request(ModelSQL, ModelView):
@@ -54,9 +54,9 @@ class Request(ModelSQL, ModelView):
             }, depends=_DEPENDS)
     references = fields.One2Many('res.request.reference', 'request',
         'References', states={
-            'readonly': If(Equal(Eval('state'), 'closed'),
+            'readonly': If(Eval('state') == 'closed',
                 True,
-                Not(Equal(Eval('act_from', 0), Eval('_user', 0)))),
+                Eval('act_from', 0) != Eval('_user', 0)),
             }, depends=['state', 'act_from'])
     number_references = fields.Function(fields.Integer('Number of References',
         on_change_with=['references']), 'get_number_references')
