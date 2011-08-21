@@ -63,7 +63,7 @@ class Database(DatabaseInterface):
         self._connpool = ThreadedConnectionPool(minconn, maxconn, dsn)
         return self
 
-    def cursor(self, autocommit=False):
+    def cursor(self, autocommit=False, readonly=False):
         if self._connpool is None:
             self.connect()
         conn = self._connpool.getconn()
@@ -71,7 +71,11 @@ class Database(DatabaseInterface):
             conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         else:
             conn.set_isolation_level(ISOLATION_LEVEL_SERIALIZABLE)
-        return Cursor(self._connpool, conn, self)
+        cursor = Cursor(self._connpool, conn, self)
+        # TODO change for set_session
+        if readonly:
+            cursor.execute('SET TRANSACTION READ ONLY')
+        return cursor
 
     def close(self):
         if self._connpool is None:

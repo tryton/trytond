@@ -120,7 +120,7 @@ class Database(DatabaseInterface):
             self._conn.create_function('replace', 3, replace)
         return self
 
-    def cursor(self, autocommit=False):
+    def cursor(self, autocommit=False, readonly=False):
         if self._conn is None:
             self.connect()
         if autocommit:

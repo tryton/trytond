@@ -63,7 +63,7 @@ class Transaction(local):
     delete = None # TODO check to merge with delete_records
     timestamp = None
 
-    def start(self, database_name, user, context=None):
+    def start(self, database_name, user, readonly=False, context=None):
         '''
         Start transaction
         '''
@@ -72,7 +72,7 @@ class Transaction(local):
         assert self.context is None
         self.user = user
         database = Database(database_name).connect()
-        self.cursor = database.cursor()
+        self.cursor = database.cursor(readonly=readonly)
         self.context = context or {}
         self.create_records = {}
         self.delete_records = {}
