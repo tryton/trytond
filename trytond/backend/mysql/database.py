@@ -29,7 +29,7 @@ class Database(DatabaseInterface):
     def connect(self):
         return self
 
-    def cursor(self, autocommit=False):
+    def cursor(self, autocommit=False, readonly=False):
         conv = MySQLdb.converters.conversions.copy()
         conv[float] = lambda value, _: repr(value)
         args = {

@@ -122,18 +122,25 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
 
     user = security.check(database_name, user, session)
 
-    with Transaction().start(database_name, user) as transaction:
+    Cache.clean(database_name)
+    database_list = Pool.database_list()
+    pool = Pool(database_name)
+    if not database_name in database_list:
+        with Transaction().start(database_name, user,
+                readonly=True) as transaction:
+            pool.init()
+    obj = pool.get(object_name, type=object_type)
+
+    if method not in obj._rpc:
+        raise Exception('UserError', 'Calling method %s on ' \
+                '%s %s is not allowed!' % \
+                (method, object_type, object_name))
+
+    readonly = not obj._rpc[method]
+
+    with Transaction().start(database_name, user,
+            readonly=readonly) as transaction:
         try:
-            Cache.clean(database_name)
-            database_list = Pool.database_list()
-            pool = Pool(database_name)
-            if not database_name in database_list:
-                pool.init()
-            obj = pool.get(object_name, type=object_type)
-            if method not in obj._rpc:
-                raise Exception('UserError', 'Calling method %s on ' \
-                        '%s %s is not allowed!' % \
-                        (method, object_type, object_name))
 
             if 'context' in kargs:
                 context = kargs.pop('context')
@@ -145,7 +152,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 del context['_timestamp']
             transaction.context = context
             res = getattr(obj, method)(*args, **kargs)
-            if obj._rpc[method]:
+            if not readonly:
                 transaction.cursor.commit()
         except Exception, exception:
             if CONFIG['verbose'] or (exception.args \

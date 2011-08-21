@@ -24,7 +24,7 @@ class DatabaseInterface(object):
         '''
         raise NotImplementedError
 
-    def cursor(self, autocommit=False):
+    def cursor(self, autocommit=False, readonly=False):
         '''
         Retreive a cursor on the database
 
