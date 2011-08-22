@@ -101,7 +101,7 @@ class PYSONTestCase(unittest.TestCase):
         '''
         self.assert_(pyson.And(True, False).pyson() == {
             '__class__': 'And',
-            's': (True, False),
+            's': [True, False],
             })
 
         self.assertRaises(AssertionError, pyson.And, 'test', False)
@@ -145,7 +145,7 @@ class PYSONTestCase(unittest.TestCase):
         '''
         self.assert_(pyson.Or(True, False).pyson() == {
             '__class__': 'Or',
-            's': (True, False),
+            's': [True, False],
             })
 
         self.assertRaises(AssertionError, pyson.Or, 'test', False)
