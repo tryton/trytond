@@ -211,7 +211,9 @@ class BrowseRecord(object):
                             data[i] = BrowseRecordList(
                                 BrowseRecord(x, model, ids, local_cache)
                                 for x in data[i])
-                    if isinstance(j, fields.Function):
+                    if (isinstance(j, fields.Function)
+                            or isinstance(data[i], (BrowseRecord,
+                                    BrowseRecordList))):
                         if data['id'] == self.id and i == name:
                             result = data[i]
                         self._local_data.setdefault(data['id'], {})[i] = data[i]
