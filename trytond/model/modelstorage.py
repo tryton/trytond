@@ -25,6 +25,7 @@ from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 from trytond.cache import LRUDict
+from trytond.config import CONFIG
 
 
 class ModelStorage(Model):
@@ -1108,7 +1109,7 @@ class ModelStorage(Model):
                         if not (value.quantize(Decimal(str(10.0**-digits[1])))
                                 == value):
                             raise_user_error()
-                    else:
+                    elif CONFIG.options['db_type'] != 'mysql':
                         if not (round(value, digits[1]) == float(value)):
                             raise_user_error()
                 # validate digits
