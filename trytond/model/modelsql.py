@@ -15,6 +15,7 @@ from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 from trytond.cache import LRUDict
+from trytond.exceptions import ConcurrencyException
 _RE_UNIQUE = re.compile('UNIQUE\s*\((.*)\)', re.I)
 _RE_CHECK = re.compile('CHECK\s*\((.*)\)', re.I)
 
@@ -777,8 +778,8 @@ class ModelSQL(ModelStorage):
                             'WHERE ' + ' OR '.join(
                                 (clause,) * (len(args) // 2)), args)
                     if cursor.fetchone():
-                        raise Exception('ConcurrencyException',
-                                'Records were modified in the meanwhile')
+                        raise ConcurrencyException(
+                            'Records were modified in the meanwhile')
             for i in ids:
                 if Transaction().timestamp.get(self._name + ',' + str(i)):
                     del Transaction().timestamp[self._name + ',' +str(i)]
@@ -1005,8 +1006,8 @@ class ModelSQL(ModelStorage):
                             'WHERE ' + ' OR '.join(
                                 (clause,) * (len(args)/2)), args)
                     if cursor.fetchone():
-                        raise Exception('ConcurrencyException',
-                                'Records were modified in the meanwhile')
+                        raise ConcurrencyException(
+                            'Records were modified in the meanwhile')
             for i in ids:
                 if Transaction().timestamp.get(self._name + ',' + str(i)):
                     del Transaction().timestamp[self._name + ',' +str(i)]

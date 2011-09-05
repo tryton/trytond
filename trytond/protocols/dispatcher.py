@@ -20,6 +20,8 @@ from trytond.version import VERSION
 from trytond.monitor import monitor
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.exceptions import UserError, UserWarning, NotLogged, \
+    ConcurrencyException
 
 def dispatch(host, port, protocol, database_name, user, session, object_type,
         object_name, method, *args, **kargs):
@@ -132,9 +134,8 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
     obj = pool.get(object_name, type=object_type)
 
     if method not in obj._rpc:
-        raise Exception('UserError', 'Calling method %s on ' \
-                '%s %s is not allowed!' % \
-                (method, object_type, object_name))
+        raise UserError('Calling method %s on %s %s is not allowed!'
+            % (method, object_type, object_name))
 
     readonly = not obj._rpc[method]
 
@@ -155,10 +156,9 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             if not readonly:
                 transaction.cursor.commit()
         except Exception, exception:
-            if CONFIG['verbose'] or (exception.args \
-                    and str(exception.args[0]) not in \
-                    ('NotLogged', 'ConcurrencyException', 'UserError',
-                        'UserWarning')):
+            if CONFIG['verbose'] and not isinstance(exception, (
+                        NotLogged, ConcurrencyException, UserError,
+                        UserWarning)):
                 tb_s = reduce(lambda x, y: x + y,
                         traceback.format_exception(*sys.exc_info()))
                 logger = logging.getLogger('dispatcher')

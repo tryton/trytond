@@ -27,6 +27,8 @@ from trytond.backend import Database
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.cache import Cache
+from trytond.exceptions import UserError, UserWarning, NotLogged, \
+    ConcurrencyException
 _TRYTON_RELOAD = False
 domimpl = xml.dom.minidom.getDOMImplementation()
 
@@ -133,12 +135,9 @@ class TrytonDAVInterface(iface.dav_interface):
         self.verbose = False
 
     def _log_exception(self, exception):
-        if CONFIG['verbose'] or (exception.args \
-                and (str(exception.args[0]) not in \
-                ('NotLogged', 'ConcurrencyException', 'UserError',
-                    'UserWarning')) \
-                    and not isinstance(exception,
-                        (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden))):
+        if CONFIG['verbose'] and not isinstance(exception, (
+                    NotLogged, ConcurrencyException, UserError, UserWarning,
+                    DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden)):
             tb_s = reduce(lambda x, y: x + y,
                 traceback.format_exception(*sys.exc_info()))
             logger = logging.getLogger('webdav')

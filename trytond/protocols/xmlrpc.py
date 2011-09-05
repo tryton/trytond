@@ -81,6 +81,10 @@ class GenericXMLRPCRequestHandler:
                     }
                 return dispatch(host, port, 'XML-RPC', database_name, user,
                         session, object_type, object_name, method, *params)
+            except (UserError, UserWarning, NotLogged,
+                    ConcurrencyException), exception:
+                        raise xmlrpclib.Fault(exception.code,
+                            '\n'.join(exception.args))
             except Exception:
                 tb_s = ''
                 for line in traceback.format_exception(*sys.exc_info()):
@@ -95,7 +99,7 @@ class GenericXMLRPCRequestHandler:
                     import pdb
                     traceb = sys.exc_info()[2]
                     pdb.post_mortem(traceb)
-                raise xmlrpclib.Fault(1, str(sys.exc_value) + '\n' + tb_s)
+                raise xmlrpclib.Fault(255, str(sys.exc_value) + '\n' + tb_s)
         finally:
             security.logout(database_name, user, session)
 

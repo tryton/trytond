@@ -5,6 +5,7 @@ from trytond.session import Session
 from trytond.pool import Pool
 from trytond.config import CONFIG
 from trytond.transaction import Transaction
+from trytond.exceptions import NotLogged
 import time
 
 
@@ -74,7 +75,7 @@ def check(dbname, user, session):
             del _USER_CACHE[dbname][user][i]
     if result:
         return result
-    raise Exception('NotLogged')
+    raise NotLogged()
 
 def get_connections(dbname, user):
     res = 0
