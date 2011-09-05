@@ -5,6 +5,8 @@ from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
 from trytond.protocols.datatype import Float
 from trytond.protocols.common import daemon, GZipRequestHandlerMixin
+from trytond.exceptions import UserError, UserWarning, NotLogged, \
+    ConcurrencyException
 import SimpleXMLRPCServer
 import SimpleHTTPServer
 import SocketServer
@@ -91,6 +93,9 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
                 response['result'] = dispatch_method(method, params)
             else:
                 response['result'] = self._dispatch(method, params)
+        except (UserError, UserWarning, NotLogged,
+                ConcurrencyException), exception:
+            response['error'] = exception.args
         except Exception:
             tb_s = ''
             for line in traceback.format_exception(*sys.exc_info()):

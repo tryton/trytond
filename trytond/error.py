@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.transaction import Transaction
 from trytond.pool import Pool
+from trytond.exceptions import UserError, UserWarning
 
 
 class WarningErrorMixin(object):
@@ -68,11 +69,11 @@ class WarningErrorMixin(object):
                 except TypeError:
                     pass
             if raise_exception:
-                raise Exception('UserError', error, error_description)
+                raise UserError(error, error_description)
             else:
                 return (error, error_description)
         if raise_exception:
-            raise Exception('UserError', error)
+            raise UserError(error)
         else:
             return error
 
@@ -101,9 +102,8 @@ class WarningErrorMixin(object):
                         error_description=warning_description,
                         error_description_args=warning_description_args,
                         raise_exception=False)
-                raise Exception('UserWarning', warning_name, warning,
-                        warning_description)
+                raise UserWarning(warning_name, warning, warning_description)
             else:
                 warning = self.raise_user_error(warning,
                         error_args=warning_args, raise_exception=False)
-                raise Exception('UserWarning', warning_name, warning)
+                raise UserWarning(warning_name, warning)
