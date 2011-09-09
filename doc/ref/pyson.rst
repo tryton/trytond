@@ -72,9 +72,7 @@ An :class:`Eval()` object represents the PYSON ``Eval()``
 statement for evaluations. When evaluated, it returns the
 value of the statement named by ``value``, if defined in the
 evaluation context, otherwise the ``default`` value (empty
-string by default). ``value`` can use the dot notation to
-access objects values in the context. Returns an instance of
-itself.
+string by default).  Returns an instance of itself.
 
 .. class:: Not(value)
 
