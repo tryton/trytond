@@ -125,6 +125,14 @@ class WorkflowTransition(ModelSQL, ModelView):
     instances = fields.Many2Many('workflow.transition-workflow.instance',
             'trans_id', 'inst_id', 'Instances')
 
+    def init(self, module_name):
+        cursor = Transaction().cursor
+        super(WorkflowTransition, self).init(module_name)
+
+        # Migration from 2.0: condition is a method name
+        cursor.execute('UPDATE "%s" SET condition = %%s '
+            'WHERE condition = %%s' % self._table, ('', 'True'))
+
     def default_condition(self):
         return ''
 
@@ -661,9 +669,8 @@ class InstanceGraph(Report):
         for transition in transitions:
             args = {}
             args['label'] = ' '
-            if transition.condition != 'True':
-                args['label'] += str(transition.condition).replace(' or ',
-                        '\\nor ').replace(' and ', '\\nand ')
+            if transition.condition:
+                args['label'] += transition.condition
             if transition.signal:
                 args['label'] += '\\n' + str(transition.signal)
                 args['style'] = 'bold'
