@@ -130,8 +130,8 @@ class WorkflowTransition(ModelSQL, ModelView):
         super(WorkflowTransition, self).init(module_name)
 
         # Migration from 2.0: condition is a method name
-        cursor.execute('UPDATE "%s" SET condition = %%s '
-            'WHERE condition = %%s' % self._table, ('', 'True'))
+        cursor.execute('UPDATE "%s" SET "condition" = %%s '
+            'WHERE "condition" = %%s' % self._table, ('', 'True'))
 
     def default_condition(self):
         return ''
