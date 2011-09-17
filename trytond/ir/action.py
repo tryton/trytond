@@ -394,7 +394,7 @@ class ActionReport(ModelSQL, ModelView):
         return res
 
     def set_report_content(self, ids, name, value):
-        self.write(ids, {'%s_data' % name: value})
+        self.write(ids, {'%s_custom' % name: value})
 
     def get_style_content(self, ids, name):
         res = {}
