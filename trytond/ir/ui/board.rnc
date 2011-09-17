@@ -54,8 +54,6 @@ attlist.label &= attribute help { text }?
 newline = element newline { attlist.newline, empty }
 attlist.newline &= attribute id { text }
 notebook = element notebook { attlist.notebook, page* }
-attlist.notebook &=
-  attribute tabpos { "up" | "down" | "left" | "right" }?
 attlist.notebook &= [ a:defaultValue = "4" ] attribute colspan { text }?
 page =
   element page {

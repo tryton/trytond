@@ -1,3 +1,4 @@
+* Remove tabpos attribute on notebook
 * Make PYSON more Pythonic
 * Add readonly on Transaction
 * Add has_returning on Cursor
