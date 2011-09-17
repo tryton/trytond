@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import contextlib
-import base64
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -705,14 +704,8 @@ class ReportTranslationSet(Wizard):
                 document = dom.minidom.parseString(style_xml)
                 strings += self._translate_report(document.documentElement)
 
-            style_content = None
-            try:
-                style_content = base64.decodestring(report.style_content)
-            except Exception:
-                pass
-
-            if style_content:
-                style_io = StringIO.StringIO(style_content)
+            if report.style_content:
+                style_io = StringIO.StringIO(report.style_content)
                 style_z = zipfile.ZipFile(style_io, mode='r')
                 style_xml = style_z.read('styles.xml')
 
@@ -1214,7 +1207,7 @@ class TranslationExport(Wizard):
         file_data = translation_obj.translation_export(data['form']['lang'],
                 data['form']['module'])
         return {
-            'file': base64.encodestring(file_data),
+            'file': buffer(file_data),
         }
 
     states = {

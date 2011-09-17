@@ -25,6 +25,12 @@ def dump_decimal(self, value, write):
     write(str(value))
     write("</double></value>\n")
 
+def dump_buffer(self, value, write):
+    self.write = write
+    value = xmlrpclib.Binary(value)
+    value.encode(self)
+    del self.write
+
 xmlrpclib.Marshaller.dispatch[Decimal] = dump_decimal
 xmlrpclib.Marshaller.dispatch[Float] = dump_decimal
 xmlrpclib.Marshaller.dispatch[type(None)] = \
@@ -32,6 +38,7 @@ xmlrpclib.Marshaller.dispatch[type(None)] = \
 xmlrpclib.Marshaller.dispatch[datetime.date] = \
         lambda self, value, write: self.dump_datetime(
                 datetime.datetime.combine(value, datetime.time()), write)
+xmlrpclib.Marshaller.dispatch[buffer] = dump_buffer
 
 def dump_struct(self, value, write, escape=xmlrpclib.escape):
     converted_value = {}

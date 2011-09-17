@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import os
-import base64
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
 from trytond.tools import exec_command_pipe
@@ -588,7 +587,7 @@ class InstanceGraph(Report):
                 graph.set('rankdir', 'RL')
         self.graph_instance_get(graph, instance_id, datas.get('nested', False))
         data = graph.create(prog='dot', format='png')
-        return ('png', base64.encodestring(data), False, workflow.name)
+        return ('png', buffer(data), False, workflow.name)
 
     def graph_instance_get(self, graph, instance_id, nested=False):
         pool = Pool()

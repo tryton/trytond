@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import os
-import base64
 import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.version import PACKAGE, VERSION, WEBSITE
@@ -464,7 +463,7 @@ class Collection(ModelSQL, ModelView):
                     data = DAV_NotFound
                     try:
                         if attachment.data is not False:
-                            data = base64.decodestring(attachment.data)
+                            data = attachment.data
                     except Exception:
                         pass
                     if attachment.id == object_id:
@@ -485,7 +484,7 @@ class Collection(ModelSQL, ModelView):
                             type='report')
                     val = report_obj.execute([object_id],
                             {'id': object_id, 'ids': [object_id]})
-                    return base64.decodestring(val[1])
+                    return val[1]
         raise DAV_NotFound
 
     def put(self, uri, data, content_type, cache=None):
@@ -505,7 +504,7 @@ class Collection(ModelSQL, ModelView):
             try:
                 attachment_obj.create({
                     'name': name,
-                    'data': base64.encodestring(data or ''),
+                    'data': data,
                     'name': name,
                     'resource': '%s,%s' % (object_name, object_id),
                     })
@@ -514,7 +513,7 @@ class Collection(ModelSQL, ModelView):
         else:
             try:
                 attachment_obj.write(object_id2, {
-                    'data': base64.encodestring(data or ''),
+                    'data': data,
                     })
             except Exception:
                 raise DAV_Forbidden

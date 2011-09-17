@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import datetime
-import base64
 import re
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
@@ -561,7 +560,7 @@ class ModelGraph(Report):
         self.fill_graph(models, graph, level=datas['form']['level'],
                 filter=filter)
         data = graph.create(prog='dot', format='png')
-        return ('png', base64.encodestring(data), False, action_report.name)
+        return ('png', buffer(data), False, action_report.name)
 
     def fill_graph(self, models, graph, level=1, filter=None):
         '''

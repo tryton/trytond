@@ -10,7 +10,6 @@ try:
 except ImportError:
     hashlib = None
     import sha
-import base64
 import pydoc
 from trytond.pool import Pool
 from trytond import security
@@ -273,7 +272,7 @@ def dump(database_name, password):
 
     data = Database.dump(database_name)
     logger.info('DUMP DB: %s' % (database_name))
-    return base64.encodestring(data)
+    return buffer(data)
 
 def restore(database_name, password, data, update=False):
     logger = logging.getLogger('database')
@@ -285,7 +284,6 @@ def restore(database_name, password, data, update=False):
         raise Exception("Database already exists!")
     except Exception:
         pass
-    data = base64.decodestring(data)
     Database.restore(database_name, data)
     logger.info('RESTORE DB: %s' % (database_name))
     if update:

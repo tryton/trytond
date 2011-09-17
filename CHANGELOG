@@ -1,3 +1,6 @@
+* Support size format in context for Binary fields
+* Use buffer for Binary fields
+* No more store Binary fields in base64
 * Remove tabpos attribute on notebook
 * Make PYSON more Pythonic
 * Add readonly on Transaction
