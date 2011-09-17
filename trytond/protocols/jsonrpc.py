@@ -23,6 +23,7 @@ import urllib
 import datetime
 from decimal import Decimal
 import json
+import base64
 
 def object_hook(dct):
     if '__class__' in dct:
@@ -31,6 +32,8 @@ def object_hook(dct):
                     dct['hour'], dct['minute'], dct['second'])
         elif dct['__class__'] == 'date':
             return datetime.date(dct['year'], dct['month'], dct['day'])
+        elif dct['__class__'] == 'buffer':
+            return buffer(base64.decodestring(dct['base64']))
         elif dct['__class__'] == 'Decimal':
             return Decimal(dct['decimal'])
     return dct
@@ -53,6 +56,10 @@ class JSONEncoder(json.JSONEncoder):
                     'month': obj.month,
                     'day': obj.day,
                     }
+        elif isinstance(obj, buffer):
+            return {'__class__': 'buffer',
+                'base64': base64.encodestring(obj),
+                }
         elif isinstance(obj, Decimal):
             return {'__class__': 'Decimal',
                 'decimal': str(obj),

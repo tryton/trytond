@@ -1,6 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import base64
+import copy
+import xml
+import sys
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -9,7 +11,6 @@ import zipfile
 import time
 import os
 import datetime
-from base64 import decodestring
 import inspect
 import tempfile
 import warnings
@@ -115,7 +116,7 @@ class Report(URLMixin):
             local context of the report
         :return: a tuple with:
             report type,
-            base64 encoded data,
+            data,
             a boolean to direct print,
             the report name
         '''
@@ -131,7 +132,7 @@ class Report(URLMixin):
         if action_report.model:
             objects = self._get_objects(ids, action_report.model, datas)
         type, data = self.parse(action_report, objects, datas, {})
-        return (type, base64.encodestring(data), action_report.direct_print,
+        return (type, buffer(data), action_report.direct_print,
                 action_report.name)
 
     def _get_objects(self, ids, model, datas):
@@ -158,7 +159,6 @@ class Report(URLMixin):
                 ).browse(Transaction().user)
         localcontext['formatLang'] = lambda *args, **kargs: \
                 self.format_lang(*args, **kargs)
-        localcontext['decodestring'] = decodestring
         localcontext['StringIO'] = StringIO.StringIO
         localcontext['time'] = time
         localcontext['datetime'] = datetime
@@ -177,7 +177,7 @@ class Report(URLMixin):
         outzip = zipfile.ZipFile(path, mode='w')
 
         content_io = StringIO.StringIO()
-        content_io.write(base64.decodestring(report.report_content))
+        content_io.write(report.report_content)
         content_z = zipfile.ZipFile(content_io, mode='r')
 
         style_info = None
@@ -199,7 +199,7 @@ class Report(URLMixin):
             #cStringIO difference:
             #calling StringIO() with a string parameter creates a read-only object
             new_style_io = StringIO.StringIO()
-            new_style_io.write(base64.decodestring(report.style_content))
+            new_style_io.write(report.style_content)
             new_style_z = zipfile.ZipFile(new_style_io, mode='r')
             new_style_xml = new_style_z.read('styles.xml')
             for file in new_style_z.namelist():

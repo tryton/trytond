@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model.fields.field import Field
+from trytond.transaction import Transaction
 
 
 class Binary(Field):
@@ -40,8 +41,14 @@ class Binary(Field):
         if values is None:
             values = {}
         res = {}
+        converter = buffer
+        default = False
+        format_ = Transaction().context.pop('%s.%s' % (model, name), '')
+        if format_ == 'size':
+            converter = len
+            default = 0
         for i in values:
-            res[i['id']] = i[name] and str(i[name]) or None
+            res[i['id']] = converter(i[name]) if i[name] else default
         for i in ids:
-            res.setdefault(i, None)
+            res.setdefault(i, default)
         return res

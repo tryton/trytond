@@ -6,7 +6,6 @@ try:
 except ImportError:
     hashlib = None
     import md5
-import base64
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.config import CONFIG
 from trytond.backend import TableHandler
@@ -95,9 +94,10 @@ class Attachment(ModelSQL, ModelView):
     def get_data(self, ids, name):
         res = {}
         db_name = Transaction().cursor.dbname
+        format_ = Transaction().context.pop('%s.%s' % (self._name, name), '')
         for attachment in self.browse(ids):
             value = False
-            if name == 'data_size':
+            if name == 'data_size' or format_ == 'size':
                 value = 0
             if attachment.digest:
                 filename = attachment.digest
@@ -105,7 +105,7 @@ class Attachment(ModelSQL, ModelView):
                     filename = filename + '-' + str(attachment.collision)
                 filename = os.path.join(CONFIG['data_path'], db_name,
                         filename[0:2], filename[2:4], filename)
-                if name == 'data_size':
+                if name == 'data_size' or format_ == 'size':
                     try:
                         statinfo = os.stat(filename)
                         value = statinfo.st_size
@@ -114,7 +114,7 @@ class Attachment(ModelSQL, ModelView):
                 else:
                     try:
                         with open(filename, 'rb') as file_p:
-                            value = base64.encodestring(file_p.read())
+                            value = buffer(file_p.read())
                     except IOError:
                         pass
             res[attachment.id] = value
@@ -128,11 +128,10 @@ class Attachment(ModelSQL, ModelView):
         directory = os.path.join(CONFIG['data_path'], db_name)
         if not os.path.isdir(directory):
             os.makedirs(directory, 0770)
-        data = base64.decodestring(value)
         if hashlib:
-            digest = hashlib.md5(data).hexdigest()
+            digest = hashlib.md5(value).hexdigest()
         else:
-            digest = md5.new(data).hexdigest()
+            digest = md5.new(value).hexdigest()
         directory = os.path.join(directory, digest[0:2], digest[2:4])
         if not os.path.isdir(directory):
             os.makedirs(directory, 0770)
@@ -140,8 +139,8 @@ class Attachment(ModelSQL, ModelView):
         collision = 0
         if os.path.isfile(filename):
             with open(filename, 'rb') as file_p:
-                data2 = file_p.read()
-            if data != data2:
+                data = file_p.read()
+            if value != data:
                 cursor.execute('SELECT DISTINCT(collision) FROM ir_attachment ' \
                         'WHERE digest = %s ' \
                             'AND collision != 0 ' \
@@ -153,8 +152,8 @@ class Attachment(ModelSQL, ModelView):
                             digest + '-' + str(collision2))
                     if os.path.isfile(filename):
                         with open(filename, 'rb') as file_p:
-                            data2 = file_p.read()
-                        if data == data2:
+                            data = file_p.read()
+                        if value == data:
                             collision = collision2
                             break
                 if collision == 0:
@@ -162,10 +161,10 @@ class Attachment(ModelSQL, ModelView):
                     filename = os.path.join(directory,
                             digest + '-' + str(collision))
                     with open(filename, 'wb') as file_p:
-                        file_p.write(data)
+                        file_p.write(value)
         else:
             with open(filename, 'wb') as file_p:
-                file_p.write(data)
+                file_p.write(value)
         self.write(ids, {
             'digest': digest,
             'collision': collision,

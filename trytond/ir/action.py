@@ -195,7 +195,7 @@ class ActionKeyword(ModelSQL, ModelView):
                     + action_obj._inherit_fields.keys())
                 columns.add('icon.rec_name')
                 if action_keyword.action.type == 'ir.action.report':
-                    to_remove = ('report_content_data', 'report_content',
+                    to_remove = ('report_content_custom', 'report_content',
                         'style_content')
                 elif action_keyword.action.type == 'ir.action.act_window':
                     to_remove = ('domain', 'context', 'search_value')
@@ -216,7 +216,7 @@ class ActionReport(ModelSQL, ModelView):
     model = fields.Char('Model')
     report_name = fields.Char('Internal Name', required=True)
     report = fields.Char('Path')
-    report_content_data = fields.Binary('Content')
+    report_content_custom = fields.Binary('Content')
     report_content = fields.Function(fields.Binary('Content'),
             'get_report_content', setter='set_report_content')
     action = fields.Many2One('ir.action', 'Action', required=True,
@@ -341,6 +341,20 @@ class ActionReport(ModelSQL, ModelView):
             'SET extension = %s '
             'WHERE extension = %s', ('', 'odt'))
 
+        # Migration from 2.0 report_content_data renamed into
+        # report_content_custom to remove base64 encoding
+        if (table.column_exist('report_content_data')
+                and table.column_exist('report_content_custom')):
+            cursor.execute('SELECT id, report_content_data '
+                'FROM "' + self._table + '"')
+            for report_id, content in cursor.fetchall():
+                if content:
+                    content = base64.decodestring(content)
+                    cursor.execute('UPDATE "' + self._table + '" '
+                        'SET report_content_custom = %s '
+                        'WHERE id = %s', (content, report_id))
+            table.drop_column('report_content_data')
+
     def default_type(self):
         return 'ir.action.report'
 
@@ -361,16 +375,22 @@ class ActionReport(ModelSQL, ModelView):
 
     def get_report_content(self, ids, name):
         res = {}
+        converter = buffer
+        default = False
+        format_ = Transaction().context.pop('%s.%s' % (self._name, name), '')
+        if format_ == 'size':
+            converter = len
+            default = 0
         for report in self.browse(ids):
-            data = report[name + '_data']
+            data = report[name + '_custom']
             if not data and report[name[:-8]]:
                 try:
-                    with file_open( report[name[:-8]].replace('/', os.sep),
+                    with file_open(report[name[:-8]].replace('/', os.sep),
                             mode='rb') as fp:
-                        data = base64.encodestring(fp.read())
+                        data = fp.read()
                 except Exception:
                     data = False
-            res[report.id] = data
+            res[report.id] = converter(data) if data else default
         return res
 
     def set_report_content(self, ids, name, value):
@@ -382,7 +402,7 @@ class ActionReport(ModelSQL, ModelView):
             try:
                 with file_open( report.style.replace('/', os.sep),
                         mode='rb') as fp:
-                    data = base64.encodestring(fp.read())
+                    data = fp.read()
             except Exception:
                 data = False
             res[report.id] = data
