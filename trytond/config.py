@@ -103,7 +103,7 @@ class ConfigManager(object):
                 value = True
             if value == 'False' or value == 'false':
                 value = False
-            if name in ('netrpc', 'xmlrpc', 'jsonrpc', 'webdav'):
+            if name in ('xmlrpc', 'jsonrpc', 'webdav'):
                 value = [(get_hostname(netloc).replace('*', ''),
                     get_port(netloc, name)) for netloc in value.split(',')]
             self.options[name] = value
