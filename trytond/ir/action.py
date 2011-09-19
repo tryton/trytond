@@ -349,7 +349,7 @@ class ActionReport(ModelSQL, ModelView):
                 'FROM "' + self._table + '"')
             for report_id, content in cursor.fetchall():
                 if content:
-                    content = base64.decodestring(content)
+                    content = base64.decodestring(str(content))
                     cursor.execute('UPDATE "' + self._table + '" '
                         'SET report_content_custom = %s '
                         'WHERE id = %s', (content, report_id))
