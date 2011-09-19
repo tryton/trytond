@@ -85,7 +85,10 @@ class Pool(object):
         with cls._lock:
             if database_name in cls._instances:
                 del cls._instances[database_name]
-        with cls._locks[database_name]:
+        lock = cls._locks.get(database_name)
+        if not lock:
+            return
+        with lock:
             if database_name in cls._pool:
                 del cls._pool[database_name]
 
