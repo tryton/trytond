@@ -66,8 +66,6 @@ class Reference(Field):
                 ref_id = int(ref_id)
             except Exception:
                 continue
-            if not ref_id:
-                continue
             res[i] = ref_model + ',' + str(ref_id)
             ref_to_check.setdefault(ref_model, (set(), []))
             ref_to_check[ref_model][0].add(ref_id)
