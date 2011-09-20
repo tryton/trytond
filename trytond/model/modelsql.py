@@ -686,7 +686,7 @@ class ModelSQL(ModelStorage):
                     if not model_name:
                         continue
                     record_id = int(record_id)
-                    if not record_id:
+                    if record_id < 0:
                         continue
                     obj = pool.get(model_name)
                     record2 = obj.read(record_id, fields_related[field])
@@ -713,7 +713,7 @@ class ModelSQL(ModelStorage):
                                 if not model_name:
                                     continue
                                 record_id = int(record_id)
-                                if not record_id:
+                                if record_id < 0:
                                     continue
                                 record[field + '.' + related] = \
                                         fields_related2values[field][

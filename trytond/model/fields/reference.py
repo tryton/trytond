@@ -2,7 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 import contextlib
 from trytond.model.fields.field import Field
-from trytond.tools import safe_eval
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 
@@ -59,12 +58,10 @@ class Reference(Field):
             if not ref_model:
                 continue
             try:
-                ref_id = safe_eval(ref_id)
-            except Exception:
-                pass
-            try:
                 ref_id = int(ref_id)
             except Exception:
+                continue
+            if ref_id < 0:
                 continue
             res[i] = ref_model + ',' + str(ref_id)
             ref_to_check.setdefault(ref_model, (set(), []))
