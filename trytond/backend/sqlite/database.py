@@ -291,8 +291,7 @@ class Cursor(CursorInterface):
         sql = buf[:-2]
         try:
             if params:
-                res = self.cursor.execute(sql, [isinstance(x, str) and \
-                        unicode(x, 'utf-8') or x for x in  params])
+                res = self.cursor.execute(sql, params)
             else:
                 res = self.cursor.execute(sql)
         except Exception:
