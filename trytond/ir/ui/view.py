@@ -431,3 +431,68 @@ class ViewTreeWidth(ModelSQL, ModelView):
                 })
 
 ViewTreeWidth()
+
+
+class ViewTreeExpandedState(ModelSQL, ModelView):
+    _name = 'ir.ui.view_tree_expanded_state'
+
+    _rec_name = 'model'
+    model = fields.Char('Model', required=True)
+    domain = fields.Char('Domain', required=True)
+    user = fields.Many2One('res.user', 'User', required=True,
+            ondelete='CASCADE')
+    child_name = fields.Char('Child Name')
+    nodes = fields.Text('Expanded Nodes')
+
+    def __init__(self):
+        super(ViewTreeExpandedState, self).__init__()
+        self._rpc.update({
+                'set_expanded': True,
+                'get_expanded': True,
+                })
+
+    def init(self, module_name):
+        super(ViewTreeExpandedState, self).init(module_name)
+
+        cursor = Transaction().cursor
+        table = TableHandler(cursor, self, module_name)
+        table.index_action(['model', 'domain', 'user', 'child_name'], 'add')
+
+    def default_nodes(self):
+        return '[]'
+
+    def set_expanded(self, model, domain, child_name, nodes):
+        current_user = Transaction().user
+        with Transaction().set_user(0):
+            ids = self.search([
+                    ('user', '=', current_user),
+                    ('model', '=', model),
+                    ('domain', '=', domain),
+                    ('child_name', '=', child_name),
+                    ])
+            self.delete(ids)
+            self.create({
+                    'user': current_user,
+                    'model': model,
+                    'domain': domain,
+                    'child_name': child_name,
+                    'nodes': nodes,
+                    })
+
+    def get_expanded(self, model, domain, child_name):
+        current_user = Transaction().user
+        with Transaction().set_user(0):
+            try:
+                expanded_info, = self.search([
+                        ('user', '=', current_user),
+                        ('model', '=', model),
+                        ('domain', '=', domain),
+                        ('child_name', '=', child_name),
+                        ],
+                    limit=1)
+            except ValueError:
+                return '[]'
+            return self.browse(expanded_info).nodes
+
+
+ViewTreeExpandedState()
