@@ -195,5 +195,59 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <menuitem parent="menu_ui"
             action="act_view_tree_width_form" id="menu_view_tree_width"/>
+
+        <record model="ir.ui.view" id="view_tree_expanded_state_form">
+            <field name="model">ir.ui.view_tree_expanded_state</field> 
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="View Tree Expanded State">
+                    <label name="model"/>
+                    <field name="model"/>
+                    <label name="user"/>
+                    <field name="user"/>
+                    <label name="domain"/>
+                    <field name="domain"/>
+                    <label name="child_name" />
+                    <field name="child_name" />
+                    <separator name="nodes" colspan="4" />
+                    <field name="nodes" colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_tree_expanded_state_tree">
+            <field name="model">ir.ui.view_tree_expanded_state</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Views Tree Expanded State">
+                    <field name="model"/>
+                    <field name="domain"/>
+                    <field name="user"/>
+                    <field name="child_name"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_view_tree_expanded_state">
+            <field name="name">Tree Expanded State</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.ui.view_tree_expanded_state</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_tree_expanded_state_tree">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="view_tree_expanded_state_tree"/>
+            <field name="act_window" ref="act_view_tree_expanded_state"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_tree_expanded_state_form">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="view_tree_expanded_state_form"/>
+            <field name="act_window" ref="act_view_tree_expanded_state"/>
+        </record>
+        <menuitem parent="menu_ui" action="act_view_tree_expanded_state"
+            id="menu_view_tree_expanded_state"/>
     </data>
 </tryton>
