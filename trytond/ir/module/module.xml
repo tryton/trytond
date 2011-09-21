@@ -127,7 +127,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.keyword" id="act_module_config_wizard_keyword">
             <field name="action" ref="act_module_config_wizard"/>
             <field name="keyword">form_action</field>
-            <field name="model">ir.module.module.config_wizard.item,0</field>
+            <field name="model">ir.module.module.config_wizard.item,-1</field>
         </record>
 
 
@@ -156,7 +156,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.keyword" id="act_module_install_upgrade_keyword1">
             <field name="action" ref="act_module_install_upgrade"/>
             <field name="keyword">form_action</field>
-            <field name="model">ir.module.module,0</field>
+            <field name="model">ir.module.module,-1</field>
         </record>
 
         <record model="ir.ui.view" id="module_install_upgrade_init_view_form">
