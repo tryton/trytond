@@ -699,6 +699,16 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 else:
                     expected_value = old_values[key]
 
+                # Migration from 2.0: Reference field change value
+                if key in object_ref._columns:
+                    field_type = object_ref._columns[key]._type
+                else:
+                    field_type = object_ref._inherit_fields[key][2]._type
+                if field_type == 'reference':
+                    if (expected_value and expected_value.endswith(',0')
+                            and not db_field):
+                        db_field = expected_value
+
                 # ... and we consider that there is an update if the
                 # expected value differs from the actual value, _and_
                 # if they are not false in a boolean context (ie None,

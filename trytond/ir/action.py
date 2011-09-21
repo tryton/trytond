@@ -173,14 +173,14 @@ class ActionKeyword(ModelSQL, ModelView):
         model, model_id = value
 
         action_keyword_ids = []
-        if model_id:
+        if model_id >= 0:
             action_keyword_ids = self.search([
                 ('keyword', '=', keyword),
                 ('model', '=', model + ',' + str(model_id)),
                 ])
         action_keyword_ids.extend(self.search([
             ('keyword', '=', keyword),
-            ('model', '=', model + ',0'),
+            ('model', '=', model + ',-1'),
             ]))
         for action_keyword in self.browse(action_keyword_ids):
             try:

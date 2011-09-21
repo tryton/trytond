@@ -141,7 +141,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.action.keyword" id="act_view_sc_open_keyword1">
             <field name="action" ref="act_view_sc_open"/>
             <field name="keyword">tree_open</field>
-            <field name="model">ir.ui.view_sc,0</field>
+            <field name="model">ir.ui.view_sc,-1</field>
         </record>
 
         <record model="ir.ui.view" id="view_tree_width_view_form">
