@@ -256,7 +256,7 @@ def load_module_graph(graph, pool, lang=None):
 
             for filename in package.datas.get('translation', []):
                 filename = filename.replace('/', os.sep)
-                lang2 = os.path.splitext(filename)[0]
+                lang2 = os.path.splitext(os.path.basename(filename))[0]
                 if lang2 not in lang:
                     continue
                 logger.info('%s:loading %s' % (module, filename))
