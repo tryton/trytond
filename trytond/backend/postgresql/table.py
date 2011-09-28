@@ -312,9 +312,13 @@ class TableHandler(TableHandlerInterface):
             column_name = [column_name]
         index_name = (table or self.table_name) + "_" + '_'.join(column_name) \
                 + "_index"
+        if self._indexes:
+            test_index_name = index_name[:max(map(len, self._indexes))]
+        else:
+            test_index_name = index_name
 
         if action == 'add':
-            if index_name in self._indexes:
+            if test_index_name in self._indexes:
                 return
             self.cursor.execute('CREATE INDEX "' + index_name + '" ' \
                                'ON "' + self.table_name + '" ( ' + \
@@ -327,7 +331,7 @@ class TableHandler(TableHandlerInterface):
                         != self.module_name:
                     return
 
-            if index_name in self._indexes:
+            if test_index_name in self._indexes:
                 self.cursor.execute('DROP INDEX "%s" ' % (index_name,))
                 self._update_definitions()
         else:

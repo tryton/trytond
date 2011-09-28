@@ -248,6 +248,8 @@ class TableHandler(TableHandlerInterface):
             column_name = [column_name]
         index_name = (table or self.table_name) + "_" + '_'.join(column_name) \
                 + "_index"
+        # Index name length is limited to 64
+        index_name = index_name[:64]
 
         for k in column_name:
             if k in self._columns:
