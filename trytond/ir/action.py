@@ -9,6 +9,7 @@ from trytond.pyson import PYSONEncoder, CONTEXT, PYSON
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.pool import Pool
+from trytond.exceptions import UserError
 
 
 class Action(ModelSQL, ModelView):
@@ -182,10 +183,11 @@ class ActionKeyword(ModelSQL, ModelView):
             ('keyword', '=', keyword),
             ('model', '=', model + ',-1'),
             ]))
-        for action_keyword in self.browse(action_keyword_ids):
+        for action_keyword_id in action_keyword_ids:
+            action_keyword = self.browse(action_keyword_id)
             try:
                 action_obj = pool.get(action_keyword.action.type)
-            except Exception:
+            except UserError:
                 continue
             action_id = action_obj.search([
                 ('action', '=', action_keyword.action.id),
