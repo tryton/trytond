@@ -92,6 +92,7 @@ attlist.field &=
     | "image"
     | "progressbar"
   }?
+attlist.field &= attribute fill { "0" | "1" }?
 attlist.field &= attribute yexpand { "0" | "1" }?
 attlist.field &= attribute yfill { "0" | "1" }?
 attlist.field &= attribute empty { "0" | "1" }?
