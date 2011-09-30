@@ -263,6 +263,7 @@ class ModelView(Model):
 
     def _view_look_dom_arch(self, tree, type, field_children=None):
         pool = Pool()
+        model_access_obj = pool.get('ir.model.access')
         field_access_obj = pool.get('ir.model.field.access')
 
         fields_width = {}
@@ -273,6 +274,34 @@ class ModelView(Model):
                 self._columns.keys(), 'read', access=True)
         fields_to_remove = list(x for x, y in fread_accesses.iteritems()
                 if not y)
+
+        def check_relation(model, field):
+            if field._type in ('one2many', 'many2one'):
+                if not model_access_obj.check(field.model_name, mode='read',
+                        raise_exception=False):
+                    return False
+            if field._type in ('many2many', 'one2one'):
+                if not model_access_obj.check(field.target, mode='read',
+                        raise_exception=False):
+                    return False
+                elif not model_access_obj.check(field.relation_name,
+                        mode='read', raise_exception=False):
+                    return False
+            if field._type == 'reference':
+                selection = field.selection
+                if isinstance(selection, basestring):
+                    selection = getattr(model, field.selection)()
+                for model_name, _ in selection:
+                    if not model_access_obj.check(model_name, mode='read',
+                            raise_exception=False):
+                        return False
+            return True
+
+        # Find relation field without read access
+        for name, field in self._columns.iteritems():
+            if not check_relation(self, field):
+                fields_to_remove.append(name)
+
         for name, field in self._columns.iteritems():
             for field_to_remove in fields_to_remove:
                 if field_to_remove in field.depends:
@@ -285,6 +314,12 @@ class ModelView(Model):
                     inherit_obj._columns.keys(), 'read', access=True)
             fields_to_remove += list(x for x, y in fread_accesses.iteritems()
                     if not y and x not in self._columns.keys())
+
+            # Find relation field without read access
+            for name, field in inherit_obj._columns.iteritems():
+                if not check_relation(inherit_obj, field):
+                    fields_to_remove.append(name)
+
             for name, field in inherit_obj._columns.iteritems():
                 for field_to_remove in fields_to_remove:
                     if field_to_remove in field.depends:

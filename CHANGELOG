@@ -1,3 +1,4 @@
+* Manage relation field access
 * Support size format in context for Binary fields
 * Use buffer for Binary fields
 * No more store Binary fields in base64
