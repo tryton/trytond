@@ -426,17 +426,6 @@
   </define>
   <define name="attlist.field" combine="interleave">
     <optional>
-      <attribute name="select" a:defaultValue="0">
-        <choice>
-          <value>0</value>
-          <value>1</value>
-          <value>2</value>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="attlist.field" combine="interleave">
-    <optional>
       <attribute name="orientation" a:defaultValue="left_to_right">
         <choice>
           <value>left_to_right</value>

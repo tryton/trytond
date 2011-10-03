@@ -10,15 +10,15 @@ this repository contains the full copyright notices and license terms. -->
               <![CDATA[
                 <tree string="Requests">
                     <field name="create_date"/>
-                    <field name="act_from" select="1"/>
-                    <field name="act_to" select="1"/>
-                    <field name="name" select="1"/>
-                    <field name="priority" select="2"/>
-                    <field name="trigger_date" select="2"/>
+                    <field name="act_from"/>
+                    <field name="act_to"/>
+                    <field name="name"/>
+                    <field name="priority"/>
+                    <field name="trigger_date"/>
                     <field name="number_references"/>
                     <field name="state"/>
-                    <field name="active" select="2"/>
-                    <field name="body" tree_invisible="1" select="2"/>
+                    <field name="active"/>
+                    <field name="body" tree_invisible="1"/>
                 </tree>
                 ]]>
             </field>
@@ -119,8 +119,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Request Link">
-                    <field name="name" select="1"/>
-                    <field name="model" select="1"/>
+                    <field name="name"/>
+                    <field name="model"/>
                 </tree>
                 ]]>
             </field>

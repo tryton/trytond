@@ -11,7 +11,7 @@ class Boolean(Field):
     _type = 'boolean'
 
     def __init__(self, string='', help='', readonly=False, domain=None,
-            states=None, change_default=False, select=0, on_change=None,
+            states=None, change_default=False, select=False, on_change=None,
             on_change_with=None, depends=None, order_field=None, context=None,
             loading='eager'):
         super(Boolean, self).__init__(string=string, help=help, required=False,

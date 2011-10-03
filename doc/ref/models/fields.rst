@@ -77,9 +77,7 @@ If true, the field can be used as condition for a custom default value.
 
 .. attribute:: Field.select
 
-When equal to ``1``, the field appears in the search box in list view and the
-search will be optimized. When equal to ``2`` the field appears in the
-*Advanced Search* in the search box.
+If true, the content of the field will be indexed.
 
 ``on_change``
 -------------

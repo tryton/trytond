@@ -79,11 +79,11 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Languages" editable="bottom">
-                    <field name="name" select="1"/>
-                    <field name="code" select="1"/>
+                    <field name="name"/>
+                    <field name="code"/>
                     <field name="direction"/>
-                    <field name="translatable" select="1"/>
-                    <field name="active" select="2"/>
+                    <field name="translatable"/>
+                    <field name="active"/>
                 </tree>
                 ]]>
             </field>

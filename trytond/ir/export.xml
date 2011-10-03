@@ -24,8 +24,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Exports">
-                    <field name="name" select="1"/>
-                    <field name="resource" select="1"/>
+                    <field name="name"/>
+                    <field name="resource"/>
                 </tree>
                 ]]>
             </field>

@@ -27,10 +27,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Properties">
-                    <field name="name" select="1"/>
-                    <field name="field" select="1"/>
-                    <field name="value" select="2"/>
-                    <field name="res" select="2"/>
+                    <field name="name"/>
+                    <field name="field"/>
+                    <field name="value"/>
+                    <field name="res"/>
                 </tree>
                 ]]>
             </field>

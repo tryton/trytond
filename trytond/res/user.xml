@@ -97,10 +97,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Users">
-                    <field name="name" select="1"/>
-                    <field name="login" select="1"/>
+                    <field name="name"/>
+                    <field name="login"/>
                     <field name="connections"/>
-                    <field name="active" select="1"/>
+                    <field name="active"/>
                 </tree>
               ]]>
             </field>
@@ -190,9 +190,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Warnings">
-                    <field name="user" select="1"/>
-                    <field name="name" select="1"/>
-                    <field name="always" select="1"/>
+                    <field name="user"/>
+                    <field name="name"/>
+                    <field name="always"/>
                 </tree>
                 ]]>
             </field>

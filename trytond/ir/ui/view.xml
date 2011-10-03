@@ -33,12 +33,12 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree>
-                    <field name="priority" select="2"/>
-                    <field name="model" select="1"/>
-                    <field name="type" select="1"/>
-                    <field name="inherit" select="1"/>
-                    <field name="domain" select="2"/>
-                    <field name="field_childs" select="2"/>
+                    <field name="priority"/>
+                    <field name="model"/>
+                    <field name="type"/>
+                    <field name="inherit"/>
+                    <field name="domain"/>
+                    <field name="field_childs"/>
                 </tree>
                 ]]>
             </field>
@@ -88,8 +88,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Shortcut">
-                    <field name="name" select="1"/>
-                    <field name="user_id" select="1"/>
+                    <field name="name"/>
+                    <field name="user_id"/>
                     <field name="sequence"/>
                 </tree>
                 ]]>

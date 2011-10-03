@@ -12,7 +12,7 @@ class Selection(Field):
 
     def __init__(self, selection, string='', sort=True, translate=True,
             help='', required=False, readonly=False, domain=None, states=None,
-            change_default=False, select=0, on_change=None,
+            change_default=False, select=False, on_change=None,
             on_change_with=None, depends=None, order_field=None, context=None,
             loading='eager'):
         '''

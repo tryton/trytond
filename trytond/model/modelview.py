@@ -372,7 +372,7 @@ class ModelView(Model):
                 fields_def.setdefault(depend, {'name': depend})
 
         if ('active' in self._columns) or ('active' in self._inherit_fields):
-            fields_def.setdefault('active', {'name': 'active', 'select': "2"})
+            fields_def.setdefault('active', {'name': 'active'})
 
         arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
         fields2 = self.fields_get(fields_def.keys())

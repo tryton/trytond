@@ -54,7 +54,7 @@ class Field(object):
     _type = None
 
     def __init__(self, string='', help='', required=False, readonly=False,
-            domain=None, states=None, change_default=False, select=0,
+            domain=None, states=None, change_default=False, select=False,
             on_change=None, on_change_with=None, depends=None,
             order_field=None, context=None, loading='eager'):
         '''
@@ -70,9 +70,7 @@ class Field(object):
             dynamically the attributes of the field.
         :param change_default: A boolean. If ``True`` the field can be used as
         condition for a custom default value.
-        :param select: An integer. When equal to ``1``, the field appears in the
-            search box in list view and the search will be optimized. When equal to
-            ``2`` the field appears in the *Advanced Search* in the search box.
+        :param select: An boolean. When True search will be optimized.
         :param on_change: A list of values. If set, the client will call the
             method ``on_change_<field_name>`` when the user changes the field
             value. It then passes this list of values as arguments to the
@@ -98,7 +96,7 @@ class Field(object):
         self.__states = None
         self.states = states or {}
         self.change_default = change_default
-        self.select = select
+        self.select = bool(select)
         self.__on_change = None
         self.on_change = on_change
         self.__on_change_with = None

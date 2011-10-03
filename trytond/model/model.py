@@ -539,6 +539,13 @@ class Model(WarningErrorMixin, URLMixin):
                     (fields.Function, fields.One2Many)) \
                     and not self._columns[field].order_field:
                 res[field]['sortable'] = False
+            if ((isinstance(self._columns[field], fields.Function)
+                    and not self._columns[field].searcher)
+                    or self._columns[field]._type in ('binary', 'many2many',
+                        'one2many', 'sha')):
+                res[field]['searchable'] = False
+            else:
+                res[field]['searchable'] = True
 
             if Transaction().context.get('language'):
                 # translate the field label

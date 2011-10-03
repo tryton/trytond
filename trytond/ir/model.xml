@@ -43,10 +43,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Model Description">
-                    <field name="name" select="1"/>
-                    <field name="model" select="1"/>
-                    <field name="info" select="2"/>
-                    <field name="module" select="1"/>
+                    <field name="name"/>
+                    <field name="model"/>
+                    <field name="info"/>
+                    <field name="module"/>
                 </tree>
                 ]]>
             </field>
@@ -99,11 +99,11 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Fields">
-                    <field name="name" select="1"/>
-                    <field name="model" select="1"/>
-                    <field name="ttype" select="2"/>
-                    <field name="relation" select="2"/>
-                    <field name="field_description" select="2"/>
+                    <field name="name"/>
+                    <field name="model"/>
+                    <field name="ttype"/>
+                    <field name="relation"/>
+                    <field name="field_description"/>
                     <field name="module"/>
                 </tree>
                 ]]>
@@ -133,12 +133,12 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Access controls">
-                    <field name="perm_read" select="2"/>
-                    <field name="perm_write" select="2"/>
-                    <field name="perm_create" select="2"/>
-                    <field name="perm_delete" select="2"/>
-                    <field name="model" select="1"/>
-                    <field name="group" select="1"/>
+                    <field name="perm_read"/>
+                    <field name="perm_write"/>
+                    <field name="perm_create"/>
+                    <field name="perm_delete"/>
+                    <field name="model"/>
+                    <field name="group"/>
                 </tree>
                 ]]>
             </field>
@@ -193,10 +193,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Field Access">
-                    <field name="perm_read" select="2"/>
-                    <field name="perm_write" select="2"/>
-                    <field name="field" select="1"/>
-                    <field name="group" select="1"/>
+                    <field name="perm_read"/>
+                    <field name="perm_write"/>
+                    <field name="field"/>
+                    <field name="group"/>
                 </tree>
                 ]]>
             </field>
