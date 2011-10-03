@@ -33,8 +33,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Workflow">
-                    <field name="name" select="1"/>
-                    <field name="model" select="1"/>
+                    <field name="name"/>
+                    <field name="model"/>
                     <field name="on_create"/>
                 </tree>
                 ]]>
@@ -163,8 +163,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Activity">
-                    <field name="name" select="1"/>
-                    <field name="workflow" select="1"/>
+                    <field name="name"/>
+                    <field name="workflow"/>
                     <field name="method"/>
                     <field name="flow_start"/>
                     <field name="flow_stop"/>
@@ -240,8 +240,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Transitions">
-                    <field name="act_from" select="1"/>
-                    <field name="act_to" select="1"/>
+                    <field name="act_from"/>
+                    <field name="act_to"/>
                     <field name="signal"/>
                     <field name="group"/>
                     <field name="condition"/>
@@ -315,11 +315,11 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Instances">
-                    <field name="workflow" select="1"/>
-                    <field name="uid" select="2"/>
-                    <field name="res_id" select="1"/>
-                    <field name="res_type" select="1"/>
-                    <field name="state" select="2"/>
+                    <field name="workflow"/>
+                    <field name="uid"/>
+                    <field name="res_id"/>
+                    <field name="res_type"/>
+                    <field name="state"/>
                 </tree>
                 ]]>
             </field>
@@ -371,10 +371,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Workitems">
-                    <field name="activity" select="1"/>
-                    <field name="subflow" select="1"/>
-                    <field name="instance" select="1"/>
-                    <field name="state" select="2"/>
+                    <field name="activity"/>
+                    <field name="subflow"/>
+                    <field name="instance"/>
+                    <field name="state"/>
                 </tree>
               ]]>
             </field>

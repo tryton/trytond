@@ -464,11 +464,6 @@ field
 
     * ``widget``: The widget that must be used instead of the default one.
 
-    * ``select``: A number between 0 and 2. If set to 1, the field will be used
-      as main search criteria; if set to 2, the field will be used as second
-      search criteria; if set to 0, the field will not be used as search
-      criteria.
-
     * ``tree_invisible``: Boolean to display or not the column.
 
     * ``icon``: The name of the field that contains the name of the icon to
@@ -487,10 +482,10 @@ Example
 ::
 
   <tree string="Taxes" sequence="sequence">
-      <field name="name" select="1"/>
-      <field name="group" select="1"/>
-      <field name="type" select="1"/>
-      <field name="active" select="2"/>
+      <field name="name"/>
+      <field name="group"/>
+      <field name="type"/>
+      <field name="active"/>
       <field name="sequence" tree_invisible="1"/>
   </tree>
 

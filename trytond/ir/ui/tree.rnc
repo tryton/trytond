@@ -38,8 +38,6 @@ attlist.field &=
     | "progressbar"
   }?
 attlist.field &=
-  [ a:defaultValue = "0" ] attribute select { "0" | "1" | "2" }?
-attlist.field &=
   [ a:defaultValue = "0" ] attribute tree_invisible { "0" | "1" }?
 attlist.field &= attribute icon { text }?
 attlist.field &= attribute sum { text }?

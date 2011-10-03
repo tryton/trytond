@@ -16,7 +16,7 @@ class Char(Field):
 
     def __init__(self, string='', size=None, help='', required=False,
             readonly=False, domain=None, states=None, change_default=False,
-            translate=False, select=0, on_change=None, on_change_with=None,
+            translate=False, select=False, on_change=None, on_change_with=None,
             depends=None, order_field=None, context=None, loading='eager',
             autocomplete=None):
         '''

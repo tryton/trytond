@@ -14,7 +14,7 @@ class Reference(Field):
 
     def __init__(self, string='', selection=None, help='', required=False,
             readonly=False, domain=None, states=None, change_default=False,
-            select=0, on_change=None, on_change_with=None, depends=None,
+            select=False, on_change=None, on_change_with=None, depends=None,
             order_field=None, context=None, loading='eager'):
         '''
         :param selection: A list or a function name that returns a list.

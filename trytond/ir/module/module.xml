@@ -61,13 +61,13 @@ this repository contains the full copyright notices and license terms. -->
               <![CDATA[
                 <tree string="Modules" on_write="on_write"
                     colors="If(In(Eval('state', ''), ['to upgrade', 'to install']), 'blue', If(Equal(Eval('state', ''), 'uninstalled'), 'grey', 'black'))">
-                    <field name="name" select="1"/>
-                    <field name="shortdesc" select="1"/>
-                    <field name="author" select="2"/>
+                    <field name="name"/>
+                    <field name="shortdesc"/>
+                    <field name="author"/>
                     <field name="version"/>
-                    <field name="website" select="2"/>
-                    <field name="state" select="1"/>
-                    <field name="description" tree_invisible="1" select="2"/>
+                    <field name="website"/>
+                    <field name="state"/>
+                    <field name="description" tree_invisible="1"/>
                 </tree>
               ]]>
             </field>
@@ -99,9 +99,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Config Wizard Items" editable="bottom">
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <field name="sequence"/>
-                    <field name="state" select="1"/>
+                    <field name="state"/>
                 </tree>
                 ]]>
             </field>

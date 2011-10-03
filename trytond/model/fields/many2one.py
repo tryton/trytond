@@ -13,7 +13,7 @@ class Many2One(Field):
     def __init__(self, model_name, string='', left=None, right=None,
             ondelete='SET NULL', datetime_field=None, help='', required=False,
             readonly=False, domain=None, states=None, change_default=False,
-            select=0, on_change=None, on_change_with=None, depends=None,
+            select=False, on_change=None, on_change_with=None, depends=None,
             order_field=None, context=None, loading='eager'):
         '''
         :param model_name: The name of the target model.

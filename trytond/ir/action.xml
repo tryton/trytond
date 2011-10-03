@@ -46,8 +46,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Action">
-                    <field name="name" select="1"/>
-                    <field name="type" select="1"/>
+                    <field name="name"/>
+                    <field name="type"/>
                 </tree>
                 ]]>
             </field>
@@ -133,10 +133,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Report xml">
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <field name="type"/>
-                    <field name="model" select="1"/>
-                    <field name="report_name" select="2"/>
+                    <field name="model"/>
+                    <field name="report_name"/>
                 </tree>
                 ]]>
             </field>
@@ -231,8 +231,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Open Window">
-                    <field name="name" select="1"/>
-                    <field name="res_model" select="1"/>
+                    <field name="name"/>
+                    <field name="res_model"/>
                     <field name="domain"/>
                 </tree>
                 ]]>
@@ -306,9 +306,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Wizard">
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <field name="type"/>
-                    <field name="wiz_name" select="1"/>
+                    <field name="wiz_name"/>
                 </tree>
                 ]]>
             </field>
@@ -377,9 +377,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="URL">
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <field name="type"/>
-                    <field name="url" select="1"/>
+                    <field name="url"/>
                 </tree>
                 ]]>
             </field>

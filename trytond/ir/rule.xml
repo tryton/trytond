@@ -42,14 +42,14 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
               <![CDATA[
                 <tree string="Record rules">
-                    <field name="perm_read" select="2"/>
-                    <field name="perm_write" select="2"/>
-                    <field name="perm_create" select="2"/>
-                    <field name="perm_delete" select="2"/>
-                    <field name="model" select="1"/>
-                    <field name="name" select="2"/>
-                    <field name="global_p" select="1"/>
-                    <field name="default_p" select="1"/>
+                    <field name="perm_read"/>
+                    <field name="perm_write"/>
+                    <field name="perm_create"/>
+                    <field name="perm_delete"/>
+                    <field name="model"/>
+                    <field name="name"/>
+                    <field name="global_p"/>
+                    <field name="default_p"/>
                 </tree>
               ]]>
             </field>

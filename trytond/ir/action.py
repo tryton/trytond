@@ -521,14 +521,22 @@ class ActionActWindow(ModelSQL, ModelView):
             ('check_views', 'invalid_views'),
             ('check_domain', 'invalid_domain'),
             ('check_context', 'invalid_context'),
-            ('check_search_value', 'invalid_search_value'),
         ]
         self._error_messages.update({
             'invalid_views': 'Invalid views!',
-            'invalid_domain': 'Invalid domain!',
+            'invalid_domain': 'Invalid domain or search criteria!',
             'invalid_context': 'Invalid context!',
-            'invalid_search_value': 'Invalid search criteria!',
         })
+
+    def init(self, module_name):
+        cursor = Transaction().cursor
+        super(ActionActWindow, self).init(module_name)
+
+        # Migration from 2.0: new search_value format
+        cursor.execute('UPDATE "%s" '
+            'SET search_value = %%s '
+            'WHERE search_value = %%s' % self._table,
+            ('[]', '{}'))
 
     def default_type(self):
         return 'ir.action.act_window'
@@ -549,7 +557,7 @@ class ActionActWindow(ModelSQL, ModelView):
         return True
 
     def default_search_value(self):
-        return '{}'
+        return '[]'
 
     def check_views(self, ids):
         "Check views"
@@ -571,11 +579,13 @@ class ActionActWindow(ModelSQL, ModelView):
         return True
 
     def check_domain(self, ids):
-        "Check domain"
+        "Check domain and search_value"
         for action in self.browse(ids):
-            if action.domain:
+            for domain in (action.domain, action.search_value):
+                if not domain:
+                    continue
                 try:
-                    value = safe_eval(action.domain, CONTEXT)
+                    value = safe_eval(domain, CONTEXT)
                 except Exception:
                     return False
                 if isinstance(value, PYSON):
@@ -608,21 +618,6 @@ class ActionActWindow(ModelSQL, ModelView):
                         fields.context_validate(value)
                     except Exception:
                         return False
-        return True
-
-    def check_search_value(self, ids):
-        "Check search_value"
-        for action in self.browse(ids):
-            if action.search_value:
-                try:
-                    value = safe_eval(action.search_value, CONTEXT)
-                except Exception:
-                    return False
-                if isinstance(value, PYSON):
-                    if not value.types() == set([dict]):
-                        return False
-                elif not isinstance(value, dict):
-                    return False
         return True
 
     def get_views(self, ids, name):

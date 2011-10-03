@@ -123,13 +123,13 @@ The following snippet gives a first idea of what an xml file looks:
               <field name="arch" type="xml">
                   <![CDATA[
                   <tree string="Parties">
-                      <field name="code" select="1"/>
-                      <field name="name" select="1"/>
-                      <field name="lang" select="2"/>
-                      <field name="vat_code" select="1"/>
-                      <field name="active" select="2" tree_invisible="1"/>
-                      <field name="vat_country" select="2" tree_invisible="1"/>
-                      <field name="vat_number" select="2" tree_invisible="1"/>
+                      <field name="code"/>
+                      <field name="name"/>
+                      <field name="lang"/>
+                      <field name="vat_code"/>
+                      <field name="active" tree_invisible="1"/>
+                      <field name="vat_country" tree_invisible="1"/>
+                      <field name="vat_number" tree_invisible="1"/>
                   </tree>
                   ]]>
               </field>
