@@ -1383,15 +1383,18 @@ class ModelSQL(ModelStorage):
             if len(fargs) > 1:
                 if field._type == 'many2one':
                     target_obj = pool.get(field.model_name)
+                    m2o_search = [(fargs[1], domain[i][1], domain[i][2])]
+                    if ('active' in target_obj._columns
+                            or 'active' in target_obj._inherit_fields):
+                        m2o_search += [('active', 'in', (True, False))]
                     if hasattr(field, 'search'):
-                        domain.extend([(fargs[0], 'in', target_obj.search([
-                            (fargs[1], domain[i][1], domain[i][2]),
-                            ], order=[]))])
+                        domain.extend([(fargs[0], 'in',
+                                    target_obj.search(m2o_search, order=[]))])
                         domain.pop(i)
                     else:
-                        domain[i] = (fargs[0], 'inselect', target_obj.search([
-                            (fargs[1], domain[i][1], domain[i][2]),
-                            ], order=[], query_string=True), table)
+                        domain[i] = (fargs[0], 'inselect',
+                            target_obj.search(m2o_search, order=[],
+                                query_string=True), table)
                         i += 1
                     continue
                 elif field._type in ('one2one', 'many2many', 'one2many'):
@@ -1624,9 +1627,11 @@ class ModelSQL(ModelStorage):
                 else:
                     if isinstance(domain[i][2], basestring):
                         field_obj = pool.get(field.model_name)
-                        res_ids = field_obj.search([
-                            ('rec_name', domain[i][1], domain[i][2]),
-                            ], order=[])
+                        m2o_search = [('rec_name', domain[i][1], domain[i][2])]
+                        if ('active' in field_obj._columns
+                                or 'active' in field_obj._inherit_fields):
+                            m2o_search += [('active', 'in', (True, False))]
+                        res_ids = field_obj.search(m2o_search, order=[])
                         domain[i] = (domain[i][0], 'in', res_ids, table)
                     else:
                         domain[i] += (table,)
