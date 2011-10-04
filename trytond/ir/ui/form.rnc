@@ -133,6 +133,9 @@ attlist.image &= [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.image &=
   [ a:defaultValue = "0" ] attribute yexpand { "0" | "1" }?
 attlist.image &= [ a:defaultValue = "0" ] attribute yfill { "0" | "1" }?
+attlist.image &=
+  [ a:defaultValue = "0" ] attribute xexpand { "0" | "1" }?
+attlist.image &= [ a:defaultValue = "0" ] attribute xfill { "0" | "1" }?
 attlist.image &= attribute help { text }?
 attlist.image &= attribute states { text }?
 separator = element separator { attlist.separator, empty }
@@ -147,6 +150,10 @@ attlist.separator &=
   [ a:defaultValue = "0" ] attribute yexpand { "0" | "1" }?
 attlist.separator &=
   [ a:defaultValue = "0" ] attribute yfill { "0" | "1" }?
+attlist.separator &=
+  [ a:defaultValue = "0" ] attribute xexpand { "0" | "1" }?
+attlist.separator &=
+  [ a:defaultValue = "0" ] attribute xfill { "0" | "1" }?
 attlist.separator &= attribute help { text }?
 newline = element newline { attlist.newline, empty }
 attlist.newline &= empty
@@ -204,6 +211,9 @@ attlist.group &= [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.group &=
   [ a:defaultValue = "0" ] attribute yexpand { "0" | "1" }?
 attlist.group &= [ a:defaultValue = "1" ] attribute yfill { "0" | "1" }?
+attlist.group &=
+  [ a:defaultValue = "0" ] attribute xexpand { "0" | "1" }?
+attlist.group &= [ a:defaultValue = "1" ] attribute xfill { "0" | "1" }?
 attlist.group &= [ a:defaultValue = "1" ] attribute rowspan { text }?
 attlist.group &= [ a:defaultValue = "4" ] attribute col { text }?
 attlist.group &= ( attribute name { text } | attribute id { text } )
