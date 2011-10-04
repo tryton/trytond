@@ -1,3 +1,4 @@
+* Switched from .csv to .po for translations
 * Change select on fields into Boolean
 * Change format of search_value on ir.action.act_window
 * Manage relation field access

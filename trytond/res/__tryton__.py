@@ -42,11 +42,11 @@ Fournit les concepts et l'administration des utilisateurs et de la communication
         'ir.xml',
         ],
     'translation': [
-        'bg_BG.csv',
-        'fr_FR.csv',
-        'de_DE.csv',
-        'es_ES.csv',
-        'es_CO.csv',
-        'ru_RU.csv',
+        'locale/bg_BG.po',
+        'locale/fr_FR.po',
+        'locale/de_DE.po',
+        'locale/es_ES.po',
+        'locale/es_CO.po',
+        'locale/ru_RU.po',
     ],
 }
