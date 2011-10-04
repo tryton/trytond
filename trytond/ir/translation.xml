@@ -261,8 +261,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Set Report Translations">
-                    <label string="Synchronize Report Translations?" id="synchronize"/>
+                <form string="Set Report Translations" col="2">
+                    <image name="tryton-dialog-information" xexpand="0" xfill="0"/>
+                    <label string="Synchronize Report Translations?" id="synchronize"
+                        yalign="0.0" xalign="0.0" xexpand="1"/>
                 </form>
                 ]]>
             </field>
@@ -273,8 +275,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Set Report Translations">
-                    <label string="Set Translations Succeed!" id="succeed"/>
+                <form string="Set Report Translations" col="2">
+                    <image name="tryton-dialog-information" xexpand="0" xfill="0"/>
+                    <label string="Set Translations Succeed!" id="succeed"
+                        yalign="0.0" xalign="0.0" xexpand="1"/>
                 </form>
                 ]]>
             </field>
@@ -295,8 +299,10 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Clean Translations">
-                    <label string="Clean Translations?" id="clean"/>
+                <form string="Clean Translations" col="2">
+                    <image name="tryton-dialog-information" xexpand="0" xfill="0"/>
+                    <label string="Clean Translations?" id="clean"
+                        yalign="0.0" xalign="0.0" xexpand="1"/>
                 </form>
                 ]]>
             </field>
@@ -308,7 +314,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="Clean Translations">
-                    <label string="Clean Translations Succeed!" id="succeed"/>
+                    <image name="tryton-dialog-information" xexpand="0" xfill="0"/>
+                    <label string="Clean Translations Succeed!" id="succeed"
+                        yalign="0.0" xalign="0.0" xexpand="1"/>
                 </form>
                 ]]>
             </field>
