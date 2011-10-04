@@ -233,6 +233,57 @@ class View(ModelSQL, ModelView):
 View()
 
 
+class ShowViewInit(ModelView):
+    'Show view init'
+    _name = 'ir.ui.view.show.init'
+
+ShowViewInit()
+
+
+class ShowView(Wizard):
+    'Show view'
+    _name = 'ir.ui.view.show'
+
+    states = {
+        'init': {
+            'result': {
+                'type': 'form',
+                'object': 'ir.ui.view.show.init',
+                'state': [
+                    ('end', 'Close', 'tryton-cancel', True),
+                    ],
+                },
+            },
+        }
+
+    def __init__(self):
+        super(ShowView, self).__init__()
+        self._error_messages.update({
+                'view_type': 'Only "form" view can be shown!',
+                })
+
+    def execute(self, wiz_id, data, state='init'):
+        pool = Pool()
+        view_obj = pool.get('ir.ui.view')
+        result = super(ShowView, self).execute(wiz_id, data, state=state)
+        view = view_obj.browse(data['id'])
+        view_id = view.id
+        view_type = view.type
+        if view.inherit:
+            view_id = view.inherit.id
+            view_type = view.inherit.type
+        if view_type != 'form':
+            self.raise_user_error('view_type')
+        model_obj = pool.get(view.model)
+        fields_view = model_obj.fields_view_get(view_id=view.id)
+        result['fields'] = fields_view['fields']
+        result['arch'] = fields_view['arch']
+        result['object'] = view.model
+        return result
+
+ShowView()
+
+
 class ViewShortcut(ModelSQL, ModelView):
     "View shortcut"
     _name = 'ir.ui.view_sc'

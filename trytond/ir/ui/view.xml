@@ -3,6 +3,12 @@
 this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data>
+
+        <record model="ir.action.wizard" id="act_view_show">
+            <field name="name">Show View</field>
+            <field name="wiz_name">ir.ui.view.show</field>
+        </record>
+
         <record model="ir.ui.view" id="view_view_form">
             <field name="model">ir.ui.view</field>
             <field name="type">form</field>
@@ -23,6 +29,11 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="field_childs"/>
                     <separator name="arch" colspan="4"/>
                     <field name="arch" colspan="4"/>
+                    <button name="%(act_view_show)d"
+                        string="_Show"
+                        type="action"
+                        colspan="4"
+                        />
                 </form>
                 ]]>
             </field>
