@@ -29,9 +29,9 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="name" colspan="5"/>
                     <field name="rules" colspan="6"/>
                     <label string="The rule is satisfied if at least one test is True"
-                        colspan="6" yalign="0.0" id="satisfied"/>
+                        colspan="6" xalign="0.0" id="satisfied"/>
                     <label string="If there is no test defined, the rule is always satisfied if not global"
-                        colspan="6" yalign="0.0" id="no_test"/>
+                        colspan="6" xalign="0.0" id="no_test"/>
                 </form>
                 ]]>
             </field>

@@ -150,12 +150,14 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="Add Users" col="2">
-                    <image name="tryton-dialog-information"/>
+                    <image name="tryton-dialog-information" xexpand="0" xfill="0"/>
                     <group col="1" id="labels">
                         <label string="You can now add some users into the system."
-                            yalign="0.0" id="add"/>
+                            id="add"
+                            yalign="0.0" xalign="0.0" xexpand="1"/>
                         <label string="Be careful that the login must be unique!"
-                            yalign="0.0" id="carefull"/>
+                            id="carefull"
+                            yalign="0.0" xalign="0.0" xexpand="1"/>
                     </group>
                 </form>
                 ]]>
