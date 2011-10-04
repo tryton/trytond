@@ -507,6 +507,26 @@
   </define>
   <define name="attlist.image" combine="interleave">
     <optional>
+      <attribute name="xexpand" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.image" combine="interleave">
+    <optional>
+      <attribute name="xfill" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.image" combine="interleave">
+    <optional>
       <attribute name="states"/>
     </optional>
   </define>
@@ -555,6 +575,26 @@
   <define name="attlist.separator" combine="interleave">
     <optional>
       <attribute name="yfill" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.separator" combine="interleave">
+    <optional>
+      <attribute name="xexpand" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.separator" combine="interleave">
+    <optional>
+      <attribute name="xfill" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
@@ -731,6 +771,26 @@
   <define name="attlist.group" combine="interleave">
     <optional>
       <attribute name="yfill" a:defaultValue="1">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.group" combine="interleave">
+    <optional>
+      <attribute name="xexpand" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.group" combine="interleave">
+    <optional>
+      <attribute name="xfill" a:defaultValue="1">
         <choice>
           <value>0</value>
           <value>1</value>
