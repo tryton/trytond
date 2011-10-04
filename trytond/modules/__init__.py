@@ -262,7 +262,8 @@ def load_module_graph(graph, pool, lang=None):
                 logger.info('%s:loading %s' % (module, filename))
                 with tools.file_open(OPJ(module, filename)) as trans_file:
                     translation_obj = pool.get('ir.translation')
-                    translation_obj.translation_import(lang2, module, trans_file)
+                    translation_obj.translation_import(lang2, module,
+                        trans_file.read().decode('utf8'))
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))

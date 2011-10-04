@@ -12,6 +12,7 @@ Prerequisites
     * relatorio 0.2.0 or later (http://relatorio.openhex.org/)
     * python-dateutil (http://labix.org/python-dateutil)
     * simplejson (http://undefined.org/python/#simplejson)
+    * polib (https://bitbucket.org/izi/polib/wiki/Home)
     * Optional: psycopg 2 or later (http://www.initd.org/)
     * Optional: MySQL-python (http://sourceforge.net/projects/mysql-python/)
     * Optional: pywebdav 0.9.3 or later (http://code.google.com/p/pywebdav/)

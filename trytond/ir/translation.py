@@ -6,10 +6,11 @@ try:
 except ImportError:
     import StringIO
 import zipfile
+import polib
+import operator
 from xml import dom
 from xml.dom import minidom
 from difflib import SequenceMatcher
-import csv
 import os
 try:
     from hashlib import md5
@@ -37,13 +38,12 @@ TRANSLATION_TYPE = [
     ('error', 'Error'),
 ]
 
-HEADER = ['type', 'name', 'res_id', 'src', 'value', 'fuzzy']
 
+class TrytonPOFile(polib.POFile):
 
-class TRYTON(csv.excel):
-    lineterminator = '\n'
-
-csv.register_dialect("TRYTON", TRYTON)
+    def sort(self):
+        return super(TrytonPOFile, self).sort(
+            key=operator.attrgetter('msgctxt'))
 
 
 class Translation(ModelSQL, ModelView, Cacheable):
@@ -441,7 +441,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             vals['src_md5'] = self.get_src_md5(vals.get('src'))
         return super(Translation, self).write(ids, vals)
 
-    def translation_import(self, lang, module, datas):
+    def translation_import(self, lang, module, po_file):
         pool = Pool()
         model_data_obj = pool.get('ir.model.data')
         model_data_ids = model_data_obj.search([
@@ -453,9 +453,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             fs_id2model_data[model_data.model][model_data.fs_id] = model_data
 
         translation_ids = []
-        reader = csv.reader(datas)
-        for row in reader:
-            break
+        pofile = polib.pofile(po_file)
 
         id2translation = {}
         key2ids = {}
@@ -475,13 +473,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
             key2ids.setdefault(key, []).append(translation.id)
             id2translation[translation.id] = translation
 
-        for row in reader:
-            ttype = row[0].decode('utf-8')
-            name = row[1].decode('utf-8')
-            res_id = row[2].decode('utf-8')
-            src = row[3].decode('utf-8')
-            value = row[4].decode('utf-8')
-            fuzzy = bool(int(row[5]))
+        for entry in pofile:
+            ttype, name, res_id = entry.msgctxt.split(':')
+            src = entry.msgid
+            value = entry.msgstr
+            fuzzy = 'fuzzy' in entry.flags
             noupdate = False
 
             model = name.split(',')[0]
@@ -552,10 +548,10 @@ class Translation(ModelSQL, ModelView, Cacheable):
             db_id2fs_id.setdefault(model_data.model, {})
             db_id2fs_id[model_data.model][model_data.db_id] = model_data.fs_id
 
-        buf = StringIO.StringIO()
-        writer = csv.writer(buf, 'TRYTON')
-        writer.writerow(HEADER)
-        rows = []
+        pofile = TrytonPOFile(wrapwidth=78)
+        pofile.metadata = {
+            'Content-Type': 'text/plain; charset=utf-8',
+            }
 
         with Transaction().set_context(language='en_US'):
             translation_ids = self.search([
@@ -563,32 +559,22 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 ('module', '=', module),
                 ], order=[])
         for translation in self.browse(translation_ids):
-            row = []
-            for field in HEADER:
-                if field == 'res_id':
-                    res_id = translation[field]
-                    if res_id:
-                        model = translation.name.split(',')[0]
-                        if model in db_id2fs_id:
-                            res_id = db_id2fs_id[model].get(res_id)
-                        else:
-                            break
-                    row.append(res_id)
-                elif field == 'fuzzy':
-                    row.append(int(translation[field]))
+            flags = [] if not translation['fuzzy'] else ['fuzzy']
+            trans_ctxt = '%(type)s:%(name)s' % translation
+            res_id = translation['res_id']
+            if res_id:
+                model, _ = translation.name.split(',')
+                if model in db_id2fs_id:
+                    res_id = db_id2fs_id[model].get(res_id)
                 else:
-                    value = translation[field] or ''
-                    value = value.encode('utf-8')
-                    row.append(value)
-            if len(row) == len(HEADER):
-                rows.append(row)
+                    continue
+            trans_ctxt += ':%s' % res_id
+            entry = polib.POEntry(msgid=translation.src,
+                msgstr=translation.value, msgctxt=trans_ctxt, flags=flags)
+            pofile.append(entry)
 
-        rows.sort()
-        writer.writerows(rows)
-
-        file_data = buf.getvalue()
-        buf.close()
-        return file_data
+        pofile.sort()
+        return unicode(pofile).encode('utf-8')
 
 Translation()
 
