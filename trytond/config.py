@@ -25,7 +25,7 @@ class ConfigManager(object):
     def __init__(self, fname=None):
         self.options = {
             'hostname': None,
-            'jsonrpc': [('localhost', '8000')],
+            'jsonrpc': [('localhost', 8000)],
             'ssl_jsonrpc': False,
             'xmlrpc': [],
             'ssl_xmlrpc': False,
