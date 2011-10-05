@@ -337,11 +337,11 @@ class ModelSQL(ModelStorage):
         upd2.append(datetime.datetime.now())
         try:
             if cursor.has_returning():
-                    cursor.execute('INSERT INTO "' + self._table + '" '
-                        '(' + upd0[1:] + ') '
-                        'VALUES (' + upd1[1:] + ') RETURNING id',
-                        tuple(upd2))
-                    id_new, = cursor.fetchone()
+                cursor.execute('INSERT INTO "' + self._table + '" '
+                    '(' + upd0[1:] + ') '
+                    'VALUES (' + upd1[1:] + ') RETURNING id',
+                    tuple(upd2))
+                id_new, = cursor.fetchone()
             else:
                 id_new = cursor.nextid(self._table)
                 if id_new:
