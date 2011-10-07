@@ -96,8 +96,8 @@ class Database(DatabaseInterface):
         if self.database_name not in self._version_cache:
             cursor.execute('SELECT version()')
             version, = cursor.fetchone()
-            self._version_cache[self.database_name] = map(int,
-                RE_VERSION.search(version).groups())
+            self._version_cache[self.database_name] = tuple(map(int,
+                RE_VERSION.search(version).groups()))
         return self._version_cache[self.database_name]
 
     @staticmethod
