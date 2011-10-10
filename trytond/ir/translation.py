@@ -441,7 +441,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             vals['src_md5'] = self.get_src_md5(vals.get('src'))
         return super(Translation, self).write(ids, vals)
 
-    def translation_import(self, lang, module, po_file):
+    def translation_import(self, lang, module, po_path):
         pool = Pool()
         model_data_obj = pool.get('ir.model.data')
         model_data_ids = model_data_obj.search([
@@ -453,7 +453,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             fs_id2model_data[model_data.model][model_data.fs_id] = model_data
 
         translation_ids = []
-        pofile = polib.pofile(po_file)
+        pofile = polib.pofile(po_path)
 
         id2translation = {}
         key2ids = {}
