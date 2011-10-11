@@ -5,6 +5,8 @@ from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
 from trytond.protocols.datatype import Float
 from trytond.protocols.common import daemon, GZipRequestHandlerMixin
+from trytond.exceptions import UserError, UserWarning, NotLogged, \
+    ConcurrencyException
 from trytond import security
 import SimpleXMLRPCServer
 import SocketServer
