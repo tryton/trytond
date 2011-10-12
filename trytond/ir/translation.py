@@ -672,7 +672,7 @@ class ReportTranslationSet(Wizard):
                 with file_open(report.report.replace('/', os.sep),
                         mode='rb') as fp:
                     odt_content = fp.read()
-            for content in (report.report_content_data, odt_content):
+            for content in (report.report_content_custom, odt_content):
                 if not content:
                     continue
 
