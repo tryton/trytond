@@ -22,7 +22,10 @@ import posixpath
 import urllib
 import datetime
 from decimal import Decimal
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import base64
 
 def object_hook(dct):
@@ -39,6 +42,11 @@ def object_hook(dct):
     return dct
 
 class JSONEncoder(json.JSONEncoder):
+
+    def __init__(self, *args, **kwargs):
+        super(JSONEncoder, self).__init__(*args, **kwargs)
+        # Force to use our custom decimal with simplejson
+        self.use_decimal = False
 
     def default(self, obj):
         if isinstance(obj, datetime.date):

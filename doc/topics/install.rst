@@ -20,6 +20,7 @@ Prerequisites
     * Optional: pytz (http://pytz.sourceforge.net/)
     * Optional: unoconv http://dag.wieers.com/home-made/unoconv/)
     * Optional: sphinx (http://sphinx.pocoo.org/)
+    * Optional: simplejson (http://undefined.org/python/#simplejson)
 
 Install Tryton
 ==============
