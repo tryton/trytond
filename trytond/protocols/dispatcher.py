@@ -13,7 +13,7 @@ except ImportError:
 import pydoc
 from trytond.pool import Pool
 from trytond import security
-from trytond.backend import Database
+from trytond.backend import Database, DatabaseOperationalError
 from trytond.config import CONFIG
 from trytond.version import VERSION
 from trytond.monitor import monitor
@@ -138,39 +138,45 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
 
     readonly = not obj._rpc[method]
 
-    with Transaction().start(database_name, user,
-            readonly=readonly) as transaction:
-        try:
+    for count in range(int(CONFIG['retry']), -1, -1):
+        with Transaction().start(database_name, user,
+                readonly=readonly) as transaction:
+            try:
 
-            if 'context' in kargs:
-                context = kargs.pop('context')
-            else:
-                args = list(args)
-                context = args.pop()
-            if '_timestamp' in context:
-                transaction.timestamp = context['_timestamp']
-                del context['_timestamp']
-            transaction.context = context
-            res = getattr(obj, method)(*args, **kargs)
-            if not readonly:
-                transaction.cursor.commit()
-        except Exception, exception:
-            if CONFIG['verbose'] and not isinstance(exception, (
-                        NotLogged, ConcurrencyException, UserError,
-                        UserWarning)):
-                tb_s = reduce(lambda x, y: x + y,
-                        traceback.format_exception(*sys.exc_info()))
-                logger = logging.getLogger('dispatcher')
-                logger.error('Exception calling method %s on ' \
-                        '%s %s from %s@%s:%d/%s:\n' % \
-                        (method, object_type, object_name, user, host, port,
-                            database_name) + tb_s.decode('utf-8', 'ignore'))
-            transaction.cursor.rollback()
-            raise
-    if not (object_name == 'res.request' and method == 'request_get'):
-        user.reset_timestamp()
-    Cache.resets(database_name)
-    return res
+                args_without_context = list(args)
+                if 'context' in kargs:
+                    context = kargs.pop('context')
+                else:
+                    context = args_without_context.pop()
+                if '_timestamp' in context:
+                    transaction.timestamp = context['_timestamp']
+                    del context['_timestamp']
+                transaction.context = context
+                res = getattr(obj, method)(*args_without_context, **kargs)
+                if not readonly:
+                    transaction.cursor.commit()
+            except DatabaseOperationalError, exception:
+                transaction.cursor.rollback()
+                if count and not readonly:
+                    continue
+                raise
+            except Exception, exception:
+                if CONFIG['verbose'] and not isinstance(exception, (
+                            NotLogged, ConcurrencyException, UserError,
+                            UserWarning)):
+                    tb_s = reduce(lambda x, y: x + y,
+                            traceback.format_exception(*sys.exc_info()))
+                    logger = logging.getLogger('dispatcher')
+                    logger.error('Exception calling method %s on ' \
+                            '%s %s from %s@%s:%d/%s:\n' % \
+                            (method, object_type, object_name, user, host, port,
+                                database_name) + tb_s.decode('utf-8', 'ignore'))
+                transaction.cursor.rollback()
+                raise
+        if not (object_name == 'res.request' and method == 'request_get'):
+            user.reset_timestamp()
+        Cache.resets(database_name)
+        return res
 
 def create(database_name, password, lang, admin_password):
     '''
