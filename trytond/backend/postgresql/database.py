@@ -5,7 +5,7 @@ from trytond.config import CONFIG
 from trytond.session import Session
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extensions import cursor as PsycopgCursor
-from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE
+from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2.extensions import register_type, register_adapter
 from psycopg2.extensions import UNICODE, AsIs
@@ -70,7 +70,7 @@ class Database(DatabaseInterface):
         if autocommit:
             conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         else:
-            conn.set_isolation_level(ISOLATION_LEVEL_SERIALIZABLE)
+            conn.set_isolation_level(ISOLATION_LEVEL_REPEATABLE_READ)
         cursor = Cursor(self._connpool, conn, self)
         # TODO change for set_session
         if readonly:
