@@ -23,11 +23,11 @@ msgstr ""
 "Der Benutzer root kann nicht gelöscht werden, da er für interne Systemverwaltungsaufgaben\n"
 "(Updates, Modulinstallation, ...) benötigt wird!"
 
-msgctxt "field:ir.action-res.group,action_id:0"
+msgctxt "field:ir.action-res.group,action:0"
 msgid "Action"
 msgstr "Aktion"
 
-msgctxt "field:ir.action-res.group,gid:0"
+msgctxt "field:ir.action-res.group,group:0"
 msgid "Group"
 msgstr "Gruppe"
 
@@ -47,7 +47,7 @@ msgctxt "field:ir.model.field-res.group,rec_name:0"
 msgid "Name"
 msgstr "Name"
 
-msgctxt "field:ir.rule.group-res.group,group_id:0"
+msgctxt "field:ir.rule.group-res.group,group:0"
 msgid "Group"
 msgstr "Gruppe"
 
@@ -55,7 +55,7 @@ msgctxt "field:ir.rule.group-res.group,rec_name:0"
 msgid "Name"
 msgstr "Name"
 
-msgctxt "field:ir.rule.group-res.group,rule_group_id:0"
+msgctxt "field:ir.rule.group-res.group,rule_group:0"
 msgid "Rule Group"
 msgstr "Regel Gruppe"
 
@@ -63,11 +63,11 @@ msgctxt "field:ir.rule.group-res.user,rec_name:0"
 msgid "Name"
 msgstr "Name"
 
-msgctxt "field:ir.rule.group-res.user,rule_group_id:0"
+msgctxt "field:ir.rule.group-res.user,rule_group:0"
 msgid "Rule Group"
 msgstr "Regel Gruppe"
 
-msgctxt "field:ir.rule.group-res.user,user_id:0"
+msgctxt "field:ir.rule.group-res.user,user:0"
 msgid "User"
 msgstr "Benutzer"
 
@@ -95,11 +95,11 @@ msgctxt "field:ir.sequence.type-res.group,sequence_type:0"
 msgid "Sequence Type"
 msgstr "Typ Strikter Nummernkreis"
 
-msgctxt "field:ir.ui.menu-res.group,gid:0"
+msgctxt "field:ir.ui.menu-res.group,group:0"
 msgid "Group"
 msgstr "Gruppe"
 
-msgctxt "field:ir.ui.menu-res.group,menu_id:0"
+msgctxt "field:ir.ui.menu-res.group,menu:0"
 msgid "Menu"
 msgstr "Menü"
 
@@ -431,7 +431,7 @@ msgctxt "field:res.user,write_uid:0"
 msgid "Last modification by"
 msgstr "Zuletzt geändert von"
 
-msgctxt "field:res.user-res.group,gid:0"
+msgctxt "field:res.user-res.group,group:0"
 msgid "Group"
 msgstr "Gruppe"
 
@@ -439,7 +439,7 @@ msgctxt "field:res.user-res.group,rec_name:0"
 msgid "Name"
 msgstr "Name"
 
-msgctxt "field:res.user-res.group,uid:0"
+msgctxt "field:res.user-res.group,user:0"
 msgid "User"
 msgstr "Benutzer"
 
