@@ -756,7 +756,7 @@ msgstr ""
 
 msgctxt "view:res.user.config.init:0"
 msgid "You can now add some users into the system."
-msgstr "Sie können nun neue Benutzer der Datenbank hinzufügen"
+msgstr "Sie können nun neue Benutzer zu dem System hinzufügen."
 
 msgctxt "view:res.user.warning:0"
 msgid "Warning"
