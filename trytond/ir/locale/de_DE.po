@@ -1281,7 +1281,7 @@ msgstr "Name"
 
 msgctxt "field:ir.ui.icon,path:0"
 msgid "SVG Path"
-msgstr "Pfad SVG"
+msgstr "Pfad"
 
 msgctxt "field:ir.ui.icon,rec_name:0"
 msgid "Name"
@@ -3001,13 +3001,6 @@ msgid "Model Description"
 msgstr "Modell Beschreibung"
 
 msgctxt "view:ir.module.module.config_wizard.first:0"
-msgid ""
-"You will be able to configure your installation depending on the modules you"
-" have installed."
-msgstr ""
-"Sie können nun Ihr System abhängig von den installierten Modulen einrichten."
-
-msgctxt "view:ir.module.module.config_wizard.first:0"
 msgid "Welcome to the module configuration wizard!"
 msgstr "Willkommen bei der Modulkonfiguration!"
 
@@ -3018,6 +3011,12 @@ msgstr "Sie können nun Ihr System einrichten"
 msgctxt "view:ir.module.module.config_wizard.first:0"
 msgid "depending on the modules you have installed."
 msgstr "abhängig von den installierten Modulen."
+
+msgctxt "view:ir.module.module.config_wizard.first:0"
+msgid ""
+"You will be able to configure your installation depending on the modules you"
+" have installed."
+msgstr "Sie können jetzt die neu installierten Module einrichten."
 
 msgctxt "view:ir.module.module.config_wizard.item:0"
 msgid "Config Wizard Items"
