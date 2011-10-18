@@ -569,8 +569,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 else:
                     continue
             trans_ctxt += ':%s' % res_id
-            entry = polib.POEntry(msgid=translation.src,
-                msgstr=translation.value, msgctxt=trans_ctxt, flags=flags)
+            entry = polib.POEntry(msgid=(translation.src or ''),
+                msgstr=(translation.value or ''), msgctxt=trans_ctxt, flags=flags)
             pofile.append(entry)
 
         pofile.sort()
