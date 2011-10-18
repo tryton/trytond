@@ -81,10 +81,6 @@ msgctxt "field:workflow,rec_name:0"
 msgid "Name"
 msgstr "Name"
 
-msgctxt "field:workflow.activity,action:0"
-msgid "Action"
-msgstr "Aktion"
-
 msgctxt "field:workflow.activity,flow_start:0"
 msgid "Flow Start"
 msgstr "Flow Start"
@@ -100,10 +96,6 @@ msgstr "Eingehende Übergänge"
 msgctxt "field:workflow.activity,join_mode:0"
 msgid "Join Mode"
 msgstr "Verbindungsmodus"
-
-msgctxt "field:workflow.activity,kind:0"
-msgid "Kind"
-msgstr "Art"
 
 msgctxt "field:workflow.activity,name:0"
 msgid "Name"
@@ -197,10 +189,6 @@ msgctxt "field:workflow.transition,signal:0"
 msgid "Signal (button Name)"
 msgstr "Signal (Name des Knopfes)"
 
-msgctxt "field:workflow.transition,trigger_expr_id:0"
-msgid "Trigger Expr ID"
-msgstr "ID des Auslöseausdrucks"
-
 msgctxt "field:workflow.transition,trigger_model:0"
 msgid "Trigger Type"
 msgstr "Typ Auslöser"
@@ -257,7 +245,15 @@ msgctxt "field:workflow.workitem,subflow:0"
 msgid "Subflow"
 msgstr "Unterflow"
 
+msgctxt "model:ir.action,name:act_collection_list"
+msgid "Collections"
+msgstr "Sammlungen"
+
 msgctxt "model:ir.action,name:act_collection_tree"
+msgid "Collections"
+msgstr "Sammlungen"
+
+msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
 msgstr "Sammlungen"
 
@@ -308,22 +304,6 @@ msgstr "Und"
 msgctxt "selection:workflow.activity,join_mode:0"
 msgid "Xor"
 msgstr "Oder (exklusiv)"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Dummy"
-msgstr "Dummy"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Function"
-msgstr "Funktion"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Stop All"
-msgstr "Alles anhalten"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Subflow"
-msgstr "Unterflow"
 
 msgctxt "selection:workflow.activity,split_mode:0"
 msgid "And"

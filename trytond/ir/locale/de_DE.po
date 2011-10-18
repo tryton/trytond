@@ -49,16 +49,12 @@ msgid "Invalid context!"
 msgstr "Ungültiger Kontext!"
 
 msgctxt "error:ir.action.act_window:0"
-msgid "Invalid domain!"
-msgstr "Ungültiger Wertebereich (Domain)!"
-
-msgctxt "error:ir.action.act_window:0"
-msgid "Invalid search criteria!"
-msgstr "Ungültige Suchkriterien!"
-
-msgctxt "error:ir.action.act_window:0"
 msgid "Invalid views!"
 msgstr "Ungültige Sicht!"
+
+msgctxt "error:ir.action.act_window:0"
+msgid "Invalid domain or search criteria!"
+msgstr "Wertebereich (Domain) oder Suchkriterien ungültig!"
 
 msgctxt "error:ir.action.keyword:0"
 msgid "Wrong wizard model!"
@@ -222,6 +218,18 @@ msgstr ""
 msgctxt "error:ir.trigger:0"
 msgid "Condition must be a python expression!"
 msgstr "Bedingung muss ein Python Ausdruck sein!"
+
+msgctxt "error:ir.ui.menu:0"
+msgid "You can not create recursive menu!"
+msgstr "Menüs können nicht rekursiv eingerichtet werden!"
+
+msgctxt "error:ir.ui.menu:0"
+msgid "You can not use \" / \" in name field!"
+msgstr "In dem Namensfeld kann \" / \" nicht verwendet werden!"
+
+msgctxt "error:ir.ui.view.show:0"
+msgid "Only \"form\" view can be shown!"
+msgstr "Es können nur  \"Formular\"-Sichten angezeigt werden!"
 
 msgctxt "error:ir.ui.view:0"
 msgid "Invalid XML for View!"
@@ -447,7 +455,7 @@ msgctxt "field:ir.action.report,report_content:0"
 msgid "Content"
 msgstr "Inhalt"
 
-msgctxt "field:ir.action.report,report_content_data:0"
+msgctxt "field:ir.action.report,report_content_custom:0"
 msgid "Content"
 msgstr "Inhalt"
 
@@ -462,6 +470,10 @@ msgstr "Stil"
 msgctxt "field:ir.action.report,style_content:0"
 msgid "Style"
 msgstr "Stil"
+
+msgctxt "field:ir.action.report,template_extension:0"
+msgid "Template Extension"
+msgstr "Erweiterung Vorlage"
 
 msgctxt "field:ir.action.url,action:0"
 msgid "Action"
@@ -498,30 +510,6 @@ msgstr "Separates Fenster"
 msgctxt "field:ir.action.wizard,wiz_name:0"
 msgid "Wizard name"
 msgstr "Wizard Name"
-
-msgctxt "field:ir.action.wizard_size,height:0"
-msgid "Height"
-msgstr "Höhe"
-
-msgctxt "field:ir.action.wizard_size,model:0"
-msgid "Model"
-msgstr "Modell"
-
-msgctxt "field:ir.action.wizard_size,rec_name:0"
-msgid "Name"
-msgstr "Name"
-
-msgctxt "field:ir.action.wizard_size,user:0"
-msgid "User"
-msgstr "Benutzer"
-
-msgctxt "field:ir.action.wizard_size,width:0"
-msgid "Width"
-msgstr "Breite"
-
-msgctxt "field:ir.action.wizard_size,wizard:0"
-msgid "Wizard"
-msgstr "Wizard"
 
 msgctxt "field:ir.attachment,collision:0"
 msgid "Collision"
@@ -595,10 +583,6 @@ msgctxt "field:ir.cron,args:0"
 msgid "Arguments"
 msgstr "Argumente"
 
-msgctxt "field:ir.cron,doall:0"
-msgid "Repeat missed"
-msgstr "Fehlende wiederholen"
-
 msgctxt "field:ir.cron,function:0"
 msgid "Function"
 msgstr "Funktion"
@@ -619,29 +603,25 @@ msgctxt "field:ir.cron,name:0"
 msgid "Name"
 msgstr "Name"
 
-msgctxt "field:ir.cron,nextcall:0"
-msgid "Next call date"
+msgctxt "field:ir.cron,next_call:0"
+msgid "Next Call"
 msgstr "Nächster Aufruf"
 
-msgctxt "field:ir.cron,numbercall:0"
-msgid "Number of calls"
+msgctxt "field:ir.cron,number_calls:0"
+msgid "Number of Calls"
 msgstr "Anzahl Aufrufe"
-
-msgctxt "field:ir.cron,priority:0"
-msgid "Priority"
-msgstr "Priorität"
 
 msgctxt "field:ir.cron,rec_name:0"
 msgid "Name"
 msgstr "Name"
 
+msgctxt "field:ir.cron,repeat_missed:0"
+msgid "Repeat Missed"
+msgstr "Ausgelassene wiederholen"
+
 msgctxt "field:ir.cron,request_user:0"
 msgid "Request User"
 msgstr "Fehlermeldung an"
-
-msgctxt "field:ir.cron,running:0"
-msgid "Running"
-msgstr "Wird zur Zeit ausgeführt"
 
 msgctxt "field:ir.cron,user:0"
 msgid "Execution User"
@@ -1063,6 +1043,10 @@ msgctxt "field:ir.sequence,number_next:0"
 msgid "Next Number"
 msgstr "Nächste Nummer"
 
+msgctxt "field:ir.sequence,number_next_internal:0"
+msgid "Next Number"
+msgstr "Nächste Zahl"
+
 msgctxt "field:ir.sequence,padding:0"
 msgid "Number padding"
 msgstr "Feste Länge (Vornullen)"
@@ -1112,6 +1096,10 @@ msgid "Increment Number"
 msgstr "Schrittweite"
 
 msgctxt "field:ir.sequence.strict,number_next:0"
+msgid "Next Number"
+msgstr "Nächste Zahl"
+
+msgctxt "field:ir.sequence.strict,number_next_internal:0"
 msgid "Next Number"
 msgstr "Nächste Zahl"
 
@@ -1403,6 +1391,30 @@ msgctxt "field:ir.ui.view_sc,user_id:0"
 msgid "User Ref."
 msgstr "Ref. Benutzer"
 
+msgctxt "field:ir.ui.view_tree_expanded_state,child_name:0"
+msgid "Child Name"
+msgstr "Name untergeordneter Eintrag"
+
+msgctxt "field:ir.ui.view_tree_expanded_state,domain:0"
+msgid "Domain"
+msgstr "Wertebereich (Domain)"
+
+msgctxt "field:ir.ui.view_tree_expanded_state,model:0"
+msgid "Model"
+msgstr "Modell"
+
+msgctxt "field:ir.ui.view_tree_expanded_state,nodes:0"
+msgid "Expanded Nodes"
+msgstr "Aufgeklappte Knoten"
+
+msgctxt "field:ir.ui.view_tree_expanded_state,rec_name:0"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:ir.ui.view_tree_expanded_state,user:0"
+msgid "User"
+msgstr "Benutzer"
+
 msgctxt "field:ir.ui.view_tree_width,field:0"
 msgid "Field"
 msgstr "Feld"
@@ -1439,6 +1451,14 @@ msgctxt "help:ir.action.act_window,window_name:0"
 msgid "Use the action name as window name"
 msgstr "Aktionsname als Fenstername benutzen"
 
+msgctxt "help:ir.action.report,extension:0"
+msgid ""
+"Leave empty for the same as template, see unoconv documentation for "
+"compatible format"
+msgstr ""
+"Leer lassen für das selbe Format wie in 'Erweiterung Vorlage', s. unoconv-"
+"Dokumentation für kompatible Formate"
+
 msgctxt "help:ir.action.report,style:0"
 msgid "Define the style to apply on the report."
 msgstr "Definiert den Stil für den Bericht"
@@ -1447,21 +1467,13 @@ msgctxt "help:ir.action.wizard,window:0"
 msgid "Run wizard in a new window"
 msgstr "Wizard in separatem Fenster ausführen"
 
-msgctxt "help:ir.cron,numbercall:0"
+msgctxt "help:ir.cron,number_calls:0"
 msgid ""
-"Number of times the function is called,\n"
-"a negative number indicates that the function will always be called"
+"Number of times the function is called, a negative number indicates that the"
+" function will always be called"
 msgstr ""
-"Anzahl der Funktionsaufrufe\n"
-"(eine negative Zahl bewirkt, dass die Funktion immer aufgerufen wird)"
-
-msgctxt "help:ir.cron,priority:0"
-msgid ""
-"0=Very Urgent\n"
-"10=Not urgent"
-msgstr ""
-"0=Sehr dringend\n"
-"10=Nicht dringend"
+"Anzahl der Funktionsaufrufe\\n\n"
+"(Eine negative Zahl bewirkt, dass die Funktion immer aufgerufen wird.)"
 
 msgctxt "help:ir.cron,request_user:0"
 msgid "The user who will receive requests in case of failure"
@@ -1588,6 +1600,10 @@ msgctxt "model:ir.action,name:act_lang_form"
 msgid "Languages"
 msgstr "Sprachen"
 
+msgctxt "model:ir.action,name:act_menu_list"
+msgid "Menu"
+msgstr "Menü"
+
 msgctxt "model:ir.action,name:act_menu_tree"
 msgid "Menu"
 msgstr "Menü"
@@ -1684,6 +1700,14 @@ msgctxt "model:ir.action,name:act_view_sc_open"
 msgid "Open Shortcut"
 msgstr "Favorit Öffnen"
 
+msgctxt "model:ir.action,name:act_view_show"
+msgid "Show View"
+msgstr "Sicht anzeigen"
+
+msgctxt "model:ir.action,name:act_view_tree_expanded_state"
+msgid "Tree Expanded State"
+msgstr "Menüansicht"
+
 msgctxt "model:ir.action,name:act_view_tree_width_form"
 msgid "View Tree Width"
 msgstr "Spaltenbreiten Sicht"
@@ -1720,10 +1744,6 @@ msgctxt "model:ir.action.wizard,name:0"
 msgid "Action wizard"
 msgstr "Aktion Wizard"
 
-msgctxt "model:ir.action.wizard_size,name:0"
-msgid "Action Wizard Size"
-msgstr "Aktion Wizardmaß"
-
 msgctxt "model:ir.attachment,name:0"
 msgid "Attachment"
 msgstr "Anhang"
@@ -1757,14 +1777,10 @@ msgid "Bulgarian"
 msgstr "Bulgarisch"
 
 msgctxt "model:ir.lang,name:lang_cs"
-msgid ""
-msgstr ""
-
-msgctxt "model:ir.lang,name:lang_cs"
 msgid "Czech"
 msgstr "Tschechisch"
 
-msgctxt "model:ir.lang,name:lang_de"
+msgctxt "model:ir.lang,name:lang_cs"
 msgid ""
 msgstr ""
 
@@ -1772,19 +1788,19 @@ msgctxt "model:ir.lang,name:lang_de"
 msgid "German"
 msgstr "Deutsch"
 
+msgctxt "model:ir.lang,name:lang_de"
+msgid ""
+msgstr ""
+
 msgctxt "model:ir.lang,name:lang_en"
 msgid "English"
 msgstr "Englisch"
 
 msgctxt "model:ir.lang,name:lang_es"
-msgid ""
-msgstr ""
-
-msgctxt "model:ir.lang,name:lang_es"
 msgid "Spanish (Spain)"
 msgstr "Spanisch (Spanien)"
 
-msgctxt "model:ir.lang,name:lang_es_CO"
+msgctxt "model:ir.lang,name:lang_es"
 msgid ""
 msgstr ""
 
@@ -1792,13 +1808,17 @@ msgctxt "model:ir.lang,name:lang_es_CO"
 msgid "Spanish (Colombia)"
 msgstr "Spanisch (Kolumbien)"
 
-msgctxt "model:ir.lang,name:lang_fr"
+msgctxt "model:ir.lang,name:lang_es_CO"
 msgid ""
 msgstr ""
 
 msgctxt "model:ir.lang,name:lang_fr"
 msgid "French"
 msgstr "Französisch"
+
+msgctxt "model:ir.lang,name:lang_fr"
+msgid ""
+msgstr ""
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
@@ -1830,7 +1850,7 @@ msgstr "Modell Feld Zugriffsberechtigung"
 
 msgctxt "model:ir.model.print_model_graph.init,name:0"
 msgid "Print Model Graph Init"
-msgstr "Druck Modell Graph"
+msgstr "Druck Modell Graph Init"
 
 msgctxt "model:ir.module.module,name:0"
 msgid "Module"
@@ -1988,6 +2008,10 @@ msgctxt "model:ir.ui.menu,name:menu_localization"
 msgid "Localization"
 msgstr "Lokalisierung"
 
+msgctxt "model:ir.ui.menu,name:menu_menu_list"
+msgid "Menu"
+msgstr "Menü"
+
 msgctxt "model:ir.ui.menu,name:menu_model_access_form"
 msgid "Models Access"
 msgstr "Berechtigungen für Modelle"
@@ -2080,6 +2104,10 @@ msgctxt "model:ir.ui.menu,name:menu_view_sc"
 msgid "View Shortcuts"
 msgstr "Favoriten"
 
+msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
+msgid "Tree Expanded State"
+msgstr "Menüansicht"
+
 msgctxt "model:ir.ui.menu,name:menu_view_tree_width"
 msgid "View Tree Width"
 msgstr "Spaltenbreiten"
@@ -2092,9 +2120,17 @@ msgctxt "model:ir.ui.view,name:0"
 msgid "View"
 msgstr "Sicht"
 
+msgctxt "model:ir.ui.view.show.init,name:0"
+msgid "ir.ui.view.show.init"
+msgstr ""
+
 msgctxt "model:ir.ui.view_sc,name:0"
 msgid "View shortcut"
 msgstr "Favoriten"
+
+msgctxt "model:ir.ui.view_tree_expanded_state,name:0"
+msgid "ir.ui.view_tree_expanded_state"
+msgstr ""
 
 msgctxt "model:ir.ui.view_tree_width,name:0"
 msgid "View Tree Width"
@@ -2113,10 +2149,6 @@ msgid "Form relate"
 msgstr "Bezugsformular"
 
 msgctxt "selection:ir.action.keyword,keyword:0"
-msgid "Open Graph"
-msgstr "Graph öffnen"
-
-msgctxt "selection:ir.action.keyword,keyword:0"
 msgid "Open tree"
 msgstr "Baum öffnen"
 
@@ -2124,13 +2156,265 @@ msgctxt "selection:ir.action.keyword,keyword:0"
 msgid "Print form"
 msgstr "Formular drucken"
 
-msgctxt "selection:ir.action.report,extension:0"
-msgid "ODT Document"
-msgstr "ODT Dokument"
+msgctxt "selection:ir.action.keyword,keyword:0"
+msgid "Open Graph"
+msgstr "Graph öffnen"
 
 msgctxt "selection:ir.action.report,extension:0"
-msgid "PDF Document"
-msgstr "PDF Dokument"
+msgid "HTML Document"
+msgstr "HTML Dokument"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Open Office.org 1.0 Text Document"
+msgstr "Open Office.org 1.0 Textdokument"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "OpenOffice.org 1.0 Drawing"
+msgstr "OpenOffice.org 1.0 Zeichnung"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "OpenOffice.org 1.0 Presentation"
+msgstr "OpenOffice.org 1.0 Präsentation"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "OpenOffice.org 1.0 Spreadsheet"
+msgstr "OpenOffice.org 1.0 Tabellendokument"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Plain Text"
+msgstr "Klartext"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "XHTML Document"
+msgstr "XHTML Dokument"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Rich Text Format"
+msgstr "Rich Text Format"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft Excel 5.0"
+msgstr "Microsoft Excel 5.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Scalable Vector Graphics"
+msgstr "Scalable Vector Graphics"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "dBase"
+msgstr "dBase"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Joint Photographic Experts Group"
+msgstr "Joint Photographic Experts Group"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Windows Metafile"
+msgstr "Windows Metafile"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "SYLK"
+msgstr "SYLK"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarDraw 5.0"
+msgstr "StarDraw 5.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarCalc 4.0"
+msgstr "StarCalc 4.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarDraw 3.0 (OpenOffice.org Impress)"
+msgstr "StarDraw 3.0 (OpenOffice.org Impress)"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Windows Bitmap"
+msgstr "Windows Bitmap"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarView Metafile"
+msgstr "StarView Metafile"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarImpress 5.0"
+msgstr "StarImpress 5.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Sun Raster Image"
+msgstr "Sun Raster Image"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Encapsulated PostScript"
+msgstr "Encapsulated PostScript"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Data Interchange Format"
+msgstr "Data Interchange Format"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft PowerPoint 97/2000/XP"
+msgstr "Microsoft PowerPoint 97/2000/XP"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft Word 95"
+msgstr "Microsoft Word 95"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Portable Bitmap"
+msgstr "Portable Bitmap"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Tagged Image File Format"
+msgstr "Tagged Image File Format"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarCalc 5.0"
+msgstr "StarCalc 5.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarWriter 5.0"
+msgstr "StarWriter 5.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Portable Network Graphic"
+msgstr "Portable Network Graphic"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Pocket Word"
+msgstr "Pocket Word"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Text Encoded"
+msgstr "Text Encoded"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "LaTeX 2e"
+msgstr "LaTeX 2e"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarDraw 3.0"
+msgstr "StarDraw 3.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Pocket Excel"
+msgstr "Pocket Excel"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "OS/2 Metafile"
+msgstr "OS/2 Metafile"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Portable Pixelmap"
+msgstr "Portable Pixelmap"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Portable Graymap"
+msgstr "Portable Graymap"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Graphics Interchange Format"
+msgstr "Graphics Interchange Format"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "BibTex"
+msgstr "BibTex"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Text CSV"
+msgstr "Text CSV"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Portable Document Format"
+msgstr "Portable Document Format"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarImpress 4.0"
+msgstr "StarImpress 4.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft Excel 95"
+msgstr "Microsoft Excel 95"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "X PixMap"
+msgstr "X PixMap"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Macromedia Flash (SWF)"
+msgstr "Macromedia Flash (SWF)"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Enhanced Metafile"
+msgstr "Enhanced Metafile"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "PlaceWare"
+msgstr "PlaceWare"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarWriter 4.0"
+msgstr "StarWriter 4.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft Office Open XML"
+msgstr "Microsoft Office Open XML"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarCalc 3.0"
+msgstr "StarCalc 3.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarDraw 5.0 (OpenOffice.org Impress)"
+msgstr "StarDraw 5.0 (OpenOffice.org Impress)"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "AportisDoc (Palm)"
+msgstr "AportisDoc (Palm)"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft Excel 97/2000/XP"
+msgstr "Microsoft Excel 97/2000/XP"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Mac Pict"
+msgstr "Mac Pict"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft Word 97/2000/XP"
+msgstr "Microsoft Word 97/2000/XP"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "StarWriter 3.0"
+msgstr "StarWriter 3.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "DocBook"
+msgstr "DocBook"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid "Microsoft Word 6.0"
+msgstr "Microsoft Word 6.0"
+
+msgctxt "selection:ir.action.report,extension:0"
+msgid ""
+msgstr ""
+
+msgctxt "selection:ir.action.report,template_extension:0"
+msgid "OpenDocument Presentation"
+msgstr "ODF Präsentation"
+
+msgctxt "selection:ir.action.report,template_extension:0"
+msgid "OpenDocument Graphics"
+msgstr "ODF Zeichnung"
+
+msgctxt "selection:ir.action.report,template_extension:0"
+msgid "OpenDocument Spreadsheet"
+msgstr "ODF Tabellendokument"
+
+msgctxt "selection:ir.action.report,template_extension:0"
+msgid "OpenDocument Text"
+msgstr "ODF Textdokument"
 
 msgctxt "selection:ir.attachment,type:0"
 msgid "Data"
@@ -2159,10 +2443,6 @@ msgstr "Monat(e)"
 msgctxt "selection:ir.cron,interval_type:0"
 msgid "Weeks"
 msgstr "Woche(n)"
-
-msgctxt "selection:ir.cron,interval_type:0"
-msgid "Work Days"
-msgstr "Arbeitstag(e)"
 
 msgctxt "selection:ir.lang,direction:0"
 msgid "Left-to-right"
@@ -2229,8 +2509,8 @@ msgid "<="
 msgstr "<="
 
 msgctxt "selection:ir.rule,operator:0"
-msgid "<>"
-msgstr "<>"
+msgid "in"
+msgstr "in"
 
 msgctxt "selection:ir.rule,operator:0"
 msgid "="
@@ -2243,10 +2523,6 @@ msgstr ">="
 msgctxt "selection:ir.rule,operator:0"
 msgid "child_of"
 msgstr "untergeordnet von"
-
-msgctxt "selection:ir.rule,operator:0"
-msgid "in"
-msgstr "in"
 
 msgctxt "selection:ir.sequence,type:0"
 msgid "Decimal Timestamp"
@@ -2549,10 +2825,6 @@ msgid "tryton-web-browser"
 msgstr "tryton-web-browser"
 
 msgctxt "selection:ir.ui.view,type:0"
-msgid ""
-msgstr ""
-
-msgctxt "selection:ir.ui.view,type:0"
 msgid "Board"
 msgstr "Infoseite"
 
@@ -2568,6 +2840,14 @@ msgctxt "selection:ir.ui.view,type:0"
 msgid "Tree"
 msgstr "Baum"
 
+msgctxt "selection:ir.ui.view,type:0"
+msgid ""
+msgstr ""
+
+msgctxt "view:ir.action.act_window:0"
+msgid "Open Window"
+msgstr "Fenster öffnen"
+
 msgctxt "view:ir.action.act_window:0"
 msgid "General"
 msgstr "Allgemein"
@@ -2579,10 +2859,6 @@ msgstr "Schlüsselwort"
 msgctxt "view:ir.action.act_window:0"
 msgid "Keywords"
 msgstr "Schlüsselwörter"
-
-msgctxt "view:ir.action.act_window:0"
-msgid "Open Window"
-msgstr "Fenster öffnen"
 
 msgctxt "view:ir.action.act_window:0"
 msgid "Open a Window"
@@ -2643,14 +2919,6 @@ msgstr "Schlüsselwörter"
 msgctxt "view:ir.action.wizard:0"
 msgid "Wizard"
 msgstr "Wizard"
-
-msgctxt "view:ir.action.wizard_size:0"
-msgid "Wizard Size"
-msgstr "Wizardmaß"
-
-msgctxt "view:ir.action.wizard_size:0"
-msgid "Wizard Sizes"
-msgstr "Wizardmaße"
 
 msgctxt "view:ir.action:0"
 msgid "Action"
@@ -2731,6 +2999,13 @@ msgstr "Feld Beschreibung"
 msgctxt "view:ir.model:0"
 msgid "Model Description"
 msgstr "Modell Beschreibung"
+
+msgctxt "view:ir.module.module.config_wizard.first:0"
+msgid ""
+"You will be able to configure your installation depending on the modules you"
+" have installed."
+msgstr ""
+"Sie können nun Ihr System abhängig von den installierten Modulen einrichten."
 
 msgctxt "view:ir.module.module.config_wizard.first:0"
 msgid "Welcome to the module configuration wizard!"
@@ -2986,11 +3261,11 @@ msgid "Translations"
 msgstr "Übersetzungen"
 
 msgctxt "view:ir.trigger:0"
-msgid "Trigger"
+msgid "Triggers"
 msgstr "Trigger"
 
 msgctxt "view:ir.trigger:0"
-msgid "Triggers"
+msgid "Trigger"
 msgstr "Trigger"
 
 msgctxt "view:ir.ui.icon:0"
@@ -3009,6 +3284,10 @@ msgctxt "view:ir.ui.view:0"
 msgid "View"
 msgstr "Sicht"
 
+msgctxt "view:ir.ui.view:0"
+msgid "_Show"
+msgstr "_Anzeigen"
+
 msgctxt "view:ir.ui.view_sc:0"
 msgid "Shortcut"
 msgstr "Favorit"
@@ -3016,6 +3295,14 @@ msgstr "Favorit"
 msgctxt "view:ir.ui.view_sc:0"
 msgid "Shortcuts"
 msgstr "Favoriten"
+
+msgctxt "view:ir.ui.view_tree_expanded_state:0"
+msgid "View Tree Expanded State"
+msgstr "Baumansicht aufgeklappt"
+
+msgctxt "view:ir.ui.view_tree_expanded_state:0"
+msgid "Views Tree Expanded State"
+msgstr "Baumansichten aufgeklappt"
 
 msgctxt "view:ir.ui.view_tree_width:0"
 msgid "View Tree Width"
@@ -3049,7 +3336,7 @@ msgctxt "wizard_button:ir.module.module.install_upgrade,init,start:0"
 msgid "Start Upgrade"
 msgstr "Aktualisierung starten"
 
-msgctxt "wizard_button:ir.module.module.install_upgrade,start,menu:0"
+msgctxt "wizard_button:ir.module.module.install_upgrade,start,config:0"
 msgid "Ok"
 msgstr "OK"
 
@@ -3096,3 +3383,7 @@ msgstr "Abbrechen"
 msgctxt "wizard_button:ir.translation.update,init,start:0"
 msgid "Start Update"
 msgstr "Aktualisierung starten"
+
+msgctxt "wizard_button:ir.ui.view.show,init,end:0"
+msgid "Close"
+msgstr "Schließen"
