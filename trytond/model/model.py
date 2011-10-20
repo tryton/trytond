@@ -502,7 +502,10 @@ class Model(WarningErrorMixin, URLMixin):
                 self._columns.keys(), 'write', access=True)
         for field in (x for x in self._columns.keys()
                 if ((not fields_names) or x in fields_names)):
-            res[field] = {'type': self._columns[field]._type}
+            res[field] = {
+                'type': self._columns[field]._type,
+                'name': field,
+                }
             for arg in (
                     'string',
                     'readonly',
