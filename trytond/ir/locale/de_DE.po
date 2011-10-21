@@ -205,10 +205,6 @@ msgctxt "error:ir.translation:0"
 msgid "Translation must be unique"
 msgstr "Übersetzung kann nicht mehrfach vergeben werden!"
 
-msgctxt "error:ir.translation:0"
-msgid "Translation of type 'model' must be unique!"
-msgstr "Die Übersetzung für Typ 'Modell' kann nicht mehrfach vergeben werden!"
-
 msgctxt "error:ir.trigger:0"
 msgid "\"On Time\" and others are mutually exclusive!"
 msgstr ""
@@ -1780,17 +1776,9 @@ msgctxt "model:ir.lang,name:lang_cs"
 msgid "Czech"
 msgstr "Tschechisch"
 
-msgctxt "model:ir.lang,name:lang_cs"
-msgid ""
-msgstr ""
-
 msgctxt "model:ir.lang,name:lang_de"
 msgid "German"
 msgstr "Deutsch"
-
-msgctxt "model:ir.lang,name:lang_de"
-msgid ""
-msgstr ""
 
 msgctxt "model:ir.lang,name:lang_en"
 msgid "English"
@@ -1800,25 +1788,13 @@ msgctxt "model:ir.lang,name:lang_es"
 msgid "Spanish (Spain)"
 msgstr "Spanisch (Spanien)"
 
-msgctxt "model:ir.lang,name:lang_es"
-msgid ""
-msgstr ""
-
 msgctxt "model:ir.lang,name:lang_es_CO"
 msgid "Spanish (Colombia)"
 msgstr "Spanisch (Kolumbien)"
 
-msgctxt "model:ir.lang,name:lang_es_CO"
-msgid ""
-msgstr ""
-
 msgctxt "model:ir.lang,name:lang_fr"
 msgid "French"
 msgstr "Französisch"
-
-msgctxt "model:ir.lang,name:lang_fr"
-msgid ""
-msgstr ""
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
