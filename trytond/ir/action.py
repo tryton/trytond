@@ -233,7 +233,8 @@ class ActionReport(ModelSQL, ModelView):
             ('odp', 'OpenDocument Presentation'),
             ('ods', 'OpenDocument Spreadsheet'),
             ('odg', 'OpenDocument Graphics'),
-            ], string='Template Extension', required=True)
+            ], string='Template Extension', required=True,
+        translate=False)
     extension = fields.Selection([
             ('', ''),
             ('bib', 'BibTex'),
@@ -295,7 +296,7 @@ class ActionReport(ModelSQL, ModelView):
             ('xls5', 'Microsoft Excel 5.0'),
             ('xls95', 'Microsoft Excel 95'),
             ('xpm', 'X PixMap'),
-            ],
+            ], translate=False,
         string='Extension', help='Leave empty for the same as template, '
         'see unoconv documentation for compatible format')
     module = fields.Char('Module', readonly=True, select=1)
