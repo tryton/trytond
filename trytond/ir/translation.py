@@ -70,12 +70,6 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 'UNIQUE (name, res_id, lang, type, src_md5, module)',
                 'Translation must be unique'),
         ]
-        self._constraints += [
-            ('check_unique_model', 'unique_model'),
-        ]
-        self._error_messages.update({
-            'unique_model': "Translation of type 'model' must be unique!",
-            })
         self._max_len = 10240
 
     def init(self, module_name):
@@ -114,20 +108,6 @@ class Translation(ModelSQL, ModelView, Cacheable):
 
     def default_fuzzy(self):
         return False
-
-    def check_unique_model(self, ids):
-        "Check unique model"
-        cursor = Transaction().cursor
-        query = ('SELECT count(1) FROM "%s" '
-                'WHERE type = %%s '
-                    'AND res_id != 0 '
-                'GROUP BY name, res_id, lang, type, src '
-                'HAVING count(1) > 1' % self._table)
-        cursor.execute(query, ('model',))
-        rowcount = cursor.rowcount
-        if rowcount == -1 or rowcount is None:
-            rowcount = len(cursor.fetchall())
-        return not bool(rowcount)
 
     def get_model(self, ids, name):
         res = {}
@@ -793,190 +773,178 @@ class TranslationClean(Wizard):
         },
     }
 
+    def _clean_field(self, translation):
+        pool = Pool()
+        try:
+            model_name, field_name = translation.name.split(',', 1)
+        except ValueError:
+            return True
+        if model_name not in pool.object_name_list():
+            return True
+        model_obj = pool.get(model_name)
+        if field_name not in model_obj._columns:
+            return True
+
+    def _clean_model(self, translation):
+        pool = Pool()
+        try:
+            model_name, field_name = translation.name.split(',', 1)
+        except ValueError:
+            return True
+        if model_name not in pool.object_name_list():
+            return True
+        if translation.res_id:
+            model_obj = pool.get(model_name)
+            if field_name not in model_obj._columns:
+                return True
+            field = model_obj._columns[field_name]
+            if (not hasattr(field, 'translate')
+                    or not field.translate):
+                return True
+        elif field_name not in ('name'):
+            return True
+
+    def _clean_odt(self, translation):
+        pool = Pool()
+        report_obj = pool.get('ir.action.report')
+        with Transaction().set_context(active_test=False):
+            if not report_obj.search([
+                        ('report_name', '=', translation.name),
+                        ]):
+                return True
+
+    def _clean_selection(self, translation):
+        pool = Pool()
+        try:
+            model_name, field_name = translation.name.split(',', 1)
+        except ValueError:
+            return True
+        if model_name not in pool.object_name_list():
+            return True
+        model_obj = pool.get(model_name)
+        if field_name not in model_obj._columns:
+            return True
+        field = model_obj._columns[field_name]
+        if (not hasattr(field, 'selection')
+                or not field.selection
+                or not getattr(field, 'translate_selection', True)):
+            return True
+        if (isinstance(field.selection, (tuple, list))
+                and translation.src not in dict(field.selection).values()):
+            return True
+
+    def _clean_view(self, translation):
+        pool = Pool()
+        model_name = translation.name
+        if model_name not in pool.object_name_list():
+            return True
+
+    def _clean_wizard_button(self, translation):
+        pool = Pool()
+        try:
+            wizard_name, state_name, button_name = \
+                    translation.name.split(',', 2)
+        except ValueError:
+            return True
+        if (wizard_name not in
+                pool.object_name_list(type='wizard')):
+            return True
+        wizard = pool.get(wizard_name, type='wizard')
+        if not wizard:
+            return True
+        state = wizard.states.get(state_name)
+        if not state:
+            return True
+        for but in state['result']['state']:
+            if but[0] == button_name:
+                return False
+        return True
+
+    def _clean_help(self, translation):
+        pool = Pool()
+        try:
+            model_name, field_name = translation.name.split(',', 1)
+        except ValueError:
+            return True
+        if model_name not in pool.object_name_list():
+            return True
+        model_obj = pool.get(model_name)
+        if field_name not in model_obj._columns:
+            return True
+        field = model_obj._columns[field_name]
+        return not field.help
+
+    def _clean_error(self, translation):
+        pool = Pool()
+        model_name = translation.name
+        if model_name in (
+                'delete_xml_record',
+                'xml_record_desc',
+                'write_xml_record',
+                'not_found_in_selection',
+                'relation_not_found',
+                'too_many_relations_found',
+                'xml_id_syntax_error',
+                'reference_syntax_error',
+                'delete_workflow_record',
+                'domain_validation_record',
+                'required_validation_record',
+                'size_validation_record',
+                'digits_validation_record',
+                'access_error',
+                'read_error',
+                'write_error',
+                'required_field',
+                'foreign_model_missing',
+                'foreign_model_exist',
+                'search_function_missing',
+                ):
+            return False
+        if model_name in pool.object_name_list():
+            model_obj = pool.get(model_name)
+            errors = model_obj._error_messages.values() + \
+                    model_obj._sql_error_messages.values()
+            for _, _, error in model_obj._sql_constraints:
+                errors.append(error)
+            if translation.src not in errors:
+                return True
+        elif model_name in pool.object_name_list(type='wizard'):
+            wizard_obj = pool.get(model_name, type='wizard')
+            errors = wizard_obj._error_messages.values()
+            if translation.src not in errors:
+                return True
+        else:
+            return True
+
     def _clean_translation(self, data):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
         model_data_obj = pool.get('ir.model.data')
-        report_obj = pool.get('ir.action.report')
 
-        offset = 0
-        cursor = Transaction().cursor
-        limit = cursor.IN_MAX
-        while True:
-            to_delete = []
-            translation_ids = translation_obj.search([], offset=offset,
-                    limit=limit)
-            if not translation_ids:
-                break
-            offset += limit
-            for translation in translation_obj.browse(translation_ids):
-                if translation.type == 'field':
-                    try:
-                        model_name, field_name = translation.name.split(',', 1)
-                    except ValueError:
-                        to_delete.append(translation.id)
-                        continue
-                    if model_name not in pool.object_name_list():
-                        to_delete.append(translation.id)
-                        continue
-                    model_obj = pool.get(model_name)
-                    if field_name not in model_obj._columns:
-                        to_delete.append(translation.id)
-                        continue
-                elif translation.type == 'model':
-                    try:
-                        model_name, field_name = translation.name.split(',', 1)
-                    except ValueError:
-                        to_delete.append(translation.id)
-                        continue
-                    if model_name not in pool.object_name_list():
-                        to_delete.append(translation.id)
-                        continue
-                    if translation.res_id:
-                        model_obj = pool.get(model_name)
-                        if field_name not in model_obj._columns:
-                            to_delete.append(translation.id)
-                            continue
-                        field = model_obj._columns[field_name]
-                        if not hasattr(field, 'translate') or \
-                                not field.translate:
-                            to_delete.append(translation.id)
-                            continue
-                    elif field_name not in ('name'):
-                        to_delete.append(translation.id)
-                        continue
-                elif translation.type == 'odt':
-                    with Transaction().set_context(active_test=False):
-                        if not report_obj.search([
-                            ('report_name', '=', translation.name),
-                            ]):
-                            to_delete.append(translation.id)
-                            continue
-                elif translation.type == 'selection':
-                    try:
-                        model_name, field_name = translation.name.split(',', 1)
-                    except ValueError:
-                        to_delete.append(translation.id)
-                        continue
-                    if model_name not in pool.object_name_list():
-                        to_delete.append(translation.id)
-                        continue
-                    model_obj = pool.get(model_name)
-                    if field_name not in model_obj._columns:
-                        to_delete.append(translation.id)
-                        continue
-                    field = model_obj._columns[field_name]
-                    if not hasattr(field, 'selection') or not field.selection \
-                            or not ((hasattr(field, 'translate_selection') and \
-                            field.translate_selection) or True):
-                        to_delete.append(translation.id)
-                        continue
-                    if isinstance(field.selection, (tuple, list)) \
-                            and translation.src not in \
-                            dict(field.selection).values():
-                        to_delete.append(translation.id)
-                        continue
-                elif translation.type == 'view':
-                    model_name = translation.name
-                    if model_name not in pool.object_name_list():
-                        to_delete.append(translation.id)
-                        continue
-                elif translation.type == 'wizard_button':
-                    try:
-                        wizard_name, state_name, button_name = \
-                                translation.name.split(',', 2)
-                    except ValueError:
-                        to_delete.append(translation.id)
-                        continue
-                    if wizard_name not in \
-                            pool.object_name_list(type='wizard'):
-                        to_delete.append(translation.id)
-                        continue
-                    wizard = pool.get(wizard_name, type='wizard')
-                    if not wizard:
-                        to_delete.append(translation.id)
-                        continue
-                    state = wizard.states.get(state_name)
-                    if not state:
-                        to_delete.append(translation.id)
-                        continue
-                    find = False
-                    for but in state['result']['state']:
-                        if but[0] == button_name:
-                            find = True
-                    if not find:
-                        to_delete.append(translation.id)
-                        continue
-                elif translation.type == 'help':
-                    try:
-                        model_name, field_name = translation.name.split(',', 1)
-                    except ValueError:
-                        to_delete.append(translation.id)
-                        continue
-                    if model_name not in pool.object_name_list():
-                        to_delete.append(translation.id)
-                        continue
-                    model_obj = pool.get(model_name)
-                    if field_name not in model_obj._columns:
-                        to_delete.append(translation.id)
-                        continue
-                    field = model_obj._columns[field_name]
-                    if not field.help:
-                        to_delete.append(translation.id)
-                        continue
-                elif translation.type == 'error':
-                    model_name = translation.name
-                    if model_name in (
-                            'delete_xml_record',
-                            'xml_record_desc',
-                            'write_xml_record',
-                            'not_found_in_selection',
-                            'relation_not_found',
-                            'too_many_relations_found',
-                            'xml_id_syntax_error',
-                            'reference_syntax_error',
-                            'delete_workflow_record',
-                            'domain_validation_record',
-                            'required_validation_record',
-                            'size_validation_record',
-                            'digits_validation_record',
-                            'access_error',
-                            'read_error',
-                            'write_error',
-                            'required_field',
-                            'foreign_model_missing',
-                            'foreign_model_exist',
-                            'search_function_missing',
-                            ):
-                        continue
-                    if model_name in pool.object_name_list():
-                        model_obj = pool.get(model_name)
-                        errors = model_obj._error_messages.values() + \
-                                model_obj._sql_error_messages.values()
-                        for _, _, error in model_obj._sql_constraints:
-                            errors.append(error)
-                        if translation.src not in errors:
-                            to_delete.append(translation.id)
-                            continue
-                    elif model_name in pool.object_name_list(type='wizard'):
-                        wizard_obj = pool.get(model_name, type='wizard')
-                        errors = wizard_obj._error_messages.values()
-                        if translation.src not in errors:
-                            to_delete.append(translation.id)
-                            continue
-                    else:
-                        to_delete.append(translation.id)
-                        continue
-            # skip translation handled in ir.model.data
-            mdata_ids = model_data_obj.search([
-                ('db_id', 'in', to_delete),
-                ('model', '=', 'ir.translation'),
-                ])
-            for mdata in model_data_obj.browse(mdata_ids):
-                if mdata.db_id in to_delete:
-                    to_delete.remove(mdata.db_id)
+        to_delete = []
+        keys = set()
+        translation_ids = translation_obj.search([])
+        for translation in translation_obj.browse(translation_ids):
+            if getattr(self, '_clean_%s' % translation.type)(translation):
+                to_delete.append(translation.id)
+            elif translation.type in ('field', 'model', 'wizard_button',
+                'help'):
+                key = (translation.module, translation.lang, translation.type,
+                    translation.name, translation.res_id)
+                if key in keys:
+                    to_delete.append(translation.id)
+                else:
+                    keys.add(key)
+        # skip translation handled in ir.model.data
+        mdata_ids = model_data_obj.search([
+            ('db_id', 'in', to_delete),
+            ('model', '=', 'ir.translation'),
+            ])
+        for mdata in model_data_obj.browse(mdata_ids):
+            if mdata.db_id in to_delete:
+                to_delete.remove(mdata.db_id)
 
-            translation_obj.delete(to_delete)
+        translation_obj.delete(to_delete)
         return {}
 
 TranslationClean()
