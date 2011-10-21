@@ -30,10 +30,6 @@ msgctxt "field:workflow,rec_name:0"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:workflow.activity,action:0"
-msgid "Action"
-msgstr "Action"
-
 msgctxt "field:workflow.activity,flow_start:0"
 msgid "Flow Start"
 msgstr "Départ du flux"
@@ -50,9 +46,9 @@ msgctxt "field:workflow.activity,join_mode:0"
 msgid "Join Mode"
 msgstr "Mode de jonction"
 
-msgctxt "field:workflow.activity,kind:0"
-msgid "Kind"
-msgstr "Type"
+msgctxt "field:workflow.activity,method:0"
+msgid "Method"
+msgstr "Méthode"
 
 msgctxt "field:workflow.activity,name:0"
 msgid "Name"
@@ -73,6 +69,10 @@ msgstr "Signal (subflow.*)"
 msgctxt "field:workflow.activity,split_mode:0"
 msgid "Split Mode"
 msgstr "Mode de division"
+
+msgctxt "field:workflow.activity,stop_other:0"
+msgid "Stop Other"
+msgstr "Arrête les autres"
 
 msgctxt "field:workflow.activity,subflow:0"
 msgid "Subflow"
@@ -102,7 +102,6 @@ msgctxt "field:workflow.instance,state:0"
 msgid "State"
 msgstr "État"
 
-#, fuzzy
 msgctxt "field:workflow.instance,transitions:0"
 msgid "Transitions"
 msgstr "Transitions"
@@ -135,7 +134,6 @@ msgctxt "field:workflow.transition,group:0"
 msgid "Group Required"
 msgstr "Groupe requis"
 
-#, fuzzy
 msgctxt "field:workflow.transition,instances:0"
 msgid "Instances"
 msgstr "Instances"
@@ -148,9 +146,9 @@ msgctxt "field:workflow.transition,signal:0"
 msgid "Signal (button Name)"
 msgstr "Signal (nom du bouton)"
 
-msgctxt "field:workflow.transition,trigger_expr_id:0"
+msgctxt "field:workflow.transition,trigger_ids:0"
 msgid "Trigger Expr ID"
-msgstr "Identifiant de l'expression de déclenchement"
+msgstr "Expression des ID de déclenchements"
 
 msgctxt "field:workflow.transition,trigger_model:0"
 msgid "Trigger Type"
@@ -287,22 +285,6 @@ msgstr "Et"
 msgctxt "selection:workflow.activity,join_mode:0"
 msgid "Xor"
 msgstr "Ou exclusif"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Dummy"
-msgstr "Fausse"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Function"
-msgstr "Fonction"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Stop All"
-msgstr "Arrêter tout"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Subflow"
-msgstr "Sous-flux"
 
 msgctxt "selection:workflow.activity,split_mode:0"
 msgid "And"
