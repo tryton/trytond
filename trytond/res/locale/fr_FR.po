@@ -24,11 +24,11 @@ msgstr ""
 "puisqu'il est utilisé en interne pour créer\n"
 "des ressources par le système (mise-à-jour, installation de module, ...)"
 
-msgctxt "field:ir.action-res.group,action_id:0"
+msgctxt "field:ir.action-res.group,action:0"
 msgid "Action"
 msgstr "Action"
 
-msgctxt "field:ir.action-res.group,gid:0"
+msgctxt "field:ir.action-res.group,group:0"
 msgid "Group"
 msgstr "Groupe"
 
@@ -48,7 +48,7 @@ msgctxt "field:ir.model.field-res.group,rec_name:0"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:ir.rule.group-res.group,group_id:0"
+msgctxt "field:ir.rule.group-res.group,group:0"
 msgid "Group"
 msgstr "Groupe"
 
@@ -56,19 +56,19 @@ msgctxt "field:ir.rule.group-res.group,rec_name:0"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:ir.rule.group-res.group,rule_group_id:0"
+msgctxt "field:ir.rule.group-res.group,rule_group:0"
 msgid "Rule Group"
-msgstr "Groupe de règle"
+msgstr "Group de règle"
 
 msgctxt "field:ir.rule.group-res.user,rec_name:0"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:ir.rule.group-res.user,rule_group_id:0"
+msgctxt "field:ir.rule.group-res.user,rule_group:0"
 msgid "Rule Group"
-msgstr "Groupe de règle"
+msgstr "Group de règle"
 
-msgctxt "field:ir.rule.group-res.user,user_id:0"
+msgctxt "field:ir.rule.group-res.user,user:0"
 msgid "User"
 msgstr "Utilisateur"
 
@@ -96,11 +96,11 @@ msgctxt "field:ir.sequence.type-res.group,sequence_type:0"
 msgid "Sequence Type"
 msgstr "Type de séquence"
 
-msgctxt "field:ir.ui.menu-res.group,gid:0"
+msgctxt "field:ir.ui.menu-res.group,group:0"
 msgid "Group"
 msgstr "Groupe"
 
-msgctxt "field:ir.ui.menu-res.group,menu_id:0"
+msgctxt "field:ir.ui.menu-res.group,menu:0"
 msgid "Menu"
 msgstr "Menu"
 
@@ -332,7 +332,7 @@ msgctxt "field:res.user,warnings:0"
 msgid "Warnings"
 msgstr "Avertissements"
 
-msgctxt "field:res.user-res.group,gid:0"
+msgctxt "field:res.user-res.group,group:0"
 msgid "Group"
 msgstr "Groupe"
 
@@ -340,7 +340,7 @@ msgctxt "field:res.user-res.group,rec_name:0"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:res.user-res.group,uid:0"
+msgctxt "field:res.user-res.group,user:0"
 msgid "User"
 msgstr "Utilisateur"
 
@@ -537,6 +537,10 @@ msgid "Waiting"
 msgstr "En attente"
 
 msgctxt "view:ir.module.module:0"
+msgid "Mark for Uninstallation (beta)"
+msgstr "Marquer pour la désinstallation (beta)"
+
+msgctxt "view:ir.module.module:0"
 msgid "Cancel Installation"
 msgstr "Annuler l'installation"
 
@@ -551,10 +555,6 @@ msgstr "Annuler la mise à jour"
 msgctxt "view:ir.module.module:0"
 msgid "Mark for Installation"
 msgstr "Marquer pour l'installation"
-
-msgctxt "view:ir.module.module:0"
-msgid "Mark for Uninstallation (beta)"
-msgstr "Marquer pour la désinstallation (beta)"
 
 msgctxt "view:ir.module.module:0"
 msgid "Mark for Upgrade"
