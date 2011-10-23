@@ -49,12 +49,12 @@ msgid "Invalid context!"
 msgstr "Ungültiger Kontext!"
 
 msgctxt "error:ir.action.act_window:0"
-msgid "Invalid views!"
-msgstr "Ungültige Sicht!"
-
-msgctxt "error:ir.action.act_window:0"
 msgid "Invalid domain or search criteria!"
 msgstr "Wertebereich (Domain) oder Suchkriterien ungültig!"
+
+msgctxt "error:ir.action.act_window:0"
+msgid "Invalid views!"
+msgstr "Ungültige Sicht!"
 
 msgctxt "error:ir.action.keyword:0"
 msgid "Wrong wizard model!"
@@ -2125,272 +2125,16 @@ msgid "Form relate"
 msgstr "Bezugsformular"
 
 msgctxt "selection:ir.action.keyword,keyword:0"
+msgid "Open Graph"
+msgstr "Graph öffnen"
+
+msgctxt "selection:ir.action.keyword,keyword:0"
 msgid "Open tree"
 msgstr "Baum öffnen"
 
 msgctxt "selection:ir.action.keyword,keyword:0"
 msgid "Print form"
 msgstr "Formular drucken"
-
-msgctxt "selection:ir.action.keyword,keyword:0"
-msgid "Open Graph"
-msgstr "Graph öffnen"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "HTML Document"
-msgstr "HTML Dokument"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Open Office.org 1.0 Text Document"
-msgstr "Open Office.org 1.0 Textdokument"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "OpenOffice.org 1.0 Drawing"
-msgstr "OpenOffice.org 1.0 Zeichnung"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "OpenOffice.org 1.0 Presentation"
-msgstr "OpenOffice.org 1.0 Präsentation"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "OpenOffice.org 1.0 Spreadsheet"
-msgstr "OpenOffice.org 1.0 Tabellendokument"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Plain Text"
-msgstr "Klartext"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "XHTML Document"
-msgstr "XHTML Dokument"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Rich Text Format"
-msgstr "Rich Text Format"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft Excel 5.0"
-msgstr "Microsoft Excel 5.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Scalable Vector Graphics"
-msgstr "Scalable Vector Graphics"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "dBase"
-msgstr "dBase"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Joint Photographic Experts Group"
-msgstr "Joint Photographic Experts Group"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Windows Metafile"
-msgstr "Windows Metafile"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "SYLK"
-msgstr "SYLK"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarDraw 5.0"
-msgstr "StarDraw 5.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarCalc 4.0"
-msgstr "StarCalc 4.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarDraw 3.0 (OpenOffice.org Impress)"
-msgstr "StarDraw 3.0 (OpenOffice.org Impress)"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Windows Bitmap"
-msgstr "Windows Bitmap"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarView Metafile"
-msgstr "StarView Metafile"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarImpress 5.0"
-msgstr "StarImpress 5.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Sun Raster Image"
-msgstr "Sun Raster Image"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Encapsulated PostScript"
-msgstr "Encapsulated PostScript"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Data Interchange Format"
-msgstr "Data Interchange Format"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft PowerPoint 97/2000/XP"
-msgstr "Microsoft PowerPoint 97/2000/XP"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft Word 95"
-msgstr "Microsoft Word 95"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Portable Bitmap"
-msgstr "Portable Bitmap"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Tagged Image File Format"
-msgstr "Tagged Image File Format"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarCalc 5.0"
-msgstr "StarCalc 5.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarWriter 5.0"
-msgstr "StarWriter 5.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Portable Network Graphic"
-msgstr "Portable Network Graphic"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Pocket Word"
-msgstr "Pocket Word"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Text Encoded"
-msgstr "Text Encoded"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "LaTeX 2e"
-msgstr "LaTeX 2e"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarDraw 3.0"
-msgstr "StarDraw 3.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Pocket Excel"
-msgstr "Pocket Excel"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "OS/2 Metafile"
-msgstr "OS/2 Metafile"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Portable Pixelmap"
-msgstr "Portable Pixelmap"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Portable Graymap"
-msgstr "Portable Graymap"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Graphics Interchange Format"
-msgstr "Graphics Interchange Format"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "BibTex"
-msgstr "BibTex"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Text CSV"
-msgstr "Text CSV"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Portable Document Format"
-msgstr "Portable Document Format"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarImpress 4.0"
-msgstr "StarImpress 4.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft Excel 95"
-msgstr "Microsoft Excel 95"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "X PixMap"
-msgstr "X PixMap"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Macromedia Flash (SWF)"
-msgstr "Macromedia Flash (SWF)"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Enhanced Metafile"
-msgstr "Enhanced Metafile"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "PlaceWare"
-msgstr "PlaceWare"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarWriter 4.0"
-msgstr "StarWriter 4.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft Office Open XML"
-msgstr "Microsoft Office Open XML"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarCalc 3.0"
-msgstr "StarCalc 3.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarDraw 5.0 (OpenOffice.org Impress)"
-msgstr "StarDraw 5.0 (OpenOffice.org Impress)"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "AportisDoc (Palm)"
-msgstr "AportisDoc (Palm)"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft Excel 97/2000/XP"
-msgstr "Microsoft Excel 97/2000/XP"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Mac Pict"
-msgstr "Mac Pict"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft Word 97/2000/XP"
-msgstr "Microsoft Word 97/2000/XP"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "StarWriter 3.0"
-msgstr "StarWriter 3.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "DocBook"
-msgstr "DocBook"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid "Microsoft Word 6.0"
-msgstr "Microsoft Word 6.0"
-
-msgctxt "selection:ir.action.report,extension:0"
-msgid ""
-msgstr ""
-
-msgctxt "selection:ir.action.report,template_extension:0"
-msgid "OpenDocument Presentation"
-msgstr "ODF Präsentation"
-
-msgctxt "selection:ir.action.report,template_extension:0"
-msgid "OpenDocument Graphics"
-msgstr "ODF Zeichnung"
-
-msgctxt "selection:ir.action.report,template_extension:0"
-msgid "OpenDocument Spreadsheet"
-msgstr "ODF Tabellendokument"
-
-msgctxt "selection:ir.action.report,template_extension:0"
-msgid "OpenDocument Text"
-msgstr "ODF Textdokument"
 
 msgctxt "selection:ir.attachment,type:0"
 msgid "Data"
@@ -2480,26 +2224,6 @@ msgctxt "selection:ir.module.module.dependency,state:0"
 msgid "Unknown"
 msgstr "Unbekannt"
 
-msgctxt "selection:ir.rule,operator:0"
-msgid "<="
-msgstr "<="
-
-msgctxt "selection:ir.rule,operator:0"
-msgid "in"
-msgstr "in"
-
-msgctxt "selection:ir.rule,operator:0"
-msgid "="
-msgstr "="
-
-msgctxt "selection:ir.rule,operator:0"
-msgid ">="
-msgstr ">="
-
-msgctxt "selection:ir.rule,operator:0"
-msgid "child_of"
-msgstr "untergeordnet von"
-
 msgctxt "selection:ir.sequence,type:0"
 msgid "Decimal Timestamp"
 msgstr "Zeitstempel Dezimal"
@@ -2572,233 +2296,9 @@ msgctxt "selection:ir.ui.menu,action:0"
 msgid "ir.action.wizard"
 msgstr "ir.action.wizard"
 
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-accessories"
-msgstr "tryton-accessories"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-attachment"
-msgstr "tryton-attachment"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-calculator"
-msgstr "tryton-calculator"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-calendar"
-msgstr "tryton-calendar"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-clear"
-msgstr "tryton-clear"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-clock"
-msgstr "tryton-clock"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-close"
-msgstr "tryton-close"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-connect"
-msgstr "tryton-connect"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-copy"
-msgstr "tryton-copy"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-currency"
-msgstr "tryton-currency"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-delete"
-msgstr "tryton-delete"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-development"
-msgstr "tryton-development"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-dialog-error"
-msgstr "tryton-dialog-error"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-dialog-information"
-msgstr "tryton-dialog-information"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-dialog-warning"
-msgstr "tryton-dialog-warning"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-disconnect"
-msgstr "tryton-disconnect"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-executable"
-msgstr "tryton-executable"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-find"
-msgstr "tryton-find"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-find-replace"
-msgstr "tryton-find-replace"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-folder-new"
-msgstr "tryton-folder-new"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-folder-saved-search"
-msgstr "tryton-folder-saved-search"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-fullscreen"
-msgstr "tryton-fullscreen"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-go-home"
-msgstr "tryton-go-home"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-go-jump"
-msgstr "tryton-go-jump"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-go-next"
-msgstr "tryton-go-next"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-go-previous"
-msgstr "tryton-go-previous"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-graph"
-msgstr "tryton-graph"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-help"
-msgstr "tryton-help"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-image-missing"
-msgstr "tryton-image-missing"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-information"
-msgstr "tryton-information"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-list"
-msgstr "tryton-list"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-list-add"
-msgstr "tryton-list-add"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-list-remove"
-msgstr "tryton-list-remove"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-locale"
-msgstr "tryton-locale"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-lock"
-msgstr "tryton-lock"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-log-out"
-msgstr "tryton-log-out"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-mail-message-new"
-msgstr "tryton-mail-message-new"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-new"
-msgstr "tryton-new"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-noimage"
-msgstr "tryton-noimage"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-open"
-msgstr "tryton-open"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-package"
-msgstr "tryton-package"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-preferences"
-msgstr "tryton-preferences"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-preferences-system"
-msgstr "tryton-preferences-system"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-preferences-system-session"
-msgstr "tryton-preferences-system-session"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-presentation"
-msgstr "tryton-presentation"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-print"
-msgstr "tryton-print"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-readonly"
-msgstr "tryton-readonly"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-refresh"
-msgstr "tryton-refresh"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-save"
-msgstr "tryton-save"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-save-as"
-msgstr "tryton-save-as"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-spreadsheet"
-msgstr "tryton-spreadsheet"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-start-here"
-msgstr "tryton-start-here"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-system"
-msgstr "tryton-system"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-system-file-manager"
-msgstr "tryton-system-file-manager"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-tree"
-msgstr "tryton-tree"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-users"
-msgstr "tryton-users"
-
-msgctxt "selection:ir.ui.menu,icon:0"
-msgid "tryton-web-browser"
-msgstr "tryton-web-browser"
+msgctxt "selection:ir.ui.view,type:0"
+msgid ""
+msgstr ""
 
 msgctxt "selection:ir.ui.view,type:0"
 msgid "Board"
@@ -2816,14 +2316,6 @@ msgctxt "selection:ir.ui.view,type:0"
 msgid "Tree"
 msgstr "Baum"
 
-msgctxt "selection:ir.ui.view,type:0"
-msgid ""
-msgstr ""
-
-msgctxt "view:ir.action.act_window:0"
-msgid "Open Window"
-msgstr "Fenster öffnen"
-
 msgctxt "view:ir.action.act_window:0"
 msgid "General"
 msgstr "Allgemein"
@@ -2835,6 +2327,10 @@ msgstr "Schlüsselwort"
 msgctxt "view:ir.action.act_window:0"
 msgid "Keywords"
 msgstr "Schlüsselwörter"
+
+msgctxt "view:ir.action.act_window:0"
+msgid "Open Window"
+msgstr "Fenster öffnen"
 
 msgctxt "view:ir.action.act_window:0"
 msgid "Open a Window"
@@ -2985,14 +2481,14 @@ msgid "You will be able to configure your installation"
 msgstr "Sie können nun Ihr System einrichten"
 
 msgctxt "view:ir.module.module.config_wizard.first:0"
-msgid "depending on the modules you have installed."
-msgstr "abhängig von den installierten Modulen."
-
-msgctxt "view:ir.module.module.config_wizard.first:0"
 msgid ""
 "You will be able to configure your installation depending on the modules you"
 " have installed."
 msgstr "Sie können jetzt die neu installierten Module einrichten."
+
+msgctxt "view:ir.module.module.config_wizard.first:0"
+msgid "depending on the modules you have installed."
+msgstr "abhängig von den installierten Modulen."
 
 msgctxt "view:ir.module.module.config_wizard.item:0"
 msgid "Config Wizard Items"
@@ -3236,11 +2732,11 @@ msgid "Translations"
 msgstr "Übersetzungen"
 
 msgctxt "view:ir.trigger:0"
-msgid "Triggers"
+msgid "Trigger"
 msgstr "Trigger"
 
 msgctxt "view:ir.trigger:0"
-msgid "Trigger"
+msgid "Triggers"
 msgstr "Trigger"
 
 msgctxt "view:ir.ui.icon:0"

@@ -8,81 +8,73 @@ msgid ""
 "in a collection with the name\n"
 "of an existing child collection!"
 msgstr ""
-"Вы не можете создавать вложение\n"
-"в каталоге с именем\n"
-" существующующего подкаталога!"
 
 msgctxt "error:webdav.collection:0"
 msgid "The collection name must be unique inside a collection!"
-msgstr "Имя каталога должно быть уникальным внутри каталога!"
+msgstr ""
 
 msgctxt "error:webdav.collection:0"
 msgid ""
 "You can not create a collection\n"
 "in a collection with the name of an existing file!"
 msgstr ""
-"Вы не можете создавать каталог\n"
-"в каталоге с именем существующего файла!"
 
 msgctxt "error:webdav.collection:0"
 msgid "You can not create recursive collections!"
-msgstr "Вы не можете создавать рекурсивные категории!"
+msgstr ""
 
 msgctxt "field:webdav.collection,childs:0"
 msgid "Children"
-msgstr "Подчиненый"
+msgstr ""
 
 msgctxt "field:webdav.collection,domain:0"
 msgid "Domain"
-msgstr "Область"
+msgstr ""
 
 msgctxt "field:webdav.collection,model:0"
 msgid "Model"
-msgstr "Шаблон"
+msgstr ""
 
 msgctxt "field:webdav.collection,name:0"
 msgid "Name"
-msgstr "Наименование"
+msgstr ""
 
 msgctxt "field:webdav.collection,parent:0"
 msgid "Parent"
-msgstr "Основной"
+msgstr ""
 
 msgctxt "field:webdav.collection,rec_name:0"
 msgid "Name"
-msgstr "Наименование"
+msgstr ""
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_collection_list"
 msgid "Collections"
-msgstr "Каталоги"
+msgstr ""
 
 msgctxt "model:ir.action,name:act_collection_tree"
 msgid "Collections"
-msgstr "Каталоги"
+msgstr ""
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
-msgstr "Каталоги"
+msgstr ""
 
 msgctxt "model:ir.ui.menu,name:menu_collection_tree"
 msgid "Collections"
-msgstr "Каталоги"
+msgstr ""
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_webdav"
 msgid "WebDAV"
-msgstr "WebDAV"
+msgstr ""
 
 msgctxt "model:webdav.collection,name:0"
 msgid "Collection"
-msgstr "Каталог"
+msgstr ""
 
 msgctxt "view:webdav.collection:0"
 msgid "Collection"
-msgstr "Каталог"
+msgstr ""
 
 msgctxt "view:webdav.collection:0"
 msgid "Collections"
-msgstr "Каталоги"
+msgstr ""

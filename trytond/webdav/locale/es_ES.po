@@ -52,7 +52,17 @@ msgctxt "field:webdav.collection,rec_name:0"
 msgid "Name"
 msgstr "Nombre"
 
+#, fuzzy
+msgctxt "model:ir.action,name:act_collection_list"
+msgid "Collections"
+msgstr "Colecciones"
+
 msgctxt "model:ir.action,name:act_collection_tree"
+msgid "Collections"
+msgstr "Colecciones"
+
+#, fuzzy
+msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
 msgstr "Colecciones"
 

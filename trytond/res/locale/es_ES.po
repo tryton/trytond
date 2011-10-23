@@ -24,11 +24,13 @@ msgstr ""
 "ya que se utiliza internamente para recursos\n"
 "creados por el sistema (actualizaciones, instalación de módulos, ...)"
 
-msgctxt "field:ir.action-res.group,action_id:0"
+#, fuzzy
+msgctxt "field:ir.action-res.group,action:0"
 msgid "Action"
 msgstr "Acción"
 
-msgctxt "field:ir.action-res.group,gid:0"
+#, fuzzy
+msgctxt "field:ir.action-res.group,group:0"
 msgid "Group"
 msgstr "Grupo"
 
@@ -48,7 +50,8 @@ msgctxt "field:ir.model.field-res.group,rec_name:0"
 msgid "Name"
 msgstr "Nombre"
 
-msgctxt "field:ir.rule.group-res.group,group_id:0"
+#, fuzzy
+msgctxt "field:ir.rule.group-res.group,group:0"
 msgid "Group"
 msgstr "Grupo"
 
@@ -56,33 +59,66 @@ msgctxt "field:ir.rule.group-res.group,rec_name:0"
 msgid "Name"
 msgstr "Nombre"
 
-msgctxt "field:ir.rule.group-res.group,rule_group_id:0"
+msgctxt "field:ir.rule.group-res.group,rule_group:0"
 msgid "Rule Group"
-msgstr "Regla de grupo"
+msgstr ""
 
 msgctxt "field:ir.rule.group-res.user,rec_name:0"
 msgid "Name"
 msgstr "Nombre"
 
-msgctxt "field:ir.rule.group-res.user,rule_group_id:0"
+msgctxt "field:ir.rule.group-res.user,rule_group:0"
 msgid "Rule Group"
-msgstr "Regla de grupo"
+msgstr ""
 
-msgctxt "field:ir.rule.group-res.user,user_id:0"
+#, fuzzy
+msgctxt "field:ir.rule.group-res.user,user:0"
 msgid "User"
 msgstr "Usuario"
 
-msgctxt "field:ir.ui.menu-res.group,gid:0"
+msgctxt "field:ir.sequence,groups:0"
+msgid "User Groups"
+msgstr ""
+
+msgctxt "field:ir.sequence.strict,groups:0"
+msgid "User Groups"
+msgstr ""
+
+msgctxt "field:ir.sequence.type,groups:0"
+msgid "User Groups"
+msgstr ""
+
+msgctxt "field:ir.sequence.type-res.group,group:0"
+msgid "User Groups"
+msgstr ""
+
+#, fuzzy
+msgctxt "field:ir.sequence.type-res.group,rec_name:0"
+msgid "Name"
+msgstr "Nombre del campo"
+
+#, fuzzy
+msgctxt "field:ir.sequence.type-res.group,sequence_type:0"
+msgid "Sequence Type"
+msgstr "Tipo de secuencia"
+
+#, fuzzy
+msgctxt "field:ir.ui.menu-res.group,group:0"
 msgid "Group"
 msgstr "Grupo"
 
-msgctxt "field:ir.ui.menu-res.group,menu_id:0"
+#, fuzzy
+msgctxt "field:ir.ui.menu-res.group,menu:0"
 msgid "Menu"
 msgstr "Menú"
 
 msgctxt "field:ir.ui.menu-res.group,rec_name:0"
 msgid "Name"
 msgstr "Nombre"
+
+msgctxt "field:res.group,field_access:0"
+msgid "Access Field"
+msgstr ""
 
 msgctxt "field:res.group,menu_access:0"
 msgid "Access Menu"
@@ -304,7 +340,8 @@ msgctxt "field:res.user,warnings:0"
 msgid "Warnings"
 msgstr "Avisos"
 
-msgctxt "field:res.user-res.group,gid:0"
+#, fuzzy
+msgctxt "field:res.user-res.group,group:0"
 msgid "Group"
 msgstr "Grupo"
 
@@ -312,7 +349,8 @@ msgctxt "field:res.user-res.group,rec_name:0"
 msgid "Name"
 msgstr "Nombre"
 
-msgctxt "field:res.user-res.group,uid:0"
+#, fuzzy
+msgctxt "field:res.user-res.group,user:0"
 msgid "User"
 msgstr "Usuario"
 
@@ -331,6 +369,10 @@ msgstr "Nombre"
 msgctxt "field:res.user.warning,user:0"
 msgid "User"
 msgstr "Usuario"
+
+msgctxt "help:ir.sequence.type,groups:0"
+msgid "Groups allowed to edit the sequences of this type"
+msgstr ""
 
 msgctxt "model:ir.action,name:act_group_form"
 msgid "Groups"
@@ -352,6 +394,10 @@ msgctxt "model:ir.action-res.group,name:0"
 msgid "Action - Group"
 msgstr "Acción - Grupo"
 
+msgctxt "model:ir.cron,name:cron_trigger_time"
+msgid "Run On Time Triggers"
+msgstr ""
+
 msgctxt "model:ir.model.field-res.group,name:0"
 msgid "Model Field Group Rel"
 msgstr "Relación entre grupo y campo del modelo"
@@ -363,6 +409,10 @@ msgstr "Regla de grupo - grupo"
 msgctxt "model:ir.rule.group-res.user,name:0"
 msgid "Rule Group - User"
 msgstr "Regla de grupo - usuario"
+
+msgctxt "model:ir.sequence.type-res.group,name:0"
+msgid "Sequence Type - Group"
+msgstr ""
 
 msgctxt "model:ir.ui.menu,name:menu_group_form"
 msgid "Groups"
@@ -423,6 +473,10 @@ msgstr "Usuario"
 msgctxt "model:res.user,name:user_admin"
 msgid "Administrator"
 msgstr "Administrador"
+
+msgctxt "model:res.user,name:user_trigger"
+msgid "Cron Trigger"
+msgstr ""
 
 msgctxt "model:res.user-res.group,name:0"
 msgid "User - Group"
@@ -517,12 +571,20 @@ msgid "Mark for Upgrade"
 msgstr "Marcar para actualizar"
 
 msgctxt "view:res.group:0"
+msgid "Access Permissions"
+msgstr ""
+
+msgctxt "view:res.group:0"
 msgid "Group"
 msgstr "Grupo"
 
 msgctxt "view:res.group:0"
 msgid "Groups"
 msgstr "Grupos"
+
+msgctxt "view:res.group:0"
+msgid "Members"
+msgstr ""
 
 msgctxt "view:res.group:0"
 msgid "Security"
@@ -587,6 +649,14 @@ msgstr "Advertencia"
 msgctxt "view:res.user.warning:0"
 msgid "Warnings"
 msgstr "Advertencias"
+
+msgctxt "view:res.user:0"
+msgid "Access Permissions"
+msgstr ""
+
+msgctxt "view:res.user:0"
+msgid "Group Membership"
+msgstr ""
 
 msgctxt "view:res.user:0"
 msgid "Preferences"

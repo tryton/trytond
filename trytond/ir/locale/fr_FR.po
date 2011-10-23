@@ -42,12 +42,12 @@ msgid "Invalid context!"
 msgstr "Contexte invalide !"
 
 msgctxt "error:ir.action.act_window:0"
-msgid "Invalid views!"
-msgstr "Vues invalides !"
-
-msgctxt "error:ir.action.act_window:0"
 msgid "Invalid domain or search criteria!"
 msgstr "Domain ou critère de recherche invalide"
+
+msgctxt "error:ir.action.act_window:0"
+msgid "Invalid views!"
+msgstr "Vues invalides !"
 
 msgctxt "error:ir.action.keyword:0"
 msgid "Wrong wizard model!"
@@ -2269,11 +2269,11 @@ msgid "Wizard Button"
 msgstr "Bouton de l'assistant"
 
 msgctxt "selection:ir.ui.menu,action:0"
-msgid "ir.action.report"
+msgid "ir.action.act_window"
 msgstr ""
 
 msgctxt "selection:ir.ui.menu,action:0"
-msgid "ir.action.act_window"
+msgid "ir.action.report"
 msgstr ""
 
 msgctxt "selection:ir.ui.menu,action:0"
@@ -2282,6 +2282,10 @@ msgstr ""
 
 msgctxt "selection:ir.ui.menu,action:0"
 msgid "ir.action.wizard"
+msgstr ""
+
+msgctxt "selection:ir.ui.view,type:0"
+msgid ""
 msgstr ""
 
 msgctxt "selection:ir.ui.view,type:0"
@@ -2299,10 +2303,6 @@ msgstr "Graphique"
 msgctxt "selection:ir.ui.view,type:0"
 msgid "Tree"
 msgstr "Arbre"
-
-msgctxt "selection:ir.ui.view,type:0"
-msgid ""
-msgstr ""
 
 msgctxt "view:ir.action.act_window:0"
 msgid "General"
@@ -2405,16 +2405,16 @@ msgid "Preview"
 msgstr "Aperçu"
 
 msgctxt "view:ir.cron:0"
+msgid "Action to trigger"
+msgstr "Action à déclencher"
+
+msgctxt "view:ir.cron:0"
 msgid "Scheduled Action"
 msgstr "Action planifiée"
 
 msgctxt "view:ir.cron:0"
 msgid "Scheduled Actions"
 msgstr "Actions planifiées"
-
-msgctxt "view:ir.cron:0"
-msgid "Action to trigger"
-msgstr "Action à déclencher"
 
 msgctxt "view:ir.export:0"
 msgid "Exports"
@@ -2473,16 +2473,16 @@ msgid "You will be able to configure your installation"
 msgstr "Vous pourrez configurer votre installation"
 
 msgctxt "view:ir.module.module.config_wizard.first:0"
-msgid "depending on the modules you have installed."
-msgstr "en fonction des modules installé."
-
-msgctxt "view:ir.module.module.config_wizard.first:0"
 msgid ""
 "You will be able to configure your installation depending on the modules you"
 " have installed."
 msgstr ""
 "Vous pourrez configurer votre installation en fonction des modules que vous "
 "avez installez."
+
+msgctxt "view:ir.module.module.config_wizard.first:0"
+msgid "depending on the modules you have installed."
+msgstr "en fonction des modules installé."
 
 msgctxt "view:ir.module.module.config_wizard.item:0"
 msgid "Config Wizard Items"
@@ -2604,6 +2604,14 @@ msgid "${day}"
 msgstr "${day}"
 
 msgctxt "view:ir.sequence.strict:0"
+msgid "${month}"
+msgstr "${month}"
+
+msgctxt "view:ir.sequence.strict:0"
+msgid "${year}"
+msgstr "${year}"
+
+msgctxt "view:ir.sequence.strict:0"
 msgid "Day:"
 msgstr "Jour"
 
@@ -2623,17 +2631,21 @@ msgctxt "view:ir.sequence.strict:0"
 msgid "Year:"
 msgstr "Année :"
 
-msgctxt "view:ir.sequence.strict:0"
-msgid "${month}"
-msgstr "${month}"
-
-msgctxt "view:ir.sequence.strict:0"
-msgid "${year}"
-msgstr "${year}"
-
 msgctxt "view:ir.sequence.type:0"
 msgid "Sequence Type"
 msgstr "Type de séquence"
+
+msgctxt "view:ir.sequence:0"
+msgid "${day}"
+msgstr "${day}"
+
+msgctxt "view:ir.sequence:0"
+msgid "${month}"
+msgstr "${month}"
+
+msgctxt "view:ir.sequence:0"
+msgid "${year}"
+msgstr "${year}"
 
 msgctxt "view:ir.sequence:0"
 msgid "Day:"
@@ -2666,18 +2678,6 @@ msgstr "Estampille"
 msgctxt "view:ir.sequence:0"
 msgid "Year:"
 msgstr "Année :"
-
-msgctxt "view:ir.sequence:0"
-msgid "${day}"
-msgstr "${day}"
-
-msgctxt "view:ir.sequence:0"
-msgid "${month}"
-msgstr "${month}"
-
-msgctxt "view:ir.sequence:0"
-msgid "${year}"
-msgstr "${year}"
 
 msgctxt "view:ir.translation.clean.init:0"
 msgid "Clean Translations"
@@ -2748,12 +2748,12 @@ msgid "Triggers"
 msgstr "Déclencheurs"
 
 msgctxt "view:ir.ui.icon:0"
-msgid "Icons"
-msgstr "Icônes"
-
-msgctxt "view:ir.ui.icon:0"
 msgid "Icon"
 msgstr "Icône"
+
+msgctxt "view:ir.ui.icon:0"
+msgid "Icons"
+msgstr "Icônes"
 
 msgctxt "view:ir.ui.menu:0"
 msgid "Menu"
@@ -2776,11 +2776,11 @@ msgid "Shortcuts"
 msgstr "Raccourcis"
 
 msgctxt "view:ir.ui.view_tree_expanded_state:0"
-msgid "Views Tree Expanded State"
+msgid "View Tree Expanded State"
 msgstr "État des vues arbres développées"
 
 msgctxt "view:ir.ui.view_tree_expanded_state:0"
-msgid "View Tree Expanded State"
+msgid "Views Tree Expanded State"
 msgstr "État des vues arbres développées"
 
 msgctxt "view:ir.ui.view_tree_width:0"

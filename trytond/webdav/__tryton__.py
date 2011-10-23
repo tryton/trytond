@@ -31,6 +31,7 @@
         'webdav.xml',
     ],
     'translation': [
+        'locale/cs_CZ.po',
         'locale/bg_BG.po',
         'locale/fr_FR.po',
         'locale/de_DE.po',
