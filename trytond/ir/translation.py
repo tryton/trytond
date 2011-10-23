@@ -43,7 +43,7 @@ class TrytonPOFile(polib.POFile):
 
     def sort(self):
         return super(TrytonPOFile, self).sort(
-            key=operator.attrgetter('msgctxt'))
+            key=lambda x: (x.msgctxt, x.msgid))
 
 
 class Translation(ModelSQL, ModelView, Cacheable):
