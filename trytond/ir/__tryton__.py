@@ -53,6 +53,7 @@ Fournit les concepts et l'administration des modèles, actions, séquences, loca
         'trigger.xml',
         ],
     'translation': [
+        'locale/cs_CZ.po',
         'locale/bg_BG.po',
         'locale/de_DE.po',
         'locale/es_CO.po',

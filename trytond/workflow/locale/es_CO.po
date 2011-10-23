@@ -30,10 +30,6 @@ msgctxt "field:workflow,rec_name:0"
 msgid "Name"
 msgstr "Nombre"
 
-msgctxt "field:workflow.activity,action:0"
-msgid "Action"
-msgstr "Acción"
-
 msgctxt "field:workflow.activity,flow_start:0"
 msgid "Flow Start"
 msgstr "Comienzo de flujo"
@@ -50,9 +46,10 @@ msgctxt "field:workflow.activity,join_mode:0"
 msgid "Join Mode"
 msgstr "Modo unión"
 
-msgctxt "field:workflow.activity,kind:0"
-msgid "Kind"
-msgstr "Tipo"
+#, fuzzy
+msgctxt "field:workflow.activity,method:0"
+msgid "Method"
+msgstr "Método"
 
 msgctxt "field:workflow.activity,name:0"
 msgid "Name"
@@ -73,6 +70,10 @@ msgstr "Señal (subflujo.*)"
 msgctxt "field:workflow.activity,split_mode:0"
 msgid "Split Mode"
 msgstr "Modo dividido"
+
+msgctxt "field:workflow.activity,stop_other:0"
+msgid "Stop Other"
+msgstr ""
 
 msgctxt "field:workflow.activity,subflow:0"
 msgid "Subflow"
@@ -102,9 +103,10 @@ msgctxt "field:workflow.instance,state:0"
 msgid "State"
 msgstr "Estado"
 
+#, fuzzy
 msgctxt "field:workflow.instance,transitions:0"
-msgid ""
-msgstr ""
+msgid "Transitions"
+msgstr "Transiciones"
 
 msgctxt "field:workflow.instance,uid:0"
 msgid "User ID"
@@ -134,9 +136,10 @@ msgctxt "field:workflow.transition,group:0"
 msgid "Group Required"
 msgstr "Se requiere grupo"
 
+#, fuzzy
 msgctxt "field:workflow.transition,instances:0"
-msgid ""
-msgstr ""
+msgid "Instances"
+msgstr "Instancias"
 
 msgctxt "field:workflow.transition,rec_name:0"
 msgid "Name"
@@ -146,9 +149,9 @@ msgctxt "field:workflow.transition,signal:0"
 msgid "Signal (button Name)"
 msgstr "Señal (Nombre del botón)"
 
-msgctxt "field:workflow.transition,trigger_expr_id:0"
+msgctxt "field:workflow.transition,trigger_ids:0"
 msgid "Trigger Expr ID"
-msgstr "Identificador de la expresión de activación"
+msgstr ""
 
 msgctxt "field:workflow.transition,trigger_model:0"
 msgid "Trigger Type"
@@ -285,22 +288,6 @@ msgstr "Y"
 msgctxt "selection:workflow.activity,join_mode:0"
 msgid "Xor"
 msgstr "Xor"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Dummy"
-msgstr "Objeto ficticio"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Function"
-msgstr "Función"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Stop All"
-msgstr "Detener Todo"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Subflow"
-msgstr "Subflujo"
 
 msgctxt "selection:workflow.activity,split_mode:0"
 msgid "And"

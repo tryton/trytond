@@ -30,10 +30,6 @@ msgctxt "field:workflow,rec_name:0"
 msgid "Name"
 msgstr "Naam"
 
-msgctxt "field:workflow.activity,action:0"
-msgid "Action"
-msgstr "Actie"
-
 msgctxt "field:workflow.activity,flow_start:0"
 msgid "Flow Start"
 msgstr "Werkgang start"
@@ -50,9 +46,10 @@ msgctxt "field:workflow.activity,join_mode:0"
 msgid "Join Mode"
 msgstr "Verzoeken"
 
-msgctxt "field:workflow.activity,kind:0"
-msgid "Kind"
-msgstr "Soort"
+#, fuzzy
+msgctxt "field:workflow.activity,method:0"
+msgid "Method"
+msgstr "Methode"
 
 msgctxt "field:workflow.activity,name:0"
 msgid "Name"
@@ -73,6 +70,10 @@ msgstr "Signaal (subwerkgang.*)"
 msgctxt "field:workflow.activity,split_mode:0"
 msgid "Split Mode"
 msgstr "Deel modus"
+
+msgctxt "field:workflow.activity,stop_other:0"
+msgid "Stop Other"
+msgstr ""
 
 msgctxt "field:workflow.activity,subflow:0"
 msgid "Subflow"
@@ -146,9 +147,9 @@ msgctxt "field:workflow.transition,signal:0"
 msgid "Signal (button Name)"
 msgstr "Signaal (knop naam)"
 
-msgctxt "field:workflow.transition,trigger_expr_id:0"
+msgctxt "field:workflow.transition,trigger_ids:0"
 msgid "Trigger Expr ID"
-msgstr "Starter uitdr ID"
+msgstr ""
 
 msgctxt "field:workflow.transition,trigger_model:0"
 msgid "Trigger Type"
@@ -285,22 +286,6 @@ msgstr "En"
 msgctxt "selection:workflow.activity,join_mode:0"
 msgid "Xor"
 msgstr "Exof"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Dummy"
-msgstr "Loos"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Function"
-msgstr "Functie"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Stop All"
-msgstr "Alles stoppen"
-
-msgctxt "selection:workflow.activity,kind:0"
-msgid "Subflow"
-msgstr "Subwerkgang"
 
 msgctxt "selection:workflow.activity,split_mode:0"
 msgid "And"

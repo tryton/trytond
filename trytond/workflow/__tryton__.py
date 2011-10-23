@@ -28,6 +28,7 @@
         'workflow.xml',
         ],
     'translation': [
+        'locale/cs_CZ.po',
         'locale/bg_BG.po',
         'locale/de_DE.po',
         'locale/es_CO.po',
