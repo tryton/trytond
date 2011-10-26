@@ -243,6 +243,8 @@ def all_suite():
     suite_.addTests(test_access.suite())
     import trytond.tests.test_mixins as test_mixins
     suite_.addTests(test_mixins.suite())
+    import trytond.tests.test_workflow as test_workflow
+    suite_.addTests(test_workflow.suite())
     return suite_
 
 def modules_suite():
