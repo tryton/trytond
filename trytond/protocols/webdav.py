@@ -100,7 +100,7 @@ class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
 class WebDAVServerThread(daemon):
 
     def __init__(self, interface, port, secure=False):
-        daemon.__init__(self, interface, port, secure, 
+        daemon.__init__(self, interface, port, secure,
                 name='WebDAVServerThread')
         if self.secure:
             handler_class = SecureWebDAVAuthRequestHandler
