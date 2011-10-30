@@ -33,8 +33,8 @@ Package Contents
 Database Backends
 -----------------
 
-Tryton is mainly developed for PostgreSQL but there is some other backends
-available. Here is some warnings about using other backends:
+Tryton is mainly developed for PostgreSQL (8.2 or later) but there are other 
+backends available. Here are some warnings about using other backends:
 
   * MySQL
 
@@ -49,6 +49,8 @@ available. Here is some warnings about using other backends:
 
     * Tryton uses a DECIMAL(65, 30) for Decimal fields and DOUBLE(255, 30) for
       Float fields.
+
+    * MySQL version should be 5.0 or later.
 
   * SQLite
 
