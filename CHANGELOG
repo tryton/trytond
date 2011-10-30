@@ -1,5 +1,6 @@
 Version 2.2.0 - 2011-10-24
 * Bug fixes (see mercurial logs for details)
+* Remove name field in ir.property
 * Add wizard to show views
 * Switched from .csv to .po for translations
 * Search on Many2One fields include inactive records

@@ -11,7 +11,7 @@ class Property(ModelSQL, ModelView):
     "Property"
     _name = 'ir.property'
     _description = __doc__
-    name = fields.Char('Name')
+    _rec_name = 'field'
     value = fields.Reference('Value', selection='models_get')
     res = fields.Reference('Resource', selection='models_get', select=1)
     field = fields.Many2One('ir.model.field', 'Field',
@@ -110,9 +110,8 @@ class Property(ModelSQL, ModelView):
             return res[names[0]]
         return res
 
-    def _set_values(self, name, model, res_id, val, field_id):
+    def _set_values(self, model, res_id, val, field_id):
         return {
-            'name': name,
             'value': val,
             'res': model + ',' + str(res_id),
             'field': field_id,
@@ -174,7 +173,7 @@ class Property(ModelSQL, ModelView):
         res = False
         if (val != default_val):
             for res_id in ids:
-                vals = self._set_values(name, model, res_id, val, field_id)
+                vals = self._set_values(model, res_id, val, field_id)
                 with Transaction().set_user(0, set_context=True):
                     res = self.create(vals)
         return res
