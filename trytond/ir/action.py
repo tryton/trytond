@@ -11,6 +11,7 @@ from trytond.cache import Cache
 from trytond.pool import Pool
 from trytond.exceptions import UserError
 
+EMAIL_REFKEYS = set(('cc', 'to', 'subject'))
 
 class Action(ModelSQL, ModelView):
     "Action"
@@ -300,7 +301,9 @@ class ActionReport(ModelSQL, ModelView):
         string='Extension', help='Leave empty for the same as template, '
         'see unoconv documentation for compatible format')
     module = fields.Char('Module', readonly=True, select=1)
-    email = fields.Char('Email')
+    email = fields.Char('Email',
+        help='Python dictonary where keys define "to" "cc" "subject"\n'
+        "Example: {'to': 'test@example.com', 'cc': 'user@example.com'}")
     pyson_email = fields.Function(fields.Char('PySON Email'), 'get_pyson')
 
     def __init__(self):
@@ -309,6 +312,12 @@ class ActionReport(ModelSQL, ModelView):
             ('report_name_module_uniq', 'UNIQUE(report_name, module)',
                 'The internal name must be unique by module!'),
         ]
+        self._constraints += [
+            ('check_email', 'invalid_email'),
+	    ]
+        self._error_messages.update({
+                'invalid_email': 'Invalid email!',
+		})
 
     def init(self, module_name):
         super(ActionReport, self).init(module_name)
@@ -375,6 +384,22 @@ class ActionReport(ModelSQL, ModelView):
 
     def default_module(self):
         return Transaction().context.get('module') or ''
+
+    def check_email(self,ids):
+        "Check email"
+        for report in self.browse(ids):
+            if report.email:
+                try:
+                    value = safe_eval(report.email, CONTEXT)
+                except Exception:
+                    return False
+                if isinstance(value, dict):
+                    inkeys = set(value)
+                    if not inkeys <= EMAIL_REFKEYS:
+                        return False
+                else:
+                    return False
+        return True
 
     def get_report_content(self, ids, name):
         res = {}
