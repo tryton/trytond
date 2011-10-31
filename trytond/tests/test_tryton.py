@@ -15,16 +15,29 @@ import doctest
 from lxml import etree
 import time
 import imp
+import optparse
 
 _MODULES = False
+_CONFIGFILE = None
 if __name__ == '__main__':
-    if '--modules' in sys.argv:
-        sys.argv.remove('--modules')
+    parser = optparse.OptionParser()
+
+    parser.add_option("-c", "--config", dest="config",
+        help="specify config file")
+    parser.add_option("-m", "--modules", action="store_true", dest="modules",
+        default=False, help="Run also modules tests")
+    opt, args = parser.parse_args()
+
+    if args:
+        parser.error("Invalid argument")
+    if opt.modules:
         _MODULES = True
+    if opt.config:
+        _CONFIGFILE = opt.config
 
 from trytond.config import CONFIG
 CONFIG['db_type'] = 'sqlite'
-CONFIG.update_etc()
+CONFIG.update_etc(_CONFIGFILE)
 if not CONFIG['admin_passwd']:
     CONFIG['admin_passwd'] = 'admin'
 
