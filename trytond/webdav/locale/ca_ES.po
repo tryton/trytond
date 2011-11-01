@@ -1,0 +1,88 @@
+#
+# Albert Cervera i Areny <albert@nan-tic.com>, 2011.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: Albert Cervera i Areny <albert@nan-tic.com>\n"
+"PO-Revision-Date: 2011-10-22 13:50+0200\n"
+"Project-Id-Version: \n"
+"Language-Team: Catalan <>\n"
+"Language: ca\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.2\n"
+"MIME-Version: 1.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgctxt "error:ir.attachment:0"
+msgid ""
+"You can not create an attachment\n"
+"in a collection with the name\n"
+"of an existing child collection!"
+msgstr ""
+"No pot crear un adjunt\n"
+"en una col·lecció amb el nom\n"
+"d'una col·lecció filla existent"
+
+msgctxt "error:webdav.collection:0"
+msgid "The collection name must be unique inside a collection!"
+msgstr "El nom de col·lecció ha de ser únic dins d'una col·lecció."
+
+msgctxt "error:webdav.collection:0"
+msgid ""
+"You can not create a collection\n"
+"in a collection with the name of an existing file!"
+msgstr ""
+"No pot crear una col·lecció\n"
+"en una col·lecció amb el nom d'un arxiu existent"
+
+msgctxt "error:webdav.collection:0"
+msgid "You can not create recursive collections!"
+msgstr "No pot crear col·leccions recursives"
+
+msgctxt "field:webdav.collection,childs:0"
+msgid "Children"
+msgstr "Fills"
+
+msgctxt "field:webdav.collection,domain:0"
+msgid "Domain"
+msgstr "Domini"
+
+msgctxt "field:webdav.collection,model:0"
+msgid "Model"
+msgstr "Model"
+
+msgctxt "field:webdav.collection,name:0"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:webdav.collection,parent:0"
+msgid "Parent"
+msgstr "Pare"
+
+msgctxt "field:webdav.collection,rec_name:0"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "model:ir.action,name:act_collection_tree"
+msgid "Collections"
+msgstr "Col·leccions"
+
+msgctxt "model:ir.ui.menu,name:menu_collection_tree"
+msgid "Collections"
+msgstr "Col·leccions"
+
+msgctxt "model:ir.ui.menu,name:menu_webdav"
+msgid "WebDAV"
+msgstr "WebDAV"
+
+msgctxt "model:webdav.collection,name:0"
+msgid "Collection"
+msgstr "Col·lecció"
+
+msgctxt "view:webdav.collection:0"
+msgid "Collection"
+msgstr "Col·lecció"
+
+msgctxt "view:webdav.collection:0"
+msgid "Collections"
+msgstr "Col·leccions"

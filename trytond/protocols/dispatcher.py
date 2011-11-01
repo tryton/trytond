@@ -58,6 +58,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
         elif method == 'list_lang':
             return [
                 ('bg_BG', 'Български'),
+                ('ca_ES', 'Català'),
                 ('cs_CZ', 'Čeština'),
                 ('de_DE', 'Deutsch'),
                 ('en_US', 'English'),
