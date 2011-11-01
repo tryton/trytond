@@ -30,6 +30,7 @@
     'translation': [
         'locale/cs_CZ.po',
         'locale/bg_BG.po',
+        'locale/ca_ES.po',
         'locale/de_DE.po',
         'locale/es_CO.po',
         'locale/es_ES.po',
