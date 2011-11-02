@@ -3,9 +3,8 @@
 import os
 from trytond.model import ModelView, ModelSQL, fields
 import trytond.tools as tools
-from trytond.modules import MODULES_PATH, create_graph, get_module_list
+from trytond.modules import create_graph, get_module_list
 from trytond.wizard import Wizard
-from trytond.backend import Database
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 
@@ -280,12 +279,6 @@ class Module(ModelSQL, ModelView):
 
                     self._update_dependencies(mod, tryton.get('depends', []))
                     continue
-
-                if name in ['ir', 'workflow', 'res', 'webdav']:
-                    mod_path = os.path.join(
-                            os.path.dirname(MODULES_PATH), name)
-                else:
-                    mod_path = os.path.join(MODULES_PATH, name)
 
                 tryton = Module.get_module_info(mod_name)
                 if not tryton:

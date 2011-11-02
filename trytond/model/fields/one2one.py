@@ -2,7 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.model.fields.many2many import Many2Many
-from trytond.transaction import Transaction
 from trytond.pool import Pool
 
 

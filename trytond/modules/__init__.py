@@ -1,14 +1,12 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import os, sys, imp
+import os, sys
 import itertools
-import traceback
 import logging
 import contextlib
 from functools import reduce
 import imp
 import operator
-from trytond.backend import Database
 import trytond.tools as tools
 from trytond.config import CONFIG
 from trytond.transaction import Transaction
@@ -216,7 +214,6 @@ def load_module_graph(graph, pool, lang=None):
         sys.stdout.flush()
         objects = pool.instanciate(module)
         package_state = module2state.get(module, 'uninstalled')
-        idref = {}
         if hasattr(package, 'init') \
                 or hasattr(package, 'update') \
                 or (package_state in ('to install', 'to upgrade')):

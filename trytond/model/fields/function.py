@@ -4,9 +4,6 @@
 import inspect
 import copy
 from trytond.model.fields.field import Field
-from trytond.model.fields.float import digits_validate
-from trytond.model.fields.one2many import add_remove_validate
-from trytond.pyson import PYSON
 
 
 class Function(Field):

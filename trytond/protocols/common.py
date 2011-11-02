@@ -4,7 +4,6 @@ import errno
 import os
 import socket
 import threading
-import select
 import sys
 import gzip
 try:

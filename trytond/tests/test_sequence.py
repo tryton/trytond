@@ -102,7 +102,7 @@ class SequenceTestCase(unittest.TestCase):
         '''
         Test prefix/suffix
         '''
-        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        with Transaction().start(DB_NAME, USER, CONTEXT):
             sequence_id = self.sequence.create({
                 'name': 'Test incremental',
                 'code': 'test',
@@ -117,7 +117,6 @@ class SequenceTestCase(unittest.TestCase):
                 'prefix': '${year}-${month}-${day}/',
                 'suffix': '/${day}.${month}.${year}',
                 })
-            context = CONTEXT.copy()
             with Transaction().set_context(date=datetime.date(2010, 8, 15)):
                 self.assertEqual(self.sequence.get_id(sequence_id),
                         '2010-08-15/2/15.08.2010')

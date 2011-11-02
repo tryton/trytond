@@ -9,7 +9,7 @@ from itertools import islice
 from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
-from trytond.backend import DatabaseIntegrityError, Database
+from trytond.backend import DatabaseIntegrityError
 from trytond.tools import reduce_ids
 from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
@@ -1306,7 +1306,6 @@ class ModelSQL(ModelStorage):
         return qu1, qu2, tables, tables_args
 
     def __search_domain_oper(self, domain, tables, tables_args):
-        pool = Pool()
         operator = 'AND'
         if len(domain) and isinstance(domain[0], basestring):
             if domain[0] not in ('AND', 'OR'):
