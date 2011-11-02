@@ -314,10 +314,10 @@ class ActionReport(ModelSQL, ModelView):
         ]
         self._constraints += [
             ('check_email', 'invalid_email'),
-	    ]
+            ]
         self._error_messages.update({
                 'invalid_email': 'Invalid email!',
-		})
+                })
 
     def init(self, module_name):
         super(ActionReport, self).init(module_name)
