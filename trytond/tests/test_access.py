@@ -196,7 +196,7 @@ class ModelAccessTestCase(unittest.TestCase):
             model_id, = self.model.search([('model', '=', 'test.access')])
 
             # Without model access
-            test_id = self.test_access.create({})
+            self.test_access.create({})
 
             # With model access
 
@@ -277,7 +277,7 @@ class ModelAccessTestCase(unittest.TestCase):
             test_ids = [self.test_access.create({}) for x in range(11)]
 
             # Without model access
-            test_id = self.test_access.delete(test_ids.pop())
+            self.test_access.delete(test_ids.pop())
 
             # With model access
 

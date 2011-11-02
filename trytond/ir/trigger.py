@@ -137,8 +137,6 @@ class Trigger(ModelSQL, ModelView):
         :param record: a BrowseRecord of the tested model
         :return: a boolean
         """
-        pool = Pool()
-        model_obj = pool.get(trigger.model.model)
         env = {}
         env['current_date'] = datetime.datetime.today()
         env['time'] = time

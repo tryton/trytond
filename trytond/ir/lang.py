@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import time
 import datetime
 import warnings
 
@@ -203,9 +202,6 @@ class Lang(ModelSQL, ModelView, Cacheable):
             grouping = safe_eval(lang['grouping'])
         if not grouping:
             return (s, 0)
-        result = ""
-        seps = 0
-        spaces = ""
         if s[-1] == ' ':
             stripped = s.rstrip()
             right_spaces = s[len(stripped):]
