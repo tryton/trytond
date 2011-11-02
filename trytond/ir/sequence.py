@@ -1,7 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from string import Template
-import datetime
 import time
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import datetime_strftime
@@ -148,7 +147,6 @@ class Sequence(ModelSQL, ModelView):
         return result
 
     def set_number_next(self, ids, name, value):
-        cursor = Transaction().cursor
         super(Sequence, self).write(ids, {
                 'number_next_internal': value,
                 })

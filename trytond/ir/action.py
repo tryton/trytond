@@ -7,7 +7,6 @@ from trytond.tools import file_open, safe_eval
 from trytond.backend import TableHandler
 from trytond.pyson import PYSONEncoder, CONTEXT, PYSON
 from trytond.transaction import Transaction
-from trytond.cache import Cache
 from trytond.pool import Pool
 from trytond.exceptions import UserError
 

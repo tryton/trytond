@@ -8,10 +8,6 @@ import os, sys
 import subprocess
 from threading import local
 import smtplib
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
 import dis
 from decimal import Decimal
 from trytond.config import CONFIG
@@ -301,9 +297,6 @@ class LocalDict(local):
 
     def __ge__(self, y):
         return self._dict.__ge__(y)
-
-    def __getitem__(self, y):
-        return self._dict.__getitem__(y)
 
     def __gt__(self, y):
         return self._dict.__gt__(y)
