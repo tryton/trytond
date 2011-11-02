@@ -7,9 +7,7 @@ except ImportError:
     import StringIO
 import zipfile
 import polib
-import operator
 from xml import dom
-from xml.dom import minidom
 from difflib import SequenceMatcher
 import os
 try:
@@ -20,7 +18,6 @@ from functools import reduce
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.model.cacheable import Cacheable
 from trytond.wizard import Wizard
-from trytond import tools
 from trytond.tools import file_open, reduce_ids
 from trytond.backend import TableHandler, FIELDS
 from trytond.pyson import PYSONEncoder

@@ -14,7 +14,6 @@ import xmlrpclib
 import traceback
 import socket
 import sys
-import os
 import base64
 import datetime
 from types import DictType

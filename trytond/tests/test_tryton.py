@@ -14,7 +14,6 @@ import unittest
 import doctest
 from lxml import etree
 import time
-import imp
 import optparse
 
 _MODULES = False
@@ -201,7 +200,7 @@ def test_depends():
                     self.fields.add(fname)
             return super(Encoder, self).default(obj)
 
-    with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+    with Transaction().start(DB_NAME, USER, CONTEXT):
         for mname, model in Pool().iterobject():
             for fname, field in model._columns.iteritems():
                 encoder = Encoder()

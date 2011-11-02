@@ -6,7 +6,7 @@ from lxml import etree
 from difflib import SequenceMatcher
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.backend import TableHandler
-from trytond.pyson import PYSONEncoder, CONTEXT, Eval
+from trytond.pyson import CONTEXT, Eval
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard
@@ -267,10 +267,8 @@ class ShowView(Wizard):
         view_obj = pool.get('ir.ui.view')
         result = super(ShowView, self).execute(wiz_id, data, state=state)
         view = view_obj.browse(data['id'])
-        view_id = view.id
         view_type = view.type
         if view.inherit:
-            view_id = view.inherit.id
             view_type = view.inherit.type
         if view_type != 'form':
             self.raise_user_error('view_type')

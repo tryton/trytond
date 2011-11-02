@@ -3,7 +3,6 @@
 import os
 import time
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.version import PACKAGE, VERSION, WEBSITE
 from trytond.tools import reduce_ids, safe_eval
 from trytond.transaction import Transaction
 from trytond.pool import Pool

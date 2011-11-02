@@ -300,14 +300,14 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
             export1_id = self.export_data.create({})
-            target1_id = self.export_data_target.create({
+            self.export_data_target.create({
                 'name': 'Target 1',
                 'one2many': export1_id,
                 })
             self.assert_(self.export_data.export_data([export1_id],
                 ['one2many/name']) == [['Target 1']])
 
-            target2_id = self.export_data_target.create({
+            self.export_data_target.create({
                 'name': 'Target 2',
                 'one2many': export1_id,
                 })

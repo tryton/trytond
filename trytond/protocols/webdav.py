@@ -2,7 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 import SocketServer
 import socket
-import os
 import BaseHTTPServer
 import urlparse
 import time

@@ -1,9 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import os
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.report import Report
-from trytond.tools import exec_command_pipe
 from trytond.backend import TableHandler
 from trytond.pyson import Eval, Bool
 from trytond.transaction import Transaction

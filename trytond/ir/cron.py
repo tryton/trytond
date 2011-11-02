@@ -6,7 +6,6 @@ from dateutil.relativedelta import relativedelta
 import traceback
 import sys
 import logging
-from trytond.backend import Database
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
@@ -136,7 +135,7 @@ class Cron(ModelSQL, ModelView):
             model_obj = pool.get(cron.model)
             with Transaction().set_user(cron.user.id):
                 getattr(model_obj, cron.function)(*args)
-        except Exception, error:
+        except Exception:
             Transaction().cursor.rollback()
 
             request_obj = pool.get('res.request')
@@ -146,7 +145,7 @@ class Cron(ModelSQL, ModelView):
             with contextlib.nested(Transaction().set_user(cron.user.id),
                     Transaction().set_context(language=language)):
                 values = self._get_request_values(cron)
-                rid = request_obj.create(values)
+                request_obj.create(values)
             Transaction().cursor.commit()
 
     def run(self, db_name):

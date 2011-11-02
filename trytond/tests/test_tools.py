@@ -5,15 +5,10 @@
 
 import unittest
 import datetime
-import socket
-import urllib
 
 from trytond.config import CONFIG
 from trytond.tools import reduce_ids, safe_eval, datetime_strftime, \
         reduce_domain
-from trytond.tests.test_tryton import (POOL, DB_NAME, USER, CONTEXT,
-    install_module)
-from trytond.transaction import Transaction
 
 
 class ToolsTestCase(unittest.TestCase):

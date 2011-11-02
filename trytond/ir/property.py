@@ -45,11 +45,6 @@ class Property(ModelSQL, ModelView):
         if res_ids is None:
             res_ids = []
 
-        model_obj = pool.get(model)
-        fields = dict((name, field)
-                for name, field in model_obj._columns.iteritems()
-                if name in names)
-
         property_ids = self.search([
             ('field.name', 'in', names),
             ['OR',

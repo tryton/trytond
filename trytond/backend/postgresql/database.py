@@ -235,7 +235,6 @@ class Database(DatabaseInterface):
         for i in ('ir', 'workflow', 'res', 'webdav'):
             root_path = os.path.join(os.path.dirname(__file__), '..', '..')
             tryton_file = os.path.join(root_path, i, '__tryton__.py')
-            mod_path = os.path.join(root_path, i)
             with open(tryton_file) as fp:
                 info = safe_eval(fp.read())
             active = info.get('active', False)
