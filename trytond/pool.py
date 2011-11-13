@@ -99,6 +99,13 @@ class Pool(object):
         '''
         return cls._pool.keys()
 
+    @property
+    def lock(self):
+        '''
+        Return the database lock for the pool.
+        '''
+        return self._locks[self.database_name]
+
     def init(self, update=False, lang=None):
         '''
         Init pool

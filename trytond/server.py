@@ -232,9 +232,14 @@ class TrytonServer(object):
                     if thread and thread.is_alive():
                         continue
                     pool = Pool(dbname)
-                    if 'ir.cron' not in pool.object_name_list():
+                    if not pool.lock.acquire(0):
                         continue
-                    cron_obj = pool.get('ir.cron')
+                    try: 
+                        if 'ir.cron' not in pool.object_name_list():
+                            continue
+                        cron_obj = pool.get('ir.cron')
+                    finally:
+                        pool.lock.release()
                     thread = threading.Thread(
                             target=cron_obj.run,
                             args=(dbname,), kwargs={})
