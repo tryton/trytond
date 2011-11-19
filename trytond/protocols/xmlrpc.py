@@ -121,6 +121,8 @@ class SimpleXMLRPCRequestHandler(GZipRequestHandlerMixin,
 
     def parse_request(self):
         res = SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.parse_request(self)
+        if not res:
+            return res
         database_name = self.path[1:]
         if not database_name:
             self.tryton = {'user': None, 'session': None}
