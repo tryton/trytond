@@ -231,6 +231,8 @@ def all_suite():
     suite_.addTests(test_tools.suite())
     import trytond.tests.test_pyson as test_pyson
     suite_.addTests(test_pyson.suite())
+    import trytond.tests.test_transaction as test_transaction
+    suite_.addTests(test_transaction.suite())
     import trytond.tests.test_fields as test_fields
     suite_.addTests(test_fields.suite())
     import trytond.tests.test_modelsingleton as test_modelsingleton

@@ -70,9 +70,9 @@ class Transaction(local):
         assert self.user is None
         assert self.cursor is None
         assert self.context is None
-        self.user = user
         database = Database(database_name).connect()
         self.cursor = database.cursor(readonly=readonly)
+        self.user = user
         self.context = context or {}
         self.create_records = {}
         self.delete_records = {}
@@ -84,14 +84,16 @@ class Transaction(local):
         '''
         Stop transaction
         '''
-        self.cursor.close()
-        self.cursor = None
-        self.user = None
-        self.context = None
-        self.create_records = None
-        self.delete_records = None
-        self.delete = None
-        self.timestamp = None
+        try:
+            self.cursor.close()
+        finally:
+            self.cursor = None
+            self.user = None
+            self.context = None
+            self.create_records = None
+            self.delete_records = None
+            self.delete = None
+            self.timestamp = None
 
     def set_context(self, context=None, **kwargs):
         if context is None:
