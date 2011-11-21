@@ -2,7 +2,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import unittest
-from trytond.tests.test_tryton import DB_NAME, USER, CONTEXT 
+from trytond.tests.test_tryton import DB_NAME, USER, CONTEXT, install_module
 from trytond.transaction import Transaction
 
 
@@ -31,6 +31,9 @@ class TransactionTestCase(unittest.TestCase):
     '''
     Test the Transaction Context manager
     '''
+
+    def setUp(self):
+        install_module('test')
 
     def test0010nonexistdb(self):
         '''
