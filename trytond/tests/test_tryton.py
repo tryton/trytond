@@ -126,7 +126,8 @@ def install_module(name):
     cursor.close()
     if DB_NAME not in databases:
         create(DB_NAME, CONFIG['admin_passwd'], 'en_US', USER_PASSWORD)
-    with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+    with Transaction().start(DB_NAME, USER,
+            context=CONTEXT) as transaction:
         module_obj = POOL.get('ir.module.module')
 
         module_ids = module_obj.search([
@@ -158,7 +159,8 @@ def test_view(module_name):
     '''
     Test validity of all views of the module
     '''
-    with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+    with Transaction().start(DB_NAME, USER,
+            context=CONTEXT) as transaction:
         view_obj = POOL.get('ir.ui.view')
         view_ids = view_obj.search([
             ('module', '=', module_name),
@@ -200,7 +202,7 @@ def test_depends():
                     self.fields.add(fname)
             return super(Encoder, self).default(obj)
 
-    with Transaction().start(DB_NAME, USER, CONTEXT):
+    with Transaction().start(DB_NAME, USER, context=CONTEXT):
         for mname, model in Pool().iterobject():
             for fname, field in model._columns.iteritems():
                 encoder = Encoder()
