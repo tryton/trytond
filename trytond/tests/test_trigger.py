@@ -47,7 +47,8 @@ class TriggerTestCase(unittest.TestCase):
         '''
         Test constraints
         '''
-        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
             model_id = self.model.search([
                 ('model', '=', 'test.triggered'),
                 ])[0]
@@ -85,7 +86,8 @@ class TriggerTestCase(unittest.TestCase):
         '''
         Test on_create
         '''
-        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
             model_id = self.model.search([
                 ('model', '=', 'test.triggered'),
                 ])[0]
@@ -154,7 +156,8 @@ class TriggerTestCase(unittest.TestCase):
         '''
         Test on_write
         '''
-        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
             model_id = self.model.search([
                 ('model', '=', 'test.triggered'),
                 ])[0]
@@ -263,7 +266,8 @@ class TriggerTestCase(unittest.TestCase):
         '''
         Test on_delete
         '''
-        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
             model_id = self.model.search([
                 ('model', '=', 'test.triggered'),
                 ])[0]
@@ -350,7 +354,8 @@ class TriggerTestCase(unittest.TestCase):
         '''
         Test on_time
         '''
-        with Transaction().start(DB_NAME, USER, CONTEXT) as transaction:
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
             model_id = self.model.search([
                 ('model', '=', 'test.triggered'),
                 ])[0]

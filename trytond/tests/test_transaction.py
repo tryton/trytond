@@ -6,22 +6,22 @@ from trytond.tests.test_tryton import DB_NAME, USER, CONTEXT, install_module
 from trytond.transaction import Transaction
 
 
-def empty_transaction(*args):
+def empty_transaction(*args, **kwargs):
     '''
     Just starts a transaction in the context manager and returns `True`
     and stops transaction for the given arguments.
 
     All positional arguments are passed to `start` method of transaction
     '''
-    with Transaction().start(*args):
+    with Transaction().start(*args, **kwargs):
         return True
 
-def manipulate_cursor(*args):
+def manipulate_cursor(*args, **kwargs):
     '''
     Just start a transaction in the context manager and close the cursor
     during the transaction so that the cursor.close in the stop fails
     '''
-    with Transaction().start(*args) as transaction:
+    with Transaction().start(*args, **kwargs) as transaction:
         transaction.cursor.close()
         transaction.cursor = None
         return True
@@ -41,9 +41,9 @@ class TransactionTestCase(unittest.TestCase):
         it stops cleanly and allows starting of next transaction
         '''
         self.assertRaises(
-            Exception, empty_transaction, "Non existant DB", USER, CONTEXT
-        )
-        self.assertTrue(empty_transaction(DB_NAME, USER, CONTEXT))
+            Exception, empty_transaction, "Non existant DB", USER,
+            context=CONTEXT)
+        self.assertTrue(empty_transaction(DB_NAME, USER, context=CONTEXT))
 
     def test0020cursorclose(self):
         '''
@@ -52,9 +52,8 @@ class TransactionTestCase(unittest.TestCase):
         another transaction
         '''
         self.assertRaises(
-            Exception, manipulate_cursor, DB_NAME, USER, CONTEXT
-        )
-        self.assertTrue(empty_transaction(DB_NAME, USER, CONTEXT))
+            Exception, manipulate_cursor, DB_NAME, USER, context=CONTEXT)
+        self.assertTrue(empty_transaction(DB_NAME, USER, context=CONTEXT))
 
 
 def suite():
