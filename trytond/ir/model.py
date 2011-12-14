@@ -2,12 +2,12 @@
 #this repository contains the full copyright notices and license terms.
 import datetime
 import re
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.report import Report
-from trytond.wizard import Wizard
-from trytond.transaction import Transaction
-from trytond.cache import Cache
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..report import Report
+from ..wizard import Wizard
+from ..transaction import Transaction
+from ..cache import Cache
+from ..pool import Pool
 IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 
 

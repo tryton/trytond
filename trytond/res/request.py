@@ -1,10 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import datetime
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.pyson import Eval, If
-from trytond.transaction import Transaction
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..pyson import Eval, If
+from ..transaction import Transaction
+from ..pool import Pool
 
 _STATES = [
     ('draft', 'Draft'),

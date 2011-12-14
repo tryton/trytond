@@ -2,13 +2,13 @@
 #this repository contains the full copyright notices and license terms.
 import base64
 import os
-from trytond.model import ModelView, ModelSQL, ModelStorage, fields
-from trytond.tools import file_open, safe_eval
-from trytond.backend import TableHandler
-from trytond.pyson import PYSONEncoder, CONTEXT, PYSON
-from trytond.transaction import Transaction
-from trytond.pool import Pool
-from trytond.exceptions import UserError
+from ..model import ModelView, ModelSQL, ModelStorage, fields
+from ..tools import file_open, safe_eval
+from ..backend import TableHandler
+from ..pyson import PYSONEncoder, CONTEXT, PYSON
+from ..transaction import Transaction
+from ..pool import Pool
+from ..exceptions import UserError
 
 EMAIL_REFKEYS = set(('cc', 'to', 'subject'))
 
