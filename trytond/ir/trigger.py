@@ -2,14 +2,14 @@
 #this repository contains the full copyright notices and license terms.
 import datetime
 import time
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.pyson import Eval
-from trytond.tools import safe_eval
-from trytond.backend import TableHandler
-from trytond.tools import reduce_ids
-from trytond.transaction import Transaction
-from trytond.cache import Cache
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..pyson import Eval
+from ..tools import safe_eval
+from ..backend import TableHandler
+from ..tools import reduce_ids
+from ..transaction import Transaction
+from ..cache import Cache
+from ..pool import Pool
 
 
 class Trigger(ModelSQL, ModelView):

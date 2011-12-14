@@ -2,9 +2,9 @@
 #this repository contains the full copyright notices and license terms.
 "Group"
 from itertools import chain
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.transaction import Transaction
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..transaction import Transaction
+from ..pool import Pool
 
 
 class MenuMany2Many(fields.Many2Many):

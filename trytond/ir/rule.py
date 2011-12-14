@@ -2,13 +2,13 @@
 #this repository contains the full copyright notices and license terms.
 import contextlib
 import time
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import safe_eval
-from trytond.pyson import Eval
-from trytond.transaction import Transaction
-from trytond.cache import Cache
-from trytond.const import OPERATORS
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..tools import safe_eval
+from ..pyson import Eval
+from ..transaction import Transaction
+from ..cache import Cache
+from ..const import OPERATORS
+from ..pool import Pool
 
 
 class RuleGroup(ModelSQL, ModelView):
