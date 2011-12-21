@@ -112,6 +112,16 @@ class Translation(ModelSQL, ModelView, Cacheable):
             res[translation.id] = translation.name.split(',')[0]
         return res
 
+    def search_rec_name(self, name, clause):
+        clause = tuple(clause)
+        ids = self.search(['OR',
+                ('src',) + clause[1:],
+                ('value',) + clause[1:],
+                ])
+        if ids:
+            return [('id', 'in', ids)]
+        return [(self._rec_name,) + clause[1:]]
+
     def search_model(self, name, clause):
         cursor = Transaction().cursor
         cursor.execute('SELECT id FROM "%s" '
