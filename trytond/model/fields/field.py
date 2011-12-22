@@ -54,9 +54,9 @@ class Field(object):
     _type = None
 
     def __init__(self, string='', help='', required=False, readonly=False,
-            domain=None, states=None, change_default=False, select=False,
-            on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None, loading='eager'):
+            domain=None, states=None, select=False, on_change=None,
+            on_change_with=None, depends=None, order_field=None, context=None,
+            loading='eager'):
         '''
         :param string: A string for label of the field.
         :param help: A multi-line help string.
@@ -68,8 +68,6 @@ class Field(object):
             ``readonly`` and ``invisible``. Values are pyson expressions that
             will be evaluated with record values. This allows to change
             dynamically the attributes of the field.
-        :param change_default: A boolean. If ``True`` the field can be used as
-        condition for a custom default value.
         :param select: An boolean. When True search will be optimized.
         :param on_change: A list of values. If set, the client will call the
             method ``on_change_<field_name>`` when the user changes the field
@@ -95,7 +93,6 @@ class Field(object):
         self.domain = domain or []
         self.__states = None
         self.states = states or {}
-        self.change_default = change_default
         self.select = bool(select)
         self.__on_change = None
         self.on_change = on_change
