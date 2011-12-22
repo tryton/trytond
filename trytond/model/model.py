@@ -512,7 +512,6 @@ class Model(WarningErrorMixin, URLMixin):
                     'states',
                     'size',
                     'required',
-                    'change_default',
                     'translate',
                     'help',
                     'select',

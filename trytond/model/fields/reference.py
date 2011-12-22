@@ -13,8 +13,8 @@ class Reference(Field):
     _type = 'reference'
 
     def __init__(self, string='', selection=None, help='', required=False,
-            readonly=False, domain=None, states=None, change_default=False,
-            select=False, on_change=None, on_change_with=None, depends=None,
+            readonly=False, domain=None, states=None, select=False,
+            on_change=None, on_change_with=None, depends=None,
             order_field=None, context=None, loading='eager'):
         '''
         :param selection: A list or a function name that returns a list.
@@ -22,11 +22,10 @@ class Reference(Field):
             of model and the second is the user name of model.
         '''
         super(Reference, self).__init__(string=string, help=help,
-                required=required, readonly=readonly, domain=domain,
-                states=states, change_default=change_default, select=select,
-                on_change=on_change, on_change_with=on_change_with,
-                depends=depends, order_field=order_field, context=context,
-                loading=loading)
+            required=required, readonly=readonly, domain=domain, states=states,
+            select=select, on_change=on_change, on_change_with=on_change_with,
+            depends=depends, order_field=order_field, context=context,
+            loading=loading)
         self.selection = selection or None
 
     __init__.__doc__ += Field.__init__.__doc__
