@@ -471,6 +471,13 @@ class ModelData(ModelSQL, ModelView):
     def default_noupdate(self):
         return False
 
+    def write(self, ids, values):
+        result = super(ModelData, self).write(ids, values)
+        # Restart the cache for get_id
+        self.get_id.reset()
+        return result
+
+    @Cache('ir_model_data.get_id')
     def get_id(self, module, fs_id):
         """
         Return for an fs_id the corresponding db_id.
