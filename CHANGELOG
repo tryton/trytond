@@ -1,3 +1,4 @@
+* Use XML-RPC struct for Decimal and Date
 * Remove change_default on fields
 
 Version 2.2.0 - 2011-10-24
