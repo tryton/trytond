@@ -533,6 +533,23 @@ class DateTime(Date):
         datetime_ += datetime.timedelta(**delta)
         return datetime_
 
+
+class Id(PYSON):
+    """The database id for filesystem id"""
+
+    def __init__(self, module, fs_id):
+        super(Id, self).__init__()
+        self._module = module
+        self._fs_id = fs_id
+
+    def pyson(self):
+        from trytond.pool import Pool
+        model_data_obj = Pool().get('ir.model.data')
+        return model_data_obj.get_id(self._module, self._fs_id)
+
+    def types(self):
+        return set([int])
+
 CONTEXT = {
     'Eval': Eval,
     'Not': Not,
