@@ -245,4 +245,8 @@ Arguments:
 ``delta_microseconds``
     Contains a PYSON statement of type int or long.
 
+.. class:: Id(module, fs_id)
 
+An :class:`Id` object represents the PYSON ``Id()`` statement for filesystem id
+evaluations. When converted into the internal dictionary, it returns the
+database id stored in `ir.model.data`.
