@@ -65,13 +65,6 @@ one. Possible keys are ``required``, ``readonly`` and ``invisible``.
 The values are :class:`~trytond.pyson.PYSON` statements that will be evaluated
 with the values of the record.
 
-``change_default``
-------------------
-
-.. attribute:: Field.change_default
-
-If true, the field can be used as condition for a custom default value.
-
 ``select``
 ----------
 

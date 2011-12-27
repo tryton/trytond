@@ -9,15 +9,15 @@ try:
 except ImportError:
     hashlib = None
     import sha
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.wizard import Wizard
-from trytond.tools import safe_eval
-from trytond.backend import TableHandler
-from trytond.security import get_connections
-from trytond.transaction import Transaction
-from trytond.cache import Cache
-from trytond.pyson import Eval, Bool
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..wizard import Wizard
+from ..tools import safe_eval
+from ..backend import TableHandler
+from ..security import get_connections
+from ..transaction import Transaction
+from ..cache import Cache
+from ..pyson import Eval, Bool
+from ..pool import Pool
 
 
 class User(ModelSQL, ModelView):

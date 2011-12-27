@@ -15,14 +15,14 @@ try:
 except ImportError:
     from md5 import md5
 from functools import reduce
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.model.cacheable import Cacheable
-from trytond.wizard import Wizard
-from trytond.tools import file_open, reduce_ids
-from trytond.backend import TableHandler, FIELDS
-from trytond.pyson import PYSONEncoder
-from trytond.transaction import Transaction
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..model.cacheable import Cacheable
+from ..wizard import Wizard
+from ..tools import file_open, reduce_ids
+from ..backend import TableHandler, FIELDS
+from ..pyson import PYSONEncoder
+from ..transaction import Transaction
+from ..pool import Pool
 
 TRANSLATION_TYPE = [
     ('field', 'Field'),
@@ -111,6 +111,16 @@ class Translation(ModelSQL, ModelView, Cacheable):
         for translation in self.browse(ids):
             res[translation.id] = translation.name.split(',')[0]
         return res
+
+    def search_rec_name(self, name, clause):
+        clause = tuple(clause)
+        ids = self.search(['OR',
+                ('src',) + clause[1:],
+                ('value',) + clause[1:],
+                ])
+        if ids:
+            return [('id', 'in', ids)]
+        return [(self._rec_name,) + clause[1:]]
 
     def search_model(self, name, clause):
         cursor = Transaction().cursor

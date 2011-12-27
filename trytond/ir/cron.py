@@ -6,11 +6,11 @@ from dateutil.relativedelta import relativedelta
 import traceback
 import sys
 import logging
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import safe_eval
-from trytond.transaction import Transaction
-from trytond.pool import Pool
-from trytond.backend import TableHandler
+from ..model import ModelView, ModelSQL, fields
+from ..tools import safe_eval
+from ..transaction import Transaction
+from ..pool import Pool
+from ..backend import TableHandler
 
 _INTERVALTYPES = {
     'days': lambda interval: relativedelta(days=interval),
