@@ -2,13 +2,13 @@
 #this repository contains the full copyright notices and license terms.
 from string import Template
 import time
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.tools import datetime_strftime
-from trytond.pyson import Eval
-from trytond.transaction import Transaction
-from trytond.pool import Pool
-from trytond.config import CONFIG
-from trytond.backend import TableHandler
+from ..model import ModelView, ModelSQL, fields
+from ..tools import datetime_strftime
+from ..pyson import Eval
+from ..transaction import Transaction
+from ..pool import Pool
+from ..config import CONFIG
+from ..backend import TableHandler
 
 sql_sequence = CONFIG.options['db_type'] == 'postgresql'
 

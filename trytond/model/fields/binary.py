@@ -12,9 +12,9 @@ class Binary(Field):
     _type = 'binary'
 
     def __init__(self, string='', help='', required=False, readonly=False,
-            domain=None, states=None, change_default=False, select=False,
-            on_change=None, on_change_with=None, depends=None, filename=None,
-            order_field=None, context=None, loading='lazy'):
+            domain=None, states=None, select=False, on_change=None,
+            on_change_with=None, depends=None, filename=None, order_field=None,
+            context=None, loading='lazy'):
         if filename is not None:
             self.filename = filename
             if depends is None:
@@ -23,9 +23,9 @@ class Binary(Field):
                 depends.append(filename)
         super(Binary, self).__init__(string=string, help=help,
             required=required, readonly=readonly, domain=domain, states=states,
-            change_default=change_default, select=select, on_change=on_change,
-            on_change_with=on_change_with, depends=depends,
-            order_field=order_field, context=context, loading=loading)
+            select=select, on_change=on_change, on_change_with=on_change_with,
+            depends=depends, order_field=order_field, context=context,
+            loading=loading)
 
     @staticmethod
     def get(ids, model, name, values=None):

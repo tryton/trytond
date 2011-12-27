@@ -3,12 +3,12 @@
 import datetime
 import warnings
 
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.model.cacheable import Cacheable
-from trytond.tools import safe_eval, datetime_strftime
-from trytond.transaction import Transaction
-from trytond.pool import Pool
-from time_locale import TIME_LOCALE
+from ..model import ModelView, ModelSQL, fields
+from ..model.cacheable import Cacheable
+from ..tools import safe_eval, datetime_strftime
+from ..transaction import Transaction
+from ..pool import Pool
+from .time_locale import TIME_LOCALE
 
 warnings.filterwarnings('ignore', "", ImportWarning)
 from locale import CHAR_MAX

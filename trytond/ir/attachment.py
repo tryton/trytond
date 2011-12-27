@@ -6,12 +6,12 @@ try:
 except ImportError:
     hashlib = None
     import md5
-from trytond.model import ModelView, ModelSQL, fields
-from trytond.config import CONFIG
-from trytond.backend import TableHandler
-from trytond.transaction import Transaction
-from trytond.pyson import Eval
-from trytond.pool import Pool
+from ..model import ModelView, ModelSQL, fields
+from ..config import CONFIG
+from ..backend import TableHandler
+from ..transaction import Transaction
+from ..pyson import Eval
+from ..pool import Pool
 
 def firstline(description):
     try:
