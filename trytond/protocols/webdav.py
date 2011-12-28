@@ -515,6 +515,7 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         WebDAVServer.DAVRequestHandler):
 
     def finish(self):
+        global CACHE
         CACHE = LocalDict()
         if not Transaction().cursor:
             return
