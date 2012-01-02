@@ -17,7 +17,8 @@ except ImportError:
 from functools import reduce
 from ..model import ModelView, ModelSQL, fields
 from ..model.cacheable import Cacheable
-from ..wizard import Wizard
+from ..wizard import Wizard, StateView, StateTransition, StateAction, \
+    Button
 from ..tools import file_open, reduce_ids
 from ..backend import TableHandler, FIELDS
 from ..pyson import PYSONEncoder
@@ -566,14 +567,6 @@ class Translation(ModelSQL, ModelView, Cacheable):
 Translation()
 
 
-class ReportTranslationSetInit(ModelView):
-    "Update Report Translation"
-    _name = 'ir.translation.set_report.init'
-    _description = __doc__
-
-ReportTranslationSetInit()
-
-
 class ReportTranslationSetStart(ModelView):
     "Update Report Translation"
     _name = 'ir.translation.set_report.start'
@@ -582,33 +575,29 @@ class ReportTranslationSetStart(ModelView):
 ReportTranslationSetStart()
 
 
+class ReportTranslationSetSucceed(ModelView):
+    "Update Report Translation"
+    _name = 'ir.translation.set_report.succeed'
+    _description = __doc__
+
+ReportTranslationSetSucceed()
+
+
 class ReportTranslationSet(Wizard):
     "Update report translation"
     _name = "ir.translation.set_report"
 
-    states = {
-        'init': {
-            'actions': [],
-            'result': {
-                'type': 'form',
-                'object': 'ir.translation.set_report.init',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('start', 'Start Update', 'tryton-ok', True),
-                ],
-            },
-        },
-        'start': {
-            'actions': ['_set_report_translation'],
-            'result': {
-                'type': 'form',
-                'object': 'ir.translation.set_report.start',
-                'state': [
-                    ('end', 'Ok', 'tryton-ok', True),
-                ],
-            },
-        },
-    }
+    start = StateView('ir.translation.set_report.start',
+        'ir.translation_set_report_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Start Update', 'set_report', 'tryton-ok',
+                default=True),
+            ])
+    set_report = StateTransition()
+    succeed = StateView('ir.translation.set_report.succeed',
+        'ir.translation_set_report_succeed_view_form', [
+            Button('Ok', 'end', 'tryton-ok', default=True),
+            ])
 
     def _translate_report(self, node):
         strings = []
@@ -628,7 +617,7 @@ class ReportTranslationSet(Wizard):
             strings.extend(self._translate_report(child))
         return strings
 
-    def _set_report_translation(self, data):
+    def transition_set_report(self, session):
         pool = Pool()
         report_obj = pool.get('ir.action.report')
         translation_obj = pool.get('ir.translation')
@@ -731,54 +720,41 @@ class ReportTranslationSet(Wizard):
                                 '(' + ','.join(('%s',) * len(strings)) + ')',
                         (report.report_name, 'odt', report.module) + \
                                 tuple(strings))
-        return {}
+        return 'succeed'
 
 ReportTranslationSet()
 
 
-class TranslationCleanInit(ModelView):
-    'Clean translation init'
-    _name = 'ir.translation.clean.init'
-    _description = __doc__
-
-TranslationCleanInit()
-
-
 class TranslationCleanStart(ModelView):
-    'Clean translation start'
+    'Clean translation'
     _name = 'ir.translation.clean.start'
     _description = __doc__
 
 TranslationCleanStart()
 
 
+class TranslationCleanSucceed(ModelView):
+    'Clean translation'
+    _name = 'ir.translation.clean.succeed'
+    _description = __doc__
+
+TranslationCleanSucceed()
+
+
 class TranslationClean(Wizard):
     "Clean translation"
     _name = 'ir.translation.clean'
 
-    states = {
-        'init': {
-            'actions': [],
-            'result': {
-                'type': 'form',
-                'object': 'ir.translation.clean.init',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('start', 'Start', 'tryton-ok', True),
-                ],
-            },
-        },
-        'start': {
-            'actions': ['_clean_translation'],
-            'result': {
-                'type': 'form',
-                'object': 'ir.translation.clean.start',
-                'state': [
-                    ('end', 'Ok', 'tryton-ok', True),
-                ],
-            },
-        },
-    }
+    start = StateView('ir.translation.clean.start',
+        'ir.translation_clean_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Clean', 'clean', 'tryton-ok', default=True),
+            ])
+    clean = StateTransition()
+    succeed = StateView('ir.translation.clean.succeed',
+        'ir.translation_clean_succeed_view_form', [
+            Button('Ok', 'end', 'tryton-ok', default=True),
+            ])
 
     def _clean_field(self, translation):
         pool = Pool()
@@ -862,9 +838,8 @@ class TranslationClean(Wizard):
         state = wizard.states.get(state_name)
         if not state:
             return True
-        for but in state['result']['state']:
-            if but[0] == button_name:
-                return False
+        if button_name in [b.state for b in state.buttons]:
+            return False
         return True
 
     def _clean_help(self, translation):
@@ -923,7 +898,7 @@ class TranslationClean(Wizard):
         else:
             return True
 
-    def _clean_translation(self, data):
+    def transition_clean(self, session):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
         model_data_obj = pool.get('ir.model.data')
@@ -952,40 +927,53 @@ class TranslationClean(Wizard):
                 to_delete.remove(mdata.db_id)
 
         translation_obj.delete(to_delete)
-        return {}
+        return 'succeed'
 
 TranslationClean()
 
 
-class TranslationUpdateInit(ModelView):
-    "Update translation - language"
-    _name = 'ir.translation.update.init'
+class TranslationUpdateStart(ModelView):
+    "Update translation"
+    _name = 'ir.translation.update.start'
     _description = __doc__
-    lang = fields.Selection('get_language', string='Language',
-        required=True)
 
-    def default_lang(self):
-        return Transaction().context.get('language', False)
+    language = fields.Many2One('ir.lang', 'Language', required=True,
+        domain=[('translatable', '=', True)])
 
-    def get_language(self):
-        pool = Pool()
-        lang_obj = pool.get('ir.lang')
-        lang_ids = lang_obj.search([('translatable', '=', True)])
-        langs = lang_obj.browse(lang_ids)
-        res = [(lang.code, lang.name) for lang in langs if lang.code != 'en_US']
-        return res
+    def default_language(self):
+        lang_obj = Pool().get('ir.lang')
+        code = Transaction().context.get('language', False)
+        try:
+            lang_id, = lang_obj.search([
+                    ('code', '=', code),
+                    ('translatable', '=', True),
+                    ], limit=1)
+            return lang_id
+        except ValueError:
+            return False
 
-TranslationUpdateInit()
+TranslationUpdateStart()
 
 
 class TranslationUpdate(Wizard):
     "Update translation"
     _name = "ir.translation.update"
 
-    def _update_translation(self, data):
+    start = StateView('ir.translation.update.start',
+        'ir.translation_update_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Update', 'update', 'tryton-ok', default=True),
+            ])
+    update = StateAction('ir.act_translation_form')
+
+    def transition_update(self, session):
+        return 'end'
+
+    def do_update(self, session, action):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
         cursor = Transaction().cursor
+        lang = session.start.language.code
         cursor.execute('SELECT name, res_id, type, src, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
@@ -996,13 +984,13 @@ class TranslationUpdate(Wizard):
                 'WHERE lang=%s ' \
                     'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
                     ' \'selection\', \'error\')',
-                (data['form']['lang'],))
+                (lang,))
         for row in cursor.dictfetchall():
             with Transaction().set_user(0):
                 translation_obj.create({
                     'name': row['name'],
                     'res_id': row['res_id'],
-                    'lang': data['form']['lang'],
+                    'lang': lang,
                     'type': row['type'],
                     'src': row['src'],
                     'module': row['module'],
@@ -1015,13 +1003,13 @@ class TranslationUpdate(Wizard):
                 'FROM ir_translation ' \
                 'WHERE lang=%s ' \
                     'AND type in (\'field\', \'model\', \'help\')',
-                (data['form']['lang'],))
+                (lang,))
         for row in cursor.dictfetchall():
             with Transaction().set_user(0):
                 translation_obj.create({
                     'name': row['name'],
                     'res_id': row['res_id'],
-                    'lang': data['form']['lang'],
+                    'lang': lang,
                     'type': row['type'],
                     'module': row['module'],
                     })
@@ -1035,7 +1023,7 @@ class TranslationUpdate(Wizard):
                 'WHERE lang=%s ' \
                     'AND type in (\'field\', \'model\', \'selection\', ' \
                         '\'help\')',
-                (data['form']['lang'],))
+                (lang,))
         for row in cursor.dictfetchall():
             cursor.execute('UPDATE ir_translation ' \
                     'SET fuzzy = %s, ' \
@@ -1045,7 +1033,7 @@ class TranslationUpdate(Wizard):
                         'AND type = %s ' \
                         'AND lang = %s',
                     (True, row['src'], row['name'], row['res_id'], row['type'],
-                        data['form']['lang']))
+                    lang))
 
         cursor.execute('SELECT src, MAX(value) AS value FROM ir_translation ' \
                 'WHERE lang = %s ' \
@@ -1054,7 +1042,7 @@ class TranslationUpdate(Wizard):
                         'WHERE (value = \'\' OR value IS NULL) ' \
                             'AND lang = %s) ' \
                     'AND value != \'\' AND value IS NOT NULL ' \
-                'GROUP BY src', (data['form']['lang'], data['form']['lang']))
+                'GROUP BY src', (lang, lang))
 
         for row in cursor.dictfetchall():
             cursor.execute('UPDATE ir_translation ' \
@@ -1063,136 +1051,83 @@ class TranslationUpdate(Wizard):
                     'WHERE src = %s ' \
                         'AND (value = \'\' OR value IS NULL) ' \
                         'AND lang = %s', (True, row['value'], row['src'],
-                            data['form']['lang']))
+                    lang))
 
         cursor.execute('UPDATE ir_translation ' \
                 'SET fuzzy = %s ' \
                 'WHERE (value = \'\' OR value IS NULL) ' \
-                    'AND lang = %s', (False, data['form']['lang'],))
-        return {}
+                    'AND lang = %s', (False, lang,))
 
-    def _action_translation_open(self, data):
-        pool = Pool()
-        model_data_obj = pool.get('ir.model.data')
-        act_window_obj = pool.get('ir.action.act_window')
-
-        model_data_ids = model_data_obj.search([
-            ('fs_id', '=', 'act_translation_form'),
-            ('module', '=', 'ir'),
-            ('inherit', '=', False),
-            ], limit=1)
-        model_data = model_data_obj.browse(model_data_ids[0])
-        res = act_window_obj.read(model_data.db_id)
-        res['pyson_domain'] = PYSONEncoder().encode([
+        action['pyson_domain'] = PYSONEncoder().encode([
             ('module', '!=', False),
-            ('lang', '=', data['form']['lang']),
+            ('lang', '=', lang),
         ])
-        return res
-
-    states = {
-        'init': {
-            'actions': [],
-            'result': {
-                'type': 'form',
-                'object': 'ir.translation.update.init',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('start', 'Start Update','tryton-ok', True),
-                ],
-            },
-        },
-        'start': {
-            'actions': ['_update_translation'],
-            'result': {
-                'type': 'action',
-                'action': '_action_translation_open',
-                'state': 'end',
-            },
-        },
-    }
+        return action, {}
 
 TranslationUpdate()
 
 
-class TranslationExportInit(ModelView):
-    "Export translation - language and module"
-    _name = 'ir.translation.export.init'
+class TranslationExportStart(ModelView):
+    "Export translation"
+    _name = 'ir.translation.export.start'
     _description = __doc__
-    lang = fields.Selection('get_language', string='Language',
-       required=True)
-    module = fields.Selection('get_module', string='Module',
-       required=True)
-
-    def default_lang(self):
-        return Transaction().context.get('language', False)
-
-    def get_language(self):
-        pool = Pool()
-        lang_obj = pool.get('ir.lang')
-        lang_ids = lang_obj.search([
-            ('translatable', '=', True),
-            ])
-        langs = lang_obj.browse(lang_ids)
-        res = [(lang.code, lang.name) for lang in langs]
-        return res
-
-    def get_module(self):
-        pool = Pool()
-        module_obj = pool.get('ir.module.module')
-        module_ids = module_obj.search([
+    language = fields.Many2One('ir.lang', 'Language', required=True,
+        domain=[('translatable', '=', True)])
+    module = fields.Many2One('ir.module.module', 'Module', required=True,
+        domain=[
             ('state', 'in', ['installed', 'to upgrade', 'to remove']),
             ])
-        modules = module_obj.browse(module_ids)
-        res =  [(module.name, module.name) for module in modules]
-        return res
 
-TranslationExportInit()
-
-
-class TranslationExportStart(ModelView):
-    "Export translation - file"
-    _description = __doc__
-    _name = 'ir.translation.export.start'
-    file = fields.Binary('File', readonly=True)
+    def default_language(self):
+        lang_obj = Pool().get('ir.lang')
+        code = Transaction().context.get('language', False)
+        try:
+            lang_id, = lang_obj.search([
+                    ('code', '=', code),
+                    ('translatable', '=', True),
+                    ], limit=1)
+            return lang_id
+        except ValueError:
+            return False
 
 TranslationExportStart()
+
+
+class TranslationExportResult(ModelView):
+    "Export translation"
+    _description = __doc__
+    _name = 'ir.translation.export.result'
+    file = fields.Binary('File', readonly=True)
+
+TranslationExportResult()
 
 
 class TranslationExport(Wizard):
     "Export translation"
     _name = "ir.translation.export"
 
-    def _export_translation(self, data):
+    start = StateView('ir.translation.export.start',
+        'ir.translation_export_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Export', 'export', 'tryton-ok', default=True),
+            ])
+    export = StateTransition()
+    result = StateView('ir.translation.export.result',
+        'ir.translation_export_result_view_form', [
+            Button('Close', 'end', 'tryton-close'),
+            ])
+
+    def transition_export(self, session):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
-        file_data = translation_obj.translation_export(data['form']['lang'],
-                data['form']['module'])
-        return {
-            'file': buffer(file_data),
-        }
+        file_data = translation_obj.translation_export(
+            session.start.language.code, session.start.module.name)
+        session.result.file = buffer(file_data)
+        return 'result'
 
-    states = {
-        'init': {
-            'actions': [],
-            'result': {
-                'type': 'form',
-                'object': 'ir.translation.export.init',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('start', 'Start Export', 'tryton-ok', True),
-                ],
-            },
-        },
-        'start': {
-            'actions': ['_export_translation'],
-            'result': {
-                'type': 'form',
-                'object': 'ir.translation.export.start',
-                'state': [
-                    ('end', 'Close', 'tryton-close'),
-                ],
-            },
-        },
-    }
+    def default_result(self, session, fields):
+        return {
+            'file': session.result.file,
+            }
 
 TranslationExport()

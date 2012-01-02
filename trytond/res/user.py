@@ -10,7 +10,7 @@ except ImportError:
     hashlib = None
     import sha
 from ..model import ModelView, ModelSQL, fields
-from ..wizard import Wizard
+from ..wizard import Wizard, StateView, Button, StateTransition
 from ..tools import safe_eval
 from ..backend import TableHandler
 from ..security import get_connections
@@ -456,55 +456,34 @@ class Warning(ModelSQL, ModelView):
 Warning()
 
 
-class UserConfigInit(ModelView):
+class UserConfigStart(ModelView):
     'User Config Init'
-    _name = 'res.user.config.init'
+    _name = 'res.user.config.start'
     _description = __doc__
 
-UserConfigInit()
+UserConfigStart()
 
 
 class UserConfig(Wizard):
     'Configure users'
     _name = 'res.user.config'
-    states = {
-        'init': {
-            'result': {
-                'type': 'form',
-                'object': 'res.user.config.init',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('user', 'Ok', 'tryton-ok', True),
-                ],
-            },
-        },
-        'user': {
-            'actions': ['_reset'],
-            'result': {
-                'type': 'form',
-                'object': 'res.user',
-                'state': [
-                    ('end', 'End', 'tryton-cancel'),
-                    ('add', 'Add', 'tryton-ok', True),
-                ],
-            },
-        },
-        'add': {
-            'actions': ['_add'],
-            'result': {
-                'type': 'state',
-                'state': 'user',
-            },
-        },
-    }
 
-    def _reset(self, data):
-        return {}
+    start = StateView('res.user.config.start',
+        'res.user_config_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Ok', 'user', 'tryton-ok', default=True),
+            ])
+    user = StateView('res.user',
+        'res.user_view_form', [
+            Button('End', 'end', 'tryton-cancel'),
+            Button('Add', 'add', 'tryton-ok'),
+            ])
+    add = StateTransition()
 
-    def _add(self, data):
+    def transition_add(self, session):
         pool = Pool()
         res_obj = pool.get('res.user')
-        res_obj.create(data['form'])
-        return {}
+        res_obj.create(session.data['user'])
+        return 'user'
 
 UserConfig()

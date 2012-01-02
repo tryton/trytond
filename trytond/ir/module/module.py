@@ -4,7 +4,9 @@ import os
 from trytond.model import ModelView, ModelSQL, fields
 import trytond.tools as tools
 from trytond.modules import create_graph, get_module_list
-from trytond.wizard import Wizard
+from trytond.wizard import Wizard, StateView, Button, StateTransition, \
+    StateAction
+from trytond.backend import Database, TableHandler
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 
@@ -367,7 +369,9 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
     "Config wizard to run after installing module"
     _name = 'ir.module.module.config_wizard.item'
     _description = __doc__
-    name = fields.Char('Name', required=True, readonly=True)
+    _rec_name = 'action'
+    action = fields.Many2One('ir.action', 'Action', required=True,
+        readonly=True)
     sequence= fields.Integer('Sequence')
     state = fields.Selection([
         ('open', 'Open'),
@@ -377,6 +381,14 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
     def __init__(self):
         super(ModuleConfigWizardItem, self).__init__()
         self._order.insert(0, ('sequence', 'ASC'))
+
+    def init(self, module_name):
+        table = TableHandler(Transaction().cursor, self, module_name)
+
+        # Migrate from 2.2 remove name
+        table.drop_column('name')
+
+        super(ModuleConfigWizardItem, self).init(module_name)
 
     def default_state(self):
         return 'open'
@@ -395,99 +407,116 @@ class ModuleConfigWizardFirst(ModelView):
 ModuleConfigWizardFirst()
 
 
+class ModuleConfigWizardOther(ModelView):
+    'Module Config Wizard Other'
+    _name = 'ir.module.module.config_wizard.other'
+    _description = __doc__
+
+    percentage = fields.Float('Percentage', readonly=True)
+
+    def default_percentage(self):
+        pool = Pool()
+        item_obj = pool.get('ir.module.module.config_wizard.item')
+        done = item_obj.search([
+            ('state', '=', 'open'),
+            ], count=True)
+        all = item_obj.search([], count=True)
+        return 100.0 * done/all
+
+ModuleConfigWizardOther()
+
+
 class ModuleConfigWizard(Wizard):
     'Run config wizards'
     _name = 'ir.module.module.config_wizard'
-    states = {
-        'init': {
-            'result': {
-                'type': 'choice',
-                'next_state': '_first',
-            },
-        },
-        'first': {
-            'result': {
-                'type': 'form',
-                'object': 'ir.module.module.config_wizard.first',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('wizard', 'Ok', 'tryton-ok', True),
-                ],
-            },
-        },
-        'wizard': {
-            'result': {
-                'type': 'action',
-                'action': '_action_wizard',
-                'state': 'next',
-            },
-        },
-        'next': {
-            'result': {
-                'type': 'choice',
-                'next_state': '_next',
-            },
-        },
-    }
 
-    def _first(self, data):
-        res = self._next(data)
-        if res == 'wizard':
+
+    class ConfigStateAction(StateAction):
+
+        def __init__(self):
+            StateAction.__init__(self, None)
+
+        def get_action(self):
+            pool = Pool()
+            item_obj = pool.get('ir.module.module.config_wizard.item')
+            action_obj = pool.get('ir.action')
+            item_ids = item_obj.search([
+                ('state', '=', 'open'),
+                ], limit=1)
+            if item_ids:
+                item = item_obj.browse(item_ids[0])
+                item_obj.write(item.id, {
+                    'state': 'done',
+                    })
+                return action_obj.get_action_values(item.action.type,
+                    item.action.id)
+
+    start = StateTransition()
+    first = StateView('ir.module.module.config_wizard.first',
+        'ir.module_config_wizard_first_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Ok', 'action', 'tryton-ok', default=True),
+            ])
+    other = StateView('ir.module.module.config_wizard.other',
+        'ir.module_config_wizard_other_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Next', 'action', 'tryton-go-next', default=True),
+            ])
+    action = ConfigStateAction()
+
+    def transition_start(self, session):
+        res = self.transition_action(session)
+        if res == 'other':
             return 'first'
         return res
 
-    def _action_wizard(self, data):
-        pool = Pool()
-        item_obj = pool.get('ir.module.module.config_wizard.item')
-        item_ids = item_obj.search([
-            ('state', '=', 'open'),
-            ], limit=1)
-        if item_ids:
-            item = item_obj.browse(item_ids[0])
-            item_obj.write(item.id, {
-                'state': 'done',
-                })
-            return {
-                    'type': 'ir.action.wizard',
-                    'wiz_name': item.name,
-                    }
-        return {}
-
-    def _next(self, data):
+    def transition_action(self, session):
         pool = Pool()
         item_obj = pool.get('ir.module.module.config_wizard.item')
         item_ids = item_obj.search([
             ('state', '=', 'open'),
             ])
         if item_ids:
-            return 'wizard'
+            return 'other'
         return 'end'
 
 ModuleConfigWizard()
-
-
-class ModuleInstallUpgradeInit(ModelView):
-    'Module Install Upgrade Init'
-    _name = 'ir.module.module.install_upgrade.init'
-    _description = __doc__
-    module_info = fields.Text('Modules to update', readonly=True)
-
-ModuleInstallUpgradeInit()
 
 
 class ModuleInstallUpgradeStart(ModelView):
     'Module Install Upgrade Start'
     _name = 'ir.module.module.install_upgrade.start'
     _description = __doc__
+    module_info = fields.Text('Modules to update', readonly=True)
 
 ModuleInstallUpgradeStart()
+
+
+class ModuleInstallUpgradeDone(ModelView):
+    'Module Install Upgrade Done'
+    _name = 'ir.module.module.install_upgrade.done'
+    _description = __doc__
+
+ModuleInstallUpgradeDone()
 
 
 class ModuleInstallUpgrade(Wizard):
     "Install / Upgrade modules"
     _name = 'ir.module.module.install_upgrade'
 
-    def _get_install(self, data):
+    start = StateView('ir.module.module.install_upgrade.start',
+        'ir.module_install_upgrade_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Start Upgrade', 'upgrade', 'tryton-ok', default=True),
+            ])
+    upgrade = StateTransition()
+    done = StateView('ir.module.module.install_upgrade.done',
+        'ir.module_install_upgrade_done_view_form', [
+            Button('Ok', 'config', 'tryton-ok', default=True),
+            ])
+    config = StateAction('ir.act_module_config_wizard')
+
+    def default_start(self, session, fields):
         pool = Pool()
         module_obj = pool.get('ir.module.module')
         module_ids = module_obj.search([
@@ -499,7 +528,7 @@ class ModuleInstallUpgrade(Wizard):
                     for x in modules),
         }
 
-    def _upgrade_module(self, data):
+    def transition_upgrade(self, session):
         pool = Pool()
         module_obj = pool.get('ir.module.module')
         lang_obj = pool.get('ir.lang')
@@ -514,49 +543,7 @@ class ModuleInstallUpgrade(Wizard):
             transaction.cursor.commit()
         if module_ids:
             pool.init(update=True, lang=lang)
-            new_wizard = pool.get('ir.module.module.install_upgrade',
-                    type='wizard')
-            new_wizard._lock.acquire()
-            new_wizard._datas[data['_wiz_id']] = self._datas[data['_wiz_id']]
-            new_wizard._lock.release()
-        return {}
-
-    states = {
-        'init': {
-            'actions': ['_get_install'],
-            'result': {
-                'type': 'form',
-                'object': 'ir.module.module.install_upgrade.init',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('start', 'Start Upgrade', 'tryton-ok', True),
-                ],
-            },
-        },
-        'start': {
-            'actions': ['_upgrade_module'],
-            'result': {
-                'type': 'form',
-                'object': 'ir.module.module.install_upgrade.start',
-                'state': [
-                    ('config', 'Ok', 'tryton-ok', True),
-                ],
-            },
-        },
-        'config': {
-            'result': {
-                'type': 'action',
-                'action': '_config',
-                'state': 'end',
-            },
-        },
-    }
-
-    def _config(self, data):
-        return {
-                'type': 'ir.action.wizard',
-                'wiz_name': 'ir.module.module.config_wizard',
-                }
+        return 'done'
 
 ModuleInstallUpgrade()
 
@@ -564,22 +551,10 @@ ModuleInstallUpgrade()
 class ModuleConfig(Wizard):
     'Configure Modules'
     _name = 'ir.module.module.config'
-    states = {
-        'init': {
-            'result': {
-                'type': 'action',
-                'action': '_action_open',
-                'state': 'end',
-            },
-        },
-    }
 
-    def _action_open(self, datas):
-        pool = Pool()
-        model_data_obj = pool.get('ir.model.data')
-        act_window_obj = pool.get('ir.action.act_window')
-        act_window_id = model_data_obj.get_id('ir', 'act_module_form')
-        res = act_window_obj.read(act_window_id)
-        return res
+    start = StateAction('ir.act_module_form')
+
+    def transition_start(self, session):
+        return 'end'
 
 ModuleConfig()

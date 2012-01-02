@@ -144,8 +144,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
-        <record model="ir.ui.view" id="user_config_init_view_form">
-            <field name="model">res.user.config.init</field>
+        <record model="ir.ui.view" id="user_config_start_view_form">
+            <field name="model">res.user.config.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
@@ -163,9 +163,15 @@ this repository contains the full copyright notices and license terms. -->
                 ]]>
             </field>
         </record>
+
+        <record model="ir.action.wizard" id="act_user_config">
+            <field name="name">Configure Users</field>
+            <field name="wiz_name">res.user.config</field>
+        </record>
+
         <record model="ir.module.module.config_wizard.item"
             id="config_wizard_item_user">
-            <field name="name">res.user.config</field>
+            <field name="action" ref="act_user_config"/>
         </record>
 
         <record model="ir.ui.view" id="user_warning_view_form">

@@ -249,8 +249,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="report_name">ir.model.graph</field>
         </record>
 
-        <record model="ir.ui.view" id="print_model_graph_init_view_form">
-            <field name="model">ir.model.print_model_graph.init</field>
+        <record model="ir.ui.view" id="print_model_graph_start_view_form">
+            <field name="model">ir.model.print_model_graph.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[

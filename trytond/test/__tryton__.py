@@ -10,6 +10,7 @@
         'import_data.xml',
         'sequence.xml',
         'workflow.xml',
+        'wizard.xml',
     ],
     'translation': [
     ],

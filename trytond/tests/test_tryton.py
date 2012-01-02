@@ -148,9 +148,9 @@ def install_module(name):
 
         install_upgrade_obj = POOL.get('ir.module.module.install_upgrade',
                 type='wizard')
-        wiz_id = install_upgrade_obj.create()
+        wiz_id, _, _ = install_upgrade_obj.create()
         transaction.cursor.commit()
-        install_upgrade_obj.execute(wiz_id, {}, 'start')
+        install_upgrade_obj.execute(wiz_id, {}, 'upgrade')
         transaction.cursor.commit()
         install_upgrade_obj.delete(wiz_id)
         transaction.cursor.commit()
@@ -259,6 +259,8 @@ def all_suite():
     suite_.addTests(test_mixins.suite())
     import trytond.tests.test_workflow as test_workflow
     suite_.addTests(test_workflow.suite())
+    import trytond.tests.test_wizard as test_wizard
+    suite_.addTests(test_wizard.suite())
     return suite_
 
 def modules_suite():

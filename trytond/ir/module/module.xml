@@ -99,7 +99,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="arch" type="xml">
                 <![CDATA[
                 <tree string="Config Wizard Items" editable="bottom">
-                    <field name="name"/>
+                    <field name="action"/>
                     <field name="sequence"/>
                     <field name="state"/>
                 </tree>
@@ -147,6 +147,20 @@ this repository contains the full copyright notices and license terms. -->
             </field>
         </record>
 
+        <record model="ir.ui.view" id="module_config_wizard_other_view_form">
+            <field name="model">ir.module.module.config_wizard.other</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Configuration Wizard Next Step!" col="2">
+                    <image name="tryton-dialog-information" xexpand="0"
+                        xfill="0"/>
+                    <field name="percentage" widget="progressbar"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
         <record model="ir.action.wizard" id="act_module_install_upgrade">
             <field name="name">Perform Pending Installation/Upgrade</field>
             <field name="wiz_name">ir.module.module.install_upgrade</field>
@@ -157,8 +171,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="model">ir.module.module,-1</field>
         </record>
 
-        <record model="ir.ui.view" id="module_install_upgrade_init_view_form">
-            <field name="model">ir.module.module.install_upgrade.init</field>
+        <record model="ir.ui.view" id="module_install_upgrade_start_view_form">
+            <field name="model">ir.module.module.install_upgrade.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
@@ -179,12 +193,12 @@ this repository contains the full copyright notices and license terms. -->
             </field>
         </record>
 
-        <record model="ir.ui.view" id="module_install_upgrade_start_view_form">
-            <field name="model">ir.module.module.install_upgrade.start</field>
+        <record model="ir.ui.view" id="module_install_upgrade_done_view_form">
+            <field name="model">ir.module.module.install_upgrade.done</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="System upgrade done" col="2">
+                <form string="System Upgrade Done" col="2">
                     <image name="tryton-dialog-information" xexpand="0" xfill="0"/>
                     <label string="The modules have been upgraded / installed !"
                         id="modules"
@@ -199,9 +213,14 @@ this repository contains the full copyright notices and license terms. -->
             action="act_module_install_upgrade"
             id="menu_module_install_upgrade"/>
 
+        <record model="ir.action.wizard" id="act_module_config">
+            <field name="name">Configure Modules</field>
+            <field name="wiz_name">ir.module.module.config</field>
+        </record>
+
         <record model="ir.module.module.config_wizard.item"
             id="config_wizard_item_module">
-            <field name="name">ir.module.module.config</field>
+            <field name="action" ref="act_module_config"/>
             <field name="sequence" eval="10000"/>
         </record>
     </data>

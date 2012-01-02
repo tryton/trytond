@@ -256,8 +256,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="fuzzy" eval="False"/>
         </record>
 
-        <record model="ir.ui.view" id="act_translation_set_report_init_view_form">
-            <field name="model">ir.translation.set_report.init</field>
+        <record model="ir.ui.view" id="translation_set_report_start_view_form">
+            <field name="model">ir.translation.set_report.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
@@ -270,8 +270,8 @@ this repository contains the full copyright notices and license terms. -->
             </field>
         </record>
 
-        <record model="ir.ui.view" id="act_translation_set_report_start_view_form">
-            <field name="model">ir.translation.set_report.start</field>
+        <record model="ir.ui.view" id="translation_set_report_succeed_view_form">
+            <field name="model">ir.translation.set_report.succeed</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
@@ -294,8 +294,8 @@ this repository contains the full copyright notices and license terms. -->
             id="menu_translation_set_report"
             sequence="10"/>
 
-        <record model="ir.ui.view" id="act_translation_clean_init_view_form">
-            <field name="model">ir.translation.clean.init</field>
+        <record model="ir.ui.view" id="translation_clean_start_view_form">
+            <field name="model">ir.translation.clean.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
@@ -308,8 +308,8 @@ this repository contains the full copyright notices and license terms. -->
             </field>
         </record>
 
-        <record model="ir.ui.view" id="act_translation_clean_start_view_form">
-            <field name="model">ir.translation.clean.start</field>
+        <record model="ir.ui.view" id="translation_clean_succeed_view_form">
+            <field name="model">ir.translation.clean.succeed</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
@@ -332,14 +332,14 @@ this repository contains the full copyright notices and license terms. -->
             id="menu_translation_clean"
             sequence="20"/>
 
-        <record model="ir.ui.view" id="act_translation_update_init_view_form">
-            <field name="model">ir.translation.update.init</field>
+        <record model="ir.ui.view" id="translation_update_start_view_form">
+            <field name="model">ir.translation.update.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="Synchronize Translations">
-                    <label name="lang"/>
-                    <field name="lang"/>
+                    <label name="language"/>
+                    <field name="language" widget="selection"/>
                 </form>
                 ]]>
             </field>
@@ -355,23 +355,23 @@ this repository contains the full copyright notices and license terms. -->
             id="menu_translation_update"
             sequence="30"/>
 
-        <record model="ir.ui.view" id="act_translation_export_init_view_form">
-            <field name="model">ir.translation.export.init</field>
+        <record model="ir.ui.view" id="translation_export_start_view_form">
+            <field name="model">ir.translation.export.start</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
                 <form string="Export Translation">
-                    <label name="lang"/>
-                    <field name="lang"/>
+                    <label name="language"/>
+                    <field name="language" widget="selection"/>
                     <label name="module"/>
-                    <field name="module"/>
+                    <field name="module" widget="selection"/>
                 </form>
                 ]]>
             </field>
         </record>
 
-        <record model="ir.ui.view" id="act_translation_export_start_view_form">
-            <field name="model">ir.translation.export.start</field>
+        <record model="ir.ui.view" id="translation_export_result_view_form">
+            <field name="model">ir.translation.export.result</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[

@@ -60,6 +60,25 @@ class Action(ModelSQL, ModelView):
                     return action.action.id
             return False
 
+    def get_action_values(self, type_, action_id):
+        action_obj = Pool().get(type_)
+        action_id = action_obj.search([
+                ('action', '=', action_id),
+                ])
+        if not action_id:
+            return
+        columns = set(action_obj._columns.keys()
+            + action_obj._inherit_fields.keys())
+        columns.add('icon.rec_name')
+        to_remove = ()
+        if type_ == 'ir.action.report':
+            to_remove = ('report_content_custom', 'report_content',
+                'style_content')
+        elif type_ == 'ir.action.act_window':
+            to_remove = ('domain', 'context', 'search_value')
+        columns.difference_update(to_remove)
+        return action_obj.read(action_id[0], list(columns))
+
 Action()
 
 
@@ -170,6 +189,7 @@ class ActionKeyword(ModelSQL, ModelView):
 
     def get_keyword(self, keyword, value):
         pool = Pool()
+        action_obj = pool.get('ir.action')
         res = []
         model, model_id = value
 
@@ -186,25 +206,13 @@ class ActionKeyword(ModelSQL, ModelView):
         for action_keyword_id in action_keyword_ids:
             action_keyword = self.browse(action_keyword_id)
             try:
-                action_obj = pool.get(action_keyword.action.type)
+                type_ = action_keyword.action.type
             except UserError:
                 continue
-            action_id = action_obj.search([
-                ('action', '=', action_keyword.action.id),
-                ])
-            if action_id:
-                columns = set(action_obj._columns.keys()
-                    + action_obj._inherit_fields.keys())
-                columns.add('icon.rec_name')
-                if action_keyword.action.type == 'ir.action.report':
-                    to_remove = ('report_content_custom', 'report_content',
-                        'style_content')
-                elif action_keyword.action.type == 'ir.action.act_window':
-                    to_remove = ('domain', 'context', 'search_value')
-                else:
-                    to_remove = set()
-                columns.difference_update(to_remove)
-                res.append(action_obj.read(action_id[0], list(columns)))
+            values = action_obj.get_action_values(type_,
+                action_keyword.action.id)
+            if values:
+                res.append(values)
         return res
 
 ActionKeyword()
