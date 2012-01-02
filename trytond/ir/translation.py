@@ -836,7 +836,7 @@ class TranslationClean(Wizard):
         if not wizard:
             return True
         state = wizard.states.get(state_name)
-        if not state:
+        if not state or not hasattr(state, 'buttons'):
             return True
         if button_name in [b.state for b in state.buttons]:
             return False
