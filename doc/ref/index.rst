@@ -8,6 +8,7 @@ API Reference
     :maxdepth: 1
 
     models/index
+    wizard
     pyson
     transaction
     tools/singleton

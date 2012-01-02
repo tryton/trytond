@@ -4,7 +4,7 @@ import datetime
 import re
 from ..model import ModelView, ModelSQL, fields
 from ..report import Report
-from ..wizard import Wizard
+from ..wizard import Wizard, StateView, StateAction, Button
 from ..transaction import Transaction
 from ..cache import Cache
 from ..pool import Pool
@@ -506,9 +506,9 @@ class ModelData(ModelSQL, ModelView):
 ModelData()
 
 
-class PrintModelGraphInit(ModelView):
-    'Print Model Graph Init'
-    _name = 'ir.model.print_model_graph.init'
+class PrintModelGraphStart(ModelView):
+    'Print Model Graph'
+    _name = 'ir.model.print_model_graph.start'
     _description = __doc__
     level = fields.Integer('Level')
     filter = fields.Text('Filter', help="Entering a Python "
@@ -517,30 +517,29 @@ class PrintModelGraphInit(ModelView):
     def default_level(self):
         return 1
 
-PrintModelGraphInit()
+PrintModelGraphStart()
 
 
 class PrintModelGraph(Wizard):
     _name = 'ir.model.print_model_graph'
-    states = {
-        'init': {
-            'result': {
-                'type': 'form',
-                'object': 'ir.model.print_model_graph.init',
-                'state': [
-                    ('end', 'Cancel', 'tryton-cancel'),
-                    ('print', 'Print', 'tryton-ok', True),
-                ],
-            },
-        },
-        'print': {
-            'result': {
-                'type': 'print',
-                'report': 'ir.model.graph',
-                'state': 'end',
-            },
-        },
-    }
+
+    start = StateView('ir.model.print_model_graph.start',
+        'ir.print_model_graph_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Print', 'print_', 'tryton-ok', default=True),
+            ])
+    print_ = StateAction('ir.report_model_graph')
+
+    def transition_print_(self, session):
+        return 'end'
+
+    def do_print_(self, session, action):
+        return action, {
+            'id': Transaction().context.get('active_id'),
+            'ids': Transaction().context.get('active_ids'),
+            'level': session.start.level,
+            'filter': session.start.filter,
+            }
 
 PrintModelGraph()
 
@@ -548,16 +547,16 @@ PrintModelGraph()
 class ModelGraph(Report):
     _name = 'ir.model.graph'
 
-    def execute(self, ids, datas):
+    def execute(self, ids, data):
         import pydot
         pool = Pool()
         model_obj = pool.get('ir.model')
         action_report_obj = pool.get('ir.action.report')
 
-        if not datas['form']['filter']:
+        if not data['filter']:
             filter = None
         else:
-            filter = re.compile(datas['form']['filter'], re.VERBOSE)
+            filter = re.compile(data['filter'], re.VERBOSE)
         action_report_ids = action_report_obj.search([
             ('report_name', '=', self._name)
             ])
@@ -570,8 +569,7 @@ class ModelGraph(Report):
         graph = pydot.Dot(fontsize="8")
         graph.set('center', '1')
         graph.set('ratio', 'auto')
-        self.fill_graph(models, graph, level=datas['form']['level'],
-                filter=filter)
+        self.fill_graph(models, graph, level=data['level'], filter=filter)
         data = graph.create(prog='dot', format='png')
         return ('png', buffer(data), False, action_report.name)
 

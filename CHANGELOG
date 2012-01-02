@@ -1,3 +1,4 @@
+* New Wizard design
 * Add pyson.Id
 * Use XML-RPC struct for Decimal and Date
 * Remove change_default on fields

@@ -738,5 +738,18 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_delete" eval="True" />
         </record>
 
+        <record model="ir.rule.group" id="rule_group_session_wizard">
+            <field name="model"
+                search="[('model', '=', 'ir.session.wizard')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_session_wizard1">
+            <field name="field"
+                search="[('name', '=', 'create_uid'), ('model.model', '=', 'ir.session.wizard')]"/>
+            <field name="operator">=</field>
+            <field name="operand">User</field>
+            <field name="rule_group" ref="rule_group_session_wizard"/>
+        </record>
+
     </data>
 </tryton>

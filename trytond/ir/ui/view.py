@@ -9,7 +9,8 @@ from trytond.backend import TableHandler
 from trytond.pyson import CONTEXT, Eval
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
-from trytond.wizard import Wizard
+from trytond.wizard import Wizard, StateView, StateAction, StateTransition, \
+    Button
 from trytond.pool import Pool
 
 
@@ -233,51 +234,39 @@ class View(ModelSQL, ModelView):
 View()
 
 
-class ShowViewInit(ModelView):
-    'Show view init'
-    _name = 'ir.ui.view.show.init'
+class ShowViewStart(ModelView):
+    'Show view'
+    _name = 'ir.ui.view.show.start'
 
-ShowViewInit()
+ShowViewStart()
 
 
 class ShowView(Wizard):
     'Show view'
     _name = 'ir.ui.view.show'
 
-    states = {
-        'init': {
-            'result': {
-                'type': 'form',
-                'object': 'ir.ui.view.show.init',
-                'state': [
-                    ('end', 'Close', 'tryton-cancel', True),
-                    ],
-                },
-            },
-        }
 
-    def __init__(self):
-        super(ShowView, self).__init__()
-        self._error_messages.update({
-                'view_type': 'Only "form" view can be shown!',
-                })
+    class ShowStateView(StateView):
 
-    def execute(self, wiz_id, data, state='init'):
-        pool = Pool()
-        view_obj = pool.get('ir.ui.view')
-        result = super(ShowView, self).execute(wiz_id, data, state=state)
-        view = view_obj.browse(data['id'])
-        view_type = view.type
-        if view.inherit:
-            view_type = view.inherit.type
-        if view_type != 'form':
-            self.raise_user_error('view_type')
-        model_obj = pool.get(view.model)
-        fields_view = model_obj.fields_view_get(view_id=view.id)
-        result['fields'] = fields_view['fields']
-        result['arch'] = fields_view['arch']
-        result['object'] = view.model
-        return result
+        def __init__(self, model_name, buttons):
+            StateView.__init__(self, model_name, None, buttons)
+
+        def get_view(self):
+            pool = Pool()
+            view_obj = pool.get('ir.ui.view')
+            view_id = Transaction().context.get('active_id')
+            view = view_obj.browse(view_id)
+            model_obj = pool.get(view.model)
+            if view.type != 'form':
+                return model_obj.fields_view_get(view_type='form')
+            return model_obj.fields_view_get(view_id=view_id)
+
+        def get_defaults(self, wizard, session, state_name, fields):
+            return {}
+
+    start = ShowStateView('ir.ui.view.show.start', [
+            Button('Close', 'end', 'tryton-close', default=True),
+            ])
 
 ShowView()
 
@@ -322,17 +311,10 @@ class AddShortcut(Wizard):
     'Add shortcut'
     _name = 'ir.ui.view_sc.add'
 
-    states = {
-        'init': {
-            'result': {
-                'type': 'action',
-                'action': '_add_shortcut',
-                'state': 'end',
-            },
-        },
-    }
+    start_state = 'add'
+    add = StateTransition()
 
-    def _add_shortcut(self, data):
+    def transition_add(self, session):
         pool = Pool()
         view_sc_obj = pool.get('ir.ui.view_sc')
         model_obj = pool.get(data['model'])
@@ -344,7 +326,7 @@ class AddShortcut(Wizard):
             'user_id': Transaction().user,
             'resource': model_obj._name,
             })
-        return {}
+        return 'end'
 
 AddShortcut()
 
@@ -353,22 +335,28 @@ class OpenShortcut(Wizard):
     'Open a shortcut'
     _name = 'ir.ui.view_sc.open'
 
-    states = {
-        'init': {
-            'result': {
-                'type': 'action',
-                'action': '_open',
-                'state': 'end',
-            }
-        }
-    }
+    start_state = 'open_'
 
-    def _open(self, data):
+
+    class OpenStateAction(StateAction):
+        def __init__(self):
+            StateAction.__init__(self, None)
+
+        def get_action(self):
+            pass
+
+    open_ = OpenStateAction()
+
+    def transition_open_(self, session):
+        return 'end'
+
+    def do_open_(self, session, action):
         pool = Pool()
         view_sc_obj = pool.get('ir.ui.view_sc')
         action_keyword_obj = pool.get('ir.action.keyword')
+        action_obj = pool.get('ir.action')
 
-        view_sc = view_sc_obj.browse(data['id'])
+        view_sc = view_sc_obj.browse(Transaction().context.get('active_id'))
         models = (
                 '%s,%d' % (view_sc.resource, view_sc.res_id),
                 '%s,0' % (view_sc.resource),
@@ -382,15 +370,10 @@ class OpenShortcut(Wizard):
             if action_keyword_ids:
                 break
         if not action_keyword_ids:
-            return {}
+            return {}, {}
         action_keyword = action_keyword_obj.browse(action_keyword_ids[0])
-        action_obj = pool.get(action_keyword.action.type)
-        action_ids = action_obj.search([
-            ('action.id', '=', action_keyword.action.id),
-            ])
-        if not action_ids:
-            return {}
-        return action_obj.read(action_ids[0])
+        return action_obj.get_action_values(action_keyword.action.type,
+            action_keyword.action.id), {}
 
 OpenShortcut()
 
