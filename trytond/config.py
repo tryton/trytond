@@ -1,6 +1,16 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import ConfigParser, os, sys
+import sys
+try:
+    import cdecimal
+    # Use cdecimal globally
+    if 'decimal' not in sys.modules:
+        sys.modules['decimal'] = cdecimal
+except ImportError:
+    import decimal
+    sys.modules['cdecimal'] = decimal
+import os
+import ConfigParser
 
 def get_hostname(netloc):
     if '[' in netloc and ']' in netloc:
