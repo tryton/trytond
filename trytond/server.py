@@ -24,7 +24,7 @@ class TrytonServer(object):
     def __init__(self, options):
         format = '[%(asctime)s] %(levelname)s:%(name)s:%(message)s'
         datefmt = '%a %b %d %H:%M:%S %Y'
-        logging.basicConfig(level=logging.DEBUG, format=format,
+        logging.basicConfig(level=logging.INFO, format=format,
                 datefmt=datefmt)
 
         CONFIG.update_etc(options['configfile'])
