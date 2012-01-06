@@ -14,7 +14,10 @@ class SessionWizard(ModelSQL):
     _description = __doc__
 
     data = fields.Text('Data')
-    # prevent read/write/delete from _rpc
+
+    def __init__(self):
+        super(SessionWizard, self).__init__()
+        self._rpc = {}
 
     def default_data(self):
         return json.dumps({})
