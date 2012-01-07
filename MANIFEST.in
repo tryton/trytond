@@ -17,7 +17,6 @@ include trytond/ir/ui/*.xml
 include trytond/ir/ui/*.rng
 include trytond/ir/ui/*.rnc
 include trytond/ir/ui/icons/*.svg
-include trytond/ir/ui/icons/LICENSE
 include trytond/res/*.xml
 include trytond/res/locale/*.po
 include trytond/test/*.xml
