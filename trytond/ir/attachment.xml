@@ -43,13 +43,13 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <tree string="Attachments" fill="1">
+                <tree string="Attachments" editable="bottom">
                     <field name="resource"/>
                     <field name="name"/>
-                    <field name="data_size"/>
                     <field name="summary"/>
                     <field name="last_user"/>
                     <field name="last_modification"/>
+                    <field name="data"/>
                 </tree>
                 ]]>
             </field>
