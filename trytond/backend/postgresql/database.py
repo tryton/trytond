@@ -2,7 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
-from trytond.session import Session
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extensions import cursor as PsycopgCursor
 from psycopg2.extensions import ISOLATION_LEVEL_REPEATABLE_READ
@@ -432,6 +431,5 @@ if PYDATETIME:
     register_type(PYDATETIME)
 if PYTIME:
     register_type(PYTIME)
-register_adapter(Session, AsIs)
 register_adapter(float, lambda value: AsIs(repr(value)))
 register_adapter(Decimal, lambda value: AsIs(str(value)))

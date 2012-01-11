@@ -9,11 +9,11 @@ try:
 except ImportError:
     hashlib = None
     import sha
+import time
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, Button, StateTransition
-from ..tools import safe_eval
+from ..tools import safe_eval, reduce_ids
 from ..backend import TableHandler
-from ..security import get_connections
 from ..transaction import Transaction
 from ..cache import Cache
 from ..pyson import Eval, Bool
@@ -26,6 +26,7 @@ class User(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name', required=True, select=1, translate=True)
     login = fields.Char('Login', required=True)
+    login_try = fields.Integer('Login Try')
     password = fields.Sha('Password')
     salt = fields.Char('Salt', size=8)
     signature = fields.Text('Signature')
@@ -105,6 +106,9 @@ class User(ModelSQL, ModelView):
                 ):
             table.not_null_action(field, action='remove')
 
+    def default_login_try(self):
+        return 0
+
     def default_password(self):
         return False
 
@@ -143,12 +147,18 @@ class User(ModelSQL, ModelView):
         return res
 
     def get_connections(self, ids, name):
-        res = {}
-        transaction = Transaction()
-        for user_id in ids:
-            res[user_id] = get_connections(transaction.cursor.database_name,
-                    user_id)
-        return res
+        session_obj = Pool().get('ir.session')
+        cursor = Transaction().cursor
+        connections = dict((i, 0) for i in ids)
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
+            red_sql, red_ids = reduce_ids('create_uid', sub_ids)
+            cursor.execute('SELECT create_uid, COUNT(1) '
+                'FROM "' + session_obj._table + '" '
+                'WHERE ' + red_sql + ' '
+                'GROUP BY create_uid', red_ids)
+            connections.update(dict(cursor.fetchall()))
+        return connections
 
     def _convert_vals(self, vals):
         vals = vals.copy()
@@ -391,8 +401,19 @@ class User(ModelSQL, ModelView):
             password_sha = hashlib.sha1(password).hexdigest()
         else:
             password_sha = sha.new(password).hexdigest()
+        cursor = Transaction().cursor
         if password_sha == user_password:
+            cursor.execute('UPDATE "' + self._table + '" '
+                'SET login_try = 0 '
+                'WHERE login = %s', (login,))
             return user_id
+        cursor.execute('UPDATE "' + self._table + '" '
+            'SET login_try = login_try + 1 '
+            'WHERE login = %s', (login,))
+        cursor.execute('SELECT login_try FROM "' + self._table + '" '
+            'WHERE login = %s', (login,))
+        login_try, = cursor.fetchone()
+        time.sleep(2 ** login_try)
         return 0
 
 User()
