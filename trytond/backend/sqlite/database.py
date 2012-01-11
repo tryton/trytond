@@ -2,7 +2,6 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
-from trytond.session import Session
 import os
 import re
 from decimal import Decimal
@@ -363,7 +362,6 @@ if sys.version_info[0] == 2:
     sqlite.register_adapter(Decimal, lambda val: buffer(str(val)))
 else:
     sqlite.register_adapter(Decimal, lambda val: bytes(str(val)))
-sqlite.register_adapter(Session, int)
 def adapt_datetime(val):
     return val.replace(tzinfo=None).isoformat(" ")
 sqlite.register_adapter(datetime.datetime, adapt_datetime)

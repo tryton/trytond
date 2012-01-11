@@ -175,7 +175,11 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 transaction.cursor.rollback()
                 raise
         if not (object_name == 'res.request' and method == 'request_get'):
-            user.reset_timestamp()
+            with Transaction().start(database_name, 0) as transaction:
+                pool = Pool(database_name)
+                session_obj = pool.get('ir.session')
+                session_obj.reset(session)
+                transaction.cursor.commit()
         Cache.resets(database_name)
         return res
 
