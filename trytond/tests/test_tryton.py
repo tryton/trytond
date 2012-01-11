@@ -148,11 +148,7 @@ def install_module(name):
 
         install_upgrade_obj = POOL.get('ir.module.module.install_upgrade',
                 type='wizard')
-        wiz_id, _, _ = install_upgrade_obj.create()
-        transaction.cursor.commit()
-        install_upgrade_obj.execute(wiz_id, {}, 'upgrade')
-        transaction.cursor.commit()
-        install_upgrade_obj.delete(wiz_id)
+        install_upgrade_obj.transition_upgrade(None)
         transaction.cursor.commit()
 
 def test_view(module_name):
