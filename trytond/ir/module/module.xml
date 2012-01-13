@@ -68,6 +68,14 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="website"/>
                     <field name="state"/>
                     <field name="description" tree_invisible="1"/>
+                    <button string="Mark for Upgrade" name="button_upgrade"
+                        type="object"/>
+                    <button string="Mark for Installation"
+                        name="button_install" type="object"/>
+                    <button string="Cancel Installation"
+                        name="button_install_cancel" type="object"/>
+                    <button string="Cancel Upgrade"
+                        name="button_upgrade_cancel" type="object"/>
                 </tree>
               ]]>
             </field>
