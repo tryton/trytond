@@ -983,8 +983,7 @@ def post_import(pool, module, to_delete):
             cursor.commit()
         except Exception:
             cursor.rollback()
-            tb_s = reduce(lambda x, y: x + y,
-                    traceback.format_exception(*sys.exc_info()))
+            tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
             logging.getLogger("convert").error(
                 'Could not delete id: %d of model %s\n'
                     'There should be some relation '
@@ -992,7 +991,7 @@ def post_import(pool, module, to_delete):
                     'You should manually fix this '
                     'and restart --update=module\n'
                     'Exception: %s' %
-                    (db_id, model, tb_s.decode('utf-8', 'ignore')))
+                    (db_id, model, tb_s))
 
     transition_obj = pool.get('workflow.transition')
     for mdata_id, db_id in transition_delete:

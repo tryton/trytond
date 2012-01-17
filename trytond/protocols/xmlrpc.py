@@ -113,13 +113,7 @@ class GenericXMLRPCRequestHandler:
                 raise xmlrpclib.Fault(exception.code,
                     '\n'.join((error,) + description))
             except Exception:
-                tb_s = ''
-                for line in traceback.format_exception(*sys.exc_info()):
-                    try:
-                        line = line.encode('utf-8', 'ignore')
-                    except Exception:
-                        continue
-                    tb_s += line
+                tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
                 for path in sys.path:
                     tb_s = tb_s.replace(path, '')
                 if CONFIG['debug_mode']:
