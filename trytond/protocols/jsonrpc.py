@@ -26,6 +26,8 @@ try:
 except ImportError:
     import json
 import base64
+import encodings
+
 
 def object_hook(dct):
     if '__class__' in dct:
@@ -166,6 +168,18 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.send_header(self,
             keyword, value)
 
+    def do_GET(self):
+        if self.is_tryton_url(self.path):
+            self.send_tryton_url(self.path)
+            return
+        SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+
+    def do_HEAD(self):
+        if self.is_tryton_url(self.path):
+            self.send_tryton_url(self.path)
+            return
+        SimpleHTTPServer.SimpleHTTPRequestHandler.do_HEAD(self)
+
     def translate_path(self, path):
         """Translate a /-separated PATH to the local filename syntax.
 
@@ -187,6 +201,21 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
             if word in (os.curdir, os.pardir): continue
             path = os.path.join(path, word)
         return path
+
+    def is_tryton_url(self, path):
+        words = path.split('/')
+        try:
+            return words[2] in ('model', 'wizard', 'report')
+        except IndexError:
+            return False
+
+    def send_tryton_url(self, path):
+        self.send_response(301)
+        hostname = CONFIG['hostname'] or unicode(socket.getfqdn(), 'utf8')
+        hostname = '.'.join(encodings.idna.ToASCII(part) for part in
+            hostname.split('.'))
+        self.send_header('Location', 'tryton://%s%s' % (hostname, path))
+        self.end_headers()
 
 
 class SecureJSONRPCRequestHandler(SimpleJSONRPCRequestHandler):
