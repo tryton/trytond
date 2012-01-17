@@ -45,7 +45,14 @@ class Session(ModelSQL):
         find = False
         for session in sessions:
             timestamp = session.write_date or session.create_date
-            if abs((timestamp - now).total_seconds()) < timeout:
+            delta = timestamp - now
+            # total_seconds new in version 2.7
+            if hasattr(delta, 'total_seconds'):
+                delta = delta.total_seconds()
+            else:
+                delta = (delta.microseconds + (delta.seconds + delta.days * 24
+                        * 3600) * 10**6) / 10**6
+            if abs(delta) < timeout:
                 if session.key == key:
                     find = True
             else:
