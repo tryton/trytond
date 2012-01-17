@@ -113,13 +113,7 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
                 ConcurrencyException), exception:
             response['error'] = exception.args
         except Exception:
-            tb_s = ''
-            for line in traceback.format_exception(*sys.exc_info()):
-                try:
-                    line = line.encode('utf-8', 'ignore')
-                except Exception:
-                    continue
-                tb_s += line
+            tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
             for path in sys.path:
                 tb_s = tb_s.replace(path, '')
             if CONFIG['debug_mode']:

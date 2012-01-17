@@ -857,8 +857,7 @@ class ModelStorage(Model):
                 logger.error(exp)
                 # XXX should raise Exception
                 Transaction().cursor.rollback()
-                tb_s = reduce(lambda x, y: x + y,
-                        traceback.format_exception(*sys.exc_info()))
+                tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
                 warning = '%s\n%s' % (tb_s, warning)
                 return (-1, res, exp, warning)
             done += 1
