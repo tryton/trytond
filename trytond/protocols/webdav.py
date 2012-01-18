@@ -83,6 +83,8 @@ class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET,
                 socket.SO_REUSEADDR, 1)
+        self.socket.setsockopt(socket.SOL_SOCKET,
+            socket.SO_KEEPALIVE, 1)
         BaseHTTPServer.HTTPServer.server_bind(self)
 
 
@@ -137,10 +139,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if CONFIG['verbose'] and not isinstance(exception, (
                     NotLogged, ConcurrencyException, UserError, UserWarning,
                     DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden)):
-            tb_s = reduce(lambda x, y: x + y,
-                traceback.format_exception(*sys.exc_info()))
+            tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
             logger = logging.getLogger('webdav')
-            logger.error('Exception:\n' + tb_s.decode('utf-8', 'ignore'))
+            logger.error('Exception:\n' + tb_s)
 
     @staticmethod
     def get_dburi(uri):
