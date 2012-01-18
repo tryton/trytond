@@ -165,13 +165,12 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 if CONFIG['verbose'] and not isinstance(exception, (
                             NotLogged, ConcurrencyException, UserError,
                             UserWarning)):
-                    tb_s = reduce(lambda x, y: x + y,
-                            traceback.format_exception(*sys.exc_info()))
+                    tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
                     logger = logging.getLogger('dispatcher')
                     logger.error('Exception calling method %s on ' \
                             '%s %s from %s@%s:%d/%s:\n' % \
                             (method, object_type, object_name, user, host, port,
-                                database_name) + tb_s.decode('utf-8', 'ignore'))
+                                database_name) + tb_s)
                 transaction.cursor.rollback()
                 raise
         if not (object_name == 'res.request' and method == 'request_get'):
@@ -240,8 +239,7 @@ def create(database_name, password, lang, admin_password):
             res = True
     except Exception:
         logger.error('CREATE DB: %s failed' % (database_name,))
-        tb_s = reduce(lambda x, y: x+y,
-                traceback.format_exception(*sys.exc_info()))
+        tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
         logger.error('Exception in call: \n' + tb_s)
         raise
     else:
@@ -263,8 +261,7 @@ def drop(database_name, password):
             cursor.commit()
         except Exception:
             logger.error('DROP DB: %s failed' % (database_name,))
-            tb_s = reduce(lambda x, y: x+y,
-                    traceback.format_exception(*sys.exc_info()))
+            tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
             logger.error('Exception in call: \n' + tb_s)
             raise
         else:

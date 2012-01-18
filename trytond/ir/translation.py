@@ -1126,8 +1126,10 @@ class TranslationExport(Wizard):
         return 'result'
 
     def default_result(self, session, fields):
+        file_ = session.result.file
+        session.result.file = False # No need to store it in session
         return {
-            'file': session.result.file,
+            'file': file_,
             }
 
 TranslationExport()

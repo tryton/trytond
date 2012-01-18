@@ -104,8 +104,7 @@ class Cron(ModelSQL, ModelView):
         return _INTERVALTYPES[cron.interval_type](cron.interval_number)
 
     def _get_request_values(self, cron):
-        tb_s = reduce(lambda x, y: x + y,
-                traceback.format_exception(*sys.exc_info()))
+        tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
         tb_s = tb_s.decode('utf-8', 'ignore')
         name = self.raise_user_error('request_title',
             raise_exception=False)
