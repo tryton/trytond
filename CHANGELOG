@@ -1,3 +1,4 @@
+* Add extras_depend to module definition
 * Store session in database
 * New Wizard design
 * Add pyson.Id
