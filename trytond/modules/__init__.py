@@ -76,8 +76,10 @@ class Node(Singleton):
         super(Node, self).__init__()
         self.name = name
         self.graph = graph
-        if not hasattr(self, 'datas'):
-            self.datas = None
+
+        # __init__ is called even if Node already exists
+        if not hasattr(self, 'info'):
+            self.info = None
         if not hasattr(self, 'childs'):
             self.childs = []
         if not hasattr(self, 'depth'):
@@ -153,25 +155,28 @@ def create_graph(module_list, force=None):
         if os.path.isfile(tryton_file):
             with tools.file_open(tryton_file, subdir='') as fp:
                 info = tools.safe_eval(fp.read())
-            packages.append((module, info.get('depends', []), info))
+            packages.append((module, info.get('depends', []),
+                    info.get('extras_depend', []), info))
         elif module != 'all':
             raise Exception('Module %s not found' % module)
 
     current, later = set([x[0] for x in packages]), set()
+    all_packages = set(current)
     while packages and current > later:
-        package, deps, datas = packages[0]
+        package, deps, xdep, info = packages[0]
 
         # if all dependencies of 'package' are already in the graph,
         # add 'package' in the graph
-        if reduce(lambda x, y: x and y in graph, deps, True):
+        all_deps = deps + [x for x in xdep if x in all_packages]
+        if reduce(lambda x, y: x and y in graph, all_deps, True):
             if not package in current:
                 packages.pop(0)
                 continue
             later.clear()
             current.remove(package)
-            graph.add_node(package, deps)
+            graph.add_node(package, all_deps)
             node = Node(package, graph)
-            node.datas = datas
+            node.info = info
             for kind in ('init', 'update'):
                 if (package in CONFIG[kind]) \
                         or (('all' in CONFIG[kind]) \
@@ -180,10 +185,10 @@ def create_graph(module_list, force=None):
                     setattr(node, kind, True)
         else:
             later.add(package)
-            packages.append((package, deps, datas))
+            packages.append((package, deps, xdep, info))
         packages.pop(0)
 
-    for package, deps, datas in packages:
+    for package, deps, xdep, info in packages:
         if package not in later:
             continue
         missings = [x for x in deps if x not in graph]
@@ -229,7 +234,7 @@ def load_module_graph(graph, pool, lang=None):
             #Instanciate a new parser for the package:
             tryton_parser = convert.TrytondXmlHandler(pool=pool, module=module)
 
-            for filename in package.datas.get('xml', []):
+            for filename in package.info.get('xml', []):
                 filename = filename.replace('/', os.sep)
                 mode = 'update'
                 if hasattr(package, 'init') or package_state == 'to install':
@@ -251,7 +256,7 @@ def load_module_graph(graph, pool, lang=None):
 
             modules_todo.append((module, list(tryton_parser.to_delete)))
 
-            for filename in package.datas.get('translation', []):
+            for filename in package.info.get('translation', []):
                 filename = filename.replace('/', os.sep)
                 lang2 = os.path.splitext(os.path.basename(filename))[0]
                 if lang2 not in lang:
