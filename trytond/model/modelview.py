@@ -231,6 +231,7 @@ class ModelView(Model):
             return True
         return result
 
+    @Cache('modelview.view_toolbar_get')
     def view_toolbar_get(self):
         """
         Returns the model specific actions.

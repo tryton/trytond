@@ -9,6 +9,7 @@ from ..pyson import PYSONEncoder, CONTEXT, PYSON
 from ..transaction import Transaction
 from ..pool import Pool
 from ..exceptions import UserError
+from ..cache import Cache
 
 EMAIL_REFKEYS = set(('cc', 'to', 'subject'))
 
@@ -96,7 +97,7 @@ class ActionKeyword(ModelSQL, ModelView):
             ], string='Keyword', required=True)
     model = fields.Reference('Model', selection='models_get')
     action = fields.Many2One('ir.action', 'Action',
-            ondelete='CASCADE')
+        ondelete='CASCADE', select=True)
 
     def __init__(self):
         super(ActionKeyword, self).__init__()
@@ -107,6 +108,12 @@ class ActionKeyword(ModelSQL, ModelView):
         self._error_messages.update({
             'wrong_wizard_model': 'Wrong wizard model!',
         })
+
+    def init(self, module_name):
+        super(ActionKeyword, self).init(module_name)
+
+        table = TableHandler(Transaction().cursor, self, module_name)
+        table.index_action(['keyword', 'model'], 'add')
 
     def check_wizard_model(self, ids):
         pool = Pool()
@@ -151,6 +158,12 @@ class ActionKeyword(ModelSQL, ModelView):
                         ).fields_view_get.reset()
             except Exception:
                 pass
+            try:
+                pool.get(keyword.model.split(',')[0]
+                    ).view_toolbar_get.reset()
+            except Exception:
+                pass
+        self.get_keyword.reset()
         return super(ActionKeyword, self).delete(ids)
 
     def create(self, vals):
@@ -163,6 +176,12 @@ class ActionKeyword(ModelSQL, ModelView):
                         ).fields_view_get.reset()
             except Exception:
                 pass
+            try:
+                pool.get(vals['model'].split(',')[0]
+                    ).view_toolbar_get.reset()
+            except Exception:
+                pass
+        self.get_keyword.reset()
         return super(ActionKeyword, self).create(vals)
 
     def write(self, ids, vals):
@@ -177,6 +196,12 @@ class ActionKeyword(ModelSQL, ModelView):
                         ).fields_view_get.reset()
             except Exception:
                 pass
+            try:
+                pool.get(keyword.model.split(',')[0]
+                    ).view_toolbar_get.reset()
+            except Exception:
+                pass
+        self.get_keyword.reset()
         res = super(ActionKeyword, self).write(ids, vals)
         for keyword in self.browse(ids):
             # Restart the cache view
@@ -185,8 +210,14 @@ class ActionKeyword(ModelSQL, ModelView):
                         ).fields_view_get.reset()
             except Exception:
                 pass
+            try:
+                pool.get(keyword.model.split(',')[0]
+                    ).view_toolbar_get.reset()
+            except Exception:
+                pass
         return res
 
+    @Cache('ir_action_keyword.get_keyword')
     def get_keyword(self, keyword, value):
         pool = Pool()
         action_obj = pool.get('ir.action')
