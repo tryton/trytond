@@ -152,7 +152,7 @@ class _SessionRecord(object):
         self._model = model
         self._data = data
         self.__cache = {}
-	self.dirty = False
+        self.dirty = False
 
     def __getattr__(self, name):
         if name in self.__cache:
@@ -183,7 +183,7 @@ class _SessionRecord(object):
                     or name in self._model._inherit_fields)):
             self.__cache.pop(name, None)
             self._data[name] = value
-	    self.dirty = True
+            self.dirty = True
         else:
             super(_SessionRecord, self).__setattr__(name, value)
 
@@ -209,12 +209,12 @@ class Session(object):
     @property
     def dirty(self):
         return any(getattr(self, state_name).dirty
-	    for state_name in self.data)
+            for state_name in self.data)
 
     def save(self):
         "Save the session in database"
         session_obj = Pool().get('ir.session.wizard')
-	if self.dirty:
+        if self.dirty:
             session_obj.write(self._session.id, {
                     'data': json.dumps(self.data, cls=JSONEncoder),
                     })
