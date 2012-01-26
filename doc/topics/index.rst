@@ -15,5 +15,6 @@ Introduction to all the key parts of trytond:
     pyson
     views/index
     views/extension
+    wizard
     reports/index
     modules/index
