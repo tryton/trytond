@@ -314,13 +314,11 @@ class Model(WarningErrorMixin, URLMixin):
             trans_name = self._name + ',' + field_name
             string_md5 = translation_obj.get_src_md5(field.string)
             if trans_name not in trans_fields:
-                if field_name not in ('create_uid', 'create_date',
-                            'write_uid', 'write_date', 'id'):
-                    cursor.execute('INSERT INTO ir_translation '
-                        '(name, lang, type, src, src_md5, value, module, fuzzy) '
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                        (trans_name, 'en_US', 'field', field.string,
-                            string_md5, '', module_name, False))
+                cursor.execute('INSERT INTO ir_translation '
+                    '(name, lang, type, src, src_md5, value, module, fuzzy) '
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                    (trans_name, 'en_US', 'field', field.string,
+                        string_md5, '', module_name, False))
             elif trans_fields[trans_name]['src'] != field.string:
                 cursor.execute('UPDATE ir_translation '
                     'SET src = %s, src_md5 = %s '
