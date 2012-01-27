@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 import contextlib
 from itertools import islice, ifilter, ifilterfalse, chain
+from trytond.config import CONFIG
 from trytond.model import fields
 from trytond.transaction import Transaction
 from trytond.pool import Pool
@@ -262,7 +263,7 @@ class BrowseRecord(object):
 
     def setLang(self, lang):
         self._context = self._context.copy()
-        prev_lang = self._context.get('language') or 'en_US'
+        prev_lang = self._context.get('language') or CONFIG['language']
         self._context['language'] = lang
         for cache in (self._cache, {self._model_name: self._local_data}):
             language_cache = cache.setdefault('_language_cache', {})

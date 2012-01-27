@@ -1,3 +1,5 @@
+* Remove underscore to ir.translation methods
+* Add default database language code
 * Add extras_depend to module definition
 * Store session in database
 * New Wizard design

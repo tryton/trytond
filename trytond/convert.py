@@ -364,7 +364,8 @@ class Fs2bdAccessor:
                     ids = model_obj.search([
                         ('id', 'in', sub_record_ids),
                         ])
-                models = model_obj.browse(ids)
+                with Transaction().set_context(language='en_US'):
+                    models = model_obj.browse(ids)
                 for model in models:
                     self.browserecord[module][model_name][model.id] = model
         self.fetched_modules.append(module)

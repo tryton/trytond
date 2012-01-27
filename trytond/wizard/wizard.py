@@ -94,7 +94,7 @@ class StateView(State):
             return (','.join((wizard._name, state_name, button.state)),
                 'wizard_button', Transaction().language, button.string)
         translation_keys = [translation_key(button) for button in self.buttons]
-        translations = translation_obj._get_sources(translation_keys)
+        translations = translation_obj.get_sources(translation_keys)
         encoder = PYSONEncoder()
         result = []
         for button in self.buttons:

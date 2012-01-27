@@ -417,14 +417,14 @@ class ModelView(Model):
 
                                 def _translate_field(field):
                                     if field.get('string'):
-                                        trans = translation_obj._get_source(
+                                        trans = translation_obj.get_source(
                                                 self._name, 'view',
                                                 Transaction().language,
                                                 field.get('string'))
                                         if trans:
                                             field.set('string', trans)
                                     if field.get('sum'):
-                                        trans = translation_obj._get_source(
+                                        trans = translation_obj.get_source(
                                                 self._name, 'view',
                                                 Transaction().language,
                                                 field.get('sum'))
@@ -462,7 +462,7 @@ class ModelView(Model):
         if Transaction().language != 'en_US' and not result:
             for attr in ('string', 'sum', 'confirm', 'help'):
                 if element.get(attr):
-                    trans = translation_obj._get_source(self._name, 'view',
+                    trans = translation_obj.get_source(self._name, 'view',
                             Transaction().language, element.get(attr))
                     if trans:
                         element.set(attr, trans)

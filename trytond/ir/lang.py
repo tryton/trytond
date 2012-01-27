@@ -8,6 +8,7 @@ from ..model.cacheable import Cacheable
 from ..tools import safe_eval, datetime_strftime
 from ..transaction import Transaction
 from ..pool import Pool
+from ..config import CONFIG
 from .time_locale import TIME_LOCALE
 
 warnings.filterwarnings('ignore', "", ImportWarning)
@@ -67,21 +68,18 @@ class Lang(ModelSQL, ModelView, Cacheable):
         if (Transaction().context.get('translate_name')
                 and (not fields_names or 'name' in fields_names)):
             with Transaction().set_context(
-                    language=self.default_code(),
+                    language=CONFIG['language'],
                     translate_name=False):
                 res2 = self.read(ids, fields_names=['id', 'code', 'name'])
             for record2 in res2:
                 for record in res:
                     if record['id'] == record2['id']:
                         break
-                res_trans = translation_obj._get_ids(self._name + ',name',
+                res_trans = translation_obj.get_ids(self._name + ',name',
                         'model', record2['code'], [record2['id']])
                 record['name'] = res_trans.get(record2['id'], False) \
                         or record2['name']
         return res
-
-    def default_code(self):
-        return 'en_US'
 
     def default_active(self):
         return True

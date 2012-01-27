@@ -8,6 +8,7 @@ from ..wizard import Wizard, StateView, StateAction, Button
 from ..transaction import Transaction
 from ..cache import Cache
 from ..pool import Pool
+from ..pyson import Bool, Eval
 IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 
 
@@ -15,11 +16,23 @@ class Model(ModelSQL, ModelView):
     "Model"
     _name = 'ir.model'
     _description = __doc__
-    name = fields.Char('Model Description', translate=True, loading='lazy')
-    model = fields.Char('Model Name', required=True)
-    info = fields.Text('Information')
+    name = fields.Char('Model Description', translate=True, loading='lazy',
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
+    model = fields.Char('Model Name', required=True,
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
+    info = fields.Text('Information',
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
     module = fields.Char('Module',
-       help="Module in which this model is defined")
+       help="Module in which this model is defined", readonly=True)
     fields = fields.One2Many('ir.model.field', 'model', 'Fields',
        required=True)
 
@@ -77,16 +90,40 @@ class ModelField(ModelSQL, ModelView):
     "Model field"
     _name = 'ir.model.field'
     _description = __doc__
-    name = fields.Char('Name', required=True)
-    relation = fields.Char('Model Relation')
+    name = fields.Char('Name', required=True,
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
+    relation = fields.Char('Model Relation',
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
     model = fields.Many2One('ir.model', 'Model', required=True,
-       select=1, ondelete='CASCADE')
+        select=1, ondelete='CASCADE',
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
     field_description = fields.Char('Field Description', translate=True,
-            loading='lazy')
-    ttype = fields.Char('Field Type')
+        loading='lazy',
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
+    ttype = fields.Char('Field Type',
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
     groups = fields.Many2Many('ir.model.field-res.group', 'field_id',
             'group_id', 'Groups')
-    help = fields.Text('Help', translate=True, loading='lazy')
+    help = fields.Text('Help', translate=True, loading='lazy',
+        states={
+            'readonly': Bool(Eval('module')),
+            },
+        depends=['module'])
     module = fields.Char('Module',
        help="Module in which this field is defined")
 
@@ -170,20 +207,20 @@ class ModelField(ModelSQL, ModelView):
                 if 'help' in fields_names:
                     trans_args.append((id2model[model_id] + ',' + rec['name'],
                             'help', Transaction().language, None))
-            translation_obj._get_sources(trans_args)
+            translation_obj.get_sources(trans_args)
             for rec in res:
                 if isinstance(rec['model'], (list, tuple)):
                     model_id = rec['model'][0]
                 else:
                     model_id = rec['model']
                 if 'field_description' in fields_names:
-                    res_trans = translation_obj._get_source(
+                    res_trans = translation_obj.get_source(
                             id2model[model_id] + ',' + rec['name'],
                             'field', Transaction().language)
                     if res_trans:
                         rec['field_description'] = res_trans
                 if 'help' in fields_names:
-                    res_trans = translation_obj._get_source(
+                    res_trans = translation_obj.get_source(
                             id2model[model_id] + ',' + rec['name'],
                             'help', Transaction().language)
                     if res_trans:

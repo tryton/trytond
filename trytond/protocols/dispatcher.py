@@ -216,10 +216,9 @@ def create(database_name, password, lang, admin_password):
         with Transaction().start(database_name, 0) as transaction:
             cursor = transaction.cursor
             #XXX replace with model write
-            if lang != 'en_US':
-                cursor.execute('UPDATE ir_lang ' \
-                        'SET translatable = %s ' \
-                        'WHERE code = %s', (True, lang))
+            cursor.execute('UPDATE ir_lang ' \
+                    'SET translatable = %s ' \
+                    'WHERE code = %s', (True, lang))
             cursor.execute('UPDATE res_user ' \
                     'SET language = (' + \
                         cursor.limit_clause('SELECT id FROM ir_lang ' \

@@ -15,6 +15,7 @@ try:
 except ImportError:
     from md5 import md5
 from functools import reduce
+from ..config import CONFIG
 from ..model import ModelView, ModelSQL, fields
 from ..model.cacheable import Cacheable
 from ..wizard import Wizard, StateView, StateTransition, StateAction, \
@@ -141,7 +142,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
     def get_src_md5(self, src):
         return md5((src or '').encode('utf-8')).hexdigest()
 
-    def _get_ids(self, name, ttype, lang, ids):
+    def get_ids(self, name, ttype, lang, ids):
+        "Return translation for each id"
         pool = Pool()
         model_fields_obj = pool.get('ir.model.field')
         model_obj = pool.get('ir.model')
@@ -170,14 +172,14 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 else:
                     name = record.model + ',' + field_name
                 trans_args.append((name, ttype, lang, None))
-            self._get_sources(trans_args)
+            self.get_sources(trans_args)
 
             for record in records:
                 if ttype in ('field', 'help'):
                     name = record.model.model + ',' + record.name
                 else:
                     name = record.model + ',' + field_name
-                translations[record.id] = self._get_source(name, ttype, lang)
+                translations[record.id] = self.get_source(name, ttype, lang)
             return translations
         for obj_id in ids:
             trans = self.get((lang, ttype, name, obj_id))
@@ -209,13 +211,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 translations[res_id] = False
         return translations
 
-    def _set_ids(self, name, ttype, lang, ids, value):
+    def set_ids(self, name, ttype, lang, ids, value):
+        "Set translation for each id"
         pool = Pool()
         model_fields_obj = pool.get('ir.model.field')
         model_obj = pool.get('ir.model')
-
-        if lang == 'en_US':
-            return 0
 
         model_name, field_name = name.split(',')
         if model_name in ('ir.model.field', 'ir.model'):
@@ -224,10 +224,12 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     ttype = 'field'
                 else:
                     ttype = 'help'
-                records = model_fields_obj.browse(ids)
+                with Transaction().set_context(language='en_US'):
+                    records = model_fields_obj.browse(ids)
             else:
                 ttype = 'model'
-                records = model_obj.browse(ids)
+                with Transaction().set_context(language='en_US'):
+                    records = model_obj.browse(ids)
             for record in records:
                 if ttype in ('field', 'help'):
                     name = record.model + ',' + record.name
@@ -254,7 +256,9 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             })
             return len(ids)
         model_obj = pool.get(model_name)
-        for record in model_obj.browse(ids):
+        with Transaction().set_context(language=CONFIG['language']):
+            records = model_obj.browse(ids)
+        for record in records:
             ids2 = self.search([
                 ('lang', '=', lang),
                 ('type', '=', ttype),
@@ -278,9 +282,23 @@ class Translation(ModelSQL, ModelView, Cacheable):
                         'src': record[field_name],
                         'fuzzy': False,
                         })
+                    if (lang == CONFIG['language']
+                            and Transaction().context.get('fuzzy_translation',
+                                True)):
+                        other_lang_ids = self.search([
+                                ('lang', '!=', lang),
+                                ('type', '=', ttype),
+                                ('name', '=', name),
+                                ('res_id', '=', record.id),
+                                ])
+                        self.write(other_lang_ids, {
+                                'src': record[field_name],
+                                'fuzzy': True,
+                                })
         return len(ids)
 
-    def _get_source(self, name, ttype, lang, source=None):
+    def get_source(self, name, ttype, lang, source=None):
+        "Return translation for source"
         name = unicode(name)
         ttype = unicode(ttype)
         lang = unicode(lang)
@@ -322,7 +340,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             self.add((lang, ttype, name, source), False)
             return False
 
-    def _get_sources(self, args):
+    def get_sources(self, args):
         '''
         Take a list of (name, ttype, lang, source).
         Add the translations to the cache.
@@ -334,7 +352,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
         if len(args) > cursor.IN_MAX:
             for i in range(0, len(args), cursor.IN_MAX):
                 sub_args = args[i:i + cursor.IN_MAX]
-                res.update(self._get_sources(sub_args))
+                res.update(self.get_sources(sub_args))
             return res
         for name, ttype, lang, source in args:
             name = unicode(name)
@@ -541,7 +559,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             'Content-Type': 'text/plain; charset=utf-8',
             }
 
-        with Transaction().set_context(language='en_US'):
+        with Transaction().set_context(language=CONFIG['language']):
             translation_ids = self.search([
                 ('lang', '=', lang),
                 ('module', '=', module),
@@ -1072,7 +1090,10 @@ class TranslationExportStart(ModelView):
     _name = 'ir.translation.export.start'
     _description = __doc__
     language = fields.Many2One('ir.lang', 'Language', required=True,
-        domain=[('translatable', '=', True)])
+        domain=[
+            ('translatable', '=', True),
+            ('code', '!=', 'en_US'),
+            ])
     module = fields.Many2One('ir.module.module', 'Module', required=True,
         domain=[
             ('state', 'in', ['installed', 'to upgrade', 'to remove']),
