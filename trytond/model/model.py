@@ -3,6 +3,7 @@
 
 import copy
 import collections
+from trytond.config import CONFIG
 from trytond.model import fields
 from trytond.error import WarningErrorMixin
 from trytond.pool import Pool
@@ -476,7 +477,7 @@ class Model(WarningErrorMixin, URLMixin):
                 raise_exception=False)
 
         #Add translation to cache
-        language = Transaction().context.get('language') or 'en_US'
+        language = Transaction().language
         trans_args = []
         for field in (x for x in self._columns.keys()
                 if ((not fields_names) or x in fields_names)):
@@ -495,7 +496,7 @@ class Model(WarningErrorMixin, URLMixin):
                     for (key, val) in sel:
                         trans_args.append((self._name + ',' + field,
                             'selection', language, val))
-        translation_obj._get_sources(trans_args)
+        translation_obj.get_sources(trans_args)
 
         encoder = PYSONEncoder()
 
@@ -552,12 +553,12 @@ class Model(WarningErrorMixin, URLMixin):
 
             if Transaction().context.get('language'):
                 # translate the field label
-                res_trans = translation_obj._get_source(
+                res_trans = translation_obj.get_source(
                         self._name + ',' + field, 'field',
                         Transaction().context['language'])
                 if res_trans:
                     res[field]['string'] = res_trans
-                help_trans = translation_obj._get_source(
+                help_trans = translation_obj.get_source(
                         self._name + ',' + field, 'help',
                         Transaction().context['language'])
                 if help_trans:
@@ -575,7 +576,7 @@ class Model(WarningErrorMixin, URLMixin):
                         # translate each selection option
                         sel2 = []
                         for (key, val) in sel:
-                            val2 = translation_obj._get_source(
+                            val2 = translation_obj.get_source(
                                     self._name + ',' + field, 'selection',
                                     language, val)
                             sel2.append((key, val2 or val))

@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 import traceback
 import sys
 import logging
+from ..config import CONFIG
 from ..model import ModelView, ModelSQL, fields
 from ..tools import safe_eval
 from ..transaction import Transaction
@@ -140,7 +141,7 @@ class Cron(ModelSQL, ModelView):
             request_obj = pool.get('res.request')
             req_user = cron.request_user
             language = (req_user.language.code if req_user.language
-                    else 'en_US')
+                    else CONFIG['language'])
             with contextlib.nested(Transaction().set_user(cron.user.id),
                     Transaction().set_context(language=language)):
                 values = self._get_request_values(cron)

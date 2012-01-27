@@ -18,6 +18,7 @@ from ..transaction import Transaction
 from ..cache import Cache
 from ..pyson import Eval, Bool
 from ..pool import Pool
+from ..config import CONFIG
 
 
 class User(ModelSQL, ModelView):
@@ -42,7 +43,10 @@ class User(ModelSQL, ModelView):
        'user', 'rule_group', 'Rules',
        domain=[('global_p', '!=', True), ('default_p', '!=', True)])
     language = fields.Many2One('ir.lang', 'Language',
-            domain=['OR', ('translatable', '=', True), ('code', '=', 'en_US')])
+        domain=['OR',
+            ('translatable', '=', True),
+            ('code', '=', CONFIG['language']),
+            ])
     language_direction = fields.Function(fields.Char('Language Direction'),
             'get_language_direction')
     timezone = fields.Selection('timezones', 'Timezone')
@@ -269,7 +273,7 @@ class User(ModelSQL, ModelView):
                     if user.language:
                         res['language'] = user.language.code
                     else:
-                        res['language'] = 'en_US'
+                        res['language'] = CONFIG['language']
                 else:
                     res[field] = user[field].id
             elif self._columns[field]._type in ('one2many', 'many2many'):
@@ -346,9 +350,9 @@ class User(ModelSQL, ModelView):
             res['fields']['language']['type'] = 'selection'
             res['fields']['language']['selection'] = []
             lang_ids = lang_obj.search(['OR',
-                ('translatable', '=', True),
-                ('code', '=', 'en_US'),
-                ])
+                    ('translatable', '=', True),
+                    ('code', '=', CONFIG['language']),
+                    ])
             with Transaction().set_context(translate_name=True):
                 for lang in lang_obj.browse(lang_ids):
                     res['fields']['language']['selection'].append(

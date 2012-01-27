@@ -342,7 +342,7 @@ class ModelStorage(Model):
                 ])
             if lang_ids:
                 lang_ids += lang_obj.search([
-                    ('code', '=', 'en_US'),
+                    ('code', '=', CONFIG['language']),
                     ])
                 langs = lang_obj.browse(lang_ids)
                 for lang in langs:

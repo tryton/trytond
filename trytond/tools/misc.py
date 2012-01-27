@@ -135,15 +135,6 @@ def get_smtp_server():
 
     return smtp_server
 
-def find_language_context(args, kargs=None):
-    if kargs is None:
-        kargs = {}
-    res = 'en_US'
-    for arg in args:
-        if isinstance(arg, dict):
-            res = arg.get('language', 'en_US')
-    return kargs.get('context', {}).get('language', res)
-
 def memoize(maxsize):
     """
     Decorator to 'memoize' a function - caching its results with a

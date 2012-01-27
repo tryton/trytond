@@ -6,6 +6,7 @@ import re
 from functools import reduce
 from decimal import Decimal
 from itertools import islice
+from trytond.config import CONFIG
 from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
@@ -406,7 +407,7 @@ class ModelSQL(ModelStorage):
 
         for field in values:
             if getattr(self._columns[field], 'translate', False):
-                pool.get('ir.translation')._set_ids(
+                pool.get('ir.translation').set_ids(
                         self._name + ',' + field, 'model',
                         Transaction().language, [id_new], values[field])
 
@@ -557,7 +558,7 @@ class ModelSQL(ModelStorage):
                 continue
             if getattr(self._columns[field], 'translate', False):
                 ids = [x['id'] for x in res]
-                res_trans = translation_obj._get_ids( self._name + ',' + field,
+                res_trans = translation_obj.get_ids( self._name + ',' + field,
                         'model', Transaction().language, ids)
                 for i in res:
                     i[field] = res_trans.get(i['id'], False) or i[field]
@@ -801,7 +802,7 @@ class ModelSQL(ModelStorage):
             if field in self._columns:
                 if not hasattr(self._columns[field], 'set'):
                     if ((not getattr(self._columns[field], 'translate', False))
-                            or (Transaction().language == 'en_US')):
+                            or (Transaction().language == CONFIG['language'])):
                         upd0.append(('"' + field + '"', '%s'))
                         upd1.append(FIELDS[self._columns[field]._type]\
                                 .sql_format(values[field]))
@@ -913,7 +914,7 @@ class ModelSQL(ModelStorage):
 
         for field in direct:
             if getattr(self._columns[field], 'translate', False):
-                translation_obj._set_ids(
+                translation_obj.set_ids(
                         self._name + ',' + field, 'model',
                         Transaction().language, ids, values[field])
 

@@ -197,7 +197,7 @@ def create_graph(module_list, force=None):
 
 def load_module_graph(graph, pool, lang=None):
     if lang is None:
-        lang = ['en_US']
+        lang = [CONFIG['language']]
     modules_todo = []
     models_to_update_history = set()
     logger = logging.getLogger('modules')
