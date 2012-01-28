@@ -529,7 +529,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             module_data_ids))
 
     def import_record(self, model, values, fs_id):
-        cursor = Transaction().cursor
         module = self.module
 
         if not fs_id:
@@ -547,7 +546,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         (module, fs_id))
 
         object_ref = self.pool.get(model)
-        translation_obj = self.pool.get('ir.translation')
 
         if self.fs2db.get(module, fs_id):
 
@@ -597,46 +595,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 for table, field_name, field in \
                         object_ref._inherit_fields.values():
                     inherit_db_ids[table] = record[field_name].id
-
-                #Add a translation record for field translatable
-                for field_name in object_ref._columns.keys() + \
-                        object_ref._inherit_fields.keys():
-                    if field_name in object_ref._columns:
-                        field = object_ref._columns[field_name]
-                        table_name = object_ref._name
-                        res_id = db_id
-                    else:
-                        field = object_ref._inherit_fields[field_name][2]
-                        table_name = self.pool.get(
-                                object_ref._inherit_fields[field_name][0])._name
-                        res_id = inherit_db_ids[table_name]
-                    if getattr(field, 'translate', False) and \
-                            values.get(field_name):
-                        cursor.execute('SELECT id FROM ir_translation ' \
-                                'WHERE name = %s ' \
-                                    'AND lang = %s ' \
-                                    'AND type = %s ' \
-                                    'AND res_id = %s ' \
-                                    'AND module = %s',
-                                (table_name + ',' + field_name,
-                                    'en_US', 'model', res_id, module))
-                        fetchone = cursor.fetchone()
-                        src_md5 = translation_obj.get_src_md5(
-                            values[field_name])
-                        if fetchone:
-                            trans_id = fetchone[0]
-                            cursor.execute('UPDATE ir_translation '
-                                'SET src = %s, src_md5 = %s, module = %s '
-                                'WHERE id = %s',
-                                (values[field_name], src_md5, module, trans_id))
-                        else:
-                            cursor.execute('INSERT INTO ir_translation '
-                                '(name, lang, type, src, src_md5, res_id, '
-                                    'value, module, fuzzy) '
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                                (table_name + ',' + field_name, 'en_US',
-                                    'model', values[field_name], src_md5,
-                                    res_id, '', module, False))
 
                 for table in inherit_db_ids.keys():
                     data_id = self.modeldata_obj.search([
@@ -747,50 +705,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         ], limit=1)
                     inherit_mdata_ids.append((table, data_id))
 
-            #Update/Create translation record for field translatable
-            if to_update:
-                for field_name in object_ref._columns.keys() + \
-                        object_ref._inherit_fields.keys():
-                    if field_name in object_ref._columns:
-                        field = object_ref._columns[field_name]
-                        table_name = object_ref._name
-                        res_id = db_id
-                    else:
-                        field = object_ref._inherit_fields[field_name][2]
-                        table_name = self.pool.get(
-                                object_ref._inherit_fields[field_name][0])._name
-                        res_id = inherit_db_ids[table_name]
-                    if getattr(field, 'translate', False):
-                        cursor.execute('SELECT id FROM ir_translation ' \
-                                'WHERE name = %s ' \
-                                    'AND lang = %s ' \
-                                    'AND type = %s ' \
-                                    'AND res_id = %s ' \
-                                    'AND module = %s',
-                                (table_name + ',' + field_name,
-                                    'en_US', 'model', res_id, module))
-                        fetchone = cursor.fetchone()
-                        if fetchone:
-                            if to_update.get(field_name):
-                                src_md5 = translation_obj.get_src_md5(
-                                    to_update[field_name])
-                                trans_id = fetchone[0]
-                                cursor.execute('UPDATE ir_translation '
-                                    'SET src = %s, src_md5 = %s, module = %s '
-                                    'WHERE id = %s',
-                                    (to_update[field_name], src_md5, module,
-                                        trans_id))
-                        elif values.get(field_name):
-                            src_md5 = translation_obj.get_src_md5(
-                                values[field_name])
-                            cursor.execute('INSERT INTO ir_translation '
-                                '(name, lang, type, src, src_md5, res_id, '
-                                        'value, module, fuzzy) '
-                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                                (table_name + ',' + field_name, 'en_US',
-                                    'model', values[field_name], src_md5,
-                                    res_id, '', module, False))
-
             if to_update:
                 # re-read it: this ensure that we store the real value
                 # in the model_data table:
@@ -836,51 +750,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             record = object_ref.browse(db_id)
             for table, field_name, field in object_ref._inherit_fields.values():
                 inherit_db_ids[table] = record[field_name].id
-
-            #Add a translation record for field translatable
-            for field_name in object_ref._columns.keys() + \
-                    object_ref._inherit_fields.keys():
-                if field_name in object_ref._columns:
-                    field = object_ref._columns[field_name]
-                    table_name = object_ref._name
-                    res_id = db_id
-                else:
-                    field = object_ref._inherit_fields[field_name][2]
-                    table_name = self.pool.get(
-                            object_ref._inherit_fields[field_name][0])._name
-                    res_id = inherit_db_ids[table_name]
-                if getattr(field, 'translate', False) and \
-                        values.get(field_name):
-                    cursor.execute('SELECT id FROM ir_translation ' \
-                            'WHERE name = %s' \
-                                'AND lang = %s ' \
-                                'AND type = %s ' \
-                                'AND res_id = %s ' \
-                                'AND module = %s',
-                            (table_name + ',' + field_name,
-                                'en_US', 'model', res_id, module))
-                    trans_id = None
-                    if cursor.rowcount == -1 or cursor.rowcount is None:
-                        data = cursor.fetchone()
-                        if data:
-                            trans_id, = data
-                    elif cursor.rowcount != 0:
-                        trans_id, = cursor.fetchone()
-                    src_md5 = translation_obj.get_src_md5(values[field_name]
-                        or '')
-                    if trans_id:
-                        cursor.execute('UPDATE ir_translation '
-                            'SET src = %s, src_md5 = %s, module = %s '
-                            'WHERE id = %s',
-                            (values[field_name], src_md5, module, trans_id))
-                    else:
-                        cursor.execute('INSERT INTO ir_translation '
-                            '(name, lang, type, src, src_md5, res_id, '
-                                'value, module, fuzzy) '
-                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                            (table_name + ',' + field_name, 'en_US', 'model',
-                                values[field_name], src_md5, res_id, '',
-                                module, False))
 
             # re-read it: this ensure that we store the real value
             # in the model_data table:
