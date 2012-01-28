@@ -300,7 +300,7 @@ class Report(URLMixin):
                 code = lang.code
             else:
                 locale_format = lang_obj.default_date()
-                code = lang_obj.default_code()
+                code = CONFIG['language']
             if not isinstance(value, time.struct_time):
                 # assume string, parse it
                 if len(str(value)) == 10:
