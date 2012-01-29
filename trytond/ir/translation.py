@@ -409,7 +409,10 @@ class Translation(ModelSQL, ModelView, Cacheable):
         self.fields_view_get.reset()
         cursor = Transaction().cursor
         if not vals.get('module'):
-            if vals.get('type', '') in ('odt', 'view', 'wizard_button',
+            if Transaction().context.get('module'):
+                vals = vals.copy()
+                vals['module'] = Transaction().context['module']
+            elif vals.get('type', '') in ('odt', 'view', 'wizard_button',
                     'selection', 'error'):
                 cursor.execute('SELECT module FROM ir_translation '
                     'WHERE name = %s '
