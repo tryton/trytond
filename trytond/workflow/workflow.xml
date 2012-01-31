@@ -103,56 +103,8 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="join_mode"/>
                     <label name="split_mode"/>
                     <field name="split_mode"/>
-                    <field name="out_transitions" colspan="4">
-                        <tree string="Transitions">
-                            <field name="act_to"/>
-                            <field name="signal"/>
-                            <field name="group"/>
-                            <field name="condition"/>
-                            <field name="trigger_model"/>
-                            <field name="trigger_ids"/>
-                        </tree>
-                        <form string="Transition">
-                            <label name="act_to"/>
-                            <field name="act_to" colspan="3"/>
-                            <newline/>
-                            <label name="condition"/>
-                            <field name="condition" colspan="3"/>
-                            <label name="signal"/>
-                            <field name="signal"/>
-                            <label name="group"/>
-                            <field name="group"/>
-                            <label name="trigger_model"/>
-                            <field name="trigger_model"/>
-                            <label name="trigger_ids"/>
-                            <field name="trigger_ids"/>
-                        </form>
-                    </field>
-                    <field name="in_transitions" colspan="4">
-                        <tree string="Transitions">
-                            <field name="act_from"/>
-                            <field name="signal"/>
-                            <field name="group"/>
-                            <field name="condition"/>
-                            <field name="trigger_model"/>
-                            <field name="trigger_ids"/>
-                        </tree>
-                        <form string="Transition">
-                            <label name="act_from"/>
-                            <field name="act_from" colspan="3"/>
-                            <newline/>
-                            <label name="condition"/>
-                            <field name="condition" colspan="3"/>
-                            <label name="signal"/>
-                            <field name="signal"/>
-                            <label name="group"/>
-                            <field name="group"/>
-                            <label name="trigger_model"/>
-                            <field name="trigger_model"/>
-                            <label name="trigger_ids"/>
-                            <field name="trigger_ids"/>
-                        </form>
-                    </field>
+                    <field name="out_transitions" colspan="4"/>
+                    <field name="in_transitions" colspan="4"/>
                 </form>
                 ]]>
             </field>

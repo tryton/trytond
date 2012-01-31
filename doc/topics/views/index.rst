@@ -194,6 +194,9 @@ Display a field of the object with the value of the current record.
       specifies the order of the view used to display the relation. (Example:
       ``tree,form``)
 
+    * ``view_ids``: A comma separated list that specifies the view ids used to
+      display the relation.
+
     * ``completion``: Only for Many2One fields, it is a boolean to set the
       completion of the field.
 
@@ -381,8 +384,8 @@ Example
       <field name="active" xexpand="0" width="100"/>
       <notebook colspan="6">
           <page string="General">
-              <field name="addresses" mode="form,tree" colspan="4" height="200">
-              </field>
+              <field name="addresses" mode="form,tree" colspan="4"
+                  view_ids="party.address_view_form,party.address_view_tree_sequence"/>
               <label name="type"/>
               <field name="type" widget="selection"/>
               <label name="lang"/>
