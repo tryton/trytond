@@ -22,15 +22,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="icon"/>
                         </page>
                         <page name="keywords">
-                            <field name="keywords" colspan="4">
-                                <tree string="Keywords">
-                                    <field name="keyword"/>
-                                </tree>
-                                <form string="Keyword">
-                                    <field name="keyword"/>
-                                    <field name="model"/>
-                                </form>
-                            </field>
+                            <field name="keywords" colspan="4"/>
                         </page>
                         <page name="groups">
                             <field name="groups" colspan="4"/>
@@ -72,6 +64,38 @@ this repository contains the full copyright notices and license terms. -->
         <menuitem parent="menu_action"
             action="act_action_form" id="menu_act_action"/>
 
+        <record model="ir.ui.view" id="action_keyword_view_list">
+            <field name="model">ir.action.keyword</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Keywords">
+                    <field name="action"/>
+                    <field name="model"/>
+                    <field name="keyword"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="action_keyword_view_form">
+            <field name="model">ir.action.keyword</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Keyword">
+                    <label name="action"/>
+                    <field name="action"/>
+                    <newline/>
+                    <label name="model"/>
+                    <field name="model"/>
+                    <label name="keyword"/>
+                    <field name="keyword"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="action_report_view_form">
             <field name="model">ir.action.report</field>
             <field name="type">form</field>
@@ -107,17 +131,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="email" colspan="3"/>
                         </page>
                         <page name="keywords">
-                            <field name="keywords" colspan="4">
-                                <tree string="Keywords">
-                                    <field name="keyword"/>
-                                </tree>
-                                <form string="Keyword">
-                                    <label name="keyword"/>
-                                    <field name="keyword"/>
-                                    <label name="model"/>
-                                    <field name="model"/>
-                                </form>
-                            </field>
+                            <field name="keywords" colspan="4"/>
                         </page>
                         <page name="groups">
                             <field name="groups" colspan="4"/>
@@ -179,18 +193,8 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="usage"/>
                             <label name="icon"/>
                             <field name="icon"/>
-                            <field name="act_window_views" colspan="6">
-                                <form string="Views">
-                                    <label name="sequence"/>
-                                    <field name="sequence" colspan="4"/>
-                                    <label name="view"/>
-                                    <field name="view"/>
-                                </form>
-                                <tree string="Views" sequence="sequence" fill="1">
-                                    <field name="sequence" tree_invisible="1"/>
-                                    <field name="view"/>
-                                </tree>
-                            </field>
+                            <field name="act_window_views" colspan="6"
+                                view_ids="ir.act_window_view_view_list2"/>
                             <label name="domain"/>
                             <field name="domain" colspan="5"/>
                             <label name="context"/>
@@ -205,17 +209,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="window_name"/>
                         </page>
                         <page name="keywords">
-                            <field name="keywords" colspan="4">
-                                <tree string="Keywords">
-                                    <field name="keyword"/>
-                                </tree>
-                                <form string="Keyword">
-                                    <label name="keyword"/>
-                                    <field name="keyword"/>
-                                    <label name="model"/>
-                                    <field name="model"/>
-                                </form>
-                            </field>
+                            <field name="keywords" colspan="4"/>
                         </page>
                         <page name="groups">
                             <field name="groups" colspan="4"/>
@@ -255,6 +249,54 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <menuitem parent="menu_action"
             action="act_action_act_window_form" id="menu_action_act_window"/>
+
+        <record model="ir.ui.view" id="act_window_view_view_form">
+            <field name="model">ir.action.act_window.view</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Views">
+                    <label name="act_window"/>
+                    <field name="act_window"/>
+                    <newline/>
+                    <label name="sequence"/>
+                    <field name="sequence" colspan="4"/>
+                    <label name="view"/>
+                    <field name="view"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="act_window_view_view_list">
+            <field name="model">ir.action.act_window.view</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="10"/>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Views">
+                    <field name="act_window"/>
+                    <field name="sequence"/>
+                    <field name="view"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="act_window_view_view_list2">
+            <field name="model">ir.action.act_window.view</field>
+            <field name="type">tree</field>
+            <field name="priority" eval="20"/>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Views" sequence="sequence" fill="1">
+                    <field name="sequence" tree_invisible="1"/>
+                    <field name="view"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="action_wizard_view_form">
             <field name="model">ir.action.wizard</field>
             <field name="type">form</field>
@@ -280,17 +322,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="window"/>
                         </page>
                         <page name="keywords">
-                            <field name="keywords" colspan="4">
-                                <tree string="Keywords">
-                                    <field name="keyword"/>
-                                </tree>
-                                <form string="Keyword">
-                                    <label name="keyword"/>
-                                    <field name="keyword"/>
-                                    <label name="model"/>
-                                    <field name="model"/>
-                                </form>
-                            </field>
+                            <field name="keywords" colspan="4"/>
                         </page>
                         <page name="groups">
                             <field name="groups" colspan="4"/>
@@ -351,17 +383,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="icon"/>
                         </page>
                         <page name="keywords">
-                            <field name="keywords" colspan="4">
-                                <tree string="Keywords">
-                                    <field name="keyword"/>
-                                </tree>
-                                <form string="Keyword">
-                                    <label name="keyword"/>
-                                    <field name="keyword"/>
-                                    <label name="model"/>
-                                    <field name="model"/>
-                                </form>
-                            </field>
+                            <field name="keywords" colspan="4"/>
                         </page>
                         <page name="groups">
                             <field name="groups" colspan="4"/>

@@ -20,34 +20,6 @@ attlist.form &= attribute on_write { text }?
 attlist.form &= [ a:defaultValue = "4" ] attribute col { text }?
 attlist.form &= attribute cursor { text }?
 
-tree = element tree { attlist.tree, field+ }
-attlist.tree &=
-  [ a:defaultValue = "Unknown" ] attribute string { text }?
-attlist.tree &= attribute on_write { text }?
-attlist.tree &= attribute editable { "top" | "bottom" }?
-attlist.tree &= attribute sequence { text }?
-attlist.tree &= attribute colors { text }?
-attlist.tree &=
-  [ a:defaultValue = "0" ] attribute fill { "0" | "1" }?
-
-graph = element graph { attlist.graph, x, y }
-attlist.graph &=
-  [ a:defaultValue = "vbar" ]
-  attribute type { "vbar" | "hbar" | "line" | "pie" }?
-attlist.graph &=
-  [ a:defaultValue = "Unknown" ] attribute string { text }?
-attlist.graph &=
-  [ a:defaultValue = "#f5f5f5" ] attribute background { text }?
-attlist.graph &= [ a:defaultValue = "blue" ] attribute color { text }?
-attlist.graph &=
-  [ a:defaultValue = "1" ] attribute legend { "0" | "1" }?
-
-x = element x { attlist.x, field }
-attlist.x &= empty
-
-y = element y { attlist.y, field+ }
-attlist.y &= empty
-
 label = element label { attlist.label, empty }
 attlist.label &= [ a:defaultValue = "" ] attribute string { text }?
 attlist.label &= ( attribute name { text } | attribute id { text } )
@@ -63,7 +35,7 @@ attlist.label &= [ a:defaultValue = "1" ] attribute xfill { "0" | "1" }?
 attlist.label &= [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.label &= attribute help { text }?
 
-field = element field { attlist.field, (tree | form | graph)* }
+field = element field { attlist.field, empty }
 attlist.field &= attribute name { text }
 attlist.field &= [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.field &=
@@ -108,6 +80,7 @@ attlist.field &= attribute readonly { "0" | "1" }?
 attlist.field &=
   [ a:defaultValue = "0" ] attribute tree_invisible { "0" | "1" }?
 attlist.field &= attribute mode { text }?
+attlist.field &= attribute view_ids { text }?
 attlist.field &=
   [ a:defaultValue = "0" ] attribute invisible { "0" | "1" }?
 attlist.field &= attribute sum { text }?
@@ -259,10 +232,6 @@ xpath = element xpath { attlist.xpath,
     | hpaned
     | vpaned
     | form
-    | tree
-    | graph
-    | x
-    | y
     | page
     | child)*
   }

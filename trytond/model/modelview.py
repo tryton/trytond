@@ -385,6 +385,7 @@ class ModelView(Model):
     def __view_look_dom(self, element, type, fields_width=None):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
+        model_data_obj = pool.get('ir.model.data')
 
         if fields_width is None:
             fields_width = {}
@@ -411,41 +412,42 @@ class ModelView(Model):
                     if relation and element.tag == 'field':
                         childs = False
                         views = {}
-                        for field in element:
-                            if field.tag in ('form', 'tree', 'graph'):
-                                field2 = copy.copy(field)
-
-                                def _translate_field(field):
-                                    if field.get('string'):
-                                        trans = translation_obj.get_source(
-                                                self._name, 'view',
-                                                Transaction().language,
-                                                field.get('string'))
-                                        if trans:
-                                            field.set('string', trans)
-                                    if field.get('sum'):
-                                        trans = translation_obj.get_source(
-                                                self._name, 'view',
-                                                Transaction().language,
-                                                field.get('sum'))
-                                        if trans:
-                                            field.set('sum', trans)
-                                    for field_child in field:
-                                        _translate_field(field_child)
-                                if Transaction().language != 'en_US':
-                                    _translate_field(field2)
-
-                                relation_obj = pool.get(relation)
-                                if hasattr(relation_obj, '_view_look_dom_arch'):
-                                    xarch, xfields = \
-                                            relation_obj._view_look_dom_arch(
-                                                    field2, field.tag)
-                                    views[field.tag] = {
-                                        'arch': xarch,
-                                        'fields': xfields
-                                    }
-                                element.remove(field)
-                        attrs = {'views': views}
+                        mode = (element.attrib.pop('mode', None)
+                            or 'tree,form').split(',')
+                        view_ids = []
+                        if element.get('view_ids'):
+                            for view_id in element.get('view_ids').split(','):
+                                try:
+                                    view_ids.append(int(view_id))
+                                except ValueError:
+                                    view_ids.append(model_data_obj.get_id(
+                                            *view_id.split('.')))
+                        relation_obj = pool.get(relation)
+                        if (not len(element)
+                                and type == 'form'
+                                and field._type in ('one2many', 'many2many')):
+                            # Prefetch only the first view to prevent infinite
+                            # loop
+                            if view_ids:
+                                mode = []
+                                for view_id in view_ids:
+                                    view = relation_obj.fields_view_get(
+                                        view_id=view_id)
+                                    mode.append(view['type'])
+                                    views[view['type']] = view
+                                    break
+                            else:
+                                for view_type in mode:
+                                    views[view_type] = \
+                                        relation_obj.fields_view_get(
+                                            view_type=view_type)
+                                    break
+                        element.attrib['mode'] = ','.join(mode)
+                        element.attrib['view_ids'] = ','.join(
+                            map(str, view_ids))
+                        attrs = {
+                            'views': views,
+                            }
                     fields_attrs[element.get(attr)] = attrs
             if element.get('name') in fields_width:
                 element.set('width', str(fields_width[element.get('name')]))

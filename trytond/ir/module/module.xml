@@ -26,12 +26,7 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="website" widget="url"/>
                         </page>
                         <page string="Dependencies" col="1" id="dependencies">
-                            <field name="dependencies">
-                                <tree string="Dependencies">
-                                    <field name="name"/>
-                                    <field name="state"/>
-                                </tree>
-                            </field>
+                            <field name="dependencies"/>
                         </page>
                     </notebook>
                     <label name="state"/>
@@ -100,6 +95,38 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <menuitem parent="menu_modules"
             action="act_module_form" id="menu_module_form"/>
+
+        <record model="ir.ui.view" id="module_dependency_view_form">
+            <field name="model">ir.module.module.dependency</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Dependency">
+                    <label name="module"/>
+                    <field name="module"/>
+                    <newline/>
+                    <label name="name"/>
+                    <field name="name"/>
+                    <label name="state"/>
+                    <field name="state"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="module_dependency_view_list">
+            <field name="model">ir.module.module.dependency</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Dependencies">
+                    <field name="module"/>
+                    <field name="name"/>
+                    <field name="state"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
 
         <record model="ir.ui.view" id="config_wizard_item_view_tree">
             <field name="model">ir.module.module.config_wizard.item</field>
