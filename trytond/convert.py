@@ -584,7 +584,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
             #Re-create record if it was deleted
             if not self.fs2db.get_browserecord(module, object_ref._name, db_id):
-                with Transaction().set_context(module=module):
+                with Transaction().set_context(module=module, language='en_US'):
                     db_id = object_ref.create(values)
 
                 # reset_browsercord
@@ -686,7 +686,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # if there is values to update:
             if to_update:
                 # write the values in the db:
-                with Transaction().set_context(module=module):
+                with Transaction().set_context(module=module, language='en_US'):
                     object_ref.write(db_id, to_update)
                 self.fs2db.reset_browsercord(module, object_ref._name, db_id)
 
@@ -743,7 +743,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         else:
             # this record is new, create it in the db:
-            with Transaction().set_context(module=module):
+            with Transaction().set_context(module=module, language='en_US'):
                 db_id = object_ref.create(values)
             inherit_db_ids = {}
 
