@@ -1,3 +1,4 @@
+* Add support of fields.Time
 * Replace nested view by reference id
 * Remove underscore to ir.translation methods
 * Add default database language code

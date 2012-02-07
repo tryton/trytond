@@ -356,6 +356,36 @@ class DateTimeRequired(ModelSQL):
 DateTimeRequired()
 
 
+class Time(ModelSQL):
+    'Time'
+    _name = 'test.time'
+    _description = __doc__
+    time = fields.Time(string='Time', help='Test time', required=False)
+
+Time()
+
+
+class TimeDefault(ModelSQL):
+    'Time Default'
+    _name = 'test.time_default'
+    _description = __doc__
+    time = fields.Time(string='Time', help='Test time', required=False)
+
+    def default_time(self):
+        return datetime.time(16, 30)
+
+TimeDefault()
+
+
+class TimeRequired(ModelSQL):
+    'Time'
+    _name = 'test.time_required'
+    _description = __doc__
+    time = fields.Time(string='Time', help='Test time', required=True)
+
+TimeRequired()
+
+
 class One2One(ModelSQL):
     'One2One'
     _name = 'test.one2one'

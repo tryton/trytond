@@ -141,7 +141,16 @@ class Timestamp(Field):
 
 
 class Time(Field):
-    pass
+
+    @staticmethod
+    def sql_format(value):
+        if not value:
+            return None
+        if isinstance(value, basestring):
+            hours, minutes, seconds = map(int, value.split(":"))
+            return datetime.time(hours, minutes, seconds)
+        assert(isinstance(value, datetime.time))
+        return value.replace(microsecond=0)
 
 
 class Binary(Field):

@@ -40,10 +40,19 @@ def dump_date(self, value, write):
         }
     self.dump_struct(value, write)
 
+def dump_time(self, value, write):
+    value = {'__class__': 'time',
+        'hour': value.hour,
+        'minute': value.minute,
+        'second': value.second,
+        }
+    self.dump_struct(value, write)
+
 xmlrpclib.Marshaller.dispatch[Decimal] = dump_decimal
 xmlrpclib.Marshaller.dispatch[type(None)] = \
         lambda self, value, write: self.dump_bool(bool(value), write)
 xmlrpclib.Marshaller.dispatch[datetime.date] = dump_date
+xmlrpclib.Marshaller.dispatch[datetime.time] = dump_time
 xmlrpclib.Marshaller.dispatch[buffer] = dump_buffer
 
 def dump_struct(self, value, write, escape=xmlrpclib.escape):
@@ -68,6 +77,8 @@ def end_struct(self, data):
     if '__class__' in dct:
         if dct['__class__'] == 'date':
             dct = datetime.date(dct['year'], dct['month'], dct['day'])
+        elif dct['__class__'] == 'time':
+            dct = datetime.time(dct['hour'], dct['minute'], dct['second'])
         elif dct['__class__'] == 'Decimal':
             dct = Decimal(dct['decimal'])
     self._stack[mark:] = [dct]
