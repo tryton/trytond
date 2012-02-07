@@ -365,3 +365,6 @@ else:
 def adapt_datetime(val):
     return val.replace(tzinfo=None).isoformat(" ")
 sqlite.register_adapter(datetime.datetime, adapt_datetime)
+sqlite.register_adapter(datetime.time, lambda val: val.isoformat())
+sqlite.register_converter('TIME', lambda val: datetime.time(*map(int,
+            val.split(':'))))

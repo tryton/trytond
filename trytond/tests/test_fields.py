@@ -66,6 +66,10 @@ class FieldsTestCase(unittest.TestCase):
         self.datetime_default = POOL.get('test.datetime_default')
         self.datetime_required = POOL.get('test.datetime_required')
 
+        self.time = POOL.get('test.time')
+        self.time_default = POOL.get('test.time_default')
+        self.time_required = POOL.get('test.time_required')
+
         self.one2one = POOL.get('test.one2one')
         self.one2one_target = POOL.get('test.one2one.target')
         self.one2one_required = POOL.get('test.one2one_required')
@@ -2082,7 +2086,262 @@ class FieldsTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
-    def test0100one2one(self):
+    def test0100time(self):
+        '''
+        Test Time.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            pre_evening = datetime.time(16, 30)
+            evening = datetime.time(18, 45, 3)
+            night = datetime.time(20, 00)
+            default_time = datetime.time(16, 30)
+
+            time1_id = self.time.create({
+                    'time': evening,
+                    })
+            self.assert_(time1_id)
+
+            time1 = self.time.read(time1_id, ['time'])
+            self.assertEqual(time1['time'], evening)
+
+            time_ids = self.time.search([
+                ('time', '=', evening),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '=', night),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '=', False),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '!=', evening),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '!=', night),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '!=', False),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', 'in', [evening]),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', 'in', [night]),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', 'in', [False]),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', 'in', []),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', 'not in', [evening]),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', 'not in', [night]),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', 'not in', [False]),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', 'not in', []),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '<', night),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '<', pre_evening),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '<', evening),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '<=', evening),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '<=', pre_evening),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '<=', night),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '>', night),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '>', pre_evening),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '>', evening),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '>=', night),
+                ])
+            self.assert_(time_ids == [])
+
+            time_ids = self.time.search([
+                ('time', '>=', pre_evening),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time_ids = self.time.search([
+                ('time', '>=', evening),
+                ])
+            self.assert_(time_ids == [time1_id])
+
+            time2_id = self.time.create({
+                'time': pre_evening,
+                })
+            self.assert_(time2_id)
+
+            time2 = self.time.read(time2_id, ['time'])
+            self.assert_(time2['time'] == pre_evening)
+
+            time_ids = self.time.search([
+                ('time', '=', pre_evening),
+                ])
+            self.assert_(time_ids == [time2_id])
+
+            time_ids = self.time.search([
+                ('time', 'in', [pre_evening, evening]),
+                ])
+            self.assert_(time_ids == [time1_id, time2_id])
+
+            time_ids = self.time.search([
+                ('time', 'not in', [pre_evening, evening]),
+                ])
+            self.assert_(time_ids == [])
+
+            time3_id = self.time.create({})
+            self.assert_(time3_id)
+
+            time3 = self.time.read(time3_id, ['time'])
+            self.assert_(time3['time'] == None)
+
+            time4_id = self.time_default.create({})
+            self.assert_(time4_id)
+
+            time4 = self.time_default.read(time4_id, ['time'])
+            self.assert_(time4['time'] == default_time)
+
+            self.time.write(time1_id, {
+                'time': pre_evening,
+                })
+            time1 = self.time.read(time1_id, ['time'])
+            self.assert_(time1['time'] == pre_evening)
+
+            self.time.write(time2_id, {
+                'time': evening,
+                })
+            time2 = self.time.read(time2_id, ['time'])
+            self.assert_(time2['time'] == evening)
+
+            self.failUnlessRaises(Exception, self.time.create, {
+                    'time': 'test',
+                    })
+
+            self.failUnlessRaises(Exception, self.time.write, time1_id,
+                {
+                    'time': 'test',
+                    })
+
+            self.failUnlessRaises(Exception, self.time.create, {
+                    'time': 1,
+                    })
+
+            self.failUnlessRaises(Exception, self.time.write, time1_id,
+                {
+                    'time': 1,
+                    })
+
+
+            self.failUnlessRaises(Exception, self.time.write, time1_id,
+                {
+                    'time': '25:00:00',
+                    })
+
+            time5_id = self.time.create({
+                'time': '12:00:00',
+                })
+            self.assert_(time5_id)
+            time5 = self.time.read(time5_id, ['time'])
+            self.assert_(time5['time'] == datetime.time(12, 0))
+
+            self.failUnlessRaises(Exception, self.time_required.create, {})
+            transaction.cursor.rollback()
+
+            time6_id = self.time_required.create({
+                'time': evening,
+                })
+            self.assert_(time6_id)
+
+            time7_id = self.time.create({
+                'time': None,
+                })
+            self.assert_(time7_id)
+
+            time8_id = self.time.create({
+                'time': False,
+                })
+            self.assert_(time8_id)
+
+            time9_id = self.time.create({
+                'time': evening.replace(microsecond=1),
+                })
+            self.assert_(time9_id)
+            time9 = self.time.read(time9_id, ['time'])
+            self.assert_(time9['time'] == evening)
+
+            transaction.cursor.rollback()
+
+
+    def test0110one2one(self):
         '''
         Test One2One.
         '''
