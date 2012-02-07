@@ -507,8 +507,18 @@ class UserConfig(Wizard):
 
     def transition_add(self, session):
         pool = Pool()
-        res_obj = pool.get('res.user')
-        res_obj.create(session.data['user'])
+        user_obj = pool.get('res.user')
+        values = session.data['user'].copy()
+        for fname in values.keys():
+            if fname == 'id':
+                del values[fname]
+                continue
+            field = user_obj._columns[fname]
+            if field._type == 'one2many':
+                values[fname] = [('create', v) for v in values[fname]]
+            elif field._type == 'many2many':
+                values[fname] = [('set', [v['id'] for v in values[fname]])]
+        user_obj.create(values)
         return 'user'
 
 UserConfig()
