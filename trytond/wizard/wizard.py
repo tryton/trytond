@@ -328,7 +328,10 @@ class Wizard(WarningErrorMixin, URLMixin):
         if isinstance(session, (int, long)):
             session = Session(self, session)
         for key, value in data.iteritems():
+            prev_data = session.data[key].copy()
             session.data[key].update(value)
+            if prev_data != session.data[key]:
+                getattr(session, key).dirty = True
 
         state = self.states[state_name]
         result = {}
