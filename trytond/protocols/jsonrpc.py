@@ -27,6 +27,10 @@ except ImportError:
     import json
 import base64
 import encodings
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 
 def object_hook(dct):
@@ -212,12 +216,36 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
             return False
 
     def send_tryton_url(self, path):
-        self.send_response(301)
+        self.send_response(300)
         hostname = CONFIG['hostname'] or unicode(socket.getfqdn(), 'utf8')
         hostname = '.'.join(encodings.idna.ToASCII(part) for part in
             hostname.split('.'))
-        self.send_header('Location', 'tryton://%s%s' % (hostname, path))
+        values = {
+            'hostname': hostname,
+            'path': path,
+            }
+        content = StringIO()
+        content.write('<html')
+        content.write('<head>')
+        content.write('<meta http-equiv="Refresh" '
+            'content="0;url=tryton://%(hostname)s%(path)s"/>' % values)
+        content.write('<title>Moved</title>')
+        content.write('</head>')
+        content.write('<body>')
+        content.write('<h1>Moved</h1>')
+        content.write('<p>This page has moved to '
+            '<a href="tryton://%(hostname)s%(path)s">'
+            'tryton://%(hostname)s%(path)s</a>.</p>' % values)
+        content.write('</body>')
+        content.write('</html>')
+        length = content.tell()
+        content.seek(0)
+        self.send_header('Location', 'tryton://%(hostname)s%(path)s' % values)
+        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-Length', str(length))
         self.end_headers()
+        self.copyfile(content, self.wfile)
+        content.close()
 
 
 class SecureJSONRPCRequestHandler(SimpleJSONRPCRequestHandler):
