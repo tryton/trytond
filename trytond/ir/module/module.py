@@ -565,6 +565,10 @@ class ModuleInstallUpgrade(Wizard):
             transaction.cursor.commit()
         if module_ids:
             pool.init(update=True, lang=lang)
+        if session:
+            # Don't store session to prevent concurrent update
+            for state_name in session.data:
+                getattr(session, state_name).dirty = False
         return 'done'
 
 ModuleInstallUpgrade()
