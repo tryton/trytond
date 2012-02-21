@@ -162,6 +162,7 @@
           <value>many2many</value>
           <value>image</value>
           <value>progressbar</value>
+          <value>richtext</value>
         </choice>
       </attribute>
     </optional>
