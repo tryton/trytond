@@ -46,7 +46,7 @@ this repository contains the full copyright notices and license terms. -->
                     <notebook colspan="6">
                         <page string="Request" id="request">
                             <separator name="body" colspan="4"/>
-                            <field name="body" colspan="4"/>
+                            <field name="body" colspan="4" widget="richtext"/>
                             <field name="history" colspan="4"/>
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
@@ -180,7 +180,7 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="subject" colspan="3"/>
                     <label name="priority"/>
                     <field name="priority"/>
-                    <field name="body" colspan="6"/>
+                    <field name="body" colspan="6" widget="richtext"/>
                     <label name="date_sent"/>
                     <field name="date_sent" colspan="3"/>
                     <newline/>
