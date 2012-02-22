@@ -11,6 +11,7 @@ except ImportError:
     sys.modules['cdecimal'] = decimal
 import os
 import ConfigParser
+import time
 
 def get_hostname(netloc):
     if '[' in netloc and ']' in netloc:
@@ -76,8 +77,14 @@ class ConfigManager(object):
             'unoconv': 'pipe,name=trytond;urp;StarOffice.ComponentContext',
             'retry': 5,
             'language': 'en_US',
+            'timezone': time.tzname[0] or time.tzname[1],
         }
         self.configfile = None
+
+    def set_timezone(self):
+        os.environ['TZ'] = self.get('timezone')
+        if hasattr(time, 'tzset'):
+            time.tzset()
 
     def update_cmdline(self, cmdline_options):
         self.options.update(cmdline_options)
