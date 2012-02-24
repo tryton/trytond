@@ -35,6 +35,7 @@ class WizardTestCase(unittest.TestCase):
             session = Session(self.wizard, session_id)
             self.assertEqual(session.start.name, False)
             session.start.name = 'Test'
+            self.assertEqual(session.start.user.id, False)
             session.start.user = USER
             session.start.groups = [
                 {'name': 'Group A'},

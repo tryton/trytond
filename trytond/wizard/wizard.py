@@ -16,6 +16,7 @@ from trytond.url import URLMixin
 from trytond.protocols.jsonrpc import object_hook, JSONEncoder
 from trytond.model.fields import states_validate
 from trytond.pyson import PYSONEncoder
+from trytond.model.browse import BrowseRecordNull
 
 
 class Button(object):
@@ -159,12 +160,12 @@ class _SessionRecord(object):
             return self.__cache[name]
         field = self._model._columns[name]
         data = self._data.get(name, False)
+        target_obj = None
+        if hasattr(field, 'model_name'):
+            target_obj = Pool().get(field.model_name)
+        elif hasattr(field, 'get_target'):
+            target_obj = field.get_target()
         if data:
-            target_obj = None
-            if hasattr(field, 'model_name'):
-                target_obj = Pool().get(field.model_name)
-            elif hasattr(field, 'get_target'):
-                target_obj = field.get_target()
             if target_obj:
                 def instance(data):
                     if isinstance(data, dict):
@@ -174,6 +175,8 @@ class _SessionRecord(object):
                     data = [instance(x) for x in data]
                 else:
                     data = instance(data)
+        elif target_obj:
+            return BrowseRecordNull()
         self.__cache[name] = data
         return data
 
