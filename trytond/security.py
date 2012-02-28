@@ -29,7 +29,10 @@ def login(dbname, loginname, password, cache=True):
 
 def logout(dbname, user, session):
     with Transaction().start(dbname, 0) as transaction:
+        database_list = Pool.database_list()
         pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         session_obj = pool.get('ir.session')
         session_id, = session_obj.search([
                 ('key', '=', session),
@@ -54,7 +57,10 @@ def check(dbname, user, session):
     if not user:
         raise NotLogged()
     with Transaction().start(dbname, user) as transaction:
+        database_list = Pool.database_list()
         pool = Pool(dbname)
+        if not dbname in database_list:
+            pool.init()
         session_obj = pool.get('ir.session')
         try:
             if not session_obj.check(user, session):
