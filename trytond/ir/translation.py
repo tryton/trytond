@@ -181,14 +181,24 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     name = record.model + ',' + field_name
                 translations[record.id] = self.get_source(name, ttype, lang)
             return translations
-        for obj_id in ids:
-            trans = self.get((lang, ttype, name, obj_id))
-            if trans is not None:
-                translations[obj_id] = trans
-            else:
-                to_fetch.append(obj_id)
+        # Don't use cache for fuzzy translation
+        if not Transaction().context.get(
+                'fuzzy_translation', False):
+            for obj_id in ids:
+                trans = self.get((lang, ttype, name, obj_id))
+                if trans is not None:
+                    translations[obj_id] = trans
+                else:
+                    to_fetch.append(obj_id)
+        else:
+            to_fetch = ids
         if to_fetch:
             cursor = Transaction().cursor
+            fuzzy_sql = 'AND fuzzy = %s '
+            fuzzy = [False]
+            if Transaction().context.get('fuzzy_translation', False):
+                fuzzy_sql = ''
+                fuzzy = []
             for i in range(0, len(to_fetch), cursor.IN_MAX):
                 sub_to_fetch = to_fetch[i:i + cursor.IN_MAX]
                 red_sql, red_ids = reduce_ids('res_id', sub_to_fetch)
@@ -199,11 +209,14 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND name = %s ' \
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
-                            'AND fuzzy = %s ' \
+                            + fuzzy_sql + \
                             'AND ' + red_sql,
-                        [lang, ttype, name, False] + red_ids)
+                        [lang, ttype, name] + fuzzy + red_ids)
                 for res_id, value in cursor.fetchall():
-                    self.add((lang, ttype, name, res_id), value)
+                    # Don't store fuzzy translation in cache
+                    if not Transaction().context.get(
+                            'fuzzy_translation', False):
+                        self.add((lang, ttype, name, res_id), value)
                     translations[res_id] = value
         for res_id in ids:
             if res_id not in translations:

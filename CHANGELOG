@@ -1,3 +1,4 @@
+* Allow to get fuzzy translation
 * Allow to customize server timezone
 * Add richtext widget for WYSIWYG editor
 * Add support of fields.Time
