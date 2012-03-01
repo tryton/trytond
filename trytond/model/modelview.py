@@ -429,11 +429,9 @@ class ModelView(Model):
                             # Prefetch only the first view to prevent infinite
                             # loop
                             if view_ids:
-                                mode = []
                                 for view_id in view_ids:
                                     view = relation_obj.fields_view_get(
                                         view_id=view_id)
-                                    mode.append(view['type'])
                                     views[view['type']] = view
                                     break
                             else:
