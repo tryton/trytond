@@ -12,7 +12,7 @@ class Collection(ModelSQL, ModelView):
     "Collection"
     _name = "webdav.collection"
     _description = __doc__
-    name = fields.Char('Name', required=True, select=1)
+    name = fields.Char('Name', required=True, select=True)
     parent = fields.Many2One('webdav.collection', 'Parent',
        ondelete='RESTRICT', domain=[('model', '=', False)])
     childs = fields.One2Many('webdav.collection', 'parent', 'Children')

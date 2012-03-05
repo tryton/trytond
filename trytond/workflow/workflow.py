@@ -14,8 +14,8 @@ class Workflow(ModelSQL, ModelView):
     _table = "wkf"
     _description = __doc__
     name = fields.Char('Name', required=True, translate=True)
-    model = fields.Char('Resource Model', required=True, select=1)
-    on_create = fields.Boolean('On Create', select=2)
+    model = fields.Char('Resource Model', required=True, select=True)
+    on_create = fields.Boolean('On Create', select=True)
     activities = fields.One2Many('workflow.activity', 'workflow',
        'Activities')
 
@@ -49,7 +49,7 @@ class WorkflowActivity(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name', required=True, translate=True)
     workflow = fields.Many2One('workflow', 'Workflow', required=True,
-       select=1, ondelete='CASCADE')
+       select=True, ondelete='CASCADE')
     split_mode = fields.Selection([
        ('XOR', 'Xor'),
        ('OR', 'Or'),
@@ -116,9 +116,9 @@ class WorkflowTransition(ModelSQL, ModelView):
     group = fields.Many2One('res.group', 'Group Required')
     condition = fields.Char('Condition', required=True)
     act_from = fields.Many2One('workflow.activity', 'Source Activity',
-       required=True, select=1, ondelete='CASCADE')
+       required=True, select=True, ondelete='CASCADE')
     act_to = fields.Many2One('workflow.activity', 'Destination Activity',
-       required=True, select=1, ondelete='CASCADE')
+       required=True, select=True, ondelete='CASCADE')
     instances = fields.Many2Many('workflow.transition-workflow.instance',
             'trans_id', 'inst_id', 'Instances')
 
@@ -143,11 +143,11 @@ class WorkflowInstance(ModelSQL, ModelView):
     _rec_name = 'res_type'
     _description = __doc__
     workflow = fields.Many2One('workflow', 'Workflow', ondelete="RESTRICT",
-            select=1)
+            select=True)
     uid = fields.Integer('User ID')
-    res_id = fields.Integer('Resource ID', required=True, select=1)
-    res_type = fields.Char('Resource Model', required=True, select=1)
-    state = fields.Char('State', required=True, select=1)
+    res_id = fields.Integer('Resource ID', required=True, select=True)
+    res_type = fields.Char('Resource Model', required=True, select=True)
+    state = fields.Char('State', required=True, select=True)
     overflows = fields.One2Many('workflow.workitem', 'subflow',
             'Overflow')
     transitions = fields.Many2Many('workflow.transition-workflow.instance',
@@ -259,9 +259,9 @@ class WorkflowTransitionInstance(ModelSQL):
     _table = 'wkf_witm_trans'
     _description = __doc__
     trans_id = fields.Many2One('workflow.transition', 'Transition',
-            ondelete='CASCADE', select=1, required=True)
+            ondelete='CASCADE', select=True, required=True)
     inst_id = fields.Many2One('workflow.instance', 'Instance',
-            ondelete='CASCADE', select=1, required=True)
+            ondelete='CASCADE', select=True, required=True)
 
     def __init__(self):
         super(WorkflowTransitionInstance, self).__init__()
@@ -285,12 +285,12 @@ class WorkflowWorkitem(ModelSQL, ModelView):
     _rec_name = 'state'
     _description = __doc__
     activity = fields.Many2One('workflow.activity', 'Activity',
-       required=True, ondelete="CASCADE", select=1)
+       required=True, ondelete="CASCADE", select=True)
     subflow = fields.Many2One('workflow.instance', 'Subflow',
-       ondelete="CASCADE", select=1)
+       ondelete="CASCADE", select=True)
     instance = fields.Many2One('workflow.instance', 'Instance',
-       required=True, ondelete="CASCADE", select=1)
-    state = fields.Char('State', select=1)
+       required=True, ondelete="CASCADE", select=True)
+    state = fields.Char('State', select=True)
 
     def __init__(self):
         super(WorkflowWorkitem, self).__init__()

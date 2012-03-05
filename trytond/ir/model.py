@@ -101,7 +101,7 @@ class ModelField(ModelSQL, ModelView):
             },
         depends=['module'])
     model = fields.Many2One('ir.model', 'Model', required=True,
-        select=1, ondelete='CASCADE',
+        select=True, ondelete='CASCADE',
         states={
             'readonly': Bool(Eval('module')),
             },
@@ -487,11 +487,11 @@ class ModelData(ModelSQL, ModelView):
     _description = __doc__
     fs_id = fields.Char('Identifier on File System', required=True,
             help="The id of the record as known on the file system.",
-            select=1)
-    model = fields.Char('Model', required=True, select=1)
-    module = fields.Char('Module', required=True, select=1)
+            select=True)
+    model = fields.Char('Model', required=True, select=True)
+    module = fields.Char('Module', required=True, select=True)
     db_id = fields.Integer('Resource ID',
-       help="The id of the record in the database.", select=1)
+       help="The id of the record in the database.", select=True)
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')

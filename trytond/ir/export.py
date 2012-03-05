@@ -22,6 +22,6 @@ class ExportLine(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name')
     export = fields.Many2One('ir.export', 'Export',
-       select=1)
+       select=True)
 
 ExportLine()

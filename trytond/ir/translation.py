@@ -50,7 +50,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
     _name = "ir.translation"
     _description = __doc__
     name = fields.Char('Field Name', required=True)
-    res_id = fields.Integer('Resource ID', select=1)
+    res_id = fields.Integer('Resource ID', select=True)
     lang = fields.Selection('get_language', string='Language')
     type = fields.Selection(TRANSLATION_TYPE, string='Type',
        required=True)

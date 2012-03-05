@@ -354,7 +354,7 @@ class ModuleDependency(ModelSQL, ModelView):
     _name = "ir.module.module.dependency"
     _description = __doc__
     name = fields.Char('Name')
-    module = fields.Many2One('ir.module.module', 'Module', select=1,
+    module = fields.Many2One('ir.module.module', 'Module', select=True,
        ondelete='CASCADE', required=True)
     state = fields.Function(fields.Selection([
         ('uninstalled','Not Installed'),
@@ -400,7 +400,7 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
     state = fields.Selection([
         ('open', 'Open'),
         ('done', 'Done'),
-        ], string='State', required=True, select=1)
+        ], string='State', required=True, select=True)
 
     def __init__(self):
         super(ModuleConfigWizardItem, self).__init__()
