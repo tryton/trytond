@@ -7,7 +7,7 @@ except ImportError:
     import StringIO
 import zipfile
 import polib
-from xml import dom
+import xml.dom.minidom
 from difflib import SequenceMatcher
 import os
 try:
@@ -693,11 +693,11 @@ class ReportTranslationSet(Wizard):
                     continue
 
                 content_xml = content_z.read('content.xml')
-                document = dom.minidom.parseString(content_xml)
+                document = xml.dom.minidom.parseString(content_xml)
                 strings = self._translate_report(document.documentElement)
 
                 style_xml = content_z.read('styles.xml')
-                document = dom.minidom.parseString(style_xml)
+                document = xml.dom.minidom.parseString(style_xml)
                 strings += self._translate_report(document.documentElement)
 
             if report.style_content:
@@ -705,7 +705,7 @@ class ReportTranslationSet(Wizard):
                 style_z = zipfile.ZipFile(style_io, mode='r')
                 style_xml = style_z.read('styles.xml')
 
-                document = dom.minidom.parseString(style_xml)
+                document = xml.dom.minidom.parseString(style_xml)
 
                 strings += self._translate_report(document.documentElement)
 
