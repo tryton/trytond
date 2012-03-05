@@ -1,3 +1,4 @@
+* Add group call to on_change_with
 * Allow to get fuzzy translation
 * Allow to customize server timezone
 * Add richtext widget for WYSIWYG editor
