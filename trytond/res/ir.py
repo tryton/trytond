@@ -11,9 +11,9 @@ class UIMenuGroup(ModelSQL):
     _name = 'ir.ui.menu-res.group'
     _description = __doc__
     menu = fields.Many2One('ir.ui.menu', 'Menu', ondelete='CASCADE',
-            select=1, required=True)
+            select=True, required=True)
     group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
-            select=1, required=True)
+            select=True, required=True)
 
     def init(self, module_name):
         cursor = Transaction().cursor
@@ -53,9 +53,9 @@ class ActionGroup(ModelSQL):
     _name = 'ir.action-res.group'
     _description = __doc__
     action = fields.Many2One('ir.action', 'Action', ondelete='CASCADE',
-            select=1, required=True)
+            select=True, required=True)
     group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
-            select=1, required=True)
+            select=True, required=True)
 
     def init(self, module_name):
         cursor = Transaction().cursor
@@ -103,9 +103,9 @@ class ModelFieldGroup(ModelSQL):
     _name = 'ir.model.field-res.group'
     _description = __doc__
     field_id = fields.Many2One('ir.model.field', 'Model Field',
-            ondelete='CASCADE', select=1, required=True)
+            ondelete='CASCADE', select=True, required=True)
     group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
-            select=1, required=True)
+            select=True, required=True)
 
     def init(self, module_name):
         cursor = Transaction().cursor
@@ -123,9 +123,9 @@ class RuleGroupGroup(ModelSQL):
     _name = 'ir.rule.group-res.group'
     _description = __doc__
     rule_group = fields.Many2One('ir.rule.group', 'Rule Group',
-            ondelete='CASCADE', select=1, required=True)
+            ondelete='CASCADE', select=True, required=True)
     group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
-            select=1, required=True)
+            select=True, required=True)
 
     def init(self, module_name):
         cursor = Transaction().cursor
@@ -148,9 +148,9 @@ class RuleGroupUser(ModelSQL):
     _name = 'ir.rule.group-res.user'
     _description = __doc__
     rule_group = fields.Many2One('ir.rule.group', 'Rule Group',
-            ondelete='CASCADE', select=1, required=True)
+            ondelete='CASCADE', select=True, required=True)
     user = fields.Many2One('res.user', 'User', ondelete='CASCADE',
-            select=1, required=True)
+            select=True, required=True)
 
     def init(self, module_name):
         cursor = Transaction().cursor
@@ -194,9 +194,9 @@ class SequenceTypeGroup(ModelSQL):
     _name = 'ir.sequence.type-res.group'
     _description = __doc__
     sequence_type = fields.Many2One('ir.sequence.type', 'Sequence Type',
-            ondelete='CASCADE', select=1, required=True)
+            ondelete='CASCADE', select=True, required=True)
     group = fields.Many2One('res.group', 'User Groups',
-            ondelete='CASCADE', select=1, required=True)
+            ondelete='CASCADE', select=True, required=True)
 
     def delete(self, ids):
         rule_obj = Pool().get('ir.rule')

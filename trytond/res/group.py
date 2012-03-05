@@ -31,7 +31,7 @@ class Group(ModelSQL, ModelView):
     "Group"
     _name = "res.group"
     _description = __doc__
-    name = fields.Char('Name', required=True, select=1, translate=True)
+    name = fields.Char('Name', required=True, select=True, translate=True)
     model_access = fields.One2Many('ir.model.access', 'group',
        'Access Model')
     field_access = fields.One2Many('ir.model.field.access', 'group',

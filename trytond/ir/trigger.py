@@ -17,23 +17,23 @@ class Trigger(ModelSQL, ModelView):
     _name = 'ir.trigger'
     _description = __doc__
     name = fields.Char('Name', required=True, translate=True)
-    active = fields.Boolean('Active', select=2)
-    model = fields.Many2One('ir.model', 'Model', required=True, select=1)
-    on_time = fields.Boolean('On Time', select=1, states={
+    active = fields.Boolean('Active', select=True)
+    model = fields.Many2One('ir.model', 'Model', required=True, select=True)
+    on_time = fields.Boolean('On Time', select=True, states={
             'invisible': (Eval('on_create', False)
                 or Eval('on_write', False)
                 or Eval('on_delete', False)),
         }, depends=['on_create', 'on_write', 'on_delete'],
         on_change=['on_time'])
-    on_create = fields.Boolean('On Create', select=1, states={
+    on_create = fields.Boolean('On Create', select=True, states={
         'invisible': Eval('on_time', False),
         }, depends=['on_time'],
         on_change=['on_create'])
-    on_write = fields.Boolean('On Write', select=1, states={
+    on_write = fields.Boolean('On Write', select=True, states={
         'invisible': Eval('on_time', False),
         }, depends=['on_time'],
         on_change=['on_write'])
-    on_delete = fields.Boolean('On Delete', select=1, states={
+    on_delete = fields.Boolean('On Delete', select=True, states={
         'invisible': Eval('on_time', False),
         }, depends=['on_time'],
         on_change=['on_delete'])

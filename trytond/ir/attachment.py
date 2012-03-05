@@ -35,7 +35,7 @@ class Attachment(ModelSQL, ModelView):
     description = fields.Text('Description')
     summary = fields.Function(fields.Char('Summary',
         on_change_with=['description']), 'get_summary')
-    resource = fields.Reference('Resource', selection='models_get', select=1)
+    resource = fields.Reference('Resource', selection='models_get', select=True)
     link = fields.Char('Link', states={
             'invisible': Eval('type') != 'link',
             }, depends=['type'])

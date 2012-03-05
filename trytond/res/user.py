@@ -25,7 +25,7 @@ class User(ModelSQL, ModelView):
     "User"
     _name = "res.user"
     _description = __doc__
-    name = fields.Char('Name', required=True, select=1, translate=True)
+    name = fields.Char('Name', required=True, select=True, translate=True)
     login = fields.Char('Login', required=True)
     login_try = fields.Integer('Login Try')
     password = fields.Sha('Password')
@@ -427,10 +427,10 @@ class UserGroup(ModelSQL):
     'User - Group'
     _name = 'res.user-res.group'
     _description = __doc__
-    user = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=1,
+    user = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=True,
             required=True)
-    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE', select=1,
-            required=True)
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+            select=True, required=True)
 
     def init(self, module_name):
         cursor = Transaction().cursor
@@ -460,8 +460,8 @@ class Warning(ModelSQL, ModelView):
     _name = 'res.user.warning'
     _description = __doc__
 
-    user = fields.Many2One('res.user', 'User', required=True, select=1)
-    name = fields.Char('Name', required=True, select=1)
+    user = fields.Many2One('res.user', 'User', required=True, select=True)
+    name = fields.Char('Name', required=True, select=True)
     always = fields.Boolean('Always')
 
     def check(self, warning_name):

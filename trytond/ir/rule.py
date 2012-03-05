@@ -15,13 +15,13 @@ class RuleGroup(ModelSQL, ModelView):
     "Rule group"
     _name = 'ir.rule.group'
     _description = __doc__
-    name = fields.Char('Name', select=1)
-    model = fields.Many2One('ir.model', 'Model', select=1,
+    name = fields.Char('Name', select=True)
+    model = fields.Many2One('ir.model', 'Model', select=True,
             required=True)
-    global_p = fields.Boolean('Global', select=1,
+    global_p = fields.Boolean('Global', select=True,
             help="Make the rule global \n" \
                     "so every users must follow this rule")
-    default_p = fields.Boolean('Default', select=1,
+    default_p = fields.Boolean('Default', select=True,
             help="Add this rule to all users by default")
     rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
             help="The rule is satisfied if at least one test is True")
@@ -90,11 +90,11 @@ class Rule(ModelSQL, ModelView):
     _description = __doc__
     field = fields.Many2One('ir.model.field', 'Field',
         domain=[('model', '=', Eval('_parent_rule_group', {}).get('model'))],
-        select=1, required=True)
+        select=True, required=True)
     operator = fields.Selection([(x, x) for x in OPERATORS], 'Operator',
         required=True, translate=False)
     operand = fields.Selection('get_operand','Operand', required=True)
-    rule_group = fields.Many2One('ir.rule.group', 'Group', select=2,
+    rule_group = fields.Many2One('ir.rule.group', 'Group', select=True,
        required=True, ondelete="CASCADE")
 
     def init(self, module_name):

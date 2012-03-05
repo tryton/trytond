@@ -196,7 +196,7 @@ class RequestHistory(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Summary', required=True, readonly=True)
     request = fields.Many2One('res.request', 'Request', required=True,
-       ondelete='CASCADE', select=1, readonly=True)
+       ondelete='CASCADE', select=True, readonly=True)
     act_from = fields.Many2One('res.user', 'From', required=True,
        readonly=True)
     act_to = fields.Many2One('res.user', 'To', required=True, readonly=True)
@@ -237,7 +237,7 @@ class RequestReference(ModelSQL, ModelView):
     _rec_name = 'reference'
 
     request = fields.Many2One('res.request', 'Request', required=True,
-            ondelete="CASCADE", select=1)
+            ondelete="CASCADE", select=True)
     reference = fields.Reference('Reference', selection='links_get',
             required=True)
 

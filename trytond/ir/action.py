@@ -26,7 +26,7 @@ class Action(ModelSQL, ModelView):
     groups = fields.Many2Many('ir.action-res.group', 'action', 'group',
             'Groups')
     icon = fields.Many2One('ir.ui.icon', 'Icon')
-    active = fields.Boolean('Active', select=2)
+    active = fields.Boolean('Active', select=True)
 
     def __init__(self):
         super(Action, self).__init__()
@@ -340,7 +340,7 @@ class ActionReport(ModelSQL, ModelView):
             ], translate=False,
         string='Extension', help='Leave empty for the same as template, '
         'see unoconv documentation for compatible format')
-    module = fields.Char('Module', readonly=True, select=1)
+    module = fields.Char('Module', readonly=True, select=True)
     email = fields.Char('Email',
         help='Python dictonary where keys define "to" "cc" "subject"\n'
         "Example: {'to': 'test@example.com', 'cc': 'user@example.com'}")

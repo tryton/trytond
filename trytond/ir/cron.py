@@ -32,7 +32,7 @@ class Cron(ModelSQL, ModelView):
     request_user = fields.Many2One(
         'res.user', 'Request User', required=True,
         help="The user who will receive requests in case of failure")
-    active = fields.Boolean('Active', select=1)
+    active = fields.Boolean('Active', select=True)
     interval_number = fields.Integer('Interval Number')
     interval_type = fields.Selection( [
        ('minutes', 'Minutes'),
@@ -41,13 +41,13 @@ class Cron(ModelSQL, ModelView):
        ('weeks', 'Weeks'),
        ('months', 'Months'),
        ], 'Interval Unit')
-    number_calls = fields.Integer('Number of Calls', select=1,
+    number_calls = fields.Integer('Number of Calls', select=True,
        help=('Number of times the function is called, a negative '
            'number indicates that the function will always be '
            'called'))
     repeat_missed = fields.Boolean('Repeat Missed')
     next_call = fields.DateTime('Next Call', required=True,
-            select=1)
+            select=True)
     model = fields.Char('Model')
     function = fields.Char('Function')
     args = fields.Text('Arguments')

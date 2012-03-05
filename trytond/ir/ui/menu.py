@@ -68,7 +68,7 @@ class UIMenu(ModelSQL, ModelView):
     name = fields.Char('Menu', required=True, translate=True)
     sequence = fields.Integer('Sequence')
     childs = fields.One2Many('ir.ui.menu', 'parent', 'Children')
-    parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=1,
+    parent = fields.Many2One('ir.ui.menu', 'Parent Menu', select=True,
             ondelete='CASCADE')
     groups = fields.Many2Many('ir.ui.menu-res.group',
        'menu', 'group', 'Groups')

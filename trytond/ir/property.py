@@ -13,9 +13,9 @@ class Property(ModelSQL, ModelView):
     _description = __doc__
     _rec_name = 'field'
     value = fields.Reference('Value', selection='models_get')
-    res = fields.Reference('Resource', selection='models_get', select=1)
+    res = fields.Reference('Resource', selection='models_get', select=True)
     field = fields.Many2One('ir.model.field', 'Field',
-        ondelete='CASCADE', required=True, select=1)
+        ondelete='CASCADE', required=True, select=True)
 
     @Cache('ir_property.models_get')
     def models_get(self):

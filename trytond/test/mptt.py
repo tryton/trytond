@@ -10,10 +10,10 @@ class MPTT(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name', required=True)
     sequence = fields.Integer('Sequence')
-    parent = fields.Many2One('test.mptt', "Parent", select=1,
+    parent = fields.Many2One('test.mptt', "Parent", select=True,
             left="left", right="right")
-    left = fields.Integer('Left', required=True, select=1)
-    right = fields.Integer('Right', required=True, select=1)
+    left = fields.Integer('Left', required=True, select=True)
+    right = fields.Integer('Right', required=True, select=True)
     childs = fields.One2Many('test.mptt', 'parent', 'Children')
     active = fields.Boolean('Active')
 

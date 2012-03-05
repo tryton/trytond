@@ -19,17 +19,17 @@ class View(ModelSQL, ModelView):
     _name = 'ir.ui.view'
     _description = __doc__
     _rec_name = 'model'
-    model = fields.Char('Model', required=True, select=1)
-    priority = fields.Integer('Priority', required=True, select=1)
+    model = fields.Char('Model', required=True, select=True)
+    priority = fields.Integer('Priority', required=True, select=True)
     type = fields.Selection([
         (False, ''),
         ('tree','Tree'),
         ('form','Form'),
         ('graph', 'Graph'),
         ('board', 'Board'),
-        ], 'View Type', select=1)
+        ], 'View Type', select=True)
     arch = fields.Text('View Architecture')
-    inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=1,
+    inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=True,
             ondelete='CASCADE')
     field_childs = fields.Char('Children Field', states={
             'invisible': Eval('type') != 'tree',
@@ -383,10 +383,10 @@ class ViewTreeWidth(ModelSQL, ModelView):
     _name = 'ir.ui.view_tree_width'
     _description = __doc__
     _rec_name = 'model'
-    model = fields.Char('Model', required=True, select=1)
-    field = fields.Char('Field', required=True, select=1)
+    model = fields.Char('Model', required=True, select=True)
+    field = fields.Char('Field', required=True, select=True)
     user = fields.Many2One('res.user', 'User', required=True,
-            ondelete='CASCADE', select=1)
+            ondelete='CASCADE', select=True)
     width = fields.Integer('Width')
 
     def __init__(self):

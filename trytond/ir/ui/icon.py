@@ -13,7 +13,7 @@ class Icon(ModelSQL, ModelView):
     _name = 'ir.ui.icon'
     _description = __doc__
 
-    name = fields.Char('Name', required=True, select=1)
+    name = fields.Char('Name', required=True, select=True)
     module = fields.Char('Module', readonly=True, required=True)
     path = fields.Char('SVG Path', readonly=True, required=True)
     icon = fields.Function(fields.Char('Icon', depends=['path']), 'get_icon')
