@@ -442,7 +442,7 @@ class ModuleConfigWizardOther(ModelView):
         pool = Pool()
         item_obj = pool.get('ir.module.module.config_wizard.item')
         done = item_obj.search([
-            ('state', '=', 'open'),
+            ('state', '=', 'done'),
             ], count=True)
         all = item_obj.search([], count=True)
         return 100.0 * done/all
