@@ -71,6 +71,7 @@ class Model(WarningErrorMixin, URLMixin):
         self._rpc = {
             'default_get': False,
             'fields_get': False,
+            'on_change_with': False,
         }
         self._inherit_fields = []
         self._error_messages = {}
@@ -616,3 +617,10 @@ class Model(WarningErrorMixin, URLMixin):
                 if i not in fields_names:
                     del res[i]
         return res
+
+    def on_change_with(self, fieldnames, values):
+        changes = {}
+        for fieldname in fieldnames:
+            changes[fieldname] = getattr(self,
+                'on_change_with_%s' % fieldname)(values)
+        return changes
