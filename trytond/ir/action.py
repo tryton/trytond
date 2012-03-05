@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 import base64
 import os
+from operator import itemgetter
 from ..model import ModelView, ModelSQL, ModelStorage, fields
 from ..tools import file_open, safe_eval
 from ..backend import TableHandler
@@ -244,6 +245,7 @@ class ActionKeyword(ModelSQL, ModelView):
                 action_keyword.action.id)
             if values:
                 res.append(values)
+        sorted(res, key=itemgetter('name'))
         return res
 
 ActionKeyword()
