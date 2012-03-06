@@ -32,6 +32,8 @@ class WarningErrorMixin(object):
 
         language = Transaction().language
         res = translation_obj.get_source(self._name, 'error', language, error)
+        if not res:
+            res = translation_obj.get_source(error, 'error', language)
         if res:
             error = res
 
@@ -47,6 +49,9 @@ class WarningErrorMixin(object):
 
             res = translation_obj.get_source(self._name, 'error', language,
                     error_description)
+            if not res:
+                res = translation_obj.get_source(error_description, 'error',
+                    language)
             if res:
                 error_description = res
 
