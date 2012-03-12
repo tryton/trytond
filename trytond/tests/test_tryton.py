@@ -202,8 +202,7 @@ def test_depends():
         for mname, model in Pool().iterobject():
             for fname, field in model._columns.iteritems():
                 encoder = Encoder()
-                for pyson in (field.domain, field.states):
-                    encoder.encode(pyson)
+                encoder.encode(field.domain)
                 if hasattr(field, 'digits'):
                     encoder.encode(field.digits)
                 encoder.fields.discard(fname)
