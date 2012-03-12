@@ -10,6 +10,7 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
+from SocketServer import StreamRequestHandler
 
 def endsocket(sock):
     if os.name != 'nt':
@@ -32,11 +33,28 @@ class daemon(threading.Thread):
 
     def stop(self):
         self.server.shutdown()
+        self.server.socket.shutdown(socket.SHUT_RDWR)
+        self.server.server_close()
         return
 
     def run(self):
         self.server.serve_forever()
         return True
+
+
+class RegisterHandlerMixin:
+
+    def setup(self):
+        self.server.handlers.add(self)
+        StreamRequestHandler.setup(self)
+
+    def finish(self):
+        StreamRequestHandler.finish(self)
+        try:
+            self.server.handlers.remove(self)
+        except KeyError:
+            pass
+
 
 class GZipRequestHandlerMixin:
 

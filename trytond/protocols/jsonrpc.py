@@ -3,7 +3,8 @@
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
-from trytond.protocols.common import daemon, GZipRequestHandlerMixin
+from trytond.protocols.common import daemon, GZipRequestHandlerMixin, \
+    RegisterHandlerMixin
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
     ConcurrencyException
 import SimpleXMLRPCServer
@@ -156,6 +157,7 @@ class GenericJSONRPCRequestHandler:
 
 
 class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
+        RegisterHandlerMixin,
         GenericJSONRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler,
         SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -251,6 +253,7 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
 class SecureJSONRPCRequestHandler(SimpleJSONRPCRequestHandler):
 
     def setup(self):
+        self.server.handlers.add(self)
         self.connection = SSLSocket(self.request)
         self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
         self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
@@ -278,6 +281,7 @@ class SimpleJSONRPCServer(SocketServer.TCPServer,
     def __init__(self, addr, requestHandler=SimpleJSONRPCRequestHandler,
             logRequests=True, allow_none=False, encoding=None,
             bind_and_activate=True):
+        self.handlers = set()
         self.logRequests = logRequests
 
         SimpleJSONRPCDispatcher.__init__(self, allow_none, encoding)
@@ -294,6 +298,11 @@ class SimpleJSONRPCServer(SocketServer.TCPServer,
             flags = fcntl.fcntl(self.fileno(), fcntl.F_GETFD)
             flags |= fcntl.FD_CLOEXEC
             fcntl.fcntl(self.fileno(), fcntl.F_SETFD, flags)
+
+    def server_close(self):
+        SocketServer.TCPServer.server_close(self)
+        for handler in self.handlers:
+            self.shutdown_request(handler.request)
 
 
 class SimpleThreadedJSONRPCServer(SocketServer.ThreadingMixIn,

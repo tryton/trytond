@@ -3,7 +3,8 @@
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
-from trytond.protocols.common import daemon, GZipRequestHandlerMixin
+from trytond.protocols.common import daemon, GZipRequestHandlerMixin, \
+    RegisterHandlerMixin
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
     ConcurrencyException
 from trytond import security
@@ -179,12 +180,22 @@ class SimpleThreadedXMLRPCServer(SocketServer.ThreadingMixIn,
     timeout = 1
     daemon_threads = True
 
+    def __init__(self, server_address, HandlerClass, logRequests=1):
+        self.handlers = set()
+        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address,
+            HandlerClass, logRequests)
+
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET,
                 socket.SO_REUSEADDR, 1)
         self.socket.setsockopt(socket.SOL_SOCKET,
             socket.SO_KEEPALIVE, 1)
         SimpleXMLRPCServer.SimpleXMLRPCServer.server_bind(self)
+
+    def server_close(self):
+        SimpleXMLRPCServer.SimpleXMLRPCServer.server_close(self)
+        for handler in self.handlers:
+            self.shutdown_request(handler.request)
 
 
 class SimpleThreadedXMLRPCServer6(SimpleThreadedXMLRPCServer):

@@ -68,19 +68,39 @@ class TrytonServer(object):
         else:
             self.logger.info('using default configuration')
         self.logger.info('initialising distributed objects services')
+        self.xmlrpcd = []
+        self.jsonrpcd = []
+        self.webdavd = []
 
     def run(self):
         "Run the server and never return"
         from trytond.backend import Database
         from trytond.pool import Pool
         from trytond.monitor import monitor
-
-        update = False
+        update = bool(CONFIG['init'] or CONFIG['update'])
         init = {}
+
+        signal.signal(signal.SIGINT, lambda *a: self.stop())
+        signal.signal(signal.SIGTERM, lambda *a: self.stop())
+        if hasattr(signal, 'SIGQUIT'):
+            signal.signal(signal.SIGQUIT, lambda *a: self.stop())
+        if hasattr(signal, 'SIGUSR1'):
+            signal.signal(signal.SIGUSR1, lambda *a: self.restart())
+
+        if CONFIG['pidfile']:
+            with open(CONFIG['pidfile'], 'w') as fd_pid:
+                fd_pid.write("%d" % (os.getpid()))
+
+        if CONFIG['psyco']:
+            import psyco
+            psyco.full()
 
         if not CONFIG["db_name"] \
                 and bool(CONFIG['init'] or CONFIG['update']):
             raise Exception('Missing database option!')
+
+        if not update:
+            self.start_servers()
 
         for db_name in CONFIG["db_name"]:
             init[db_name] = False
@@ -99,8 +119,6 @@ class TrytonServer(object):
             finally:
                 cursor.close()
 
-        Pool.start()
-
         for db_name in CONFIG["db_name"]:
             cursor = Database(db_name).connect().cursor()
             try:
@@ -111,7 +129,6 @@ class TrytonServer(object):
                 lang = [x[0] for x in cursor.fetchall()]
             finally:
                 cursor.close()
-            update = bool(CONFIG['init'] or CONFIG['update'])
             Pool(db_name).init(update=update, lang=lang)
 
         for kind in ('init', 'update'):
@@ -153,79 +170,8 @@ class TrytonServer(object):
             logging.shutdown()
             sys.exit(0)
 
-        # Launch Server
-        jsonrpcd = []
-        if CONFIG['jsonrpc']:
-            from trytond.protocols.jsonrpc import JSONRPCDaemon
-            for hostname, port in CONFIG['jsonrpc']:
-                jsonrpcd.append(JSONRPCDaemon(hostname, port,
-                    CONFIG['ssl_jsonrpc']))
-                self.logger.info("starting JSON-RPC%s protocol on %s:%d" %
-                    (CONFIG['ssl_jsonrpc'] and ' SSL' or '', hostname or '*',
-                        port))
-
-        xmlrpcd = []
-        if CONFIG['xmlrpc']:
-            from trytond.protocols.xmlrpc import XMLRPCDaemon
-            for hostname, port in CONFIG['xmlrpc']:
-                xmlrpcd.append(XMLRPCDaemon(hostname, port,
-                    CONFIG['ssl_xmlrpc']))
-                self.logger.info("starting XML-RPC%s protocol on %s:%d" %
-                    (CONFIG['ssl_xmlrpc'] and ' SSL' or '', hostname or '*',
-                        port))
-
-        webdavd = []
-        if CONFIG['webdav']:
-            from trytond.protocols.webdav import WebDAVServerThread
-            for hostname, port in CONFIG['webdav']:
-                webdavd.append(WebDAVServerThread(hostname, port,
-                    CONFIG['ssl_webdav']))
-                self.logger.info("starting WebDAV%s protocol on %s:%d" %
-                    (CONFIG['ssl_webdav'] and ' SSL' or '', hostname or '*',
-                        port))
-
-        def handler(signum, frame):
-            if hasattr(signal, 'SIGUSR1'):
-                if signum == signal.SIGUSR1:
-                    Pool.start()
-                    return
-            for servers in (xmlrpcd, jsonrpcd, webdavd):
-                for server in servers:
-                    server.stop()
-                    server.join()
-            if CONFIG['pidfile']:
-                os.unlink(CONFIG['pidfile'])
-            logging.getLogger('server').info('stopped')
-            logging.shutdown()
-            sys.exit(0)
-
-        if CONFIG['pidfile']:
-            with open(CONFIG['pidfile'], 'w') as fd_pid:
-                fd_pid.write("%d" % (os.getpid()))
-
-        signal.signal(signal.SIGINT, handler)
-        signal.signal(signal.SIGTERM, handler)
-        if hasattr(signal, 'SIGQUIT'):
-            signal.signal(signal.SIGQUIT, handler)
-        if hasattr(signal, 'SIGUSR1'):
-            signal.signal(signal.SIGUSR1, handler)
-
-        self.logger.info('waiting for connections...')
-        for servers in (xmlrpcd, jsonrpcd, webdavd):
-            for server in servers:
-                server.start()
-
-        if CONFIG['psyco']:
-            import psyco
-            psyco.full()
-
         threads = {}
         while True:
-            if CONFIG['auto_reload'] and monitor():
-                try:
-                    Pool.start()
-                except Exception:
-                    pass
             if CONFIG['cron']:
                 for dbname in Pool.database_list():
                     thread = threads.get(dbname)
@@ -234,7 +180,7 @@ class TrytonServer(object):
                     pool = Pool(dbname)
                     if not pool.lock.acquire(0):
                         continue
-                    try: 
+                    try:
                         if 'ir.cron' not in pool.object_name_list():
                             continue
                         cron_obj = pool.get('ir.cron')
@@ -245,4 +191,63 @@ class TrytonServer(object):
                             args=(dbname,), kwargs={})
                     thread.start()
                     threads[dbname] = thread
-            time.sleep(60)
+            if CONFIG['auto_reload']:
+                for _ in range(60):
+                    if monitor():
+                        self.restart()
+                    time.sleep(1)
+            else:
+                time.sleep(60)
+
+    def start_servers(self):
+        # Launch Server
+        if CONFIG['jsonrpc']:
+            from trytond.protocols.jsonrpc import JSONRPCDaemon
+            for hostname, port in CONFIG['jsonrpc']:
+                self.jsonrpcd.append(JSONRPCDaemon(hostname, port,
+                    CONFIG['ssl_jsonrpc']))
+                self.logger.info("starting JSON-RPC%s protocol on %s:%d" %
+                    (CONFIG['ssl_jsonrpc'] and ' SSL' or '', hostname or '*',
+                        port))
+
+        if CONFIG['xmlrpc']:
+            from trytond.protocols.xmlrpc import XMLRPCDaemon
+            for hostname, port in CONFIG['xmlrpc']:
+                self.xmlrpcd.append(XMLRPCDaemon(hostname, port,
+                    CONFIG['ssl_xmlrpc']))
+                self.logger.info("starting XML-RPC%s protocol on %s:%d" %
+                    (CONFIG['ssl_xmlrpc'] and ' SSL' or '', hostname or '*',
+                        port))
+
+        if CONFIG['webdav']:
+            from trytond.protocols.webdav import WebDAVServerThread
+            for hostname, port in CONFIG['webdav']:
+                self.webdavd.append(WebDAVServerThread(hostname, port,
+                    CONFIG['ssl_webdav']))
+                self.logger.info("starting WebDAV%s protocol on %s:%d" %
+                    (CONFIG['ssl_webdav'] and ' SSL' or '', hostname or '*',
+                        port))
+
+        for servers in (self.xmlrpcd, self.jsonrpcd, self.webdavd):
+            for server in servers:
+                server.start()
+
+    def stop(self, exit=True):
+        for servers in (self.xmlrpcd, self.jsonrpcd, self.webdavd):
+            for server in servers:
+                server.stop()
+                server.join()
+        if exit:
+            if CONFIG['pidfile']:
+                os.unlink(CONFIG['pidfile'])
+            logging.getLogger('server').info('stopped')
+            logging.shutdown()
+            sys.exit(0)
+
+    def restart(self):
+        self.stop(False)
+        args = ([sys.executable] + ['-W%s' % o for o in sys.warnoptions]
+            + sys.argv)
+        if sys.platform == "win32":
+            args = ['"%s"' % arg for arg in args]
+        os.execv(sys.executable, args)
