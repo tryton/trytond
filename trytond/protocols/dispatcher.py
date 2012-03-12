@@ -16,7 +16,6 @@ from trytond import security
 from trytond.backend import Database, DatabaseOperationalError
 from trytond.config import CONFIG
 from trytond.version import VERSION
-from trytond.monitor import monitor
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
@@ -24,9 +23,6 @@ from trytond.exceptions import UserError, UserWarning, NotLogged, \
 
 def dispatch(host, port, protocol, database_name, user, session, object_type,
         object_name, method, *args, **kargs):
-
-    if CONFIG['auto_reload'] and monitor():
-        Pool.start()
 
     if object_type == 'common':
         if method == 'login':

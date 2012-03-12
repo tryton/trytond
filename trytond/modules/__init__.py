@@ -319,28 +319,15 @@ def get_module_list():
     module_list.add('test')
     return list(module_list)
 
-def register_classes(reload_p=False):
+def register_classes():
     '''
     Import modules to register the classes in the Pool
-
-    :param reload_p: reload modules instead of import it
     '''
-    if not reload_p:
-        import trytond.ir
-        import trytond.workflow
-        import trytond.res
-        import trytond.webdav
-        import trytond.test
-    else:
-        for module in ('trytond.model', 'trytond.report', 'trytond.wizard',
-                'trytond.ir', 'trytond.workflow', 'trytond.res',
-                'trytond.webdav', 'trytond.test'):
-            for i in sys.modules.keys():
-                if i.startswith(module) \
-                        and i != module:
-                    del sys.modules[i]
-            imp.reload(sys.modules[module])
-
+    import trytond.ir
+    import trytond.workflow
+    import trytond.res
+    import trytond.webdav
+    import trytond.test
     logger = logging.getLogger('modules')
 
     for package in create_graph(get_module_list())[0]:
@@ -349,15 +336,6 @@ def register_classes(reload_p=False):
 
         if module in ('ir', 'workflow', 'res', 'webdav', 'test'):
             MODULES.append(module)
-            continue
-
-        if reload_p and 'trytond.modules.' + module in sys.modules:
-            for i in sys.modules.keys():
-                if i.startswith('trytond.modules.' + module) \
-                        and i != 'trytond.modules.' + module \
-                        and getattr(sys.modules[i], '_TRYTON_RELOAD', True):
-                    del sys.modules[i]
-            imp.reload(sys.modules['trytond.modules.' + module])
             continue
 
         if os.path.isdir(OPJ(MODULES_PATH, module)):

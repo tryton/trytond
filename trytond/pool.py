@@ -14,6 +14,7 @@ class Pool(object):
         'wizard': {},
         'report': {},
     }
+    _started = False
     _lock = RLock()
     _locks = {}
     _pool = {}
@@ -60,22 +61,8 @@ class Pool(object):
         Start/restart the Pool
         '''
         with cls._lock:
-            reload_p = False
-            prev_classes = {}
-            for type in cls.classes:
-                if cls.classes.get(type):
-                    reload_p = True
-                prev_classes[type] = cls.classes.get(type)
-                cls.classes[type] = {}
-            try:
-                register_classes(reload_p=reload_p)
-            except Exception:
-                if not reload_p:
-                    raise
-                for type in prev_classes:
-                    cls.classes[type] = prev_classes[type]
-            for db_name in cls.database_list():
-                cls(db_name).init()
+            register_classes()
+            cls._started = True
 
     @classmethod
     def stop(cls, database_name):
@@ -116,6 +103,9 @@ class Pool(object):
         '''
         logger = logging.getLogger('pool')
         logger.info('init pool for "%s"' % self.database_name)
+        with self._lock:
+            if not self._started:
+                self.start()
         with self._locks[self.database_name]:
             self._pool.setdefault(self.database_name, {})
             #Clean the _pool before loading modules
