@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.const import CONTEXT_CACHE_SIZE, MODEL_CACHE_SIZE
+from trytond.const import MODEL_CACHE_SIZE
 
 DatabaseIntegrityError = None
 DatabaseOperationalError = None
