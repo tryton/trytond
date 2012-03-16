@@ -20,6 +20,12 @@ from ..pyson import Eval, Bool
 from ..pool import Pool
 from ..config import CONFIG
 
+try:
+    import pytz
+    TIMEZONES = [(x, x) for x in pytz.common_timezones]
+except ImportError:
+    TIMEZONES = []
+
 
 class User(ModelSQL, ModelView):
     "User"
@@ -49,7 +55,7 @@ class User(ModelSQL, ModelView):
             ])
     language_direction = fields.Function(fields.Char('Language Direction'),
             'get_language_direction')
-    timezone = fields.Selection('timezones', 'Timezone')
+    timezone = fields.Selection(TIMEZONES, 'Timezone', translate=False)
     email = fields.Char('Email')
     status_bar = fields.Function(fields.Char('Status Bar'), 'get_status_bar')
     warnings = fields.One2Many('res.user.warning', 'user', 'Warnings')
@@ -276,6 +282,8 @@ class User(ModelSQL, ModelView):
                         res['language'] = CONFIG['language']
                 else:
                     res[field] = user[field].id
+                    if user[field].id:
+                        res[field + '.rec_name'] = user[field].rec_name
             elif self._columns[field]._type in ('one2many', 'many2many'):
                 res[field] = [x.id for x in user[field]]
             else:
@@ -336,6 +344,7 @@ class User(ModelSQL, ModelView):
         pool = Pool()
         model_data_obj = pool.get('ir.model.data')
         lang_obj = pool.get('ir.lang')
+        action_obj = pool.get('ir.action')
 
         view_id = model_data_obj.get_id('res', 'user_view_form_preferences')
         res = self.fields_view_get(view_id=view_id)
@@ -345,26 +354,36 @@ class User(ModelSQL, ModelView):
                 res['fields'][field]['readonly'] = False
             else:
                 res['fields'][field]['readonly'] = True
+
+        def convert2selection(definition, name):
+            del definition[name]['relation']
+            definition[name]['type'] = 'selection'
+            selection = []
+            definition[name]['selection'] = selection
+            return selection
+
         if 'language' in res['fields']:
-            del res['fields']['language']['relation']
-            res['fields']['language']['type'] = 'selection'
-            res['fields']['language']['selection'] = []
+            selection = convert2selection(res['fields'], 'language')
             lang_ids = lang_obj.search(['OR',
                     ('translatable', '=', True),
                     ('code', '=', CONFIG['language']),
                     ])
             with Transaction().set_context(translate_name=True):
                 for lang in lang_obj.browse(lang_ids):
-                    res['fields']['language']['selection'].append(
-                            (lang.code, lang.name))
-        return res
-
-    def timezones(self):
-        try:
-            import pytz
-            res = [(x, x) for x in pytz.common_timezones]
-        except ImportError:
-            res = []
+                    selection.append((lang.code, lang.name))
+        if 'action' in res['fields']:
+            selection = convert2selection(res['fields'], 'action')
+            selection.append((None, ''))
+            action_ids = action_obj.search([])
+            for action in action_obj.browse(action_ids):
+                selection.append((action.id, action.rec_name))
+        if 'menu' in res['fields']:
+            selection = convert2selection(res['fields'], 'menu')
+            action_ids = action_obj.search([
+                    ('usage', '=', 'menu'),
+                    ])
+            for action in action_obj.browse(action_ids):
+                selection.append((action.id, action.rec_name))
         return res
 
     @Cache('res_user.get_groups')
