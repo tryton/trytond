@@ -6,12 +6,17 @@ from trytond.transaction import Transaction
 from trytond.exceptions import NotLogged
 
 
+def _get_pool(dbname):
+    database_list = Pool.database_list()
+    pool = Pool(dbname)
+    if not dbname in database_list:
+        pool.init()
+    return pool
+
+
 def login(dbname, loginname, password, cache=True):
     with Transaction().start(dbname, 0) as transaction:
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        pool = _get_pool(dbname)
         user_obj = pool.get('res.user')
         password = password.decode('utf-8')
         user_id = user_obj.get_login(loginname, password)
@@ -29,10 +34,7 @@ def login(dbname, loginname, password, cache=True):
 
 def logout(dbname, user, session):
     with Transaction().start(dbname, 0) as transaction:
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        pool = _get_pool(dbname)
         session_obj = pool.get('ir.session')
         session_id, = session_obj.search([
                 ('key', '=', session),
@@ -57,10 +59,7 @@ def check(dbname, user, session):
     if not user:
         raise NotLogged()
     with Transaction().start(dbname, user) as transaction:
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
+        pool = _get_pool(dbname)
         session_obj = pool.get('ir.session')
         try:
             if not session_obj.check(user, session):
