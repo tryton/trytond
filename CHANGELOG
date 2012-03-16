@@ -1,3 +1,4 @@
+* Replace user action by a list of actions
 * Add group call to on_change_with
 * Allow to get fuzzy translation
 * Allow to customize server timezone
