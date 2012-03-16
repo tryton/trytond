@@ -20,7 +20,6 @@ class Model(WarningErrorMixin, URLMixin):
     _inherits = {}
     _description = ''
     __columns = None
-    __xxx2many_targets = None
     __defaults = None
     _rec_name = 'name'
 
@@ -28,7 +27,6 @@ class Model(WarningErrorMixin, URLMixin):
 
     def _reset_columns(self):
         self.__columns = None
-        self._reset_xxx2many_targets()
 
     def _getcolumns(self):
         if self.__columns:
@@ -140,55 +138,6 @@ class Model(WarningErrorMixin, URLMixin):
             obj = pool.get(obj_name)
             if self._name in obj._inherits:
                 obj._inherits_reload()
-
-    def _reset_xxx2many_targets(self):
-        self.__xxx2many_targets = None
-
-    def _getxxx2many_targets(self):
-        if self.__xxx2many_targets:
-            return self.__xxx2many_targets
-        to_cache = True
-
-        res = [(field_name, field.model_name)
-                for field_name, field in self._columns.iteritems()
-                if field._type == 'one2many']
-
-        for field_name, field in self._columns.iteritems():
-            if field._type != 'many2many':
-                continue
-            if hasattr(field, 'get_target'):
-                try:
-                    model_name = field.get_target()._name
-                except KeyError:
-                    to_cache = False
-                    continue
-            else:
-                model_name = field.model_name
-            res.append((field_name, model_name))
-
-        res += [(field_name, field.model_name)
-                for _, (_, field_name, field) in \
-                        self._inherit_fields.iteritems()
-                if field._type == 'one2many']
-
-        for _, (_, field_name, field) in self._inherit_fields.iteritems():
-            if field._type != 'many2many':
-                continue
-            if hasattr(field, 'get_target'):
-                try:
-                    model_name = field.get_target()._name
-                except KeyError:
-                    to_cache = False
-                    continue
-            else:
-                model_name = field.model_name
-            res.append((field_name, model_name))
-
-        if to_cache:
-            self.__xxx2many_targets = res
-        return res
-
-    _xxx2many_targets = property(fget=_getxxx2many_targets)
 
     def init(self, module_name):
         """
