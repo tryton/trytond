@@ -197,9 +197,7 @@ class BrowseRecord(object):
                                     LRUDict(RECORD_CACHE_SIZE))
                                 data[i] = BrowseRecord(data[i], model,
                                     ids, local_cache)
-                    elif (model
-                            and j._type in ('one2many', 'many2many')
-                            and len(data[i])):
+                    elif (model and j._type in ('one2many', 'many2many')):
                         _datetime = None
                         if hasattr(j, 'datetime_field') and j.datetime_field:
                             _datetime = data[j.datetime_field]

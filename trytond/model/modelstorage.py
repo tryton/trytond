@@ -64,20 +64,6 @@ class ModelStorage(Model):
         "Default value for create_date field."
         return datetime.datetime.today()
 
-    def __clean_xxx2many_cache(self):
-        # Clean cursor cache
-        to_clean = [(model._name, field_name)
-                for model_name, model in Pool().iterobject(type='model')
-                for field_name, target_name in model._xxx2many_targets
-                if target_name == self._name]
-        for cache in Transaction().cursor.cache.values():
-            for cache in (cache, cache.get('_language_cache', {}).values()):
-                for model_name, field_name in to_clean:
-                    if model_name in cache:
-                        for model_id in cache[model_name]:
-                            if field_name in cache[model_name][model_id]:
-                                del cache[model_name][model_id][field_name]
-
     def create(self, values):
         '''
         Create records.
@@ -93,7 +79,6 @@ class ModelStorage(Model):
         model_access_obj.check(self._name, 'create')
         model_field_access_obj.check(self._name,
                 [x for x in values if x in self._columns], 'write')
-        self.__clean_xxx2many_cache()
         return False
 
     def trigger_create(self, id):
@@ -162,8 +147,6 @@ class ModelStorage(Model):
                     for i in ids:
                         if i in cache[self._name]:
                             cache[self._name][i] = {}
-        if ids:
-            self.__clean_xxx2many_cache()
         return False
 
     def trigger_write_get_eligibles(self, ids):
@@ -232,8 +215,6 @@ class ModelStorage(Model):
                     for i in ids:
                         if i in cache[self._name]:
                             del cache[self._name][i]
-        if ids:
-            self.__clean_xxx2many_cache()
         return False
 
     def trigger_delete(self, ids):
