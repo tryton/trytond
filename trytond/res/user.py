@@ -19,6 +19,7 @@ from ..cache import Cache
 from ..pyson import Eval, Bool
 from ..pool import Pool
 from ..config import CONFIG
+from ..pyson import PYSONEncoder
 
 try:
     import pytz
@@ -38,11 +39,11 @@ class User(ModelSQL, ModelView):
     salt = fields.Char('Salt', size=8)
     signature = fields.Text('Signature')
     active = fields.Boolean('Active')
-    action = fields.Many2One('ir.action', 'Home Action', states={
-        'required': Bool(Eval('id')),
-        }, depends=['id'])
     menu = fields.Many2One('ir.action', 'Menu Action',
             domain=[('usage','=','menu')], required=True)
+    pyson_menu = fields.Function(fields.Char('PySON Menu'), 'get_pyson_menu')
+    actions = fields.Many2Many('res.user-ir.action', 'user', 'action',
+        'Actions', help='Actions that will be run at login')
     groups = fields.Many2Many('res.user-res.group',
        'user', 'group', 'Groups')
     rule_groups = fields.Many2Many('ir.rule.group-res.user',
@@ -79,7 +80,8 @@ class User(ModelSQL, ModelView):
             'email',
             'signature',
             'menu',
-            'action',
+            'pyson_menu',
+            'actions',
             'status_bar',
             'warnings',
         ]
@@ -116,6 +118,9 @@ class User(ModelSQL, ModelView):
                 ):
             table.not_null_action(field, action='remove')
 
+        # Migration from 2.2
+        table.not_null_action('menu', action='remove')
+
     def default_login_try(self):
         return 0
 
@@ -135,8 +140,16 @@ class User(ModelSQL, ModelView):
             return action_ids[0]
         return False
 
-    def default_action(self):
-        return self.default_menu()
+    def get_pyson_menu(self, ids, name):
+        pool = Pool()
+        action_obj = pool.get('ir.action')
+
+        encoder = PYSONEncoder()
+        result = {}
+        for user in self.browse(ids):
+            result[user.id] = encoder.encode(
+                action_obj.get_action_values(user.menu.type, user.menu.id))
+        return result
 
     def get_language_direction(self, ids, name):
         res = {}
@@ -174,8 +187,6 @@ class User(ModelSQL, ModelView):
         vals = vals.copy()
         pool = Pool()
         action_obj = pool.get('ir.action')
-        if 'action' in vals:
-            vals['action'] = action_obj.get_action_id(vals['action'])
         if 'menu' in vals:
             vals['menu'] = action_obj.get_action_id(vals['menu'])
         if 'password' in vals:
@@ -268,6 +279,11 @@ class User(ModelSQL, ModelView):
         return new_ids
 
     def _get_preferences(self, user, context_only=False):
+        pool = Pool()
+        model_data_obj = pool.get('ir.model.data')
+        action_obj = pool.get('ir.action')
+        config_item = pool.get('ir.module.module.config_wizard.item')
+
         res = {}
         if context_only:
             fields = self._context_fields
@@ -286,6 +302,16 @@ class User(ModelSQL, ModelView):
                         res[field + '.rec_name'] = user[field].rec_name
             elif self._columns[field]._type in ('one2many', 'many2many'):
                 res[field] = [x.id for x in user[field]]
+                if field == 'actions' and user.login == 'admin':
+                    config_wizard_id = model_data_obj.get_id('ir',
+                        'act_module_config_wizard')
+                    action_id = action_obj.get_action_id(config_wizard_id)
+                    if action_id in res[field]:
+                        res[field].remove(action_id)
+                    if config_item.search([
+                                ('state', '=', 'open'),
+                                ]):
+                        res[field].insert(0, action_id)
             else:
                 res[field] = user[field]
 
@@ -440,6 +466,33 @@ class User(ModelSQL, ModelView):
         return 0
 
 User()
+
+
+class UserAction(ModelSQL):
+    'User - Action'
+    _name = 'res.user-ir.action'
+    user = fields.Many2One('res.user', 'User', ondelete='CASCADE', select=True,
+        required=True)
+    action = fields.Many2One('ir.action', 'Action', ondelete='CASCADE',
+        select=True, required=True)
+
+    def _convert_values(self, values):
+        pool = Pool()
+        action_obj = pool.get('ir.action')
+        values = values.copy()
+        if values.get('action'):
+            values['action'] = action_obj.get_action_id(values['action'])
+        return values
+
+    def create(self, values):
+        values = self._convert_values(values)
+        return super(UserAction, self).create(values)
+
+    def write(self, ids, values):
+        values = self._convert_values(values)
+        return super(UserAction, self).write(values)
+
+UserAction()
 
 
 class UserGroup(ModelSQL):

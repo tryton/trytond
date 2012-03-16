@@ -7,7 +7,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="login">admin</field>
             <field name="name">Administrator</field>
             <field name="signature">Administrator</field>
-            <field name="action" ref="ir.act_module_config_wizard"/>
             <field name="menu" ref="ir.act_menu_tree"/>
         </record>
         <record model="res.user-res.group" id="user_admin_group_admin">
@@ -32,13 +31,13 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="password"/>
                             <label name="email"/>
                             <field name="email" widget="email"/>
-                            <newline/>
-                            <label name="action"/>
-                            <field name="action"/>
-                            <label name="menu"/>
-                            <field name="menu"/>
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
+                        </page>
+                        <page string="Actions" id="actions">
+                            <label name="menu"/>
+                            <field name="menu"/>
+                            <field name="actions" colspan="4"/>
                         </page>
                         <page string="Access Permissions" col="1" id="permissions">
                             <field name="groups"/>
@@ -70,12 +69,13 @@ this repository contains the full copyright notices and license terms. -->
                             <field name="email" widget="email"/>
                             <label name="password"/>
                             <field name="password"/>
-                            <label name="action"/>
-                            <field name="action" widget="selection"/>
-                            <label name="menu"/>
-                            <field name="menu" widget="selection"/>
                             <separator name="signature" colspan="4"/>
                             <field name="signature" colspan="4"/>
+                        </page>
+                        <page string="Actions" id="actions">
+                            <label name="menu"/>
+                            <field name="menu" widget="selection"/>
+                            <field name="actions" colspan="4"/>
                         </page>
                         <page string="Group Membership" col="1" id="membership">
                             <field name="groups"/>
