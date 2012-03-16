@@ -420,30 +420,6 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
     def default_sequence(self):
         return 10
 
-    def create(self, values):
-        pool = Pool()
-        user_obj = pool.get('res.user')
-        result = super(ModuleConfigWizardItem, self).create(values)
-        # Restart the cache for get_preferences
-        user_obj.get_preferences.reset()
-        return result
-
-    def write(self, ids, values):
-        pool = Pool()
-        user_obj = pool.get('res.user')
-        result = super(ModuleConfigWizardItem, self).write(ids, values)
-        # Restart the cache for get_preferences
-        user_obj.get_preferences.reset()
-        return result
-
-    def delete(self, ids):
-        pool = Pool()
-        user_obj = pool.get('res.user')
-        result = super(ModuleConfigWizardItem, self).delete(ids)
-        # Restart the cache for get_preferences
-        user_obj.get_preferences.reset()
-        return result
-
 ModuleConfigWizardItem()
 
 

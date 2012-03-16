@@ -1,6 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from ..model import ModelView, ModelSQL, fields
+from ..model import ModelView, ModelSQL, Model, fields
 from ..backend import TableHandler
 from ..transaction import Transaction
 from ..pool import Pool
@@ -263,3 +263,33 @@ class SequenceStrict(Sequence):
     _name = 'ir.sequence.strict'
 
 SequenceStrict()
+
+
+class ModuleConfigWizardItem(Model):
+    _name = 'ir.module.module.config_wizard.item'
+
+    def create(self, values):
+        pool = Pool()
+        user_obj = pool.get('res.user')
+        result = super(ModuleConfigWizardItem, self).create(values)
+        # Restart the cache for get_preferences
+        user_obj.get_preferences.reset()
+        return result
+
+    def write(self, ids, values):
+        pool = Pool()
+        user_obj = pool.get('res.user')
+        result = super(ModuleConfigWizardItem, self).write(ids, values)
+        # Restart the cache for get_preferences
+        user_obj.get_preferences.reset()
+        return result
+
+    def delete(self, ids):
+        pool = Pool()
+        user_obj = pool.get('res.user')
+        result = super(ModuleConfigWizardItem, self).delete(ids)
+        # Restart the cache for get_preferences
+        user_obj.get_preferences.reset()
+        return result
+
+ModuleConfigWizardItem()
