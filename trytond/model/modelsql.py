@@ -299,7 +299,8 @@ class ModelSQL(ModelStorage):
 
         for inherits in tocreate:
             inherits_obj = pool.get(inherits)
-            inherits_id = inherits_obj.create(tocreate[inherits])
+            with Transaction().set_user(0, set_context=True):
+                inherits_id = inherits_obj.create(tocreate[inherits])
             values[self._inherits[inherits]] = inherits_id
 
         # Insert record
@@ -947,7 +948,8 @@ class ModelSQL(ModelStorage):
             for val in updend:
                 if self._inherit_fields[val][0] == table:
                     values2[val] = values[val]
-            pool.get(table).write(nids, values2)
+            with Transaction().set_user(0, set_context=True):
+                pool.get(table).write(nids, values2)
 
         self._validate(ids)
 

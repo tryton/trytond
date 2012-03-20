@@ -64,6 +64,17 @@ class ModelStorage(Model):
         "Default value for create_date field."
         return datetime.datetime.today()
 
+    def __fields_by_model(self, values):
+        "Return a dictionary with list of fields from values grouped by model"
+        fields_by_model = {}
+        for field in values:
+            if field in self._columns:
+                model = self._name
+            else:
+                model = self._inherit_fields[field][0]
+            fields_by_model.setdefault(model, []).append(field)
+        return fields_by_model
+
     def create(self, values):
         '''
         Create records.
@@ -77,8 +88,8 @@ class ModelStorage(Model):
         model_field_access_obj = pool.get('ir.model.field.access')
 
         model_access_obj.check(self._name, 'create')
-        model_field_access_obj.check(self._name,
-                [x for x in values if x in self._columns], 'write')
+        for model, fields in self.__fields_by_model(values).iteritems():
+            model_field_access_obj.check(model, fields, 'write')
         return False
 
     def trigger_create(self, id):
@@ -132,8 +143,8 @@ class ModelStorage(Model):
         model_field_access_obj = pool.get('ir.model.field.access')
 
         model_access_obj.check(self._name, 'write')
-        model_field_access_obj.check(self._name,
-                [x for x in values if x in self._columns], 'write')
+        for model, fields in self.__fields_by_model(values).iteritems():
+            model_field_access_obj.check(model, fields, 'write')
         if not self.check_xml_record(ids, values):
             self.raise_user_error('write_xml_record',
                     error_description='xml_record_desc')
