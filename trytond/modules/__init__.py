@@ -90,9 +90,6 @@ class Node(Singleton):
         node.depth = max(self.depth + 1, node.depth)
         if node not in self.all_childs():
             self.childs.append(node)
-        for attr in ('init', 'update'):
-            if hasattr(self, attr):
-                setattr(node, attr, True)
         self.childs.sort(key=operator.attrgetter('name'))
 
     def all_childs(self):
@@ -128,9 +125,7 @@ class Node(Singleton):
             res += '%s`-> %s' % ('    ' * depth, child.pprint(depth + 1))
         return res
 
-def create_graph(module_list, force=None):
-    if force is None:
-        force = []
+def create_graph(module_list):
     graph = Graph()
     packages = []
 
@@ -177,12 +172,6 @@ def create_graph(module_list, force=None):
             graph.add_node(package, all_deps)
             node = Node(package, graph)
             node.info = info
-            for kind in ('init', 'update'):
-                if (package in CONFIG[kind]) \
-                        or (('all' in CONFIG[kind]) \
-                            and (package != 'test')) \
-                        or (kind in force):
-                    setattr(node, kind, True)
         else:
             later.add(package)
             packages.append((package, deps, xdep, info))
@@ -195,6 +184,15 @@ def create_graph(module_list, force=None):
         raise Exception('%s unmet dependencies: %s' % (package, missings))
     return graph, packages, later
 
+
+def is_module_to_install(module):
+    for kind in ('init', 'update'):
+        if 'all' in CONFIG[kind] and module != 'test':
+            return True
+        elif module in CONFIG[kind]:
+            return True
+    return False
+
 def load_module_graph(graph, pool, lang=None):
     if lang is None:
         lang = [CONFIG['language']]
@@ -204,12 +202,10 @@ def load_module_graph(graph, pool, lang=None):
     cursor = Transaction().cursor
 
     modules = [x.name for x in graph]
-    cursor.execute('SELECT name, state FROM ir_module_module ' \
-            'WHERE name in (' + ','.join(('%s',) * len(modules)) + ')',
-            modules)
-    module2state = {}
-    for name, state in cursor.fetchall():
-        module2state[name] = state
+    cursor.execute('SELECT name, state FROM ir_module_module '
+        'WHERE name in (' + ','.join(('%s',) * len(modules)) + ')',
+        modules)
+    module2state = dict(cursor.fetchall())
 
     for package in graph:
         module = package.name
@@ -219,10 +215,8 @@ def load_module_graph(graph, pool, lang=None):
         sys.stdout.flush()
         objects = pool.instanciate(module)
         package_state = module2state.get(module, 'uninstalled')
-        if hasattr(package, 'init') \
-                or hasattr(package, 'update') \
-                or (package_state in ('to install', 'to upgrade')):
-
+        if (is_module_to_install(module)
+                or package_state in ('to install', 'to upgrade')):
             for type in objects.keys():
                 for obj in objects[type]:
                     logger.info('%s:init %s' % (module, obj._name))
@@ -236,23 +230,10 @@ def load_module_graph(graph, pool, lang=None):
 
             for filename in package.info.get('xml', []):
                 filename = filename.replace('/', os.sep)
-                mode = 'update'
-                if hasattr(package, 'init') or package_state == 'to install':
-                    mode = 'init'
                 logger.info('%s:loading %s' % (module, filename))
-                ext = os.path.splitext(filename)[1]
-                if ext == '.sql':
-                    if mode == 'init':
-                        with tools.file_open(OPJ(module, filename)) as fp:
-                            queries = fp.read().split(';')
-                        for query in queries:
-                            new_query = ' '.join(query.split())
-                            if new_query:
-                                cursor.execute(new_query)
-                else:
-                    # Feed the parser with xml content:
-                    with tools.file_open(OPJ(module, filename)) as fp:
-                        tryton_parser.parse_xmlstream(fp)
+                # Feed the parser with xml content:
+                with tools.file_open(OPJ(module, filename)) as fp:
+                    tryton_parser.parse_xmlstream(fp)
 
             modules_todo.append((module, list(tryton_parser.to_delete)))
 
@@ -271,22 +252,22 @@ def load_module_graph(graph, pool, lang=None):
                     "WHERE name = %s", (package.name,))
             module2state[package.name] = 'installed'
 
-        # Create missing reports
-        from trytond.report import Report
-        report_obj = pool.get('ir.action.report')
-        report_ids = report_obj.search([
-            ('module', '=', module),
-            ])
-        report_names = pool.object_name_list(type='report')
-        for report in report_obj.browse(report_ids):
-            report_name = report.report_name
-            if report_name not in report_names:
-                report = object.__new__(Report)
-                report._name = report_name
-                pool.add(report, type='report')
-                report.__init__()
-
         cursor.commit()
+
+    # Create missing reports
+    from trytond.report import Report
+    report_obj = pool.get('ir.action.report')
+    report_ids = report_obj.search([
+        ('module', '=', module),
+        ])
+    report_names = pool.object_name_list(type='report')
+    for report in report_obj.browse(report_ids):
+        report_name = report.report_name
+        if report_name not in report_names:
+            report = object.__new__(Report)
+            report._name = report_name
+            pool.add(report, type='report')
+            report.__init__()
 
     for model_name in models_to_update_history:
         model = pool.get(model_name)
@@ -384,7 +365,6 @@ def load_modules(database_name, pool, update=False, lang=None):
                 Transaction().reset_context())
     with contextmanager:
         cursor = Transaction().cursor
-        force = []
         if update:
             if 'all' in CONFIG['init']:
                 cursor.execute("SELECT name FROM ir_module_module " \
@@ -404,7 +384,7 @@ def load_modules(database_name, pool, update=False, lang=None):
             for module in CONFIG['update'].keys():
                 if CONFIG['update'][module]:
                     module_list.append(module)
-        graph = create_graph(module_list, force)[0]
+        graph = create_graph(module_list)[0]
 
         try:
             load_module_graph(graph, pool, lang)
@@ -430,8 +410,8 @@ def load_modules(database_name, pool, update=False, lang=None):
                 cursor.commit()
                 res = False
 
-        module_obj = pool.get('ir.module.module')
-        module_obj.update_list()
+            module_obj = pool.get('ir.module.module')
+            module_obj.update_list()
         cursor.commit()
     Cache.resets(database_name)
     return res

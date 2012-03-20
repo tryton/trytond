@@ -120,15 +120,18 @@ class TrytonServer(object):
                 cursor.close()
 
         for db_name in CONFIG["db_name"]:
-            cursor = Database(db_name).connect().cursor()
-            try:
-                if not cursor.test():
-                    raise Exception("'%s' is not a Tryton database!" % db_name)
-                cursor.execute('SELECT code FROM ir_lang ' \
-                        'WHERE translatable')
-                lang = [x[0] for x in cursor.fetchall()]
-            finally:
-                cursor.close()
+            if update:
+                cursor = Database(db_name).connect().cursor()
+                try:
+                    if not cursor.test():
+                        raise Exception("'%s' is not a Tryton database!" % db_name)
+                    cursor.execute('SELECT code FROM ir_lang ' \
+                            'WHERE translatable')
+                    lang = [x[0] for x in cursor.fetchall()]
+                finally:
+                    cursor.close()
+            else:
+                lang = None
             Pool(db_name).init(update=update, lang=lang)
 
         for kind in ('init', 'update'):
