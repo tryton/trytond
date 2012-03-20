@@ -96,10 +96,8 @@ class Pool(object):
     def init(self, update=False, lang=None):
         '''
         Init pool
-
-        :param database_name: the database name
-        :param update: a boolean to proceed to update
-        :param lang: a list of language code to be updated
+        Set update to proceed to update
+        lang is a list of language code to be updated
         '''
         logger = logging.getLogger('pool')
         logger.info('init pool for "%s"' % self.database_name)
