@@ -11,8 +11,6 @@ attlist.tree &= attribute editable { "top" | "bottom" }?
 attlist.tree &= attribute sequence { text }?
 attlist.tree &= attribute colors { text }?
 attlist.tree &=
-  [ a:defaultValue = "0" ] attribute fill { "0" | "1" }?
-attlist.tree &=
   [ a:defaultValue = "0" ] attribute keyword_open { "0" | "1" }?
 field = element field { attlist.field, empty }
 attlist.field &= attribute name { text }
@@ -39,6 +37,8 @@ attlist.field &=
   }?
 attlist.field &=
   [ a:defaultValue = "0" ] attribute tree_invisible { "0" | "1" }?
+attlist.field &=
+  [ a:defaultValue = "0" ] attribute expand { "0" | "1" }?
 attlist.field &= attribute icon { text }?
 attlist.field &= attribute sum { text }?
 attlist.field &= attribute width { text }?

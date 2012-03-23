@@ -289,9 +289,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="priority" eval="20"/>
             <field name="arch" type="xml">
                 <![CDATA[
-                <tree string="Views" sequence="sequence" fill="1">
+                <tree string="Views" sequence="sequence">
                     <field name="sequence" tree_invisible="1"/>
-                    <field name="view"/>
+                    <field name="view" expand="1"/>
                 </tree>
                 ]]>
             </field>
