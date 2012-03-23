@@ -52,9 +52,11 @@ class Property(Function):
         '''
         pool = Pool()
         property_obj = pool.get('ir.property')
-        return property_obj.set(name, model._name, ids,
-                (value and getattr(self, 'model_name', '')  + ',' + str(value)) or
-                False)
+        if value is not None:
+            prop_value = '%s,%s' % (getattr(self, 'model_name', ''), str(value))
+        else:
+            prop_value = None
+        return property_obj.set(name, model._name, ids, prop_value)
 
 
     def search(self, model, name, clause):

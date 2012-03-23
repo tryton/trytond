@@ -48,23 +48,23 @@ class Property(ModelSQL, ModelView):
         property_ids = self.search([
             ('field.name', 'in', names),
             ['OR',
-                ('res', '=', False),
+                ('res', '=', None),
                 ('res', 'in', ['%s,%s' % (model, x) for x in res_ids]),
                 ],
             ], order=[])
         properties = self.browse(property_ids)
 
-        default_vals = dict((x, False) for x in names)
+        default_vals = dict((x, None) for x in names)
         for property in (x for x in properties if not x.res):
             value = property.value
-            val = False
+            val = None
             if value:
                 if value.split(',')[0]:
                     try:
                         val = int(value.split(',')[1]\
                                 .split(',')[0].strip('('))
                     except ValueError:
-                        val = False
+                        val = None
                 else:
                     if property.field.ttype == 'numeric':
                         val = Decimal(value.split(',')[1])
@@ -83,14 +83,14 @@ class Property(ModelSQL, ModelView):
             res[name] = dict((x, default_vals[name]) for x in res_ids)
 
         for property in (x for x in properties if x.res):
-            val = False
+            val = None
             if property.value:
                 if property.value.split(',')[0]:
                     try:
                         val = int(property.value.split(',')[1]\
                                 .split(',')[0].strip('('))
                     except ValueError:
-                        val = False
+                        val = None
                 else:
                     if property.field.ttype == 'numeric':
                         val = Decimal(property.value.split(',')[1])
@@ -143,19 +143,19 @@ class Property(ModelSQL, ModelView):
 
         default_id = self.search([
             ('field', '=', field_id),
-            ('res', '=', False),
+            ('res', '=', None),
             ], order=[], limit=1)
-        default_val = False
+        default_val = None
         if default_id:
             value = self.browse(default_id[0]).value
-            default_val = False
+            default_val = None
             if value:
                 if value.split(',')[0]:
                     try:
                         default_val = int(value.split(',')[1]\
                                 .split(',')[0].strip('('))
                     except ValueError:
-                        default_val = False
+                        default_val = None
                 else:
                     if field._type == 'numeric':
                         default_val = Decimal(value.split(',')[1])
@@ -165,7 +165,7 @@ class Property(ModelSQL, ModelView):
                         raise Exception('Not implemented')
 
 
-        res = False
+        res = None
         if (val != default_val):
             for res_id in ids:
                 vals = self._set_values(model, res_id, val, field_id)

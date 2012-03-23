@@ -354,34 +354,34 @@ class ImportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            self.assert_(self.reference.import_data(['reference'],
-                [['test.import_data.reference.selection,Test']]) ==
+            self.assertEqual(self.reference.import_data(['reference'],
+                [['test.import_data.reference.selection,Test']]),
                 (1, 0, 0, 0))
 
-            self.assert_(self.reference.import_data(['reference:id'],
+            self.assertEqual(self.reference.import_data(['reference:id'],
                 [['test.import_data.reference.selection,'
-                    'test.import_data_reference_selection_test']]) ==
+                    'test.import_data_reference_selection_test']]),
                 (1, 0, 0, 0))
 
-            self.assert_(self.reference.import_data(['reference'],
-                [['']]) == (1, 0, 0, 0))
+            self.assertEqual(self.reference.import_data(['reference'],
+                [['']]), (1, 0, 0, 0))
 
-            self.assert_(self.reference.import_data(['reference'],
+            self.assertEqual(self.reference.import_data(['reference'],
                 [['test.import_data.reference.selection,Test'],
-                    ['test.import_data.reference.selection,Test']]) ==
+                    ['test.import_data.reference.selection,Test']]),
                 (2, 0, 0, 0))
 
-            self.assert_(self.reference.import_data(['reference'],
-                [['test.import_data.reference.selection,foo']])[0] == -1)
+            self.assertEqual(self.reference.import_data(['reference'],
+                [['test.import_data.reference.selection,foo']])[0], -1)
 
-            self.assert_(self.reference.import_data(['reference'],
-                [['test.import_data.reference.selection,Duplicate']])[0] == -1)
+            self.assertEqual(self.reference.import_data(['reference'],
+                [['test.import_data.reference.selection,Duplicate']])[0], -1)
 
-            self.assert_(self.reference.import_data(['reference:id'],
-                [['test.import_data.reference.selection,foo']])[0] == -1)
+            self.assertEqual(self.reference.import_data(['reference:id'],
+                [['test.import_data.reference.selection,foo']])[0], -1)
 
-            self.assert_(self.reference.import_data(['reference:id'],
-                [['test.import_data.reference.selection,test.foo']])[0] == -1)
+            self.assertEqual(self.reference.import_data(['reference:id'],
+                [['test.import_data.reference.selection,test.foo']])[0], -1)
 
             transaction.cursor.rollback()
 

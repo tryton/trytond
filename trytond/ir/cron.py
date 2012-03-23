@@ -33,7 +33,7 @@ class Cron(ModelSQL, ModelView):
         'res.user', 'Request User', required=True,
         help="The user who will receive requests in case of failure")
     active = fields.Boolean('Active', select=True)
-    interval_number = fields.Integer('Interval Number')
+    interval_number = fields.Integer('Interval Number', required=True)
     interval_type = fields.Selection( [
        ('minutes', 'Minutes'),
        ('hours', 'Hours'),
@@ -41,7 +41,7 @@ class Cron(ModelSQL, ModelView):
        ('weeks', 'Weeks'),
        ('months', 'Months'),
        ], 'Interval Unit')
-    number_calls = fields.Integer('Number of Calls', select=True,
+    number_calls = fields.Integer('Number of Calls', select=1, required=True,
        help=('Number of times the function is called, a negative '
            'number indicates that the function will always be '
            'called'))

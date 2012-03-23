@@ -17,7 +17,7 @@ class Icon(ModelSQL, ModelView):
     module = fields.Char('Module', readonly=True, required=True)
     path = fields.Char('SVG Path', readonly=True, required=True)
     icon = fields.Function(fields.Char('Icon', depends=['path']), 'get_icon')
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence', required=True)
 
     def __init__(self):
         super(Icon, self).__init__()

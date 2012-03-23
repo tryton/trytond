@@ -55,7 +55,7 @@ class MenuitemTagHandler:
         if values.get('parent'):
             values['parent'] = self.mh.get_id(values['parent'])
 
-        action_name = False
+        action_name = None
         if values.get('action'):
             action_id = self.mh.get_id(values['action'])
 
@@ -342,7 +342,7 @@ class Fs2bdAccessor:
         self.fs2db[module] = {}
         module_data_ids = self.modeldata_obj.search([
                 ('module', '=', module),
-                ('inherit', '=', False),
+                ('inherit', '=', None),
                 ], order=[('db_id', 'ASC')])
 
         record_ids = {}
@@ -500,10 +500,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         # handle the value regarding to the type
         if field_type == 'many2one':
-            return browse_record[key] and browse_record[key].id or False
+            return browse_record[key] and browse_record[key].id or None
         elif field_type == 'reference':
             if not browse_record[key]:
-                return False
+                return None
             ref_mode, ref_id = browse_record[key].split(',', 1)
             try:
                 ref_id = safe_eval(ref_id)
@@ -527,7 +527,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         # problem when the corresponding recordds will be deleted:
         module_data_ids = self.modeldata_obj.search([
                 ('module', '=', self.module),
-                ('inherit', '=', False),
+                ('inherit', '=', None),
                 ], order=[('id', 'DESC')])
         return set(rec.fs_id for rec in self.modeldata_obj.browse(
             module_data_ids))

@@ -34,7 +34,7 @@ class User(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name', required=True, select=True, translate=True)
     login = fields.Char('Login', required=True)
-    login_try = fields.Integer('Login Try')
+    login_try = fields.Integer('Login Try', required=True)
     password = fields.Sha('Password')
     salt = fields.Char('Salt', size=8)
     signature = fields.Text('Signature')
@@ -125,7 +125,7 @@ class User(ModelSQL, ModelView):
         return 0
 
     def default_password(self):
-        return False
+        return None
 
     def default_active(self):
         return 1

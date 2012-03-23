@@ -320,7 +320,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(integer3_id)
 
             integer3 = self.integer.read(integer3_id, ['integer'])
-            self.assert_(integer3['integer'] == 0)
+            self.assert_(integer3['integer'] is None)
 
             integer4_id = self.integer_default.create({})
             self.assert_(integer4_id)
@@ -348,7 +348,14 @@ class FieldsTestCase(unittest.TestCase):
                 'integer': 'test',
                 })
 
-            integer5_id = self.integer_required.create({})
+            # We should catch UserError but mysql does not raise an
+            # IntegrityError but an OperationalError
+            self.assertRaises(Exception, self.integer_required.create, {})
+            transaction.cursor.rollback()
+
+            integer5_id = self.integer_required.create({
+                    'integer': 0,
+                    })
             self.assert_(integer5_id)
 
             integer5 = self.integer_required.read(integer5_id, ['integer'])
@@ -507,7 +514,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(float3_id)
 
             float3 = self.float.read(float3_id, ['float'])
-            self.assert_(float3['float'] == 0)
+            self.assert_(float3['float'] is None)
 
             float4_id = self.float_default.create({})
             self.assert_(float4_id)
@@ -535,11 +542,14 @@ class FieldsTestCase(unittest.TestCase):
                 'float': 'test',
                 })
 
-            float5_id = self.float_required.create({})
-            self.assert_(float5_id)
+            self.assertRaises(Exception, self.float_required.create, {})
+            transaction.cursor.rollback()
 
-            float5 = self.float_required.read(float5_id, ['float'])
-            self.assert_(float5['float'] == 0)
+            float5_id = self.float_required.create({
+                    'float': 0.0,
+                    })
+            float5 = self.float_required.read(float5_id)
+            self.assert_(float5['float'] == 0.0)
 
             float6_id = self.float_digits.create({
                 'digits': 1,
@@ -720,7 +730,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(numeric3_id)
 
             numeric3 = self.numeric.read(numeric3_id, ['numeric'])
-            self.assert_(numeric3['numeric'] == Decimal('0'))
+            self.assert_(numeric3['numeric'] is None)
 
             numeric4_id = self.numeric_default.create({})
             self.assert_(numeric4_id)
@@ -748,11 +758,14 @@ class FieldsTestCase(unittest.TestCase):
                 'numeric': 'test',
                 })
 
-            numeric5_id = self.numeric_required.create({})
-            self.assert_(numeric5_id)
+            self.assertRaises(Exception, self.numeric_required.create, {})
+            transaction.cursor.rollback()
 
-            numeric5 = self.numeric_required.read(numeric5_id, ['numeric'])
-            self.assert_(numeric5['numeric'] == Decimal('0'))
+            numeric5_id = self.numeric_required.create({
+                    'numeric': Decimal(0),
+                    })
+            numeric5 = self.numeric_required.read(numeric5_id)
+            self.assert_(numeric5['numeric'] == 0)
 
             numeric6_id = self.numeric_digits.create({
                 'digits': 1,
@@ -956,7 +969,7 @@ class FieldsTestCase(unittest.TestCase):
                 self.assert_(char_ids == [char1_id])
 
                 char2_id = char.create({
-                    'char': False,
+                    'char': None,
                     })
                 self.assert_(char2_id)
 
@@ -991,7 +1004,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(char4['char'] == 'Test')
 
             self.char.write(char1_id, {
-                'char': False,
+                'char': None,
                 })
             char1 = self.char.read(char1_id, ['char'])
             self.assert_(char1['char'] == None)
@@ -1216,7 +1229,7 @@ class FieldsTestCase(unittest.TestCase):
                 self.assert_(text_ids == [text1_id])
 
                 text2_id = text.create({
-                    'text': False,
+                    'text': None,
                     })
                 self.assert_(text2_id)
 
@@ -1251,7 +1264,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(text4['text'] == 'Test')
 
             self.text.write(text1_id, {
-                'text': False,
+                'text': None,
                 })
             text1 = self.text.read(text1_id, ['text'])
             self.assert_(text1['text'] == None)
@@ -1434,7 +1447,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(sha_ids == [sha1_id])
 
             sha2_id = self.sha.create({
-                'sha': False,
+                'sha': None,
                 })
             self.assert_(sha2_id)
 
@@ -1469,7 +1482,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(sha4['sha'] == 'ba79baeb9f10896a46ae74715271b7f586e74640')
 
             self.sha.write(sha1_id, {
-                'sha': False,
+                'sha': None,
                 })
             sha1 = self.sha.read(sha1_id, ['sha'])
             self.assert_(sha1['sha'] == None)
@@ -1765,7 +1778,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(date7_id)
 
             date8_id = self.date.create({
-                'date': False,
+                'date': None,
                 })
             self.assert_(date8_id)
 
@@ -2030,7 +2043,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(datetime7_id)
 
             datetime8_id = self.datetime.create({
-                'datetime': False,
+                'datetime': None,
                 })
             self.assert_(datetime8_id)
 
@@ -2503,9 +2516,9 @@ class FieldsTestCase(unittest.TestCase):
             prop_ids = self.property_.search([('char', '!=', False)])
             self.assert_(prop_ids == [prop_id_a, prop_id_c, prop_id_d])
 
-            self.property_.write(prop_id_a, {'char': False})
+            self.property_.write(prop_id_a, {'char': None})
             prop_a = self.property_.read(prop_id_a, ['char'])
-            self.assert_(prop_a['char'] == False)
+            self.assert_(prop_a['char'] == None)
 
             self.property_.write(prop_id_b, {'char': 'Test'})
             prop_b = self.property_.read(prop_id_b, ['char'])
@@ -2626,9 +2639,9 @@ class FieldsTestCase(unittest.TestCase):
             prop_d = self.property_.read(prop_id_d, ['numeric'])
             self.assert_(prop_d['numeric'] == Decimal('3.7'))
 
-            self.property_.write(prop_id_a, {'numeric': False})
+            self.property_.write(prop_id_a, {'numeric': None})
             prop_a = self.property_.read(prop_id_a, ['numeric'])
-            self.assert_(prop_a['numeric'] == False)
+            self.assert_(prop_a['numeric'] == None)
 
             self.property_.write(prop_id_b, {'numeric': Decimal('3.11')})
             prop_b = self.property_.read(prop_id_b, ['numeric'])
@@ -2687,9 +2700,9 @@ class FieldsTestCase(unittest.TestCase):
             prop_d = self.property_.read(prop_id_d, ['selection'])
             self.assert_(prop_d['selection'] == 'option_a')
 
-            self.property_.write(prop_id_a, {'selection': False})
+            self.property_.write(prop_id_a, {'selection': None})
             prop_a = self.property_.read(prop_id_a, ['selection'])
-            self.assert_(prop_a['selection'] == False)
+            self.assert_(prop_a['selection'] == None)
 
             self.property_.write(prop_id_c, {'selection': 'option_b'})
             prop_c = self.property_.read(prop_id_c, ['selection'])

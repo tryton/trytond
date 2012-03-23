@@ -159,7 +159,7 @@ class _SessionRecord(object):
         if name in self.__cache:
             return self.__cache[name]
         field = self._model._columns[name]
-        data = self._data.get(name, False)
+        data = self._data.get(name, None)
         target_obj = None
         if hasattr(field, 'model_name'):
             target_obj = Pool().get(field.model_name)

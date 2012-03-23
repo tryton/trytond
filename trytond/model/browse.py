@@ -30,16 +30,16 @@ class BrowseRecordNull(object):
     '''
 
     def __init__(self):
-        self.id = False
+        self.id = None
 
     def __getitem__(self, name):
-        return False
+        return None
 
     def __int__(self):
-        return False
+        return None
 
     def __str__(self):
-        return ''
+        return None
 
     def __nonzero__(self):
         return False

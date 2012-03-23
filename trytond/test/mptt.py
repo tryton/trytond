@@ -9,7 +9,7 @@ class MPTT(ModelSQL, ModelView):
     _name = 'test.mptt'
     _description = __doc__
     name = fields.Char('Name', required=True)
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence', required=True)
     parent = fields.Many2One('test.mptt', "Parent", select=True,
             left="left", right="right")
     left = fields.Integer('Left', required=True, select=True)
