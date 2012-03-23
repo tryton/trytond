@@ -507,7 +507,7 @@ class WorkflowTrigger(ModelSQL, ModelView):
     _table = "wkf_trigger"
     _name = "workflow.trigger"
     _description = __doc__
-    res_id = fields.Integer('Resource ID')
+    res_id = fields.Integer('Resource ID', required=True)
     model = fields.Char('Model')
     instance = fields.Many2One('workflow.instance',
        'Destination Instance', ondelete="CASCADE")

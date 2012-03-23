@@ -7,7 +7,7 @@ class Boolean(fields.Boolean):
 
     @staticmethod
     def sql_format(value):
-        return value and '1' or '0'
+        return value
 
     @staticmethod
     def sql_type(field):
@@ -15,6 +15,12 @@ class Boolean(fields.Boolean):
 
 
 class Integer(fields.Integer):
+
+    @staticmethod
+    def sql_format(value):
+        if value is None:
+            return value
+        return int(value)
 
     @staticmethod
     def sql_type(field):
@@ -47,6 +53,12 @@ class Text(fields.Text):
 
 
 class Float(fields.Float):
+
+    @staticmethod
+    def sql_format(value):
+        if value is None:
+            return value
+        return float(value)
 
     @staticmethod
     def sql_type(field):

@@ -35,7 +35,7 @@ class Action(ModelSQL, ModelView):
         })
 
     def default_usage(self):
-        return False
+        return None
 
     def default_active(self):
         return True
@@ -579,9 +579,9 @@ class ActionActWindow(ModelSQL, ModelView):
     act_window_views = fields.One2Many('ir.action.act_window.view',
             'act_window', 'Views')
     views = fields.Function(fields.Binary('Views'), 'get_views')
-    limit = fields.Integer('Limit',
+    limit = fields.Integer('Limit', required=True,
             help='Default limit for the list view')
-    auto_refresh = fields.Integer('Auto-Refresh',
+    auto_refresh = fields.Integer('Auto-Refresh', required=True,
             help='Add an auto-refresh on the view')
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
@@ -763,7 +763,7 @@ class ActionActWindowView(ModelSQL, ModelView):
     _name = 'ir.action.act_window.view'
     _rec_name = 'view'
     _description = __doc__
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence', required=True)
     view = fields.Many2One('ir.ui.view', 'View', required=True,
             ondelete='CASCADE')
     act_window = fields.Many2One('ir.action.act_window', 'Action',

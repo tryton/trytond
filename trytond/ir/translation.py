@@ -102,6 +102,12 @@ class Translation(ModelSQL, ModelView, Cacheable):
             table = TableHandler(cursor, self, module_name)
             table.not_null_action('src_md5', action='add')
 
+        # Migration from 2.2
+        cursor.execute("UPDATE " + self._table + " "
+            "SET res_id = %s "
+            "WHERE res_id = %s",
+            (None, 0))
+
         table = TableHandler(Transaction().cursor, self, module_name)
         table.index_action(['lang', 'type', 'name'], 'add')
 
@@ -332,7 +338,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                         'AND value != \'\' '
                         'AND value IS NOT NULL '
                         'AND fuzzy = %s '
-                        'AND res_id = 0',
+                        'AND res_id IS NULL',
                     (lang, ttype, str(name), source, False))
         else:
             cursor.execute('SELECT value '
@@ -343,7 +349,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                         'AND value != \'\' '
                         'AND value IS NOT NULL '
                         'AND fuzzy = %s '
-                        'AND res_id = 0',
+                        'AND res_id IS NULL',
                     (lang, ttype, str(name), False))
         res = cursor.fetchone()
         if res:
@@ -387,7 +393,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
                             'AND fuzzy = %s ' \
-                            'AND res_id = 0)',
+                            'AND res_id IS NULL)',
                             (lang, ttype, str(name), source, False))]
                 else:
                     clause += [('(lang = %s ' \
@@ -396,7 +402,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                             'AND value != \'\' ' \
                             'AND value IS NOT NULL ' \
                             'AND fuzzy = %s ' \
-                            'AND res_id = 0)',
+                            'AND res_id IS NULL)',
                             (lang, ttype, str(name), False))]
         if clause:
             for i in range(0, len(clause), cursor.IN_MAX):
@@ -582,7 +588,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 ], order=[])
         for translation in self.browse(translation_ids):
             flags = [] if not translation['fuzzy'] else ['fuzzy']
-            trans_ctxt = '%(type)s:%(name)s' % translation
+            trans_ctxt = '%(type)s:%(name)s:' % translation
             res_id = translation['res_id']
             if res_id:
                 model, _ = translation.name.split(',')
@@ -590,7 +596,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     res_id = db_id2fs_id[model].get(res_id)
                 else:
                     continue
-            trans_ctxt += ':%s' % res_id
+                trans_ctxt += '%s' % res_id
             entry = polib.POEntry(msgid=(translation.src or ''),
                 msgstr=(translation.value or ''), msgctxt=trans_ctxt, flags=flags)
             pofile.append(entry)

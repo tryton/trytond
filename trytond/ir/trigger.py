@@ -40,8 +40,8 @@ class Trigger(ModelSQL, ModelView):
     condition = fields.Char('Condition', required=True,
             help='A Python statement evaluated with record represented by '
             '"self"\nIt triggers the action if true.')
-    limit_number = fields.Integer('Limit Number', help='Limit the number of '
-            'call to "Action Function" by records.\n'
+    limit_number = fields.Integer('Limit Number', required=True,
+        help='Limit the number of call to "Action Function" by records.\n'
             '0 for no limit.')
     minimum_delay = fields.Float('Minimum Delay', help='Set a minimum delay '
             'in minutes between call to "Action Function" for the same record.\n'
@@ -77,6 +77,9 @@ class Trigger(ModelSQL, ModelView):
 
     def default_active(self):
         return True
+
+    def default_limit_number(self):
+        return 0
 
     def on_change_on_time(self, values):
         if values.get('on_time'):

@@ -491,7 +491,7 @@ class ModelData(ModelSQL, ModelView):
     model = fields.Char('Model', required=True, select=True)
     module = fields.Char('Module', required=True, select=True)
     db_id = fields.Integer('Resource ID',
-       help="The id of the record in the database.", select=True)
+       help="The id of the record in the database.", select=True, required=True)
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
@@ -547,7 +547,7 @@ class PrintModelGraphStart(ModelView):
     'Print Model Graph'
     _name = 'ir.model.print_model_graph.start'
     _description = __doc__
-    level = fields.Integer('Level')
+    level = fields.Integer('Level', required=True)
     filter = fields.Text('Filter', help="Entering a Python "
             "Regular Expression will exclude matching models from the graph.")
 

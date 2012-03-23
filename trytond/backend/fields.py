@@ -13,13 +13,7 @@ class Field(object):
 
     @staticmethod
     def sql_format(value):
-        if value is None or value == False:
-            return None
-        elif isinstance(value, str):
-            return unicode(value, 'utf-8')
-        elif isinstance(value, unicode):
-            return value
-        return unicode(value)
+        return value
 
     @staticmethod
     def sql_type(field):
@@ -30,14 +24,11 @@ class Boolean(Field):
 
     @staticmethod
     def sql_format(value):
-        return value and 'True' or 'False'
+        return value
 
 
 class Integer(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return int(value or 0)
+    pass
 
 
 class BigInteger(Integer):
@@ -45,40 +36,45 @@ class BigInteger(Integer):
 
 
 class Char(Field):
-    pass
+
+    @staticmethod
+    def sql_format(value):
+        if value is None:
+            return None
+        elif isinstance(value, str):
+            return unicode(value, 'utf-8')
+        assert isinstance(value, unicode)
+        return value
 
 
 class Sha(Field):
 
     @staticmethod
     def sql_format(value):
-        if isinstance(value, basestring):
+        if value is not None:
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
             if hashlib:
                 value = hashlib.sha1(value).hexdigest()
             else:
                 value = sha.new(value).hexdigest()
-        return Field.sql_format(value)
+        return Char.sql_format(value)
 
 
-class Text(Field):
+class Text(Char):
     pass
 
 
 class Float(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return float(value or 0.0)
+    pass
 
 
 class Numeric(Float):
 
     @staticmethod
     def sql_format(value):
-        if not value:
-            value = Decimal('0.0')
+        if value is None:
+            return value
         if isinstance(value, (int, long)):
             value = Decimal(str(value))
         assert isinstance(value, Decimal)
@@ -164,7 +160,7 @@ class Selection(Char):
     pass
 
 
-class Reference(Field):
+class Reference(Char):
     pass
 
 

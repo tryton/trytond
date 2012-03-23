@@ -169,7 +169,7 @@ class RequestLink(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name', required=True, translate=True)
     model = fields.Selection('models_get', 'Model', required=True)
-    priority = fields.Integer('Priority')
+    priority = fields.Integer('Priority', required=True)
 
     def __init__(self):
         super(RequestLink, self).__init__()

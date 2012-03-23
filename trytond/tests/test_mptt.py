@@ -100,7 +100,7 @@ class MPTTTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            new_records = [False]
+            new_records = [None]
             for j in range(3):
                 parent_records = new_records
                 new_records = []

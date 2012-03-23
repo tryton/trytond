@@ -468,9 +468,9 @@ class ModelStorage(Model):
                 if domain and ((isinstance(domain[0], basestring) \
                         and domain[0] == 'AND') \
                         or (not isinstance(domain[0], basestring))):
-                    domain.append(('active', '=', 1))
+                    domain.append(('active', '=', True))
                 else:
-                    domain = ['AND', domain, ('active', '=', 1)]
+                    domain = ['AND', domain, ('active', '=', True)]
             return domain
         return process(domain)
 
@@ -624,7 +624,7 @@ class ModelStorage(Model):
                 warnings.warn(msg)
 
             def get_selection(selection, value):
-                res = False
+                res = None
                 if not isinstance(selection, (tuple, list)):
                     selection = getattr(self, selection)()
                 for key, _ in selection:
@@ -637,24 +637,24 @@ class ModelStorage(Model):
 
             def get_many2one(relation, value):
                 if not value:
-                    return False
+                    return None
                 relation_obj = pool.get(relation)
                 res = relation_obj.search([
                     ('rec_name', '=', value),
                     ], limit=2)
                 if len(res) < 1:
                     warn('relation_not_found', value, relation)
-                    res = False
+                    res = None
                 elif len(res) > 1:
                     warn('too_many_relations_found', value, relation)
-                    res = False
+                    res = None
                 else:
                     res = res[0]
                 return res
 
             def get_many2many(relation, value):
                 if not value:
-                    return False
+                    return None
                 res = []
                 relation_obj = pool.get(relation)
                 for word in csv.reader(StringIO.StringIO(value), delimiter=',',
@@ -677,29 +677,29 @@ class ModelStorage(Model):
 
             def get_reference(value):
                 if not value:
-                    return False
+                    return None
                 try:
                     relation, value = value.split(',', 1)
                 except Exception:
                     warn('reference_syntax_error', value, '/'.join(field))
-                    return False
+                    return None
                 relation_obj = pool.get(relation)
                 res = relation_obj.search([
                     ('rec_name', '=', value),
                     ], limit=2)
                 if len(res) < 1:
                     warn('relation_not_found', value, relation)
-                    res = False
+                    res = None
                 elif len(res) > 1:
                     warn('too_many_relations_found', value, relation)
-                    res = False
+                    res = None
                 else:
                     res = '%s,%s' % (relation, str(res[0]))
                 return res
 
             def get_by_id(value):
                 if not value:
-                    return False
+                    return None
                 relation = None
                 ftype = fields_def[field[-1][:-3]]['type']
                 if ftype == 'many2many':
@@ -710,7 +710,7 @@ class ModelStorage(Model):
                         relation, value = value.split(',', 1)
                     except Exception:
                         warn('reference_syntax_error', value, '/'.join(field))
-                        return False
+                        return None
                     value = [value]
                 else:
                     value = [value]
@@ -750,7 +750,7 @@ class ModelStorage(Model):
                 elif is_prefix_len and prefix == field[:-1]:
                     this_field_def = fields_def[field[-1]]
                     field_type = this_field_def['type']
-                    res = False
+                    res = None
                     if field_type == 'boolean':
                         if value.lower() == 'true':
                             res = True
@@ -759,11 +759,11 @@ class ModelStorage(Model):
                         else:
                             res = value and bool(int(value))
                     elif field_type == 'integer':
-                        res = value and int(value)
+                        res = value and int(value) or None
                     elif field_type == 'float':
-                        res = value and float(value)
+                        res = value and float(value) or None
                     elif field_type == 'numeric':
-                        res = value and Decimal(value)
+                        res = value and Decimal(value) or None
                     elif field_type == 'date':
                         res = value and datetime.date(*time.strptime(value,
                             '%Y-%m-%d')[:3])
@@ -781,7 +781,7 @@ class ModelStorage(Model):
                     elif field_type == 'reference':
                         res = get_reference(value)
                     else:
-                        res = value or False
+                        res = value or None
                     row[field[-1]] = res
                 elif prefix == field[0:prefix_len]:
                     todo.add(field[prefix_len])
@@ -1067,7 +1067,7 @@ class ModelStorage(Model):
                             env['context'] = Transaction().context
                             env['active_id'] = record.id
                             required = PYSONDecoder(env).decode(pyson_required)
-                            if required and not record[field_name]:
+                            if required and record[field_name] is None:
                                 self.raise_user_error(
                                         'required_validation_record',
                                         error_args=self._get_error_args(
@@ -1100,6 +1100,8 @@ class ModelStorage(Model):
                     def raise_user_error():
                         self.raise_user_error('digits_validation_record',
                             error_args=self._get_error_args(field_name))
+                    if value is None:
+                        return
                     if isinstance(value, Decimal):
                         if not (value.quantize(Decimal(str(10.0**-digits[1])))
                                 == value):

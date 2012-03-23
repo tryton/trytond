@@ -396,7 +396,7 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
     _rec_name = 'action'
     action = fields.Many2One('ir.action', 'Action', required=True,
         readonly=True)
-    sequence= fields.Integer('Sequence')
+    sequence= fields.Integer('Sequence', required=True)
     state = fields.Selection([
         ('open', 'Open'),
         ('done', 'Done'),

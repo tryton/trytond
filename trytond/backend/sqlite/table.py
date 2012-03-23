@@ -220,10 +220,6 @@ class TableHandler(TableHandlerInterface):
         column_type = column_type[1]
         default = ''
         from trytond.model import fields
-        if column_name in self._model._columns and \
-                isinstance(self._model._columns[column_name],
-                        (fields.Integer, fields.Float)):
-            default = ' DEFAULT 0'
         self.cursor.execute(('ALTER TABLE "%s" ADD COLUMN "%s" %s' + default) %
                        (self.table_name, column_name, column_type))
 

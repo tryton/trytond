@@ -134,7 +134,7 @@ class ExportDataTestCase(unittest.TestCase):
                 ['char']) == [['test']])
 
             export2_id = self.export_data.create({
-                'char': False,
+                'char': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['char']) == [['']])
@@ -157,7 +157,7 @@ class ExportDataTestCase(unittest.TestCase):
                 ['text']) == [['test']])
 
             export2_id = self.export_data.create({
-                'text': False,
+                'text': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['text']) == [['']])
@@ -194,7 +194,7 @@ class ExportDataTestCase(unittest.TestCase):
                 ['date']) == [[datetime.date(2010, 1, 1)]])
 
             export2_id = self.export_data.create({
-                'date': False,
+                'date': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['date']) == [['']])
@@ -217,7 +217,7 @@ class ExportDataTestCase(unittest.TestCase):
                 ['datetime']) == [[datetime.datetime(2010, 1, 1, 12, 0, 0)]])
 
             export2_id = self.export_data.create({
-                'datetime': False,
+                'datetime': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['datetime']) == [['']])
@@ -241,7 +241,7 @@ class ExportDataTestCase(unittest.TestCase):
                 ['selection']) == [['select1']])
 
             export2_id = self.export_data.create({
-                'selection': False,
+                'selection': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['selection']) == [['']])
@@ -267,7 +267,7 @@ class ExportDataTestCase(unittest.TestCase):
                 ['many2one/name']) == [['Target Test']])
 
             export2_id = self.export_data.create({
-                'many2one': False,
+                'many2one': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['many2one/name']) == [['']])
@@ -303,7 +303,7 @@ class ExportDataTestCase(unittest.TestCase):
                 ['', 'Target 2']])
 
             export2_id = self.export_data.create({
-                'many2many': False,
+                'many2many': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['many2many/name']) == [['']])
@@ -361,7 +361,7 @@ class ExportDataTestCase(unittest.TestCase):
                 [['test.export_data.target,%s' % target1_id]])
 
             export2_id = self.export_data.create({
-                'reference': False,
+                'reference': None,
                 })
             self.assert_(self.export_data.export_data([export2_id],
                 ['reference']) == [['']])

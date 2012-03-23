@@ -4,7 +4,7 @@ from string import Template
 import time
 from ..model import ModelView, ModelSQL, fields
 from ..tools import datetime_strftime
-from ..pyson import Eval
+from ..pyson import Eval, And
 from ..transaction import Transaction
 from ..pool import Pool
 from ..config import CONFIG
@@ -44,23 +44,27 @@ class Sequence(ModelSQL, ModelView):
     number_next_internal = fields.Integer('Next Number',
         states={
             'invisible': ~Eval('type').in_(['incremental']),
+            'required': And(Eval('type').in_(['incremental']),
+                not sql_sequence),
             }, depends=['type'])
     number_next = fields.Function(number_next_internal, 'get_number_next',
         'set_number_next')
     number_increment = fields.Integer('Increment Number',
         states={
             'invisible': ~Eval('type').in_(['incremental']),
+            'required': Eval('type').in_(['incremental']),
             }, depends=['type'])
     padding = fields.Integer('Number padding',
         states={
             'invisible': ~Eval('type').in_(['incremental']),
+            'required': Eval('type').in_(['incremental']),
             }, depends=['type'])
     timestamp_rounding = fields.Float('Timestamp Rounding', required=True,
         states={
             'invisible': ~Eval('type').in_(
                 ['decimal timestamp', 'hexadecimal timestamp']),
             }, depends=['type'])
-    timestamp_offset = fields.Float('Timestamp Offset',
+    timestamp_offset = fields.Float('Timestamp Offset', required=True,
         states={
             'invisible': ~Eval('type').in_(
                 ['decimal timestamp', 'hexadecimal timestamp']),
@@ -68,6 +72,8 @@ class Sequence(ModelSQL, ModelView):
     last_timestamp = fields.Integer('Last Timestamp',
         states={
             'invisible': ~Eval('type').in_(
+                ['decimal timestamp', 'hexadecimal timestamp']),
+            'required': Eval('type').in_(
                 ['decimal timestamp', 'hexadecimal timestamp']),
             }, depends=['type'])
 
@@ -77,6 +83,10 @@ class Sequence(ModelSQL, ModelView):
             ('check_prefix_suffix', 'invalid_prefix_suffix'),
             ('check_last_timestamp', 'future_last_timestamp'),
         ]
+        self._sql_constraints += [
+            ('check_timestamp_rounding', 'CHECK(timestamp_rounding > 0)',
+                'Timestamp rounding should be greater than 0'),
+            ]
         self._error_messages.update({
             'missing': 'Missing sequence!',
             'invalid_prefix_suffix': 'Invalid prefix/suffix!',

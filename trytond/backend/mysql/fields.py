@@ -11,7 +11,7 @@ class Boolean(fields.Boolean):
 
     @staticmethod
     def sql_format(value):
-        return value and '1' or '0'
+        return value
 
 
 class Integer(fields.Integer):

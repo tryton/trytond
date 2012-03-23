@@ -33,9 +33,9 @@ class WizardTestCase(unittest.TestCase):
         with Transaction().start(DB_NAME, USER, CONTEXT):
             session_id = self.session.create({})
             session = Session(self.wizard, session_id)
-            self.assertEqual(session.start.name, False)
+            self.assertEqual(session.start.name, None)
             session.start.name = 'Test'
-            self.assertEqual(session.start.user.id, False)
+            self.assertEqual(session.start.user.id, None)
             session.start.user = USER
             session.start.groups = [
                 {'name': 'Group A'},

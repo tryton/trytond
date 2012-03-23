@@ -49,7 +49,7 @@ class Reference(Field):
         ref_to_check = {}
         for i in ids:
             if not (i in res):
-                res[i] = False
+                res[i] = None
                 continue
             if not res[i]:
                 continue

@@ -277,7 +277,7 @@ class ViewShortcut(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Shortcut Name', required=True)
     res_id = fields.Integer('Resource Ref.', required=True)
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence', required=True)
     user_id = fields.Many2One('res.user', 'User Ref.', required=True,
        ondelete='CASCADE')
     resource = fields.Char('Resource Name', required=True)
@@ -387,7 +387,7 @@ class ViewTreeWidth(ModelSQL, ModelView):
     field = fields.Char('Field', required=True, select=True)
     user = fields.Many2One('res.user', 'User', required=True,
             ondelete='CASCADE', select=True)
-    width = fields.Integer('Width')
+    width = fields.Integer('Width', required=True)
 
     def __init__(self):
         super(ViewTreeWidth, self).__init__()
