@@ -34,8 +34,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">tree</field>
             <field name="arch" type="xml">
               <![CDATA[
-                <tree string="Groups" fill="1">
-                    <field name="name"/>
+                <tree string="Groups">
+                    <field name="name" expand="1"/>
                 </tree>
                 ]]>
             </field>

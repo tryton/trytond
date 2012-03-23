@@ -447,9 +447,6 @@ Each tree view must start with this tag.
     * ``colors``: A PySON string that will be evaluated for each record. A
       string containing the name of the color will be returned.
 
-    * ``fill``: A boolean to specify if the last column must fill the remaining
-      free space in the view.
-
     * ``keyword_open``: A boolean to specify if the client should look for a
       tree_open action on double click instead of switching view.
 
@@ -473,6 +470,11 @@ field
       list with the sum of all the fields in the column.
 
     * ``width``: Set the width of the column.
+    
+    * ``expand``: Boolean to specify if the column should be expanded to take
+      available extra space in the view. This space is shared equally among all
+      columns that have their "expand" property set to True. Resize don't work
+      if this option is enabled.
 
 Example
 -------

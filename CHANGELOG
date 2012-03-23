@@ -1,3 +1,4 @@
+* Replace fill by expand
 * Integer, Numeric and Float allow None as value
 * NULL value is None and not False
 * Replace user action by a list of actions

@@ -43,16 +43,6 @@
   </define>
   <define name="attlist.tree" combine="interleave">
     <optional>
-      <attribute name="fill" a:defaultValue="0">
-        <choice>
-          <value>0</value>
-          <value>1</value>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="attlist.tree" combine="interleave">
-    <optional>
       <attribute name="keyword_open" a:defaultValue="0">
         <choice>
           <value>0</value>
@@ -108,6 +98,16 @@
   <define name="attlist.field" combine="interleave">
     <optional>
       <attribute name="tree_invisible" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="expand" a:defaultValue="0">
         <choice>
           <value>0</value>
           <value>1</value>
