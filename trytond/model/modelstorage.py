@@ -756,8 +756,10 @@ class ModelStorage(Model):
                             res = True
                         elif value.lower() == 'false':
                             res = False
+                        elif not value:
+                            res = False
                         else:
-                            res = value and bool(int(value))
+                            res = bool(int(value))
                     elif field_type == 'integer':
                         res = value and int(value) or None
                     elif field_type == 'float':
