@@ -132,7 +132,7 @@ def create_graph(module_list):
     for module in module_list:
         tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
         mod_path = OPJ(MODULES_PATH, module)
-        if module in ('ir', 'workflow', 'res', 'webdav', 'test'):
+        if module in ('ir', 'res', 'webdav', 'test'):
             root_path = os.path.abspath(os.path.dirname(
                     os.path.dirname(__file__)))
             tryton_file = OPJ(root_path, module, '__tryton__.py')
@@ -294,7 +294,6 @@ def get_module_list():
     update_egg_modules()
     module_list.update(EGG_MODULES.keys())
     module_list.add('ir')
-    module_list.add('workflow')
     module_list.add('res')
     module_list.add('webdav')
     module_list.add('test')
@@ -305,7 +304,6 @@ def register_classes():
     Import modules to register the classes in the Pool
     '''
     import trytond.ir
-    import trytond.workflow
     import trytond.res
     import trytond.webdav
     import trytond.test
@@ -315,7 +313,7 @@ def register_classes():
         module = package.name
         logger.info('%s:registering classes' % module)
 
-        if module in ('ir', 'workflow', 'res', 'webdav', 'test'):
+        if module in ('ir', 'res', 'webdav', 'test'):
             MODULES.append(module)
             continue
 
@@ -366,6 +364,9 @@ def load_modules(database_name, pool, update=False, lang=None):
     with contextmanager:
         cursor = Transaction().cursor
         if update:
+            # Migration from 2.2: workflow module removed
+            cursor.execute('DELETE FROM ir_module_module '
+                'WHERE name = %s', ('workflow',))
             if 'all' in CONFIG['init']:
                 cursor.execute("SELECT name FROM ir_module_module " \
                         "WHERE name != \'test\'")

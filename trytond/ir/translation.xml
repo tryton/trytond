@@ -141,15 +141,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
-        <record model="ir.translation" id="translation_delete_workflow_record">
-            <field name="name">delete_workflow_record</field>
-            <field name="lang">en_US</field>
-            <field name="type">error</field>
-            <field name="src">You cannot delete a record with a running workflow.</field>
-            <field name="value">You cannot delete a record with a running workflow.</field>
-            <field name="module">ir</field>
-            <field name="fuzzy" eval="False"/>
-        </record>
         <record model="ir.translation" id="translation_domain_validation_record">
             <field name="name">domain_validation_record</field>
             <field name="lang">en_US</field>

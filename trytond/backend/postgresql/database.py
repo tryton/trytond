@@ -230,7 +230,7 @@ class Database(DatabaseInterface):
                 if (len(line)>0) and (not line.isspace()):
                     cursor.execute(line)
 
-        for i in ('ir', 'workflow', 'res', 'webdav'):
+        for i in ('ir', 'res', 'webdav'):
             root_path = os.path.join(os.path.dirname(__file__), '..', '..')
             tryton_file = os.path.join(root_path, i, '__tryton__.py')
             with open(tryton_file) as fp:
@@ -383,12 +383,6 @@ class Cursor(CursorInterface):
                 "'ir_ui_menu', "
                 "'res_user', "
                 "'res_group', "
-                "'wkf', "
-                "'wkf_activity', "
-                "'wkf_transition', "
-                "'wkf_instance', "
-                "'wkf_workitem', "
-                "'wkf_witm_trans', "
                 "'ir_module_module', "
                 "'ir_module_module_dependency', "
                 "'ir_translation', "

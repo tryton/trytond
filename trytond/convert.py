@@ -794,7 +794,6 @@ def post_import(pool, module, to_delete):
     cursor = Transaction().cursor
     mdata_delete = []
     modeldata_obj = pool.get("ir.model.data")
-    transition_delete = []
 
     with Transaction().set_context(active_test=False):
         mdata_ids = modeldata_obj.search([
@@ -805,48 +804,6 @@ def post_import(pool, module, to_delete):
     object_name_list = set(pool.object_name_list())
     for mrec in modeldata_obj.browse(mdata_ids):
         mdata_id, model, db_id = mrec.id, mrec.model, mrec.db_id
-
-        # Whe skip transitions, they will be deleted with the
-        # corresponding activity:
-        if model == 'workflow.transition':
-            transition_delete.append((mdata_id, db_id))
-            continue
-
-        if model == 'workflow.activity':
-
-            wkf_todo = []
-            # search for records that are in the state/activity that
-            # we want to delete...
-            cursor.execute('SELECT res_type, res_id ' \
-                    'FROM wkf_instance ' \
-                    'WHERE id IN (' \
-                        'SELECT instance FROM wkf_workitem ' \
-                        'WHERE activity = %s)', (db_id,))
-            #... connect the transitions backward...
-            wkf_todo.extend(cursor.fetchall())
-            cursor.execute("UPDATE wkf_transition " \
-                    'SET condition = \'True\', "group" = NULL, ' \
-                        "signal = NULL, act_to = act_from, " \
-                        "act_from = %s " \
-                    "WHERE act_to = %s", (db_id, db_id))
-            # ... and force the record to follow them:
-            for wkf_model, wkf_model_id in wkf_todo:
-                model_obj = pool.get(wkf_model)
-                #XXX must perhaps use workflow_trigger_trigger?
-                model_obj.workflow_trigger_write(wkf_model_id)
-
-            # Collect the ids of these transition in model_data
-            cursor.execute(
-                "SELECT md.id FROM ir_model_data md " \
-                    "JOIN wkf_transition t ON "\
-                    "(md.model='workflow.transition' and md.db_id=t.id)" \
-                    "WHERE t.act_to = %s", (db_id,))
-            mdata_delete.extend([x[0] for x in cursor.fetchall()])
-
-            # And finally delete the transitions
-            cursor.execute("DELETE FROM wkf_transition " \
-                    "WHERE act_to = %s", (db_id,))
-
 
         logging.getLogger("convert").info(
                 'Deleting %s@%s' % (db_id, model))
@@ -872,20 +829,6 @@ def post_import(pool, module, to_delete):
                     'and restart --update=module\n'
                     'Exception: %s' %
                     (db_id, model, tb_s))
-
-    transition_obj = pool.get('workflow.transition')
-    for mdata_id, db_id in transition_delete:
-        logging.getLogger("convert").info(
-            'Deleting %s@workflow.transition' % (db_id,))
-        try:
-            transition_obj.delete(db_id)
-            mdata_delete.append(mdata_id)
-            cursor.commit()
-        except Exception:
-            cursor.rollback()
-            logging.getLogger("convert").error(
-                'Could not delete id: %d of model workflow.transition' %
-                (db_id,))
 
     # Clean model_data:
     if mdata_delete:

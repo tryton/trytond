@@ -138,8 +138,8 @@ attlist.button &=
   [ a:defaultValue = "Unknown" ] attribute string { text }?
 attlist.button &= attribute icon { text }?
 attlist.button &=
-  [ a:defaultValue = "workflow" ]
-  attribute type { "workflow" | "object" | "action" }?
+  [ a:defaultValue = "object" ]
+  attribute type { "object" | "action" }?
 attlist.button &= attribute confirm { text }?
 attlist.button &= attribute name { text }
 attlist.button &= attribute states { text }?

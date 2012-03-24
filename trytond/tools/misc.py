@@ -98,7 +98,6 @@ def file_open(name, mode="r", subdir='modules'):
     if subdir:
         if subdir == 'modules'\
                 and (name.startswith('ir' + os.sep) \
-                    or name.startswith('workflow' + os.sep) \
                     or name.startswith('res' + os.sep) \
                     or name.startswith('webdav' + os.sep) \
                     or name.startswith('test' + os.sep)):

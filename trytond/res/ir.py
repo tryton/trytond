@@ -118,6 +118,48 @@ class ModelFieldGroup(ModelSQL):
 ModelFieldGroup()
 
 
+class ModelButtonGroup(ModelSQL):
+    "Model Button - Group"
+    _name = 'ir.model.button-res.group'
+    _description = __doc__
+    button = fields.Many2One('ir.model.button', 'Button',
+        ondelete='CASCADE', select=True, required=True)
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+        select=True, required=True)
+    active = fields.Boolean('Active', select=True)
+
+    def __init__(self):
+        super(ModelButtonGroup, self).__init__()
+        for method in self._rpc:
+            self._rpc[method] = False
+
+    def default_active(self):
+        return True
+
+    def create(self, values):
+        pool = Pool()
+        result = super(ModelButtonGroup, self).create(values)
+        # Restart the cache for get_groups
+        pool.get('ir.model.button').get_groups.reset()
+        return result
+
+    def write(self, ids, values):
+        pool = Pool()
+        result = super(ModelButtonGroup, self).write(ids, values)
+        # Restart the cache for get_groups
+        pool.get('ir.model.button').get_groups.reset()
+        return result
+
+    def delete(self, ids):
+        pool = Pool()
+        result = super(ModelButtonGroup, self).delete(ids)
+        # Restart the cache for get_groups
+        pool.get('ir.model.button').get_groups.reset()
+        return result
+
+ModelButtonGroup()
+
+
 class RuleGroupGroup(ModelSQL):
     "Rule Group - Group"
     _name = 'ir.rule.group-res.group'

@@ -1,3 +1,6 @@
+* Remove workflow module
+* Simplify workflow engine
+* Add ir.model.button for access rights
 * Replace fill by expand
 * Integer, Numeric and Float allow None as value
 * NULL value is None and not False

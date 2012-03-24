@@ -62,6 +62,28 @@ class Request(ModelSQL, ModelView):
     state = fields.Selection(_STATES, 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
+    def __init__(self):
+        super(Request, self).__init__()
+        self._rpc.update({
+            'request_get': False,
+        })
+        self._order.insert(0, ('priority', 'DESC'))
+        self._order.insert(1, ('trigger_date', 'DESC'))
+        self._order.insert(2, ('create_date', 'DESC'))
+        self._buttons.update({
+                'send': {
+                    'invisible': ~Eval('state').in_(['draft', 'chatting']),
+                    'readonly': Eval('act_from') != Eval('_user'),
+                    },
+                'reply': {
+                    'invisible': Eval('state') != 'waiting',
+                    'readonly': Eval('act_to') != Eval('_user'),
+                    },
+                'close': {
+                    'invisible': ~Eval('state').in_(['waiting', 'draft',
+                            'chatting']),
+                    },
+                })
 
     def default_act_from(self):
         return int(Transaction().user)
@@ -74,18 +96,6 @@ class Request(ModelSQL, ModelView):
 
     def default_priority(self):
         return '1'
-
-    def __init__(self):
-        super(Request, self).__init__()
-        self._rpc.update({
-            'request_send': True,
-            'request_reply': True,
-            'request_close': True,
-            'request_get': False,
-        })
-        self._order.insert(0, ('priority', 'DESC'))
-        self._order.insert(1, ('trigger_date', 'DESC'))
-        self._order.insert(2, ('create_date', 'DESC'))
 
     def on_change_with_number_references(self, vals):
         if vals.get('references'):
@@ -101,7 +111,8 @@ class Request(ModelSQL, ModelView):
                 res[request.id] = 0
         return res
 
-    def request_send(self, ids):
+    @ModelView.button
+    def send(self, ids):
         pool = Pool()
         request_history_obj = pool.get('res.request.history')
         for request in self.browse(ids):
@@ -124,9 +135,9 @@ class Request(ModelSQL, ModelView):
             'state': 'waiting',
             'date_send': datetime.datetime.now(),
             })
-        return True
 
-    def request_reply(self, ids):
+    @ModelView.button
+    def reply(self, ids):
         user = Transaction().user
         for request in self.browse(ids):
             self.write(request.id, {
@@ -136,11 +147,10 @@ class Request(ModelSQL, ModelView):
                 'trigger_date': False,
                 'body': '',
                 })
-        return True
 
-    def request_close(self, ids):
+    @ModelView.button
+    def close(self, ids):
         self.write(ids, {'state': 'closed', 'active': False})
-        return True
 
     def request_get(self):
         user = Transaction().user

@@ -273,13 +273,10 @@ Display a button.
 
     * ``string``: The string that will be displayed inside the button.
 
-    * ``type``: It can be ``workflow``, ``object`` or ``action``. The default
-      is ``workflow``.  It defines which type of action must be run when
-      clicking on it.
+    * ``type``: It can be ``object`` or ``action``. The default is ``object``.
+      It defines which type of action must be run when clicking on it.
 
     * ``name``: The name of the action:
-
-        * ``workflow``: the name of the signal that will be sent.
 
         * ``object``: the name of the function that will called.  The function
           must have this syntax:

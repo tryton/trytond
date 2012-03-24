@@ -228,6 +228,21 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
+        <record model="ir.model.access" id="access_ir_model_button">
+            <field name="model" search="[('model', '=', 'ir.model.button')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_ir_model_button_admin">
+            <field name="model" search="[('model', '=', 'ir.model.button')]"/>
+            <field name="group" ref="group_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
         <record model="ir.model.access" id="access_ir_model_data">
             <field name="model" search="[('model', '=', 'ir.model.data')]"/>
             <field name="perm_read" eval="True"/>
@@ -602,95 +617,65 @@ this repository contains the full copyright notices and license terms. -->
             <field name="menu" ref="ir.menu_trigger_form"/>
             <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.view" id="module_view_form">
-            <field name="model">ir.module.module</field>
-            <field name="inherit" ref="ir.module_view_form"/>
-            <field name="arch" type="xml">
-                <![CDATA[
-                    <data>
-                        <xpath
-                            expr="/form/group/button[@name=&quot;button_install&quot;]"
-                            position="replace">
-                            <button string="Mark for Installation" name="button_install"
-                                type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'uninstalled')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                        <xpath
-                            expr="/form/group/button[@name=&quot;button_install_cancel&quot;]"
-                            position="replace">
-                            <button string="Cancel Installation" name="button_install_cancel"
-                                type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'to install')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                        <xpath
-                            expr="/form/group/button[@name=&quot;button_uninstall&quot;]"
-                            position="replace">
-                            <button string="Mark for Uninstallation (beta)" name="button_uninstall"
-                                type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'installed')), 'readonly': Bool(True)}"/>
-                        </xpath>
-                        <xpath
-                            expr="/form/group/button[@name=&quot;button_uninstall_cancel&quot;]"
-                            position="replace">
-                            <button string="Cancel Uninstallation" name="button_uninstall_cancel"
-                                type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'to remove')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                        <xpath
-                            expr="/form/group/button[@name=&quot;button_upgrade&quot;]"
-                            position="replace">
-                            <button string="Mark for Upgrade" name="button_upgrade"
-                                type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'installed')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                        <xpath
-                            expr="/form/group/button[@name=&quot;button_upgrade_cancel&quot;]"
-                            position="replace">
-                            <button string="Cancel Upgrade" name="button_upgrade_cancel"
-                                type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'to upgrade')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                    </data>
-                ]]>
-            </field>
+
+        <record model="ir.model.button" id="module_install_button">
+            <field name="name">install</field>
+            <field name="model" search="[('model', '=', 'ir.module.module')]"/>
         </record>
-        <record model="ir.ui.view" id="module_view_tree">
-            <field name="model">ir.module.module</field>
-            <field name="inherit" ref="ir.module_view_tree"/>
-            <field name="arch" type="xml">
-                <![CDATA[
-                    <data>
-                        <xpath
-                            expr="/tree/button[@name=&quot;button_install&quot;]"
-                            position="replace">
-                            <button string="Mark for Installation"
-                                name="button_install" type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'uninstalled')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                        <xpath
-                            expr="/tree/button[@name=&quot;button_install_cancel&quot;]"
-                            position="replace">
-                            <button string="Cancel Installation"
-                                name="button_install_cancel" type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'to install')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                        <xpath
-                            expr="/tree/button[@name=&quot;button_upgrade&quot;]"
-                            position="replace">
-                            <button string="Mark for Upgrade"
-                                name="button_upgrade" type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'installed')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                        <xpath
-                            expr="/tree/button[@name=&quot;button_upgrade_cancel&quot;]"
-                            position="replace">
-                            <button string="Cancel Upgrade"
-                                name="button_upgrade_cancel" type="object"
-                                states="{'invisible': Not(Equal(Eval('state'), 'to upgrade')), 'readonly': Not(In(%(res.group_admin)d, Eval('groups', [])))}"/>
-                        </xpath>
-                    </data>
-                ]]>
-            </field>
+        <record model="ir.model.button-res.group"
+            id="module_install_button_group_admin">
+            <field name="button" ref="module_install_button"/>
+            <field name="group" ref="group_admin"/>
+        </record>
+
+        <record model="ir.model.button" id="module_install_cancel_button">
+            <field name="name">install_cancel</field>
+            <field name="model" search="[('model', '=', 'ir.module.module')]"/>
+        </record>
+        <record model="ir.model.button-res.group"
+            id="module_install_cancel_button_group_admin">
+            <field name="button" ref="module_install_cancel_button"/>
+            <field name="group" ref="group_admin"/>
+        </record>
+
+        <record model="ir.model.button" id="module_uninstall_button">
+            <field name="name">uninstall</field>
+            <field name="model" search="[('model', '=', 'ir.module.module')]"/>
+        </record>
+        <record model="ir.model.button-res.group"
+            id="module_uninstall_button_group_admin">
+            <field name="button" ref="module_uninstall_button"/>
+            <field name="group" ref="group_admin"/>
+        </record>
+
+        <record model="ir.model.button" id="module_uninstall_cancel_button">
+            <field name="name">uninstall_cancel</field>
+            <field name="model" search="[('model', '=', 'ir.module.module')]"/>
+        </record>
+        <record model="ir.model.button-res.group"
+            id="module_uninstall_cancel_button_group_admin">
+            <field name="button" ref="module_uninstall_cancel_button"/>
+            <field name="group" ref="group_admin"/>
+        </record>
+
+        <record model="ir.model.button" id="module_upgrade_button">
+            <field name="name">upgrade</field>
+            <field name="model" search="[('model', '=', 'ir.module.module')]"/>
+        </record>
+        <record model="ir.model.button-res.group"
+            id="module_upgrade_button_group_admin">
+            <field name="button" ref="module_upgrade_button"/>
+            <field name="group" ref="group_admin"/>
+        </record>
+
+        <record model="ir.model.button" id="module_upgrade_cancel_button">
+            <field name="name">upgrade_cancel</field>
+            <field name="model" search="[('model', '=', 'ir.module.module')]"/>
+        </record>
+        <record model="ir.model.button-res.group"
+            id="module_upgrade_cancel_button_group_admin">
+            <field name="button" ref="module_upgrade_cancel_button"/>
+            <field name="group" ref="group_admin"/>
         </record>
 
         <record model="res.request.link" id="request_link_cron">

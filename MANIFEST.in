@@ -22,5 +22,3 @@ include trytond/res/locale/*.po
 include trytond/test/*.xml
 include trytond/webdav/*.xml
 include trytond/webdav/locale/*.po
-include trytond/workflow/*.xml
-include trytond/workflow/locale/*.po

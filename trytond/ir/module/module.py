@@ -9,6 +9,7 @@ from trytond.wizard import Wizard, StateView, Button, StateTransition, \
 from trytond.backend import Database, TableHandler
 from trytond.pool import Pool
 from trytond.transaction import Transaction
+from trytond.pyson import Eval
 
 
 class Module(ModelSQL, ModelView):
@@ -43,12 +44,6 @@ class Module(ModelSQL, ModelView):
         ]
         self._order.insert(0, ('name', 'ASC'))
         self._rpc.update({
-            'button_install': True,
-            'button_install_cancel': True,
-            'button_uninstall': True,
-            'button_uninstall_cancel': True,
-            'button_upgrade': True,
-            'button_upgrade_cancel': True,
             'on_write': False,
         })
         self._error_messages.update({
@@ -58,6 +53,26 @@ class Module(ModelSQL, ModelView):
             'uninstall_dep': 'The modules you are trying to uninstall ' \
                     'depends on installed modules:',
             })
+        self._buttons.update({
+                'install': {
+                    'invisible': Eval('state') != 'uninstalled',
+                    },
+                'install_cancel': {
+                    'invisible': Eval('state') != 'to_install',
+                    },
+                'uninstall': {
+                    'invisible': Eval('state') != 'installed',
+                    },
+                'uninstall_cancel': {
+                    'invisible': Eval('state') != 'to_remove',
+                    },
+                'upgrade': {
+                    'invisible': Eval('state') != 'installed',
+                    },
+                'upgrade_cancel': {
+                    'invisible': Eval('state') != 'to upgrade',
+                    },
+                })
 
     def default_state(self):
         return 'uninstalled'
@@ -66,7 +81,7 @@ class Module(ModelSQL, ModelView):
     def get_module_info(name):
         "Return the content of the __tryton__.py"
         try:
-            if name in ['ir', 'workflow', 'res', 'webdav']:
+            if name in ['ir', 'res', 'webdav']:
                 file_p = tools.file_open(os.path.join(name, '__tryton__.py'))
             else:
                 file_p = tools.file_open(os.path.join(name, '__tryton__.py'))
@@ -198,16 +213,19 @@ class Module(ModelSQL, ModelView):
                 'state': 'to upgrade',
                 })
 
-    def button_install(self, ids):
+    @ModelView.button
+    def install(self, ids):
         return self.state_install(ids)
 
-    def button_install_cancel(self, ids):
+    @ModelView.button
+    def install_cancel(self, ids):
         self.write(ids, {
             'state': 'uninstalled',
             })
         return True
 
-    def button_uninstall(self, ids):
+    @ModelView.button
+    def uninstall(self, ids):
         cursor = Transaction().cursor
         for module in self.browse(ids):
             cursor.execute('SELECT m.state, m.name ' \
@@ -225,14 +243,17 @@ class Module(ModelSQL, ModelView):
         self.write(ids, {'state': 'to remove'})
         return True
 
-    def button_uninstall_cancel(self, ids):
+    @ModelView.button
+    def uninstall_cancel(self, ids):
         self.write(ids, {'state': 'installed'})
         return True
 
-    def button_upgrade(self, ids):
+    @ModelView.button
+    def upgrade(self, ids):
         return self.state_upgrade(ids)
 
-    def button_upgrade_cancel(self, ids):
+    @ModelView.button
+    def upgrade_cancel(self, ids):
         self.write(ids, {'state': 'installed'})
         return True
 

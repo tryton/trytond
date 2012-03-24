@@ -7,12 +7,15 @@ except ImportError:
     hashlib = None
     import md5
 import copy
+from functools import wraps
 from trytond.model import Model
 from trytond.tools import safe_eval
 from trytond.pyson import PYSONEncoder, CONTEXT
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.pool import Pool
+from trytond.exceptions import UserError
+
 
 def _find(tree, element):
     if element.tag == 'xpath':
@@ -96,6 +99,7 @@ class ModelView(Model):
         super(ModelView, self).__init__()
         self._rpc['fields_view_get'] = False
         self._rpc['view_toolbar_get'] = False
+        self._buttons = {}
 
     @Cache('modelview.fields_view_get')
     def fields_view_get(self, view_id=None, view_type='form', hexmd5=None):
@@ -386,6 +390,8 @@ class ModelView(Model):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
         model_data_obj = pool.get('ir.model.data')
+        button_obj = pool.get('ir.model.button')
+        user_obj = pool.get('res.user')
 
         if fields_width is None:
             fields_width = {}
@@ -458,6 +464,21 @@ class ModelView(Model):
                 element.set(attr, encoder.encode(safe_eval(element.get(attr),
                     CONTEXT)))
 
+        if element.tag == 'button':
+            if element.get('type', 'object') == 'object':
+                assert not element.get('states')
+                button_name = element.attrib['name']
+                if button_name in self._buttons:
+                    states = self._buttons[button_name]
+                else:
+                    states = {}
+                groups = set(user_obj.get_groups())
+                button_groups = button_obj.get_groups(self._name, button_name)
+                if button_groups and not groups & button_groups:
+                    states = states.copy()
+                    states['readonly'] = True
+                element.set('states', encoder.encode(states))
+
         # translate view
         if Transaction().language != 'en_US' and not result:
             for attr in ('string', 'sum', 'confirm', 'help'):
@@ -480,3 +501,20 @@ class ModelView(Model):
                 fields_attrs.update(self.__view_look_dom(field, type,
                     fields_width=fields_width))
         return fields_attrs
+
+    @staticmethod
+    def button(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            pool = Pool()
+            button_obj = pool.get('ir.model.button')
+            user_obj = pool.get('res.user')
+
+            if Transaction().user != 0:
+                groups = set(user_obj.get_groups())
+                button_groups = button_obj.get_groups(self._name, func.__name__)
+                if button_groups and not groups & button_groups:
+                    raise UserError('Calling button %s on %s is not allowed!'
+                        % (func.__name__, self._name))
+            return func(self, *args, **kwargs)
+        return wrapper

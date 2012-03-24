@@ -1,8 +1,6 @@
 - Add check on action groups when executing wizard
-- Handle button as a field to allow to override it with python code
 - Allow to create fields from the client interface
 - Improve encoding of default properties
-- Use determined action name in workflow like for default value
 - Add check for index and constraint name lenght (limit 31)
 - Change _constraint to pass a BrowseRecordList instead of a list of ids
 - Add order attribute on page tag

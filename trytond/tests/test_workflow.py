@@ -14,49 +14,21 @@ class WorkflowTestCase(unittest.TestCase):
         install_module('test')
         self.workflow_obj = POOL.get('test.workflowed')
 
-    def test0010object_creation(self):
-        'Test workflow object creation'
-        with Transaction().start(DB_NAME, USER,
-                context=CONTEXT) as transaction:
-            wkf_id = self.workflow_obj.create({
-                    'name': 'value = 3',
-                    'value': 3,
-                    })
-            self.assertEqual(self.workflow_obj.read(wkf_id)['state'], 'Start')
-
-            wkf_id = self.workflow_obj.create({
-                    'name': 'value = 10',
-                    'value': 10,
-                    })
-            self.assertEqual(self.workflow_obj.read(wkf_id)['state'], 'Middle')
-
-            wkf_id = self.workflow_obj.create({
-                    'name': 'value = 6',
-                    'value': 6,
-                    })
-            self.assertEqual(self.workflow_obj.read(wkf_id)['state'], 'End')
-
-            transaction.cursor.rollback()
-
-    def test0020object_modification(self):
-        'Test workflow object modification'
+    # TODO add test for Workflow.transition
+    def test0010transition(self):
+        'Test transition'
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            wkf_id = self.workflow_obj.create({
-                    'name': 'value = 3',
-                    'value': 3,
-                    })
-            wkf_id = self.workflow_obj.create({
-                    'name': 'value = 10',
-                    'value': 10,
-                    })
+            wkf_id = self.workflow_obj.create({})
 
-            wkf_id, = self.workflow_obj.search([('name', '=', 'value = 3')])
-            self.workflow_obj.write(wkf_id, {'value': 11})
-            self.assertEqual(self.workflow_obj.read(wkf_id)['state'], 'Middle')
+            self.workflow_obj.run([wkf_id])
+            self.assertEqual(self.workflow_obj.read(wkf_id)['state'],
+                'running')
 
-            wkf_id, = self.workflow_obj.search([('name', '=', 'value = 10')])
-            self.workflow_obj.write(wkf_id, {'value': 6})
-            self.assertEqual(self.workflow_obj.read(wkf_id)['state'], 'End')
+            self.workflow_obj.write(wkf_id, {
+                    'state': 'end',
+                    })
+            self.workflow_obj.run([wkf_id])
+            self.assertEqual(self.workflow_obj.read(wkf_id)['state'], 'end')
 
 
 def suite():

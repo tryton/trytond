@@ -51,19 +51,16 @@ this repository contains the full copyright notices and license terms. -->
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
                             <group col="2" colspan="2" id="buttons">
-                                <button name="request_send"
-                                    states="{'invisible': Not(In(Eval('state'), ['draft', 'chatting'])), 'readonly': Not(Equal(Eval('act_from'), Eval('_user')))}"
-                                    string="Send" type="object"/>
-                                <button name="request_reply"
-                                    states="{'invisible': Not(Equal(Eval('state'), 'waiting')), 'readonly': Not(Equal(Eval('act_to'), Eval('_user')))}"
-                                    string="Reply" type="object"/>
+                                <button name="send" string="Send"
+                                    type="object"/>
+                                <button name="reply" string="Reply"
+                                    type="object"/>
                             </group>
                             <label name="state"/>
                             <field name="state"/>
                             <group col="3" colspan="2" id="button">
-                                <button name="request_close"
-                                    states="{'invisible': Not(In(Eval('state'), ['waiting', 'draft', 'chatting']))}"
-                                    string="Close" type="object"/>
+                                <button name="close" string="Close"
+                                    type="object"/>
                             </group>
                         </page>
                         <page string="References" col="1" id="references">
