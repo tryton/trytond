@@ -730,7 +730,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'model': model,
                     'module': module,
                     'db_id': db_id,
-                    'values': values,
+                    'values': str(values),
                     'date_update': datetime.datetime.now(),
                     })
                 for table, inherit_mdata_id in inherit_mdata_ids:
@@ -739,7 +739,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         'model': table,
                         'module': module,
                         'db_id': inherit_db_ids[table],
-                        'values': values,
+                        'values': str(values),
                         'date_update': datetime.datetime.now(),
                         })
             # reset_browsercord to keep cache memory low
