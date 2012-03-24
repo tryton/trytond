@@ -69,7 +69,6 @@ class ModelViewTestCase(unittest.TestCase):
     def setUp(self):
         install_module('ir')
         install_module('res')
-        install_module('workflow')
         install_module('webdav')
 
     def test0000test(self):
@@ -88,12 +87,6 @@ class ModelViewTestCase(unittest.TestCase):
         '''
         test_view('res')
 
-    def test0030workflow(self):
-        '''
-        Test workflow.
-        '''
-        test_view('workflow')
-
     def test0040webdav(self):
         '''
         Test webdav.
@@ -109,7 +102,6 @@ class FieldDependsTestCase(unittest.TestCase):
     def setUp(self):
         install_module('ir')
         install_module('res')
-        install_module('workflow')
         install_module('webdav')
 
     def test0010depends(self):
@@ -143,7 +135,7 @@ def install_module(name):
         if not module_ids:
             return
 
-        module_obj.button_install(module_ids)
+        module_obj.install(module_ids)
         transaction.cursor.commit()
 
         install_upgrade_obj = POOL.get('ir.module.module.install_upgrade',
@@ -252,8 +244,6 @@ def all_suite():
     suite_.addTests(test_access.suite())
     import trytond.tests.test_mixins as test_mixins
     suite_.addTests(test_mixins.suite())
-    import trytond.tests.test_workflow as test_workflow
-    suite_.addTests(test_workflow.suite())
     import trytond.tests.test_wizard as test_wizard
     suite_.addTests(test_wizard.suite())
     return suite_

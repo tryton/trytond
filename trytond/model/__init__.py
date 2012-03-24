@@ -5,4 +5,4 @@ from .modelview import *
 from .modelstorage import *
 from .modelsingleton import *
 from .modelsql import *
-from .modelworkflow import *
+from .workflow import Workflow

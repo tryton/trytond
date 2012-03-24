@@ -261,5 +261,52 @@ this repository contains the full copyright notices and license terms. -->
             <field name="action" ref="print_model_graph"/>
         </record>
 
+        <record model="ir.ui.view" id="model_button_view_list">
+            <field name="model">ir.model.button</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Buttons">
+                    <field name="model"/>
+                    <field name="name"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="model_button_view_form">
+            <field name="model">ir.model.button</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Button">
+                    <label name="model"/>
+                    <field name="model"/>
+                    <label name="name"/>
+                    <field name="name"/>
+                    <field name="groups" colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_model_button_form">
+            <field name="name">Buttons</field>
+            <field name="res_model">ir.model.button</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_model_button_form_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="model_button_view_list"/>
+            <field name="act_window" ref="act_model_button_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_model_button_form_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="model_button_view_form"/>
+            <field name="act_window" ref="act_model_button_form"/>
+        </record>
+        <menuitem parent="menu_model_access_form"
+            action="act_model_button_form" id="menu_model_button_form"/>
+
     </data>
 </tryton>

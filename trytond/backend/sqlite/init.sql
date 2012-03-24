@@ -77,60 +77,6 @@ CREATE TABLE "res_user-res_group" (
     "group" INTEGER
 );
 
-CREATE TABLE wkf (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR,
-    model VARCHAR,
-    on_create BOOLEAN
-);
-
-CREATE TABLE wkf_activity (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    workflow INTEGER,
-    subflow INTEGER,
-    split_mode VARCHAR,
-    join_mode VARCHAR,
-    name VARCHAR,
-    signal_send VARCHAR,
-    flow_start BOOLEAN,
-    flow_stop BOOLEAN,
-    stop_other BOOLEAN,
-    action VARCHAR
-);
-
-CREATE TABLE wkf_transition (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    act_from INTEGER,
-    act_to INTEGER,
-    condition VARCHAR,
-    trigger_expr_id VARCHAR,
-    signal VARCHAR,
-    "group" INTEGER
-);
-
-CREATE TABLE wkf_instance (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    workflow INTEGER,
-    uid INTEGER DEFAULT 0,
-    res_id INTEGER DEFAULT 0,
-    res_type VARCHAR,
-    state VARCHAR
-);
-
-CREATE TABLE wkf_workitem (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    activity INTEGER,
-    instance INTEGER,
-    subflow INTEGER,
-    state VARCHAR
-);
-
-CREATE TABLE wkf_witm_trans (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    trans_id INTEGER,
-    inst_id INTEGER
-);
-
 CREATE TABLE ir_module_module (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     create_uid INTEGER,

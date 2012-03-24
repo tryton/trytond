@@ -103,6 +103,20 @@ ModelView
 
 It adds requirements to display a view of the model in the client.
 
+Class attributes:
+
+.. attribute:: ModelView._buttons
+
+    It contains a dictionary with button name as key and the states dictionary
+    for the button. This states dictionary will be used to generate the views
+    containing the button.
+
+Static methods:
+
+.. staticmethod:: ModelView.button
+
+    Decorate button method to check group access.
+
 Instance methods:
 
 .. method:: ModelView.fields_view_get([view_id[, view_type[, toolbar[, hexmd5]]]])
@@ -297,11 +311,6 @@ Instance methods:
     Helper method that checks if there is no recursion in the tree composed
     with ``parent`` as parent field name.
 
-.. method:: ModelStorage.workflow_trigger_trigger(ids)
-
-    Trigger a trigger event on the :ref:`workflow <topics-workflow>` of
-    records.
-
 ========
 ModelSQL
 ========
@@ -378,31 +387,30 @@ Instance methods:
 
     - a list of arguments for the tables
 
-=============
-ModelWorkflow
-=============
+========
+Workflow
+========
 
-.. class:: ModelWorkflow
+.. class:: Workflow
 
-It adds workflow capability to :class:`ModelStorage`.
+A Mix-in class to handle transition check.
 
-Instance methods:
+Class attribute:
 
-.. method:: ModelWorkflow.workflow_trigger_create(ids)
+.. attribute:: Workflow._transition_state
 
-    Trigger create event on the :ref:`workflow <topics-workflow>` of records.
+    The name of the field that will be used to check state transition.
 
-.. method:: ModelWorkflow.workflow_trigger_write(ids)
+.. attribute:: Workflow._transitions
 
-    Trigger write event on the :ref:`workflow <topics-workflow>` of records.
+    A set containing tuples of from and to state.
 
-.. method:: ModelWorkflow.workflow_trigger_validate(ids)
+Static methods:
 
-    Trigger validate event on the :ref:`workflow <topics-workflow>` of records.
+.. staticmethod:: Workflow.transition(state)
 
-.. method:: ModelWorkflow.workflow_trigger_delete(ids)
-
-    Trigger delete event on the :ref:`workflow <topics-workflow>` of records.
+    Decorate method to filter ids for which the transition is valid and finally
+    to update the state of the filtered ids.
 
 ==============
 ModelSingleton

@@ -5,7 +5,7 @@
     'description': '''A module for unittest.
 ''',
     'active': True,
-    'depends': ['ir', 'res', 'workflow'],
+    'depends': ['ir', 'res'],
     'xml': [
         'import_data.xml',
         'sequence.xml',

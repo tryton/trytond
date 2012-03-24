@@ -481,6 +481,60 @@ class ModelFieldAccess(ModelSQL, ModelView):
 ModelFieldAccess()
 
 
+class ModelButton(ModelSQL, ModelView):
+    "Model Button"
+    _name = 'ir.model.button'
+    _description = __doc__
+    name = fields.Char('Name', required=True, readonly=True)
+    model = fields.Many2One('ir.model', 'Model', required=True, readonly=True,
+        ondelete='CASCADE', select=True)
+    groups = fields.Many2Many('ir.model.button-res.group', 'button', 'group',
+        'Groups')
+
+    def __init__(self):
+        super(ModelButton, self).__init__()
+        self._sql_constraints += [
+            ('name_model_uniq', 'UNIQUE(name, model)',
+                'The button name in model must be unique!'),
+            ]
+        self._order.insert(0, ('model', 'ASC'))
+
+    def create(self, values):
+        result = super(ModelButton, self).create(values)
+        # Restart the cache for get_groups
+        self.get_groups.reset()
+        return result
+
+    def write(self, ids, values):
+        result = super(ModelButton, self).write(ids, values)
+        # Restart the cache for get_groups
+        self.get_groups.reset()
+        return result
+
+    def delete(self, ids):
+        result = super(ModelButton, self).delete(ids)
+        # Restart the cache for get_groups
+        self.get_groups.reset()
+        return result
+
+    @Cache('ir.model.button')
+    def get_groups(self, model, name):
+        '''
+        Return a set of group ids for the named button on the model.
+        '''
+        button_ids = self.search([
+                ('model', '=', model),
+                ('name', '=', name),
+                ])
+        if not button_ids:
+            return set()
+        button_id, = button_ids
+        button = self.browse(button_id)
+        return set(g.id for g in button.groups)
+
+ModelButton()
+
+
 class ModelData(ModelSQL, ModelView):
     "Model data"
     _name = 'ir.model.data'

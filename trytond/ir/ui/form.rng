@@ -532,9 +532,8 @@
   </define>
   <define name="attlist.button" combine="interleave">
     <optional>
-      <attribute name="type" a:defaultValue="workflow">
+      <attribute name="type" a:defaultValue="object">
         <choice>
-          <value>workflow</value>
           <value>object</value>
           <value>action</value>
         </choice>

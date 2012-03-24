@@ -129,11 +129,14 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             pool.init()
     obj = pool.get(object_name, type=object_type)
 
-    if method not in obj._rpc:
+    if method in obj._rpc:
+        readonly = not obj._rpc[method]
+    elif method in getattr(obj, '_buttons', {}):
+        readonly = False
+    else:
         raise UserError('Calling method %s on %s %s is not allowed!'
             % (method, object_type, object_name))
 
-    readonly = not obj._rpc[method]
 
     for count in range(int(CONFIG['retry']), -1, -1):
         with Transaction().start(database_name, user,

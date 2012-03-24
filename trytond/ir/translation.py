@@ -908,7 +908,6 @@ class TranslationClean(Wizard):
                 'too_many_relations_found',
                 'xml_id_syntax_error',
                 'reference_syntax_error',
-                'delete_workflow_record',
                 'domain_validation_record',
                 'required_validation_record',
                 'size_validation_record',
