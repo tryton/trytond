@@ -128,7 +128,7 @@ class User(ModelSQL, ModelView):
         return None
 
     def default_active(self):
-        return 1
+        return True
 
     def default_menu(self):
         pool = Pool()
