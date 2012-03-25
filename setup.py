@@ -64,7 +64,7 @@ setup(name=PACKAGE,
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],
         'MySQL': ['MySQL-python'],
-        'WebDAV': ['PyWebDAV >= 0.9.3'],
+        'WebDAV': ['PyWebDAV >= 0.9.8'],
         'unoconv': ['unoconv'],
         'SSL': ['pyOpenSSL'],
         'graphviz': ['pydot'],

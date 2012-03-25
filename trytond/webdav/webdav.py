@@ -2,10 +2,32 @@
 #this repository contains the full copyright notices and license terms.
 import os
 import time
+import urllib
+import urlparse
+import socket
+import encodings
+import uuid
+import datetime
+from dateutil.relativedelta import relativedelta
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import reduce_ids, safe_eval
 from trytond.transaction import Transaction
 from trytond.pool import Pool
+from trytond.config import CONFIG
+from trytond.pyson import Eval
+
+def get_webdav_url():
+    if CONFIG['ssl_webdav']:
+        protocol = 'https'
+    else:
+        protocol = 'http'
+    hostname = (CONFIG['hostname_webdav']
+        or unicode(socket.getfqdn(), 'utf8'))
+    hostname = '.'.join(encodings.idna.ToASCII(part) for part in
+        hostname.split('.'))
+    return urlparse.urlunsplit((protocol, hostname,
+        urllib.quote(Transaction().cursor.database_name + '/'), None, None))
+
 
 
 class Collection(ModelSQL, ModelView):
@@ -18,6 +40,8 @@ class Collection(ModelSQL, ModelView):
     childs = fields.One2Many('webdav.collection', 'parent', 'Children')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain')
+    complete_name = fields.Function(fields.Char('Complete Name',
+            order_field='name'), 'get_rec_name')
 
     def __init__(self):
         super(Collection, self).__init__()
@@ -44,6 +68,21 @@ class Collection(ModelSQL, ModelView):
 
     def default_domain(self):
         return '[]'
+
+    def get_rec_name(self, ids, name):
+        if not ids:
+            return {}
+        names = {}
+        def _name(collection):
+            if collection.id in names:
+                return names[collection.id]
+            elif collection.parent:
+                return _name(collection.parent) + '/' + collection.name
+            else:
+                return collection.name
+        for collection in self.browse(ids):
+            names[collection.id] = _name(collection)
+        return names
 
     def check_attachment(self, ids):
         pool = Pool()
@@ -306,7 +345,7 @@ class Collection(ModelSQL, ModelView):
         return res
 
     def get_resourcetype(self, uri, cache=None):
-        from DAV.constants import COLLECTION, OBJECT
+        from pywebdav.lib.constants import COLLECTION, OBJECT
         object_name, object_id = self._uri2object(uri, cache=cache)
         if object_name in ('ir.attachment', 'ir.action.report'):
             return OBJECT
@@ -434,7 +473,7 @@ class Collection(ModelSQL, ModelView):
         return time.time()
 
     def get_data(self, uri, cache=None):
-        from DAV.errors import DAV_NotFound
+        from pywebdav.lib.errors import DAV_NotFound
         pool = Pool()
         attachment_obj = pool.get('ir.attachment')
         report_obj = pool.get('ir.action.report')
@@ -487,8 +526,8 @@ class Collection(ModelSQL, ModelView):
         raise DAV_NotFound
 
     def put(self, uri, data, content_type, cache=None):
-        from DAV.errors import DAV_Forbidden
-        from DAV.utils import get_uriparentpath, get_urifilename
+        from pywebdav.lib.errors import DAV_Forbidden
+        from pywebdav.lib.utils import get_uriparentpath, get_urifilename
         object_name, object_id = self._uri2object(get_uriparentpath(uri),
                 cache=cache)
         if not object_name \
@@ -519,8 +558,8 @@ class Collection(ModelSQL, ModelView):
         return
 
     def mkcol(self, uri, cache=None):
-        from DAV.errors import DAV_Forbidden
-        from DAV.utils import get_uriparentpath, get_urifilename
+        from pywebdav.lib.errors import DAV_Forbidden
+        from pywebdav.lib.utils import get_uriparentpath, get_urifilename
         if uri[-1:] == '/':
             uri = uri[:-1]
         object_name, object_id = self._uri2object(get_uriparentpath(uri),
@@ -538,7 +577,7 @@ class Collection(ModelSQL, ModelView):
         return 201
 
     def rmcol(self, uri, cache=None):
-        from DAV.errors import DAV_Forbidden
+        from pywebdav.errors import DAV_Forbidden
         object_name, object_id = self._uri2object(uri, cache=cache)
         if object_name != 'webdav.collection' \
                 or not object_id:
@@ -550,7 +589,7 @@ class Collection(ModelSQL, ModelView):
         return 200
 
     def rm(self, uri, cache=None):
-        from DAV.errors import DAV_Forbidden
+        from pywebdav.errors import DAV_Forbidden
         object_name, object_id = self._uri2object(uri, cache=cache)
         if not object_name:
             raise DAV_Forbidden
@@ -577,8 +616,74 @@ class Collection(ModelSQL, ModelView):
 Collection()
 
 
+class Share(ModelSQL, ModelView):
+    "Share"
+    _name = 'webdav.share'
+    _description = __doc__
+    _rec_name = 'key'
+
+    path = fields.Char('Path', required=True, select=True)
+    key = fields.Char('Key', required=True, select=True,
+        states={
+            'readonly': True,
+            })
+    user = fields.Many2One('res.user', 'User', required=True)
+    expiration_date = fields.Date('Expiration Date', required=True)
+    note = fields.Text('Note')
+    url = fields.Function(fields.Char('URL'), 'get_url')
+
+    def default_key(self):
+        return uuid.uuid4().hex
+
+    def default_user(self):
+        return Transaction().user
+
+    def default_expiration_date(self):
+        return datetime.date.today() + relativedelta(months=1)
+
+    def get_url(self, ids, name):
+        urls = {}
+        webdav_url = get_webdav_url()
+        for share in self.browse(ids):
+            urls[share.id] = urlparse.urljoin(webdav_url,
+                urlparse.urlunsplit((None, None, urllib.quote(share.path),
+                        urllib.urlencode([('key', share.key)]), None)))
+        return urls
+
+    def match(self, share, command, path):
+        "Test if share match with command and path"
+        today = datetime.date.today()
+        return (path.startswith(share.path)
+            and share.expiration_date > today
+            and command == 'GET')
+
+    def get_login(self, key, command, path):
+        """Validate the key for the command and path
+        Return the user id if succeed or None
+        """
+        share_ids = self.search([
+                ('key', '=', key),
+                ])
+        if not share_ids:
+            return None
+        for share in self.browse(share_ids):
+            if self.match(share, command, path):
+                return share.user.id
+        return None
+
+Share()
+
+
 class Attachment(ModelSQL, ModelView):
     _name = 'ir.attachment'
+
+    path = fields.Function(fields.Char('Path'), 'get_path')
+    url = fields.Function(fields.Char('URL'), 'get_url')
+    shares = fields.Function(fields.One2Many('webdav.share', None, 'Shares',
+            domain=[
+                ('path', '=', Eval('path')),
+                ],
+            depends=['path']), 'get_shares', 'set_shares')
 
     def __init__(self):
         super(Attachment, self).__init__()
@@ -603,5 +708,100 @@ class Attachment(ModelSQL, ModelView):
                         if child.name == attachment.name:
                             return False
         return True
+
+    def get_path(self, ids, name):
+        pool = Pool()
+        collection_obj = pool.get('webdav.collection')
+        paths = dict((x, False) for x in ids)
+
+        attachments = self.browse(ids)
+        resources = {}
+        resource2attachments = {}
+        for attachment in attachments:
+            if not attachment.resource:
+                paths[attachment.id] = False
+            model_name, record_id = attachment.resource.split(',')
+            record_id = int(record_id)
+            resources.setdefault(model_name, set()).add(record_id)
+            resource2attachments.setdefault((model_name, record_id),
+                []).append(attachment)
+        collection_ids = collection_obj.search([
+                ('model.model', 'in', resources.keys()),
+                ])
+        for collection in collection_obj.browse(collection_ids):
+            model_name = collection.model.model
+            model_obj = pool.get(model_name)
+            ids = list(resources[model_name])
+            domain = safe_eval(collection.domain or '[]')
+            domain = [domain, ('id', 'in', ids)]
+            record_ids = model_obj.search(domain)
+            for record in model_obj.browse(record_ids):
+                for attachment in resource2attachments[
+                        (model_name, record.id)]:
+                    paths[attachment.id] = '/'.join((collection.rec_name,
+                            record.rec_name + '-' + str(record.id),
+                            attachment.name))
+        if 'webdav.collection' in resources:
+            collection_ids = list(resources['webdav.collection'])
+            for collection in collection_obj.browse(collection_ids):
+                for attachment in resource2attachments[
+                        ('webdav.collection', collection.id)]:
+                    paths[attachment.id] = '/'.join((collection.rec_name,
+                            attachment.name))
+        return paths
+
+    def get_url(self, ids, name):
+        webdav_url = get_webdav_url()
+        urls = {}
+        for attachment in self.browse(ids):
+            urls[attachment.id] = urlparse.urljoin(webdav_url,
+                urllib.quote(attachment.path))
+        return urls
+
+    def get_shares(self, ids, name):
+        share_obj = Pool().get('webdav.share')
+        shares = dict((x, []) for x in ids)
+        attachements = self.browse(ids)
+        path2attachement = dict((a.path, a) for a in attachements)
+        share_ids = share_obj.search([
+                ('path', 'in', path2attachement.keys()),
+                ])
+        for share in share_obj.browse(share_ids):
+            attachment = path2attachement[share.path]
+            shares[attachment.id].append(share.id)
+        return shares
+
+    def set_shares(self, ids, name, value):
+        share_obj = Pool().get('webdav.share')
+
+        if not value:
+            return
+
+        attachments = self.browse(ids)
+        for action in value:
+            if action[0] == 'create':
+                for attachment in attachments:
+                    action[1]['path'] = attachment.path
+                    share_obj.create(action[1])
+            elif action[0] == 'write':
+                share_obj.write(action[1], action[2])
+            elif action[0] == 'delete':
+                share_obj.delete(action[1])
+            elif action[0] == 'delete_all':
+                paths = [a.path for a in attachments]
+                share_ids = share_obj.search([
+                        ('path', 'in', paths),
+                        ])
+                share_obj.delete(share_ids)
+            elif action[0] == 'unlink':
+                pass
+            elif action[0] == 'add':
+                pass
+            elif action[0] == 'unlink_all':
+                pass
+            elif action[0] == 'set':
+                pass
+            else:
+                raise Exception('Bad arguments')
 
 Attachment()

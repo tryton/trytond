@@ -14,7 +14,7 @@ Prerequisites
     * polib (https://bitbucket.org/izi/polib/wiki/Home)
     * Optional: psycopg 2 or later (http://www.initd.org/)
     * Optional: MySQL-python (http://sourceforge.net/projects/mysql-python/)
-    * Optional: pywebdav 0.9.3 or later (http://code.google.com/p/pywebdav/)
+    * Optional: pywebdav 0.9.8 or later (http://code.google.com/p/pywebdav/)
     * Optional: pydot (http://code.google.com/p/pydot/)
     * Optional: pytz (http://pytz.sourceforge.net/)
     * Optional: unoconv http://dag.wieers.com/home-made/unoconv/)
