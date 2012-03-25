@@ -84,7 +84,14 @@ class Pool(object):
         '''
         :return: database list
         '''
-        return cls._pool.keys()
+        with cls._lock:
+            databases = []
+            for database in cls._pool.keys():
+                if cls._locks.get(database):
+                    if cls._locks[database].acquire(False):
+                        databases.append(database)
+                        cls._locks[database].release()
+            return databases
 
     @property
     def lock(self):
