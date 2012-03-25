@@ -32,7 +32,6 @@ from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
     ConcurrencyException
-_TRYTON_RELOAD = False
 domimpl = xml.dom.minidom.getDOMImplementation()
 
 DAV_VERSION_1['version'] += ',access-control'
