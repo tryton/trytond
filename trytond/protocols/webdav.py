@@ -11,11 +11,15 @@ import traceback
 import logging
 from threading import local
 import xml.dom.minidom
-from DAV import AuthServer, WebDAVServer, iface
-from DAV.errors import *
-from DAV.constants import COLLECTION, DAV_VERSION_1, DAV_VERSION_2
-from DAV.utils import get_uriparentpath, get_urifilename, quote_uri
-from DAV.davcmd import copyone, copytree, moveone, movetree, delone, deltree
+import base64
+from pywebdav.lib import WebDAVServer, iface
+from pywebdav.lib.errors import DAV_Error, DAV_NotFound, DAV_Secret, \
+    DAV_Forbidden, DAV_Requested_Range_Not_Satisfiable
+from pywebdav.lib.constants import COLLECTION, DAV_VERSION_1, DAV_VERSION_2
+from pywebdav.lib.utils import get_uriparentpath, get_urifilename, \
+    quote_uri
+from pywebdav.lib.davcmd import copyone, copytree, moveone, movetree, \
+    delone, deltree
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.common import daemon
 from trytond.config import CONFIG
@@ -46,19 +50,14 @@ class LocalInt(local):
 
 CACHE = LocalDict()
 
-# Fix for bad use of Document in DAV.utils make_xmlresponse
-from DAV.utils import VERSION as DAV_VERSION
-if DAV_VERSION == '0.6':
-    from xml.dom.Document import Document
-    Document.Document = Document
 
-# Fix for unset _config in DAVRequestHandler
-if not hasattr(WebDAVServer.DAVRequestHandler, '_config'):
+def setupConfig():
 
 
-    class DAV:
+    class ConfigDAV:
         lockemulation = False
         verbose = False
+        baseurl = ''
 
         def getboolean(self, name):
             return bool(self.get(name))
@@ -70,10 +69,10 @@ if not hasattr(WebDAVServer.DAVRequestHandler, '_config'):
                 return default
 
 
-    class _Config:
-        DAV = DAV()
+    class Config:
+        DAV = ConfigDAV()
 
-    WebDAVServer.DAVRequestHandler._config = _Config()
+    return Config()
 
 
 class BaseThreadedHTTPServer(SocketServer.ThreadingMixIn,
@@ -113,7 +112,9 @@ class WebDAVServerThread(daemon):
             server_class = BaseThreadedHTTPServer
             if self.ipv6:
                 server_class = BaseThreadedHTTPServer6
+        handler_class._config = setupConfig()
         handler_class.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
+        handler_class.IFACE_CLASS.baseurl = handler_class._config.DAV.baseurl
         self.server = server_class((interface, port), handler_class)
 
 class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
@@ -176,11 +177,15 @@ class TrytonDAVInterface(iface.dav_interface):
         pool = Pool(Transaction().cursor.database_name)
         try:
             collection_obj = pool.get('webdav.collection')
-            if uri[-1:] != '/':
-                uri += '/'
+            scheme, netloc, path, params, query, fragment = \
+                urlparse.urlparse(uri)
+            if path[-1:] != '/':
+                path += '/'
             for child in collection_obj.get_childs(dburi, filter=filter,
                     cache=CACHE):
-                res.append(uri + child.encode('utf-8'))
+                res.append(urlparse.urlunparse((scheme, netloc,
+                            path + child.encode('utf-8'), params, query,
+                            fragment)))
         except KeyError:
             return res
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
@@ -207,8 +212,13 @@ class TrytonDAVInterface(iface.dav_interface):
             res += '<h2>Collection: %s</h2>' % (get_urifilename(uri) or '/')
             res += '<ul>'
             if dbname:
+                scheme, netloc, path, params, query, fragment = \
+                    urlparse.urlparse(uri)
+                if path[-1:] != '/':
+                    path += '/'
                 res += '<li><a href="%s">..</a></li>' \
-                        % (quote_uri(get_uriparentpath(uri) or '/'))
+                        % urlparse.urlunparse((scheme, netloc, path + '..',
+                            params, query, fragment))
             childs = self.get_childs(uri)
             childs.sort()
             for child in childs:
@@ -512,10 +522,11 @@ TrytonDAVInterface.PROPS['DAV:'] = tuple(list(TrytonDAVInterface.PROPS['DAV:']
     ) + ['current-user-privilege-set'])
 
 
-class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
-        WebDAVServer.DAVRequestHandler):
+class WebDAVAuthRequestHandler(WebDAVServer.DAVRequestHandler):
 
     def finish(self):
+        WebDAVServer.DAVRequestHandler.finish(self)
+
         global CACHE
         CACHE = LocalDict()
         if not Transaction().cursor:
@@ -525,22 +536,57 @@ class WebDAVAuthRequestHandler(AuthServer.BufferedAuthRequestHandler,
         if dbname:
             Cache.resets(dbname)
 
+    def parse_request(self):
+        if not BaseHTTPServer.BaseHTTPRequestHandler.parse_request(self):
+            return False
+
+        authorization = self.headers.get('Authorization', '')
+        if authorization:
+            scheme, credentials = authorization.split()
+            if scheme != 'Basic':
+                self.send_error(501)
+                return False
+            credentials = base64.decodestring(credentials)
+            user, password = credentials.split(':', 2)
+            if not self.get_userinfo(user, password, self.command):
+                self.send_autherror(401, "Authorization Required")
+                return False
+        else:
+            if not self.get_userinfo(None, None, self.command):
+                self.send_autherror(401, "Authorization Required")
+                return False
+        return True
+
     def get_userinfo(self, user, password, command=''):
-        dbname = urllib.unquote_plus(self.path.split('/', 2)[1])
+        path = urlparse.urlparse(self.path).path
+        dbname = urllib.unquote_plus(path.split('/', 2)[1])
         if not dbname:
-            database = Database().connect()
-            return 1
-        user = int(login(dbname, user, password, cache=False))
+            Database().connect()
+            return True
+        if user:
+            user = int(login(dbname, user, password, cache=False))
+            if not user:
+                return None
+        else:
+            url = urlparse.urlparse(self.path)
+            query = urlparse.parse_qs(url.query)
+            path = url.path[len(dbname) + 2:]
+            if 'key' in query:
+                key, = query['key']
+                with Transaction().start(dbname, 0) as transaction:
+                    database_list = Pool.database_list()
+                    pool = Pool(dbname)
+                    if not dbname in database_list:
+                        pool.init()
+                    share_obj = pool.get('webdav.share')
+                    user = share_obj.get_login(key, command, path)
+                    transaction.cursor.commit()
+            if not user:
+                return None
 
         Transaction().start(dbname, user)
         Cache.clean(dbname)
-        database_list = Pool.database_list()
-        pool = Pool(dbname)
-        if not dbname in database_list:
-            pool.init()
-        if user:
-            return 1
-        return 0
+        return user
 
 class SecureWebDAVAuthRequestHandler(WebDAVAuthRequestHandler):
 

@@ -16,7 +16,8 @@ class URLMixin(object):
         from trytond.wizard import Wizard
         from trytond.report import Report
 
-        hostname = CONFIG['hostname'] or unicode(socket.getfqdn(), 'utf8')
+        hostname = (CONFIG['hostname_jsonrpc']
+            or unicode(socket.getfqdn(), 'utf8'))
         hostname = '.'.join(encodings.idna.ToASCII(part) for part in
             hostname.split('.'))
 

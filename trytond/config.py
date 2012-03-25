@@ -35,14 +35,15 @@ def get_port(netloc, protocol):
 class ConfigManager(object):
     def __init__(self, fname=None):
         self.options = {
-            'hostname': None,
             'jsonrpc': [('localhost', 8000)],
             'ssl_jsonrpc': False,
+            'hostname_jsonrpc': None,
             'xmlrpc': [],
             'ssl_xmlrpc': False,
             'jsondata_path': '/var/www/localhost/tryton',
             'webdav': [],
             'ssl_webdav': False,
+            'hostname_webdav': None,
             'db_type': 'postgresql',
             'db_host': False,
             'db_port': False,
