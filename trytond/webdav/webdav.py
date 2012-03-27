@@ -754,8 +754,11 @@ class Attachment(ModelSQL, ModelView):
         webdav_url = get_webdav_url()
         urls = {}
         for attachment in self.browse(ids):
-            urls[attachment.id] = urlparse.urljoin(webdav_url,
-                urllib.quote(attachment.path))
+            if attachment.path:
+                urls[attachment.id] = urlparse.urljoin(webdav_url,
+                    urllib.quote(attachment.path))
+            else:
+                urls[attachment.id] = None
         return urls
 
     def get_shares(self, ids, name):
