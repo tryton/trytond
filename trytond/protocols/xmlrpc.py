@@ -138,6 +138,7 @@ class GenericXMLRPCRequestHandler:
 
 
 class SimpleXMLRPCRequestHandler(GZipRequestHandlerMixin,
+        RegisterHandlerMixin,
         GenericXMLRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
     protocol_version = "HTTP/1.1"
