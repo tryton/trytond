@@ -357,7 +357,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             return res[0]
         else:
             self.add((lang, ttype, name, source), False)
-            return False
+            return None
 
     def get_sources(self, args):
         '''
@@ -383,8 +383,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
             if trans is not None:
                 res[(name, ttype, lang, source)] = trans
             else:
-                res[(name, ttype, lang, source)] = False
-                self.add((lang, ttype, name, source), False)
+                res[(name, ttype, lang, source)] = None
+                self.add((lang, ttype, name, source), None)
                 if source:
                     clause += [('(lang = %s ' \
                             'AND type = %s ' \
@@ -989,7 +989,7 @@ class TranslationUpdateStart(ModelView):
                     ], limit=1)
             return lang_id
         except ValueError:
-            return False
+            return None
 
 TranslationUpdateStart()
 
@@ -1130,7 +1130,7 @@ class TranslationExportStart(ModelView):
                     ], limit=1)
             return lang_id
         except ValueError:
-            return False
+            return None
 
 TranslationExportStart()
 

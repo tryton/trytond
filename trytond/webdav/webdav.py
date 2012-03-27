@@ -36,7 +36,7 @@ class Collection(ModelSQL, ModelView):
     _description = __doc__
     name = fields.Char('Name', required=True, select=True)
     parent = fields.Many2One('webdav.collection', 'Parent',
-       ondelete='RESTRICT', domain=[('model', '=', False)])
+       ondelete='RESTRICT', domain=[('model', '=', None)])
     childs = fields.One2Many('webdav.collection', 'parent', 'Children')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain')
@@ -98,7 +98,7 @@ class Collection(ModelSQL, ModelView):
                         return False
         return True
 
-    def _uri2object(self, uri, object_name=_name, object_id=False, cache=None):
+    def _uri2object(self, uri, object_name=_name, object_id=None, cache=None):
         pool = Pool()
         attachment_obj = pool.get('ir.attachment')
         report_obj = pool.get('ir.action.report')
@@ -111,8 +111,8 @@ class Collection(ModelSQL, ModelView):
 
         if not uri:
             if cache is not None:
-                cache['_uri2object'][cache_uri] = (self._name, False)
-            return self._name, False
+                cache['_uri2object'][cache_uri] = (self._name, None)
+            return self._name, None
         name, uri = (uri.split('/', 1) + [None])[0:2]
         if object_name == self._name:
             collection_ids = None
@@ -171,7 +171,7 @@ class Collection(ModelSQL, ModelView):
                             cache['_model&id2attachment_ids']:
                         attachment_ids = cache['_model&id2attachment_ids']\
                                 [(object_name, object_id)].get(name, [])
-                attachment_id = False
+                attachment_id = None
                 if attachment_ids is None:
                     attachment_ids = attachment_obj.search([
                         ('resource', '=', '%s,%s' % (object_name, object_id)),
@@ -198,13 +198,13 @@ class Collection(ModelSQL, ModelView):
                     cache.setdefault('_model&id&name2attachment_ids', {})
                     cache['_model&id&name2attachment_ids'].setdefault(key, {})
                     attachment_id = cache['_model&id&name2attachment_ids']\
-                                    [key].get(name, [False])[0]
+                                    [key].get(name, [None])[0]
                 if attachment_id:
                     object_name = 'ir.attachment'
                     object_id = attachment_id
                 else:
                     object_name = None
-                    object_id = False
+                    object_id = None
         else:
             splitted_name = name.rsplit('-', 1)
             if len(splitted_name) != 2:
@@ -259,7 +259,7 @@ class Collection(ModelSQL, ModelView):
                     object_id = attachment_ids[0]
                 else:
                     object_name = None
-                    object_id = False
+                    object_id = None
                 if cache is not None:
                     cache['_uri2object'][cache_uri] = (object_name, object_id)
                 return object_name, object_id
@@ -280,7 +280,7 @@ class Collection(ModelSQL, ModelView):
             return []
         if not uri:
             collection_ids = self.search([
-                ('parent', '=', False),
+                ('parent', '=', None),
                 ])
             for collection in self.browse(collection_ids):
                 if '/' in collection.name:
@@ -500,7 +500,7 @@ class Collection(ModelSQL, ModelView):
                 for attachment in attachments:
                     data = DAV_NotFound
                     try:
-                        if attachment.data is not False:
+                        if attachment.data is not None:
                             data = attachment.data
                     except Exception:
                         pass
@@ -712,14 +712,14 @@ class Attachment(ModelSQL, ModelView):
     def get_path(self, ids, name):
         pool = Pool()
         collection_obj = pool.get('webdav.collection')
-        paths = dict((x, False) for x in ids)
+        paths = dict((x, None) for x in ids)
 
         attachments = self.browse(ids)
         resources = {}
         resource2attachments = {}
         for attachment in attachments:
             if not attachment.resource:
-                paths[attachment.id] = False
+                paths[attachment.id] = None
             model_name, record_id = attachment.resource.split(',')
             record_id = int(record_id)
             resources.setdefault(model_name, set()).add(record_id)

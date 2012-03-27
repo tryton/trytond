@@ -171,7 +171,7 @@ class UIMenu(ModelSQL, ModelView):
         action_keyword_obj = pool.get('ir.action.keyword')
         res = {}
         for menu_id in ids:
-            res[menu_id] = False
+            res[menu_id] = None
         with Transaction().set_context(active_test=False):
             action_keyword_ids = action_keyword_obj.search([
                 ('keyword', '=', 'tree_open'),

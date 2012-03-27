@@ -138,7 +138,7 @@ class User(ModelSQL, ModelView):
             ], limit=1)
         if action_ids:
             return action_ids[0]
-        return False
+        return None
 
     def get_pyson_menu(self, ids, name):
         pool = Pool()
