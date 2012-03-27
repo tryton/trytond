@@ -22,7 +22,7 @@ class View(ModelSQL, ModelView):
     model = fields.Char('Model', required=True, select=True)
     priority = fields.Integer('Priority', required=True, select=True)
     type = fields.Selection([
-        (False, ''),
+        (None, ''),
         ('tree','Tree'),
         ('form','Form'),
         ('graph', 'Graph'),

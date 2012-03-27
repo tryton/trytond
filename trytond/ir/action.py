@@ -60,7 +60,6 @@ class Action(ModelSQL, ModelView):
                 if action_id2:
                     action = action_obj.browse(action_id2[0])
                     return action.action.id
-            return False
 
     def get_action_values(self, type_, action_id):
         action_obj = Pool().get(type_)
@@ -419,7 +418,7 @@ class ActionReport(ModelSQL, ModelView):
         return 'ir.action.report'
 
     def default_report_content(self):
-        return False
+        return None
 
     def default_direct_print(self):
         return False
@@ -452,7 +451,7 @@ class ActionReport(ModelSQL, ModelView):
     def get_report_content(self, ids, name):
         res = {}
         converter = buffer
-        default = False
+        default = None
         format_ = Transaction().context.pop('%s.%s' % (self._name, name), '')
         if format_ == 'size':
             converter = len
@@ -465,7 +464,7 @@ class ActionReport(ModelSQL, ModelView):
                             mode='rb') as fp:
                         data = fp.read()
                 except Exception:
-                    data = False
+                    data = None
             res[report.id] = converter(data) if data else default
         return res
 
@@ -475,7 +474,7 @@ class ActionReport(ModelSQL, ModelView):
     def get_style_content(self, ids, name):
         res = {}
         converter = buffer
-        default = False
+        default = None
         format_ = Transaction().context.pop('%s.%s' % (self._name, name), '')
         if format_ == 'size':
             converter = len
@@ -486,7 +485,7 @@ class ActionReport(ModelSQL, ModelView):
                         mode='rb') as fp:
                     data = fp.read()
             except Exception:
-                data = False
+                data = None
             res[report.id] = converter(data) if data else default
         return res
 
@@ -499,7 +498,7 @@ class ActionReport(ModelSQL, ModelView):
         }
         for act in self.browse(ids):
             res[act.id] = encoder.encode(safe_eval(act[field] or
-                defaults.get(field, 'False'), CONTEXT))
+                defaults.get(field, 'None'), CONTEXT))
         return res
 
     def copy(self, ids, default=None):
@@ -515,7 +514,7 @@ class ActionReport(ModelSQL, ModelView):
         reports = self.browse(ids)
         for report in reports:
             if report.report:
-                default['report_content'] = False
+                default['report_content'] = None
             default['report_name'] = report.report_name
             new_ids.append(super(ActionReport, self).copy(report.id,
                 default=default))
@@ -718,7 +717,7 @@ class ActionActWindow(ModelSQL, ModelView):
         }
         for act in self.browse(ids):
             res[act.id] = encoder.encode(safe_eval(act[field] or
-                defaults.get(field, 'False'), CONTEXT))
+                defaults.get(field, 'None'), CONTEXT))
         return res
 
     def create(self, vals):

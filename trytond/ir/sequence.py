@@ -138,7 +138,7 @@ class Sequence(ModelSQL, ModelView):
         return 0.0
 
     def default_code(self):
-        return Transaction().context.get('code', False)
+        return Transaction().context.get('code')
 
     def get_number_next(self, ids, name):
         cursor = Transaction().cursor

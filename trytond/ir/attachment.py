@@ -96,7 +96,7 @@ class Attachment(ModelSQL, ModelView):
         db_name = Transaction().cursor.dbname
         format_ = Transaction().context.pop('%s.%s' % (self._name, name), '')
         for attachment in self.browse(ids):
-            value = False
+            value = None
             if name == 'data_size' or format_ == 'size':
                 value = 0
             if attachment.digest:
@@ -121,7 +121,7 @@ class Attachment(ModelSQL, ModelView):
         return res
 
     def set_data(self, ids, name, value):
-        if value is False or value is None:
+        if value is None:
             return
         cursor = Transaction().cursor
         db_name = cursor.dbname

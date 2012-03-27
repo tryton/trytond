@@ -144,7 +144,7 @@ class Request(ModelSQL, ModelView):
                 'state': 'chatting',
                 'act_from': user,
                 'act_to': request.act_from.id,
-                'trigger_date': False,
+                'trigger_date': None,
                 'body': '',
                 })
 
@@ -158,7 +158,7 @@ class Request(ModelSQL, ModelView):
             ('act_to', '=', user),
             ['OR',
                 ('trigger_date', '<=', datetime.datetime.now()),
-                ('trigger_date', '=', False),
+                ('trigger_date', '=', None),
             ],
             ('active', '=', True),
             ])
