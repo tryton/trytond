@@ -27,6 +27,7 @@ class Model(WarningErrorMixin, URLMixin):
 
     def _reset_columns(self):
         self.__columns = None
+        self.__defaults = None
 
     def _getcolumns(self):
         if self.__columns:
