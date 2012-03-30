@@ -121,8 +121,9 @@ class Rule(ModelSQL, ModelView):
         for k in key:
 
             if obj_fields[k]['type'] in ('many2one'):
-                res[root + '/' + obj_fields[k]['string']] = \
-                        root_tech + '.' + k + '.id'
+                res[root + '/' + obj_fields[k]['string']] = (
+                    '(' + root_tech + '.' + k + '.id '
+                    'if ' + root_tech + ' else None)')
 
             elif obj_fields[k]['type'] in ('many2many', 'one2many'):
                 res[root + '/' + obj_fields[k]['string']] = \
