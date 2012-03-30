@@ -368,7 +368,7 @@ _ALLOWED_CODES = set(dis.opmap[x] for x in [
     'STORE_NAME', 'GET_ITER', 'FOR_ITER', 'LIST_APPEND', 'JUMP_ABSOLUTE',
     'DELETE_NAME', 'JUMP_IF_TRUE', 'JUMP_IF_FALSE', 'JUMP_IF_FALSE_OR_POP',
     'JUMP_IF_TRUE_OR_POP', 'POP_JUMP_IF_FALSE', 'POP_JUMP_IF_TRUE',
-    'BINARY_SUBSCR',
+    'BINARY_SUBSCR', 'JUMP_FORWARD',
     ] if x in dis.opmap)
 
 @memoize(1000)
