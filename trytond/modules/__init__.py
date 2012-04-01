@@ -1,6 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import os, sys
+import os
+import sys
 import itertools
 import logging
 import contextlib
@@ -19,6 +20,7 @@ MODULES_PATH = os.path.abspath(os.path.dirname(__file__))
 MODULES = []
 
 EGG_MODULES = {}
+
 
 def update_egg_modules():
     global EGG_MODULES
@@ -44,8 +46,8 @@ class Graph(dict):
         level = 0
         done = set(self.keys())
         while done:
-            level_modules = [(name, module) for name, module in self.items() \
-                    if module.depth==level]
+            level_modules = [(name, module) for name, module in self.items()
+                if module.depth == level]
             for name, module in level_modules:
                 done.remove(name)
                 yield module
@@ -125,6 +127,7 @@ class Node(Singleton):
             res += '%s`-> %s' % ('    ' * depth, child.pprint(depth + 1))
         return res
 
+
 def create_graph(module_list):
     graph = Graph()
     packages = []
@@ -192,6 +195,7 @@ def is_module_to_install(module):
         elif module in CONFIG[kind]:
             return True
     return False
+
 
 def load_module_graph(graph, pool, lang=None):
     if lang is None:
@@ -280,8 +284,8 @@ def load_module_graph(graph, pool, lang=None):
         (module, to_delete) = modules_todo.pop()
         convert.post_import(pool, module, to_delete)
 
-
     cursor.commit()
+
 
 def get_module_list():
     module_list = set()
@@ -298,6 +302,7 @@ def get_module_list():
     module_list.add('webdav')
     module_list.add('test')
     return list(module_list)
+
 
 def register_classes():
     '''
@@ -352,6 +357,7 @@ def register_classes():
         else:
             raise Exception('Couldn\'t find module %s' % module)
         MODULES.append(module)
+
 
 def load_modules(database_name, pool, update=False, lang=None):
     res = True

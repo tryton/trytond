@@ -91,6 +91,7 @@ class StateView(State):
         Returns button definitions translated
         '''
         translation_obj = Pool().get('ir.translation')
+
         def translation_key(button):
             return (','.join((wizard._name, state_name, button.state)),
                 'wizard_button', Transaction().language, button.string)
@@ -114,6 +115,7 @@ class StateTransition(State):
     '''
     A transition state of a wizard.
     '''
+
 
 class StateAction(StateTransition):
     '''

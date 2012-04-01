@@ -6,7 +6,7 @@ import trytond.tools as tools
 from trytond.modules import create_graph, get_module_list
 from trytond.wizard import Wizard, StateView, Button, StateTransition, \
     StateAction
-from trytond.backend import Database, TableHandler
+from trytond.backend import TableHandler
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Eval
@@ -148,12 +148,14 @@ class Module(ModelSQL, ModelView):
         for module in self.browse(ids):
             if module.name not in graph:
                 continue
+
             def get_parents(module):
                 parents = set(p.name for p in module.parents)
                 for p in module.parents:
                     parents.update(get_parents(p))
                 return parents
             dependencies = get_parents(module)
+
             def get_childs(module):
                 childs = set(c.name for c in module.childs)
                 for c in module.childs:
@@ -174,6 +176,7 @@ class Module(ModelSQL, ModelView):
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
                 self.raise_user_error('missing_dep', (missings, module.name))
+
             def get_parents(module):
                 parents = set(p.name for p in module.parents)
                 for p in module.parents:
@@ -197,6 +200,7 @@ class Module(ModelSQL, ModelView):
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
                 self.raise_user_error('missing_dep', (missings, module.name))
+
             def get_childs(name, graph):
                 childs = set(x.name for x in graph[name].childs)
                 childs2 = set()
@@ -378,13 +382,13 @@ class ModuleDependency(ModelSQL, ModelView):
     module = fields.Many2One('ir.module.module', 'Module', select=True,
        ondelete='CASCADE', required=True)
     state = fields.Function(fields.Selection([
-        ('uninstalled','Not Installed'),
-        ('installed','Installed'),
-        ('to upgrade','To be upgraded'),
-        ('to remove','To be removed'),
-        ('to install','To be installed'),
-        ('unknown', 'Unknown'),
-        ], 'State', readonly=True), 'get_state')
+                ('uninstalled', 'Not Installed'),
+                ('installed', 'Installed'),
+                ('to upgrade', 'To be upgraded'),
+                ('to remove', 'To be removed'),
+                ('to install', 'To be installed'),
+                ('unknown', 'Unknown'),
+                ], 'State', readonly=True), 'get_state')
 
     def __init__(self):
         super(ModuleDependency, self).__init__()
@@ -417,7 +421,7 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
     _rec_name = 'action'
     action = fields.Many2One('ir.action', 'Action', required=True,
         readonly=True)
-    sequence= fields.Integer('Sequence', required=True)
+    sequence = fields.Integer('Sequence', required=True)
     state = fields.Selection([
         ('open', 'Open'),
         ('done', 'Done'),
@@ -466,7 +470,7 @@ class ModuleConfigWizardOther(ModelView):
             ('state', '=', 'done'),
             ], count=True)
         all = item_obj.search([], count=True)
-        return 100.0 * done/all
+        return 100.0 * done / all
 
 ModuleConfigWizardOther()
 
@@ -474,7 +478,6 @@ ModuleConfigWizardOther()
 class ModuleConfigWizard(Wizard):
     'Run config wizards'
     _name = 'ir.module.module.config_wizard'
-
 
     class ConfigStateAction(StateAction):
 

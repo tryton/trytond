@@ -1,5 +1,8 @@
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
 from trytond.model import ModelView, fields
-from trytond.wizard import Wizard, StateView, StateTransition, StateAction, Button
+from trytond.wizard import Wizard, StateView, StateTransition, StateAction, \
+    Button
 from trytond.transaction import Transaction
 
 

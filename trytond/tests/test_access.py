@@ -786,6 +786,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
+
 def suite():
     suite_ = unittest.TestSuite()
     suite_.addTests(unittest.TestLoader(

@@ -143,6 +143,7 @@ _LOCALE2WIN32 = {
     'zh_TW': 'Chinese_Taiwan',
 }
 
+
 def locale_strftime(lang):
     time_locale = {
         '%a': [],

@@ -13,6 +13,7 @@ from ..transaction import Transaction
 from ..pyson import Eval
 from ..pool import Pool
 
+
 def firstline(description):
     try:
         return (x for x in description.splitlines() if x.strip()).next()
@@ -35,7 +36,8 @@ class Attachment(ModelSQL, ModelView):
     description = fields.Text('Description')
     summary = fields.Function(fields.Char('Summary',
         on_change_with=['description']), 'get_summary')
-    resource = fields.Reference('Resource', selection='models_get', select=True)
+    resource = fields.Reference('Resource', selection='models_get',
+        select=True)
     link = fields.Char('Link', states={
             'invisible': Eval('type') != 'link',
             }, depends=['type'])
@@ -141,10 +143,11 @@ class Attachment(ModelSQL, ModelView):
             with open(filename, 'rb') as file_p:
                 data = file_p.read()
             if value != data:
-                cursor.execute('SELECT DISTINCT(collision) FROM ir_attachment ' \
-                        'WHERE digest = %s ' \
-                            'AND collision != 0 ' \
-                        'ORDER BY collision', (digest,))
+                cursor.execute('SELECT DISTINCT(collision) '
+                    'FROM ir_attachment '
+                    'WHERE digest = %s '
+                        'AND collision != 0 '
+                    'ORDER BY collision', (digest,))
                 collision2 = 0
                 for row in cursor.fetchall():
                     collision2 = row[0]
@@ -184,9 +187,8 @@ class Attachment(ModelSQL, ModelView):
 
     def get_last_user(self, ids, name):
         with Transaction().set_user(0):
-            return dict( (x.id, x.write_uid.rec_name if x.write_uid
+            return dict((x.id, x.write_uid.rec_name if x.write_uid
                 else x.create_uid.rec_name) for x in self.browse(ids))
-
 
     def check_access(self, ids, mode='read'):
         pool = Pool()

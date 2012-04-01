@@ -5,6 +5,7 @@ from trytond.model.fields.field import Field
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 
+
 def add_remove_validate(value):
     if value:
         assert isinstance(value, list), 'add_remove must be a list'
@@ -95,7 +96,8 @@ class One2Many(Field):
             for i in pool.get(self.model_name).read(ids3, [self.field]):
                 res[i[self.field]].append(i['id'])
 
-        index_of_ids2 = dict((i, index) for index, i in enumerate(chain(*ids2)))
+        index_of_ids2 = dict((i, index)
+            for index, i in enumerate(chain(*ids2)))
         for val in res.values():
             val.sort(key=lambda x: index_of_ids2[x])
         return res
@@ -127,7 +129,7 @@ class One2Many(Field):
                     act[1][self.field] = record_id
                     model.create(act[1])
             elif act[0] == 'write':
-                model.write(act[1] , act[2])
+                model.write(act[1], act[2])
             elif act[0] == 'delete':
                 model.delete(act[1])
             elif act[0] == 'delete_all':

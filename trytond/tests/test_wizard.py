@@ -81,6 +81,7 @@ class WizardTestCase(unittest.TestCase):
                         }}, 'next_')
             self.assertEqual(len(result['actions']), 1)
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(WizardTestCase)
 

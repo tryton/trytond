@@ -5,6 +5,7 @@ from trytond.const import MODEL_CACHE_SIZE
 DatabaseIntegrityError = None
 DatabaseOperationalError = None
 
+
 class DatabaseInterface(object):
     '''
     Define generic interface for database connection

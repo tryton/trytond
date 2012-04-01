@@ -124,6 +124,7 @@ class SequenceTestCase(unittest.TestCase):
                 self.assertEqual(self.sequence.get_id(sequence_id),
                         '2010-08-15/2/15.08.2010')
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SequenceTestCase)
 

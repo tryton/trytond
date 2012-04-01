@@ -51,7 +51,7 @@ class Session(ModelSQL):
                 delta = delta.total_seconds()
             else:
                 delta = (delta.microseconds + (delta.seconds + delta.days * 24
-                        * 3600) * 10**6) / 10**6
+                        * 3600) * 10 ** 6) / 10 ** 6
             if abs(delta) < timeout:
                 if session.key == key:
                     find = True

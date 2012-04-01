@@ -3,7 +3,6 @@
 
 import copy
 import collections
-from trytond.config import CONFIG
 from trytond.model import fields
 from trytond.error import WarningErrorMixin
 from trytond.pool import Pool
@@ -114,7 +113,7 @@ class Model(WarningErrorMixin, URLMixin):
             if (hasattr(model_obj, name)
                     and isinstance(getattr(model_obj, name),
                         collections.Callable)):
-               return getattr(model_obj, name)
+                return getattr(model_obj, name)
         raise AttributeError(name)
 
     def _inherits_reload(self):
@@ -251,10 +250,10 @@ class Model(WarningErrorMixin, URLMixin):
                         "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                         (model_id, field_name, field.string, field._type,
                             relation, field.help, module_name))
-            elif model_fields[field_name]['field_description'] != field.string \
-                    or model_fields[field_name]['ttype'] != field._type \
-                    or model_fields[field_name]['relation'] != relation \
-                    or model_fields[field_name]['help'] != field.help:
+            elif (model_fields[field_name]['field_description'] != field.string
+                    or model_fields[field_name]['ttype'] != field._type
+                    or model_fields[field_name]['relation'] != relation
+                    or model_fields[field_name]['help'] != field.help):
                 cursor.execute('UPDATE ir_model_field ' \
                         'SET field_description = %s, ' \
                             'ttype = %s, ' \
@@ -280,7 +279,8 @@ class Model(WarningErrorMixin, URLMixin):
             if trans_name not in trans_help:
                 if field.help:
                     cursor.execute('INSERT INTO ir_translation '
-                        '(name, lang, type, src, src_md5, value, module, fuzzy) '
+                        '(name, lang, type, src, src_md5, value, module, '
+                            'fuzzy) '
                         'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
                         (trans_name, 'en_US', 'help', field.help, help_md5, '',
                             module_name, False))
@@ -557,7 +557,8 @@ class Model(WarningErrorMixin, URLMixin):
                         self._columns[field].field)
 
             # convert attributes into pyson
-            for attr in ('states', 'domain', 'context', 'digits', 'add_remove'):
+            for attr in ('states', 'domain', 'context', 'digits',
+                    'add_remove'):
                 if attr in res[field]:
                     res[field][attr] = encoder.encode(res[field][attr])
 

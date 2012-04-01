@@ -494,10 +494,11 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     'selection', 'error'):
                 key = (translation.name, translation.res_id, translation.type,
                         translation.src)
-            elif translation.type in ('field', 'model','help'):
+            elif translation.type in ('field', 'model', 'help'):
                 key = (translation.name, translation.res_id, translation.type)
             else:
-                raise Exception('Unknow translation type: %s' % translation.type)
+                raise Exception('Unknow translation type: %s'
+                    % translation.type)
             key2ids.setdefault(key, []).append(translation.id)
             id2translation[translation.id] = translation
 
@@ -521,7 +522,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
 
             if ttype in ('odt', 'view', 'wizard_button', 'selection', 'error'):
                 key = (name, res_id, ttype, src)
-            elif ttype in('field', 'model','help'):
+            elif ttype in('field', 'model', 'help'):
                 key = (name, res_id, ttype)
             else:
                 raise Exception('Unknow translation type: %s' % ttype)
@@ -598,7 +599,8 @@ class Translation(ModelSQL, ModelView, Cacheable):
                     continue
                 trans_ctxt += '%s' % res_id
             entry = polib.POEntry(msgid=(translation.src or ''),
-                msgstr=(translation.value or ''), msgctxt=trans_ctxt, flags=flags)
+                msgstr=(translation.value or ''), msgctxt=trans_ctxt,
+                flags=flags)
             pofile.append(entry)
 
         pofile.sort()
@@ -1169,7 +1171,7 @@ class TranslationExport(Wizard):
 
     def default_result(self, session, fields):
         file_ = session.result.file
-        session.result.file = False # No need to store it in session
+        session.result.file = False  # No need to store it in session
         return {
             'file': file_,
             }

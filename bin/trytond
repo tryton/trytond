@@ -13,6 +13,7 @@ if os.path.isdir(DIR):
 import trytond
 from trytond.version import VERSION
 
+
 def parse_commandline():
     options = {}
 
@@ -88,7 +89,7 @@ if '--profile' in sys.argv:
     sys.argv.remove('--profile')
 
     options = parse_commandline()
-    statfile = tempfile.mkstemp(".stat","trytond-")[1]
+    statfile = tempfile.mkstemp(".stat", "trytond-")[1]
     profile.run('trytond.server.TrytonServer(options).run()', statfile)
     s = pstats.Stats(statfile)
     s.sort_stats('cumulative').print_stats()

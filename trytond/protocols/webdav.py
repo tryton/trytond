@@ -16,8 +16,7 @@ from pywebdav.lib import WebDAVServer, iface
 from pywebdav.lib.errors import DAV_Error, DAV_NotFound, DAV_Secret, \
     DAV_Forbidden, DAV_Requested_Range_Not_Satisfiable
 from pywebdav.lib.constants import COLLECTION, DAV_VERSION_1, DAV_VERSION_2
-from pywebdav.lib.utils import get_uriparentpath, get_urifilename, \
-    quote_uri
+from pywebdav.lib.utils import get_urifilename, quote_uri
 from pywebdav.lib.davcmd import copyone, copytree, moveone, movetree, \
     delone, deltree
 from trytond.protocols.sslsocket import SSLSocket
@@ -37,6 +36,7 @@ domimpl = xml.dom.minidom.getDOMImplementation()
 DAV_VERSION_1['version'] += ',access-control'
 DAV_VERSION_2['version'] += ',access-control'
 
+
 # Local int for multi-thread
 class LocalInt(local):
 
@@ -52,7 +52,6 @@ CACHE = LocalDict()
 
 def setupConfig():
 
-
     class ConfigDAV:
         lockemulation = False
         verbose = False
@@ -66,7 +65,6 @@ def setupConfig():
                 return self[name]
             except Exception:
                 return default
-
 
     class Config:
         DAV = ConfigDAV()
@@ -115,6 +113,7 @@ class WebDAVServerThread(daemon):
         handler_class.IFACE_CLASS = TrytonDAVInterface(interface, port, secure)
         handler_class.IFACE_CLASS.baseurl = handler_class._config.DAV.baseurl
         self.server = server_class((interface, port), handler_class)
+
 
 class BaseThreadedHTTPServer6(BaseThreadedHTTPServer):
     address_family = socket.AF_INET6
@@ -586,6 +585,7 @@ class WebDAVAuthRequestHandler(WebDAVServer.DAVRequestHandler):
         Transaction().start(dbname, user)
         Cache.clean(dbname)
         return user
+
 
 class SecureWebDAVAuthRequestHandler(WebDAVAuthRequestHandler):
 

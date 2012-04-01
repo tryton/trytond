@@ -29,7 +29,8 @@ class Function(Field):
         if not self.setter:
             self._field.readonly = True
         self.searcher = searcher
-        assert loading in ('lazy', 'eager'), 'loading must be "lazy" or "eager"'
+        assert loading in ('lazy', 'eager'), \
+            'loading must be "lazy" or "eager"'
         self.loading = loading
 
     __init__.__doc__ += Field.__init__.__doc__
@@ -90,7 +91,6 @@ class Function(Field):
             if 'names' in inspect.getargspec(getattr(model, self.getter))[0]:
                 name = [name]
             return getattr(model, self.getter)(ids, name)
-
 
     def set(self, ids, model, name, value):
         '''

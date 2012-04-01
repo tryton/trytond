@@ -562,13 +562,15 @@ class FieldsTestCase(unittest.TestCase):
                 'float': 1.11,
                 })
 
-            self.failUnlessRaises(Exception, self.float_digits.write, float6_id, {
-                'float': 1.11,
-                })
+            self.failUnlessRaises(Exception, self.float_digits.write,
+                float6_id, {
+                    'float': 1.11,
+                    })
 
-            self.failUnlessRaises(Exception, self.float_digits.write, float6_id, {
-                'digits': 0,
-                })
+            self.failUnlessRaises(Exception, self.float_digits.write,
+                float6_id, {
+                    'digits': 0,
+                    })
 
             float7_id = self.float.create({
                 'float': 0.123456789012345,
@@ -1339,7 +1341,8 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(sha1_id)
 
             sha1 = self.sha.read(sha1_id, ['sha'])
-            self.assert_(sha1['sha'] == '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa')
+            self.assertEqual(sha1['sha'],
+                '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa')
 
             sha_ids = self.sha.search([
                 ('sha', '=', 'Test'),
@@ -1479,7 +1482,8 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(sha4_id)
 
             sha4 = self.sha_default.read(sha4_id, ['sha'])
-            self.assert_(sha4['sha'] == 'ba79baeb9f10896a46ae74715271b7f586e74640')
+            self.assertEqual(sha4['sha'],
+                'ba79baeb9f10896a46ae74715271b7f586e74640')
 
             self.sha.write(sha1_id, {
                 'sha': None,
@@ -1491,7 +1495,8 @@ class FieldsTestCase(unittest.TestCase):
                 'sha': 'Test',
                 })
             sha2 = self.sha.read(sha2_id, ['sha'])
-            self.assert_(sha2['sha'] == '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa')
+            self.assertEqual(sha2['sha'],
+                '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa')
 
             self.failUnlessRaises(Exception, self.sha_required.create, {})
             transaction.cursor.rollback()
@@ -2026,8 +2031,8 @@ class FieldsTestCase(unittest.TestCase):
                 })
             self.assert_(datetime5_id)
             datetime5 = self.datetime.read(datetime5_id, ['datetime'])
-            self.assert_(datetime5['datetime'] == datetime.datetime(2009, 1, 1, 12,
-                0, 0))
+            self.assertEqual(datetime5['datetime'],
+                datetime.datetime(2009, 1, 1, 12, 0, 0))
 
             self.failUnlessRaises(Exception, self.datetime_required.create, {})
             transaction.cursor.rollback()
@@ -2270,7 +2275,6 @@ class FieldsTestCase(unittest.TestCase):
                     'time': 1,
                     })
 
-
             self.failUnlessRaises(Exception, self.time.write, time1_id,
                 {
                     'time': '25:00:00',
@@ -2309,7 +2313,6 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(time9['time'] == evening)
 
             transaction.cursor.rollback()
-
 
     def test0110one2one(self):
         '''
@@ -2526,7 +2529,6 @@ class FieldsTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
-
             # Test Many2One
             char_id_a = self.char.create({'char': 'Test'})
             self.assert_(char_id_a)
@@ -2569,7 +2571,6 @@ class FieldsTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
-
             # Test Numeric
             prop_id_a = self.property_.create({'numeric': Decimal('1.1')})
             self.assert_(prop_id_a)
@@ -2586,21 +2587,27 @@ class FieldsTestCase(unittest.TestCase):
             prop_ids = self.property_.search([('numeric', '=', False)])
             self.assert_(prop_ids == [prop_id_c])
 
-            prop_ids = self.property_.search([('numeric', '=', Decimal('1.1'))])
+            prop_ids = self.property_.search([
+                    ('numeric', '=', Decimal('1.1')),
+                    ])
             self.assert_(prop_ids == [prop_id_a])
 
             prop_ids = self.property_.search([
                     ('numeric', '!=', Decimal('1.1'))])
             self.assert_(prop_ids == [prop_id_b, prop_id_c])
 
-            prop_ids = self.property_.search([('numeric', '<', Decimal('2.6'))])
+            prop_ids = self.property_.search([
+                    ('numeric', '<', Decimal('2.6')),
+                    ])
             self.assert_(prop_ids == [prop_id_a])
 
             prop_ids = self.property_.search([
                     ('numeric', '<=', Decimal('2.6'))])
             self.assert_(prop_ids == [prop_id_a, prop_id_b])
 
-            prop_ids = self.property_.search([('numeric', '>', Decimal('1.1'))])
+            prop_ids = self.property_.search([
+                    ('numeric', '>', Decimal('1.1')),
+                    ])
             self.assert_(prop_ids == [prop_id_b])
 
             prop_ids = self.property_.search([
@@ -2648,7 +2655,6 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(prop_b['numeric'] == Decimal('3.11'))
 
             transaction.cursor.rollback()
-
 
             # Test Selection
             prop_id_a = self.property_.create({'selection': 'option_a'})

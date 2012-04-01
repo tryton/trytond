@@ -6,7 +6,6 @@ try:
 except ImportError:
     hashlib = None
     import md5
-import copy
 from functools import wraps
 from trytond.model import Model
 from trytond.tools import safe_eval
@@ -79,7 +78,7 @@ class ModelView(Model):
     """
     Define a model with views in Tryton.
     """
-    __modules_list = None # Cache for the modules list sorted by dependency
+    __modules_list = None  # Cache for the modules list sorted by dependency
 
     @staticmethod
     def _reset_modules_list():
@@ -512,7 +511,8 @@ class ModelView(Model):
 
             if Transaction().user != 0:
                 groups = set(user_obj.get_groups())
-                button_groups = button_obj.get_groups(self._name, func.__name__)
+                button_groups = button_obj.get_groups(self._name,
+                    func.__name__)
                 if button_groups and not groups & button_groups:
                     raise UserError('Calling button %s on %s is not allowed!'
                         % (func.__name__, self._name))

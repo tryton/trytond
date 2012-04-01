@@ -21,6 +21,7 @@ from trytond.cache import Cache
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
     ConcurrencyException
 
+
 def dispatch(host, port, protocol, database_name, user, session, object_type,
         object_name, method, *args, **kargs):
 
@@ -137,7 +138,6 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
         raise UserError('Calling method %s on %s %s is not allowed!'
             % (method, object_type, object_name))
 
-
     for count in range(int(CONFIG['retry']), -1, -1):
         with Transaction().start(database_name, user,
                 readonly=readonly) as transaction:
@@ -166,10 +166,10 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                             UserWarning)):
                     tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
                     logger = logging.getLogger('dispatcher')
-                    logger.error('Exception calling method %s on ' \
-                            '%s %s from %s@%s:%d/%s:\n' % \
-                            (method, object_type, object_name, user, host, port,
-                                database_name) + tb_s)
+                    logger.error('Exception calling method %s on '
+                        '%s %s from %s@%s:%d/%s:\n'
+                        % (method, object_type, object_name, user, host, port,
+                            database_name) + tb_s)
                 transaction.cursor.rollback()
                 raise
         if not (object_name == 'res.request' and method == 'request_get'):
@@ -180,6 +180,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 transaction.cursor.commit()
         Cache.resets(database_name)
         return res
+
 
 def create(database_name, password, lang, admin_password):
     '''
@@ -244,6 +245,7 @@ def create(database_name, password, lang, admin_password):
         logger.info('CREATE DB: %s' % (database_name,))
     return res
 
+
 def drop(database_name, password):
     security.check_super(password)
     Database(database_name).close()
@@ -269,6 +271,7 @@ def drop(database_name, password):
         cursor.close(close=True)
     return True
 
+
 def dump(database_name, password):
     security.check_super(password)
     Database(database_name).close()
@@ -279,6 +282,7 @@ def dump(database_name, password):
     data = Database.dump(database_name)
     logger.info('DUMP DB: %s' % (database_name))
     return buffer(data)
+
 
 def restore(database_name, password, data, update=False):
     logger = logging.getLogger('database')

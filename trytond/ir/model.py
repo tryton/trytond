@@ -302,15 +302,14 @@ class ModelAccess(ModelSQL, ModelView):
         cursor = Transaction().cursor
 
         cursor.execute('SELECT MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
-                'FROM "%s" AS a '
-                'JOIN "%s" AS m '
-                    'ON (a.model = m.id) '
-                'LEFT JOIN "%s" AS gu '
-                    'ON (gu."group" = a."group") '
-                'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL)'
-                % (mode, self._table, ir_model_obj._table,
-                    user_group_obj._table),
-                (model_name, Transaction().user))
+            'FROM "%s" AS a '
+            'JOIN "%s" AS m '
+                'ON (a.model = m.id) '
+            'LEFT JOIN "%s" AS gu '
+                'ON (gu."group" = a."group") '
+            'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL)'
+            % (mode, self._table, ir_model_obj._table, user_group_obj._table),
+            (model_name, Transaction().user))
         access, = cursor.fetchone()
         if not access and access is not None:
             if raise_exception:
@@ -418,19 +417,19 @@ class ModelFieldAccess(ModelSQL, ModelView):
         cursor = Transaction().cursor
 
         cursor.execute('SELECT f.name, '
-                'MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
-                'FROM "%s" AS a '
-                'JOIN "%s" AS f '
-                    'ON (a.field = f.id) '
-                'JOIN "%s" AS m '
-                    'ON (f.model = m.id) '
-                'LEFT JOIN "%s" AS gu '
-                    'ON (gu."group" = a."group") '
-                'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL) '
-                'GROUP BY f.name'
-                % (mode, self._table, ir_model_field_obj._table,
-                    ir_model_obj._table, user_group_obj._table),
-                (model_name, Transaction().user))
+            'MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
+            'FROM "%s" AS a '
+            'JOIN "%s" AS f '
+                'ON (a.field = f.id) '
+            'JOIN "%s" AS m '
+                'ON (f.model = m.id) '
+            'LEFT JOIN "%s" AS gu '
+                'ON (gu."group" = a."group") '
+            'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL) '
+            'GROUP BY f.name'
+            % (mode, self._table, ir_model_field_obj._table,
+                ir_model_obj._table, user_group_obj._table), (model_name,
+                Transaction().user))
         accesses = dict(cursor.fetchall())
         if access:
             return accesses
@@ -540,12 +539,13 @@ class ModelData(ModelSQL, ModelView):
     _name = 'ir.model.data'
     _description = __doc__
     fs_id = fields.Char('Identifier on File System', required=True,
-            help="The id of the record as known on the file system.",
-            select=True)
+        help="The id of the record as known on the file system.",
+        select=True)
     model = fields.Char('Model', required=True, select=True)
     module = fields.Char('Module', required=True, select=True)
     db_id = fields.Integer('Resource ID',
-       help="The id of the record in the database.", select=True, required=True)
+        help="The id of the record in the database.", select=True,
+        required=True)
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
@@ -590,8 +590,8 @@ class ModelData(ModelSQL, ModelView):
             ('inherit', '=', False),
             ], limit=1)
         if not ids:
-            raise Exception("Reference to %s not found" % \
-                                ".".join([module,fs_id]))
+            raise Exception("Reference to %s not found"
+                % ".".join([module, fs_id]))
         return self.read(ids[0], ['db_id'])['db_id']
 
 ModelData()

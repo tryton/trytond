@@ -4,6 +4,7 @@ from trytond.model import ModelSQL, fields
 
 TRIGGER_LOGS = []
 
+
 class Triggered(ModelSQL):
     'Triggered'
     _name = 'test.triggered'

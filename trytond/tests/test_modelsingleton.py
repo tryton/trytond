@@ -137,6 +137,7 @@ class ModelSingletonTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ModelSingletonTestCase)
 

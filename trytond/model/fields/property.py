@@ -40,7 +40,6 @@ class Property(Function):
         res = property_obj.get(name, model._name, ids)
         return res
 
-
     def set(self, ids, model, name, value):
         '''
         Set the property.
@@ -53,11 +52,11 @@ class Property(Function):
         pool = Pool()
         property_obj = pool.get('ir.property')
         if value is not None:
-            prop_value = '%s,%s' % (getattr(self, 'model_name', ''), str(value))
+            prop_value = '%s,%s' % (getattr(self, 'model_name', ''),
+                str(value))
         else:
             prop_value = None
         return property_obj.set(name, model._name, ids, prop_value)
-
 
     def search(self, model, name, clause):
         '''
@@ -88,29 +87,29 @@ class Property(Function):
 
         #Fetch res ids that comply with the domain
         cursor.execute(
-            'SELECT CAST(' \
-                    'SPLIT_PART("' + property_obj._table + '".res,\',\',2) ' \
-                    'AS INTEGER), '\
-                '"' + property_obj._table + '".id '\
-            'FROM "' + property_obj._table + '" '\
-                'JOIN "' + field_obj._table + '" ON ' \
-                    '("' + field_obj._table + '"'+ \
-                        '.id = "' + property_obj._table + '".field) '\
-                'JOIN "' + model_obj._table +'" ON ' \
-                    '("' + model_obj._table + \
-                        '".id = "' + field_obj._table + '".model) '\
-            'WHERE '\
-              'CASE WHEN "' +\
-                model_obj._table + '".model = %s ' \
-                'AND "' + field_obj._table + '".name = %s ' \
-                + property_clause + \
-              ' THEN '  + \
-                self.get_condition(sql_type, clause) + \
-              ' ELSE '\
-                '%s '\
-              'END',
-            [model._name, name] + property_val + \
-                    self.get_condition_args(clause) + [False])
+            'SELECT CAST('
+                'SPLIT_PART("' + property_obj._table + '".res,\',\',2) '
+                    'AS INTEGER), '
+                '"' + property_obj._table + '".id '
+            'FROM "' + property_obj._table + '" '
+                'JOIN "' + field_obj._table + '" ON '
+                    '("' + field_obj._table + '"' +
+                        '.id = "' + property_obj._table + '".field) '
+                'JOIN "' + model_obj._table + '" ON '
+                    '("' + model_obj._table +
+                        '".id = "' + field_obj._table + '".model) '
+            'WHERE '
+                'CASE WHEN "' +
+                    model_obj._table + '".model = %s '
+                    'AND "' + field_obj._table + '".name = %s '
+                    + property_clause +
+                ' THEN ' +
+                    self.get_condition(sql_type, clause) +
+                ' ELSE '
+                    '%s '
+                'END',
+            [model._name, name] + property_val +
+            self.get_condition_args(clause) + [False])
 
         props = cursor.fetchall()
         default = None
@@ -122,19 +121,19 @@ class Property(Function):
         if not default \
                 or (clause[2] is False and clause[1] in ['=', '!=']) \
                 or (clause[1] in ['not like', 'not ilike', 'not in', '!=']):
-            operator = 'in' #  default operator
-            if (clause[2] is False and clause[1] == '=') \
+            operator = 'in'  # default operator
+            if ((clause[2] is False and clause[1] == '=')
                     or (clause[2] is not False
-                    and clause[1] in ['not like', 'not ilike', 'not in', '!=']):
+                        and clause[1] in [
+                            'not like', 'not ilike', 'not in', '!='])):
                 operator = 'not in'
             return [('id', operator, [x[0] for x in props])]
 
         #Fetch the res ids that doesn't use the default value
         cursor.execute(
-            "SELECT cast(split_part(res,',',2) as integer) "\
-            'FROM "' + property_obj._table +'"'\
-            'WHERE ' \
-              + property_query + ' AND res is not null',
+            "SELECT cast(split_part(res,',',2) as integer) "
+            'FROM "' + property_obj._table + '"'
+            'WHERE ' + property_query + ' AND res is not null',
             property_val)
 
         fetchall = cursor.fetchall()
@@ -160,8 +159,8 @@ class Property(Function):
         # All negative clauses will be negated later
         if clause[1] in ('in', 'not in'):
             operator = operator % '%%s'
-            return ("(cast(split_part(value,',',2) as %s) in ("+ \
-                ",".join((operator,) * len(clause[2])) + ")) ") % sql_type
+            return ("(CAST(SPLIT_PART(value,',',2) AS %s) IN ("
+                + ",".join((operator,) * len(clause[2])) + ")) ") % sql_type
         elif clause[2] is False and clause[1] in ['=', '!=']:
             return "((cast(split_part(value,',',2) as %s) IS NULL " \
                 ") = %%s) " % sql_type
@@ -183,5 +182,3 @@ class Property(Function):
         else:
             res.append(clause[2])
         return res
-
-

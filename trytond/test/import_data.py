@@ -97,7 +97,6 @@ class ImportDataSelection(ModelSQL):
 ImportDataSelection()
 
 
-
 class ImportDataMany2OneTarget(ModelSQL):
     "Import Data Many2One Target"
     _name = 'test.import_data.many2one.target'

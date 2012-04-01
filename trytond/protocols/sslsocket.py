@@ -22,4 +22,3 @@ class SSLSocket(object):
         if name == 'shutdown':
             return self.shutdown
         return getattr(self.socket, name)
-

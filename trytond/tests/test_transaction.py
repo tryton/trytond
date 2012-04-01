@@ -16,6 +16,7 @@ def empty_transaction(*args, **kwargs):
     with Transaction().start(*args, **kwargs):
         return True
 
+
 def manipulate_cursor(*args, **kwargs):
     '''
     Just start a transaction in the context manager and close the cursor
@@ -47,7 +48,7 @@ class TransactionTestCase(unittest.TestCase):
 
     def test0020cursorclose(self):
         '''
-        Manipulate the cursor during the transaction so that the close in 
+        Manipulate the cursor during the transaction so that the close in
         transaction stop fails. Ensure that this does not affect opening of
         another transaction
         '''
@@ -62,4 +63,3 @@ def suite():
 if __name__ == '__main__':
     suite = suite()
     unittest.TextTestRunner(verbosity=2).run(suite)
-

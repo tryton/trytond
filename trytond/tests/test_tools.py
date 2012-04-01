@@ -6,9 +6,8 @@
 import unittest
 import datetime
 
-from trytond.config import CONFIG
 from trytond.tools import reduce_ids, safe_eval, datetime_strftime, \
-        reduce_domain
+    reduce_domain
 
 
 class ToolsTestCase(unittest.TestCase):
@@ -48,19 +47,19 @@ class ToolsTestCase(unittest.TestCase):
         '''
         Test reduce_ids complex list.
         '''
-        self.assert_(('(((id >= %s) AND (id <= %s)) OR ' \
-                '(id IN (%s,%s,%s,%s,%s)))', [0, 14, 25, 26, 27, 28, 29]) == \
-                reduce_ids('id', range(10) + map(lambda x: x + 25, range(5)) + \
-                map(lambda x: x + 5, range(10))))
+        self.assertEqual(('(((id >= %s) AND (id <= %s)) OR '
+                '(id IN (%s,%s,%s,%s,%s)))', [0, 14, 25, 26, 27, 28, 29]),
+            reduce_ids('id', range(10) + map(lambda x: x + 25, range(5))
+                + map(lambda x: x + 5, range(10))))
 
     def test0050reduce_ids_complex_small_continue(self):
         '''
         Test reduce_ids complex list with small continue.
         '''
-        self.assert_(('(((id >= %s) AND (id <= %s)) OR (id IN (%s,%s,%s,%s)))',
-            [1, 12, 15, 18, 19, 21]) == \
-                    reduce_ids('id', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15,
-                        18, 19, 21]))
+        self.assertEqual(('(((id >= %s) AND (id <= %s)) '
+                'OR (id IN (%s,%s,%s,%s)))', [1, 12, 15, 18, 19, 21]),
+            reduce_ids('id', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 18,
+                    19, 21]))
 
     def test0055reduce_ids_float(self):
         '''

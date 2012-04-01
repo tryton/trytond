@@ -47,7 +47,7 @@ class ExportDataTestCase(unittest.TestCase):
             self.assert_(self.export_data.export_data([export2_id],
                 ['boolean']) == [[False]])
 
-            self.assert_(self.export_data.export_data( [export1_id,
+            self.assert_(self.export_data.export_data([export1_id,
                 export2_id], ['boolean']) == [[True], [False]])
 
             transaction.cursor.rollback()
@@ -371,6 +371,7 @@ class ExportDataTestCase(unittest.TestCase):
                     ['']])
 
             transaction.cursor.rollback()
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ExportDataTestCase)

@@ -20,6 +20,8 @@ CAST_VARCHAR_PATTERN = re.compile(r' AS VARCHAR\)', re.I)
 CAST_INTEGER_PATTERN = re.compile(r' AS (INTEGER|BIGINT)\)', re.I)
 SPLIT_PART_LEFT_PATTERN = re.compile(r'SPLIT_PART\((.*?),', re.I)
 SPLIT_PART_RIGHT_PATTERN = re.compile(r'^,(\d)', re.I)
+
+
 def _replace_split_part_right(mobj):
     pos = int(mobj.group(1))
     if pos not in (1, 2):
@@ -174,7 +176,7 @@ class Database(DatabaseInterface):
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
         with open(sql_file) as fp:
             for line in fp.read().split(';'):
-                if (len(line)>0) and (not line.isspace()):
+                if (len(line) > 0) and (not line.isspace()):
                     cursor.execute(line)
 
         for i in ('ir', 'res', 'webdav'):
@@ -235,7 +237,7 @@ class Cursor(CursorInterface):
         super(Cursor, self).__init__()
         self._conn = conn
         self.database_name = database_name
-        self.dbname = self.database_name #XXX to remove
+        self.dbname = self.database_name  # XXX to remove
         self.cursor = conn.cursor(_Cursor)
 
     def __getattr__(self, name):
@@ -244,7 +246,7 @@ class Cursor(CursorInterface):
     def execute(self, sql, params=None):
         buf = ""
         split_part_found = False
-        for nquote, quote in QUOTE_SEPARATION.findall(sql+"''"):
+        for nquote, quote in QUOTE_SEPARATION.findall(sql + "''"):
             nquote = nquote.replace('ilike', 'like')
             nquote = re.sub(EXTRACT_EPOCH_PATTERN, r'UNIX_TIMESTAMP(',
                     nquote)
@@ -253,8 +255,8 @@ class Cursor(CursorInterface):
             nquote = re.sub(CAST_INTEGER_PATTERN, r' AS SIGNED INTEGER)',
                     nquote)
             if split_part_found:
-                nquote = re.sub(SPLIT_PART_RIGHT_PATTERN, 
-                        _replace_split_part_right, nquote)
+                nquote = re.sub(SPLIT_PART_RIGHT_PATTERN,
+                    _replace_split_part_right, nquote)
                 split_part_found = False
             nquote, split_part_found = re.subn(SPLIT_PART_LEFT_PATTERN,
                     r'SUBSTRING_INDEX(\1, ', nquote)
@@ -320,7 +322,7 @@ class Cursor(CursorInterface):
 
     def limit_clause(self, select, limit=None, offset=None):
         if offset and limit is None:
-            limit = 18446744073709551610 #max bigint
+            limit = 18446744073709551610  # max bigint
         if limit is not None:
             select += ' LIMIT %d' % limit
         if offset is not None and offset != 0:

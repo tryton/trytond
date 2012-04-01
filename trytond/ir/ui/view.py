@@ -22,12 +22,12 @@ class View(ModelSQL, ModelView):
     model = fields.Char('Model', required=True, select=True)
     priority = fields.Integer('Priority', required=True, select=True)
     type = fields.Selection([
-        (None, ''),
-        ('tree','Tree'),
-        ('form','Form'),
-        ('graph', 'Graph'),
-        ('board', 'Board'),
-        ], 'View Type', select=True)
+            (None, ''),
+            ('tree', 'Tree'),
+            ('form', 'Form'),
+            ('graph', 'Graph'),
+            ('board', 'Board'),
+            ], 'View Type', select=True)
     arch = fields.Text('View Architecture')
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=True,
             ondelete='CASCADE')
@@ -97,8 +97,8 @@ class View(ModelSQL, ModelView):
                     logger = logging.getLogger('ir')
                     error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
                             validator.error_log.filter_from_errors())
-                    logger.error(
-                        'Invalid xml view:\n%s' %  (str(error_log) + '\n' + xml))
+                    logger.error('Invalid xml view:\n%s'
+                        % (str(error_log) + '\n' + xml))
                     return False
             root_element = tree.getroottree().getroot()
 
@@ -110,6 +110,7 @@ class View(ModelSQL, ModelView):
                 'digits': fields.digits_validate,
                 'add_remove': fields.add_remove_validate,
             }
+
             def encode(element):
                 for attr in ('states', 'domain', 'context', 'digits',
                         'add_remove', 'spell', 'colors'):
@@ -119,10 +120,10 @@ class View(ModelSQL, ModelView):
                             validates.get(attr, lambda a: True)(value)
                         except Exception, e:
                             logger = logging.getLogger('ir')
-                            logger.error('Invalid pyson view element "%s:%s":' \
-                                    '\n%s\n%s' % \
-                                    (element.get('id') or element.get('name'),
-                                        attr, str(e), xml))
+                            logger.error('Invalid pyson view element "%s:%s":'
+                                '\n%s\n%s'
+                                % (element.get('id') or element.get('name'),
+                                    attr, str(e), xml))
                             return False
                 for child in element:
                     if not encode(child):
@@ -245,7 +246,6 @@ class ShowView(Wizard):
     'Show view'
     _name = 'ir.ui.view.show'
 
-
     class ShowStateView(StateView):
 
         def __init__(self, model_name, buttons):
@@ -291,9 +291,9 @@ class ViewShortcut(ModelSQL, ModelView):
         "Provide user's shortcuts"
         result = []
         ids = self.search([
-            ('user_id','=',user_id),
-            ('resource','=',model),
-            ])
+                ('user_id', '=', user_id),
+                ('resource', '=', model),
+                ])
         for shorcut in self.browse(ids):
             result.append({
                     'res_id': shorcut.res_id,
@@ -307,36 +307,11 @@ class ViewShortcut(ModelSQL, ModelView):
 ViewShortcut()
 
 
-class AddShortcut(Wizard):
-    'Add shortcut'
-    _name = 'ir.ui.view_sc.add'
-
-    start_state = 'add'
-    add = StateTransition()
-
-    def transition_add(self, session):
-        pool = Pool()
-        view_sc_obj = pool.get('ir.ui.view_sc')
-        model_obj = pool.get(data['model'])
-
-        record = model_obj.browse(data['id'])
-        view_sc_obj.create({
-            'name': record.rec_name,
-            'res_id': record.id,
-            'user_id': Transaction().user,
-            'resource': model_obj._name,
-            })
-        return 'end'
-
-AddShortcut()
-
-
 class OpenShortcut(Wizard):
     'Open a shortcut'
     _name = 'ir.ui.view_sc.open'
 
     start_state = 'open_'
-
 
     class OpenStateAction(StateAction):
         def __init__(self):

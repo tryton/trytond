@@ -14,6 +14,7 @@ from ..cache import Cache
 
 EMAIL_REFKEYS = set(('cc', 'to', 'subject'))
 
+
 class Action(ModelSQL, ModelView):
     "Action"
     _name = 'ir.action'
@@ -370,11 +371,10 @@ class ActionReport(ModelSQL, ModelView):
         # Migration from 1.0 output_format (m2o) is now extension (selection)
         if table.column_exist('output_format'):
             cursor.execute(
-                'SELECT report.id FROM "'+ self._table + '" report '\
-                'JOIN ir_action_report_outputformat of '\
-                    'ON (report.output_format = of.id) '\
-                'WHERE of.format = \'pdf\''
-                )
+                'SELECT report.id FROM "' + self._table + '" report '
+                'JOIN ir_action_report_outputformat of '
+                    'ON (report.output_format = of.id) '
+                'WHERE of.format = \'pdf\'')
 
             ids = [x[0] for x in cursor.fetchall()]
             with Transaction().set_user(0):
@@ -432,7 +432,7 @@ class ActionReport(ModelSQL, ModelView):
     def default_module(self):
         return Transaction().context.get('module') or ''
 
-    def check_email(self,ids):
+    def check_email(self, ids):
         "Check email"
         for report in self.browse(ids):
             if report.email:
@@ -481,7 +481,7 @@ class ActionReport(ModelSQL, ModelView):
             default = 0
         for report in self.browse(ids):
             try:
-                with file_open( report.style.replace('/', os.sep),
+                with file_open(report.style.replace('/', os.sep),
                         mode='rb') as fp:
                     data = fp.read()
             except Exception:
@@ -650,7 +650,7 @@ class ActionActWindow(ModelSQL, ModelView):
                         return False
             else:
                 for act_window_view in action.act_window_views:
-                    view= act_window_view.view
+                    view = act_window_view.view
                     if view.model:
                         return False
                     if view.type != 'board':

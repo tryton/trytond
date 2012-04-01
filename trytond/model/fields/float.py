@@ -4,6 +4,7 @@
 from trytond.model.fields.field import Field
 from trytond.pyson import PYSON
 
+
 def digits_validate(value):
     if value:
         assert isinstance(value, tuple), 'digits must be a tuple'

@@ -45,10 +45,9 @@ class MPTTTestCase(unittest.TestCase):
         previous_right = 0
         for child in childs:
             assert previous_right == 0 or child['right'] < previous_right, \
-                    'Record (%d): right %d >= previous right %d' % \
-                    (child['id'] , child['right'], previous_right)
+                'Record (%d): right %d >= previous right %d' \
+                % (child['id'], child['right'], previous_right)
             previous_right = child['left']
-
 
     def ReParent(self, parent_id=False):
         record_ids = self.mptt.search([
@@ -204,6 +203,7 @@ class MPTTTestCase(unittest.TestCase):
             self.CheckTree()
 
             transaction.cursor.rollback()
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MPTTTestCase)

@@ -227,7 +227,7 @@ class Database(DatabaseInterface):
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
         with open(sql_file) as fp:
             for line in fp.read().split(';'):
-                if (len(line)>0) and (not line.isspace()):
+                if (len(line) > 0) and (not line.isspace()):
                     cursor.execute(line)
 
         for i in ('ir', 'res', 'webdav'):
@@ -395,7 +395,8 @@ class Cursor(CursorInterface):
         return self.cursor.fetchone()[0]
 
     def setnextid(self, table, value):
-        self.cursor.execute("SELECT SETVAL('" + table + "_id_seq', %d)" % value)
+        self.cursor.execute("SELECT SETVAL('" + table + "_id_seq', %d)"
+            % value)
 
     def currid(self, table):
         self.cursor.execute('SELECT last_value FROM "' + table + '_id_seq"')

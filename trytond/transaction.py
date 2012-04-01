@@ -61,7 +61,7 @@ class Transaction(local):
     context = None
     create_records = None
     delete_records = None
-    delete = None # TODO check to merge with delete_records
+    delete = None  # TODO check to merge with delete_records
     timestamp = None
 
     def start(self, database_name, user, readonly=False, context=None):

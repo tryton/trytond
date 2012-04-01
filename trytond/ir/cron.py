@@ -21,6 +21,7 @@ _INTERVALTYPES = {
     'minutes': lambda interval: relativedelta(minutes=interval),
 }
 
+
 class Cron(ModelSQL, ModelView):
     "Cron"
     _name = "ir.cron"
@@ -34,7 +35,7 @@ class Cron(ModelSQL, ModelView):
         help="The user who will receive requests in case of failure")
     active = fields.Boolean('Active', select=True)
     interval_number = fields.Integer('Interval Number', required=True)
-    interval_type = fields.Selection( [
+    interval_type = fields.Selection([
        ('minutes', 'Minutes'),
        ('hours', 'Hours'),
        ('days', 'Days'),

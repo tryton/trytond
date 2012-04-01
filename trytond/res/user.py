@@ -16,7 +16,6 @@ from ..tools import safe_eval, reduce_ids
 from ..backend import TableHandler
 from ..transaction import Transaction
 from ..cache import Cache
-from ..pyson import Eval, Bool
 from ..pool import Pool
 from ..config import CONFIG
 from ..pyson import PYSONEncoder
@@ -40,7 +39,7 @@ class User(ModelSQL, ModelView):
     signature = fields.Text('Signature')
     active = fields.Boolean('Active')
     menu = fields.Many2One('ir.action', 'Menu Action',
-            domain=[('usage','=','menu')], required=True)
+        domain=[('usage', '=', 'menu')], required=True)
     pyson_menu = fields.Function(fields.Char('PySON Menu'), 'get_pyson_menu')
     actions = fields.Many2Many('res.user-ir.action', 'user', 'action',
         'Actions', help='Actions that will be run at login')

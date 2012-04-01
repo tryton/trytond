@@ -141,7 +141,7 @@ class TableHandler(TableHandlerInterface):
         # Fetch indexes defined for the table
         try:
             self.cursor.execute('PRAGMA index_list("' + self.table_name + '")')
-        except IndexError: # There is sometimes IndexError
+        except IndexError:  # There is sometimes IndexError
             self.cursor.execute('PRAGMA index_list("' + self.table_name + '")')
         self._indexes = [l[1] for l in self.cursor.fetchall()]
 
@@ -219,7 +219,6 @@ class TableHandler(TableHandlerInterface):
 
         column_type = column_type[1]
         default = ''
-        from trytond.model import fields
         self.cursor.execute(('ALTER TABLE "%s" ADD COLUMN "%s" %s' + default) %
                        (self.table_name, column_name, column_type))
 

@@ -110,7 +110,7 @@ class Many2Many(Field):
                         self.target: target_obj.create(act[1]),
                         })
             elif act[0] == 'write':
-                target_obj.write(act[1] , act[2])
+                target_obj.write(act[1], act[2])
             elif act[0] == 'delete':
                 target_obj.delete(act[1])
             elif act[0] == 'unlink':
@@ -121,7 +121,8 @@ class Many2Many(Field):
                 if not target_ids:
                     continue
                 relation_ids = []
-                for i in range(0, len(target_ids), Transaction().cursor.IN_MAX):
+                for i in range(0, len(target_ids),
+                        Transaction().cursor.IN_MAX):
                     sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
                     relation_ids += relation_obj.search([
                         (self.origin, 'in', ids),
@@ -136,7 +137,8 @@ class Many2Many(Field):
                 if not target_ids:
                     continue
                 existing_ids = []
-                for i in range(0, len(target_ids), Transaction().cursor.IN_MAX):
+                for i in range(0, len(target_ids),
+                        Transaction().cursor.IN_MAX):
                     sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
                     relation_ids = relation_obj.search([
                         (self.origin, 'in', ids),
