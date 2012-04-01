@@ -4,7 +4,8 @@
 """
 Miscelleanous tools used by tryton
 """
-import os, sys
+import os
+import sys
 import subprocess
 from threading import local
 import smtplib
@@ -12,6 +13,7 @@ import dis
 from decimal import Decimal
 from trytond.config import CONFIG
 from trytond.const import OPERATORS
+
 
 def find_in_path(name):
     if os.name == "nt":
@@ -26,11 +28,13 @@ def find_in_path(name):
             return val
     return name
 
+
 def find_pg_tool(name):
     if CONFIG['pg_path'] and CONFIG['pg_path'] != 'None':
         return os.path.join(CONFIG['pg_path'], name)
     else:
         return find_in_path(name)
+
 
 def exec_pg_command(name, *args):
     prog = find_pg_tool(name)
@@ -38,6 +42,7 @@ def exec_pg_command(name, *args):
         raise Exception('Couldn\'t find %s' % name)
     args2 = (os.path.basename(prog),) + args
     return os.spawnv(os.P_WAIT, prog, args2)
+
 
 def exec_pg_command_pipe(name, *args):
     prog = find_pg_tool(name)
@@ -58,15 +63,17 @@ def exec_pg_command_pipe(name, *args):
             stdout=subprocess.PIPE, env=child_env)
     return pipe
 
+
 def exec_command_pipe(name, *args):
     prog = find_in_path(name)
     if not prog:
         raise Exception('Couldn\'t find %s' % name)
     if os.name == "nt":
-        cmd = '"'+prog+'" '+' '.join(args)
+        cmd = '"' + prog + '" ' + ' '.join(args)
     else:
-        cmd = prog+' '+' '.join(args)
+        cmd = prog + ' ' + ' '.join(args)
     return os.popen2(cmd, 'b')
+
 
 def file_open(name, mode="r", subdir='modules'):
     """Open a file from the root dir, using a subdir folder."""
@@ -113,6 +120,7 @@ def file_open(name, mode="r", subdir='modules'):
 
     raise IOError('File not found : %s ' % name)
 
+
 def get_smtp_server():
     """
     Instanciate, configure and return a SMTP or SMTP_SSL instance from
@@ -133,6 +141,7 @@ def get_smtp_server():
         smtp_server.login(CONFIG['smtp_user'], CONFIG['smtp_password'])
 
     return smtp_server
+
 
 def memoize(maxsize):
     """
@@ -196,6 +205,7 @@ def memoize(maxsize):
         return wrapper
     return wrap
 
+
 def mod10r(number):
     """
     Recursive mod10
@@ -209,7 +219,7 @@ def mod10r(number):
     for digit in number:
         result += digit
         if digit.isdigit():
-            report = codec[ (int(digit) + report) % 10 ]
+            report = codec[(int(digit) + report) % 10]
     return result + str((10 - report) % 10)
 
 
@@ -309,6 +319,7 @@ class LocalDict(local):
     def __ne__(self, y):
         return self._dict.__ne__(y)
 
+
 def reduce_ids(field, ids):
     '''
     Return a small SQL clause for ids
@@ -356,20 +367,20 @@ def reduce_ids(field, ids):
     return '(' + ' OR '.join(sql) + ')', args
 
 _ALLOWED_CODES = set(dis.opmap[x] for x in [
-    'POP_TOP','ROT_TWO','ROT_THREE','ROT_FOUR','DUP_TOP',
-    'BUILD_LIST','BUILD_MAP','BUILD_TUPLE',
-    'LOAD_CONST','RETURN_VALUE','STORE_SUBSCR',
-    'UNARY_POSITIVE','UNARY_NEGATIVE','UNARY_NOT',
-    'UNARY_INVERT','BINARY_POWER','BINARY_MULTIPLY',
-    'BINARY_DIVIDE','BINARY_FLOOR_DIVIDE','BINARY_TRUE_DIVIDE',
-    'BINARY_MODULO','BINARY_ADD','BINARY_SUBTRACT',
-    'BINARY_LSHIFT','BINARY_RSHIFT','BINARY_AND','BINARY_XOR', 'BINARY_OR',
-    'STORE_MAP', 'LOAD_NAME', 'CALL_FUNCTION', 'COMPARE_OP', 'LOAD_ATTR',
-    'STORE_NAME', 'GET_ITER', 'FOR_ITER', 'LIST_APPEND', 'JUMP_ABSOLUTE',
-    'DELETE_NAME', 'JUMP_IF_TRUE', 'JUMP_IF_FALSE', 'JUMP_IF_FALSE_OR_POP',
-    'JUMP_IF_TRUE_OR_POP', 'POP_JUMP_IF_FALSE', 'POP_JUMP_IF_TRUE',
-    'BINARY_SUBSCR', 'JUMP_FORWARD',
-    ] if x in dis.opmap)
+        'POP_TOP', 'ROT_TWO', 'ROT_THREE', 'ROT_FOUR', 'DUP_TOP', 'BUILD_LIST',
+        'BUILD_MAP', 'BUILD_TUPLE', 'LOAD_CONST', 'RETURN_VALUE',
+        'STORE_SUBSCR', 'UNARY_POSITIVE', 'UNARY_NEGATIVE', 'UNARY_NOT',
+        'UNARY_INVERT', 'BINARY_POWER', 'BINARY_MULTIPLY', 'BINARY_DIVIDE',
+        'BINARY_FLOOR_DIVIDE', 'BINARY_TRUE_DIVIDE', 'BINARY_MODULO',
+        'BINARY_ADD', 'BINARY_SUBTRACT', 'BINARY_LSHIFT', 'BINARY_RSHIFT',
+        'BINARY_AND', 'BINARY_XOR', 'BINARY_OR', 'STORE_MAP', 'LOAD_NAME',
+        'CALL_FUNCTION', 'COMPARE_OP', 'LOAD_ATTR', 'STORE_NAME', 'GET_ITER',
+        'FOR_ITER', 'LIST_APPEND', 'JUMP_ABSOLUTE', 'DELETE_NAME',
+        'JUMP_IF_TRUE', 'JUMP_IF_FALSE', 'JUMP_IF_FALSE_OR_POP',
+        'JUMP_IF_TRUE_OR_POP', 'POP_JUMP_IF_FALSE', 'POP_JUMP_IF_TRUE',
+        'BINARY_SUBSCR', 'JUMP_FORWARD',
+        ] if x in dis.opmap)
+
 
 @memoize(1000)
 def _compile_source(source):
@@ -389,6 +400,7 @@ def _compile_source(source):
             raise ValueError('opcode %s not allowed' % dis.opname[code])
     return comp
 
+
 def safe_eval(source, data=None):
     if '__subclasses__' in source:
         raise ValueError('__subclasses__ not allowed')
@@ -405,6 +417,7 @@ def safe_eval(source, data=None):
         'round': round,
         'Decimal': Decimal,
         }}, data)
+
 
 def reduce_domain(domain):
     '''

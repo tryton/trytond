@@ -429,8 +429,8 @@ class One2OneRequired(ModelSQL):
     _name = 'test.one2one_required'
     _description = __doc__
     name = fields.Char('Name', required=True)
-    one2one = fields.One2One('test.one2one_required.relation', 'origin', 'target',
-            string='One2One', help='Test one2one', required=True)
+    one2one = fields.One2One('test.one2one_required.relation', 'origin',
+        'target', string='One2One', help='Test one2one', required=True)
 
 One2OneRequired()
 

@@ -49,6 +49,7 @@ def object_hook(dct):
             return Decimal(dct['decimal'])
     return dct
 
+
 class JSONEncoder(json.JSONEncoder):
 
     def __init__(self, *args, **kwargs):
@@ -168,7 +169,7 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
     """
     protocol_version = "HTTP/1.1"
     rpc_paths = None
-    encode_threshold = 1400 # common MTU
+    encode_threshold = 1400  # common MTU
 
     def send_header(self, keyword, value):
         if keyword == 'Content-type' and value == 'text/xml':
@@ -206,7 +207,8 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
         for word in words:
             drive, word = os.path.splitdrive(word)
             head, word = os.path.split(word)
-            if word in (os.curdir, os.pardir): continue
+            if word in (os.curdir, os.pardir):
+                continue
             path = os.path.join(path, word)
         return path
 
@@ -325,8 +327,8 @@ class SimpleThreadedJSONRPCServer6(SimpleThreadedJSONRPCServer):
 class SecureThreadedJSONRPCServer(SimpleThreadedJSONRPCServer):
 
     def __init__(self, server_address, HandlerClass, logRequests=1):
-        SimpleThreadedJSONRPCServer.__init__(self, server_address, HandlerClass,
-                logRequests)
+        SimpleThreadedJSONRPCServer.__init__(self, server_address,
+            HandlerClass, logRequests)
         self.socket = SSLSocket(socket.socket(self.address_family,
             self.socket_type))
         self.server_bind()

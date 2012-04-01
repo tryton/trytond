@@ -618,6 +618,7 @@ class ModelStorage(Model):
             - the warning if failed
         '''
         pool = Pool()
+
         def process_lines(self, datas, prefix, fields_def, position=0):
 
             def warn(msgname, *args):
@@ -740,8 +741,8 @@ class ModelStorage(Model):
             for i, field in enumerate(fields_names):
                 if i >= len(line):
                     raise Exception('ImportError',
-                            'Please check that all your lines have %d cols.' % \
-                            (len(fields_names),))
+                        'Please check that all your lines have %d cols.'
+                        % len(fields_names))
                 is_prefix_len = (len(field) == (prefix_len + 1))
                 value = line[i]
                 if is_prefix_len and field[-1].endswith(':id'):
@@ -966,7 +967,6 @@ class ModelStorage(Model):
                         model_field.model.name)
         return error_args
 
-
     def _validate(self, ids):
         pool = Pool()
         if (Transaction().user == 0
@@ -1087,18 +1087,19 @@ class ModelStorage(Model):
                 # validate required
                 if field.required:
                     for record in records:
-                        if isinstance(record[field_name], (BrowseRecordNull,
-                            type(None), type(False))) and not record[field_name]:
+                        if (isinstance(record[field_name], (BrowseRecordNull,
+                                        type(None), type(False)))
+                                and not record[field_name]):
                             self.raise_user_error(
-                                    'required_validation_record',
-                                    error_args=self._get_error_args(field_name))
+                                'required_validation_record',
+                                error_args=self._get_error_args(field_name))
                 # validate size
                 if hasattr(field, 'size') and field.size:
                     for record in records:
                         if len(record[field_name] or '') > field.size:
                             self.raise_user_error(
-                                    'size_validation_record',
-                                    error_args=self._get_error_args(field_name))
+                                'size_validation_record',
+                                error_args=self._get_error_args(field_name))
 
                 def digits_test(value, digits, field_name):
                     def raise_user_error():
@@ -1107,8 +1108,8 @@ class ModelStorage(Model):
                     if value is None:
                         return
                     if isinstance(value, Decimal):
-                        if not (value.quantize(Decimal(str(10.0**-digits[1])))
-                                == value):
+                        if (value.quantize(Decimal(str(10.0 ** -digits[1])))
+                                != value):
                             raise_user_error()
                     elif CONFIG.options['db_type'] != 'mysql':
                         if not (round(value, digits[1]) == float(value)):

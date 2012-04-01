@@ -48,6 +48,7 @@ class ExportDataTarget(ExportDataTarget):
 
 ExportDataTarget()
 
+
 class ExportDataRelation(ModelSQL):
     "Export Data Many2Many"
     _name = 'test.export_data.relation'

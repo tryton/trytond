@@ -3,6 +3,7 @@
 
 from trytond.model.fields.field import Field
 
+
 def autocomplete_validate(value):
     if value:
         assert isinstance(value, list), 'autocomplete must be a list'

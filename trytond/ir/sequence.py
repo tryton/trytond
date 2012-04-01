@@ -132,7 +132,7 @@ class Sequence(ModelSQL, ModelView):
         return 1.0
 
     def default_timestamp_offset(self):
-        return 946681200.0 # Offset for 2000-01-01
+        return 946681200.0  # Offset for 2000-01-01
 
     def default_last_timestamp(self):
         return 0.0
@@ -302,7 +302,6 @@ class Sequence(ModelSQL, ModelView):
             else:
                 return hex(timestamp)[2:].upper()
         return ''
-
 
     def get_id(self, domain):
         '''

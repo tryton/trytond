@@ -26,6 +26,7 @@ _READONLY = If(Eval('state').in_(['waiting', 'closed']),
         False))
 _DEPENDS = ['state', 'act_from']
 
+
 class Request(ModelSQL, ModelView):
     "Request"
     _name = 'res.request'
@@ -62,6 +63,7 @@ class Request(ModelSQL, ModelView):
     state = fields.Selection(_STATES, 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
+
     def __init__(self):
         super(Request, self).__init__()
         self._rpc.update({

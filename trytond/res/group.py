@@ -27,6 +27,7 @@ class MenuMany2Many(fields.Many2Many):
                     ids.remove(id_)
         return res
 
+
 class Group(ModelSQL, ModelView):
     "Group"
     _name = "res.group"
@@ -45,7 +46,8 @@ class Group(ModelSQL, ModelView):
     def __init__(self):
         super(Group, self).__init__()
         self._sql_constraints += [
-            ('name_uniq', 'unique (name)', 'The name of the group must be unique!')
+            ('name_uniq', 'unique (name)',
+                'The name of the group must be unique!')
         ]
 
     def copy(self, ids, default=None):

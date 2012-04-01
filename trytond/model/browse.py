@@ -114,10 +114,12 @@ class BrowseRecord(object):
                 fname, field = item
                 return (fname not in self._data.get(self.id, {})
                     and fname not in self._local_data.get(self.id, {}))
+
             def to_load(item):
                 fname, field = item
                 return (field.loading == 'eager'
                     and fname not in to_remove)
+
             def overrided(item):
                 fname, field = item
                 return fname in self._model._columns
@@ -215,7 +217,8 @@ class BrowseRecord(object):
                                     BrowseRecordList))):
                         if data['id'] == self.id and i == name:
                             result = data[i]
-                        self._local_data.setdefault(data['id'], {})[i] = data[i]
+                        self._local_data.setdefault(data['id'], {})[i] = \
+                            data[i]
                         del data[i]
                 self._data.setdefault(data['id'], {}).update(data)
                 if data['id'] == self.id and name in data:

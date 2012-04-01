@@ -287,7 +287,8 @@ class PYSONTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, pyson.If, 'test', 'foo', 'bar')
         self.assertRaises(AssertionError, pyson.If, True, 'foo', False)
 
-        self.assert_(pyson.If(True, 'foo', 'bar').types() == set([type('foo')]))
+        self.assertEqual(pyson.If(True, 'foo', 'bar').types(),
+            set([type('foo')]))
         self.assert_(pyson.If(True, False, True).types() == set([bool]))
 
         eval = pyson.PYSONEncoder().encode(pyson.If(True, 'foo', 'bar'))
@@ -536,6 +537,7 @@ class PYSONTestCase(unittest.TestCase):
             ).decode(eval) == ['id', '!=', 1])
         self.assert_(pyson.PYSONDecoder({'context': {}}
             ).decode(eval) == ['id', '=', 0])
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PYSONTestCase)

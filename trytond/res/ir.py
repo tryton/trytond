@@ -110,9 +110,10 @@ class ModelFieldGroup(ModelSQL):
     def init(self, module_name):
         cursor = Transaction().cursor
         # Migration from 1.0 table name change
-        TableHandler.table_rename(cursor, 'ir_model_field_group_rel', self._table)
+        TableHandler.table_rename(cursor, 'ir_model_field_group_rel',
+            self._table)
         TableHandler.sequence_rename(cursor, 'ir_model_field_group_rel_id_seq',
-                self._table + '_id_seq')
+            self._table + '_id_seq')
         super(ModelFieldGroup, self).init(module_name)
 
 ModelFieldGroup()
@@ -271,7 +272,7 @@ class Sequence(ModelSQL, ModelView):
 
     def get_groups(self, ids, name):
         sequence_type_obj = Pool().get('ir.sequence.type')
-        sequences= self.browse(ids)
+        sequences = self.browse(ids)
         code2seq = {}
         for sequence in sequences:
             code2seq.setdefault(sequence.code, []).append(sequence.id)

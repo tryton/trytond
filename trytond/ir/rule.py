@@ -93,7 +93,7 @@ class Rule(ModelSQL, ModelView):
         select=True, required=True)
     operator = fields.Selection([(x, x) for x in OPERATORS], 'Operator',
         required=True, translate=False)
-    operand = fields.Selection('get_operand','Operand', required=True)
+    operand = fields.Selection('get_operand', 'Operand', required=True)
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=True,
        required=True, ondelete="CASCADE")
 
@@ -107,7 +107,8 @@ class Rule(ModelSQL, ModelView):
             'SET operator = %%s '
             'WHERE operator = %%s' % self._table, ('!=', '<>'))
 
-    def _operand_get(self, obj_name='', level=3, recur=None, root_tech='', root=''):
+    def _operand_get(self, obj_name='', level=3, recur=None, root_tech='',
+            root=''):
         res = {}
         if not obj_name:
             obj_name = 'res.user'
@@ -132,9 +133,9 @@ class Rule(ModelSQL, ModelView):
                 res[root + '/' + obj_fields[k]['string']] = \
                         root_tech + '.' + k
 
-            if (obj_fields[k]['type'] in recur) and (level>0):
+            if (obj_fields[k]['type'] in recur) and (level > 0):
                 res.update(self._operand_get(obj_fields[k]['relation'],
-                    level-1, recur, root_tech + '.' + k,
+                    level - 1, recur, root_tech + '.' + k,
                     root + '/' + obj_fields[k]['string']))
 
         return res
@@ -168,23 +169,23 @@ class Rule(ModelSQL, ModelView):
         user_obj = pool.get('res.user')
 
         cursor = Transaction().cursor
-        cursor.execute('SELECT r.id FROM "' + self._table + '" r ' \
-                'JOIN "' + rule_group_obj._table + '" g ' \
-                    "ON (g.id = r.rule_group) " \
-                'JOIN "' + model_obj._table + '" m ON (g.model = m.id) ' \
-                "WHERE m.model = %s "
-                    "AND g.perm_" + mode + " "
-                    "AND (g.id IN (" \
-                            'SELECT rule_group ' \
-                            'FROM "' + rule_group_user_obj._table + '" ' \
-                                'WHERE "user" = %s ' \
-                            "UNION SELECT rule_group " \
-                            'FROM "' + rule_group_group_obj._table + '" g_rel ' \
-                                'JOIN "' + user_group_obj._table + '" u_rel ' \
-                                    'ON (g_rel."group" = u_rel."group") ' \
-                                'WHERE u_rel."user" = %s) ' \
-                        "OR default_p " \
-                        "OR g.global_p)",
+        cursor.execute('SELECT r.id FROM "' + self._table + '" r '
+            'JOIN "' + rule_group_obj._table + '" g '
+                "ON (g.id = r.rule_group) "
+            'JOIN "' + model_obj._table + '" m ON (g.model = m.id) '
+            "WHERE m.model = %s "
+                "AND g.perm_" + mode + " "
+                "AND (g.id IN ("
+                        'SELECT rule_group '
+                        'FROM "' + rule_group_user_obj._table + '" '
+                        'WHERE "user" = %s '
+                        "UNION SELECT rule_group "
+                        'FROM "' + rule_group_group_obj._table + '" g_rel '
+                        'JOIN "' + user_group_obj._table + '" u_rel '
+                            'ON (g_rel."group" = u_rel."group") '
+                        'WHERE u_rel."user" = %s) '
+                    "OR default_p "
+                    "OR g.global_p)",
                 (model_name, Transaction().user, Transaction().user))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:

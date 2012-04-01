@@ -124,7 +124,8 @@ class Cache(object):
             cursor.close()
         for obj in Cache._cache_instance:
             if obj._name in timestamps:
-                if not obj._timestamp or timestamps[obj._name] > obj._timestamp:
+                if (not obj._timestamp
+                        or timestamps[obj._name] > obj._timestamp):
                     obj._timestamp = timestamps[obj._name]
                     obj._lock.acquire()
                     try:

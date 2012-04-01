@@ -22,8 +22,8 @@ except ImportError:
             else:
                 return
             indices[i] += 1
-            for j in range(i+1, r):
-                indices[j] = indices[j-1] + 1
+            for j in range(i + 1, r):
+                indices[j] = indices[j - 1] + 1
             yield tuple(pool[i] for i in indices)
 from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
         install_module
@@ -65,7 +65,8 @@ class TriggerTestCase(unittest.TestCase):
 
             # on_exclusive
             for i in range(1, 4):
-                for combination in combinations(['create', 'write', 'delete'], i):
+                for combination in combinations(
+                        ['create', 'write', 'delete'], i):
                     combination_values = values.copy()
                     for mode in combination:
                         combination_values['on_%s' % mode] = True
@@ -328,9 +329,9 @@ class TriggerTestCase(unittest.TestCase):
             TRIGGER_LOGS.pop()
             Transaction().delete = {}
             # Delete trigger logs because SQLite reuse the same triggered_id
-            self.trigger_log.delete( self.trigger_log.search([
-                ('trigger', '=', trigger_id),
-                ]))
+            self.trigger_log.delete(self.trigger_log.search([
+                        ('trigger', '=', trigger_id),
+                        ]))
 
             triggered_id = self.triggered.create({
                 'name': 'Test',
@@ -407,9 +408,9 @@ class TriggerTestCase(unittest.TestCase):
             TRIGGER_LOGS.pop()
 
             # Delete trigger logs of limit number test
-            self.trigger_log.delete( self.trigger_log.search([
-                ('trigger', '=', trigger_id),
-                ]))
+            self.trigger_log.delete(self.trigger_log.search([
+                        ('trigger', '=', trigger_id),
+                        ]))
 
             # With minimum delay
             self.trigger.write(trigger_id, {
@@ -442,6 +443,7 @@ class TriggerTestCase(unittest.TestCase):
             # Restart the cache on the get_triggers method of ir.trigger
             self.trigger.get_triggers.reset()
             transaction.cursor.rollback()
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TriggerTestCase)

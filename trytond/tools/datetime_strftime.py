@@ -3,6 +3,7 @@
 #Copyright (c) 2002-2007 John D. Hunter; All Rights Reserved
 import time
 
+
 def datetime_strftime(date, fmt):
     '''
     Allow datetime strftime formatting for years before 1900.
@@ -45,5 +46,5 @@ def datetime_strftime(date, fmt):
 
     syear = "%4d" % (date.year,)
     for site in sites:
-        string1 = string1[:site] + syear + string1[site+4:]
+        string1 = string1[:site] + syear + string1[site + 4:]
     return string1

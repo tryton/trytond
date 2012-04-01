@@ -5,7 +5,9 @@
 """
 import logging
 import logging.handlers
-import sys, os, signal
+import sys
+import os
+import signal
 import time
 from trytond.config import CONFIG
 from getpass import getpass
@@ -124,7 +126,8 @@ class TrytonServer(object):
                 cursor = Database(db_name).connect().cursor()
                 try:
                     if not cursor.test():
-                        raise Exception("'%s' is not a Tryton database!" % db_name)
+                        raise Exception("'%s' is not a Tryton database!"
+                            % db_name)
                     cursor.execute('SELECT code FROM ir_lang ' \
                             'WHERE translatable')
                     lang = [x[0] for x in cursor.fetchall()]

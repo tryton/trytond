@@ -38,14 +38,14 @@ class Trigger(ModelSQL, ModelView):
         }, depends=['on_time'],
         on_change=['on_delete'])
     condition = fields.Char('Condition', required=True,
-            help='A Python statement evaluated with record represented by '
-            '"self"\nIt triggers the action if true.')
+        help='A Python statement evaluated with record represented by '
+        '"self"\nIt triggers the action if true.')
     limit_number = fields.Integer('Limit Number', required=True,
         help='Limit the number of call to "Action Function" by records.\n'
-            '0 for no limit.')
+        '0 for no limit.')
     minimum_delay = fields.Float('Minimum Delay', help='Set a minimum delay '
-            'in minutes between call to "Action Function" for the same record.\n'
-            '0 for no delay.')
+        'in minutes between call to "Action Function" for the same record.\n'
+        '0 for no delay.')
     action_model = fields.Many2One('ir.model', 'Action Model', required=True)
     action_function = fields.Char('Action Function', required=True)
 
@@ -124,7 +124,7 @@ class Trigger(ModelSQL, ModelView):
                 'Invalid trigger mode'
 
         if Transaction().user == 0:
-            return [] # XXX is it want we want?
+            return []  # XXX is it want we want?
 
         trigger_ids = self.search([
             ('model.model', '=', model_name),
@@ -202,13 +202,15 @@ class Trigger(ModelSQL, ModelView):
                         datepart, timepart = delay[record_id].split(" ")
                         year, month, day = map(int, datepart.split("-"))
                         timepart_full = timepart.split(".")
-                        hours, minutes, seconds = map(int, timepart_full[0].split(":"))
+                        hours, minutes, seconds = map(int,
+                            timepart_full[0].split(":"))
                         if len(timepart_full) == 2:
                             microseconds = int(timepart_full[1])
                         delay[record_id] = datetime.datetime(year, month, day,
                                 hours, minutes, seconds, microseconds)
-                    if datetime.datetime.now() - delay[record_id] \
-                            >= datetime.timedelta(minutes=trigger.minimum_delay):
+                    if (datetime.datetime.now() - delay[record_id]
+                            >= datetime.timedelta(
+                                minutes=trigger.minimum_delay)):
                         new_ids.append(record_id)
             ids = new_ids
 

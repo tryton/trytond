@@ -4,6 +4,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 
+
 def one_in(i, j):
     """Check the presence of an element of setA in setB
     """
@@ -121,6 +122,7 @@ class UIMenu(ModelSQL, ModelView):
         if not ids:
             return {}
         res = {}
+
         def _name(menu):
             if menu.id in res:
                 return res[menu.id]
@@ -179,7 +181,7 @@ class UIMenu(ModelSQL, ModelView):
                 ])
         for action_keyword in action_keyword_obj.browse(action_keyword_ids):
             model_id = int(
-                    action_keyword.model.split(',')[1].split(',')[0].strip('('))
+                action_keyword.model.split(',')[1].split(',')[0].strip('('))
             action_obj = pool.get(action_keyword.action.type)
             with Transaction().set_context(active_test=False):
                 action_id = action_obj.search([

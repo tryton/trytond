@@ -10,6 +10,7 @@ _LOCK = Lock()
 _TIMES = {}
 _MODULES = None
 
+
 def _modified(path):
     _LOCK.acquire()
     try:
@@ -29,6 +30,7 @@ def _modified(path):
     finally:
         _LOCK.release()
     return False
+
 
 def monitor():
     '''

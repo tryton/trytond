@@ -15,6 +15,7 @@ from trytond.transaction import Transaction
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
 
+
 class DummyTagHandler:
     """Dubhandler implementing empty methods. Will be used when whe
     want to ignore the xml content"""
@@ -63,9 +64,9 @@ class MenuitemTagHandler:
             cursor.execute(cursor.limit_clause(
             "SELECT a.name, a.type, v.type, v.field_childs, icon.name " \
             "FROM ir_action a " \
-                "LEFT JOIN ir_action_report report ON (a.id = report.action) " \
+                "LEFT JOIN ir_action_report report ON (a.id = report.action) "\
                 "LEFT JOIN ir_action_act_window act ON (a.id = act.action) " \
-                "LEFT JOIN ir_action_wizard wizard ON (a.id = wizard.action) " \
+                "LEFT JOIN ir_action_wizard wizard ON (a.id = wizard.action) "\
                 "LEFT JOIN ir_action_url url ON (a.id = url.action) " \
                 "LEFT JOIN ir_action_act_window_view wv ON " \
                     "(act.id = wv.act_window) " \
@@ -128,12 +129,11 @@ class MenuitemTagHandler:
         if name != "menuitem":
             return self
         else:
-            self.mh.import_record( 'ir.ui.menu', self.values, self.xml_id)
+            self.mh.import_record('ir.ui.menu', self.values, self.xml_id)
             return None
 
     def current_state(self):
-        return "Tag menuitem with id: %s"% \
-               (self.xml_id)
+        return "Tag menuitem with id: %s" % self.xml_id
 
 
 class RecordTagHandler:
@@ -152,7 +152,6 @@ class RecordTagHandler:
         self.current_field = None
         self.cdata = None
         self.start_cdata = None
-
 
     def startElement(self, name, attributes):
 
@@ -187,7 +186,7 @@ class RecordTagHandler:
                 self.cdata = "start"
 
             # Catch the known attributes
-            search_attr = attributes.get('search','')
+            search_attr = attributes.get('search', '')
             ref_attr = attributes.get('ref', '')
             eval_attr = attributes.get('eval', '')
 
@@ -226,7 +225,6 @@ class RecordTagHandler:
 
         self.values[self.current_field] += data
 
-
     def endElement(self, name):
 
         """Must return the object to use for the next call, if name is
@@ -261,10 +259,10 @@ class RecordTagHandler:
             self.xml_ids.append(self.xml_id)
             return None
         else:
-            raise Exception("Unexpected closing tag '%s'"% (name,))
+            raise Exception("Unexpected closing tag '%s'" % (name,))
 
     def current_state(self):
-        return "In tag record: model %s with id %s."% \
+        return "In tag record: model %s with id %s." % \
                (self.model and self.model._name or "?", self.xml_id)
 
 
@@ -274,6 +272,7 @@ class Unhandled_field(Exception):
     Raised when a field type is not supported by the update mechanism.
     """
     pass
+
 
 class Fs2bdAccessor:
     """
@@ -405,7 +404,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.sax_parser.setFeature(sax.handler.feature_namespaces, 0)
         self.sax_parser.setContentHandler(self)
 
-
     def parse_xmlstream(self, stream):
         """
         Take a byte stream has input and parse the xml content.
@@ -447,8 +445,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 pass
 
             else:
-                logging.getLogger("convert").info( "Tag %s not supported" %
-                        name)
+                logging.getLogger("convert").info("Tag %s not supported" %
+                    name)
                 return
         elif not self.skip_data:
             self.taghandler.startElement(name, attributes)
@@ -478,11 +476,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             module = self.module
 
         if self.fs2db.get(module, xml_id) is None:
-            raise Exception("Reference to %s not found"% \
-                                ".".join([module,xml_id]))
+            raise Exception("Reference to %s not found" % \
+                ".".join([module, xml_id]))
         return self.fs2db.get(module, xml_id)["db_id"]
-
-
 
     @staticmethod
     def _clean_value(key, browse_record, object_ref):
@@ -516,7 +512,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             raise Unhandled_field("Unhandled field %s" % key)
         else:
             return browse_record[key]
-
 
     def populate_to_delete(self):
         """Create a list of all the records that whe should met in the update
@@ -565,7 +560,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # XXX maybe use only one call to get()
             db_id, db_model, mdata_id, old_values = \
                     [self.fs2db.get(module, fs_id)[x] for x in \
-                    ["db_id","model","id","values"]]
+                    ["db_id", "model", "id", "values"]]
             inherit_db_ids = {}
             inherit_mdata_ids = []
 
@@ -587,8 +582,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 "data with the wrong model: %s (module: %s)" % (fs_id, module))
 
             #Re-create record if it was deleted
-            if not self.fs2db.get_browserecord(module, object_ref._name, db_id):
-                with Transaction().set_context(module=module, language='en_US'):
+            if not self.fs2db.get_browserecord(
+                    module, object_ref._name, db_id):
+                with Transaction().set_context(
+                        module=module, language='en_US'):
                     db_id = object_ref.create(values)
 
                 # reset_browsercord
@@ -679,7 +676,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 if db_field != expected_value and (db_field or expected_value):
                     logging.getLogger("convert").warning(
                         "Field %s of %s@%s not updated (id: %s), because "\
-                        "it has changed since the last update"% \
+                        "it has changed since the last update" % \
                         (key, db_id, model, fs_id))
                     continue
 
@@ -690,10 +687,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # if there is values to update:
             if to_update:
                 # write the values in the db:
-                with Transaction().set_context(module=module, language='en_US'):
+                with Transaction().set_context(
+                        module=module, language='en_US'):
                     object_ref.write(db_id, to_update)
                 self.fs2db.reset_browsercord(module, object_ref._name, db_id)
-
 
             if not inherit_db_ids:
                 record = object_ref.browse(db_id)
@@ -717,7 +714,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 if not db_val:
                     db_val = object_ref.browse(db_id)
                 for key in to_update:
-                    values[key] = self._clean_value( key, db_val, object_ref)
+                    values[key] = self._clean_value(key, db_val, object_ref)
 
             if module != self.module:
                 temp_values = old_values.copy()
@@ -752,7 +749,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             inherit_db_ids = {}
 
             record = object_ref.browse(db_id)
-            for table, field_name, field in object_ref._inherit_fields.values():
+            for table, field_name, field in (
+                    object_ref._inherit_fields.values()):
                 inherit_db_ids[table] = record[field_name].id
 
             # re-read it: this ensure that we store the real value
@@ -786,6 +784,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     "db_id": db_id, "model": model,
                     "id": mdata_id, "values": str(values)})
             self.fs2db.reset_browsercord(module, model, db_id)
+
 
 def post_import(pool, module, to_delete):
     """

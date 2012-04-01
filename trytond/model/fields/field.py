@@ -4,8 +4,10 @@
 from trytond.pyson import PYSON
 from trytond.const import OPERATORS
 
+
 def domain_validate(value):
     assert isinstance(value, list), 'domain must be a list'
+
     def test_domain(dom):
         for arg in dom:
             if isinstance(arg, basestring):
@@ -24,6 +26,7 @@ def domain_validate(value):
         return True
     assert test_domain(value), 'invalid domain'
 
+
 def states_validate(value):
     assert isinstance(value, dict), 'states must be a dict'
     for state in value:
@@ -35,16 +38,20 @@ def states_validate(value):
             assert value[state].types() == set([bool]), \
                     'values of states must return boolean'
 
+
 def on_change_validate(value):
     if value:
         assert isinstance(value, list), 'on_change must be a list'
+
 
 def on_change_with_validate(value):
     if value:
         assert isinstance(value, list), 'on_change_with must be a list'
 
+
 def depends_validate(value):
     assert isinstance(value, list), 'depends must be a list'
+
 
 def context_validate(value):
     assert isinstance(value, dict), 'context must be a dict'
@@ -73,9 +80,9 @@ class Field(object):
             method ``on_change_<field_name>`` when the user changes the field
             value. It then passes this list of values as arguments to the
             function.
-        :param on_change_with: A list of values. Like ``on_change``, but defined
-            the other way around. The list contains all the fields that must
-            update the current field.
+        :param on_change_with: A list of values. Like ``on_change``, but
+            defined the other way around. The list contains all the fields that
+            must update the current field.
         :param depends: A list of field name on which this one depends.
         :param order_field: A string. If set it will use the string when
             ordering records on the field.
@@ -103,7 +110,8 @@ class Field(object):
         self.order_field = order_field
         self.__context = None
         self.context = context or {}
-        assert loading in ('lazy', 'eager'), 'loading must be "lazy" or "eager"'
+        assert loading in ('lazy', 'eager'), \
+            'loading must be "lazy" or "eager"'
         self.loading = loading
 
     def _get_domain(self):

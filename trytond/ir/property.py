@@ -99,7 +99,7 @@ class Property(ModelSQL, ModelView):
                     else:
                         raise Exception('Not implemented')
             res[property.field.name][
-                    int(property.res.split(',')[1].split(',')[0].strip('('))] = val
+                int(property.res.split(',')[1].split(',')[0].strip('('))] = val
 
         if not names_list:
             return res[names[0]]
@@ -163,7 +163,6 @@ class Property(ModelSQL, ModelView):
                         default_val = value.split(',')[1]
                     else:
                         raise Exception('Not implemented')
-
 
         res = None
         if (val != default_val):

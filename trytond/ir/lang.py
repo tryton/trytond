@@ -28,7 +28,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
     direction = fields.Selection([
        ('ltr', 'Left-to-right'),
        ('rtl', 'Right-to-left'),
-       ], 'Direction',required=True)
+       ], 'Direction', required=True)
 
     #date
     date = fields.Char('Date', required=True)
@@ -181,6 +181,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
 
         # Iterate over grouping intervals
         def _grouping_intervals(grouping):
+            last_interval = 0
             for interval in grouping:
                 # if grouping is -1, we are done
                 if interval == CHAR_MAX:
@@ -224,7 +225,8 @@ class Lang(ModelSQL, ModelView, Cacheable):
             len(thousands_sep) * (len(groups) - 1)
         )
 
-    def format(self, lang, percent, value, grouping=False, monetary=None, *additional):
+    def format(self, lang, percent, value, grouping=False, monetary=None,
+            *additional):
         '''
         Returns the lang-aware substitution of a %? specifier (percent).
 
@@ -233,7 +235,8 @@ class Lang(ModelSQL, ModelView, Cacheable):
         :param value: the value
         :param grouping: a boolean to take grouping into account
         :param monetary: a BrowseRecord of the currency or None
-        :param additional: for format strings which contain one or more modifiers
+        :param additional: for format strings which contain one or more
+            modifiers
 
         :return: the formatted string
         '''
@@ -249,7 +252,7 @@ class Lang(ModelSQL, ModelView, Cacheable):
             while amount and s[rpos] == ' ':
                 rpos -= 1
                 amount -= 1
-            return s[lpos:rpos+1]
+            return s[lpos:rpos + 1]
 
         if not lang:
             lang = {
@@ -258,7 +261,8 @@ class Lang(ModelSQL, ModelView, Cacheable):
                 'grouping': self.default_grouping(),
             }
 
-        # this is only for one-percent-specifier strings and this should be checked
+        # this is only for one-percent-specifier strings
+        # and this should be checked
         if percent[0] != '%':
             raise ValueError("format() must be given exactly one %char "
                              "format specifier")
@@ -281,11 +285,11 @@ class Lang(ModelSQL, ModelView, Cacheable):
                 formatted = _strip_padding(formatted, seps)
         elif percent[-1] in 'diu':
             if grouping:
-                formatted, seps = self._group(lang, formatted, monetary=monetary)
+                formatted, seps = self._group(lang, formatted,
+                    monetary=monetary)
             if seps:
                 formatted = _strip_padding(formatted, seps)
         return formatted
-
 
     def currency(self, lang, val, currency, symbol=True, grouping=False):
         """
@@ -315,21 +319,24 @@ class Lang(ModelSQL, ModelView, Cacheable):
 
         s = self.format(lang, '%%.%if' % digits, abs(val), grouping,
                 monetary=currency)
-        # '<' and '>' are markers if the sign must be inserted between symbol and value
+        # '<' and '>' are markers if the sign must be inserted
+        # between symbol and value
         s = '<' + s + '>'
 
         if symbol:
             smb = currency.symbol
-            precedes = val<0 and currency.n_cs_precedes or currency.p_cs_precedes
-            separated = val<0 and currency.n_sep_by_space or currency.p_sep_by_space
+            precedes = (val < 0 and currency.n_cs_precedes
+                or currency.p_cs_precedes)
+            separated = (val < 0 and currency.n_sep_by_space
+                or currency.p_sep_by_space)
 
             if precedes:
                 s = smb + (separated and ' ' or '') + s
             else:
                 s = s + (separated and ' ' or '') + smb
 
-        sign_pos = val<0 and currency.n_sign_posn or currency.p_sign_posn
-        sign = val<0 and currency.negative_sign or currency.positive_sign
+        sign_pos = val < 0 and currency.n_sign_posn or currency.p_sign_posn
+        sign = val < 0 and currency.negative_sign or currency.positive_sign
 
         if sign_pos == 0:
             s = '(' + s + ')'
@@ -361,8 +368,9 @@ class Lang(ModelSQL, ModelView, Cacheable):
             for f, i in (('%a', 6), ('%A', 6), ('%b', 1), ('%B', 1)):
                 format = format.replace(f,
                         TIME_LOCALE[code][f][datetime.timetuple()[i]])
-            format = format.replace('%p', TIME_LOCALE[code]['%p']\
-                    [datetime.timetuple()[3] < 12 and 0 or 1]).encode('utf-8')
+            format = format.replace('%p',
+                TIME_LOCALE[code]['%p'][datetime.timetuple()[3] < 12 and 0
+                    or 1]).encode('utf-8')
         else:
             format = format.encode('utf-8')
         return datetime_strftime(datetime, format).decode('utf-8')

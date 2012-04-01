@@ -21,17 +21,20 @@ from types import DictType
 # convert decimal to float before marshalling:
 from decimal import Decimal
 
+
 def dump_decimal(self, value, write):
     value = {'__class__': 'Decimal',
         'decimal': str(value),
         }
     self.dump_struct(value, write)
 
+
 def dump_buffer(self, value, write):
     self.write = write
     value = xmlrpclib.Binary(value)
     value.encode(self)
     del self.write
+
 
 def dump_date(self, value, write):
     value = {'__class__': 'date',
@@ -40,6 +43,7 @@ def dump_date(self, value, write):
         'day': value.day,
         }
     self.dump_struct(value, write)
+
 
 def dump_time(self, value, write):
     value = {'__class__': 'time',
@@ -56,6 +60,7 @@ xmlrpclib.Marshaller.dispatch[datetime.date] = dump_date
 xmlrpclib.Marshaller.dispatch[datetime.time] = dump_time
 xmlrpclib.Marshaller.dispatch[buffer] = dump_buffer
 
+
 def dump_struct(self, value, write, escape=xmlrpclib.escape):
     converted_value = {}
     for k, v in value.items():
@@ -68,13 +73,14 @@ def dump_struct(self, value, write, escape=xmlrpclib.escape):
 
 xmlrpclib.Marshaller.dispatch[DictType] = dump_struct
 
+
 def end_struct(self, data):
     mark = self._marks.pop()
     # map structs to Python dictionaries
     dct = {}
     items = self._stack[mark:]
     for i in range(0, len(items), 2):
-        dct[xmlrpclib._stringify(items[i])] = items[i+1]
+        dct[xmlrpclib._stringify(items[i])] = items[i + 1]
     if '__class__' in dct:
         if dct['__class__'] == 'date':
             dct = datetime.date(dct['year'], dct['month'], dct['day'])
@@ -86,6 +92,8 @@ def end_struct(self, data):
     self._value = 0
 
 xmlrpclib.Unmarshaller.dispatch['struct'] = end_struct
+
+
 def _end_dateTime(self, data):
     value = xmlrpclib.DateTime()
     value.decode(data)
@@ -143,7 +151,7 @@ class SimpleXMLRPCRequestHandler(GZipRequestHandlerMixin,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
     protocol_version = "HTTP/1.1"
     rpc_paths = None
-    encode_threshold = 1400 # common MTU
+    encode_threshold = 1400  # common MTU
 
     def parse_request(self):
         res = SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.parse_request(self)

@@ -13,6 +13,7 @@ import os
 import ConfigParser
 import time
 
+
 def get_hostname(netloc):
     if '[' in netloc and ']' in netloc:
         return netloc.split(']')[0][1:]
@@ -20,6 +21,7 @@ def get_hostname(netloc):
         return netloc.split(':')[0]
     else:
         return netloc
+
 
 def get_port(netloc, protocol):
     netloc = netloc.split(']')[-1]
@@ -31,6 +33,7 @@ def get_port(netloc, protocol):
             'xmlrpc': 8069,
             'webdav': 8080,
         }.get(protocol)
+
 
 class ConfigManager(object):
     def __init__(self, fname=None):
@@ -90,7 +93,8 @@ class ConfigManager(object):
     def update_cmdline(self, cmdline_options):
         self.options.update(cmdline_options)
 
-        # Verify that we want to log or not, if not the output will go to stdout
+        # Verify that we want to log or not,
+        # if not the output will go to stdout
         if self.options['logfile'] in ('None', 'False'):
             self.options['logfile'] = False
         # the same for the pidfile

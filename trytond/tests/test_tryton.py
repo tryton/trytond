@@ -4,7 +4,8 @@
 #this repository contains the full copyright notices and license terms.
 import logging
 logging.basicConfig(level=logging.ERROR)
-import sys, os
+import sys
+import os
 DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
     '..', '..', '..', 'trytond')))
 if os.path.isdir(DIR):
@@ -72,7 +73,7 @@ class ModelViewTestCase(unittest.TestCase):
         install_module('webdav')
 
     def test0000test(self):
-        self.assertRaises(Exception, install_module,'nosuchmodule')
+        self.assertRaises(Exception, install_module, 'nosuchmodule')
         self.assertRaises(Exception, test_view, 'nosuchmodule')
 
     def test0010ir(self):
@@ -143,6 +144,7 @@ def install_module(name):
         install_upgrade_obj.transition_upgrade(None)
         transaction.cursor.commit()
 
+
 def test_view(module_name):
     '''
     Test validity of all views of the module
@@ -172,6 +174,7 @@ def test_view(module_name):
                             assert field in res['fields'], ('Missing field: %s'
                                 % field)
         transaction.cursor.rollback()
+
 
 def test_depends():
     '''
@@ -205,11 +208,13 @@ def test_depends():
                     'Missing depends %s in "%s"."%s"' % (
                         list(encoder.fields - depends), mname, fname))
 
+
 def suite():
     '''
     Return test suite for other modules
     '''
     return unittest.TestSuite()
+
 
 def all_suite():
     '''
@@ -247,6 +252,7 @@ def all_suite():
     import trytond.tests.test_wizard as test_wizard
     suite_.addTests(test_wizard.suite())
     return suite_
+
 
 def modules_suite():
     '''

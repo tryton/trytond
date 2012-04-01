@@ -16,13 +16,14 @@ try:
     from pysqlite2.dbapi2 import IntegrityError as DatabaseIntegrityError
     from pysqlite2.dbapi2 import OperationalError as DatabaseOperationalError
     #pysqlite2 < 2.5 doesn't return correct rowcount
-    _FIX_ROWCOUNT = sqlite.version_info < (2 , 5, 0)
+    _FIX_ROWCOUNT = sqlite.version_info < (2, 5, 0)
 except ImportError:
     import sqlite3 as sqlite
     from sqlite3 import IntegrityError as DatabaseIntegrityError
     from sqlite3 import OperationalError as DatabaseOperationalError
 QUOTE_SEPARATION = re.compile(r"(.*?)('.*?')", re.DOTALL)
 EXTRACT_PATTERN = re.compile(r'EXTRACT\s*\(\s*(\S*)\s+FROM', re.I)
+
 
 def extract(lookup_type, date):
     if date is None:
@@ -64,6 +65,7 @@ def extract(lookup_type, date):
         return date.isocalendar()[1]
     return getattr(date, lookup_type.lower())
 
+
 def date_trunc(_type, date):
     if _type == 'second':
         return date
@@ -79,10 +81,12 @@ def date_trunc(_type, date):
         return "%i-%02i-%02i 00:00:00" % (tm_tuple.tm_year, tm_tuple.tm_mon,
                 tm_tuple.tm_mday)
 
+
 def split_part(text, delimiter, count):
     if text is None:
         return None
     return (text.split(delimiter) + [''] * (count - 1))[count - 1]
+
 
 def replace(text, pattern, replacement):
     return str(text).replace(pattern, replacement)
@@ -215,7 +219,7 @@ class Database(DatabaseInterface):
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
         with open(sql_file) as fp:
             for line in fp.read().split(';'):
-                if (len(line)>0) and (not line.isspace()):
+                if (len(line) > 0) and (not line.isspace()):
                     cursor.execute(line)
 
         for i in ('ir', 'res', 'webdav'):
@@ -274,7 +278,7 @@ class Cursor(CursorInterface):
         super(Cursor, self).__init__()
         self._conn = conn
         self.database_name = database_name
-        self.dbname = self.database_name #XXX to remove
+        self.dbname = self.database_name  # XXX to remove
         self.cursor = conn.cursor(_Cursor)
 
     def __getattr__(self, name):
@@ -284,7 +288,7 @@ class Cursor(CursorInterface):
 
     def execute(self, sql, params=None):
         buf = ""
-        for nquote, quote in QUOTE_SEPARATION.findall(sql+"''"):
+        for nquote, quote in QUOTE_SEPARATION.findall(sql + "''"):
             nquote = nquote.replace('?', '??')
             nquote = nquote.replace('%s', '?')
             nquote = nquote.replace('ilike', 'like')
@@ -356,6 +360,8 @@ if sys.version_info[0] == 2:
     sqlite.register_adapter(Decimal, lambda val: buffer(str(val)))
 else:
     sqlite.register_adapter(Decimal, lambda val: bytes(str(val)))
+
+
 def adapt_datetime(val):
     return val.replace(tzinfo=None).isoformat(" ")
 sqlite.register_adapter(datetime.datetime, adapt_datetime)

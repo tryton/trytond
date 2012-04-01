@@ -16,6 +16,7 @@ from trytond.pool import Pool
 from trytond.config import CONFIG
 from trytond.pyson import Eval
 
+
 def get_webdav_url():
     if CONFIG['ssl_webdav']:
         protocol = 'https'
@@ -27,7 +28,6 @@ def get_webdav_url():
         hostname.split('.'))
     return urlparse.urlunsplit((protocol, hostname,
         urllib.quote(Transaction().cursor.database_name + '/'), None, None))
-
 
 
 class Collection(ModelSQL, ModelView):
@@ -73,6 +73,7 @@ class Collection(ModelSQL, ModelView):
         if not ids:
             return {}
         names = {}
+
         def _name(collection):
             if collection.id in names:
                 return names[collection.id]
@@ -119,8 +120,8 @@ class Collection(ModelSQL, ModelView):
             if cache is not None:
                 cache.setdefault('_parent2collection_ids', {})
                 if object_id in cache['_parent2collection_ids']:
-                    collection_ids = cache['_parent2collection_ids']\
-                            [object_id].get(name, [])
+                    collection_ids = cache['_parent2collection_ids'][
+                        object_id].get(name, [])
             if collection_ids is None:
                 collection_ids = self.search([
                     ('parent', '=', object_id),
@@ -133,14 +134,15 @@ class Collection(ModelSQL, ModelView):
                     if cache is not None:
                         cache['_parent2collection_ids'][object_id]\
                                 .setdefault(collection.name, [])
-                        cache['_parent2collection_ids'][object_id]\
-                                [collection.name].append(collection.id)
+                        cache['_parent2collection_ids'][object_id][
+                            collection.name].append(collection.id)
                         cache.setdefault('_collection_name', {})
                         if collection.model and uri:
                             cache['_collection_name'][collection.id] = \
                                 collection.model.model
                         else:
-                            cache['_collection_name'][collection.id] = self._name
+                            cache['_collection_name'][collection.id] = \
+                                self._name
                     if collection.name == name:
                         collection_ids.append(collection.id)
             if collection_ids:
@@ -169,8 +171,8 @@ class Collection(ModelSQL, ModelView):
                     cache.setdefault('_model&id2attachment_ids', {})
                     if (object_name, object_id) in \
                             cache['_model&id2attachment_ids']:
-                        attachment_ids = cache['_model&id2attachment_ids']\
-                                [(object_name, object_id)].get(name, [])
+                        attachment_ids = cache['_model&id2attachment_ids'][
+                            (object_name, object_id)].get(name, [])
                 attachment_id = None
                 if attachment_ids is None:
                     attachment_ids = attachment_obj.search([
@@ -189,16 +191,16 @@ class Collection(ModelSQL, ModelView):
                                     key, {})
                             cache['_model&id&name2attachment_ids'][key]\
                                     .setdefault(attachment.name, [])
-                            cache['_model&id&name2attachment_ids'][key]\
-                                    [attachment.name].append(attachment.id)
+                            cache['_model&id&name2attachment_ids'][key][
+                                attachment.name].append(attachment.id)
                         if attachment.name == name:
                             attachment_id = attachment.id
                 else:
                     key = (object_name, object_id)
                     cache.setdefault('_model&id&name2attachment_ids', {})
                     cache['_model&id&name2attachment_ids'].setdefault(key, {})
-                    attachment_id = cache['_model&id&name2attachment_ids']\
-                                    [key].get(name, [None])[0]
+                    attachment_id = cache['_model&id&name2attachment_ids'][
+                        key].get(name, [None])[0]
                 if attachment_id:
                     object_name = 'ir.attachment'
                     object_id = attachment_id
@@ -235,8 +237,8 @@ class Collection(ModelSQL, ModelView):
                     cache.setdefault('_model&id2attachment_ids', {})
                     if (object_name, object_id) in \
                             cache['_model&id2attachment_ids']:
-                        attachment_ids = cache['_model&id2attachment_ids']\
-                                [(object_name, object_id)].get(name, [])
+                        attachment_ids = cache['_model&id2attachment_ids'][
+                            (object_name, object_id)].get(name, [])
                 if attachment_ids is None:
                     attachment_ids = attachment_obj.search([
                         ('resource', '=', '%s,%s' % (object_name, object_id)),
@@ -250,8 +252,8 @@ class Collection(ModelSQL, ModelView):
                         if cache is not None:
                             cache['_model&id2attachment_ids'][key]\
                                     .setdefault(attachment.name, [])
-                            cache['_model&id2attachment_ids'][key]\
-                                    [attachment.name].append(attachment.id)
+                            cache['_model&id2attachment_ids'][key][
+                                attachment.name].append(attachment.id)
                         if attachment.name == name:
                             attachment_ids.append(attachment.id)
                 if attachment_ids:
@@ -413,7 +415,8 @@ class Collection(ModelSQL, ModelView):
                     if object_id not in ids:
                         ids.append(object_id)
                     elif 'creationdate' in cache[model_obj._name][object_id]:
-                        return cache[model_obj._name][object_id]['creationdate']
+                        return cache[model_obj._name][object_id][
+                            'creationdate']
                 else:
                     ids = [object_id]
                 res = None
@@ -421,17 +424,17 @@ class Collection(ModelSQL, ModelView):
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
                     red_sql, red_ids = reduce_ids('id', sub_ids)
-                    cursor.execute('SELECT id, ' \
-                                'EXTRACT(epoch FROM create_date) ' \
-                            'FROM "' + model_obj._table +'" ' \
-                            'WHERE ' + red_sql, red_ids)
+                    cursor.execute('SELECT id, '
+                        'EXTRACT(epoch FROM create_date) '
+                        'FROM "' + model_obj._table + '" '
+                        'WHERE ' + red_sql, red_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date
                         if cache is not None:
                             cache[model_obj._name].setdefault(object_id2, {})
-                            cache[model_obj._name][object_id2]['creationdate'] = \
-                                    date
+                            cache[model_obj._name][object_id2][
+                                'creationdate'] = date
                 if res is not None:
                     return res
         return time.time()
@@ -448,7 +451,8 @@ class Collection(ModelSQL, ModelView):
                     if object_id not in ids:
                         ids.append(object_id)
                     elif 'lastmodified' in cache[model_obj._name][object_id]:
-                        return cache[model_obj._name][object_id]['lastmodified']
+                        return cache[model_obj._name][object_id][
+                            'lastmodified']
                 else:
                     ids = [object_id]
                 res = None
@@ -456,18 +460,18 @@ class Collection(ModelSQL, ModelView):
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
                     red_sql, red_ids = reduce_ids('id', sub_ids)
-                    cursor.execute('SELECT id, ' \
-                                'EXTRACT(epoch FROM ' \
-                                    'COALESCE(write_date, create_date)) ' \
-                            'FROM "' + model_obj._table +'" ' \
-                            'WHERE ' + red_sql, red_ids)
+                    cursor.execute('SELECT id, '
+                        'EXTRACT(epoch FROM '
+                            'COALESCE(write_date, create_date)) '
+                        'FROM "' + model_obj._table + '" '
+                        'WHERE ' + red_sql, red_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date
                         if cache is not None:
                             cache[model_obj._name].setdefault(object_id2, {})
-                            cache[model_obj._name][object_id2]['lastmodified'] = \
-                                    date
+                            cache[model_obj._name][object_id2][
+                                'lastmodified'] = date
                 if res is not None:
                     return res
         return time.time()
@@ -691,9 +695,9 @@ class Attachment(ModelSQL, ModelView):
             ('check_collection', 'collection_attachment_name'),
         ]
         self._error_messages.update({
-            'collection_attachment_name': 'You can not create an attachment\n' \
-                    'in a collection with the name\n' \
-                    'of an existing child collection!',
+            'collection_attachment_name': ('You can not create an attachment\n'
+                    'in a collection with the name\n'
+                    'of an existing child collection!'),
         })
 
     def check_collection(self, ids):

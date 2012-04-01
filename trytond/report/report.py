@@ -163,7 +163,8 @@ class Report(URLMixin):
 
         translate = TranslateFactory(self._name, Transaction().language,
                 pool.get('ir.translation'))
-        localcontext['setLang'] = lambda language: translate.set_language(language)
+        localcontext['setLang'] = lambda language: translate.set_language(
+            language)
 
         # Convert to str as buffer from DB is not supported by StringIO
         report_content = (str(report.report_content) if report.report_content
@@ -199,8 +200,9 @@ class Report(URLMixin):
         if style_content:
             pictures = []
 
-            #cStringIO difference:
-            #calling StringIO() with a string parameter creates a read-only object
+            # cStringIO difference:
+            # calling StringIO() with a string parameter creates a read-only
+            # object
             new_style_io = StringIO.StringIO()
             new_style_io.write(style_content)
             new_style_z = zipfile.ZipFile(new_style_io, mode='r')
