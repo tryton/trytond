@@ -312,14 +312,6 @@ class ModelSQL(ModelStorage):
                     values[field]))
             else:
                 upd_todo.append(field)
-            if (isinstance(column, fields.Many2One)
-                    and column.model_name == self._name
-                    and column.left and column.right
-                    and set((column.left, column.right)).isdisjoint(values)):
-                upd0 += ', "%s", "%s"' % (column.left, column.right)
-                upd1 += ', %s, %s'
-                upd2.extend([0, 0])
-
             if field in self._columns \
                     and hasattr(self._columns[field], 'selection') \
                     and self._columns[field].selection \

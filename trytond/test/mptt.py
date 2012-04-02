@@ -30,4 +30,10 @@ class MPTT(ModelSQL, ModelView):
     def default_active(self):
         return True
 
+    def default_left(self):
+        return 0
+
+    def default_right(self):
+        return 0
+
 MPTT()
