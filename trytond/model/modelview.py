@@ -394,7 +394,6 @@ class ModelView(Model):
 
         if fields_width is None:
             fields_width = {}
-        result = False
         fields_attrs = {}
         childs = True
 
@@ -479,7 +478,7 @@ class ModelView(Model):
                 element.set('states', encoder.encode(states))
 
         # translate view
-        if Transaction().language != 'en_US' and not result:
+        if Transaction().language != 'en_US':
             for attr in ('string', 'sum', 'confirm', 'help'):
                 if element.get(attr):
                     trans = translation_obj.get_source(self._name, 'view',
