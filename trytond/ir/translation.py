@@ -515,10 +515,13 @@ class Translation(ModelSQL, ModelView, Cacheable):
                 res_id = model_data.db_id
                 noupdate = model_data.noupdate
 
-            try:
-                res_id = int(res_id)
-            except ValueError:
-                continue
+            if res_id:
+                try:
+                    res_id = int(res_id)
+                except ValueError:
+                    continue
+            if not res_id:
+                res_id = None
 
             if ttype in ('odt', 'view', 'wizard_button', 'selection', 'error'):
                 key = (name, res_id, ttype, src)
