@@ -1069,15 +1069,16 @@ class TranslationUpdate(Wizard):
                         '\'help\')',
                 (lang,))
         for row in cursor.dictfetchall():
-            cursor.execute('UPDATE ir_translation ' \
-                    'SET fuzzy = %s, ' \
-                        'src = %s ' \
-                    'WHERE name = %s ' \
-                        'AND res_id = %s ' \
-                        'AND type = %s ' \
-                        'AND lang = %s',
-                    (True, row['src'], row['name'], row['res_id'], row['type'],
-                    lang))
+            cursor.execute('UPDATE ir_translation '
+                'SET fuzzy = %s, '
+                    'src = %s '
+                'WHERE name = %s '
+                    'AND type = %s '
+                    'AND lang = %s '
+                    + ('AND res_id = %s' if row['res_id']
+                    else 'AND res_id is NULL'),
+                (True, row['src'], row['name'], row['type'], lang)
+                + ((row['res_id'],) if row['res_id'] else ()))
 
         cursor.execute('SELECT src, MAX(value) AS value FROM ir_translation ' \
                 'WHERE lang = %s ' \
