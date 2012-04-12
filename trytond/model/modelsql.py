@@ -1733,8 +1733,8 @@ class ModelSQL(ModelStorage):
                     todel = []
                     if table._columns[arg[0]]._type != 'boolean':
                         for xitem in range(len(arg[2])):
-                            if (arg[2][xitem] == False
-                                    and isinstance(arg[2][xitem], bool)):
+                            if (arg[2][xitem] is False
+                                    or arg[2][xitem] is None):
                                 todel.append(xitem)
                     arg2 = arg[2][:]
                     for xitem in todel[::-1]:
