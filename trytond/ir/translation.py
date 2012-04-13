@@ -328,7 +328,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             return trans
 
         cursor = Transaction().cursor
-        if source:
+        if source is not None:
             cursor.execute('SELECT value '
                     'FROM ir_translation '
                     'WHERE lang = %s '
@@ -385,7 +385,7 @@ class Translation(ModelSQL, ModelView, Cacheable):
             else:
                 res[(name, ttype, lang, source)] = None
                 self.add((lang, ttype, name, source), None)
-                if source:
+                if source is not None:
                     clause += [('(lang = %s ' \
                             'AND type = %s ' \
                             'AND name = %s ' \
