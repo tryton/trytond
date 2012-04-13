@@ -1013,11 +1013,11 @@ class TranslationUpdate(Wizard):
     def transition_update(self, session):
         return 'end'
 
-    def _update(self, lang):
+    def do_update(self, session, action):
         pool = Pool()
         translation_obj = pool.get('ir.translation')
         cursor = Transaction().cursor
-
+        lang = session.start.language.code
         cursor.execute('SELECT name, res_id, type, src, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
@@ -1103,10 +1103,6 @@ class TranslationUpdate(Wizard):
                 'WHERE (value = \'\' OR value IS NULL) ' \
                     'AND lang = %s', (False, lang,))
 
-    def do_update(self, session, action):
-        lang = session.start.language.code
-        if lang != 'en_US':
-            self._update(lang)
         action['pyson_domain'] = PYSONEncoder().encode([
             ('module', '!=', False),
             ('lang', '=', lang),
