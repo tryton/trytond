@@ -179,8 +179,8 @@ class Model(WarningErrorMixin, URLMixin):
                 'WHERE lang = %s '
                     'AND type = %s '
                     'AND name = %s '
-                    'AND res_id IS NULL',
-                ('en_US', 'model', name))
+                    'AND (res_id IS NULL OR res_id = %s)',
+                ('en_US', 'model', name, 0))
             trans_id = None
             if cursor.rowcount == -1 or cursor.rowcount is None:
                 data = cursor.fetchone()
