@@ -175,12 +175,12 @@ class Model(WarningErrorMixin, URLMixin):
 
         # Update translation of model
         for name, src in [(self._name + ',name', self._description)]:
-            cursor.execute('SELECT id FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type = %s ' \
-                        'AND name = %s ' \
-                        'AND res_id = %s',
-                    ('en_US', 'model', name, 0))
+            cursor.execute('SELECT id FROM ir_translation '
+                'WHERE lang = %s '
+                    'AND type = %s '
+                    'AND name = %s '
+                    'AND res_id IS NULL',
+                ('en_US', 'model', name))
             trans_id = None
             if cursor.rowcount == -1 or cursor.rowcount is None:
                 data = cursor.fetchone()
@@ -189,7 +189,7 @@ class Model(WarningErrorMixin, URLMixin):
             elif cursor.rowcount != 0:
                 trans_id, = cursor.fetchone()
             src_md5 = translation_obj.get_src_md5(src)
-            if not trans_id:
+            if trans_id is None:
                 cursor.execute('INSERT INTO ir_translation '
                     '(name, lang, type, src, src_md5, value, module, fuzzy) '
                     'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
