@@ -4,6 +4,7 @@
     'name': 'Res',
     'name_bg_BG': 'Ресурс',
     'name_de_DE': 'Benutzerverwaltung',
+    'name_es_AR': 'Gestión de usuarios',
     'name_es_ES': 'Gestión de usuarios',
     'name_fr_FR': 'Ressource',
     'name_nl_NL': 'Interne handelingen',
@@ -18,6 +19,10 @@ Provides concepts and administration of users and internal communication.
     'description_de_DE': '''Basismodul für interne Aufgaben der Anwendung
 
  - Stellt Konzept und Administration für die Benutzerverwaltung und interne Kommunikation zur Verfügung
+''',
+    'description_es_AR': '''Módulo básico que gestiona tareas internas de la aplicación.
+
+ - Provee los conceptos y administración de usuarios y comunicación interna.
 ''',
     'description_es_ES': '''Módulo básico que gestiona tareas internas de la aplicación.
 
@@ -47,6 +52,7 @@ Fournit les concepts et l'administration des utilisateurs et de la communication
         'locale/ca_ES.po',
         'locale/fr_FR.po',
         'locale/de_DE.po',
+        'locale/es_AR.po',
         'locale/es_ES.po',
         'locale/es_CO.po',
         'locale/nl_NL.po',
