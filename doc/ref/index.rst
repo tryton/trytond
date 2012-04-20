@@ -12,3 +12,4 @@ API Reference
     pyson
     transaction
     tools/singleton
+    pool

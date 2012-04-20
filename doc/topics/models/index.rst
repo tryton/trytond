@@ -37,7 +37,7 @@ fields::
 
 Instantiating the class registers the model class in the framework.  Later the
 class will be instantiated once per database and stored in the
-:ref:`Pool <topics-pool>`.  Model instances are essentially accessors to
+:ref:`Pool <ref-pool>`.  Model instances are essentially accessors to
 records.
 
 Model attributes define meta-information of the model. They are class
