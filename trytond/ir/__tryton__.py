@@ -3,6 +3,7 @@
 {
     'name': 'IR',
     'name_bg_BG': 'Вътрешна администрация',
+    'name_ca_ES': 'Administració interna',
     'name_de_DE': 'Interne Administration',
     'name_es_AR': 'Administración interna',
     'name_es_ES': 'Administración interna',
@@ -16,6 +17,9 @@ Provides concepts and administration of models, actions, sequences, localization
 
  - Предлага предсатва и адмнинистрация на модули, десйтвия, последователности, преводи, планировщици и тн.
 ''',
+    'description_ca_ES': '''Mòdul bàsic que gestiona les tasques internes de l'aplicació.
+Proporciona els conceptes i administració de models, accions, seqüències, localització, tasques planificades, etc.
+''',
     'description_de_DE': '''Basismodul für interne Aufgaben der Anwendung
 
  - Stellt Konzept und Administration für Modelle, Aktionen, Sequenzen, Lokalisierungen, Zeitplaner etc. zur Verfügung
@@ -24,7 +28,7 @@ Provides concepts and administration of models, actions, sequences, localization
  - Provee los conceptos y administración de modelos, acciones, secuencias, localización, tareas programadas, etc...
 ''',
     'description_es_ES': '''Módulo básico que gestiona las tareas internas de la aplicación.
- - Provee los conceptos y administración de modelos, acciones, secuencias, localización, tareas programadas, etc...
+Proporciona los conceptos y administración de modelos, acciones, secuencias, localización, tareas planificadas, etc.
 ''',
     'description_fr_FR': '''Module de base gérant les tâches internes de l'application.
 Fournit les concepts et l'administration des modèles, actions, séquences, localizations, planificateur de tâches etc.
