@@ -3,6 +3,7 @@
 {
     'name': 'WebDAV',
     'name_bg_BG': 'WebDAV',
+    'name_ca_ES': 'WebDAV',
     'name_de_DE': 'WebDAV',
     'name_es_AR': 'WebDAV',
     'name_es_ES': 'WebDAV',
@@ -13,11 +14,13 @@
 ''',
     'description_bg_BG': '''Общ модул предоставящ представа и администрация на интегрирани WebDAV услуги.
 ''',
+    'description_ca_ES': '''Mòdul bàsic que proporciona el concepte i l'administració de serveis WebDAV integrats.
+''',
     'description_de_DE': '''Basismodul für Konzept und Administration der integrierten WebDAV-Komponente
 ''',
     'description_es_AR': '''Módulo básico que provee el concepto y la administración de servicios WebDAV integrados.
 ''',
-    'description_es_ES': '''Módulo basico que provee el concepto y la administración de servicios WebDAV integrados.
+    'description_es_ES': '''Módulo básico que proporciona el concepto y la administración de servicios WebDAV integrados.
 ''',
     'description_fr_FR': '''Module de base fournissant les concepts et l'administration des fonctionnalités integrées de WebDAV.
 ''',
