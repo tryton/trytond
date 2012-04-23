@@ -10,10 +10,6 @@ msgstr ""
 "Опитвате се да прескочите право за достъп!\n"
 "(Вид документ: %s)"
 
-msgctxt "error:delete_workflow_record:"
-msgid "You cannot delete a record with a running workflow."
-msgstr "Не може да изтривате запис от работещ работен процес."
-
 msgctxt "error:delete_xml_record:"
 msgid "You are not allowed to delete this record."
 msgstr "Нямате права да изтривате този запис."
@@ -222,10 +218,6 @@ msgstr "Не може да създавате взаимно вложено ме
 msgctxt "error:ir.ui.menu:"
 msgid "You can not use \" / \" in name field!"
 msgstr "В името на полето не може да има \" / \"!"
-
-msgctxt "error:ir.ui.view.show:"
-msgid "Only \"form\" view can be shown!"
-msgstr "Може да бъде показан само изглед \"форма\"!"
 
 msgctxt "error:ir.ui.view:"
 msgid "Invalid XML for View!"
@@ -1247,14 +1239,6 @@ msgctxt "field:ir.model.field.access,write_uid:"
 msgid "Write User"
 msgstr "Променено от"
 
-msgctxt "field:ir.model.print_model_graph.init,filter:"
-msgid "Filter"
-msgstr "Филтър"
-
-msgctxt "field:ir.model.print_model_graph.init,level:"
-msgid "Level"
-msgstr "Ниво"
-
 msgctxt "field:ir.model.print_model_graph.start,filter:"
 msgid "Filter"
 msgstr "Филтър"
@@ -1351,10 +1335,6 @@ msgctxt "field:ir.module.module.config_wizard.item,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.module.module.config_wizard.item,name:"
-msgid "Name"
-msgstr "Име"
-
 msgctxt "field:ir.module.module.config_wizard.item,rec_name:"
 msgid "Name"
 msgstr "Име"
@@ -1423,10 +1403,6 @@ msgctxt "field:ir.module.module.install_upgrade.done,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.module.module.install_upgrade.init,module_info:"
-msgid "Modules to update"
-msgstr "Модули за обновяване"
-
 msgctxt "field:ir.module.module.install_upgrade.start,id:"
 msgid "ID"
 msgstr "ID"
@@ -1450,10 +1426,6 @@ msgstr "Поле"
 msgctxt "field:ir.property,id:"
 msgid "ID"
 msgstr "ID"
-
-msgctxt "field:ir.property,name:"
-msgid "Name"
-msgstr "Име"
 
 msgctxt "field:ir.property,rec_name:"
 msgid "Name"
@@ -1895,14 +1867,6 @@ msgctxt "field:ir.translation.clean.succeed,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.translation.export.init,lang:"
-msgid "Language"
-msgstr "Език"
-
-msgctxt "field:ir.translation.export.init,module:"
-msgid "Module"
-msgstr "Модул"
-
 msgctxt "field:ir.translation.export.result,file:"
 msgid "File"
 msgstr "Файл"
@@ -1910,10 +1874,6 @@ msgstr "Файл"
 msgctxt "field:ir.translation.export.result,id:"
 msgid "ID"
 msgstr "ID"
-
-msgctxt "field:ir.translation.export.start,file:"
-msgid "File"
-msgstr "Файл"
 
 msgctxt "field:ir.translation.export.start,id:"
 msgid "ID"
@@ -1934,10 +1894,6 @@ msgstr "ID"
 msgctxt "field:ir.translation.set_report.succeed,id:"
 msgid "ID"
 msgstr "ID"
-
-msgctxt "field:ir.translation.update.init,lang:"
-msgid "Language"
-msgstr "Език"
 
 msgctxt "field:ir.translation.update.start,id:"
 msgid "ID"
@@ -2417,14 +2373,6 @@ msgctxt "help:ir.model.field,module:"
 msgid "Module in which this field is defined"
 msgstr "Модул в който този модел е зададен"
 
-msgctxt "help:ir.model.print_model_graph.init,filter:"
-msgid ""
-"Entering a Python Regular Expression will exclude matching models from the "
-"graph."
-msgstr ""
-"Въвеждането на регулярен израз на python ще изключи пасващия модел от "
-"диаграмата."
-
 msgctxt "help:ir.model.print_model_graph.start,filter:"
 msgid ""
 "Entering a Python Regular Expression will exclude matching models from the "
@@ -2701,6 +2649,10 @@ msgctxt "model:ir.lang,name:"
 msgid "Language"
 msgstr "Език"
 
+msgctxt "model:ir.lang,name:lang_ar"
+msgid "Spanish (Argentina)"
+msgstr ""
+
 msgctxt "model:ir.lang,name:lang_bg"
 msgid "Bulgarian"
 msgstr "Български"
@@ -2765,10 +2717,6 @@ msgctxt "model:ir.model.field.access,name:"
 msgid "Model Field Access"
 msgstr "Модел на достъп до поле"
 
-msgctxt "model:ir.model.print_model_graph.init,name:"
-msgid "Print Model Graph Init"
-msgstr "Начален печат на графика на модел"
-
 msgctxt "model:ir.model.print_model_graph.start,name:"
 msgid "Print Model Graph"
 msgstr "Печат на графика на модел"
@@ -2796,10 +2744,6 @@ msgstr "Зависимости на модула"
 msgctxt "model:ir.module.module.install_upgrade.done,name:"
 msgid "Module Install Upgrade Done"
 msgstr ""
-
-msgctxt "model:ir.module.module.install_upgrade.init,name:"
-msgid "Module Install Upgrade Init"
-msgstr "Начално инсталиране/обновяване на модул"
 
 msgctxt "model:ir.module.module.install_upgrade.start,name:"
 msgid "Module Install Upgrade Start"
@@ -2841,10 +2785,7 @@ msgctxt "model:ir.translation,name:"
 msgid "Translation"
 msgstr "Превод"
 
-msgctxt "model:ir.translation.clean.init,name:"
-msgid "Clean translation init"
-msgstr "Начално изчистване на превод"
-
+#, fuzzy
 msgctxt "model:ir.translation.clean.start,name:"
 msgid "Clean translation"
 msgstr "Начало на изчистване на преводи"
@@ -2853,21 +2794,14 @@ msgctxt "model:ir.translation.clean.succeed,name:"
 msgid "Clean translation"
 msgstr "Изчистване на преводи"
 
-msgctxt "model:ir.translation.export.init,name:"
-msgid "Export translation - language and module"
-msgstr "Изчличане на превод - Език и модул"
-
 msgctxt "model:ir.translation.export.result,name:"
 msgid "Export translation"
 msgstr "Извличане на превод - файл"
 
+#, fuzzy
 msgctxt "model:ir.translation.export.start,name:"
 msgid "Export translation"
 msgstr "Извличане на превод - файл"
-
-msgctxt "model:ir.translation.set_report.init,name:"
-msgid "Update Report Translation"
-msgstr "Обновяване на преводи на справки"
 
 msgctxt "model:ir.translation.set_report.start,name:"
 msgid "Update Report Translation"
@@ -2876,10 +2810,6 @@ msgstr "Обновяване на превод на справка"
 msgctxt "model:ir.translation.set_report.succeed,name:"
 msgid "Update Report Translation"
 msgstr "Обновяване на преводи на справки"
-
-msgctxt "model:ir.translation.update.init,name:"
-msgid "Update translation - language"
-msgstr "Обновяване на превод - език"
 
 msgctxt "model:ir.translation.update.start,name:"
 msgid "Update translation"
@@ -3076,10 +3006,6 @@ msgstr "Полета"
 msgctxt "model:ir.ui.view,name:"
 msgid "View"
 msgstr "Изглед"
-
-msgctxt "model:ir.ui.view.show.init,name:"
-msgid "ir.ui.view.show.init"
-msgstr ""
 
 msgctxt "model:ir.ui.view.show.start,name:"
 msgid "ir.ui.view.show.start"
@@ -3465,10 +3391,6 @@ msgctxt "view:ir.model.field:"
 msgid "Fields"
 msgstr "Полета"
 
-msgctxt "view:ir.model.print_model_graph.init:"
-msgid "Print Model Graph"
-msgstr "Печат на графика на модел"
-
 msgctxt "view:ir.model.print_model_graph.start:"
 msgid "Print Model Graph"
 msgstr "Печат на графика на модел"
@@ -3523,18 +3445,6 @@ msgstr ""
 msgctxt "view:ir.module.module.install_upgrade.done:"
 msgid "The modules have been upgraded / installed !"
 msgstr "Модулите са обновени / инсталирани !"
-
-msgctxt "view:ir.module.module.install_upgrade.init:"
-msgid "Note that this operation my take a few minutes."
-msgstr "Забележка: Операцията може да отнеме няколко минути"
-
-msgctxt "view:ir.module.module.install_upgrade.init:"
-msgid "System Upgrade"
-msgstr "Обновяване на системата"
-
-msgctxt "view:ir.module.module.install_upgrade.init:"
-msgid "Your system will be upgraded."
-msgstr "Системата ще бъде обновена."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "Note that this operation my take a few minutes."
@@ -3661,14 +3571,6 @@ msgctxt "view:ir.sequence:"
 msgid "Year:"
 msgstr "Година:"
 
-msgctxt "view:ir.translation.clean.init:"
-msgid "Clean Translations"
-msgstr "Изчистване на преводи"
-
-msgctxt "view:ir.translation.clean.init:"
-msgid "Clean Translations?"
-msgstr "Изчистване на преводите?"
-
 msgctxt "view:ir.translation.clean.start:"
 msgid "Clean Translations"
 msgstr "Изчистване на преводи"
@@ -3688,10 +3590,6 @@ msgstr "Изчистване на преводи"
 msgctxt "view:ir.translation.clean.succeed:"
 msgid "Clean Translations Succeed!"
 msgstr "Изчистването на преводите е успешно!"
-
-msgctxt "view:ir.translation.export.init:"
-msgid "Export Translation"
-msgstr "Извличане на превод"
 
 msgctxt "view:ir.translation.export.result:"
 msgid "Export Translation"
@@ -3701,14 +3599,6 @@ msgctxt "view:ir.translation.export.start:"
 msgid "Export Translation"
 msgstr "Извличане на превод"
 
-msgctxt "view:ir.translation.set_report.init:"
-msgid "Set Report Translations"
-msgstr "Задаване на преводи на справки"
-
-msgctxt "view:ir.translation.set_report.init:"
-msgid "Synchronize Report Translations?"
-msgstr "Синхронизиране на преводи на справки?"
-
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Set Report Translations"
 msgstr "Задаване на преводи на справки"
@@ -3728,10 +3618,6 @@ msgstr "Задаване на преводи на справки"
 msgctxt "view:ir.translation.set_report.succeed:"
 msgid "Set Translations Succeed!"
 msgstr "Преводите са успешно заредени!"
-
-msgctxt "view:ir.translation.update.init:"
-msgid "Synchronize Translations"
-msgstr "Синхронизиране на преводите"
 
 msgctxt "view:ir.translation.update.start:"
 msgid "Synchronize Translations"
@@ -3793,14 +3679,6 @@ msgctxt "view:ir.ui.view_tree_width:"
 msgid "Views Tree Width"
 msgstr "Ширина на дърво с изгледи"
 
-msgctxt "wizard_button:ir.model.print_model_graph,init,end:"
-msgid "Cancel"
-msgstr "Отказ"
-
-msgctxt "wizard_button:ir.model.print_model_graph,init,print:"
-msgid "Print"
-msgstr "Печат"
-
 msgctxt "wizard_button:ir.model.print_model_graph,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
@@ -3817,10 +3695,6 @@ msgctxt "wizard_button:ir.module.module.config_wizard,first,end:"
 msgid "Cancel"
 msgstr "Отказ"
 
-msgctxt "wizard_button:ir.module.module.config_wizard,first,wizard:"
-msgid "Ok"
-msgstr "Добре"
-
 msgctxt "wizard_button:ir.module.module.config_wizard,other,action:"
 msgid "Next"
 msgstr "Напред"
@@ -3833,18 +3707,6 @@ msgctxt "wizard_button:ir.module.module.install_upgrade,done,config:"
 msgid "Ok"
 msgstr "Добре"
 
-msgctxt "wizard_button:ir.module.module.install_upgrade,init,end:"
-msgid "Cancel"
-msgstr "Отказ"
-
-msgctxt "wizard_button:ir.module.module.install_upgrade,init,start:"
-msgid "Start Upgrade"
-msgstr "Започване на обновяване"
-
-msgctxt "wizard_button:ir.module.module.install_upgrade,start,config:"
-msgid "Ok"
-msgstr "Добре"
-
 msgctxt "wizard_button:ir.module.module.install_upgrade,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
@@ -3853,18 +3715,11 @@ msgctxt "wizard_button:ir.module.module.install_upgrade,start,upgrade:"
 msgid "Start Upgrade"
 msgstr "Започване на обновяване"
 
-msgctxt "wizard_button:ir.translation.clean,init,end:"
-msgid "Cancel"
-msgstr "Отказ"
-
-msgctxt "wizard_button:ir.translation.clean,init,start:"
-msgid "Start"
-msgstr "Начало"
-
 msgctxt "wizard_button:ir.translation.clean,start,clean:"
 msgid "Clean"
 msgstr "Празно"
 
+#, fuzzy
 msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
@@ -3877,18 +3732,11 @@ msgctxt "wizard_button:ir.translation.clean,succeed,end:"
 msgid "Ok"
 msgstr "Добре"
 
-msgctxt "wizard_button:ir.translation.export,init,end:"
-msgid "Cancel"
-msgstr "Отказ"
-
-msgctxt "wizard_button:ir.translation.export,init,start:"
-msgid "Start Export"
-msgstr "Начало на извличане"
-
 msgctxt "wizard_button:ir.translation.export,result,end:"
 msgid "Close"
 msgstr "Затваряне"
 
+#, fuzzy
 msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
@@ -3901,14 +3749,7 @@ msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
 msgstr "Извличане"
 
-msgctxt "wizard_button:ir.translation.set_report,init,end:"
-msgid "Cancel"
-msgstr "Отказ"
-
-msgctxt "wizard_button:ir.translation.set_report,init,start:"
-msgid "Start Update"
-msgstr "Започване на обновление"
-
+#, fuzzy
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
@@ -3925,14 +3766,6 @@ msgctxt "wizard_button:ir.translation.set_report,succeed,end:"
 msgid "Ok"
 msgstr "Добре"
 
-msgctxt "wizard_button:ir.translation.update,init,end:"
-msgid "Cancel"
-msgstr "Отказ"
-
-msgctxt "wizard_button:ir.translation.update,init,start:"
-msgid "Start Update"
-msgstr "Започване на обновление"
-
 msgctxt "wizard_button:ir.translation.update,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
@@ -3940,10 +3773,6 @@ msgstr "Отказ"
 msgctxt "wizard_button:ir.translation.update,start,update:"
 msgid "Update"
 msgstr ""
-
-msgctxt "wizard_button:ir.ui.view.show,init,end:"
-msgid "Close"
-msgstr "Затваряне"
 
 msgctxt "wizard_button:ir.ui.view.show,start,end:"
 msgid "Close"
