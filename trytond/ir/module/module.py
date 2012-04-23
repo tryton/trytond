@@ -58,13 +58,13 @@ class Module(ModelSQL, ModelView):
                     'invisible': Eval('state') != 'uninstalled',
                     },
                 'install_cancel': {
-                    'invisible': Eval('state') != 'to_install',
+                    'invisible': Eval('state') != 'to install',
                     },
                 'uninstall': {
                     'invisible': Eval('state') != 'installed',
                     },
                 'uninstall_cancel': {
-                    'invisible': Eval('state') != 'to_remove',
+                    'invisible': Eval('state') != 'to remove',
                     },
                 'upgrade': {
                     'invisible': Eval('state') != 'installed',
