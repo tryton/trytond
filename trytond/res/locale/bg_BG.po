@@ -516,10 +516,6 @@ msgctxt "field:res.request.reference,write_uid:"
 msgid "Write User"
 msgstr "Променено от"
 
-msgctxt "field:res.user,action:"
-msgid "Home Action"
-msgstr "Начално действие"
-
 msgctxt "field:res.user,actions:"
 msgid "Actions"
 msgstr "Действия"
@@ -852,10 +848,6 @@ msgctxt "model:res.user-res.group,name:"
 msgid "User - Group"
 msgstr "Потребител - група"
 
-msgctxt "model:res.user.config.init,name:"
-msgid "User Config Init"
-msgstr "Начално конфигуриране на потребител"
-
 msgctxt "model:res.user.config.start,name:"
 msgid "User Config Init"
 msgstr "Начално конфигуриране на потребител"
@@ -1000,18 +992,6 @@ msgctxt "view:res.request:"
 msgid "Send"
 msgstr "Изпратен"
 
-msgctxt "view:res.user.config.init:"
-msgid "Add Users"
-msgstr "Добавяне на потребители"
-
-msgctxt "view:res.user.config.init:"
-msgid "Be careful that the login must be unique!"
-msgstr "Вмимавайте потребителско име да е уникално"
-
-msgctxt "view:res.user.config.init:"
-msgid "You can now add some users into the system."
-msgstr "Сега може да добавите потребители към системата."
-
 msgctxt "view:res.user.config.start:"
 msgid "Add Users"
 msgstr "Добавяне на потребители"
@@ -1055,14 +1035,6 @@ msgstr "Потребител"
 msgctxt "view:res.user:"
 msgid "Users"
 msgstr "Потребители"
-
-msgctxt "wizard_button:res.user.config,init,end:"
-msgid "Cancel"
-msgstr "Отказ"
-
-msgctxt "wizard_button:res.user.config,init,user:"
-msgid "Ok"
-msgstr "Добре"
 
 msgctxt "wizard_button:res.user.config,start,end:"
 msgid "Cancel"

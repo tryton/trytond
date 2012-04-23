@@ -2929,6 +2929,10 @@ msgctxt "model:ir.lang,name:"
 msgid "Language"
 msgstr "Langue"
 
+msgctxt "model:ir.lang,name:lang_ar"
+msgid "Spanish (Argentina)"
+msgstr ""
+
 msgctxt "model:ir.lang,name:lang_bg"
 msgid "Bulgarian"
 msgstr "Bulgare"
@@ -4563,10 +4567,6 @@ msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Cancel"
 msgstr "Annuler"
 
-msgctxt "wizard_button:ir.translation.clean,start,end:"
-msgid "Ok"
-msgstr "Ok"
-
 msgctxt "wizard_button:ir.translation.clean,succeed,end:"
 msgid "Ok"
 msgstr "Ok"
@@ -4579,10 +4579,6 @@ msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Cancel"
 msgstr "Annuler"
 
-msgctxt "wizard_button:ir.translation.export,start,end:"
-msgid "Close"
-msgstr "Fermer"
-
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
 msgstr "Exportation"
@@ -4590,10 +4586,6 @@ msgstr "Exportation"
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
 msgstr "Annuler"
-
-msgctxt "wizard_button:ir.translation.set_report,start,end:"
-msgid "Ok"
-msgstr "Ok"
 
 msgctxt "wizard_button:ir.translation.set_report,start,set_report:"
 msgid "Start Update"

@@ -2668,6 +2668,10 @@ msgctxt "model:ir.lang,name:"
 msgid "Language"
 msgstr "Sprache"
 
+msgctxt "model:ir.lang,name:lang_ar"
+msgid "Spanish (Argentina)"
+msgstr ""
+
 msgctxt "model:ir.lang,name:lang_bg"
 msgid "Bulgarian"
 msgstr "Bulgarisch"

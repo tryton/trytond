@@ -778,10 +778,6 @@ msgctxt "model:ir.cron,name:cron_trigger_time"
 msgid "Run On Time Triggers"
 msgstr "Lance les déclencheurs \"À temps\""
 
-msgctxt "model:ir.lang,name:"
-msgid ""
-msgstr ""
-
 msgctxt "model:ir.model.button-res.group,name:"
 msgid "Model Button - Group"
 msgstr "Bouton modèle - groupe"
@@ -790,10 +786,6 @@ msgctxt "model:ir.model.field-res.group,name:"
 msgid "Model Field Group Rel"
 msgstr "Champ de modèle - Group"
 
-msgctxt "model:ir.module.module.config_wizard.item,name:"
-msgid ""
-msgstr ""
-
 msgctxt "model:ir.rule.group-res.group,name:"
 msgid "Rule Group - Group"
 msgstr "Groupe de règle - Groupe"
@@ -801,18 +793,6 @@ msgstr "Groupe de règle - Groupe"
 msgctxt "model:ir.rule.group-res.user,name:"
 msgid "Rule Group - User"
 msgstr "Groupe de règle - Utilisateur"
-
-msgctxt "model:ir.sequence,name:"
-msgid ""
-msgstr ""
-
-msgctxt "model:ir.sequence.strict,name:"
-msgid ""
-msgstr ""
-
-msgctxt "model:ir.sequence.type,name:"
-msgid ""
-msgstr ""
 
 msgctxt "model:ir.sequence.type-res.group,name:"
 msgid "Sequence Type - Group"

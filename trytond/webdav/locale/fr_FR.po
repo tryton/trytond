@@ -174,10 +174,6 @@ msgctxt "model:ir.action,name:act_share_list"
 msgid "Shares"
 msgstr "Partages"
 
-msgctxt "model:ir.attachment,name:"
-msgid ""
-msgstr ""
-
 msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
 msgstr "Collections"
