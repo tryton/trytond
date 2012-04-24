@@ -16,7 +16,7 @@ msgstr "No està autoritzat a esborrar aquest registre."
 
 msgctxt "error:digits_validation_record:"
 msgid "The field \"%s\" on \"%s\" has too many decimal digits."
-msgstr ""
+msgstr "El camp \"%s\" en \"%s\" té massa dígits decimals."
 
 msgctxt "error:domain_validation_record:"
 msgid "The value of the field \"%s\" on \"%s\" is not valid according to its domain."
@@ -34,15 +34,15 @@ msgstr "El valor del camp «%s» en «%s» no existeix."
 
 msgctxt "error:ir.action.act_window:"
 msgid "Invalid context!"
-msgstr ""
+msgstr "Les vistes no són correctes."
 
 msgctxt "error:ir.action.act_window:"
 msgid "Invalid domain or search criteria!"
-msgstr ""
+msgstr "Les vistes no són correctes."
 
 msgctxt "error:ir.action.act_window:"
 msgid "Invalid views!"
-msgstr ""
+msgstr "Les vistes no són correctes."
 
 msgctxt "error:ir.action.keyword:"
 msgid "Wrong wizard model!"
@@ -50,7 +50,7 @@ msgstr "El model de l'assistent no és vàlid"
 
 msgctxt "error:ir.action.report:"
 msgid "Invalid email!"
-msgstr ""
+msgstr "El nom intern ha de ser únic per mòdul."
 
 msgctxt "error:ir.action.report:"
 msgid "The internal name must be unique by module!"
@@ -59,6 +59,9 @@ msgstr "El nom intern dels mòduls ha de ser únic"
 msgctxt "error:ir.attachment:"
 msgid "The  names of attachments must be unique by resource!"
 msgstr ""
+"No pot crear un adjunt\n"
+"en una col·lecció amb el nom\n"
+"d'una col·lecció filla existent."
 
 msgctxt "error:ir.cron:"
 msgid "Scheduled action failed"
@@ -110,7 +113,7 @@ msgstr "No pot escriure en aquest document (%s)"
 
 msgctxt "error:ir.model.button:"
 msgid "The button name in model must be unique!"
-msgstr ""
+msgstr "El nom del botó en el model ha de ser únic."
 
 msgctxt "error:ir.model.data:"
 msgid "The triple (fs_id, module, model) must be unique!"
@@ -118,19 +121,19 @@ msgstr "La terna (fs_aneu, moduli, model) ha de ser única"
 
 msgctxt "error:ir.model.field.access:"
 msgid "Only one record by field and group is allowed!"
-msgstr ""
+msgstr "No pot escriure en el camp (%s.%s)."
 
 msgctxt "error:ir.model.field.access:"
 msgid "You can not read the field! (%s.%s)"
-msgstr ""
+msgstr "No pot escriure en el camp (%s.%s)."
 
 msgctxt "error:ir.model.field.access:"
 msgid "You can not write on the field! (%s.%s)"
-msgstr ""
+msgstr "No pot escriure en el camp (%s.%s)."
 
 msgctxt "error:ir.model.field:"
 msgid "Model Field Name must be a python identifier!"
-msgstr ""
+msgstr "El nom del camp en el model ha de ser únic."
 
 msgctxt "error:ir.model.field:"
 msgid "The field name in model must be unique!"
@@ -138,7 +141,7 @@ msgstr "El nom del camp en el model ha de ser únic"
 
 msgctxt "error:ir.model:"
 msgid "Module Name must be a python identifier!"
-msgstr ""
+msgstr "El model ha de ser únic."
 
 msgctxt "error:ir.model:"
 msgid "The model must be unique!"
@@ -176,7 +179,7 @@ msgstr "prefixo/sufix no vàlid"
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Last Timestamp could not be in future!"
-msgstr ""
+msgstr "L'arrodoniment de data-hora ha de ser major que 0."
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Missing sequence!"
@@ -184,7 +187,7 @@ msgstr "Falta la seqüència"
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Timestamp rounding should be greater than 0"
-msgstr ""
+msgstr "L'arrodoniment de data-hora ha de ser major que 0."
 
 msgctxt "error:ir.sequence:"
 msgid "Invalid prefix/suffix!"
@@ -192,7 +195,7 @@ msgstr "prefixo/sufix no vàlid"
 
 msgctxt "error:ir.sequence:"
 msgid "Last Timestamp could not be in future!"
-msgstr ""
+msgstr "L'arrodoniment de data-hora ha de ser major que 0."
 
 msgctxt "error:ir.sequence:"
 msgid "Missing sequence!"
@@ -200,7 +203,7 @@ msgstr "Falta la seqüència"
 
 msgctxt "error:ir.sequence:"
 msgid "Timestamp rounding should be greater than 0"
-msgstr ""
+msgstr "L'arrodoniment de data-hora ha de ser major que 0."
 
 msgctxt "error:ir.translation:"
 msgid "Translation must be unique"
@@ -208,19 +211,19 @@ msgstr "La traducció ha de ser única"
 
 msgctxt "error:ir.trigger:"
 msgid "\"On Time\" and others are mutually exclusive!"
-msgstr ""
+msgstr "La condició ha de ser una expressió python."
 
 msgctxt "error:ir.trigger:"
 msgid "Condition must be a python expression!"
-msgstr ""
+msgstr "La condició ha de ser una expressió python."
 
 msgctxt "error:ir.ui.menu:"
 msgid "You can not create recursive menu!"
-msgstr ""
+msgstr "No pot usar \"/\" en el camp nomeni."
 
 msgctxt "error:ir.ui.menu:"
 msgid "You can not use \" / \" in name field!"
-msgstr ""
+msgstr "No pot usar \"/\" en el camp nomeni."
 
 msgctxt "error:ir.ui.view:"
 msgid "Invalid XML for View!"
@@ -228,7 +231,7 @@ msgstr "El XML de la vista no és vàlid"
 
 msgctxt "error:not_found_in_selection:"
 msgid "Key %r not found in selection field %r"
-msgstr ""
+msgstr "No s'ha trobat la clau %r en el camp selecció %r."
 
 msgctxt "error:read_error:"
 msgid ""
@@ -240,11 +243,11 @@ msgstr ""
 
 msgctxt "error:reference_syntax_error:"
 msgid "Syntax error for reference %r in %s"
-msgstr ""
+msgstr "Error de sintaxi per a la referència %r en %s."
 
 msgctxt "error:relation_not_found:"
 msgid "Relation not found: %r in %s"
-msgstr ""
+msgstr "No s'ha trobat la relació: %r en %s."
 
 msgctxt "error:required_field:"
 msgid "The field \"%s\" on \"%s\" is required."
@@ -256,7 +259,7 @@ msgstr "El camp «%s» en «%s» és necessari."
 
 msgctxt "error:search_function_missing:"
 msgid "Missing search function on field \"%s\"."
-msgstr ""
+msgstr "Falta la funció de recerca del camp \"%s\"."
 
 msgctxt "error:size_validation_record:"
 msgid "The field \"%s\" on \"%s\" is too long."
@@ -264,7 +267,7 @@ msgstr "El camp «%s» en «%s» és molt llarg."
 
 msgctxt "error:too_many_relations_found:"
 msgid "Too many relations found: %r in %s"
-msgstr ""
+msgstr "S'han trobat massa relacions: %r en %s."
 
 msgctxt "error:write_error:"
 msgid ""
@@ -280,7 +283,7 @@ msgstr "No està autoritzat per modificar aquest registre."
 
 msgctxt "error:xml_id_syntax_error:"
 msgid "Syntax error for XML id %r in %s"
-msgstr ""
+msgstr "Error de sintaxi en el XML aneu %r en %s."
 
 msgctxt "error:xml_record_desc:"
 msgid "This record is part of the base configuration."
@@ -292,7 +295,7 @@ msgstr "Actiu"
 
 msgctxt "field:ir.action,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.action,create_uid:"
@@ -310,7 +313,7 @@ msgstr "Icona"
 
 msgctxt "field:ir.action,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.action,keywords:"
 msgid "Keywords"
@@ -334,11 +337,11 @@ msgstr "Ús"
 
 msgctxt "field:ir.action,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.action,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.action.act_window,act_window_views:"
 msgid "Views"
@@ -358,7 +361,7 @@ msgstr "Valor del context"
 
 msgctxt "field:ir.action.act_window,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.action.act_window,create_uid:"
@@ -371,7 +374,7 @@ msgstr "Valor del domini"
 
 msgctxt "field:ir.action.act_window,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.action.act_window,limit:"
 msgid "Limit"
@@ -379,15 +382,15 @@ msgstr "Límit"
 
 msgctxt "field:ir.action.act_window,pyson_context:"
 msgid "PySON Context"
-msgstr ""
+msgstr "Context PySON"
 
 msgctxt "field:ir.action.act_window,pyson_domain:"
 msgid "PySON Domain"
-msgstr ""
+msgstr "Domini PySON"
 
 msgctxt "field:ir.action.act_window,pyson_search_value:"
 msgid "PySON Search Criteria"
-msgstr ""
+msgstr "Criteri de recerca  PySON"
 
 msgctxt "field:ir.action.act_window,rec_name:"
 msgid "Name"
@@ -411,11 +414,11 @@ msgstr "Nom de la finestra"
 
 msgctxt "field:ir.action.act_window,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.action.act_window,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.action.act_window.view,act_window:"
 msgid "Action"
@@ -423,7 +426,7 @@ msgstr "Acció"
 
 msgctxt "field:ir.action.act_window.view,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.action.act_window.view,create_uid:"
@@ -432,7 +435,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.action.act_window.view,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.action.act_window.view,rec_name:"
 msgid "Name"
@@ -448,11 +451,11 @@ msgstr "Vista"
 
 msgctxt "field:ir.action.act_window.view,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.action.act_window.view,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.action.keyword,action:"
 msgid "Action"
@@ -460,7 +463,7 @@ msgstr "Acció"
 
 msgctxt "field:ir.action.keyword,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.action.keyword,create_uid:"
@@ -469,7 +472,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.action.keyword,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.action.keyword,keyword:"
 msgid "Keyword"
@@ -485,11 +488,11 @@ msgstr "Nom"
 
 msgctxt "field:ir.action.keyword,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.action.keyword,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.action.report,action:"
 msgid "Action"
@@ -497,7 +500,7 @@ msgstr "Acció"
 
 msgctxt "field:ir.action.report,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.action.report,create_uid:"
@@ -518,7 +521,7 @@ msgstr "Extensió"
 
 msgctxt "field:ir.action.report,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.action.report,model:"
 msgid "Model"
@@ -530,7 +533,7 @@ msgstr "Mòdul"
 
 msgctxt "field:ir.action.report,pyson_email:"
 msgid "PySON Email"
-msgstr ""
+msgstr "Email  PySON"
 
 msgctxt "field:ir.action.report,rec_name:"
 msgid "Name"
@@ -563,15 +566,15 @@ msgstr "Estil"
 
 msgctxt "field:ir.action.report,template_extension:"
 msgid "Template Extension"
-msgstr ""
+msgstr "Extensió plantilla"
 
 msgctxt "field:ir.action.report,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.action.report,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.action.url,action:"
 msgid "Action"
@@ -579,7 +582,7 @@ msgstr "Acció"
 
 msgctxt "field:ir.action.url,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.action.url,create_uid:"
@@ -588,7 +591,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.action.url,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.action.url,rec_name:"
 msgid "Name"
@@ -600,11 +603,11 @@ msgstr "URL de l'acció"
 
 msgctxt "field:ir.action.url,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.action.url,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.action.wizard,action:"
 msgid "Action"
@@ -612,7 +615,7 @@ msgstr "Acció"
 
 msgctxt "field:ir.action.wizard,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.action.wizard,create_uid:"
@@ -625,7 +628,7 @@ msgstr "Correu electrònic"
 
 msgctxt "field:ir.action.wizard,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.action.wizard,model:"
 msgid "Model"
@@ -645,11 +648,11 @@ msgstr "Nom de l'assistent"
 
 msgctxt "field:ir.action.wizard,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.action.wizard,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.attachment,collision:"
 msgid "Collision"
@@ -657,7 +660,7 @@ msgstr "Col·lisió"
 
 msgctxt "field:ir.attachment,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.attachment,create_uid:"
@@ -666,11 +669,11 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.attachment,data:"
 msgid "Data"
-msgstr ""
+msgstr "Dades"
 
 msgctxt "field:ir.attachment,data_size:"
 msgid "Data size"
-msgstr ""
+msgstr "Grandària de les dades"
 
 msgctxt "field:ir.attachment,description:"
 msgid "Description"
@@ -682,15 +685,15 @@ msgstr "Resum"
 
 msgctxt "field:ir.attachment,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.attachment,last_modification:"
 msgid "Last Modification"
-msgstr ""
+msgstr "Última modificació"
 
 msgctxt "field:ir.attachment,last_user:"
 msgid "Last User"
-msgstr ""
+msgstr "Últim usuari"
 
 msgctxt "field:ir.attachment,link:"
 msgid "Link"
@@ -722,15 +725,15 @@ msgstr "Tipus"
 
 msgctxt "field:ir.attachment,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.attachment,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.cache,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.cache,create_uid:"
@@ -739,7 +742,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.cache,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.cache,name:"
 msgid "Name"
@@ -755,11 +758,11 @@ msgstr "Marca de temps"
 
 msgctxt "field:ir.cache,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.cache,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.cron,active:"
 msgid "Active"
@@ -771,7 +774,7 @@ msgstr "Arguments"
 
 msgctxt "field:ir.cron,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.cron,create_uid:"
@@ -784,7 +787,7 @@ msgstr "Funció"
 
 msgctxt "field:ir.cron,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.cron,interval_number:"
 msgid "Interval Number"
@@ -804,11 +807,11 @@ msgstr "Nom"
 
 msgctxt "field:ir.cron,next_call:"
 msgid "Next Call"
-msgstr ""
+msgstr "Següent cridada"
 
 msgctxt "field:ir.cron,number_calls:"
 msgid "Number of Calls"
-msgstr ""
+msgstr "Nombre de trucades"
 
 msgctxt "field:ir.cron,rec_name:"
 msgid "Name"
@@ -816,7 +819,7 @@ msgstr "Nom"
 
 msgctxt "field:ir.cron,repeat_missed:"
 msgid "Repeat Missed"
-msgstr ""
+msgstr "Repetir perduts"
 
 msgctxt "field:ir.cron,request_user:"
 msgid "Request User"
@@ -828,19 +831,19 @@ msgstr "Executat per"
 
 msgctxt "field:ir.cron,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.cron,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.date,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.export,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.export,create_uid:"
@@ -853,7 +856,7 @@ msgstr "Campos"
 
 msgctxt "field:ir.export,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.export,name:"
 msgid "Name"
@@ -869,15 +872,15 @@ msgstr "Recurs"
 
 msgctxt "field:ir.export,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.export,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.export.line,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.export.line,create_uid:"
@@ -890,7 +893,7 @@ msgstr "Exportar"
 
 msgctxt "field:ir.export.line,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.export.line,name:"
 msgid "Name"
@@ -902,11 +905,11 @@ msgstr "Nom"
 
 msgctxt "field:ir.export.line,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.export.line,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.lang,active:"
 msgid "Active"
@@ -918,7 +921,7 @@ msgstr "Codi"
 
 msgctxt "field:ir.lang,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.lang,create_uid:"
@@ -943,7 +946,7 @@ msgstr "Agrupació"
 
 msgctxt "field:ir.lang,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.lang,name:"
 msgid "Name"
@@ -963,15 +966,15 @@ msgstr "Traducible"
 
 msgctxt "field:ir.lang,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.lang,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.model,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.model,create_uid:"
@@ -984,7 +987,7 @@ msgstr "Campos"
 
 msgctxt "field:ir.model,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.model,info:"
 msgid "Information"
@@ -1008,15 +1011,15 @@ msgstr "Nom"
 
 msgctxt "field:ir.model,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.model,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.model.access,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.model.access,create_uid:"
@@ -1033,7 +1036,7 @@ msgstr "Grup"
 
 msgctxt "field:ir.model.access,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.model.access,model:"
 msgid "Model"
@@ -1061,15 +1064,15 @@ msgstr "Nom"
 
 msgctxt "field:ir.model.access,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.model.access,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.model.button,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.model.button,create_uid:"
@@ -1083,7 +1086,7 @@ msgstr "Grups"
 
 msgctxt "field:ir.model.button,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.model.button,model:"
@@ -1102,15 +1105,15 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.model.button,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.model.button,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.model.data,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.model.data,create_uid:"
@@ -1135,7 +1138,7 @@ msgstr "Identificador en el sistema d'arxius"
 
 msgctxt "field:ir.model.data,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.model.data,inherit:"
 msgid "Inherit"
@@ -1151,7 +1154,7 @@ msgstr "Mòdul"
 
 msgctxt "field:ir.model.data,noupdate:"
 msgid "No Update"
-msgstr ""
+msgstr "No actualitzar"
 
 msgctxt "field:ir.model.data,rec_name:"
 msgid "Name"
@@ -1163,15 +1166,15 @@ msgstr "Valors"
 
 msgctxt "field:ir.model.data,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.model.data,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.model.field,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.model.field,create_uid:"
@@ -1192,7 +1195,7 @@ msgstr "Ajuda"
 
 msgctxt "field:ir.model.field,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.model.field,model:"
 msgid "Model"
@@ -1220,15 +1223,15 @@ msgstr "Tipus de camp"
 
 msgctxt "field:ir.model.field,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.model.field,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.model.field.access,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.model.field.access,create_uid:"
@@ -1252,7 +1255,7 @@ msgstr "Grup"
 
 msgctxt "field:ir.model.field.access,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.model.field.access,perm_read:"
@@ -1271,23 +1274,23 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.model.field.access,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.model.field.access,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.model.print_model_graph.start,filter:"
 msgid "Filter"
-msgstr ""
+msgstr "Filtre"
 
 msgctxt "field:ir.model.print_model_graph.start,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.model.print_model_graph.start,level:"
 msgid "Level"
-msgstr ""
+msgstr "Nivell"
 
 msgctxt "field:ir.module.module,author:"
 msgid "Author"
@@ -1295,11 +1298,11 @@ msgstr "Autor"
 
 msgctxt "field:ir.module.module,childs:"
 msgid "Childs"
-msgstr ""
+msgstr "Fills"
 
 msgctxt "field:ir.module.module,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.module.module,create_uid:"
@@ -1316,7 +1319,7 @@ msgstr "Descripció"
 
 msgctxt "field:ir.module.module,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.module.module,name:"
 msgid "Name"
@@ -1324,7 +1327,7 @@ msgstr "Nom"
 
 msgctxt "field:ir.module.module,parents:"
 msgid "Parents"
-msgstr ""
+msgstr "Pares"
 
 msgctxt "field:ir.module.module,rec_name:"
 msgid "Name"
@@ -1348,15 +1351,15 @@ msgstr "Assetjo web"
 
 msgctxt "field:ir.module.module,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.module.module,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.module.module.config_wizard.first,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.module.module.config_wizard.item,action:"
@@ -1365,7 +1368,7 @@ msgstr "Acció"
 
 msgctxt "field:ir.module.module.config_wizard.item,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.module.module.config_wizard.item,create_uid:"
@@ -1374,7 +1377,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.module.module.config_wizard.item,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.module.module.config_wizard.item,rec_name:"
 msgid "Name"
@@ -1390,15 +1393,15 @@ msgstr "Estat"
 
 msgctxt "field:ir.module.module.config_wizard.item,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.module.module.config_wizard.item,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.module.module.config_wizard.other,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.module.module.config_wizard.other,percentage:"
@@ -1407,7 +1410,7 @@ msgstr "Percentatge"
 
 msgctxt "field:ir.module.module.dependency,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.module.module.dependency,create_uid:"
@@ -1416,7 +1419,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.module.module.dependency,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.module.module.dependency,module:"
 msgid "Module"
@@ -1436,27 +1439,27 @@ msgstr "Estat"
 
 msgctxt "field:ir.module.module.dependency,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.module.module.dependency,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.module.module.install_upgrade.done,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.module.module.install_upgrade.start,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.module.module.install_upgrade.start,module_info:"
 msgid "Modules to update"
-msgstr ""
+msgstr "Mòduls a actualitzar"
 
 msgctxt "field:ir.property,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.property,create_uid:"
@@ -1469,7 +1472,7 @@ msgstr "Camp"
 
 msgctxt "field:ir.property,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.property,rec_name:"
 msgid "Name"
@@ -1485,15 +1488,15 @@ msgstr "Valor"
 
 msgctxt "field:ir.property,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.property,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.rule,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.rule,create_uid:"
@@ -1506,7 +1509,7 @@ msgstr "Camp"
 
 msgctxt "field:ir.rule,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.rule,operand:"
 msgid "Operand"
@@ -1526,15 +1529,15 @@ msgstr "Grup"
 
 msgctxt "field:ir.rule,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.rule,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.rule.group,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.rule.group,create_uid:"
@@ -1555,7 +1558,7 @@ msgstr "Grups"
 
 msgctxt "field:ir.rule.group,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.rule.group,model:"
 msgid "Model"
@@ -1595,11 +1598,11 @@ msgstr "Usuaris"
 
 msgctxt "field:ir.rule.group,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.rule.group,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.sequence,active:"
 msgid "Active"
@@ -1612,7 +1615,7 @@ msgstr "Tipus de la seqüència"
 
 msgctxt "field:ir.sequence,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.sequence,create_uid:"
@@ -1621,11 +1624,11 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.sequence,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.sequence,last_timestamp:"
 msgid "Last Timestamp"
-msgstr ""
+msgstr "Última data-hora"
 
 msgctxt "field:ir.sequence,name:"
 msgid "Sequence Name"
@@ -1662,11 +1665,11 @@ msgstr "Sufix"
 
 msgctxt "field:ir.sequence,timestamp_offset:"
 msgid "Timestamp Offset"
-msgstr ""
+msgstr "Desfasament data-hora"
 
 msgctxt "field:ir.sequence,timestamp_rounding:"
 msgid "Timestamp Rounding"
-msgstr ""
+msgstr "Arrodoniment de data-hora"
 
 #, fuzzy
 msgctxt "field:ir.sequence,type:"
@@ -1675,11 +1678,11 @@ msgstr "Tipus"
 
 msgctxt "field:ir.sequence,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.sequence,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.sequence.strict,active:"
 msgid "Active"
@@ -1692,7 +1695,7 @@ msgstr "Tipus de la seqüència"
 
 msgctxt "field:ir.sequence.strict,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.sequence.strict,create_uid:"
@@ -1701,11 +1704,11 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.sequence.strict,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.sequence.strict,last_timestamp:"
 msgid "Last Timestamp"
-msgstr ""
+msgstr "Última data-hora"
 
 msgctxt "field:ir.sequence.strict,name:"
 msgid "Sequence Name"
@@ -1742,11 +1745,11 @@ msgstr "Sufix"
 
 msgctxt "field:ir.sequence.strict,timestamp_offset:"
 msgid "Timestamp Offset"
-msgstr ""
+msgstr "Desfasament data-hora"
 
 msgctxt "field:ir.sequence.strict,timestamp_rounding:"
 msgid "Timestamp Rounding"
-msgstr ""
+msgstr "Arrodoniment de data-hora"
 
 #, fuzzy
 msgctxt "field:ir.sequence.strict,type:"
@@ -1755,11 +1758,11 @@ msgstr "Tipus"
 
 msgctxt "field:ir.sequence.strict,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.sequence.strict,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.sequence.type,code:"
 msgid "Sequence Code"
@@ -1767,7 +1770,7 @@ msgstr "Codi de la seqüència"
 
 msgctxt "field:ir.sequence.type,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.sequence.type,create_uid:"
@@ -1776,7 +1779,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.sequence.type,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.sequence.type,name:"
 msgid "Sequence Name"
@@ -1788,15 +1791,15 @@ msgstr "Nom"
 
 msgctxt "field:ir.sequence.type,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.sequence.type,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.session,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.session,create_uid:"
@@ -1805,11 +1808,11 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.session,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.session,key:"
 msgid "Key"
-msgstr ""
+msgstr "Clau"
 
 #, fuzzy
 msgctxt "field:ir.session,rec_name:"
@@ -1818,15 +1821,15 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.session,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.session,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.session.wizard,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.session.wizard,create_uid:"
@@ -1835,11 +1838,11 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.session.wizard,data:"
 msgid "Data"
-msgstr ""
+msgstr "Dades"
 
 msgctxt "field:ir.session.wizard,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.session.wizard,rec_name:"
@@ -1848,15 +1851,15 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.session.wizard,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.session.wizard,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.translation,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.translation,create_uid:"
@@ -1869,7 +1872,7 @@ msgstr "Necessita revisió"
 
 msgctxt "field:ir.translation,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.translation,lang:"
 msgid "Language"
@@ -1901,7 +1904,7 @@ msgstr "Font"
 
 msgctxt "field:ir.translation,src_md5:"
 msgid "Source MD5"
-msgstr ""
+msgstr "Font MD5"
 
 msgctxt "field:ir.translation,type:"
 msgid "Type"
@@ -1913,31 +1916,31 @@ msgstr "Valor de la traducció"
 
 msgctxt "field:ir.translation,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.translation,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.translation.clean.start,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.translation.clean.succeed,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.translation.export.result,file:"
 msgid "File"
-msgstr ""
+msgstr "Arxiu"
 
 msgctxt "field:ir.translation.export.result,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.translation.export.start,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.translation.export.start,language:"
@@ -1951,15 +1954,15 @@ msgstr "Mòdul"
 
 msgctxt "field:ir.translation.set_report.start,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.translation.set_report.succeed,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.translation.update.start,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.translation.update.start,language:"
@@ -1968,11 +1971,11 @@ msgstr "Idioma"
 
 msgctxt "field:ir.trigger,action_function:"
 msgid "Action Function"
-msgstr ""
+msgstr "Funció d'acció"
 
 msgctxt "field:ir.trigger,action_model:"
 msgid "Action Model"
-msgstr ""
+msgstr "Model d'acció"
 
 #, fuzzy
 msgctxt "field:ir.trigger,active:"
@@ -1981,11 +1984,11 @@ msgstr "Activa"
 
 msgctxt "field:ir.trigger,condition:"
 msgid "Condition"
-msgstr ""
+msgstr "Condició"
 
 msgctxt "field:ir.trigger,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.trigger,create_uid:"
@@ -1994,15 +1997,15 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.trigger,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.trigger,limit_number:"
 msgid "Limit Number"
-msgstr ""
+msgstr "Nombre límit"
 
 msgctxt "field:ir.trigger,minimum_delay:"
 msgid "Minimum Delay"
-msgstr ""
+msgstr "Retard mínim"
 
 #, fuzzy
 msgctxt "field:ir.trigger,model:"
@@ -2016,19 +2019,19 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.trigger,on_create:"
 msgid "On Create"
-msgstr ""
+msgstr "En crear"
 
 msgctxt "field:ir.trigger,on_delete:"
 msgid "On Delete"
-msgstr ""
+msgstr "En eliminar"
 
 msgctxt "field:ir.trigger,on_time:"
 msgid "On Time"
-msgstr ""
+msgstr "Per temps"
 
 msgctxt "field:ir.trigger,on_write:"
 msgid "On Write"
-msgstr ""
+msgstr "En escriure"
 
 #, fuzzy
 msgctxt "field:ir.trigger,rec_name:"
@@ -2037,15 +2040,15 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.trigger,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.trigger,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.trigger.log,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.trigger.log,create_uid:"
@@ -2054,7 +2057,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.trigger.log,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.trigger.log,rec_name:"
@@ -2063,23 +2066,23 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.trigger.log,record_id:"
 msgid "Record ID"
-msgstr ""
+msgstr "ANEU del registre"
 
 msgctxt "field:ir.trigger.log,trigger:"
 msgid "Trigger"
-msgstr ""
+msgstr "Disparador"
 
 msgctxt "field:ir.trigger.log,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.trigger.log,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.ui.icon,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.ui.icon,create_uid:"
@@ -2093,7 +2096,7 @@ msgstr "Icona"
 
 msgctxt "field:ir.ui.icon,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.ui.icon,module:"
@@ -2107,7 +2110,7 @@ msgstr "Nom del camp"
 
 msgctxt "field:ir.ui.icon,path:"
 msgid "SVG Path"
-msgstr ""
+msgstr "Ruta SVG"
 
 #, fuzzy
 msgctxt "field:ir.ui.icon,rec_name:"
@@ -2121,11 +2124,11 @@ msgstr "Seqüència"
 
 msgctxt "field:ir.ui.icon,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.ui.icon,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.ui.menu,action:"
 msgid "Action"
@@ -2145,7 +2148,7 @@ msgstr "Nom complet"
 
 msgctxt "field:ir.ui.menu,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.ui.menu,create_uid:"
@@ -2162,7 +2165,7 @@ msgstr "Icona"
 
 msgctxt "field:ir.ui.menu,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.ui.menu,name:"
 msgid "Menu"
@@ -2182,11 +2185,11 @@ msgstr "Seqüència"
 
 msgctxt "field:ir.ui.menu,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.ui.menu,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.ui.view,arch:"
 msgid "View Architecture"
@@ -2194,7 +2197,7 @@ msgstr "Veure arquitectura"
 
 msgctxt "field:ir.ui.view,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.ui.view,create_uid:"
@@ -2211,7 +2214,7 @@ msgstr "Camp fills"
 
 msgctxt "field:ir.ui.view,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.ui.view,inherit:"
 msgid "Inherited View"
@@ -2239,19 +2242,19 @@ msgstr "Tipus de vista"
 
 msgctxt "field:ir.ui.view,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.ui.view,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.ui.view.show.start,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.ui.view_sc,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.ui.view_sc,create_uid:"
@@ -2260,7 +2263,7 @@ msgstr "Crear usuari"
 
 msgctxt "field:ir.ui.view_sc,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.ui.view_sc,name:"
 msgid "Shortcut Name"
@@ -2288,19 +2291,19 @@ msgstr "Ref. de l'usuari"
 
 msgctxt "field:ir.ui.view_sc,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.ui.view_sc,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,child_name:"
 msgid "Child Name"
-msgstr ""
+msgstr "Nomeni fill"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.ui.view_tree_expanded_state,create_uid:"
@@ -2314,7 +2317,7 @@ msgstr "Domini"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #, fuzzy
 msgctxt "field:ir.ui.view_tree_expanded_state,model:"
@@ -2323,7 +2326,7 @@ msgstr "Model"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,nodes:"
 msgid "Expanded Nodes"
-msgstr ""
+msgstr "Nodes expandits"
 
 #, fuzzy
 msgctxt "field:ir.ui.view_tree_expanded_state,rec_name:"
@@ -2337,15 +2340,15 @@ msgstr "Usuari"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "field:ir.ui.view_tree_width,create_date:"
 msgid "Create Date"
-msgstr ""
+msgstr "Data creació"
 
 #, fuzzy
 msgctxt "field:ir.ui.view_tree_width,create_uid:"
@@ -2358,7 +2361,7 @@ msgstr "Camp"
 
 msgctxt "field:ir.ui.view_tree_width,id:"
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgctxt "field:ir.ui.view_tree_width,model:"
 msgid "Model"
@@ -2378,11 +2381,11 @@ msgstr "Ample"
 
 msgctxt "field:ir.ui.view_tree_width,write_date:"
 msgid "Write Date"
-msgstr ""
+msgstr "Data modificació"
 
 msgctxt "field:ir.ui.view_tree_width,write_uid:"
 msgid "Write User"
-msgstr ""
+msgstr "Usuari modificació"
 
 msgctxt "help:ir.action.act_window,auto_refresh:"
 msgid "Add an auto-refresh on the view"
@@ -2405,12 +2408,16 @@ msgid ""
 "Python dictonary where keys define \"to\" \"cc\" \"subject\"\n"
 "Example: {'to': 'test@example.com', 'cc': 'user@example.com'}"
 msgstr ""
+"Diccionari Python les claus del qual defineixin \"to\" \"cc\" \"subject\".\n"
+"Per exemple: {'to': 'test@ejemplo.com', 'cc': 'usuario@ejemplo.com'}"
 
 msgctxt "help:ir.action.report,extension:"
 msgid ""
 "Leave empty for the same as template, see unoconv documentation for "
 "compatible format"
 msgstr ""
+"Deixar-ho buit si és el mateix que la plantilla. Veure documentació "
+"d'unoconv per al format compatible."
 
 msgctxt "help:ir.action.report,style:"
 msgid "Define the style to apply on the report."
@@ -2425,6 +2432,8 @@ msgid ""
 "Number of times the function is called, a negative number indicates that the"
 " function will always be called"
 msgstr ""
+"Nombre de vegades que s'executa la funció. Un nombre negatiu indica que la "
+"funció s'executarà sempre."
 
 msgctxt "help:ir.cron,request_user:"
 msgid "The user who will receive requests in case of failure"
@@ -2459,6 +2468,8 @@ msgid ""
 "Entering a Python Regular Expression will exclude matching models from the "
 "graph."
 msgstr ""
+"Exclourà del gràfic els models que concordin amb l'expressió regular de "
+"Python introduïda."
 
 msgctxt "help:ir.rule.group,default_p:"
 msgid "Add this rule to all users by default"
@@ -2481,18 +2492,24 @@ msgid ""
 "A Python statement evaluated with record represented by \"self\"\n"
 "It triggers the action if true."
 msgstr ""
+"Una sentència Python avaluada amb un registre representat per \"self\".\n"
+"Executarà l'acció si és certa."
 
 msgctxt "help:ir.trigger,limit_number:"
 msgid ""
 "Limit the number of call to \"Action Function\" by records.\n"
 "0 for no limit."
 msgstr ""
+"Limita el nombre de trucades a la \"Funció d'acció\" per registre.\n"
+"0 per no tenir límit."
 
 msgctxt "help:ir.trigger,minimum_delay:"
 msgid ""
 "Set a minimum delay in minutes between call to \"Action Function\" for the same record.\n"
 "0 for no delay."
 msgstr ""
+"Fixa un retard mínim en minuts entre les trucades a la \"Funció d'acció\" per al mateix registre.\n"
+"0 per no tenir retard."
 
 msgctxt "model:ir.action,name:"
 msgid "Action"
@@ -2633,7 +2650,7 @@ msgstr "Sincronitzar traduccions"
 
 msgctxt "model:ir.action,name:act_trigger_form"
 msgid "Triggers"
-msgstr ""
+msgstr "Disparadors"
 
 msgctxt "model:ir.action,name:act_view_form"
 msgid "Views"
@@ -2733,7 +2750,7 @@ msgstr ""
 
 msgctxt "model:ir.lang,name:lang_ca"
 msgid "Català"
-msgstr ""
+msgstr "Català"
 
 msgctxt "model:ir.lang,name:lang_cs"
 msgid "Czech"
@@ -2761,11 +2778,11 @@ msgstr "Francès"
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
-msgstr ""
+msgstr "Holandès"
 
 msgctxt "model:ir.lang,name:lang_ru"
 msgid "Russian"
-msgstr ""
+msgstr "Rus"
 
 msgctxt "model:ir.model,name:"
 msgid "Model"
@@ -2777,7 +2794,7 @@ msgstr "Model d'accessos"
 
 msgctxt "model:ir.model.button,name:"
 msgid "Model Button"
-msgstr ""
+msgstr "Model de botó"
 
 msgctxt "model:ir.model.data,name:"
 msgid "Model data"
@@ -2789,11 +2806,11 @@ msgstr "Model de camp"
 
 msgctxt "model:ir.model.field.access,name:"
 msgid "Model Field Access"
-msgstr ""
+msgstr "Model d'accés als camps"
 
 msgctxt "model:ir.model.print_model_graph.start,name:"
 msgid "Print Model Graph"
-msgstr ""
+msgstr "Imprimir gràfic de models"
 
 msgctxt "model:ir.module.module,name:"
 msgid "Module"
@@ -2809,7 +2826,7 @@ msgstr "L'assistent de configuració a executar després d'instal·lar un mòdul
 
 msgctxt "model:ir.module.module.config_wizard.other,name:"
 msgid "Module Config Wizard Other"
-msgstr ""
+msgstr "Un altre assistent de configuració de mòduls"
 
 msgctxt "model:ir.module.module.dependency,name:"
 msgid "Module dependency"
@@ -2817,7 +2834,7 @@ msgstr "Dependències del mòdul"
 
 msgctxt "model:ir.module.module.install_upgrade.done,name:"
 msgid "Module Install Upgrade Done"
-msgstr ""
+msgstr "Instal·lació o actualització de mòduls realitzada"
 
 msgctxt "model:ir.module.module.install_upgrade.start,name:"
 msgid "Module Install Upgrade Start"
@@ -2849,11 +2866,11 @@ msgstr "Tipus de seqüència"
 
 msgctxt "model:ir.session,name:"
 msgid "Session"
-msgstr ""
+msgstr "Sessió"
 
 msgctxt "model:ir.session.wizard,name:"
 msgid "Session Wizard"
-msgstr ""
+msgstr "Sessió Assistent"
 
 msgctxt "model:ir.translation,name:"
 msgid "Translation"
@@ -2890,15 +2907,15 @@ msgstr "Actualitzar traduccions d'informes"
 
 msgctxt "model:ir.translation.update.start,name:"
 msgid "Update translation"
-msgstr ""
+msgstr "Actualitzar traducció"
 
 msgctxt "model:ir.trigger,name:"
 msgid "Trigger"
-msgstr ""
+msgstr "Disparador"
 
 msgctxt "model:ir.trigger.log,name:"
 msgid "Trigger Log"
-msgstr ""
+msgstr "Registre disparador"
 
 #, fuzzy
 msgctxt "model:ir.ui.icon,name:"
@@ -3088,7 +3105,7 @@ msgstr "Vista"
 
 msgctxt "model:ir.ui.view.show.start,name:"
 msgid "ir.ui.view.show.start"
-msgstr ""
+msgstr "anar.ui.view.xou.start"
 
 msgctxt "model:ir.ui.view_sc,name:"
 msgid "View shortcut"
@@ -3096,7 +3113,7 @@ msgstr "Vista del marcador"
 
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
 msgid "ir.ui.view_tree_expanded_state"
-msgstr ""
+msgstr "anar.ui.view_tree_expanded_state"
 
 msgctxt "model:ir.ui.view_tree_width,name:"
 msgid "View Tree Width"
@@ -3128,7 +3145,7 @@ msgstr "Imprimir formulari"
 
 msgctxt "selection:ir.attachment,type:"
 msgid "Data"
-msgstr ""
+msgstr "Enllaç"
 
 #, fuzzy
 msgctxt "selection:ir.attachment,type:"
@@ -3217,27 +3234,27 @@ msgstr "Desconegut"
 
 msgctxt "selection:ir.sequence,type:"
 msgid "Decimal Timestamp"
-msgstr ""
+msgstr "Incremental"
 
 msgctxt "selection:ir.sequence,type:"
 msgid "Hexadecimal Timestamp"
-msgstr ""
+msgstr "Incremental"
 
 msgctxt "selection:ir.sequence,type:"
 msgid "Incremental"
-msgstr ""
+msgstr "Incremental"
 
 msgctxt "selection:ir.sequence.strict,type:"
 msgid "Decimal Timestamp"
-msgstr ""
+msgstr "Incremental"
 
 msgctxt "selection:ir.sequence.strict,type:"
 msgid "Hexadecimal Timestamp"
-msgstr ""
+msgstr "Incremental"
 
 msgctxt "selection:ir.sequence.strict,type:"
 msgid "Incremental"
-msgstr ""
+msgstr "Incremental"
 
 msgctxt "selection:ir.translation,type:"
 msgid "Error"
@@ -3289,7 +3306,7 @@ msgstr "anar.action.wizard"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid ""
-msgstr ""
+msgstr "Arbre"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
@@ -3456,15 +3473,15 @@ msgstr "Controls d'accés"
 
 msgctxt "view:ir.model.button:"
 msgid "Button"
-msgstr ""
+msgstr "Botons"
 
 msgctxt "view:ir.model.button:"
 msgid "Buttons"
-msgstr ""
+msgstr "Botons"
 
 msgctxt "view:ir.model.field.access:"
 msgid "Field Access"
-msgstr ""
+msgstr "Accés als camps"
 
 msgctxt "view:ir.model.field:"
 msgid "Fields"
@@ -3472,7 +3489,7 @@ msgstr "Campos"
 
 msgctxt "view:ir.model.print_model_graph.start:"
 msgid "Print Model Graph"
-msgstr ""
+msgstr "Imprimir gràfic de models"
 
 msgctxt "view:ir.model:"
 msgid "Fields Description"
@@ -3494,7 +3511,7 @@ msgctxt "view:ir.module.module.config_wizard.first:"
 msgid ""
 "You will be able to configure your installation depending on the modules you"
 " have installed."
-msgstr ""
+msgstr "depenent dels mòduls que hagi instal·lat."
 
 msgctxt "view:ir.module.module.config_wizard.first:"
 msgid "depending on the modules you have installed."
@@ -3506,7 +3523,7 @@ msgstr "Configurar els elements de l'assistent"
 
 msgctxt "view:ir.module.module.config_wizard.other:"
 msgid "Configuration Wizard Next Step!"
-msgstr ""
+msgstr "Següent pas de l'assistent de configuració."
 
 #, fuzzy
 msgctxt "view:ir.module.module.dependency:"
@@ -3520,7 +3537,7 @@ msgstr "Dependència"
 
 msgctxt "view:ir.module.module.install_upgrade.done:"
 msgid "System Upgrade Done"
-msgstr ""
+msgstr "Els mòduls s'han actualitzat / instal·lat."
 
 #, fuzzy
 msgctxt "view:ir.module.module.install_upgrade.done:"
@@ -3529,11 +3546,11 @@ msgstr "Els mòduls s'han actualitzat / instal·lat"
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "Note that this operation my take a few minutes."
-msgstr ""
+msgstr "El seu sistema serà actualitzat."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "System Upgrade"
-msgstr ""
+msgstr "El seu sistema serà actualitzat."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "System upgrade done"
@@ -3553,7 +3570,7 @@ msgstr "És possible que necessiti reinstalar un paquet d'idioma."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "Your system will be upgraded."
-msgstr ""
+msgstr "El seu sistema serà actualitzat."
 
 msgctxt "view:ir.module.module:"
 msgid "Cancel Installation"
@@ -3671,7 +3688,7 @@ msgstr "Dia:"
 
 msgctxt "view:ir.sequence:"
 msgid "Incremental"
-msgstr ""
+msgstr "Any:"
 
 msgctxt "view:ir.sequence:"
 msgid "Legend (Placeholders for prefix, suffix)"
@@ -3708,7 +3725,7 @@ msgstr "Les traduccions es van netejar correctament"
 
 msgctxt "view:ir.translation.clean.start:"
 msgid "Clean Translations?"
-msgstr ""
+msgstr "Netejar les traduccions?"
 
 #, fuzzy
 msgctxt "view:ir.translation.clean.succeed:"
@@ -3739,7 +3756,7 @@ msgstr "L'extracció de les traduccions va acabar correctament"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Synchronize Report Translations?"
-msgstr ""
+msgstr "Sincronitzar les traduccions dels informes?"
 
 #, fuzzy
 msgctxt "view:ir.translation.set_report.succeed:"
@@ -3762,11 +3779,11 @@ msgstr "Traduccions"
 
 msgctxt "view:ir.trigger:"
 msgid "Trigger"
-msgstr ""
+msgstr "Disparadores"
 
 msgctxt "view:ir.trigger:"
 msgid "Triggers"
-msgstr ""
+msgstr "Disparadores"
 
 #, fuzzy
 msgctxt "view:ir.ui.icon:"
@@ -3775,7 +3792,7 @@ msgstr "Icona"
 
 msgctxt "view:ir.ui.icon:"
 msgid "Icons"
-msgstr ""
+msgstr "Icones"
 
 msgctxt "view:ir.ui.menu:"
 msgid "Menu"
@@ -3787,7 +3804,7 @@ msgstr "Vista"
 
 msgctxt "view:ir.ui.view:"
 msgid "_Show"
-msgstr ""
+msgstr "_Mostrar"
 
 msgctxt "view:ir.ui.view_sc:"
 msgid "Shortcut"
@@ -3795,15 +3812,15 @@ msgstr "Marcador"
 
 msgctxt "view:ir.ui.view_sc:"
 msgid "Shortcuts"
-msgstr ""
+msgstr "Accessos directes"
 
 msgctxt "view:ir.ui.view_tree_expanded_state:"
 msgid "View Tree Expanded State"
-msgstr ""
+msgstr "Estat expansió vistes en arbre"
 
 msgctxt "view:ir.ui.view_tree_expanded_state:"
 msgid "Views Tree Expanded State"
-msgstr ""
+msgstr "Estat expansió vistes en arbre"
 
 msgctxt "view:ir.ui.view_tree_width:"
 msgid "View Tree Width"
@@ -3820,7 +3837,7 @@ msgstr "Cancel·lar"
 
 msgctxt "wizard_button:ir.model.print_model_graph,start,print_:"
 msgid "Print"
-msgstr ""
+msgstr "Imprimir"
 
 #, fuzzy
 msgctxt "wizard_button:ir.module.module.config_wizard,first,action:"
@@ -3833,7 +3850,7 @@ msgstr "Cancel·lar"
 
 msgctxt "wizard_button:ir.module.module.config_wizard,other,action:"
 msgid "Next"
-msgstr ""
+msgstr "Següent"
 
 #, fuzzy
 msgctxt "wizard_button:ir.module.module.config_wizard,other,end:"
@@ -3852,11 +3869,11 @@ msgstr "Cancel·lar"
 
 msgctxt "wizard_button:ir.module.module.install_upgrade,start,upgrade:"
 msgid "Start Upgrade"
-msgstr ""
+msgstr "Iniciar actualització"
 
 msgctxt "wizard_button:ir.translation.clean,start,clean:"
 msgid "Clean"
-msgstr ""
+msgstr "Netejar"
 
 #, fuzzy
 msgctxt "wizard_button:ir.translation.clean,start,end:"
@@ -3902,7 +3919,7 @@ msgstr "Acceptar"
 
 msgctxt "wizard_button:ir.translation.set_report,start,set_report:"
 msgid "Start Update"
-msgstr ""
+msgstr "Iniciar actualització"
 
 #, fuzzy
 msgctxt "wizard_button:ir.translation.set_report,succeed,end:"
@@ -3916,7 +3933,7 @@ msgstr "Cancel·lar"
 
 msgctxt "wizard_button:ir.translation.update,start,update:"
 msgid "Update"
-msgstr ""
+msgstr "Actualitzar"
 
 #, fuzzy
 msgctxt "wizard_button:ir.ui.view.show,start,end:"
