@@ -496,8 +496,7 @@ class Model(WarningErrorMixin, URLMixin):
                 res[field]['sortable'] = False
             if ((isinstance(self._columns[field], fields.Function)
                     and not self._columns[field].searcher)
-                    or self._columns[field]._type in ('binary', 'many2many',
-                        'one2many', 'sha')):
+                    or self._columns[field]._type in ('binary', 'sha')):
                 res[field]['searchable'] = False
             else:
                 res[field]['searchable'] = True
