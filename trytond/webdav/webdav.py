@@ -547,7 +547,6 @@ class Collection(ModelSQL, ModelView):
                 attachment_obj.create({
                     'name': name,
                     'data': data,
-                    'name': name,
                     'resource': '%s,%s' % (object_name, object_id),
                     })
             except Exception:
