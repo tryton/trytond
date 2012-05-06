@@ -35,7 +35,7 @@ msgstr "Ruta"
 
 msgctxt "field:ir.attachment,shares:"
 msgid "Shares"
-msgstr "Compartir"
+msgstr "Comparteix"
 
 #, fuzzy
 msgctxt "field:ir.attachment,url:"
@@ -182,7 +182,7 @@ msgstr "Col·lecció"
 
 msgctxt "model:webdav.share,name:"
 msgid "Share"
-msgstr "Compartir"
+msgstr "Comparteix"
 
 #, fuzzy
 msgctxt "view:ir.attachment:"
@@ -199,8 +199,8 @@ msgstr "Col·leccions"
 
 msgctxt "view:webdav.share:"
 msgid "Share"
-msgstr "Compartir"
+msgstr "Comparteix"
 
 msgctxt "view:webdav.share:"
 msgid "Shares"
-msgstr "Compartir"
+msgstr "Comparteix"

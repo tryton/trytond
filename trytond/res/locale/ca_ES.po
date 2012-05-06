@@ -1081,16 +1081,16 @@ msgstr "Usuaris"
 #, fuzzy
 msgctxt "wizard_button:res.user.config,start,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 #, fuzzy
 msgctxt "wizard_button:res.user.config,start,user:"
 msgid "Ok"
-msgstr "Acceptar"
+msgstr "Accepta"
 
 msgctxt "wizard_button:res.user.config,user,add:"
 msgid "Add"
-msgstr "Afegir"
+msgstr "Afegeix"
 
 msgctxt "wizard_button:res.user.config,user,end:"
 msgid "End"
