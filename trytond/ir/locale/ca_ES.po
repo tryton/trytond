@@ -3206,7 +3206,7 @@ msgstr "Acabat"
 
 msgctxt "selection:ir.module.module.config_wizard.item,state:"
 msgid "Open"
-msgstr "Obrir"
+msgstr "Obre"
 
 msgctxt "selection:ir.module.module.dependency,state:"
 msgid "Installed"
@@ -3833,20 +3833,20 @@ msgstr "Ample de la vista en arbre"
 #, fuzzy
 msgctxt "wizard_button:ir.model.print_model_graph,start,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.model.print_model_graph,start,print_:"
 msgid "Print"
-msgstr "Imprimir"
+msgstr "Imprimeix"
 
 #, fuzzy
 msgctxt "wizard_button:ir.module.module.config_wizard,first,action:"
 msgid "Ok"
-msgstr "Acceptar"
+msgstr "Accepta"
 
 msgctxt "wizard_button:ir.module.module.config_wizard,first,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.module.module.config_wizard,other,action:"
 msgid "Next"
@@ -3855,17 +3855,17 @@ msgstr "Següent"
 #, fuzzy
 msgctxt "wizard_button:ir.module.module.config_wizard,other,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 #, fuzzy
 msgctxt "wizard_button:ir.module.module.install_upgrade,done,config:"
 msgid "Ok"
-msgstr "Acceptar"
+msgstr "Accepta"
 
 #, fuzzy
 msgctxt "wizard_button:ir.module.module.install_upgrade,start,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.module.module.install_upgrade,start,upgrade:"
 msgid "Start Upgrade"
@@ -3878,16 +3878,16 @@ msgstr "Netejar"
 #, fuzzy
 msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Ok"
-msgstr "Acceptar"
+msgstr "Accepta"
 
 #, fuzzy
 msgctxt "wizard_button:ir.translation.clean,succeed,end:"
 msgid "Ok"
-msgstr "Acceptar"
+msgstr "Accepta"
 
 #, fuzzy
 msgctxt "wizard_button:ir.translation.export,result,end:"
@@ -3897,7 +3897,7 @@ msgstr "Tancat"
 #, fuzzy
 msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Close"
@@ -3911,11 +3911,11 @@ msgstr "Exportar"
 #, fuzzy
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Ok"
-msgstr "Acceptar"
+msgstr "Accepta"
 
 msgctxt "wizard_button:ir.translation.set_report,start,set_report:"
 msgid "Start Update"
@@ -3924,16 +3924,16 @@ msgstr "Iniciar actualització"
 #, fuzzy
 msgctxt "wizard_button:ir.translation.set_report,succeed,end:"
 msgid "Ok"
-msgstr "Acceptar"
+msgstr "Accepta"
 
 #, fuzzy
 msgctxt "wizard_button:ir.translation.update,start,end:"
 msgid "Cancel"
-msgstr "Cancel·lar"
+msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.translation.update,start,update:"
 msgid "Update"
-msgstr "Actualitzar"
+msgstr "Actualitza"
 
 #, fuzzy
 msgctxt "wizard_button:ir.ui.view.show,start,end:"
