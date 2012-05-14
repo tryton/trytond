@@ -204,26 +204,6 @@ class ModelSQL(ModelStorage):
             res.append(error)
         return res
 
-    def default_sequence(self):
-        '''
-        Return the default value for sequence field.
-        '''
-        pool = Pool()
-        table = self._table
-        if 'sequence' not in self._columns:
-            for model in self._inherits:
-                model_obj = pool.get(model)
-                if 'sequence' in model_obj._columns:
-                    table = model_obj._table
-                    break
-        cursor = Transaction().cursor
-        cursor.execute('SELECT MAX(sequence) ' \
-                'FROM "' + table + '"')
-        res = cursor.fetchone()
-        if res:
-            return res[0] if res[0] else 0
-        return 0
-
     def table_query(self):
         '''
         Return None if the model is a real table in the database
