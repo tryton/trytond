@@ -192,7 +192,7 @@ class ModelView(Model):
             if view_type == 'form':
                 res = self.fields_get()
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
-                '''<form string="%s">''' % (self._description,)
+                '''<form string="%s" col="4">''' % (self._description,)
                 for i in res:
                     if i in ('create_uid', 'create_date',
                             'write_uid', 'write_date', 'id', 'rec_name'):
@@ -202,6 +202,8 @@ class ModelView(Model):
                         xml += '<field name="%s"/>' % (i,)
                         if res[i]['type'] == 'text':
                             xml += "<newline/>"
+                    else:
+                        xml += '<field name="%s" colspan="4"/>' % (i,)
                 xml += "</form>"
             elif view_type == 'tree':
                 field = 'id'
