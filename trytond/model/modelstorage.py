@@ -19,7 +19,7 @@ from trytond.model import fields
 from trytond.model.browse import BrowseRecordList, BrowseRecord, \
         BrowseRecordNull
 from trytond.model.browse import EvalEnvironment
-from trytond.tools import safe_eval, reduce_domain
+from trytond.tools import safe_eval, reduce_domain, datetime_strftime
 from trytond.pyson import PYSONEncoder, PYSONDecoder, PYSON
 from trytond.const import OPERATORS, RECORD_CACHE_SIZE
 from trytond.transaction import Transaction
@@ -1130,6 +1130,35 @@ class ModelStorage(Model):
                     else:
                         for record in records:
                             digits_test(record[field_name], field.digits,
+                                field_name)
+
+                def format_test(value, format, field_name):
+                    if not value:
+                        return
+                    if not isinstance(value, datetime.time):
+                        value = value.time()
+                    if value != datetime.datetime.strptime(
+                            value.strftime(format), format).time():
+                        self.raise_user_error('time_format_validation_record',
+                            error_args=self._get_error_args(field_name))
+
+                # validate time format
+                if (field._type in ('datetime', 'time')
+                        and field_name not in ('create_date', 'write_date')):
+                    if is_pyson(field.format):
+                        pyson_format = PYSONDecoder().encode(field.format)
+                        for record in records:
+                            env = EvalEnvironment(record, self)
+                            env.update(Transaction().context)
+                            env['current_date'] = datetime.datetime.today()
+                            env['time'] = time
+                            env['context'] = Transaction().context
+                            env['active_id'] = record.id
+                            format = PYSONDecoder(env).decode(pyson_format)
+                            format_test(record[field_name], format, field_name)
+                    else:
+                        for record in records:
+                            format_test(record[field_name], field.format,
                                 field_name)
 
     def _clean_defaults(self, defaults):

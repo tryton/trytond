@@ -272,16 +272,26 @@ A date, represented in Python by a ``datetime.date`` instance.
 DateTime
 --------
 
-.. class:: DateTime(string[, \**options])
+.. class:: DateTime(string[, format, \**options])
 
 A date and time, represented in Python by a ``datetime.datetime`` instance.
+
+.. attribute:: DateTime.format
+
+    A string format as used by strftime. This format will be used to display
+    the time part of the field. The default value is `%H:%M:%S`.
+    The value can be replaced by a :class:`~trytond.pyson.PYSON` statement.
 
 Time
 ----
 
-.. class:: Time(string[, \**options])
+.. class:: Time(string[, format, \**options])
 
 A time, represented in Python by a ``datetime.time`` instance.
+
+.. attribute:: Time.format
+
+    Same as :attr:`DateTime.format`
 
 Binary
 ------
