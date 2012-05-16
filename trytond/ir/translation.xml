@@ -177,6 +177,15 @@ this repository contains the full copyright notices and license terms. -->
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
+        <record model="ir.translation" id="translation_time_format_validation_record">
+            <field name="name">time_format_validation_record</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">The time value of field "%s" on "%s" is not valid.</field>
+            <field name="value">The time value of field "%s" on "%s" is not valid.</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
         <record model="ir.translation" id="translation_access_error">
             <field name="name">access_error</field>
             <field name="lang">en_US</field>

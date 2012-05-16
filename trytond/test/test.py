@@ -356,6 +356,15 @@ class DateTimeRequired(ModelSQL):
 DateTimeRequired()
 
 
+class DateTimeFormat(ModelSQL):
+    'DateTime Format'
+    _name = 'test.datetime_format'
+    _description = __doc__
+    datetime = fields.DateTime(string='DateTime', format='%H:%M')
+
+DateTimeFormat()
+
+
 class Time(ModelSQL):
     'Time'
     _name = 'test.time'
@@ -384,6 +393,15 @@ class TimeRequired(ModelSQL):
     time = fields.Time(string='Time', help='Test time', required=True)
 
 TimeRequired()
+
+
+class TimeFormat(ModelSQL):
+    'Time Format'
+    _name = 'test.time_format'
+    _description = __doc__
+    time = fields.Time(string='Time', format='%H:%M')
+
+TimeFormat()
 
 
 class One2One(ModelSQL):

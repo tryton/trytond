@@ -65,10 +65,12 @@ class FieldsTestCase(unittest.TestCase):
         self.datetime = POOL.get('test.datetime')
         self.datetime_default = POOL.get('test.datetime_default')
         self.datetime_required = POOL.get('test.datetime_required')
+        self.datetime_format = POOL.get('test.datetime_format')
 
         self.time = POOL.get('test.time')
         self.time_default = POOL.get('test.time_default')
         self.time_required = POOL.get('test.time_required')
+        self.time_format = POOL.get('test.time_format')
 
         self.one2one = POOL.get('test.one2one')
         self.one2one_target = POOL.get('test.one2one.target')
@@ -2059,6 +2061,14 @@ class FieldsTestCase(unittest.TestCase):
             datetime9 = self.datetime.read(datetime9_id, ['datetime'])
             self.assert_(datetime9['datetime'] == today)
 
+            # Test format
+            self.assert_(self.datetime_format.create({
+                        'datetime': datetime.datetime(2009, 1, 1, 12, 30),
+                        }))
+            self.failUnlessRaises(Exception, self.datetime_format.create, {
+                    'datetime': datetime.datetime(2009, 1, 1, 12, 30, 25),
+                    })
+
             transaction.cursor.rollback()
 
     def test0100time(self):
@@ -2311,6 +2321,14 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(time9_id)
             time9 = self.time.read(time9_id, ['time'])
             self.assert_(time9['time'] == evening)
+
+            # Test format
+            self.assert_(self.time_format.create({
+                        'time': datetime.time(12, 30),
+                        }))
+            self.failUnlessRaises(Exception, self.time_format.create, {
+                    'time': datetime.time(12, 30, 25),
+                    })
 
             transaction.cursor.rollback()
 
