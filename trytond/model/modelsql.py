@@ -1348,6 +1348,40 @@ class ModelSQL(ModelStorage):
         domain = domain[:]
         cursor = Transaction().cursor
 
+        def column_get(model, field_name):
+            field = model._columns.get(field_name)
+            if not field:
+                if not field_name in model._inherit_fields:
+                    raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
+                            'exist on "%s"' % (field_name, model._name))
+                parent_model = pool.get(model._inherit_fields[field_name][0])
+                field = column_get(parent_model, field_name)
+            return field
+
+        def get_model_for_field(model, field):
+            if field in model._columns:
+                return model
+            else:
+                parent_model = pool.get(model._inherit_fields[field][0])
+                return get_model_for_field(parent_model, field)
+
+        def get_inherits_join(model, field):
+            if field in model._columns:
+                return []
+            itable = pool.get(model._inherit_fields[field][0])
+            table_query = ''
+            table_arg = []
+            if itable.table_query():
+                table_query, table_args = model.table_query()
+                table_query = '(' + table_query + ') AS '
+            table_join = 'LEFT JOIN ' + table_query + \
+                    '"' + itable._table + '" ON ' \
+                    '"%s".id = "%s"."%s"' % (itable._table, model._table,
+                            model._inherits[itable._name])
+            inherits = [(table_join, table_arg)]
+            inherits.extend(get_inherits_join(itable, field))
+            return inherits
+
         for arg in domain:
             if arg[1] not in OPERATORS:
                 raise Exception('ValidateError', 'Argument "%s" not supported'
@@ -1358,20 +1392,13 @@ class ModelSQL(ModelStorage):
             table = self
             fargs = domain[i][0].split('.', 1)
             if fargs[0] in self._inherit_fields:
-                itable = pool.get(self._inherit_fields[fargs[0]][0])
-                table_query = ''
-                table_arg = []
-                if itable.table_query():
-                    table_query, table_args = self.table_query()
-                    table_query = '(' + table_query + ') AS '
-                table_join = 'LEFT JOIN ' + table_query + \
-                        '"' + itable._table + '" ON ' \
-                        '"%s".id = "%s"."%s"' % (itable._table, self._table,
-                                self._inherits[itable._name])
-                if table_join not in tables:
-                    tables.append(table_join)
-                    tables_args.extend(table_arg)
-            field = table._columns.get(fargs[0], False)
+                inherit_joins = get_inherits_join(self, fargs[0])
+                for (table_join, table_arg) in inherit_joins:
+                    if table_join not in tables:
+                        tables.append(table_join)
+                        tables_args.extend(table_arg)
+
+            field = column_get(self, fargs[0])
             if not field:
                 if not fargs[0] in self._inherit_fields:
                     raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
@@ -1698,9 +1725,10 @@ class ModelSQL(ModelStorage):
 
         qu1, qu2 = [], []
         for arg in domain:
-            table = self
-            if len(arg) > 3:
+            table = get_model_for_field(self, arg[0])
+            if table == self and len(arg) > 3:
                 table = arg[3]
+            column = column_get(table, arg[0])
             if arg[1] in ('inselect', 'notinselect'):
                 clause = 'IN'
                 if arg[1] == 'notinselect':
@@ -1711,7 +1739,7 @@ class ModelSQL(ModelStorage):
             elif arg[1] in ('in', 'not in'):
                 if len(arg[2]) > 0:
                     todel = []
-                    if table._columns[arg[0]]._type != 'boolean':
+                    if column._type != 'boolean':
                         for xitem in range(len(arg[2])):
                             if (arg[2][xitem] is False
                                     or arg[2][xitem] is None):
@@ -1719,7 +1747,7 @@ class ModelSQL(ModelStorage):
                     arg2 = arg[2][:]
                     for xitem in todel[::-1]:
                         del arg2[xitem]
-                    arg2 = [FIELDS[table._columns[arg[0]]._type].sql_format(x)
+                    arg2 = [FIELDS[column._type].sql_format(x)
                             for x in arg2]
                     if len(arg2):
                         if reduce(lambda x, y: (x
@@ -1738,7 +1766,7 @@ class ModelSQL(ModelStorage):
                                         ('%s',) * len(arg2))))
                             qu2 += arg2
                         if todel:
-                            if table._columns[arg[0]]._type == 'boolean':
+                            if column._type == 'boolean':
                                 if arg[1] == 'in':
                                     qu1[-1] = '(' + qu1[-1] + ' OR ' \
                                             '"%s"."%s" = %%s)' % \
@@ -1759,7 +1787,7 @@ class ModelSQL(ModelStorage):
                                             '"%s"."%s" IS NOT NULL)' % \
                                             (table._table, arg[0])
                     elif todel:
-                        if table._columns[arg[0]]._type == 'boolean':
+                        if column._type == 'boolean':
                             if arg[1] == 'in':
                                 qu1.append('("%s"."%s" = %%s)' % \
                                         (table._table, arg[0]))
@@ -1784,7 +1812,7 @@ class ModelSQL(ModelStorage):
                         qu2.append(True)
             else:
                 if (arg[2] is False or arg[2] is None) and (arg[1] == '='):
-                    if table._columns[arg[0]]._type == 'boolean':
+                    if column._type == 'boolean':
                         qu1.append('("%s"."%s" = %%s)' % \
                                 (table._table, arg[0]))
                         qu2.append(False)
@@ -1798,7 +1826,7 @@ class ModelSQL(ModelStorage):
                     if arg[0] == 'id':
                         qu1.append('("%s"."%s" %s %%s)' % \
                                 (table._table, arg[0], arg[1]))
-                        qu2.append(FIELDS[table._columns[arg[0]]._type].\
+                        qu2.append(FIELDS[column._type].\
                                 sql_format(arg[2]))
                     else:
                         add_null = False
@@ -1808,21 +1836,20 @@ class ModelSQL(ModelStorage):
                                 add_null = True
                             else:
                                 qu2.append(FIELDS[
-                                        table._columns[arg[0]]._type
+                                        column._type
                                         ].sql_format(arg[2]))
                         elif arg[1] in ('not like', 'not ilike'):
                             if not arg[2]:
                                 qu2.append('')
                             else:
                                 qu2.append(FIELDS[
-                                        table._columns[arg[0]]._type
+                                        column._type
                                         ].sql_format(arg[2]))
                                 add_null = True
                         else:
-                            if arg[0] in table._columns:
-                                qu2.append(FIELDS[
-                                    table._columns[arg[0]]._type
-                                    ].sql_format(arg[2]))
+                            qu2.append(FIELDS[
+                                column._type
+                                ].sql_format(arg[2]))
                         qu1.append('("%s"."%s" %s %%s)' % (table._table,
                             arg[0], arg[1]))
                         if add_null:
