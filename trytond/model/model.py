@@ -419,13 +419,10 @@ class Model(WarningErrorMixin, URLMixin):
         res = {}
         pool = Pool()
         translation_obj = pool.get('ir.translation')
-        model_access_obj = pool.get('ir.model.access')
         field_access_obj = pool.get('ir.model.field.access')
 
         for parent in self._inherits:
             res.update(pool.get(parent).fields_get(fields_names))
-        write_access = model_access_obj.check(self._name, 'write',
-                raise_exception=False)
 
         #Add translation to cache
         language = Transaction().language
@@ -480,7 +477,7 @@ class Model(WarningErrorMixin, URLMixin):
                 if getattr(self._columns[field], arg, None) is not None:
                     res[field][arg] = copy.copy(getattr(self._columns[field],
                         arg))
-            if not write_access or not fwrite_accesses.get(field, True):
+            if not fwrite_accesses.get(field, True):
                 res[field]['readonly'] = True
                 if res[field].get('states') and \
                         'readonly' in res[field]['states']:
