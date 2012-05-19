@@ -1389,7 +1389,6 @@ class ModelSQL(ModelStorage):
         i = 0
         joins = []
         while i < len(domain):
-            table = self
             fargs = domain[i][0].split('.', 1)
             if fargs[0] in self._inherit_fields:
                 inherit_joins = get_inherits_join(self, fargs[0])
@@ -1399,12 +1398,7 @@ class ModelSQL(ModelStorage):
                         tables_args.extend(table_arg)
 
             field = column_get(self, fargs[0])
-            if not field:
-                if not fargs[0] in self._inherit_fields:
-                    raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
-                            'exist on "%s"' % (fargs[0], self._name))
-                table = pool.get(self._inherit_fields[fargs[0]][0])
-                field = table._columns.get(fargs[0], False)
+            table = get_model_for_field(self, fargs[0])
             if len(fargs) > 1:
                 if field._type == 'many2one':
                     target_obj = pool.get(field.model_name)
