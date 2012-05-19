@@ -49,6 +49,9 @@ class Model(ModelSQL, ModelView):
             'invalid_module': 'Module Name must be a python identifier!',
         })
         self._order.insert(0, ('model', 'ASC'))
+        self._rpc.update({
+                'list_models': False,
+                })
 
     def check_module(self, ids):
         '''
@@ -58,6 +61,17 @@ class Model(ModelSQL, ModelView):
             if model.module and not IDENTIFIER.match(model.module):
                 return False
         return True
+
+    def list_models(self):
+        'Return a list of all models names'
+        with Transaction().set_user(0):
+            model_ids = self.search([], order=[
+                    ('module', 'ASC'),  # Optimization assumption
+                    ('model', 'ASC'),
+                    ('id', 'ASC'),
+                    ])
+            models = self.browse(model_ids)
+            return [m.model for m in models]
 
     def create(self, vals):
         pool = Pool()
@@ -264,6 +278,9 @@ class ModelAccess(ModelSQL, ModelView):
             'create': 'You can not create this kind of document! (%s)',
             'delete': 'You can not delete this document! (%s)',
             })
+        self._rpc.update({
+                'get_access': False,
+                })
 
     def check_xml_record(self, ids, values):
         return True
@@ -280,38 +297,45 @@ class ModelAccess(ModelSQL, ModelView):
     def default_perm_delete(self):
         return False
 
+    def get_access(self, models):
+        'Return access for models'
+        pool = Pool()
+        ir_model_obj = pool.get('ir.model')
+        user_group_obj = pool.get('res.user-res.group')
+        cursor = Transaction().cursor
+        default = {'read': True, 'write': True, 'create': True, 'delete': True}
+        access = dict((m, default) for m in models)
+        cursor.execute(('SELECT '
+                    'm.model, '
+                    'MAX(CASE WHEN a.perm_read THEN 1 ELSE 0 END), '
+                    'MAX(CASE WHEN a.perm_write THEN 1 ELSE 0 END), '
+                    'MAX(CASE WHEN a.perm_create THEN 1 ELSE 0 END), '
+                    'MAX(CASE WHEN a.perm_delete THEN 1 ELSE 0 END) '
+                'FROM "%s" AS a '
+                'JOIN "%s" AS m '
+                    'ON (a.model = m.id) '
+                'LEFT JOIN "%s" AS gu '
+                    'ON (gu."group" = a."group") '
+                'WHERE m.model IN (' + ','.join(('%%s',) * len(models)) + ') '
+                    'AND (gu."user" = %%s OR a."group" IS NULL) '
+                'GROUP BY m.model')
+            % (self._table, ir_model_obj._table, user_group_obj._table),
+            list(models) + [Transaction().user])
+        access.update(dict(
+                (m, {'read': r, 'write': w, 'create': c, 'delete': d})
+                for m, r, w, c, d in cursor.fetchall()))
+        return access
+
     @Cache('ir_model_access.check')
     def check(self, model_name, mode='read', raise_exception=True):
-        '''
-        Check access for model_name
-
-        :param model_name: the model name
-        :param mode: 'read', 'write', 'create' or 'delete'
-        :param raise_exception: raise an exception if the test failed
-
-        :return: a boolean
-        '''
+        'Check access for model_name and mode'
         assert mode in ['read', 'write', 'create', 'delete'], \
                 'Invalid access mode for security'
         if Transaction().user == 0:
             return True
 
-        pool = Pool()
-        ir_model_obj = pool.get('ir.model')
-        user_group_obj = pool.get('res.user-res.group')
-        cursor = Transaction().cursor
-
-        cursor.execute('SELECT MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
-            'FROM "%s" AS a '
-            'JOIN "%s" AS m '
-                'ON (a.model = m.id) '
-            'LEFT JOIN "%s" AS gu '
-                'ON (gu."group" = a."group") '
-            'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL)'
-            % (mode, self._table, ir_model_obj._table, user_group_obj._table),
-            (model_name, Transaction().user))
-        access, = cursor.fetchone()
-        if not access and access is not None:
+        access = self.get_access([model_name])[model_name][mode]
+        if not access:
             if raise_exception:
                 self.raise_user_error(mode, model_name)
             else:

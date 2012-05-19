@@ -1,3 +1,4 @@
+* Allow client to manage model access
 * Add time format validation
 * Remove ModelSQL.default_sequence
 
