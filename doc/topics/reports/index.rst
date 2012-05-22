@@ -63,7 +63,7 @@ When defining an `ir.action.report` the following attributes are available:
     * ``report_name``: The name of the report model, for example
       my_module.my_report.  This is the name you would use with `Pool().get`
 
-    * ``module_name``: If this report is of an existing model this is its name.
+    * ``model``: If this report is of an existing model this is its name.
       For example my_module.my_model. Custom reports that aren't of a specific
       model will need to leave this blank.
 
@@ -183,7 +183,7 @@ Creating a simple report template for a model in XML
 Less work has to be done if you just want a simple report representation of a
 model.  There are just 2 steps.  First, create a report template file in a
 format supported by relatorio.  Second, describe your report in XML making sure
-to define the correct report_name and module_name.
+to define the correct ``report_name`` and ``model``.
 
 Replacing existing Tryton reports
 ---------------------------------
