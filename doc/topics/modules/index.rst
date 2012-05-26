@@ -47,7 +47,7 @@ It is a Python file that must contain only one dictionary with those keywords:
 
    * ``depends``: A list of modules on which this module depends.
 
-   * ``extra_depends``: A list of modules on which this module *may* depend.
+   * ``extras_depend``: A list of modules on which this module *may* depend.
 
    * ``xml``: The list of the XML files of the module. They will be loaded in
      the given order at the installation or update of the module.
