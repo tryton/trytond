@@ -255,12 +255,11 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <![CDATA[
-                <form string="Views">
+                <form string="View" col="2">
                     <label name="act_window"/>
                     <field name="act_window"/>
-                    <newline/>
                     <label name="sequence"/>
-                    <field name="sequence" colspan="4"/>
+                    <field name="sequence"/>
                     <label name="view"/>
                     <field name="view"/>
                 </form>
