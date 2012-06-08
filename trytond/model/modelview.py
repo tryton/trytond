@@ -1,11 +1,6 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from lxml import etree
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import md5
 from functools import wraps
 from trytond.model import Model
 from trytond.tools import safe_eval
@@ -101,19 +96,16 @@ class ModelView(Model):
         self._buttons = {}
 
     @Cache('modelview.fields_view_get')
-    def fields_view_get(self, view_id=None, view_type='form', hexmd5=None):
+    def fields_view_get(self, view_id=None, view_type='form'):
         '''
         Return a view definition.
 
         :param view_id: the id of the view, if None the first one will be used
         :param view_type: the type of the view if view_id is None
-        :param hexmd5: if filled, the function will return True if the result
-            has the same md5
         :return: a dictionary with keys:
            - model: the model name
            - arch: the xml description of the view
            - fields: a dictionary with the definition of each field in the view
-           - md5: the check sum of the dictionary without this checksum
         '''
         result = {'model': self._name}
         pool = Pool()
@@ -227,13 +219,6 @@ class ModelView(Model):
         result['arch'] = xarch
         result['fields'] = xfields
 
-        # Compute md5
-        if hashlib:
-            result['md5'] = hashlib.md5(str(result)).hexdigest()
-        else:
-            result['md5'] = md5.new(str(result)).hexdigest()
-        if hexmd5 == result['md5']:
-            return True
         return result
 
     @Cache('modelview.view_toolbar_get')
