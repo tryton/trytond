@@ -84,7 +84,7 @@ CREATE TABLE ir_module_module (
     write_date TIMESTAMP,
     write_uid INTEGER,
     name VARCHAR,
-    state VARCHAR,
+    state VARCHAR
 );
 
 CREATE TABLE ir_module_module_dependency (
