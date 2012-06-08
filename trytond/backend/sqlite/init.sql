@@ -83,13 +83,8 @@ CREATE TABLE ir_module_module (
     create_date TIMESTAMP,
     write_date TIMESTAMP,
     write_uid INTEGER,
-    website VARCHAR,
     name VARCHAR,
-    author VARCHAR,
-    url VARCHAR,
     state VARCHAR,
-    shortdesc VARCHAR,
-    description TEXT
 );
 
 CREATE TABLE ir_module_module_dependency (

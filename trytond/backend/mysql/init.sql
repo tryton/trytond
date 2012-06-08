@@ -97,13 +97,8 @@ CREATE TABLE ir_module_module (
     create_date TIMESTAMP NOT NULL,
     write_date TIMESTAMP NULL,
     write_uid BIGINT,
-    website VARCHAR(255),
     name VARCHAR(255) NOT NULL,
-    author VARCHAR(255),
-    url VARCHAR(255),
     state VARCHAR(255),
-    shortdesc VARCHAR(255),
-    description TEXT,
     PRIMARY KEY(id),
     CONSTRAINT ir_module_module_create_uid_fkey FOREIGN KEY (create_uid) REFERENCES res_user (id) ON DELETE SET NULL,
     CONSTRAINT ir_module_module_write_uid_fkey FOREIGN KEY (write_uid) REFERENCES res_user (id) ON DELETE SET NULL

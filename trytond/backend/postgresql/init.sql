@@ -117,13 +117,8 @@ CREATE TABLE ir_module_module (
     create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     write_date TIMESTAMP WITHOUT TIME ZONE,
     write_uid INTEGER,
-    website VARCHAR,
     name VARCHAR NOT NULL,
-    author VARCHAR,
-    url VARCHAR,
     state VARCHAR,
-    shortdesc VARCHAR,
-    description TEXT,
     PRIMARY KEY(id),
     FOREIGN KEY (create_uid) REFERENCES res_user ON DELETE SET NULL,
     FOREIGN KEY (write_uid) REFERENCES res_user ON DELETE SET NULL

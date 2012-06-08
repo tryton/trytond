@@ -1,9 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import os
 from trytond.model import ModelView, ModelSQL, fields
-import trytond.tools as tools
-from trytond.modules import create_graph, get_module_list
+from trytond.modules import create_graph, get_module_list, get_module_info
 from trytond.wizard import Wizard, StateView, Button, StateTransition, \
     StateAction
 from trytond.backend import TableHandler
@@ -17,10 +15,6 @@ class Module(ModelSQL, ModelView):
     _name = "ir.module.module"
     _description = __doc__
     name = fields.Char("Name", readonly=True, required=True)
-    shortdesc = fields.Char('Short description', readonly=True, translate=True)
-    description = fields.Text("Description", readonly=True, translate=True)
-    author = fields.Char("Author", readonly=True)
-    website = fields.Char("Website", readonly=True)
     version = fields.Function(fields.Char('Version'), 'get_version')
     dependencies = fields.One2Many('ir.module.module.dependency',
         'module', 'Dependencies', readonly=True)
@@ -77,26 +71,10 @@ class Module(ModelSQL, ModelView):
     def default_state(self):
         return 'uninstalled'
 
-    @staticmethod
-    def get_module_info(name):
-        "Return the content of the __tryton__.py"
-        try:
-            if name in ['ir', 'res', 'webdav']:
-                file_p = tools.file_open(os.path.join(name, '__tryton__.py'))
-            else:
-                file_p = tools.file_open(os.path.join(name, '__tryton__.py'))
-            with file_p:
-                data = file_p.read()
-            info = tools.safe_eval(data)
-        except Exception:
-            return {}
-        return info
-
     def get_version(self, ids, name):
         res = {}
         for module in self.browse(ids):
-            res[module.id] = Module.get_module_info(
-                    module.name).get('version', '')
+            res[module.id] = get_module_info(module.name).get('version', '')
         return res
 
     def get_parents(self, ids, name):
@@ -263,102 +241,38 @@ class Module(ModelSQL, ModelView):
 
     # update the list of available packages
     def update_list(self):
-        pool = Pool()
-        lang_obj = pool.get('ir.lang')
-        res = 0
-        with Transaction().set_context(language=False):
-            lang_ids = lang_obj.search([
-                ('translatable', '=', True),
-                ])
-            lang_codes = [x.code for x in lang_obj.browse(lang_ids)]
+        count = 0
+        module_names = get_module_list()
 
-            module_names = get_module_list()
+        module_ids = self.search([])
+        modules = self.browse(module_ids)
+        name2module = dict((m.name, m) for m in modules)
 
-            module_ids = self.search([])
-            modules = self.browse(module_ids)
-            name2module = {}
-            for module in modules:
-                name2module.setdefault(module.name, {})
-                name2module[module.name]['en_US'] = module
-            for code in lang_codes:
-                with Transaction().set_context(language=code):
-                    modules = self.browse(module_ids)
-                for module in modules:
-                    name2module[module.name][code] = module
+        # iterate through installed modules and mark them as being so
+        for name in module_names:
+            if name in name2module:
+                module = name2module[name]
+                tryton = get_module_info(name)
+                self._update_dependencies(module, tryton.get('depends', []))
+                continue
 
-            # iterate through installed modules and mark them as being so
-            for name in module_names:
-                mod_name = name
-                if mod_name in name2module.keys():
-                    mod = name2module[mod_name]['en_US']
-                    tryton = Module.get_module_info(mod_name)
-
-                    if mod.description != tryton.get('description',
-                            '').decode('utf-8', 'ignore') \
-                            or mod.shortdesc != tryton.get('name',
-                                    '').decode('utf-8', 'ignore') \
-                            or mod.author != tryton.get('author',
-                                    '').decode('utf-8', 'ignore') \
-                            or mod.website != tryton.get('website',
-                                    '').decode('utf-8', 'ignore'):
-                        self.write(mod.id, {
-                            'description': tryton.get('description', ''),
-                            'shortdesc': tryton.get('name', ''),
-                            'author': tryton.get('author', ''),
-                            'website': tryton.get('website', ''),
-                            })
-
-                    for code in lang_codes:
-                        mod2 = name2module[mod_name][code]
-                        if mod2.description != \
-                                tryton.get('description_' + code,
-                                        tryton.get('description', '')
-                                        ).decode('utf-8', 'ignore') \
-                                or mod2.shortdesc != \
-                                tryton.get('name_' + code,
-                                        tryton.get('name', '')
-                                        ).decode('utf-8', 'ignore'):
-                            with Transaction().set_context(language=code):
-                                self.write(mod.id, {
-                                    'description': tryton.get(
-                                        'description_' + code, ''),
-                                    'shortdesc': tryton.get(
-                                        'name_' + code, ''),
-                                    })
-
-                    self._update_dependencies(mod, tryton.get('depends', []))
-                    continue
-
-                tryton = Module.get_module_info(mod_name)
-                if not tryton:
-                    continue
-                new_id = self.create({
-                    'name': mod_name,
+            tryton = get_module_info(name)
+            if not tryton:
+                continue
+            module_id = self.create({
+                    'name': name,
                     'state': 'uninstalled',
-                    'description': tryton.get('description', ''),
-                    'shortdesc': tryton.get('name', ''),
-                    'author': tryton.get('author', 'Unknown'),
-                    'website': tryton.get('website', ''),
-                })
-                for code in lang_codes:
-                    with Transaction().set_context(language=code):
-                        self.write(new_id, {
-                            'description': tryton.get(
-                                'description_' + code, ''),
-                            'shortdesc': tryton.get('name_' + code, ''),
-                            })
-                res += 1
-                name2module.setdefault(mod_name, {})
-                name2module[mod_name]['en_US'] = self.browse(new_id)
-                self._update_dependencies(name2module[mod_name]['en_US'],
-                        tryton.get('depends', []))
-        return res
+                    })
+            count += 1
+            module = self.browse(module_id)
+            self._update_dependencies(module, tryton.get('depends', []))
+        return count
 
     def _update_dependencies(self, module, depends=None):
         pool = Pool()
         dependency_obj = pool.get('ir.module.module.dependency')
         dependency_obj.delete([x.id for x in module.dependencies
-            if x.name not in depends])
+                if x.name not in depends])
         if depends is None:
             depends = []
         # Restart Browse Cache for deleted dependencies
@@ -367,9 +281,9 @@ class Module(ModelSQL, ModelView):
         for depend in depends:
             if depend not in dependency_names:
                 dependency_obj.create({
-                    'module': module.id,
-                    'name': depend,
-                    })
+                        'module': module.id,
+                        'name': depend,
+                        })
 
 Module()
 

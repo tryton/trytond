@@ -8,6 +8,9 @@ import contextlib
 from functools import reduce
 import imp
 import operator
+import ConfigParser
+from glob import iglob
+
 import trytond.tools as tools
 from trytond.config import CONFIG
 from trytond.transaction import Transaction
@@ -125,35 +128,32 @@ class Node(Singleton):
         return res
 
 
+def get_module_info(name):
+    "Return the content of the tryton.cfg"
+    config = ConfigParser.ConfigParser()
+    with tools.file_open(os.path.join(name, 'tryton.cfg')) as fp:
+        config.readfp(fp)
+        directory = os.path.dirname(fp.name)
+    info = dict(config.items('tryton'))
+    info['directory'] = directory
+    for key in ('depends', 'extras_depend', 'xml'):
+        if key in info:
+            info[key] = info[key].strip().splitlines()
+    return info
+
+
 def create_graph(module_list):
     graph = Graph()
     packages = []
 
     for module in module_list:
-        tryton_file = OPJ(MODULES_PATH, module, '__tryton__.py')
-        mod_path = OPJ(MODULES_PATH, module)
-        if module in ('ir', 'res', 'webdav', 'test'):
-            root_path = os.path.abspath(os.path.dirname(
-                    os.path.dirname(__file__)))
-            tryton_file = OPJ(root_path, module, '__tryton__.py')
-            mod_path = OPJ(root_path, module)
-        elif module in EGG_MODULES:
-            ep = EGG_MODULES[module]
-            tryton_file = OPJ(ep.dist.location, 'trytond', 'modules', module,
-                    '__tryton__.py')
-            mod_path = OPJ(ep.dist.location, 'trytond', 'modules', module)
-            if not os.path.isfile(tryton_file) or not os.path.isdir(mod_path):
-                # When testing modules from setuptools location is the module
-                # directory
-                tryton_file = OPJ(ep.dist.location, '__tryton__.py')
-                mod_path = os.path.dirname(ep.dist.location)
-        if os.path.isfile(tryton_file):
-            with tools.file_open(tryton_file, subdir='') as fp:
-                info = tools.safe_eval(fp.read())
-            packages.append((module, info.get('depends', []),
-                    info.get('extras_depend', []), info))
-        elif module != 'all':
-            raise Exception('Module %s not found' % module)
+        try:
+            info = get_module_info(module)
+        except IOError:
+            if module != 'all':
+                raise Exception('Module %s not found' % module)
+        packages.append((module, info.get('depends', []),
+                info.get('extras_depend', []), info))
 
     current, later = set([x[0] for x in packages]), set()
     all_packages = set(current)
@@ -242,16 +242,16 @@ def load_module_graph(graph, pool, lang=None):
 
             modules_todo.append((module, list(tryton_parser.to_delete)))
 
-            for filename in package.info.get('translation', []):
+            for filename in iglob('%s/%s/*.po'
+                    % (package.info['directory'], 'locale')):
                 filename = filename.replace('/', os.sep)
                 lang2 = os.path.splitext(os.path.basename(filename))[0]
                 if lang2 not in lang:
                     continue
-                logger.info('%s:loading %s' % (module, filename))
-                with tools.file_open(OPJ(module, filename)) as trans_file:
-                    po_path = trans_file.name
+                logger.info('%s:loading %s' % (module,
+                        filename[len(package.info['directory']) + 1:]))
                 translation_obj = pool.get('ir.translation')
-                translation_obj.translation_import(lang2, module, po_path)
+                translation_obj.translation_import(lang2, module, filename)
 
             cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
                     "WHERE name = %s", (package.name,))
