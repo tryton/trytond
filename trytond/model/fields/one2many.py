@@ -24,7 +24,8 @@ class One2Many(Field):
             loading='lazy'):
         '''
         :param model_name: The name of the target model.
-        :param field: The name of the field that handle the reverse many2one.
+        :param field: The name of the field that handle the reverse many2one or
+            reference.
         :param add_remove: A list that defines a domain on add/remove.
             See domain on ModelStorage.search.
         :param order:  a list of tuples that are constructed like this:
@@ -66,21 +67,29 @@ class One2Many(Field):
         Return target records ordered.
 
         :param ids: a list of ids
-        :param model: a string with the name of the model
+        :param model: the model
         :param name: a string with the name of the field
         :param values: a dictionary with the read values
         :return: a dictionary with ids as key and values as value
         '''
         pool = Pool()
+        relation_obj = pool.get(self.model_name)
+        if self.field in relation_obj._columns:
+            field = relation_obj._columns[self.field]
+        else:
+            field = relation_obj._inherit_fields[self.field][2]
         res = {}
         for i in ids:
             res[i] = []
         ids2 = []
         for i in range(0, len(ids), Transaction().cursor.IN_MAX):
             sub_ids = ids[i:i + Transaction().cursor.IN_MAX]
-            ids2.append(pool.get(self.model_name).search([
-                (self.field, 'in', sub_ids),
-                ], order=self.order))
+            if field._type == 'reference':
+                references = ['%s,%s' % (model._name, x) for x in sub_ids]
+                clause = [(self.field, 'in', references)]
+            else:
+                clause = [(self.field, 'in', sub_ids)]
+            ids2.append(relation_obj.search(clause, order=self.order))
 
         cache = Transaction().cursor.get_cache(Transaction().context)
         cache.setdefault(self.model_name, {})
@@ -93,8 +102,13 @@ class One2Many(Field):
                 ids3.append(i)
 
         if ids3:
-            for i in pool.get(self.model_name).read(ids3, [self.field]):
-                res[i[self.field]].append(i['id'])
+            for i in relation_obj.read(ids3, [self.field]):
+                if field._type == 'reference':
+                    _, id_ = i[self.field].split(',')
+                    id_ = int(id_)
+                else:
+                    id_ = i[self.field]
+                res[id_].append(i['id'])
 
         index_of_ids2 = dict((i, index)
             for index, i in enumerate(chain(*ids2)))
@@ -107,7 +121,7 @@ class One2Many(Field):
         Set the values.
 
         :param ids: A list of ids
-        :param model: A string with the name of the model
+        :param model: the model
         :param name: A string with the name of the field
         :param values: A list of tuples:
             (``create``, ``{<field name>: value}``),
@@ -122,21 +136,38 @@ class One2Many(Field):
         pool = Pool()
         if not values:
             return
-        model = pool.get(self.model_name)
+        target_obj = pool.get(self.model_name)
+        if self.field in target_obj._columns:
+            field = target_obj._columns[self.field]
+        else:
+            field = target_obj._inherit_fields[self.field][2]
+
+        def search_clause(ids):
+            if field._type == 'reference':
+                references = ['%s,%s' % (model._name, x) for x in ids]
+                return (self.field, 'in', references)
+            else:
+                return (self.field, 'in', ids)
+
+        def field_value(record_id):
+            if field._type == 'reference':
+                return '%s,%s' % (model._name, record_id)
+            else:
+                return record_id
+
         for act in values:
             if act[0] == 'create':
                 for record_id in ids:
-                    act[1][self.field] = record_id
-                    model.create(act[1])
+                    act[1][self.field] = field_value(record_id)
+                    target_obj.create(act[1])
             elif act[0] == 'write':
-                model.write(act[1], act[2])
+                target_obj.write(act[1], act[2])
             elif act[0] == 'delete':
-                model.delete(act[1])
+                target_obj.delete(act[1])
             elif act[0] == 'delete_all':
-                target_ids = model.search([
-                    (self.field, 'in', ids),
-                    ])
-                model.delete(target_ids)
+                target_obj.delete(target_obj.search([
+                            search_clause(ids),
+                            ]))
             elif act[0] == 'unlink':
                 if isinstance(act[1], (int, long)):
                     target_ids = [act[1]]
@@ -144,13 +175,13 @@ class One2Many(Field):
                     target_ids = list(act[1])
                 if not target_ids:
                     continue
-                target_ids = model.search([
-                    (self.field, 'in', ids),
-                    ('id', 'in', target_ids),
-                    ])
-                model.write(target_ids, {
-                    self.field: False,
-                    })
+                target_ids = target_obj.search([
+                        search_clause(ids),
+                        ('id', 'in', target_ids),
+                        ])
+                target_obj.write(target_ids, {
+                        self.field: None,
+                        })
             elif act[0] == 'add':
                 if isinstance(act[1], (int, long)):
                     target_ids = [act[1]]
@@ -159,32 +190,32 @@ class One2Many(Field):
                 if not target_ids:
                     continue
                 for record_id in ids:
-                    model.write(target_ids, {
-                        self.field: record_id,
-                        })
+                    target_obj.write(target_ids, {
+                            self.field: field_value(record_id),
+                            })
             elif act[0] == 'unlink_all':
-                target_ids = model.search([
-                    (self.field, 'in', ids),
-                    ])
-                model.write(target_ids, {
-                    self.field: False,
-                    })
+                target_ids = target_obj.search([
+                        search_clause(ids),
+                        ])
+                target_obj.write(target_ids, {
+                        self.field: None,
+                        })
             elif act[0] == 'set':
                 if not act[1]:
                     target_ids = [0]
                 else:
                     target_ids = list(act[1])
                 for record_id in ids:
-                    target_ids2 = model.search([
-                        (self.field, '=', record_id),
-                        ('id', 'not in', target_ids),
-                        ])
-                    model.write(target_ids2, {
-                        self.field: False,
-                        })
-                    if act[1]:
-                        model.write(target_ids, {
-                            self.field: record_id,
+                    target_ids2 = target_obj.search([
+                            search_clause([record_id]),
+                            ('id', 'not in', target_ids),
+                            ])
+                    target_obj.write(target_ids2, {
+                            self.field: None,
                             })
+                    if act[1]:
+                        target_obj.write(target_ids, {
+                                self.field: field_value(record_id),
+                                })
             else:
                 raise Exception('Bad arguments')

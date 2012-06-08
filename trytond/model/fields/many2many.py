@@ -68,18 +68,30 @@ class Many2Many(Field):
             order = self.order
 
         relation_obj = Pool().get(self.relation_name)
+        if self.origin in relation_obj._columns:
+            origin_field = relation_obj._columns[self.origin]
+        else:
+            origin_field = relation_obj._inherit_fields[self.origin][2]
 
         relation_ids = []
         for i in range(0, len(ids), Transaction().cursor.IN_MAX):
             sub_ids = ids[i:i + Transaction().cursor.IN_MAX]
-            relation_ids.append(relation_obj.search([
-                (self.origin, 'in', sub_ids),
-                (self.target + '.id', '!=', False),
-                ], order=order))
+            if origin_field._type == 'reference':
+                references = ['%s,%s' % (model._name, x) for x in sub_ids]
+                clause = [(self.origin, 'in', references)]
+            else:
+                clause = [(self.origin, 'in', sub_ids)]
+            clause += [(self.target + '.id', '!=', None)]
+            relation_ids.append(relation_obj.search(clause, order=order))
         relation_ids = list(chain(*relation_ids))
 
         for relation in relation_obj.browse(relation_ids):
-            res[relation[self.origin].id].append(relation[self.target].id)
+            if origin_field._type == 'reference':
+                _, origin_id = relation[self.origin].split(',')
+                origin_id = int(origin_id)
+            else:
+                origin_id = relation[self.origin].id
+            res[origin_id].append(relation[self.target].id)
         return res
 
     def set(self, ids, model, name, values):
@@ -93,26 +105,53 @@ class Many2Many(Field):
             (``create``, ``{<field name>: value}``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),
+            (``delete_all``),
             (``unlink``, ``<ids>``),
             (``add``, ``<ids>``),
             (``unlink_all``),
             (``set``, ``<ids>``)
         '''
+        pool = Pool()
         if not values:
             return
-        relation_obj = Pool().get(self.relation_name)
+        relation_obj = pool.get(self.relation_name)
         target_obj = self.get_target()
+
+        if self.origin in relation_obj._columns:
+            origin_field = relation_obj._columns[self.origin]
+        else:
+            origin_field = relation_obj._inherit_fields[self.origin][2]
+
+        def search_clause(ids):
+            if origin_field._type == 'reference':
+                references = ['%s,%s' % (model._name, x) for x in ids]
+                return (self.origin, 'in', references)
+            else:
+                return (self.origin, 'in', ids)
+
+        def field_value(record_id):
+            if origin_field._type == 'reference':
+                return '%s,%s' % (model._name, record_id)
+            else:
+                return record_id
+
         for act in values:
             if act[0] == 'create':
                 for record_id in ids:
                     relation_obj.create({
-                        self.origin: record_id,
-                        self.target: target_obj.create(act[1]),
-                        })
+                            self.origin: field_value(record_id),
+                            self.target: target_obj.create(act[1]),
+                            })
             elif act[0] == 'write':
                 target_obj.write(act[1], act[2])
             elif act[0] == 'delete':
                 target_obj.delete(act[1])
+            elif act[0] == 'delete_all':
+                relations = relation_obj.browse(relation_obj.search([
+                            search_clause(ids),
+                            ]))
+                target_obj.delete([r[self.target].id for r in relations
+                        if r[self.target].id])
             elif act[0] == 'unlink':
                 if isinstance(act[1], (int, long)):
                     target_ids = [act[1]]
@@ -125,9 +164,9 @@ class Many2Many(Field):
                         Transaction().cursor.IN_MAX):
                     sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
                     relation_ids += relation_obj.search([
-                        (self.origin, 'in', ids),
-                        (self.target, 'in', sub_ids),
-                        ])
+                            search_clause(ids),
+                            (self.target, 'in', sub_ids),
+                            ])
                 relation_obj.delete(relation_ids)
             elif act[0] == 'add':
                 if isinstance(act[1], (int, long)):
@@ -141,22 +180,22 @@ class Many2Many(Field):
                         Transaction().cursor.IN_MAX):
                     sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
                     relation_ids = relation_obj.search([
-                        (self.origin, 'in', ids),
-                        (self.target, 'in', sub_ids),
-                        ])
+                            search_clause(ids),
+                            (self.target, 'in', sub_ids),
+                            ])
                     for relation in relation_obj.browse(relation_ids):
                         existing_ids.append(relation[self.target].id)
                 for new_id in (x for x in target_ids if x not in existing_ids):
                     for record_id in ids:
                         relation_obj.create({
-                            self.origin: record_id,
-                            self.target: new_id,
-                            })
+                                self.origin: field_value(record_id),
+                                self.target: new_id,
+                                })
             elif act[0] == 'unlink_all':
                 target_ids = relation_obj.search([
-                    (self.origin, 'in', ids),
-                    (self.target + '.id', '!=', False),
-                    ])
+                        search_clause(ids),
+                        (self.target + '.id', '!=', None),
+                        ])
                 relation_obj.delete(target_ids)
             elif act[0] == 'set':
                 if not act[1]:
@@ -164,17 +203,17 @@ class Many2Many(Field):
                 else:
                     target_ids = list(act[1])
                 target_ids2 = relation_obj.search([
-                    (self.origin, 'in', ids),
-                    (self.target + '.id', '!=', False),
-                    ])
+                        search_clause(ids),
+                        (self.target + '.id', '!=', None),
+                        ])
                 relation_obj.delete(target_ids2)
 
                 for new_id in target_ids:
                     for record_id in ids:
                         relation_obj.create({
-                            self.origin: record_id,
-                            self.target: new_id,
-                            })
+                                self.origin: field_value(record_id),
+                                self.target: new_id,
+                                })
             else:
                 raise Exception('Bad arguments')
 

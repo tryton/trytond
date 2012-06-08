@@ -418,7 +418,8 @@ One2Many
 .. class:: One2Many(model_name, field, string[, add_remove[, order[, datetime_field[, \**options]]]])
 
 A one-to-many relation field. It requires to have the opposite
-:class:`Many2One` field defined on the target model.
+:class:`Many2One` field or a :class:`Reference` field defined on the target
+model.
 
 This field accepts as written value a list of tuples like this:
 
@@ -449,7 +450,8 @@ This field accepts as written value a list of tuples like this:
 
 .. attribute:: One2Many.field
 
-    The name of the field that handles the opposite :class:`Many2One`
+    The name of the field that handles the opposite :class:`Many2One` or
+    :class:`Reference`.
 
 :class:`One2Many` has some extra optional arguments:
 
@@ -483,7 +485,8 @@ A many-to-many relation field.
 
 .. attribute:: Many2Many.origin
 
-    The name of the field that has the :class:`Many2One` to the record.
+    The name of the field that has the :class:`Many2One` or :class:`Reference`
+    to the record.
 
 .. attribute:: Many2Many.target
 
