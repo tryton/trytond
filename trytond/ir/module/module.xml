@@ -12,23 +12,9 @@ this repository contains the full copyright notices and license terms. -->
                 <form string="Module" on_write="on_write">
                     <label name="name"/>
                     <field name="name"/>
-                    <label name="shortdesc"/>
-                    <field name="shortdesc"/>
-                    <notebook colspan="4">
-                        <page string="Module" id="module">
-                            <separator name="description" colspan="4"/>
-                            <field name="description" colspan="4"/>
-                            <label name="version"/>
-                            <field name="version"/>
-                            <label name="author"/>
-                            <field name="author"/>
-                            <label name="website"/>
-                            <field name="website" widget="url"/>
-                        </page>
-                        <page string="Dependencies" col="1" id="dependencies">
-                            <field name="dependencies"/>
-                        </page>
-                    </notebook>
+                    <label name="version"/>
+                    <field name="version"/>
+                    <field name="dependencies" colspan="4"/>
                     <label name="state"/>
                     <field name="state" readonly="1"/>
                     <group col="2" colspan="2" id="button">
@@ -56,13 +42,9 @@ this repository contains the full copyright notices and license terms. -->
               <![CDATA[
                 <tree string="Modules" on_write="on_write"
                     colors="If(In(Eval('state', ''), ['to upgrade', 'to install']), 'blue', If(Equal(Eval('state', ''), 'uninstalled'), 'grey', 'black'))">
-                    <field name="name"/>
-                    <field name="shortdesc"/>
-                    <field name="author"/>
+                    <field name="name" expand="1"/>
                     <field name="version"/>
-                    <field name="website"/>
                     <field name="state"/>
-                    <field name="description" tree_invisible="1"/>
                     <button string="Mark for Upgrade" name="upgrade"
                         type="object"/>
                     <button string="Mark for Installation" name="install"
@@ -121,7 +103,7 @@ this repository contains the full copyright notices and license terms. -->
                 <![CDATA[
                 <tree string="Dependencies">
                     <field name="module"/>
-                    <field name="name"/>
+                    <field name="name" expand="1"/>
                     <field name="state"/>
                 </tree>
                 ]]>

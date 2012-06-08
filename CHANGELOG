@@ -1,3 +1,4 @@
+* Replace __tryton__.py by tryton.cfg
 * Allow to use Reference field in One2Many & Many2Many
 * Remove hexmd5 from ModelView.fields_view_get
 * Allow client to manage model access

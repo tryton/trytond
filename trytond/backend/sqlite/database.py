@@ -215,38 +215,29 @@ class Database(DatabaseInterface):
 
     @staticmethod
     def init(cursor):
-        from trytond.tools import safe_eval
+        from trytond.modules import get_module_info
         sql_file = os.path.join(os.path.dirname(__file__), 'init.sql')
         with open(sql_file) as fp:
             for line in fp.read().split(';'):
                 if (len(line) > 0) and (not line.isspace()):
                     cursor.execute(line)
 
-        for i in ('ir', 'res', 'webdav'):
-            root_path = os.path.join(os.path.dirname(__file__), '..', '..')
-            tryton_file = os.path.join(root_path, i, '__tryton__.py')
-            with open(tryton_file) as fp:
-                info = safe_eval(fp.read())
-            active = info.get('active', False)
-            if active:
+        for module in ('ir', 'res', 'webdav'):
+            state = 'uninstalled'
+            if module in ('ir', 'res'):
                 state = 'to install'
-            else:
-                state = 'uninstalled'
-            cursor.execute('INSERT INTO ir_module_module ' \
-                    '(create_uid, create_date, author, website, name, ' \
-                    'shortdesc, description, state) ' \
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (0, datetime.datetime.now(), info.get('author', ''),
-                info.get('website', ''), i, info.get('name', False),
-                info.get('description', ''), state))
+            info = get_module_info(module)
+            cursor.execute('INSERT INTO ir_module_module '
+                '(create_uid, create_date, name, state) '
+                'VALUES (%s, %s, %s, %s)',
+                (0, datetime.datetime.now(), module, state))
             cursor.execute('SELECT last_insert_rowid()')
-            module_id = cursor.fetchone()[0]
-            dependencies = info.get('depends', [])
-            for dependency in dependencies:
-                cursor.execute('INSERT INTO ir_module_module_dependency ' \
-                        '(create_uid, create_date, module, name) ' \
-                        'VALUES (%s, %s, %s, %s) ',
-                        (0, datetime.datetime.now(), module_id, dependency))
+            module_id, = cursor.fetchone()
+            for dependency in info.get('depends', []):
+                cursor.execute('INSERT INTO ir_module_module_dependency '
+                    '(create_uid, create_date, module, name) '
+                    'VALUES (%s, %s, %s, %s) ',
+                    (0, datetime.datetime.now(), module_id, dependency))
 
 
 class _Cursor(sqlite.Cursor):
