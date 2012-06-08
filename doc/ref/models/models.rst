@@ -119,7 +119,7 @@ Static methods:
 
 Instance methods:
 
-.. method:: ModelView.fields_view_get([view_id[, view_type[, toolbar[, hexmd5]]]])
+.. method:: ModelView.fields_view_get([view_id[, view_type[, toolbar]]])
 
     Return a view definition used by the client. The definition is::
 
@@ -141,8 +141,6 @@ Instance methods:
                 'relate': [
                     ...
                 ],
-            },
-            ''md5': {
             },
         }
 

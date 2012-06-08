@@ -1,3 +1,4 @@
+* Remove hexmd5 from ModelView.fields_view_get
 * Allow client to manage model access
 * Add time format validation
 * Remove ModelSQL.default_sequence
