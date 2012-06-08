@@ -20,7 +20,7 @@ class Workflow(object):
             def wrapper(self, ids, *args, **kwargs):
                 records = self.browse(ids)
                 filtered = []
-                to_update = []
+                to_update = {}
 
                 for record in records:
                     current_state = getattr(record, self._transition_state)
@@ -28,11 +28,16 @@ class Workflow(object):
                     if transition in self._transitions:
                         filtered.append(record.id)
                         if current_state != state:
-                            to_update.append(record.id)
+                            to_update[record.id] = current_state
 
                 result = func(self, filtered, *args, **kwargs)
                 if to_update:
-                    self.write(to_update, {
+                    records = self.browse(to_update.keys())
+                    for record in records:
+                        current_state = getattr(record, self._transition_state)
+                        if current_state != to_update[record.id]:
+                            del to_update[record.id]
+                    self.write(to_update.keys(), {
                             self._transition_state: state,
                             })
                 return result
