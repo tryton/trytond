@@ -472,6 +472,114 @@ class One2OneRequiredRelation(ModelSQL):
 One2OneRequiredRelation()
 
 
+class One2Many(ModelSQL):
+    'One2Many Relation'
+    _name = 'test.one2many'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    targets = fields.One2Many('test.one2many.target', 'origin', 'Targets')
+
+One2Many()
+
+
+class One2ManyTarget(ModelSQL):
+    'One2Many Target'
+    _name = 'test.one2many.target'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    origin = fields.Many2One('test.one2many', 'Origin')
+
+One2ManyTarget()
+
+
+class One2ManyReference(ModelSQL):
+    'One2Many Reference Relation'
+    _name = 'test.one2many_reference'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    targets = fields.One2Many('test.one2many_reference.target', 'origin',
+        'Targets')
+
+One2ManyReference()
+
+
+class One2ManyReferenceTarget(ModelSQL):
+    'One2Many Reference Target'
+    _name = 'test.one2many_reference.target'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    origin = fields.Reference('Origin', [
+            ('test.one2many_reference', 'One2Many Reference'),
+            ])
+
+One2ManyReferenceTarget()
+
+
+class Many2Many(ModelSQL):
+    'Many2Many'
+    _name = 'test.many2many'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    targets = fields.Many2Many('test.many2many.relation', 'origin', 'target',
+        'Targets')
+
+Many2Many()
+
+
+class Many2ManyTarget(ModelSQL):
+    'Many2Many Target'
+    _name = 'test.many2many.target'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+
+
+Many2ManyTarget()
+
+
+class Many2ManyRelation(ModelSQL):
+    'Many2Many Relation'
+    _name = 'test.many2many.relation'
+    _description = __doc__
+    origin = fields.Many2One('test.many2many', 'Origin')
+    target = fields.Many2One('test.many2many.target', 'Target')
+
+Many2ManyRelation()
+
+
+class Many2ManyReference(ModelSQL):
+    'Many2Many Reference'
+    _name = 'test.many2many_reference'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    targets = fields.Many2Many('test.many2many_reference.relation', 'origin',
+        'target', 'Targets')
+
+Many2ManyReference()
+
+
+class Many2ManyReferenceTarget(ModelSQL):
+    'Many2Many Reference Target'
+    _name = 'test.many2many_reference.target'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+
+
+Many2ManyReferenceTarget()
+
+
+class Many2ManyReferenceRelation(ModelSQL):
+    'Many2Many Relation'
+    _name = 'test.many2many_reference.relation'
+    _description = __doc__
+    origin = fields.Reference('Origin', [
+            ('test.many2many_reference', 'Many2Many Reference'),
+            ])
+    target = fields.Many2One('test.many2many_reference.target',
+        'Reference Target')
+
+Many2ManyReferenceRelation()
+
+
 class Property(ModelSQL):
     'Property'
     _name = 'test.property'

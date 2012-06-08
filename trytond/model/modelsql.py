@@ -1427,6 +1427,17 @@ class ModelSQL(ModelStorage):
                     else:
                         relation_obj = target_obj
                         origin, target = field.field, 'id'
+                    if origin in relation_obj._columns:
+                        rev_field = relation_obj._columns[origin]
+                    else:
+                        rev_field = relation_obj._inherit_fields[origin][2]
+                    if rev_field._type == 'reference':
+                        sql_type = FIELDS[
+                            self.id._type].sql_type(self.id)[0]
+                        origin = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
+                            % (origin, sql_type))
+                    else:
+                        origin = '"%s"' % origin
                     if hasattr(field, 'search'):
                         domain.extend([(fargs[0], 'in', target_obj.search([
                             (fargs[1], domain[i][1], domain[i][2]),
@@ -1436,7 +1447,7 @@ class ModelSQL(ModelStorage):
                         query1, query2 = target_obj.search([
                             (fargs[1], domain[i][1], domain[i][2]),
                             ], order=[], query_string=True)
-                        query1 = ('SELECT "%s" FROM "%s" WHERE "%s" IN (%s)' %
+                        query1 = ('SELECT %s FROM "%s" WHERE "%s" IN (%s)' %
                                 (origin, relation_obj._table, target, query1))
                         domain[i] = ('id', 'inselect', (query1, query2))
                         i += 1
@@ -1450,57 +1461,46 @@ class ModelSQL(ModelStorage):
                 domain.extend(field.search(table, clause[0], clause))
             elif field._type == 'one2many':
                 field_obj = pool.get(field.model_name)
-
-                if isinstance(domain[i][2], basestring):
-                    # get the ids of the records of the "distant" resource
-                    ids2 = [x[0] for x in field_obj.search([
-                        ('rec_name', domain[i][1], domain[i][2]),
-                        ], order=[])]
-                else:
-                    ids2 = domain[i][2]
-
                 table_query = ''
                 table_args = []
                 if field_obj.table_query():
                     table_query, table_args = field_obj.table_query()
                     table_query = '(' + table_query + ') AS '
+                if field.field in field_obj._columns:
+                    rev_field = field_obj._columns[field.field]
+                else:
+                    rev_field = field_obj._inherit_fields[field.field][2]
+                if rev_field._type == 'reference':
+                    sql_type = FIELDS[self.id._type].sql_type(self.id)[0]
+                    select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
+                        % (field.field, sql_type))
+                else:
+                    select = '"' + field.field + '"'
 
-                if ids2 == True or ids2 == False:
-                    query1 = 'SELECT "' + field.field + '" ' \
+                if isinstance(domain[i][2], bool) or domain[i][2] is None:
+                    query1 = 'SELECT ' + select + ' ' \
                             'FROM ' + table_query + \
                                 '"' + field_obj._table + '" ' \
                             'WHERE "' + field.field + '" IS NOT NULL'
                     query2 = table_args
                     clause = 'inselect'
-                    if ids2 == False:
+                    if not domain[i][2]:
                         clause = 'notinselect'
                     domain[i] = ('id', clause, (query1, query2))
-                elif not ids2:
-                    domain[i] = ('id', '=', '0')
                 else:
-                    if len(ids2) < cursor.IN_MAX:
-                        red_sql, red_ids = reduce_ids('id', ids2)
-                        query1 = 'SELECT "' + field.field + '" ' \
-                                'FROM ' + table_query + \
-                                    '"' + field_obj._table + '" ' \
-                                'WHERE ' + red_sql
-                        query2 = table_args + red_ids
-                        domain[i] = ('id', 'inselect', (query1, query2))
+                    if isinstance(domain[i][2], basestring):
+                        target_field = 'rec_name'
                     else:
-                        ids3 = []
-                        for i in range(0, len(ids2), cursor.IN_MAX):
-                            sub_ids2 = ids2[i:i + cursor.IN_MAX]
-                            red_sql, red_ids = reduce_ids('id', sub_ids2)
-                            cursor.execute(
-                                'SELECT "' + field.field + '" ' \
-                                'FROM ' + table_query + \
-                                    '"' + field_obj._table + '" ' \
-                                'WHERE ' + red_sql,
-                                table_args + red_ids)
-
-                            ids3.extend([x[0] for x in cursor.fetchall()])
-
-                        domain[i] = ('id', 'in', ids3)
+                        target_field = 'id'
+                    query1, query2 = field_obj.search([
+                            (target_field, domain[i][1], domain[i][2]),
+                            ], order=[], query_string=True)
+                    query1 = ('SELECT ' + select + ' '
+                        'FROM ' + table_query +
+                            '"' + field_obj._table + '" '
+                        'WHERE id IN (' + query1 + ')')
+                    query2 = table_args + query2
+                    domain[i] = ('id', 'inselect', (query1, query2))
                 i += 1
             elif field._type in ('many2many', 'one2one'):
                 # XXX must find a solution for long id list
@@ -1555,14 +1555,31 @@ class ModelSQL(ModelStorage):
                             domain[i] = ('id', 'not in', ids2 + _rec_get(ids2,
                                 table, domain[i][0]))
                 else:
+                    relation_obj = pool.get(field.relation_name)
+                    table_query = ''
+                    table_args = []
+                    if relation_obj.table_query():
+                        table_query, table_args = relation_obj.table_query()
+                        table_query = '(' + table_query + ') AS '
+                    if field.origin in relation_obj._columns:
+                        origin_field = relation_obj._columns[field.origin]
+                    else:
+                        origin_field = \
+                            relation_obj._inherit_fields[field.origin][2]
+                    if origin_field._type == 'reference':
+                        sql_type = FIELDS[self.id._type].sql_type(self.id)[0]
+                        select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
+                            % (field.origin, sql_type))
+                    else:
+                        select = '"' + field.origin + '"'
                     if isinstance(domain[i][2], bool) or domain[i][2] is None:
-                        relation_obj = pool.get(field.relation_name)
-                        query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + relation_obj._table + '" '\
+                        query1 = 'SELECT ' + select + ' ' \
+                                'FROM ' + table_query + ' '\
+                                    '"' + relation_obj._table + '" ' \
                                 'WHERE "' + field.origin + '" IS NOT NULL'
-                        query2 = []
+                        query2 = table_args
                         clause = 'inselect'
-                        if domain[i][2] == False:
+                        if not domain[i][2]:
                             clause = 'notinselect'
                         domain[i] = ('id', clause, (query1, query2))
                     else:
@@ -1575,9 +1592,11 @@ class ModelSQL(ModelStorage):
                         query1, query2 = target_obj.search([
                                     (target_field, domain[i][1], domain[i][2]),
                                     ], order=[], query_string=True)
-                        query1 = ('SELECT "%s" FROM "%s" WHERE "%s" IN (%s)' %
-                                (field.origin, relation_obj._table,
-                                    field.target, query1))
+                        query1 = ('SELECT ' + select + ' '
+                            'FROM ' + table_query +
+                                '"' + relation_obj._table + '" '
+                            'WHERE "' + field.target + '" IN (' + query1 + ')')
+                        query2 = table_args + query2
                         domain[i] = ('id', 'inselect', (query1, query2))
                 i += 1
 

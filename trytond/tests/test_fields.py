@@ -76,6 +76,18 @@ class FieldsTestCase(unittest.TestCase):
         self.one2one_target = POOL.get('test.one2one.target')
         self.one2one_required = POOL.get('test.one2one_required')
 
+        self.one2many = POOL.get('test.one2many')
+        self.one2many_target = POOL.get('test.one2many.target')
+        self.one2many_reference = POOL.get('test.one2many_reference')
+        self.one2many_reference_target = POOL.get(
+            'test.one2many_reference.target')
+
+        self.many2many = POOL.get('test.many2many')
+        self.many2many_target = POOL.get('test.many2many.target')
+        self.many2many_reference = POOL.get('test.many2many_reference')
+        self.many2many_reference_target = POOL.get(
+            'test.many2many_reference.target')
+
         self.property_ = POOL.get('test.property')
 
     def test0010boolean(self):
@@ -2457,7 +2469,324 @@ class FieldsTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
-    def test0110property(self):
+    def test0120one2many(self):
+        '''
+        Test One2Many.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            for one2many, one2many_target in (
+                    (self.one2many, self.one2many_target),
+                    (self.one2many_reference, self.one2many_reference_target),
+                    ):
+                one2many1_id = one2many.create({
+                        'name': 'origin1',
+                        'targets': [
+                            ('create', {
+                                    'name': 'target1',
+                                    }),
+                            ],
+                        })
+                self.assert_(one2many1_id)
+
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(len(one2many1['targets']), 1)
+                target1_id, = one2many1['targets']
+
+                one2many_ids = one2many.search([
+                        ('targets', '=', 'target1'),
+                        ])
+                self.assertEqual(one2many_ids, [one2many1_id])
+
+                one2many_ids = one2many.search([
+                        ('targets', '!=', 'target1'),
+                        ])
+                self.assertEqual(one2many_ids, [])
+
+                one2many_ids = one2many.search([
+                        ('targets', 'in', [target1_id]),
+                        ])
+                self.assertEqual(one2many_ids, [one2many1_id])
+
+                one2many_ids = one2many.search([
+                        ('targets', 'in', [0]),
+                        ])
+                self.assertEqual(one2many_ids, [])
+
+                one2many_ids = one2many.search([
+                        ('targets', 'not in', [target1_id]),
+                        ])
+                self.assertEqual(one2many_ids, [])
+
+                one2many_ids = one2many.search([
+                        ('targets', 'not in', [0]),
+                        ])
+                self.assertEqual(one2many_ids, [one2many1_id])
+
+                one2many_ids = one2many.search([
+                        ('targets.name', '=', 'target1'),
+                        ])
+                self.assertEqual(one2many_ids, [one2many1_id])
+
+                one2many_ids = one2many.search([
+                        ('targets.name', '!=', 'target1'),
+                        ])
+                self.assertEqual(one2many_ids, [])
+
+                one2many2_id = one2many.create({
+                        'name': 'origin2',
+                        })
+                self.assert_(one2many2_id)
+
+                one2many2 = one2many.read(one2many2_id, ['targets'])
+                self.assertEqual(one2many2['targets'], [])
+
+                one2many_ids = one2many.search([
+                        ('targets', '=', None),
+                        ])
+                self.assertEqual(one2many_ids, [one2many2_id])
+
+                one2many.write(one2many1_id, {
+                        'targets': [
+                            ('write', [target1_id], {
+                                    'name': 'target1bis',
+                                    }),
+                            ],
+                        })
+                target1 = one2many_target.read(target1_id, ['name'])
+                self.assertEqual(target1['name'], 'target1bis')
+
+                target2_id = one2many_target.create({
+                        'name': 'target2',
+                        })
+                one2many.write(one2many1_id, {
+                        'targets': [
+                            ('add', [target2_id]),
+                            ],
+                        })
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(one2many1['targets'],
+                    [target1_id, target2_id])
+
+                one2many.write(one2many1_id, {
+                        'targets': [
+                            ('unlink', [target2_id]),
+                            ],
+                        })
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(one2many1['targets'], [target1_id])
+                target2_id, = one2many_target.search([
+                        ('id', '=', target2_id),
+                        ])
+                self.assert_(target2_id)
+
+                one2many.write(one2many1_id, {
+                        'targets': [
+                            ('unlink_all',),
+                            ],
+                        })
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(one2many1['targets'], [])
+                target_ids = one2many_target.search([
+                        ('id', 'in', [target1_id, target2_id]),
+                        ])
+                self.assertEqual(target_ids, [target1_id, target2_id])
+
+                one2many.write(one2many1_id, {
+                        'targets': [
+                            ('set', [target1_id, target2_id]),
+                            ],
+                        })
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(one2many1['targets'],
+                    [target1_id, target2_id])
+
+                one2many.write(one2many1_id, {
+                        'targets': [
+                            ('delete', [target2_id]),
+                            ],
+                        })
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(one2many1['targets'], [target1_id])
+                target_ids = one2many_target.search([
+                        ('id', '=', target2_id),
+                        ])
+                self.assertEqual(target_ids, [])
+
+                one2many.write(one2many1_id, {
+                        'targets': [
+                            ('delete_all',),
+                            ],
+                        })
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(one2many1['targets'], [])
+                target_ids = one2many_target.search([
+                        ('id', '=', target1_id),
+                        ])
+                self.assertEqual(target_ids, [])
+
+                transaction.cursor.rollback()
+
+    def test0130many2many(self):
+        '''
+        Test Many2Many.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            for many2many, many2many_target in (
+                    (self.many2many, self.many2many_target),
+                    (self.many2many_reference,
+                        self.many2many_reference_target),
+                    ):
+                many2many1_id = many2many.create({
+                        'name': 'origin1',
+                        'targets': [
+                            ('create', {
+                                    'name': 'target1',
+                                    }),
+                            ],
+                        })
+                self.assert_(many2many1_id)
+
+                many2many1 = many2many.read(many2many1_id, ['targets'])
+                self.assertEqual(len(many2many1['targets']), 1)
+                target1_id, = many2many1['targets']
+
+                many2many_ids = many2many.search([
+                        ('targets', '=', 'target1'),
+                        ])
+                self.assertEqual(many2many_ids, [many2many1_id])
+
+                many2many_ids = many2many.search([
+                        ('targets', '!=', 'target1'),
+                        ])
+                self.assertEqual(many2many_ids, [])
+
+                many2many_ids = many2many.search([
+                        ('targets', 'in', [target1_id]),
+                        ])
+                self.assertEqual(many2many_ids, [many2many1_id])
+
+                many2many_ids = many2many.search([
+                        ('targets', 'in', [0]),
+                        ])
+                self.assertEqual(many2many_ids, [])
+
+                many2many_ids = many2many.search([
+                        ('targets', 'not in', [target1_id]),
+                        ])
+                self.assertEqual(many2many_ids, [])
+
+                many2many_ids = many2many.search([
+                        ('targets', 'not in', [0]),
+                        ])
+                self.assertEqual(many2many_ids, [many2many1_id])
+
+                many2many_ids = many2many.search([
+                        ('targets.name', '=', 'target1'),
+                        ])
+                self.assertEqual(many2many_ids, [many2many1_id])
+
+                many2many_ids = many2many.search([
+                        ('targets.name', '!=', 'target1'),
+                        ])
+                self.assertEqual(many2many_ids, [])
+
+                many2many2_id = many2many.create({
+                        'name': 'origin2',
+                        })
+                self.assert_(many2many2_id)
+
+                many2many2 = many2many.read(many2many2_id, ['targets'])
+                self.assertEqual(many2many2['targets'], [])
+
+                many2many_ids = many2many.search([
+                        ('targets', '=', None),
+                        ])
+                self.assertEqual(many2many_ids, [many2many2_id])
+
+                many2many.write(many2many1_id, {
+                        'targets': [
+                            ('write', [target1_id], {
+                                    'name': 'target1bis',
+                                    }),
+                            ],
+                        })
+                target1 = many2many_target.read(target1_id, ['name'])
+                self.assertEqual(target1['name'], 'target1bis')
+
+                target2_id = many2many_target.create({
+                        'name': 'target2',
+                        })
+                many2many.write(many2many1_id, {
+                        'targets': [
+                            ('add', [target2_id]),
+                            ],
+                        })
+                many2many1 = many2many.read(many2many1_id, ['targets'])
+                self.assertEqual(many2many1['targets'],
+                    [target1_id, target2_id])
+
+                many2many.write(many2many1_id, {
+                        'targets': [
+                            ('unlink', [target2_id]),
+                            ],
+                        })
+                many2many1 = many2many.read(many2many1_id, ['targets'])
+                self.assertEqual(many2many1['targets'], [target1_id])
+                target2_id, = many2many_target.search([
+                        ('id', '=', target2_id),
+                        ])
+                self.assert_(target2_id)
+
+                many2many.write(many2many1_id, {
+                        'targets': [
+                            ('unlink_all',),
+                            ],
+                        })
+                many2many1 = many2many.read(many2many1_id, ['targets'])
+                self.assertEqual(many2many1['targets'], [])
+                target_ids = many2many_target.search([
+                        ('id', 'in', [target1_id, target2_id]),
+                        ])
+                self.assertEqual(target_ids, [target1_id, target2_id])
+
+                many2many.write(many2many1_id, {
+                        'targets': [
+                            ('set', [target1_id, target2_id]),
+                            ],
+                        })
+                many2many1 = many2many.read(many2many1_id, ['targets'])
+                self.assertEqual(many2many1['targets'],
+                    [target1_id, target2_id])
+
+                many2many.write(many2many1_id, {
+                        'targets': [
+                            ('delete', [target2_id]),
+                            ],
+                        })
+                many2many1 = many2many.read(many2many1_id, ['targets'])
+                self.assertEqual(many2many1['targets'], [target1_id])
+                target_ids = many2many_target.search([
+                        ('id', '=', target2_id),
+                        ])
+                self.assertEqual(target_ids, [])
+
+                many2many.write(many2many1_id, {
+                        'targets': [
+                            ('delete_all',),
+                            ],
+                        })
+                many2many1 = many2many.read(many2many1_id, ['targets'])
+                self.assertEqual(many2many1['targets'], [])
+                target_ids = many2many_target.search([
+                        ('id', '=', target1_id),
+                        ])
+                self.assertEqual(target_ids, [])
+
+                transaction.cursor.rollback()
+
+    def test0140property(self):
         '''
         Test Property with supported field types.
         '''
