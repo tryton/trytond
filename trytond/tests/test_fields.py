@@ -78,12 +78,14 @@ class FieldsTestCase(unittest.TestCase):
 
         self.one2many = POOL.get('test.one2many')
         self.one2many_target = POOL.get('test.one2many.target')
+        self.one2many_required = POOL.get('test.one2many_required')
         self.one2many_reference = POOL.get('test.one2many_reference')
         self.one2many_reference_target = POOL.get(
             'test.one2many_reference.target')
 
         self.many2many = POOL.get('test.many2many')
         self.many2many_target = POOL.get('test.many2many.target')
+        self.many2many_required = POOL.get('test.many2many_required')
         self.many2many_reference = POOL.get('test.many2many_reference')
         self.many2many_reference_target = POOL.get(
             'test.many2many_reference.target')
@@ -2627,6 +2629,23 @@ class FieldsTestCase(unittest.TestCase):
 
                 transaction.cursor.rollback()
 
+            self.assertRaises(Exception, self.one2many_required.create, {
+                    'name': 'origin3',
+                    })
+            transaction.cursor.rollback()
+
+            origin3_id = self.one2many_required.create({
+                    'name': 'origin3',
+                    'targets': [
+                        ('create', {
+                                'name': 'target3',
+                                }),
+                        ],
+                    })
+            self.assert_(origin3_id)
+
+            transaction.cursor.rollback()
+
     def test0130many2many(self):
         '''
         Test Many2Many.
@@ -2785,6 +2804,23 @@ class FieldsTestCase(unittest.TestCase):
                 self.assertEqual(target_ids, [])
 
                 transaction.cursor.rollback()
+
+            self.assertRaises(Exception, self.many2many_required.create, {
+                    'name': 'origin3',
+                    })
+            transaction.cursor.rollback()
+
+            origin3_id = self.many2many_required.create({
+                    'name': 'origin3',
+                    'targets': [
+                        ('create', {
+                                'name': 'target3',
+                                }),
+                        ],
+                    })
+            self.assert_(origin3_id)
+
+            transaction.cursor.rollback()
 
     def test0140property(self):
         '''
