@@ -492,6 +492,27 @@ class One2ManyTarget(ModelSQL):
 One2ManyTarget()
 
 
+class One2ManyRequired(ModelSQL):
+    'One2Many Required'
+    _name = 'test.one2many_required'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    targets = fields.One2Many('test.one2many_required.target', 'origin',
+        'Targets', required=True)
+
+One2ManyRequired()
+
+
+class One2ManyRequiredTarget(ModelSQL):
+    'One2Many Required Target'
+    _name = 'test.one2many_required.target'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    origin = fields.Many2One('test.one2many_required', 'Origin')
+
+One2ManyRequiredTarget()
+
+
 class One2ManyReference(ModelSQL):
     'One2Many Reference Relation'
     _name = 'test.one2many_reference'
@@ -544,6 +565,37 @@ class Many2ManyRelation(ModelSQL):
     target = fields.Many2One('test.many2many.target', 'Target')
 
 Many2ManyRelation()
+
+
+class Many2ManyRequired(ModelSQL):
+    'Many2Many Required'
+    _name = 'test.many2many_required'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    targets = fields.Many2Many('test.many2many.relation', 'origin', 'target',
+        'Targets', required=True)
+
+Many2ManyRequired()
+
+
+class Many2ManyRequiredTarget(ModelSQL):
+    'Many2Many Required Target'
+    _name = 'test.many2many_required.target'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+
+
+Many2ManyRequiredTarget()
+
+
+class Many2ManyRequiredRelation(ModelSQL):
+    'Many2Many Required Relation'
+    _name = 'test.many2many_required.relation'
+    _description = __doc__
+    origin = fields.Many2One('test.many2many', 'Origin')
+    target = fields.Many2One('test.many2many.target', 'Target')
+
+Many2ManyRequiredRelation()
 
 
 class Many2ManyReference(ModelSQL):

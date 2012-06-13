@@ -1058,6 +1058,14 @@ class ModelStorage(Model):
                                         'domain_validation_record',
                                         error_args=self._get_error_args(
                                             field_name))
+
+                def required_test(value, field_name):
+                    if (isinstance(value,
+                                (BrowseRecordNull, type(None), type(False),
+                                    BrowseRecordList))
+                            and not value):
+                        self.raise_user_error('required_validation_record',
+                            error_args=self._get_error_args(field_name))
                 # validate states required
                 if field.states and 'required' in field.states:
                     if is_pyson(field.states['required']):
@@ -1071,28 +1079,16 @@ class ModelStorage(Model):
                             env['context'] = Transaction().context
                             env['active_id'] = record.id
                             required = PYSONDecoder(env).decode(pyson_required)
-                            if required and record[field_name] is None:
-                                self.raise_user_error(
-                                        'required_validation_record',
-                                        error_args=self._get_error_args(
-                                            field_name))
+                            if required:
+                                required_test(record[field_name], field_name)
                     else:
                         if field.states['required']:
                             for record in records:
-                                if not record[field_name]:
-                                    self.raise_user_error(
-                                            'required_validation_record',
-                                            error_args=self._get_error_args(
-                                                field_name))
+                                required_test(record[field_name], field_name)
                 # validate required
                 if field.required:
                     for record in records:
-                        if (isinstance(record[field_name], (BrowseRecordNull,
-                                        type(None), type(False)))
-                                and not record[field_name]):
-                            self.raise_user_error(
-                                'required_validation_record',
-                                error_args=self._get_error_args(field_name))
+                        required_test(record[field_name], field_name)
                 # validate size
                 if hasattr(field, 'size') and field.size:
                     for record in records:
