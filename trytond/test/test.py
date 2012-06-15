@@ -572,8 +572,8 @@ class Many2ManyRequired(ModelSQL):
     _name = 'test.many2many_required'
     _description = __doc__
     name = fields.Char('Name', required=True)
-    targets = fields.Many2Many('test.many2many.relation', 'origin', 'target',
-        'Targets', required=True)
+    targets = fields.Many2Many('test.many2many_required.relation', 'origin',
+        'target', 'Targets', required=True)
 
 Many2ManyRequired()
 
@@ -592,8 +592,8 @@ class Many2ManyRequiredRelation(ModelSQL):
     'Many2Many Required Relation'
     _name = 'test.many2many_required.relation'
     _description = __doc__
-    origin = fields.Many2One('test.many2many', 'Origin')
-    target = fields.Many2One('test.many2many.target', 'Target')
+    origin = fields.Many2One('test.many2many_required', 'Origin')
+    target = fields.Many2One('test.many2many_required.target', 'Target')
 
 Many2ManyRequiredRelation()
 
