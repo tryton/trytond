@@ -146,6 +146,11 @@ field*.
 
 Define how the field must be loaded: ``lazy`` or ``eager``.
 
+Default value
+=============
+
+See :ref:`default value <topics-fields_default_value>`
+
 Field types
 ===========
 

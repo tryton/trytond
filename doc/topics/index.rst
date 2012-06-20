@@ -11,6 +11,7 @@ Introduction to all the key parts of trytond:
 
     install
     models/index
+    models/fields_default_value
     domain
     pyson
     views/index
