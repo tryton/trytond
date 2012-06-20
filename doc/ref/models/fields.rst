@@ -415,7 +415,7 @@ A many-to-one relation field.
 One2Many
 --------
 
-.. class:: One2Many(model_name, field, string[, add_remove[, order[, datetime_field[, \**options]]]])
+.. class:: One2Many(model_name, field, string[, add_remove[, order[, datetime_field[, size[, \**options]]]]])
 
 A one-to-many relation field. It requires to have the opposite
 :class:`Many2One` field or a :class:`Reference` field defined on the target
@@ -470,10 +470,15 @@ This field accepts as written value a list of tuples like this:
 
     Same as :attr:`Many2One.datetime_field`
 
+.. attribute:: One2Many.size
+
+    An integer or a PYSON expression denoting the maximum number of records
+    allowed in the relation.
+
 Many2Many
 ---------
 
-.. class:: Many2Many(relation_name, origin, target, string[, order[, datetime_field[, \**options]]])
+.. class:: Many2Many(relation_name, origin, target, string[, order[, datetime_field[, size[, \**options]]]])
 
 A many-to-many relation field.
 
@@ -509,6 +514,11 @@ A many-to-many relation field.
 .. attribute:: Many2Many.datetime_field
 
     Same as :attr:`Many2One.datetime_field`
+
+.. attribute:: Many2Many.size
+
+    An integer or a PYSON expression denoting the maximum number of records
+    allowed in the relation.
 
 Instance methods:
 

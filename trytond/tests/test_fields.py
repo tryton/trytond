@@ -82,6 +82,8 @@ class FieldsTestCase(unittest.TestCase):
         self.one2many_reference = POOL.get('test.one2many_reference')
         self.one2many_reference_target = POOL.get(
             'test.one2many_reference.target')
+        self.one2many_size = POOL.get('test.one2many_size')
+        self.one2many_size_pyson = POOL.get('test.one2many_size_pyson')
 
         self.many2many = POOL.get('test.many2many')
         self.many2many_target = POOL.get('test.many2many.target')
@@ -89,6 +91,8 @@ class FieldsTestCase(unittest.TestCase):
         self.many2many_reference = POOL.get('test.many2many_reference')
         self.many2many_reference_target = POOL.get(
             'test.many2many_reference.target')
+        self.many2many_size = POOL.get('test.many2many_size')
+        self.many2many_size_target = POOL.get('test.many2many_size.target')
 
         self.property_ = POOL.get('test.property')
 
@@ -2644,6 +2648,21 @@ class FieldsTestCase(unittest.TestCase):
                     })
             self.assert_(origin3_id)
 
+            self.one2many_size.create({
+                    'targets': [('create', {})] * 3,
+                    })
+            self.assertRaises(Exception, self.one2many_size.create, {
+                    'targets': [('create', {})] * 4,
+                    })
+            self.one2many_size_pyson.create({
+                    'limit': 4,
+                    'targets': [('create', {})] * 4,
+                    })
+            self.assertRaises(Exception, self.one2many_size_pyson.create, {
+                    'limit': 2,
+                    'targets': [('create', {})] * 4,
+                    })
+
             transaction.cursor.rollback()
 
     def test0130many2many(self):
@@ -2819,6 +2838,18 @@ class FieldsTestCase(unittest.TestCase):
                         ],
                     })
             self.assert_(origin3_id)
+
+            size_targets = [
+                self.many2many_size_target.create({
+                        'name': str(i),
+                        }) for i in range(6)]
+
+            self.many2many_size.create({
+                    'targets': [('set', size_targets[:5])],
+                    })
+            self.assertRaises(Exception, self.many2many_size.create, {
+                    'targets': [('set', size_targets)],
+                    })
 
             transaction.cursor.rollback()
 

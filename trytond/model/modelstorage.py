@@ -1090,9 +1090,20 @@ class ModelStorage(Model):
                     for record in records:
                         required_test(record[field_name], field_name)
                 # validate size
-                if hasattr(field, 'size') and field.size:
+                if hasattr(field, 'size') and field.size is not None:
                     for record in records:
-                        if len(record[field_name] or '') > field.size:
+                        if isinstance(field.size, PYSON):
+                            pyson_size = PYSONEncoder().encode(field.size)
+                            env = EvalEnvironment(record, self)
+                            env.update(Transaction().context)
+                            env['current_date'] = datetime.datetime.today()
+                            env['time'] = time
+                            env['context'] = Transaction().context
+                            env['active_id'] = record.id
+                            field_size = PYSONDecoder(env).decode(pyson_size)
+                        else:
+                            field_size = field.size
+                        if (len(record[field_name] or '') > field_size >= 0):
                             self.raise_user_error(
                                 'size_validation_record',
                                 error_args=self._get_error_args(field_name))

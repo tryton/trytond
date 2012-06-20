@@ -57,6 +57,14 @@ def context_validate(value):
     assert isinstance(value, dict), 'context must be a dict'
 
 
+def size_validate(value):
+    if value is not None:
+        assert isinstance(value, (int, PYSON)), 'size must be PYSON'
+        if hasattr(value, 'types'):
+            assert value.types() == set([int]), \
+                'size must return integer'
+
+
 class Field(object):
     _type = None
 

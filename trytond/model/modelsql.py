@@ -121,11 +121,14 @@ class ModelSQL(ModelStorage):
                         return unpack_result
                     default_fun = unpack_wrapper(default_fun)
 
+                if hasattr(field, 'size') and isinstance(field.size, int):
+                    field_size = field.size
+                else:
+                    field_size = None
                 table.add_raw_column(field_name,
                         FIELDS[field._type].sql_type(field),
                         FIELDS[field._type].sql_format, default_fun,
-                        hasattr(field, 'size') and field.size or None,
-                        string=field.string)
+                        field_size, string=field.string)
                 if self._history:
                     history_table.add_raw_column(field_name,
                             FIELDS[field._type].sql_type(field), None,
