@@ -555,7 +555,7 @@ class Model(WarningErrorMixin, URLMixin):
                 res[field]['format'] = copy.copy(self._columns[field].format)
 
             # convert attributes into pyson
-            for attr in ('states', 'domain', 'context', 'digits',
+            for attr in ('states', 'domain', 'context', 'digits', 'size',
                     'add_remove', 'format'):
                 if attr in res[field]:
                     res[field][attr] = encoder.encode(res[field][attr])

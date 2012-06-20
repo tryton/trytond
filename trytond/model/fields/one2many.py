@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from itertools import chain
-from trytond.model.fields.field import Field
+from trytond.model.fields.field import Field, size_validate
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 
@@ -18,10 +18,10 @@ class One2Many(Field):
     _type = 'one2many'
 
     def __init__(self, model_name, field, string='', add_remove=None,
-            order=None, datetime_field=None, help='', required=False,
-            readonly=False, domain=None, states=None, on_change=None,
-            on_change_with=None, depends=None, order_field=None, context=None,
-            loading='lazy'):
+            order=None, datetime_field=None, size=None, help='',
+            required=False, readonly=False, domain=None, states=None,
+            on_change=None, on_change_with=None, depends=None,
+            order_field=None, context=None, loading='lazy'):
         '''
         :param model_name: The name of the target model.
         :param field: The name of the field that handle the reverse many2one or
@@ -50,6 +50,8 @@ class One2Many(Field):
         self.add_remove = add_remove
         self.order = order
         self.datetime_field = datetime_field
+        self.__size = None
+        self.size = size
 
     __init__.__doc__ += Field.__init__.__doc__
 
@@ -61,6 +63,15 @@ class One2Many(Field):
         self.__add_remove = value
 
     add_remove = property(_get_add_remove, _set_add_remove)
+
+    def _get_size(self):
+        return self.__size
+
+    def _set_size(self, value):
+        size_validate(value)
+        self.__size = value
+
+    size = property(_get_size, _set_size)
 
     def get(self, ids, model, name, values=None):
         '''
