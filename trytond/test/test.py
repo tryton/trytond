@@ -536,6 +536,45 @@ class One2ManyReferenceTarget(ModelSQL):
 One2ManyReferenceTarget()
 
 
+class One2ManySize(ModelSQL):
+    'One2Many Size Relation'
+    _name = 'test.one2many_size'
+    _description = __doc__
+    targets = fields.One2Many('test.one2many_size.target', 'origin', 'Targets',
+        size=3)
+
+One2ManySize()
+
+
+class One2ManySizeTarget(ModelSQL):
+    'One2Many Size Target'
+    _name = 'test.one2many_size.target'
+    _description = __doc__
+    origin = fields.Many2One('test.one2many_size', 'Origin')
+
+One2ManySizeTarget()
+
+
+class One2ManySizePYSON(ModelSQL):
+    'One2Many Size PYSON Relation'
+    _name = 'test.one2many_size_pyson'
+    _description = __doc__
+    limit = fields.Integer('Limit')
+    targets = fields.One2Many('test.one2many_size_pyson.target', 'origin',
+        'Targets', size=Eval('limit', 0))
+
+One2ManySizePYSON()
+
+
+class One2ManySizePYSONTarget(ModelSQL):
+    'One2Many Size PYSON Target'
+    _name = 'test.one2many_size_pyson.target'
+    _description = __doc__
+    origin = fields.Many2One('test.one2many_size_pyson', 'Origin')
+
+One2ManySizePYSONTarget()
+
+
 class Many2Many(ModelSQL):
     'Many2Many'
     _name = 'test.many2many'
@@ -630,6 +669,35 @@ class Many2ManyReferenceRelation(ModelSQL):
         'Reference Target')
 
 Many2ManyReferenceRelation()
+
+
+class Many2ManySize(ModelSQL):
+    'Many2Many Size Relation'
+    _name = 'test.many2many_size'
+    _description = __doc__
+    targets = fields.Many2Many('test.many2many_size.relation', 'origin',
+        'target', 'Targets', size=5)
+
+Many2ManySize()
+
+
+class Many2ManySizeTarget(ModelSQL):
+    'Many2Many Size Target'
+    _name = 'test.many2many_size.target'
+    _description = __doc__
+    name = fields.Char('Name')
+
+Many2ManySizeTarget()
+
+
+class Many2ManySizeRelation(ModelSQL):
+    'Many2Many Size Relation'
+    _name = 'test.many2many_size.relation'
+    _description = __doc__
+    origin = fields.Many2One('test.many2many_size', 'Origin')
+    target = fields.Many2One('test.many2many_size.target', 'Target')
+
+Many2ManySizeRelation()
 
 
 class Property(ModelSQL):

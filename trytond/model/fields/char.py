@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from trytond.model.fields.field import Field
+from trytond.model.fields.field import Field, size_validate
 
 
 def autocomplete_validate(value):
@@ -32,6 +32,7 @@ class Char(Field):
         self.__autocomplete = None
         self.autocomplete = autocomplete if autocomplete else None
         self.translate = translate
+        self.__size = None
         self.size = size
     __init__.__doc__ += Field.__init__.__doc__
 
@@ -43,3 +44,12 @@ class Char(Field):
         self.__autocomplete = value
 
     autocomplete = property(_get_autocomplete, _set_autocomplete)
+
+    def _get_size(self):
+        return self.__size
+
+    def _set_size(self, value):
+        size_validate(value)
+        self.__size = value
+
+    size = property(_get_size, _set_size)
