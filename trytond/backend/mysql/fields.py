@@ -32,7 +32,7 @@ class Char(fields.Char):
 
     @staticmethod
     def sql_type(field):
-        if field.size:
+        if isinstance(field.size, int):
             return ('varchar', 'varchar(%d)' % (field.size,))
         return ('varchar', 'varchar(255)')
 
