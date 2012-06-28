@@ -391,6 +391,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
     group = fields.Many2One('res.group', 'Group', ondelete='CASCADE')
     perm_read = fields.Boolean('Read Access')
     perm_write = fields.Boolean('Write Access')
+    perm_create = fields.Boolean('Create Access')
+    perm_delete = fields.Boolean('Delete Access')
     description = fields.Text('Description')
 
     def __init__(self):
@@ -413,6 +415,12 @@ class ModelFieldAccess(ModelSQL, ModelView):
     def default_perm_write(self):
         return False
 
+    def default_perm_create(self):
+        return True
+
+    def default_perm_delete(self):
+        return True
+
     @Cache('ir_model_field_access.check')
     def check(self, model_name, fields, mode='read', raise_exception=True,
             access=False):
@@ -421,13 +429,14 @@ class ModelFieldAccess(ModelSQL, ModelView):
 
         :param model_name: the model name
         :param fields: a list of fields
-        :param mode: 'read' or 'write'
+        :param mode: 'read', 'write', 'create' or 'delete'
         :param raise_exception: raise an exception if the test failed
         :param access: return a dictionary with access right instead of boolean
 
         :return: a boolean
         '''
-        assert mode in ('read', 'write'), 'Invalid access mode'
+        assert mode in ('read', 'write', 'create', 'delete'), \
+            'Invalid access mode'
         if Transaction().user == 0:
             if access:
                 return dict((x, True) for x in fields)

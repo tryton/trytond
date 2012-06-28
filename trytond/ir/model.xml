@@ -181,6 +181,8 @@ this repository contains the full copyright notices and license terms. -->
                 <tree string="Field Access">
                     <field name="perm_read"/>
                     <field name="perm_write"/>
+                    <field name="perm_create"/>
+                    <field name="perm_delete"/>
                     <field name="field"/>
                     <field name="group"/>
                 </tree>
@@ -203,6 +205,10 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="perm_read"/>
                     <label name="perm_write"/>
                     <field name="perm_write"/>
+                    <label name="perm_create"/>
+                    <field name="perm_create"/>
+                    <label name="perm_delete"/>
+                    <field name="perm_delete"/>
                     <separator name="description" colspan="4"/>
                     <field name="description" colspan="4"/>
                 </form>

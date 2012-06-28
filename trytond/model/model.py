@@ -450,6 +450,10 @@ class Model(WarningErrorMixin, URLMixin):
 
         fwrite_accesses = field_access_obj.check(self._name, fields_names or
                 self._columns.keys(), 'write', access=True)
+        fcreate_accesses = field_access_obj.check(self._name, fields_names or
+            self._columns.keys(), 'create', access=True)
+        fdelete_accesses = field_access_obj.check(self._name, fields_names or
+            self._columns.keys(), 'delete', access=True)
         for field in (x for x in self._columns.keys()
                 if ((not fields_names) or x in fields_names)):
             res[field] = {
@@ -547,6 +551,8 @@ class Model(WarningErrorMixin, URLMixin):
                 res[field]['relation'] = relation
                 res[field]['domain'] = copy.copy(self._columns[field].domain)
                 res[field]['context'] = copy.copy(self._columns[field].context)
+                res[field]['create'] = fcreate_accesses.get(field, True)
+                res[field]['delete'] = fdelete_accesses.get(field, True)
             if res[field]['type'] == 'one2many' \
                     and hasattr(self._columns[field], 'field'):
                 res[field]['relation_field'] = copy.copy(
