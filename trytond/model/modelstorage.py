@@ -1062,7 +1062,7 @@ class ModelStorage(Model):
                 def required_test(value, field_name):
                     if (isinstance(value,
                                 (BrowseRecordNull, type(None), type(False),
-                                    BrowseRecordList))
+                                    BrowseRecordList, basestring))
                             and not value):
                         self.raise_user_error('required_validation_record',
                             error_args=self._get_error_args(field_name))

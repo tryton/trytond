@@ -1040,6 +1040,11 @@ class FieldsTestCase(unittest.TestCase):
             self.failUnlessRaises(Exception, self.char_required.create, {})
             transaction.cursor.rollback()
 
+            self.failUnlessRaises(Exception, self.char_required.create, {
+                    'char': '',
+                    })
+            transaction.cursor.rollback()
+
             char5_id = self.char_required.create({
                 'char': 'Test',
                 })
