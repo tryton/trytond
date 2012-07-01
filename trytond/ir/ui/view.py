@@ -19,7 +19,9 @@ class View(ModelSQL, ModelView):
     _name = 'ir.ui.view'
     _description = __doc__
     _rec_name = 'model'
-    model = fields.Char('Model', required=True, select=True)
+    model = fields.Char('Model', select=True, states={
+            'required': Eval('type').in_([None, 'tree', 'form', 'graph']),
+            })
     priority = fields.Integer('Priority', required=True, select=True)
     type = fields.Selection([
             (None, ''),
@@ -55,6 +57,9 @@ class View(ModelSQL, ModelView):
 
         # Migration from 1.0 arch no more required
         table.not_null_action('arch', action='remove')
+
+        # Migration from 2.4 model no more required
+        table.not_null_action('model', action='remove')
 
     def default_arch(self):
         return '<?xml version="1.0"?>'
