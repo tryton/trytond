@@ -467,7 +467,7 @@ field
       list with the sum of all the fields in the column.
 
     * ``width``: Set the width of the column.
-    
+
     * ``expand``: Boolean to specify if the column should be expanded to take
       available extra space in the view. This space is shared equally among all
       columns that have their "expand" property set to True. Resize don't work
