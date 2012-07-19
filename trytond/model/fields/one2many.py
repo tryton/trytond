@@ -108,7 +108,12 @@ class One2Many(Field):
         for i in chain(*ids2):
             if i in cache[self.model_name] \
                     and self.field in cache[self.model_name][i]:
-                res[cache[self.model_name][i][self.field].id].append(i)
+                if field._type == 'reference':
+                    _, id_ = cache[self.model_name][i][self.field].split(',')
+                    id_ = int(id_)
+                else:
+                    id_ = cache[self.model_name][i][self.field]
+                res[id_].append(i)
             else:
                 ids3.append(i)
 
