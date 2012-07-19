@@ -2504,6 +2504,12 @@ class FieldsTestCase(unittest.TestCase):
                 self.assertEqual(len(one2many1['targets']), 1)
                 target1_id, = one2many1['targets']
 
+                # Try with target1 stored in cache
+                target1 = one2many_target.browse(target1_id)
+                target1.origin
+                one2many1 = one2many.read(one2many1_id, ['targets'])
+                self.assertEqual(one2many1['targets'], [target1_id])
+
                 one2many_ids = one2many.search([
                         ('targets', '=', 'target1'),
                         ])
