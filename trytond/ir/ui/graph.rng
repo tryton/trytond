@@ -125,6 +125,18 @@
       <attribute name="float_time"/>
     </optional>
   </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="interpolation" a:defaultValue="linear">
+        <choice>
+          <value>constant-left</value>
+          <value>constant-right</value>
+          <value>constant-center</value>
+          <value>linear</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
   <define name="data">
     <element name="data">
       <ref name="attlist.data"/>

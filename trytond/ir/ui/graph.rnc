@@ -25,6 +25,9 @@ attlist.field &= attribute empty { "0" | "1" }?
 attlist.field &= attribute color { text }?
 attlist.field &= attribute widget { "float_time" }?
 attlist.field &= attribute float_time { text }?
+attlist.field &=
+    [ a:defaultValue = "linear" ]
+    attribute interpolation { "constant-left" | "constant-right" | "constant-center" | "linear" }?
 data = element data { attlist.data, xpath+ }
 attlist.data &= empty
 xpath = element xpath { attlist.xpath,
