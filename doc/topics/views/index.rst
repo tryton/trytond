@@ -541,6 +541,22 @@ field
     * ``empty``: defined if the line graph must put a point for missing
       dates.
 
+    * ``interpolation``: defined how the line graph must interpolate points.
+      The default is ``linear``.
+
+        * ``constant-center``: use the value of the nearest point, see
+          `Nearest-neighbor interpolation`_
+
+        * ``constant-left``: use the value of the nearest left point.
+
+        * ``constant-right``: use the value of the nearest right point.
+
+        * ``linear``: see `linear interpolation`_
+
+.. _`Nearest-neighbor interpolation`:
+    http://en.wikipedia.org/wiki/Nearest-neighbor_interpolation
+.. _`linear interpolation`: http://en.wikipedia.org/wiki/Linear_interpolation
+
 
 Example
 -------
