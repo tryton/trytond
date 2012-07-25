@@ -94,6 +94,10 @@ class FieldsTestCase(unittest.TestCase):
         self.many2many_size = POOL.get('test.many2many_size')
         self.many2many_size_target = POOL.get('test.many2many_size.target')
 
+        self.reference = POOL.get('test.reference')
+        self.reference_target = POOL.get('test.reference.target')
+        self.reference_required = POOL.get('test.reference_required')
+
         self.property_ = POOL.get('test.property')
 
     def test0010boolean(self):
@@ -2864,7 +2868,150 @@ class FieldsTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
-    def test0140property(self):
+    def test0140reference(self):
+        '''
+        Test Reference.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            target1_id = self.reference_target.create({
+                    'name': 'target1',
+                    })
+            reference1_id = self.reference.create({
+                    'name': 'reference1',
+                    'reference': 'test.reference.target,%s' % target1_id,
+                    })
+            self.assert_(reference1_id)
+
+            reference1 = self.reference.read(reference1_id, ['reference'])
+            self.assertEqual(reference1['reference'],
+                'test.reference.target,%s' % target1_id)
+
+            reference_ids = self.reference.search([
+                    ('reference', '=',
+                        'test.reference.target,%s' % target1_id),
+                    ])
+            self.assertEqual(reference_ids, [reference1_id])
+
+            reference_ids = self.reference.search([
+                    ('reference', '=',
+                        ('test.reference.target', target1_id)),
+                    ])
+            self.assertEqual(reference_ids, [reference1_id])
+
+            reference_ids = self.reference.search([
+                    ('reference', '=',
+                        ['test.reference.target', target1_id]),
+                    ])
+            self.assertEqual(reference_ids, [reference1_id])
+
+            reference_ids = self.reference.search([
+                    ('reference', '!=',
+                        'test.reference.target,%s' % target1_id),
+                    ])
+            self.assertEqual(reference_ids, [])
+
+            reference_ids = self.reference.search([
+                    ('reference', '!=',
+                        ('test.reference.target', target1_id)),
+                    ])
+            self.assertEqual(reference_ids, [])
+
+            reference_ids = self.reference.search([
+                    ('reference', 'in',
+                        ['test.reference.target,%s' % target1_id]),
+                    ])
+            self.assertEqual(reference_ids, [reference1_id])
+
+            reference_ids = self.reference.search([
+                    ('reference', 'in',
+                        [('test.reference.target', target1_id)]),
+                    ])
+            self.assertEqual(reference_ids, [reference1_id])
+
+            reference_ids = self.reference.search([
+                    ('reference', 'in', [None]),
+                    ])
+            self.assertEqual(reference_ids, [])
+
+            reference_ids = self.reference.search([
+                    ('reference', 'not in',
+                        ['test.reference.target,%s' % target1_id]),
+                    ])
+            self.assertEqual(reference_ids, [])
+
+            reference_ids = self.reference.search([
+                    ('reference', 'not in',
+                        [('test.reference.target', target1_id)]),
+                    ])
+            self.assertEqual(reference_ids, [])
+
+            reference_ids = self.reference.search([
+                    ('reference', 'not in', [None]),
+                    ])
+            self.assertEqual(reference_ids, [reference1_id])
+
+            reference2_id = self.reference.create({
+                    'name': 'reference2',
+                    })
+            self.assert_(reference2_id)
+
+            reference2 = self.reference.read(reference2_id, ['reference'])
+            self.assertEqual(reference2['reference'], None)
+
+            reference_ids = self.reference.search([
+                    ('reference', '=', None),
+                    ])
+            self.assertEqual(reference_ids, [reference2_id])
+
+            target2_id = self.reference_target.create({
+                    'name': 'target2',
+                    })
+
+            self.reference.write(reference2_id, {
+                    'reference': 'test.reference.target,%s' % target2_id,
+                    })
+            reference2 = self.reference.read(reference2_id, ['reference'])
+            self.assertEqual(reference2['reference'],
+                'test.reference.target,%s' % target2_id)
+
+            self.reference.write(reference2_id, {
+                    'reference': None,
+                    })
+            reference2 = self.reference.read(reference2_id, ['reference'])
+            self.assertEqual(reference2['reference'], None)
+
+            self.reference.write(reference2_id, {
+                    'reference': ('test.reference.target', target2_id),
+                    })
+            reference2 = self.reference.read(reference2_id, ['reference'])
+            self.assertEqual(reference2['reference'],
+                'test.reference.target,%s' % target2_id)
+
+            reference3_id = self.reference.create({
+                    'name': 'reference3',
+                    'reference': ('test.reference.target', target1_id),
+                    })
+            self.assert_(reference3_id)
+
+            self.assertRaises(Exception, self.reference_required.create, {
+                    'name', 'reference4',
+                    })
+            transaction.cursor.rollback()
+
+            target4_id = self.reference_target.create({
+                    'name': 'target4_id',
+                    })
+
+            reference4_id = self.reference_required.create({
+                    'name': 'reference4',
+                    'reference': 'test.reference.target,%s' % target4_id,
+                    })
+            self.assert_(reference4_id)
+
+            transaction.cursor.rollback()
+
+    def test0150property(self):
         '''
         Test Property with supported field types.
         '''

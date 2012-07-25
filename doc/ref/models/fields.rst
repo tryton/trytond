@@ -358,6 +358,8 @@ a ``str`` instance like this::
 
     '<model name>,<record id>'
 
+But a ``tuple`` can be used to search or set value.
+
 :class:`Reference` has one extra optional argument:
 
 .. attribute:: Reference.selection

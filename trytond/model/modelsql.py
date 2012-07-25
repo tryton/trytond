@@ -300,7 +300,10 @@ class ModelSQL(ModelStorage):
                     and self._columns[field].selection \
                     and values[field]:
                 if self._columns[field]._type == 'reference':
-                    val = values[field].split(',')[0]
+                    if isinstance(values[field], basestring):
+                        val = values[field].split(',')[0]
+                    else:
+                        val, _ = values[field]
                 else:
                     val = values[field]
                 if isinstance(self._columns[field].selection, (tuple, list)):
@@ -799,7 +802,10 @@ class ModelSQL(ModelStorage):
                     and self._columns[field].selection \
                     and values[field]:
                 if self._columns[field]._type == 'reference':
-                    val = values[field].split(',')[0]
+                    if isinstance(values[field], basestring):
+                        val = values[field].split(',')[0]
+                    else:
+                        val, _ = values[field]
                 else:
                     val = values[field]
                 if isinstance(self._columns[field].selection, (tuple, list)):
