@@ -161,7 +161,14 @@ class Selection(Char):
 
 
 class Reference(Char):
-    pass
+
+    @staticmethod
+    def sql_format(value):
+        try:
+            value = '%s,%s' % tuple(value)
+        except TypeError, e:
+            pass
+        return Char.sql_format(value)
 
 
 class Many2One(Field):

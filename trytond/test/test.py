@@ -700,6 +700,39 @@ class Many2ManySizeRelation(ModelSQL):
 Many2ManySizeRelation()
 
 
+class Reference(ModelSQL):
+    'Reference'
+    _name = 'test.reference'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    reference = fields.Reference('Reference', selection=[
+            ('test.reference.target', 'Target'),
+            ])
+
+Reference()
+
+
+class ReferenceTarget(ModelSQL):
+    'Reference Target'
+    _name = 'test.reference.target'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+
+ReferenceTarget()
+
+
+class ReferenceRequired(ModelSQL):
+    'Reference Required'
+    _name = 'test.reference_required'
+    _description = __doc__
+    name = fields.Char('Name', required=True)
+    reference = fields.Reference('Reference', selection=[
+            ('test.reference.target', 'Target'),
+            ])
+
+ReferenceRequired()
+
+
 class Property(ModelSQL):
     'Property'
     _name = 'test.property'
