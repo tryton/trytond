@@ -2995,7 +2995,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assert_(reference3_id)
 
             self.assertRaises(Exception, self.reference_required.create, {
-                    'name', 'reference4',
+                    'name': 'reference4',
                     })
             transaction.cursor.rollback()
 
