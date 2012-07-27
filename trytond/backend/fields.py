@@ -164,10 +164,11 @@ class Reference(Char):
 
     @staticmethod
     def sql_format(value):
-        try:
-            value = '%s,%s' % tuple(value)
-        except TypeError, e:
-            pass
+        if not isinstance(value, basestring):
+            try:
+                value = '%s,%s' % tuple(value)
+            except TypeError:
+                pass
         return Char.sql_format(value)
 
 
