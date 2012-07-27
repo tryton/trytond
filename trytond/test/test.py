@@ -728,7 +728,7 @@ class ReferenceRequired(ModelSQL):
     name = fields.Char('Name', required=True)
     reference = fields.Reference('Reference', selection=[
             ('test.reference.target', 'Target'),
-            ])
+            ], required=True)
 
 ReferenceRequired()
 
