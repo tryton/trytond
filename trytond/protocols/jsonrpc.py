@@ -329,6 +329,8 @@ class SimpleThreadedJSONRPCServer(SocketServer.ThreadingMixIn,
                 socket.SO_REUSEADDR, 1)
         self.socket.setsockopt(socket.SOL_SOCKET,
             socket.SO_KEEPALIVE, 1)
+        self.socket.setsockopt(socket.IPPROTO_TCP,
+            socket.TCP_NODELAY, 1)
         SimpleJSONRPCServer.server_bind(self)
 
 
