@@ -301,8 +301,6 @@ notebook
 
 It adds a notebook widget which can contain page tags.
 
-    * ``tabpos``: It can be ``up``, ``down``, ``left``, ``right``.
-
     * ``colspan``: see in common-attributes-colspan_.
 
 page
