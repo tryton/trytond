@@ -245,7 +245,7 @@ class ActionKeyword(ModelSQL, ModelView):
                 action_keyword.action.id)
             if values:
                 res.append(values)
-        sorted(res, key=itemgetter('name'))
+        res.sort(key=itemgetter('name'))
         return res
 
 ActionKeyword()
