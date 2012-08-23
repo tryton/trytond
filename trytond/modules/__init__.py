@@ -10,6 +10,7 @@ import imp
 import operator
 import ConfigParser
 from glob import iglob
+import datetime
 
 import trytond.tools as tools
 from trytond.config import CONFIG
@@ -253,8 +254,17 @@ def load_module_graph(graph, pool, lang=None):
                 translation_obj = pool.get('ir.translation')
                 translation_obj.translation_import(lang2, module, filename)
 
-            cursor.execute("UPDATE ir_module_module SET state = 'installed' " \
-                    "WHERE name = %s", (package.name,))
+            cursor.execute('SELECT id FROM ir_module_module '
+                'WHERE name = %s', (package.name,))
+            try:
+                module_id, = cursor.fetchone()
+                cursor.execute('UPDATE ir_module_module SET state = %s '
+                    'WHERE id = %s', ('installed', module_id))
+            except TypeError:
+                cursor.execute('INSERT INTO ir_module_module '
+                    '(create_uid, create_date, name, state) '
+                    'VALUES (%s, %s, %s, %s)', (0, datetime.datetime.now(),
+                        package.name, 'installed'))
             module2state[package.name] = 'installed'
 
         cursor.commit()
