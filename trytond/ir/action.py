@@ -121,9 +121,12 @@ class ActionKeyword(ModelSQL, ModelView):
         action_wizard_obj = pool.get('ir.action.wizard')
         for action_keyword in self.browse(ids):
             if action_keyword.action.type == 'ir.action.wizard':
-                action_wizard_id = action_wizard_obj.search([
+                action_wizard_ids = action_wizard_obj.search([
                     ('action', '=', action_keyword.action.id),
-                    ], limit=1)[0]
+                    ], limit=1)
+                if not action_wizard_ids:
+                    continue
+                action_wizard_id, = action_wizard_ids
                 action_wizard = action_wizard_obj.browse(action_wizard_id)
                 if action_wizard.model:
                     model, record_id = action_keyword.model.split(',', 1)
@@ -502,8 +505,12 @@ class ActionReport(ModelSQL, ModelView):
         return res
 
     def copy(self, ids, default=None):
+        action_obj = Pool().get('ir.action')
+
         if default is None:
             default = {}
+        default = default.copy()
+        default.setdefault('module', None)
 
         int_id = False
         if isinstance(ids, (int, long)):
@@ -516,6 +523,7 @@ class ActionReport(ModelSQL, ModelView):
             if report.report:
                 default['report_content'] = None
             default['report_name'] = report.report_name
+            default['action'] = action_obj.copy(report.action.id)
             new_ids.append(super(ActionReport, self).copy(report.id,
                 default=default))
         if int_id:
@@ -754,6 +762,27 @@ class ActionActWindow(ModelSQL, ModelView):
         action_obj.delete(action_ids)
         return res
 
+    def copy(self, ids, default=None):
+        action_obj = Pool().get('ir.action')
+
+        int_id = False
+        if isinstance(ids, (int, long)):
+            int_id = True
+            ids = [ids]
+        if default is None:
+            default = {}
+        default = default.copy()
+        new_ids = []
+        for act_window in self.browse(ids):
+            default['action'] = action_obj.copy(act_window.action.id)
+            new_id = super(ActionActWindow, self).copy(act_window.id,
+                default=default)
+            new_ids.append(new_id)
+
+        if int_id:
+            return new_ids[0]
+        return new_ids
+
 ActionActWindow()
 
 
@@ -831,6 +860,27 @@ class ActionWizard(ModelSQL, ModelView):
         action_obj.delete(action_ids)
         return res
 
+    def copy(self, ids, default=None):
+        action_obj = Pool().get('ir.action')
+
+        int_id = False
+        if isinstance(ids, (int, long)):
+            int_id = True
+            ids = [ids]
+        if default is None:
+            default = {}
+        default = default.copy()
+        new_ids = []
+        for wizard in self.browse(ids):
+            default['action'] = action_obj.copy(wizard.action.id)
+            new_id = super(ActionWizard, self).copy(wizard.id,
+                default=default)
+            new_ids.append(new_id)
+
+        if int_id:
+            return new_ids[0]
+        return new_ids
+
 ActionWizard()
 
 
@@ -882,5 +932,25 @@ class ActionURL(ModelSQL, ModelView):
         res = super(ActionURL, self).delete(ids)
         action_obj.delete(action_ids)
         return res
+
+    def copy(self, ids, default=None):
+        action_obj = Pool().get('ir.action')
+
+        int_id = False
+        if isinstance(ids, (int, long)):
+            int_id = True
+            ids = [ids]
+        if default is None:
+            default = {}
+        default = default.copy()
+        new_ids = []
+        for url in self.browse(ids):
+            default['action'] = action_obj.copy(url.action.id)
+            new_id = super(ActionURL, self).copy(url.id, default=default)
+            new_ids.append(new_id)
+
+        if int_id:
+            return new_ids[0]
+        return new_ids
 
 ActionURL()
