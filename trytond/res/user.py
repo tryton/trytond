@@ -10,6 +10,10 @@ except ImportError:
     hashlib = None
     import sha
 import time
+import datetime
+from itertools import groupby, ifilter
+from operator import attrgetter
+
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, Button, StateTransition
 from ..tools import safe_eval, reduce_ids
@@ -59,8 +63,8 @@ class User(ModelSQL, ModelView):
     email = fields.Char('Email')
     status_bar = fields.Function(fields.Char('Status Bar'), 'get_status_bar')
     warnings = fields.One2Many('res.user.warning', 'user', 'Warnings')
-    connections = fields.Function(fields.Integer('Connections'),
-            'get_connections')
+    sessions = fields.Function(fields.Integer('Sessions'),
+            'get_sessions')
 
     def __init__(self):
         super(User, self).__init__()
@@ -168,19 +172,28 @@ class User(ModelSQL, ModelView):
             res[user.id] = user.name
         return res
 
-    def get_connections(self, ids, name):
+    def get_sessions(self, ids, name):
         session_obj = Pool().get('ir.session')
         cursor = Transaction().cursor
-        connections = dict((i, 0) for i in ids)
+        now = datetime.datetime.now()
+        timeout = datetime.timedelta(seconds=int(CONFIG['session_timeout']))
+        result = dict((i, 0) for i in ids)
         for i in range(0, len(ids), cursor.IN_MAX):
             sub_ids = ids[i:i + cursor.IN_MAX]
-            red_sql, red_ids = reduce_ids('create_uid', sub_ids)
-            cursor.execute('SELECT create_uid, COUNT(1) '
-                'FROM "' + session_obj._table + '" '
-                'WHERE ' + red_sql + ' '
-                'GROUP BY create_uid', red_ids)
-            connections.update(dict(cursor.fetchall()))
-        return connections
+
+            with Transaction().set_user(0):
+                session_ids = session_obj.search([
+                        ('create_uid', 'in', sub_ids),
+                        ], order=[('create_uid', 'ASC')])
+                sessions = session_obj.browse(session_ids)
+
+            def filter_(session):
+                timestamp = session.write_date or session.create_date
+                return abs(timestamp - now) < timeout
+            result.update(dict((i, len(list(g)))
+                    for i, g in groupby(ifilter(filter_, sessions),
+                        attrgetter('create_uid.id'))))
+        return result
 
     def _convert_vals(self, vals):
         vals = vals.copy()

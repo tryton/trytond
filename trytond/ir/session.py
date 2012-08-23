@@ -37,7 +37,7 @@ class Session(ModelSQL):
     def check(self, user, key):
         "Check user key and delete old one"
         now = datetime.datetime.now()
-        timeout = int(CONFIG['session_timeout'])
+        timeout = datetime.timedelta(seconds=int(CONFIG['session_timeout']))
         session_ids = self.search([
                 ('create_uid', '=', user),
                 ])
@@ -45,14 +45,7 @@ class Session(ModelSQL):
         find = False
         for session in sessions:
             timestamp = session.write_date or session.create_date
-            delta = timestamp - now
-            # total_seconds new in version 2.7
-            if hasattr(delta, 'total_seconds'):
-                delta = delta.total_seconds()
-            else:
-                delta = (delta.microseconds + (delta.seconds + delta.days * 24
-                        * 3600) * 10 ** 6) / 10 ** 6
-            if abs(delta) < timeout:
+            if abs(timestamp - now) < timeout:
                 if session.key == key:
                     find = True
             else:
