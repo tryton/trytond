@@ -99,7 +99,7 @@ this repository contains the full copyright notices and license terms. -->
                 <tree string="Users">
                     <field name="name"/>
                     <field name="login"/>
-                    <field name="connections"/>
+                    <field name="sessions"/>
                     <field name="active"/>
                 </tree>
               ]]>
