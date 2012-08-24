@@ -497,13 +497,14 @@ class ModelSQL(ModelStorage):
                             '(COALESCE("%s".write_date, "%s".create_date))) '
                             'AS VARCHAR) AS _timestamp' %
                             (self._table, self._table)]
+            if 'id' not in fields_pre:
+                fields_pre2 += ['"%s".id AS id' % self._table]
 
             for i in range(0, len(ids), in_max):
                 sub_ids = ids[i:i + in_max]
                 red_sql, red_ids = reduce_ids('id', sub_ids)
                 if domain1:
-                    cursor.execute('SELECT ' +
-                        ','.join(fields_pre2 + ['"%s".id AS id' % self._table])
+                    cursor.execute('SELECT ' + ','.join(fields_pre2)
                         + ' FROM ' + table_query + '\"' + self._table + '\" '
                         'WHERE ' + red_sql + history_clause +
                             ' AND (' + domain1 + ') '
@@ -511,8 +512,7 @@ class ModelSQL(ModelStorage):
                         + history_limit,
                         table_args + red_ids + history_args + domain2)
                 else:
-                    cursor.execute('SELECT ' +
-                        ','.join(fields_pre2 + ['"%s".id AS id' % self._table])
+                    cursor.execute('SELECT ' + ','.join(fields_pre2)
                         + ' FROM ' + table_query + '\"' + self._table + '\" '
                         'WHERE ' + red_sql + history_clause
                         + history_order
