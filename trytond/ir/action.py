@@ -114,7 +114,7 @@ class ActionKeyword(ModelSQL, ModelView):
         table = TableHandler(Transaction().cursor, self, module_name)
         table.index_action(['keyword', 'model'], 'add')
 
-    def get_groups(self, ids, name, value):
+    def get_groups(self, ids, name):
         groups = {}
         for keyword in self.browse(ids):
             groups[keyword.id] = [g.id for g in keyword.action.groups]
