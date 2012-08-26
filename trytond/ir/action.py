@@ -3,13 +3,14 @@
 import base64
 import os
 from operator import itemgetter
+from collections import defaultdict
+
 from ..model import ModelView, ModelSQL, ModelStorage, fields
 from ..tools import file_open, safe_eval
 from ..backend import TableHandler
 from ..pyson import PYSONEncoder, CONTEXT, PYSON
 from ..transaction import Transaction
 from ..pool import Pool
-from ..exceptions import UserError
 from ..cache import Cache
 
 EMAIL_REFKEYS = set(('cc', 'to', 'subject'))
@@ -62,13 +63,8 @@ class Action(ModelSQL, ModelView):
                     action = action_obj.browse(action_id2[0])
                     return action.action.id
 
-    def get_action_values(self, type_, action_id):
+    def get_action_values(self, type_, action_ids):
         action_obj = Pool().get(type_)
-        action_id = action_obj.search([
-                ('action', '=', action_id),
-                ])
-        if not action_id:
-            return
         columns = set(action_obj._columns.keys()
             + action_obj._inherit_fields.keys())
         columns.add('icon.rec_name')
@@ -79,7 +75,7 @@ class Action(ModelSQL, ModelView):
         elif type_ == 'ir.action.act_window':
             to_remove = ('domain', 'context', 'search_value')
         columns.difference_update(to_remove)
-        return action_obj.read(action_id[0], list(columns))
+        return action_obj.read(action_ids, list(columns))
 
 Action()
 
@@ -99,6 +95,8 @@ class ActionKeyword(ModelSQL, ModelView):
     model = fields.Reference('Model', selection='models_get')
     action = fields.Many2One('ir.action', 'Action',
         ondelete='CASCADE', select=True)
+    groups = fields.Function(fields.One2Many('res.group', None, 'Groups'),
+        'get_groups', searcher='search_groups')
 
     def __init__(self):
         super(ActionKeyword, self).__init__()
@@ -115,6 +113,15 @@ class ActionKeyword(ModelSQL, ModelView):
 
         table = TableHandler(Transaction().cursor, self, module_name)
         table.index_action(['keyword', 'model'], 'add')
+
+    def get_groups(self, ids, name, value):
+        groups = {}
+        for keyword in self.browse(ids):
+            groups[keyword.id] = [g.id for g in keyword.action.groups]
+        return groups
+
+    def search_groups(self, name, clause):
+        return [('action.groups',) + tuple(clause[1:])]
 
     def check_wizard_model(self, ids):
         pool = Pool()
@@ -225,31 +232,30 @@ class ActionKeyword(ModelSQL, ModelView):
     def get_keyword(self, keyword, value):
         pool = Pool()
         action_obj = pool.get('ir.action')
-        res = []
+        keywords = []
         model, model_id = value
 
-        action_keyword_ids = []
-        if model_id >= 0:
-            action_keyword_ids = self.search([
-                ('keyword', '=', keyword),
-                ('model', '=', model + ',' + str(model_id)),
-                ])
-        action_keyword_ids.extend(self.search([
+        clause = [
             ('keyword', '=', keyword),
             ('model', '=', model + ',-1'),
-            ]))
-        for action_keyword_id in action_keyword_ids:
-            action_keyword = self.browse(action_keyword_id)
-            try:
-                type_ = action_keyword.action.type
-            except UserError:
-                continue
-            values = action_obj.get_action_values(type_,
-                action_keyword.action.id)
-            if values:
-                res.append(values)
-        res.sort(key=itemgetter('name'))
-        return res
+            ]
+        if model_id >= 0:
+            clause = ['OR',
+                clause,
+                [
+                    ('keyword', '=', keyword),
+                    ('model', '=', model + ',' + str(model_id)),
+                    ],
+                ]
+        action_keyword_ids = self.search(clause, order=[])
+        types = defaultdict(list)
+        for action_keyword in self.browse(action_keyword_ids):
+            type_ = action_keyword.action.type
+            types[type_].append(action_keyword.action.id)
+        for type_, action_ids in types.iteritems():
+            keywords.extend(action_obj.get_action_values(type_, action_ids))
+        keywords.sort(key=itemgetter('name'))
+        return keywords
 
 ActionKeyword()
 
