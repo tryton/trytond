@@ -18,12 +18,14 @@ class Char(Field):
     def __init__(self, string='', size=None, help='', required=False,
             readonly=False, domain=None, states=None, translate=False,
             select=False, on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None, loading='eager',
+            order_field=None, context=None, loading=None,
             autocomplete=None):
         '''
         :param translate: A boolean. If ``True`` the field is translatable.
         :param size: A integer. If set defines the maximum size of the values.
         '''
+        if loading is None:
+            loading = 'lazy' if translate else 'eager'
         super(Char, self).__init__(string=string, help=help, required=required,
             readonly=readonly, domain=domain, states=states, select=select,
             on_change=on_change, on_change_with=on_change_with,
