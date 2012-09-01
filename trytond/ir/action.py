@@ -634,9 +634,6 @@ class ActionActWindow(ModelSQL, ModelView):
     def default_type(self):
         return 'ir.action.act_window'
 
-    def default_view_type(self):
-        return 'form'
-
     def default_context(self):
         return '{}'
 
