@@ -29,11 +29,7 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="field_childs"/>
                     <separator name="arch" colspan="4"/>
                     <field name="arch" colspan="4"/>
-                    <button name="%(act_view_show)d"
-                        string="_Show"
-                        type="action"
-                        colspan="4"
-                        />
+                    <button name="show" string="_Show" colspan="4"/>
                 </form>
                 ]]>
             </field>

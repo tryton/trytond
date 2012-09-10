@@ -18,18 +18,12 @@ this repository contains the full copyright notices and license terms. -->
                     <label name="state"/>
                     <field name="state" readonly="1"/>
                     <group col="2" colspan="2" id="button">
-                        <button string="Mark for Upgrade" name="upgrade"
-                            type="object"/>
-                        <button string="Mark for Uninstallation (beta)" name="uninstall"
-                            type="object"/>
-                        <button string="Mark for Installation" name="install"
-                            type="object"/>
-                        <button string="Cancel Installation" name="install_cancel"
-                            type="object"/>
-                        <button string="Cancel Upgrade" name="upgrade_cancel"
-                            type="object"/>
-                        <button string="Cancel Uninstallation" name="uninstall_cancel"
-                            type="object"/>
+                        <button string="Mark for Upgrade" name="upgrade"/>
+                        <button string="Mark for Uninstallation (beta)" name="uninstall"/>
+                        <button string="Mark for Installation" name="install"/>
+                        <button string="Cancel Installation" name="install_cancel"/>
+                        <button string="Cancel Upgrade" name="upgrade_cancel"/>
+                        <button string="Cancel Uninstallation" name="uninstall_cancel"/>
                     </group>
                 </form>
                 ]]>
@@ -45,14 +39,10 @@ this repository contains the full copyright notices and license terms. -->
                     <field name="name" expand="1"/>
                     <field name="version"/>
                     <field name="state"/>
-                    <button string="Mark for Upgrade" name="upgrade"
-                        type="object"/>
-                    <button string="Mark for Installation" name="install"
-                        type="object"/>
-                    <button string="Cancel Installation" name="install_cancel"
-                        type="object"/>
-                    <button string="Cancel Upgrade" name="upgrade_cancel"
-                        type="object"/>
+                    <button string="Mark for Upgrade" name="upgrade"/>
+                    <button string="Mark for Installation" name="install"/>
+                    <button string="Cancel Installation" name="install_cancel"/>
+                    <button string="Cancel Upgrade" name="upgrade_cancel"/>
                 </tree>
               ]]>
             </field>

@@ -50,6 +50,9 @@ class View(ModelSQL, ModelView):
             'invalid_xml': 'Invalid XML for View!',
         })
         self._order.insert(0, ('priority', 'ASC'))
+        self._buttons.update({
+                'show': {},
+                })
 
     def init(self, module_name):
         super(View, self).init(module_name)
@@ -69,6 +72,10 @@ class View(ModelSQL, ModelView):
 
     def default_module(self):
         return Transaction().context.get('module') or ''
+
+    @ModelView.button_action('ir.act_view_show')
+    def show(self, ids):
+        pass
 
     def check_xml(self, ids):
         "Check XML"
