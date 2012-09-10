@@ -54,12 +54,8 @@ button = element button { attlist.button, empty }
 attlist.button &= attribute help { text }?
 attlist.button &=
   [ a:defaultValue = "Unknown" ] attribute string { text }?
-attlist.button &=
-  [ a:defaultValue = "object" ]
-  attribute type { "object" | "action" }?
 attlist.button &= attribute confirm { text }?
 attlist.button &= attribute name { text }
-attlist.button &= attribute states { text }?
 data = element data { attlist.data, xpath+ }
 attlist.data &= empty
 xpath = element xpath { attlist.xpath,

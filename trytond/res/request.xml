@@ -51,16 +51,13 @@ this repository contains the full copyright notices and license terms. -->
                             <label name="trigger_date"/>
                             <field name="trigger_date"/>
                             <group col="2" colspan="2" id="buttons">
-                                <button name="send" string="Send"
-                                    type="object"/>
-                                <button name="reply" string="Reply"
-                                    type="object"/>
+                                <button name="send" string="Send"/>
+                                <button name="reply" string="Reply"/>
                             </group>
                             <label name="state"/>
                             <field name="state"/>
                             <group col="3" colspan="2" id="button">
-                                <button name="close" string="Close"
-                                    type="object"/>
+                                <button name="close" string="Close"/>
                             </group>
                         </page>
                         <page string="References" col="1" id="references">

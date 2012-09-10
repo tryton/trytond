@@ -1,3 +1,4 @@
+* Merge all kind of buttons
 * Use XML id for board action instead of id
 * Add states attribute to notebook
 * Allow to use tuple for Reference

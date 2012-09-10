@@ -137,12 +137,8 @@ attlist.button &= attribute help { text }?
 attlist.button &=
   [ a:defaultValue = "Unknown" ] attribute string { text }?
 attlist.button &= attribute icon { text }?
-attlist.button &=
-  [ a:defaultValue = "object" ]
-  attribute type { "object" | "action" }?
 attlist.button &= attribute confirm { text }?
 attlist.button &= attribute name { text }
-attlist.button &= attribute states { text }?
 notebook = element notebook { attlist.notebook, page* }
 attlist.notebook &= [ a:defaultValue = "4" ] attribute colspan { text }?
 attlist.notebook &= attribute states { text }?
