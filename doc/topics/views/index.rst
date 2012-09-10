@@ -573,3 +573,84 @@ Example
         <field name="total_amount"/>
     </y>
   </graph>
+
+
+Board view
+==========
+
+The RNG that describes the xml for a board view is stored in
+trytond/ir/ui/board.rng.  There is also a RNC in trytond/ir/ui/graph.rnc.
+
+Board view is used to display multiple views at once.
+
+Elements are put on the screen followin the same rules as for ``Form`` view.
+
+The views can be updated by the selection of records on an other view inside
+the same board by using :class:`~trytond.pyson.Eval()` on the action id of the
+other view in the domain.
+
+
+XML description
+---------------
+
+board
+^^^^^
+
+Each board view must start with this tag.
+
+    * ``string``: The text that will be used as default titla for the atb or
+      the window.
+
+    * ``col``: The number of columns for the view.
+
+image
+^^^^^
+
+Same as in ``Form`` view.
+
+separator
+^^^^^^^^^
+
+Same as in ``Form`` view.
+
+label
+^^^^^
+
+Same as in ``Form`` view.
+
+newline
+^^^^^^^
+
+Same as in ``Form`` view.
+
+notebook
+^^^^^^^^
+
+Same as in ``Form`` view.
+
+page
+^^^^
+
+Same as in ``Form`` view.
+
+group
+^^^^^
+
+Same as in ``Form`` view.
+
+hpaned, vpaned
+^^^^^^^^^^^^^^
+
+Same as in ``Form`` view.
+
+child
+^^^^^
+
+Same as in ``Form`` view.
+
+action
+^^^^^^
+
+    * ``name``: The id of the action window.
+
+    * ``colspan``: see in common-attributes-colspan_.
