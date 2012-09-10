@@ -303,6 +303,8 @@ It adds a notebook widget which can contain page tags.
 
     * ``colspan``: see in common-attributes-colspan_.
 
+    * ``states``: see in common-attributes-states_.
+
 page
 ^^^^
 

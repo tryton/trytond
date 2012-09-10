@@ -1,3 +1,4 @@
+* Add states attribute to notebook
 * Allow to use tuple for Reference
 * Add constant interpolation on line graph
 * Add create/delete field access
