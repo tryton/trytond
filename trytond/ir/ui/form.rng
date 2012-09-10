@@ -566,6 +566,11 @@
       <attribute name="colspan" a:defaultValue="4"/>
     </optional>
   </define>
+  <define name="attlist.notebook" combine="interleave">
+    <optional>
+      <attribute name="states"/>
+    </optional>
+  </define>
   <define name="page">
     <element name="page">
       <ref name="attlist.page"/>
