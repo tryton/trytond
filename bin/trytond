@@ -41,6 +41,10 @@ def parse_commandline():
     parser.add_option("--disable-cron", dest="cron",
         action="store_false", help="disable cron")
 
+    parser.epilog = 'The first time a database is initialized with "-i" admin'\
+            ' password is read from file defined by TRYTONPASSFILE '\
+            'environment variable or interactively ask user'
+
     (opt, _) = parser.parse_args()
 
     if opt.config:

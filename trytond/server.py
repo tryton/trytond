@@ -142,17 +142,30 @@ class TrytonServer(object):
 
         for db_name in CONFIG['db_name']:
             if init[db_name]:
-                while True:
-                    password = getpass('Admin Password for %s: ' % db_name)
-                    password2 = getpass('Admin Password Confirmation: ')
-                    if password != password2:
-                        sys.stderr.write('Admin Password Confirmation ' \
-                                'doesn\'t match Admin Password!\n')
-                        continue
-                    if not password:
-                        sys.stderr.write('Admin Password is required!\n')
-                        continue
-                    break
+                # try to read password from environment variable
+                # TRYTONPASSFILE, empty TRYTONPASSFILE ignored
+                passpath = os.getenv('TRYTONPASSFILE')
+                password = ''
+                if passpath:
+                    try:
+                        with open(passpath) as passfile:
+                            password = passfile.readline()[:-1]
+                    except Exception, err:
+                        sys.stderr.write('Can not read password ' \
+                                'from "%s": "%s"\n' % (passpath, err))
+
+                if not password:
+                    while True:
+                        password = getpass('Admin Password for %s: ' % db_name)
+                        password2 = getpass('Admin Password Confirmation: ')
+                        if password != password2:
+                            sys.stderr.write('Admin Password Confirmation ' \
+                                    'doesn\'t match Admin Password!\n')
+                            continue
+                        if not password:
+                            sys.stderr.write('Admin Password is required!\n')
+                            continue
+                        break
 
                 database = Database(db_name).connect()
                 cursor = database.cursor()
