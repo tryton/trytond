@@ -532,26 +532,11 @@
   </define>
   <define name="attlist.button" combine="interleave">
     <optional>
-      <attribute name="type" a:defaultValue="object">
-        <choice>
-          <value>object</value>
-          <value>action</value>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="attlist.button" combine="interleave">
-    <optional>
       <attribute name="confirm"/>
     </optional>
   </define>
   <define name="attlist.button" combine="interleave">
     <attribute name="name"/>
-  </define>
-  <define name="attlist.button" combine="interleave">
-    <optional>
-      <attribute name="states"/>
-    </optional>
   </define>
   <define name="notebook">
     <element name="notebook">
@@ -564,6 +549,11 @@
   <define name="attlist.notebook" combine="interleave">
     <optional>
       <attribute name="colspan" a:defaultValue="4"/>
+    </optional>
+  </define>
+  <define name="attlist.notebook" combine="interleave">
+    <optional>
+      <attribute name="states"/>
     </optional>
   </define>
   <define name="page">

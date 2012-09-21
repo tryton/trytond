@@ -450,19 +450,17 @@ class ModelView(Model):
                     CONTEXT)))
 
         if element.tag == 'button':
-            if element.get('type', 'object') == 'object':
-                assert not element.get('states')
-                button_name = element.attrib['name']
-                if button_name in self._buttons:
-                    states = self._buttons[button_name]
-                else:
-                    states = {}
-                groups = set(user_obj.get_groups())
-                button_groups = button_obj.get_groups(self._name, button_name)
-                if button_groups and not groups & button_groups:
-                    states = states.copy()
-                    states['readonly'] = True
-                element.set('states', encoder.encode(states))
+            button_name = element.attrib['name']
+            if button_name in self._buttons:
+                states = self._buttons[button_name]
+            else:
+                states = {}
+            groups = set(user_obj.get_groups())
+            button_groups = button_obj.get_groups(self._name, button_name)
+            if button_groups and not groups & button_groups:
+                states = states.copy()
+                states['readonly'] = True
+            element.set('states', encoder.encode(states))
 
         # translate view
         if Transaction().language != 'en_US':
@@ -504,3 +502,23 @@ class ModelView(Model):
                         % (func.__name__, self._name))
             return func(self, *args, **kwargs)
         return wrapper
+
+    @staticmethod
+    def button_action(action):
+        def decorator(func):
+            func = ModelView.button(func)
+
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                pool = Pool()
+                model_data_obj = pool.get('ir.model.data')
+                action_obj = pool.get('ir.action')
+
+                func(*args, **kwargs)
+
+                module, fs_id = action.split('.')
+                action_id = action_obj.get_action_id(
+                    model_data_obj.get_id(module, fs_id))
+                return action_id
+            return wrapper
+        return decorator

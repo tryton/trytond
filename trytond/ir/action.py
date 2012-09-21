@@ -620,6 +620,9 @@ class ActionActWindow(ModelSQL, ModelView):
             'invalid_domain': 'Invalid domain or search criteria!',
             'invalid_context': 'Invalid context!',
         })
+        self._rpc.update({
+                'get': False,
+                })
 
     def init(self, module_name):
         cursor = Transaction().cursor
@@ -764,6 +767,14 @@ class ActionActWindow(ModelSQL, ModelView):
         res = super(ActionActWindow, self).delete(ids)
         action_obj.delete(action_ids)
         return res
+
+    def get(self, xml_id):
+        'Get values from XML id'
+        pool = Pool()
+        model_data_obj = pool.get('ir.model.data')
+        action_obj = pool.get('ir.action')
+        action_id = model_data_obj.get_id(*xml_id.split('.'))
+        return action_obj.get_action_values(self._name, action_id)
 
     def copy(self, ids, default=None):
         action_obj = Pool().get('ir.action')
