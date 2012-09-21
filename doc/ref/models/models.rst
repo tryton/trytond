@@ -117,6 +117,11 @@ Static methods:
 
     Decorate button method to check group access.
 
+.. staticmethod:: ModelView.button_action(action)
+
+    Same as :stat:`ModelView.button` but return the action id of the XML `id`
+    action.
+
 Instance methods:
 
 .. method:: ModelView.fields_view_get([view_id[, view_type[, toolbar]]])
