@@ -396,7 +396,7 @@ class Model(WarningErrorMixin, URLMixin):
                 if self._columns[field].on_change:
                     args = {}
                     for arg in self._columns[field].on_change:
-                        args[arg] = value.get(arg, False)
+                        args[arg] = value.get(arg, None)
                         if arg in self._columns \
                                 and self._columns[arg]._type == 'many2one':
                             if isinstance(args[arg], (list, tuple)):
