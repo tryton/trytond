@@ -1,3 +1,7 @@
+* Fix search button clause in ModelButton.get_groups (CVE-2012-2238)
+* Merge all kind of buttons
+* Use XML id for board action instead of id
+* Add states attribute to notebook
 * Allow to use tuple for Reference
 * Add constant interpolation on line graph
 * Add create/delete field access
