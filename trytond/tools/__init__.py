@@ -6,3 +6,8 @@ try:
     from collections import OrderedDict
 except ImportError:
     from .ordereddict import OrderedDict
+
+
+class ClassProperty(property):
+    def __get__(self, cls, owner):
+        return self.fget.__get__(None, owner)()

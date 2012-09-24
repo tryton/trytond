@@ -121,6 +121,7 @@ class Field(object):
         assert loading in ('lazy', 'eager'), \
             'loading must be "lazy" or "eager"'
         self.loading = loading
+        self.name = None
 
     def _get_domain(self):
         return self.__domain
@@ -174,3 +175,15 @@ class Field(object):
         self.__context = value
 
     context = property(_get_context, _set_context)
+
+    def __get__(self, inst, cls):
+        if inst is None:
+            return self
+        assert self.name is not None
+        return inst.__getattr__(self.name)
+
+    def __set__(self, inst, value):
+        assert self.name is not None
+        if inst._values is None:
+            inst._values = {}
+        inst._values[self.name] = value

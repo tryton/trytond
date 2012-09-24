@@ -174,12 +174,12 @@ class TrytonDAVInterface(iface.dav_interface):
             return res
         pool = Pool(Transaction().cursor.database_name)
         try:
-            collection_obj = pool.get('webdav.collection')
+            Collection = pool.get('webdav.collection')
             scheme, netloc, path, params, query, fragment = \
                 urlparse.urlparse(uri)
             if path[-1:] != '/':
                 path += '/'
-            for child in collection_obj.get_childs(dburi, filter=filter,
+            for child in Collection.get_childs(dburi, filter=filter,
                     cache=CACHE):
                 res.append(urlparse.urlunparse((scheme, netloc,
                             path + child.encode('utf-8'), params, query,
@@ -230,9 +230,9 @@ class TrytonDAVInterface(iface.dav_interface):
             res += '</html>'
             return res
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.get_data(dburi, cache=CACHE)
+            res = Collection.get_data(dburi, cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -261,9 +261,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             raise DAV_Forbidden
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.put(dburi, data, content_type, cache=CACHE)
+            res = Collection.put(dburi, data, content_type, cache=CACHE)
             Transaction().cursor.commit()
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
@@ -284,9 +284,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             raise DAV_Forbidden
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.mkcol(dburi, cache=CACHE)
+            res = Collection.mkcol(dburi, cache=CACHE)
             Transaction().cursor.commit()
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
@@ -303,9 +303,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             return COLLECTION
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.get_resourcetype(dburi, cache=CACHE)
+            res = Collection.get_resourcetype(dburi, cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -320,8 +320,8 @@ class TrytonDAVInterface(iface.dav_interface):
             return uri.split('/')[-1]
         pool = Pool(Transaction().cursor.database_name)
         try:
-            collection_obj = pool.get('webdav.collection')
-            res = collection_obj.get_displayname(dburi, cache=CACHE)
+            Collection = pool.get('webdav.collection')
+            res = Collection.get_displayname(dburi, cache=CACHE)
         except KeyError:
             raise DAV_NotFound
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
@@ -337,9 +337,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             return '0'
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.get_contentlength(dburi, cache=CACHE)
+            res = Collection.get_contentlength(dburi, cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -353,9 +353,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or self.is_collection(uri):
             return "text/html"
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.get_contenttype(dburi, cache=CACHE)
+            res = Collection.get_contenttype(dburi, cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -372,9 +372,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             return time.time()
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.get_creationdate(dburi, cache=CACHE)
+            res = Collection.get_creationdate(dburi, cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -388,9 +388,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             return time.time()
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.get_lastmodified(dburi, cache=CACHE)
+            res = Collection.get_lastmodified(dburi, cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -404,9 +404,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             return 403
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.rmcol(dburi, cache=CACHE)
+            res = Collection.rmcol(dburi, cache=CACHE)
             Transaction().cursor.commit()
         except Exception, exception:
             self._log_exception(exception)
@@ -419,9 +419,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             return 403
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.rm(dburi, cache=CACHE)
+            res = Collection.rm(dburi, cache=CACHE)
             Transaction().cursor.commit()
         except Exception, exception:
             self._log_exception(exception)
@@ -434,9 +434,9 @@ class TrytonDAVInterface(iface.dav_interface):
         if not dbname or not dburi:
             return 1
         pool = Pool(Transaction().cursor.database_name)
-        collection_obj = pool.get('webdav.collection')
+        Collection = pool.get('webdav.collection')
         try:
-            res = collection_obj.exists(dburi, cache=CACHE)
+            res = Collection.exists(dburi, cache=CACHE)
         except (DAV_Error, DAV_NotFound, DAV_Secret, DAV_Forbidden), exception:
             self._log_exception(exception)
             raise
@@ -485,8 +485,8 @@ class TrytonDAVInterface(iface.dav_interface):
         else:
             pool = Pool(Transaction().cursor.database_name)
             try:
-                collection_obj = pool.get('webdav.collection')
-                privileges = collection_obj.current_user_privilege_set(dburi,
+                Collection = pool.get('webdav.collection')
+                privileges = Collection.current_user_privilege_set(dburi,
                         cache=CACHE)
             except KeyError:
                 pass
@@ -579,8 +579,8 @@ class WebDAVAuthRequestHandler(WebDAVServer.DAVRequestHandler):
                     pool = Pool(dbname)
                     if not dbname in database_list:
                         pool.init()
-                    share_obj = pool.get('webdav.share')
-                    user = share_obj.get_login(key, command, path)
+                    Share = pool.get('webdav.share')
+                    user = Share.get_login(key, command, path)
                     transaction.cursor.commit()
             if not user:
                 return None

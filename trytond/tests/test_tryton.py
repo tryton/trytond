@@ -41,14 +41,13 @@ CONFIG.update_etc(_CONFIGFILE)
 if not CONFIG['admin_passwd']:
     CONFIG['admin_passwd'] = 'admin'
 
-from trytond.modules import register_classes
 from trytond.pool import Pool
 from trytond.backend import Database
 from trytond.protocols.dispatcher import create
 from trytond.transaction import Transaction
 from trytond.pyson import PYSONEncoder, Eval
 
-register_classes()
+Pool.start()
 
 if CONFIG['db_type'] == 'sqlite':
     DB_NAME = ':memory:'
@@ -121,27 +120,29 @@ def install_module(name):
         create(DB_NAME, CONFIG['admin_passwd'], 'en_US', USER_PASSWORD)
     with Transaction().start(DB_NAME, USER,
             context=CONTEXT) as transaction:
-        module_obj = POOL.get('ir.module.module')
+        Module = POOL.get('ir.module.module')
 
-        module_ids = module_obj.search([
-            ('name', '=', name),
-            ])
-        assert module_ids
+        modules = Module.search([
+                ('name', '=', name),
+                ])
+        assert modules
 
-        module_ids = module_obj.search([
-            ('name', '=', name),
-            ('state', '!=', 'installed'),
-            ])
+        modules = Module.search([
+                ('name', '=', name),
+                ('state', '!=', 'installed'),
+                ])
 
-        if not module_ids:
+        if not modules:
             return
 
-        module_obj.install(module_ids)
+        Module.install(modules)
         transaction.cursor.commit()
 
-        install_upgrade_obj = POOL.get('ir.module.module.install_upgrade',
-                type='wizard')
-        install_upgrade_obj.transition_upgrade(None)
+        InstallUpgrade = POOL.get('ir.module.module.install_upgrade',
+            type='wizard')
+        instance_id, _, _ = InstallUpgrade.create()
+        InstallUpgrade(instance_id).transition_upgrade()
+        InstallUpgrade.delete(instance_id)
         transaction.cursor.commit()
 
 
@@ -151,17 +152,17 @@ def test_view(module_name):
     '''
     with Transaction().start(DB_NAME, USER,
             context=CONTEXT) as transaction:
-        view_obj = POOL.get('ir.ui.view')
-        view_ids = view_obj.search([
-            ('module', '=', module_name),
-            ('model', '!=', ''),
-            ])
-        assert view_ids, "No views for %s" % module_name
-        for view in view_obj.browse(view_ids):
+        View = POOL.get('ir.ui.view')
+        views = View.search([
+                ('module', '=', module_name),
+                ('model', '!=', ''),
+                ])
+        assert views, "No views for %s" % module_name
+        for view in views:
             view_id = view.inherit and view.inherit.id or view.id
             model = view.model
-            model_obj = POOL.get(model)
-            res = model_obj.fields_view_get(view_id)
+            Model = POOL.get(model)
+            res = Model.fields_view_get(view_id)
             assert res['model'] == model
             tree = etree.fromstring(res['arch'])
             tree_root = tree.getroottree().getroot()
@@ -195,7 +196,7 @@ def test_depends():
 
     with Transaction().start(DB_NAME, USER, context=CONTEXT):
         for mname, model in Pool().iterobject():
-            for fname, field in model._columns.iteritems():
+            for fname, field in model._fields.iteritems():
                 encoder = Encoder()
                 encoder.encode(field.domain)
                 if hasattr(field, 'digits'):

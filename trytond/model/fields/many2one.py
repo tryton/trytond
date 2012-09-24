@@ -1,7 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from types import NoneType
 
 from trytond.model.fields.field import Field
+from trytond.pool import Pool
 
 
 class Many2One(Field):
@@ -45,6 +47,7 @@ class Many2One(Field):
         self.left = left
         self.right = right
         self.datetime_field = datetime_field
+    __init__.__doc__ += Field.__init__.__doc__
 
     def __get_required(self):
         return self.__required
@@ -56,4 +59,15 @@ class Many2One(Field):
 
     required = property(__get_required, __set_required)
 
-    __init__.__doc__ += Field.__init__.__doc__
+    def get_target(self):
+        'Return the target Model'
+        return Pool().get(self.model_name)
+
+    def __set__(self, inst, value):
+        Target = self.get_target()
+        if isinstance(value, dict):
+            value = Target(**value)
+        elif isinstance(value, (int, long)):
+            value = Target(value)
+        assert isinstance(value, (Target, NoneType))
+        super(Many2One, self).__set__(inst, value)

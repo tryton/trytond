@@ -26,82 +26,79 @@ class ModelAccessTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            model_id, = self.model.search([('model', '=', 'test.access')])
+            model, = self.model.search([('model', '=', 'test.access')])
 
-            test_id = self.test_access.create({})
+            test = self.test_access.create({})
 
             # Without model access
-            self.test_access.read(test_id)
+            self.test_access.read([test.id])
 
             # With model access
 
             # One access allowed for any group
-            model_access_wo_group_id = self.model_access.create({
-                'model': model_id,
-                'group': False,
-                'perm_read': True,
-                })
-            self.test_access.read(test_id)
+            model_access_wo_group = self.model_access.create({
+                    'model': model.id,
+                    'group': False,
+                    'perm_read': True,
+                    })
+            self.test_access.read([test.id])
 
             # One access disallowed for any group
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_read': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.read,
-                    test_id)
+            self.model_access.write([model_access_wo_group], {
+                    'perm_read': False,
+                    })
+            self.assertRaises(Exception, self.test_access.read, [test.id])
 
             # Two access rules with one group allowed
-            group_id = self.group.search([('users', '=', USER)])[0]
-            model_access_w_group_id = self.model_access.create({
-                'model': model_id,
-                'group': group_id,
-                'perm_read': True,
-                })
+            group, = self.group.search([('users', '=', USER)])
+            model_access_w_group = self.model_access.create({
+                    'model': model.id,
+                    'group': group.id,
+                    'perm_read': True,
+                    })
 
-            self.test_access.read(test_id)
+            self.test_access.read([test.id])
 
             # Two access rules with both allowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_read': True,
-                })
-            self.test_access.read(test_id)
+            self.model_access.write([model_access_wo_group], {
+                    'perm_read': True,
+                    })
+            self.test_access.read([test.id])
 
             # Two access rules with any group allowed
-            self.model_access.write(model_access_w_group_id, {
-                'perm_read': False,
-                })
-            self.test_access.read(test_id)
+            self.model_access.write([model_access_w_group], {
+                    'perm_read': False,
+                    })
+            self.test_access.read([test.id])
 
             # Two access rules with both disallowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_read': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.read,
-                    test_id)
+            self.model_access.write([model_access_wo_group], {
+                    'perm_read': False,
+                    })
+            self.assertRaises(Exception, self.test_access.read, [test.id])
 
             # One access disallowed for one group
-            self.model_access.delete(model_access_wo_group_id)
-            self.failUnlessRaises(Exception, self.test_access.read,
-                    test_id)
+            self.model_access.delete([model_access_wo_group])
+            self.assertRaises(Exception, self.test_access.read, [test.id])
 
             # One access allowed for one group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_read': True,
-                })
-            self.test_access.read(test_id)
+            self.model_access.write([model_access_w_group], {
+                    'perm_read': True,
+                    })
+            self.test_access.read([test.id])
 
             # One access allowed for one other group
-            group_id = self.group.create({'name': 'Test'})
-            self.model_access.write(model_access_w_group_id, {
-                'group': group_id,
-                })
-            self.test_access.read(test_id)
+            group = self.group.create({'name': 'Test'})
+            self.model_access.write([model_access_w_group], {
+                    'group': group.id,
+                    })
+            self.test_access.read([test.id])
 
             # One access disallowed for one other group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_read': False,
-                })
-            self.test_access.read(test_id)
+            self.model_access.write([model_access_w_group], {
+                    'perm_read': False,
+                    })
+            self.test_access.read([test.id])
 
             transaction.cursor.rollback()
 
@@ -111,82 +108,78 @@ class ModelAccessTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            model_id, = self.model.search([('model', '=', 'test.access')])
+            model, = self.model.search([('model', '=', 'test.access')])
 
-            test_id = self.test_access.create({})
+            test = self.test_access.create({})
 
             # Without model access
-            self.test_access.write(test_id, {})
+            self.test_access.write([test], {})
 
             # With model access
 
             # One access allowed for any group
-            model_access_wo_group_id = self.model_access.create({
-                'model': model_id,
-                'group': False,
-                'perm_write': True,
-                })
-            self.test_access.write(test_id, {})
+            model_access_wo_group = self.model_access.create({
+                    'model': model.id,
+                    'group': False,
+                    'perm_write': True,
+                    })
+            self.test_access.write([test], {})
 
             # One access disallowed for any group
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_write': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.write,
-                    test_id, {})
+            self.model_access.write([model_access_wo_group], {
+                    'perm_write': False,
+                    })
+            self.assertRaises(Exception, self.test_access.write, [test], {})
 
             # Two access rules with one group allowed
-            group_id = self.group.search([('users', '=', USER)])[0]
-            model_access_w_group_id = self.model_access.create({
-                'model': model_id,
-                'group': group_id,
-                'perm_write': True,
-                })
-
-            self.test_access.write(test_id, {})
+            group, = self.group.search([('users', '=', USER)])
+            model_access_w_group = self.model_access.create({
+                    'model': model.id,
+                    'group': group.id,
+                    'perm_write': True,
+                    })
+            self.test_access.write([test], {})
 
             # Two access rules with both allowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_write': True,
-                })
-            self.test_access.write(test_id, {})
+            self.model_access.write([model_access_wo_group], {
+                    'perm_write': True,
+                    })
+            self.test_access.write([test], {})
 
             # Two access rules with any group allowed
-            self.model_access.write(model_access_w_group_id, {
-                'perm_write': False,
-                })
-            self.test_access.write(test_id, {})
+            self.model_access.write([model_access_w_group], {
+                    'perm_write': False,
+                    })
+            self.test_access.write([test], {})
 
             # Two access rules with both disallowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_write': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.write,
-                    test_id, {})
+            self.model_access.write([model_access_wo_group], {
+                    'perm_write': False,
+                    })
+            self.assertRaises(Exception, self.test_access.write, [test], {})
 
             # One access disallowed for one group
-            self.model_access.delete(model_access_wo_group_id)
-            self.failUnlessRaises(Exception, self.test_access.write,
-                    test_id, {})
+            self.model_access.delete([model_access_wo_group])
+            self.assertRaises(Exception, self.test_access.write, [test], {})
 
             # One access allowed for one group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_write': True,
-                })
-            self.test_access.write(test_id, {})
+            self.model_access.write([model_access_w_group], {
+                    'perm_write': True,
+                    })
+            self.test_access.write([test], {})
 
             # One access allowed for one other group
-            group_id = self.group.create({'name': 'Test'})
-            self.model_access.write(model_access_w_group_id, {
-                'group': group_id,
-                })
-            self.test_access.write(test_id, {})
+            group = self.group.create({'name': 'Test'})
+            self.model_access.write([model_access_w_group], {
+                    'group': group.id,
+                    })
+            self.test_access.write([test], {})
 
             # One access disallowed for one other group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_write': False,
-                })
-            self.test_access.write(test_id, {})
+            self.model_access.write([model_access_w_group], {
+                    'perm_write': False,
+                    })
+            self.test_access.write([test], {})
 
             transaction.cursor.rollback()
 
@@ -196,7 +189,7 @@ class ModelAccessTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            model_id, = self.model.search([('model', '=', 'test.access')])
+            model, = self.model.search([('model', '=', 'test.access')])
 
             # Without model access
             self.test_access.create({})
@@ -204,68 +197,68 @@ class ModelAccessTestCase(unittest.TestCase):
             # With model access
 
             # One access allowed for any group
-            model_access_wo_group_id = self.model_access.create({
-                'model': model_id,
-                'group': False,
-                'perm_create': True,
-                })
+            model_access_wo_group = self.model_access.create({
+                    'model': model.id,
+                    'group': False,
+                    'perm_create': True,
+                    })
             self.test_access.create({})
 
             # One access disallowed for any group
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_create': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.create, {})
+            self.model_access.write([model_access_wo_group], {
+                    'perm_create': False,
+                    })
+            self.assertRaises(Exception, self.test_access.create, {})
 
             # Two access rules with one group allowed
-            group_id = self.group.search([('users', '=', USER)])[0]
-            model_access_w_group_id = self.model_access.create({
-                'model': model_id,
-                'group': group_id,
-                'perm_create': True,
-                })
+            group, = self.group.search([('users', '=', USER)])
+            model_access_w_group = self.model_access.create({
+                    'model': model.id,
+                    'group': group.id,
+                    'perm_create': True,
+                    })
 
             self.test_access.create({})
 
             # Two access rules with both allowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_create': True,
-                })
+            self.model_access.write([model_access_wo_group], {
+                    'perm_create': True,
+                    })
             self.test_access.create({})
 
             # Two access rules with any group allowed
-            self.model_access.write(model_access_w_group_id, {
-                'perm_create': False,
-                })
+            self.model_access.write([model_access_w_group], {
+                    'perm_create': False,
+                    })
             self.test_access.create({})
 
             # Two access rules with both disallowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_create': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.create, {})
+            self.model_access.write([model_access_wo_group], {
+                    'perm_create': False,
+                    })
+            self.assertRaises(Exception, self.test_access.create, {})
 
             # One access disallowed for one group
-            self.model_access.delete(model_access_wo_group_id)
-            self.failUnlessRaises(Exception, self.test_access.create, {})
+            self.model_access.delete([model_access_wo_group])
+            self.assertRaises(Exception, self.test_access.create, {})
 
             # One access allowed for one group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_create': True,
-                })
+            self.model_access.write([model_access_w_group], {
+                    'perm_create': True,
+                    })
             self.test_access.create({})
 
             # One access allowed for one other group
-            group_id = self.group.create({'name': 'Test'})
-            self.model_access.write(model_access_w_group_id, {
-                'group': group_id,
-                })
+            group = self.group.create({'name': 'Test'})
+            self.model_access.write([model_access_w_group], {
+                    'group': group.id,
+                    })
             self.test_access.create({})
 
             # One access disallowed for one other group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_create': False,
-                })
+            self.model_access.write([model_access_w_group], {
+                    'perm_create': False,
+                    })
             self.test_access.create({})
 
             transaction.cursor.rollback()
@@ -276,82 +269,82 @@ class ModelAccessTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            model_id, = self.model.search([('model', '=', 'test.access')])
+            model, = self.model.search([('model', '=', 'test.access')])
 
-            test_ids = [self.test_access.create({}) for x in range(11)]
+            tests = [self.test_access.create({}) for x in range(11)]
 
             # Without model access
-            self.test_access.delete(test_ids.pop())
+            self.test_access.delete([tests.pop()])
 
             # With model access
 
             # One access allowed for any group
-            model_access_wo_group_id = self.model_access.create({
-                'model': model_id,
-                'group': False,
-                'perm_delete': True,
-                })
-            self.test_access.delete(test_ids.pop())
+            model_access_wo_group = self.model_access.create({
+                    'model': model.id,
+                    'group': False,
+                    'perm_delete': True,
+                    })
+            self.test_access.delete([tests.pop()])
 
             # One access disallowed for any group
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_delete': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.delete,
-                    test_ids.pop())
+            self.model_access.write([model_access_wo_group], {
+                    'perm_delete': False,
+                    })
+            self.assertRaises(Exception, self.test_access.delete,
+                [tests.pop()])
 
             # Two access rules with one group allowed
-            group_id = self.group.search([('users', '=', USER)])[0]
-            model_access_w_group_id = self.model_access.create({
-                'model': model_id,
-                'group': group_id,
-                'perm_delete': True,
-                })
+            group = self.group.search([('users', '=', USER)])[0]
+            model_access_w_group = self.model_access.create({
+                    'model': model.id,
+                    'group': group.id,
+                    'perm_delete': True,
+                    })
 
-            self.test_access.delete(test_ids.pop())
+            self.test_access.delete([tests.pop()])
 
             # Two access rules with both allowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_delete': True,
-                })
-            self.test_access.delete(test_ids.pop())
+            self.model_access.write([model_access_wo_group], {
+                    'perm_delete': True,
+                    })
+            self.test_access.delete([tests.pop()])
 
             # Two access rules with any group allowed
-            self.model_access.write(model_access_w_group_id, {
-                'perm_delete': False,
-                })
-            self.test_access.delete(test_ids.pop())
+            self.model_access.write([model_access_w_group], {
+                    'perm_delete': False,
+                    })
+            self.test_access.delete([tests.pop()])
 
             # Two access rules with both disallowed
-            self.model_access.write(model_access_wo_group_id, {
-                'perm_delete': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.delete,
-                    test_ids.pop())
+            self.model_access.write([model_access_wo_group], {
+                    'perm_delete': False,
+                    })
+            self.assertRaises(Exception, self.test_access.delete,
+                [tests.pop()])
 
             # One access disallowed for one group
-            self.model_access.delete(model_access_wo_group_id)
-            self.failUnlessRaises(Exception, self.test_access.delete,
-                    test_ids.pop())
+            self.model_access.delete([model_access_wo_group])
+            self.assertRaises(Exception, self.test_access.delete,
+                [tests.pop()])
 
             # One access allowed for one group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_delete': True,
-                })
-            self.test_access.delete(test_ids.pop())
+            self.model_access.write([model_access_w_group], {
+                    'perm_delete': True,
+                    })
+            self.test_access.delete([tests.pop()])
 
             # One access allowed for one other group
-            group_id = self.group.create({'name': 'Test'})
-            self.model_access.write(model_access_w_group_id, {
-                'group': group_id,
-                })
-            self.test_access.delete(test_ids.pop())
+            group = self.group.create({'name': 'Test'})
+            self.model_access.write([model_access_w_group], {
+                    'group': group.id,
+                    })
+            self.test_access.delete([tests.pop()])
 
             # One access disallowed for one other group
-            self.model_access.write(model_access_w_group_id, {
-                'perm_delete': False,
-                })
-            self.test_access.delete(test_ids.pop())
+            self.model_access.write([model_access_w_group], {
+                    'perm_delete': False,
+                    })
+            self.test_access.delete([tests.pop()])
 
             transaction.cursor.rollback()
 
@@ -374,208 +367,208 @@ class ModelFieldAccessTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            field1_id, = self.field.search([
-                ('model.model', '=', 'test.access'),
-                ('name', '=', 'field1'),
-                ])
-            field2_id, = self.field.search([
-                ('model.model', '=', 'test.access'),
-                ('name', '=', 'field2'),
-                ])
+            field1, = self.field.search([
+                    ('model.model', '=', 'test.access'),
+                    ('name', '=', 'field1'),
+                    ])
+            field2, = self.field.search([
+                    ('model.model', '=', 'test.access'),
+                    ('name', '=', 'field2'),
+                    ])
 
-            test_id = self.test_access.create({
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            test = self.test_access.create({
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # Without field access
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # With field access
 
             # One access allowed for any group
-            field_access_wo_group_id = self.field_access.create({
-                'field': field1_id,
-                'group': False,
-                'perm_read': True,
-                })
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            field_access_wo_group = self.field_access.create({
+                    'field': field1.id,
+                    'group': False,
+                    'perm_read': True,
+                    })
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # One access disallowed for any group
-            self.field_access.write(field_access_wo_group_id, {
-                'perm_read': False,
-                })
+            self.field_access.write([field_access_wo_group], {
+                    'perm_read': False,
+                    })
 
-            self.failUnlessRaises(Exception, self.test_access.read, test_id,
-                    ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.failUnlessRaises(Exception, self.test_access.read, test_id)
-            test_access = self.test_access.browse(test_id)
-            self.failUnlessRaises(Exception, getattr, test_access, 'field1')
-            test_access.field2
+            self.assertRaises(Exception, self.test_access.read, [test.id],
+                ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.assertRaises(Exception, self.test_access.read, [test.id])
+            self.assertRaises(Exception, getattr, test, 'field1')
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # Two access rules with one group allowed
-            group_id = self.group.search([('users', '=', USER)])[0]
-            field_access_w_group_id = self.field_access.create({
-                'field': field1_id,
-                'group': group_id,
-                'perm_read': True,
-                })
+            group = self.group.search([('users', '=', USER)])[0]
+            field_access_w_group = self.field_access.create({
+                    'field': field1.id,
+                    'group': group.id,
+                    'perm_read': True,
+                    })
 
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # Two access rules with both allowed
-            self.field_access.write(field_access_wo_group_id, {
-                'perm_read': True,
-                })
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            self.field_access.write([field_access_wo_group], {
+                    'perm_read': True,
+                    })
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # Two access rules with any group allowed
-            self.field_access.write(field_access_w_group_id, {
-                'perm_read': False,
-                })
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            self.field_access.write([field_access_w_group], {
+                    'perm_read': False,
+                    })
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # Two access rules with both disallowed
-            self.field_access.write(field_access_wo_group_id, {
+            self.field_access.write([field_access_wo_group], {
                 'perm_read': False,
                 })
-            self.failUnlessRaises(Exception, self.test_access.read, test_id,
-                    ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.failUnlessRaises(Exception, self.test_access.read, test_id)
-            test_access = self.test_access.browse(test_id)
-            self.failUnlessRaises(Exception, getattr, test_access, 'field1')
-            test_access.field2
+            self.assertRaises(Exception, self.test_access.read, [test.id],
+                ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.assertRaises(Exception, self.test_access.read, [test.id])
+            self.assertRaises(Exception, getattr, test, 'field1')
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # One access disallowed for one group
-            self.field_access.delete(field_access_wo_group_id)
-            self.failUnlessRaises(Exception, self.test_access.read, test_id,
-                    ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.failUnlessRaises(Exception, self.test_access.read, test_id)
-            test_access = self.test_access.browse(test_id)
-            self.failUnlessRaises(Exception, getattr, test_access, 'field1')
-            test_access.field2
+            self.field_access.delete([field_access_wo_group])
+            self.assertRaises(Exception, self.test_access.read, [test.id],
+                ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.assertRaises(Exception, self.test_access.read, [test.id])
+            self.assertRaises(Exception, getattr, test, 'field1')
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # One access allowed for one group
-            self.field_access.write(field_access_w_group_id, {
-                'perm_read': True,
-                })
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            self.field_access.write([field_access_w_group], {
+                    'perm_read': True,
+                    })
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # One access allowed for one other group
-            group_id = self.group.create({'name': 'Test'})
-            self.field_access.write(field_access_w_group_id, {
-                'group': group_id,
-                })
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            group = self.group.create({'name': 'Test'})
+            self.field_access.write([field_access_w_group], {
+                    'group': group.id,
+                    })
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # One access disallowed for one other group
-            self.field_access.write(field_access_w_group_id, {
-                'perm_read': False,
-                })
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            self.field_access.write([field_access_w_group], {
+                    'perm_read': False,
+                    })
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # Two access rules on both fields allowed
-            self.field_access.delete(field_access_w_group_id)
+            self.field_access.delete([field_access_w_group])
 
             field_access1 = self.field_access.create({
-                'field': field1_id,
-                'group': False,
-                'perm_read': True,
-                })
+                    'field': field1.id,
+                    'group': False,
+                    'perm_read': True,
+                    })
             field_access2 = self.field_access.create({
-                'field': field2_id,
-                'group': False,
-                'perm_read': True,
-                })
+                    'field': field2.id,
+                    'group': False,
+                    'perm_read': True,
+                    })
 
-            self.test_access.read(test_id, ['field1'])
-            self.test_access.read(test_id, ['field2'])
-            self.test_access.read(test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            test_access.field2
+            self.test_access.read([test.id], ['field1'])
+            self.test_access.read([test.id], ['field2'])
+            self.test_access.read([test.id])
+            test.field1
+            test.field2
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # Two access rules on both fields one allowed and one disallowed
-            self.field_access.write(field_access2, {
+            self.field_access.write([field_access2], {
                 'perm_read': False,
                 })
-            self.test_access.read(test_id, ['field1'])
-            self.failUnlessRaises(Exception, self.test_access.read, test_id,
-                    ['field2'])
-            self.failUnlessRaises(Exception, self.test_access.read, test_id)
-            test_access = self.test_access.browse(test_id)
-            test_access.field1
-            self.failUnlessRaises(Exception, getattr, test_access, 'field2')
+            self.test_access.read([test.id], ['field1'])
+            self.assertRaises(Exception, self.test_access.read, [test.id],
+                ['field2'])
+            self.assertRaises(Exception, self.test_access.read, [test.id])
+            test.field1
+            self.assertRaises(Exception, getattr, test, 'field2')
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             # Two access rules on both fields disallowed
-            self.field_access.write(field_access1, {
-                'perm_read': False,
-                })
-            self.failUnlessRaises(Exception, self.test_access.read, test_id,
-                    ['field1'])
-            self.failUnlessRaises(Exception, self.test_access.read, test_id,
-                    ['field2'])
-            self.failUnlessRaises(Exception, self.test_access.read, test_id)
-            test_access = self.test_access.browse(test_id)
-            self.failUnlessRaises(Exception, getattr, test_access, 'field1')
-            self.failUnlessRaises(Exception, getattr, test_access, 'field2')
+            self.field_access.write([field_access1], {
+                    'perm_read': False,
+                    })
+            self.assertRaises(Exception, self.test_access.read, [test.id],
+                ['field1'])
+            self.assertRaises(Exception, self.test_access.read, [test.id],
+                ['field2'])
+            self.assertRaises(Exception, self.test_access.read, [test.id])
+            self.assertRaises(Exception, getattr, test, 'field1')
+            self.assertRaises(Exception, getattr, test, 'field2')
             transaction.cursor.cache.clear()
+            test = self.test_access(test.id)
 
             transaction.cursor.rollback()
 
@@ -585,201 +578,201 @@ class ModelFieldAccessTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            field1_id, = self.field.search([
-                ('model.model', '=', 'test.access'),
-                ('name', '=', 'field1'),
-                ])
-            field2_id, = self.field.search([
-                ('model.model', '=', 'test.access'),
-                ('name', '=', 'field2'),
-                ])
+            field1, = self.field.search([
+                    ('model.model', '=', 'test.access'),
+                    ('name', '=', 'field1'),
+                    ])
+            field2, = self.field.search([
+                    ('model.model', '=', 'test.access'),
+                    ('name', '=', 'field2'),
+                    ])
 
-            test_id = self.test_access.create({
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            test = self.test_access.create({
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # Without field access
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
 
             # With field access
 
             # One access allowed for any group
-            field_access_wo_group_id = self.field_access.create({
-                'field': field1_id,
-                'group': False,
-                'perm_write': True,
-                })
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            field_access_wo_group = self.field_access.create({
+                    'field': field1.id,
+                    'group': False,
+                    'perm_write': True,
+                    })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # One access disallowed for any group
-            self.field_access.write(field_access_wo_group_id, {
-                'perm_write': False,
-                })
+            self.field_access.write([field_access_wo_group], {
+                    'perm_write': False,
+                    })
 
-            self.test_access.write(test_id, {})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id,
-                    {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id, {
+            self.test_access.write([test], {})
+            self.assertRaises(Exception, self.test_access.write, [test],
+                {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.assertRaises(Exception, self.test_access.write, [test], {
                     'field1': 'ham',
                     'field2': 'spam',
                     })
 
             # Two access rules with one group allowed
-            group_id = self.group.search([('users', '=', USER)])[0]
-            field_access_w_group_id = self.field_access.create({
-                'field': field1_id,
-                'group': group_id,
-                'perm_write': True,
-                })
+            group = self.group.search([('users', '=', USER)])[0]
+            field_access_w_group = self.field_access.create({
+                    'field': field1.id,
+                    'group': group.id,
+                    'perm_write': True,
+                    })
 
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # Two access rules with both allowed
-            self.field_access.write(field_access_wo_group_id, {
-                'perm_write': True,
-                })
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            self.field_access.write([field_access_wo_group], {
+                    'perm_write': True,
+                    })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # Two access rules with any group allowed
-            self.field_access.write(field_access_w_group_id, {
-                'perm_write': False,
-                })
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            self.field_access.write([field_access_w_group], {
+                    'perm_write': False,
+                    })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # Two access rules with both disallowed
-            self.field_access.write(field_access_wo_group_id, {
-                'perm_write': False,
-                })
-            self.test_access.write(test_id, {})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id,
-                    {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id, {
+            self.field_access.write([field_access_wo_group], {
+                    'perm_write': False,
+                    })
+            self.test_access.write([test], {})
+            self.assertRaises(Exception, self.test_access.write, [test],
+                {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.assertRaises(Exception, self.test_access.write, [test], {
                     'field1': 'ham',
                     'field2': 'spam',
                     })
 
             # One access disallowed for one group
-            self.field_access.delete(field_access_wo_group_id)
-            self.test_access.write(test_id, {})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id,
-                    {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'ham'})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id, {
+            self.field_access.delete([field_access_wo_group])
+            self.test_access.write([test], {})
+            self.assertRaises(Exception, self.test_access.write, [test],
+                {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'ham'})
+            self.assertRaises(Exception, self.test_access.write, [test], {
                     'field1': 'ham',
                     'field2': 'spam',
                     })
 
             # One access allowed for one group
-            self.field_access.write(field_access_w_group_id, {
-                'perm_write': True,
-                })
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            self.field_access.write([field_access_w_group], {
+                    'perm_write': True,
+                    })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # One access allowed for one other group
-            group_id = self.group.create({'name': 'Test'})
-            self.field_access.write(field_access_w_group_id, {
-                'group': group_id,
-                })
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            group = self.group.create({'name': 'Test'})
+            self.field_access.write([field_access_w_group], {
+                    'group': group.id,
+                    })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # One access disallowed for one other group
-            self.field_access.write(field_access_w_group_id, {
-                'perm_write': False,
-                })
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            self.field_access.write([field_access_w_group], {
+                    'perm_write': False,
+                    })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # Two access rules on both fields allowed
-            self.field_access.delete(field_access_w_group_id)
+            self.field_access.delete([field_access_w_group])
 
             field_access1 = self.field_access.create({
-                'field': field1_id,
-                'group': False,
-                'perm_write': True,
-                })
+                    'field': field1.id,
+                    'group': False,
+                    'perm_write': True,
+                    })
             field_access2 = self.field_access.create({
-                'field': field2_id,
-                'group': False,
-                'perm_write': True,
-                })
+                    'field': field2.id,
+                    'group': False,
+                    'perm_write': True,
+                    })
 
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.test_access.write(test_id, {'field2': 'spam'})
-            self.test_access.write(test_id, {
-                'field1': 'ham',
-                'field2': 'spam',
-                })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.test_access.write([test], {'field2': 'spam'})
+            self.test_access.write([test], {
+                    'field1': 'ham',
+                    'field2': 'spam',
+                    })
 
             # Two access rules on both fields one allowed and one disallowed
-            self.field_access.write(field_access2, {
-                'perm_write': False,
-                })
-            self.test_access.write(test_id, {})
-            self.test_access.write(test_id, {'field1': 'ham'})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id,
-                    {'field2': 'spam'})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id, {
+            self.field_access.write([field_access2], {
+                    'perm_write': False,
+                    })
+            self.test_access.write([test], {})
+            self.test_access.write([test], {'field1': 'ham'})
+            self.assertRaises(Exception, self.test_access.write, [test], {
+                    'field2': 'spam'})
+            self.assertRaises(Exception, self.test_access.write, [test], {
                     'field1': 'ham',
                     'field2': 'spam',
                     })
 
             # Two access rules on both fields disallowed
-            self.field_access.write(field_access1, {
-                'perm_write': False,
-                })
-            self.test_access.write(test_id, {})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id,
-                    {'field1': 'ham'})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id,
-                    {'field2': 'spam'})
-            self.failUnlessRaises(Exception, self.test_access.write, test_id, {
+            self.field_access.write([field_access1], {
+                    'perm_write': False,
+                    })
+            self.test_access.write([test], {})
+            self.assertRaises(Exception, self.test_access.write, [test], {
+                    'field1': 'ham'})
+            self.assertRaises(Exception, self.test_access.write, [test], {
+                    'field2': 'spam'})
+            self.assertRaises(Exception, self.test_access.write, [test], {
                     'field1': 'ham',
                     'field2': 'spam',
                     })

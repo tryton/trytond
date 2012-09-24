@@ -4,6 +4,10 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
 from trytond.pool import Pool
 
+__all__ = [
+    'UIMenu',
+    ]
+
 
 def one_in(i, j):
     """Check the presence of an element of setA in setB
@@ -64,8 +68,8 @@ SEPARATOR = ' / '
 
 class UIMenu(ModelSQL, ModelView):
     "UI menu"
-    _name = 'ir.ui.menu'
-    _description = __doc__
+    __name__ = 'ir.ui.menu'
+
     name = fields.Char('Menu', required=True, translate=True)
     sequence = fields.Integer('Sequence', required=True)
     childs = fields.One2Many('ir.ui.menu', 'parent', 'Children')
@@ -86,56 +90,51 @@ class UIMenu(ModelSQL, ModelView):
                 ]), 'get_action', setter='set_action')
     active = fields.Boolean('Active')
 
-    def __init__(self):
-        super(UIMenu, self).__init__()
-        self._order.insert(0, ('sequence', 'ASC'))
-        self._constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(UIMenu, cls).__setup__()
+        cls._order.insert(0, ('sequence', 'ASC'))
+        cls._constraints += [
             ('check_recursion', 'recursive_menu'),
             ('check_name', 'wrong_name'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'recursive_menu': 'You can not create recursive menu!',
             'wrong_name': 'You can not use "%s" in name field!' % SEPARATOR,
         })
 
-    def default_icon(self):
+    @staticmethod
+    def default_icon():
         return 'tryton-open'
 
-    def default_sequence(self):
+    @staticmethod
+    def default_sequence():
         return 10
 
-    def default_active(self):
+    @staticmethod
+    def default_active():
         return True
 
-    def list_icons(self):
+    @staticmethod
+    def list_icons():
         pool = Pool()
-        icon_obj = pool.get('ir.ui.icon')
+        Icon = pool.get('ir.ui.icon')
         return sorted(CLIENT_ICONS
-            + [(name, name) for _, name in icon_obj.list_icons()])
+            + [(name, name) for _, name in Icon.list_icons()])
 
-    def check_name(self, ids):
-        for menu in self.browse(ids):
-            if SEPARATOR in menu.name:
-                return False
+    def check_name(self):
+        if SEPARATOR in self.name:
+            return False
         return True
 
-    def get_rec_name(self, ids, name):
-        if not ids:
-            return {}
-        res = {}
+    def get_rec_name(self, name):
+        if self.parent:
+            return self.parent.get_rec_name(name) + SEPARATOR + self.name
+        else:
+            return self.name
 
-        def _name(menu):
-            if menu.id in res:
-                return res[menu.id]
-            elif menu.parent:
-                return _name(menu.parent) + SEPARATOR + menu.name
-            else:
-                return menu.name
-        for menu in self.browse(ids):
-            res[menu.id] = _name(menu)
-        return res
-
-    def search_rec_name(self, name, clause):
+    @classmethod
+    def search_rec_name(cls, name, clause):
         if isinstance(clause[2], basestring):
             values = clause[2].split(SEPARATOR)
             values.reverse()
@@ -144,85 +143,81 @@ class UIMenu(ModelSQL, ModelView):
             for name in values:
                 domain.append((field, clause[1], name))
                 field = 'parent.' + field
-            ids = self.search(domain, order=[])
+            ids = cls.search(domain, order=[])
             return [('id', 'in', ids)]
         #TODO Handle list
         return [('name',) + tuple(clause[1:])]
 
-    def search(self, domain, offset=0, limit=None, order=None, count=False,
+    @classmethod
+    def search(cls, domain, offset=0, limit=None, order=None, count=False,
             query_string=False):
-        res = super(UIMenu, self).search(domain, offset=offset, limit=limit,
+        menus = super(UIMenu, cls).search(domain, offset=offset, limit=limit,
                 order=order, count=False, query_string=query_string)
         if query_string:
-            return res
+            return menus
 
-        if res:
-            menus = self.browse(res)
+        if menus:
             parent_ids = [x.parent.id for x in menus if x.parent]
-            parent_ids = self.search([
-                ('id', 'in', parent_ids),
-                ])
-            res = [x.id for x in menus
-                    if (x.parent.id in parent_ids) or not x.parent]
+            parents = cls.search([
+                    ('id', 'in', parent_ids),
+                    ])
+            menus = [x for x in menus
+                if (x.parent and x.parent in parents) or not x.parent]
 
         if count:
-            return len(res)
-        return res
+            return len(menus)
+        return menus
 
-    def get_action(self, ids, name):
+    @classmethod
+    def get_action(cls, menus, name):
         pool = Pool()
-        action_keyword_obj = pool.get('ir.action.keyword')
-        res = {}
-        for menu_id in ids:
-            res[menu_id] = None
+        ActionKeyword = pool.get('ir.action.keyword')
+        actions = dict((m.id, None) for m in menus)
         with Transaction().set_context(active_test=False):
-            action_keyword_ids = action_keyword_obj.search([
-                ('keyword', '=', 'tree_open'),
-                ('model', 'in', [self._name + ',' + str(x) for x in ids]),
-                ])
-        for action_keyword in action_keyword_obj.browse(action_keyword_ids):
-            model_id = int(
-                action_keyword.model.split(',')[1].split(',')[0].strip('('))
-            action_obj = pool.get(action_keyword.action.type)
-            with Transaction().set_context(active_test=False):
-                action_id = action_obj.search([
-                    ('action', '=', action_keyword.action.id),
+            action_keywords = ActionKeyword.search([
+                    ('keyword', '=', 'tree_open'),
+                    ('model', 'in', [str(m) for m in menus]),
                     ])
-            if action_id:
-                action_id = action_id[0]
+        for action_keyword in action_keywords:
+            model = action_keyword.model
+            Action = pool.get(action_keyword.action.type)
+            with Transaction().set_context(active_test=False):
+                factions = Action.search([
+                        ('action', '=', action_keyword.action.id),
+                        ], limit=1)
+            if factions:
+                action, = factions
             else:
-                action_id = 0
-            res[model_id] = action_keyword.action.type + ',' + str(action_id)
-        return res
+                action = '%s,0' % action_keyword.action.type
+            actions[model.id] = str(action)
+        return actions
 
-    def set_action(self, ids, name, value):
+    @classmethod
+    def set_action(cls, menus, name, value):
         if not value:
             return
         pool = Pool()
-        action_keyword_obj = pool.get('ir.action.keyword')
-        action_keyword_ids = []
+        ActionKeyword = pool.get('ir.action.keyword')
+        action_keywords = []
         cursor = Transaction().cursor
-        for i in range(0, len(ids), cursor.IN_MAX):
-            sub_ids = ids[i:i + cursor.IN_MAX]
-            action_keyword_ids += action_keyword_obj.search([
+        for i in range(0, len(menus), cursor.IN_MAX):
+            sub_menus = menus[i:i + cursor.IN_MAX]
+            action_keywords += ActionKeyword.search([
                 ('keyword', '=', 'tree_open'),
-                ('model', 'in', [self._name + ',' + str(menu_id)
-                    for menu_id in sub_ids]),
+                ('model', 'in', [str(menu) for menu in sub_menus]),
                 ])
-        if action_keyword_ids:
+        if action_keywords:
             with Transaction().set_context(_timestamp=False):
-                action_keyword_obj.delete(action_keyword_ids)
+                ActionKeyword.delete(action_keywords)
         action_type, action_id = value.split(',')
         if not int(action_id):
             return
-        action_obj = pool.get(action_type)
-        action = action_obj.browse(int(action_id))
-        for menu_id in ids:
+        Action = pool.get(action_type)
+        action = Action(int(action_id))
+        for menu in menus:
             with Transaction().set_context(_timestamp=False):
-                action_keyword_obj.create({
+                ActionKeyword.create({
                     'keyword': 'tree_open',
-                    'model': self._name + ',' + str(menu_id),
+                    'model': str(menu),
                     'action': action.action.id,
                     })
-
-UIMenu()

@@ -5,8 +5,8 @@ Models
 ======
 
 A model represents a single business logic or concept. It contains fields and
-defines the behaviors of the data. Most of the time, each model stores data in
-a single database table.
+defines the behaviors of the record. Most of the time, each model stores record
+in a single database table.
 
 The basics:
 
@@ -15,8 +15,11 @@ The basics:
 
     * :ref:`Fields <ref-models-fields>` are defined as model attributes.
 
-    * Tryton generates the table definitions and provides an API to access the
-      data.
+    * Tryton generates the table definitions
+
+    * Tryton provides an API following the `active record pattern`_ to access the records.
+
+.. _active record pattern: http://en.wikipedia.org/wiki/Active_record
 
 Example
 =======
@@ -25,19 +28,18 @@ This example defines a ``Party`` model which has a ``name`` and a ``code``
 fields::
 
     from trytond.model import ModelView, ModelSQL, fields
+    from trytond.pool import Pool
 
     class Party(ModelSQL, ModelView):
         "Party"
-        _description = __doc__
-        _name = "party.party"
+        __name__ = "party.party"
         name = fields.Char('Name')
         code = fields.Char('Code')
 
-    Party()
+    Pool.register(Party)
 
-Instantiating the class registers the model class in the framework.  Later the
-class will be instantiated once per database and stored in the
-:ref:`Pool <ref-pool>`.  Model instances are essentially accessors to
+The class must be registered in the :ref:`Pool <ref-pool>`.
+Model classes are essentially data mappers to records and Model instances are
 records.
 
 Model attributes define meta-information of the model. They are class

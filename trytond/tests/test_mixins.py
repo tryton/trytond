@@ -25,27 +25,31 @@ class UrlTestCase(unittest.TestCase):
     def testModelURL(self):
         "Test model URLs"
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.assertEqual(self.urlmodel.get_url(),
+            self.assertEqual(self.urlmodel.__url__,
                 'tryton://%s/%s/model/test.urlobject' % (self.hostname,
                     urllib.quote(DB_NAME)))
 
             server_name = 'michaelscott.paper.test'
             CONFIG['hostname_jsonrpc'] = server_name
-            self.assertEqual(self.urlmodel.get_url(),
+            self.assertEqual(self.urlmodel.__url__,
                 'tryton://%s/%s/model/test.urlobject' % (server_name,
+                    urllib.quote(DB_NAME)))
+
+            self.assertEqual(self.urlmodel(1).__url__,
+                'tryton://%s/%s/model/test.urlobject/1' % (server_name,
                     urllib.quote(DB_NAME)))
 
     def testWizardURL(self):
         "Test wizard URLs"
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
             CONFIG['hostname_jsonrpc'] = None
-            self.assertEqual(self.urlwizard.get_url(),
+            self.assertEqual(self.urlwizard.__url__,
                 'tryton://%s/%s/wizard/test.test_wizard' % (self.hostname,
                     urllib.quote(DB_NAME)))
 
             server_name = 'michaelscott.paper.test'
             CONFIG['hostname_jsonrpc'] = server_name
-            self.assertEqual(self.urlwizard.get_url(),
+            self.assertEqual(self.urlwizard.__url__,
                 'tryton://%s/%s/wizard/test.test_wizard' % (server_name,
                     urllib.quote(DB_NAME)))
 

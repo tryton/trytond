@@ -35,20 +35,23 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'boolean': True,
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['boolean']) == [[True]])
+            export1 = self.export_data.create({
+                    'boolean': True,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['boolean']), [[True]])
 
-            export2_id = self.export_data.create({
-                'boolean': False,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['boolean']) == [[False]])
+            export2 = self.export_data.create({
+                    'boolean': False,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['boolean']),
+                [[False]])
 
-            self.assert_(self.export_data.export_data([export1_id,
-                export2_id], ['boolean']) == [[True], [False]])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2],
+                    ['boolean']),
+                [[True], [False]])
 
             transaction.cursor.rollback()
 
@@ -58,20 +61,21 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'integer': 2,
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['integer']) == [[2]])
+            export1 = self.export_data.create({
+                    'integer': 2,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['integer']), [[2]])
 
-            export2_id = self.export_data.create({
-                'integer': 0,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['integer']) == [[0]])
+            export2 = self.export_data.create({
+                    'integer': 0,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['integer']), [[0]])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['integer']) == [[2], [0]])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['integer']),
+                [[2], [0]])
 
             transaction.cursor.rollback()
 
@@ -81,20 +85,21 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'float': 1.1,
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['float']) == [[1.1]])
+            export1 = self.export_data.create({
+                    'float': 1.1,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['float']), [[1.1]])
 
-            export2_id = self.export_data.create({
-                'float': 0,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['float']) == [[0]])
+            export2 = self.export_data.create({
+                    'float': 0,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['float']), [[0]])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['float']) == [[1.1], [0]])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['float']),
+                [[1.1], [0]])
 
             transaction.cursor.rollback()
 
@@ -104,20 +109,23 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'numeric': Decimal('1.1'),
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['numeric']) == [[Decimal('1.1')]])
+            export1 = self.export_data.create({
+                    'numeric': Decimal('1.1'),
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['numeric']),
+                [[Decimal('1.1')]])
 
-            export2_id = self.export_data.create({
-                'numeric': Decimal('0'),
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['numeric']) == [[Decimal('0')]])
+            export2 = self.export_data.create({
+                    'numeric': Decimal('0'),
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['numeric']),
+                [[Decimal('0')]])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['numeric']) == [[Decimal('1.1')], [Decimal('0')]])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['numeric']),
+                [[Decimal('1.1')], [Decimal('0')]])
 
             transaction.cursor.rollback()
 
@@ -127,20 +135,21 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'char': 'test',
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['char']) == [['test']])
+            export1 = self.export_data.create({
+                    'char': 'test',
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['char']), [['test']])
 
-            export2_id = self.export_data.create({
-                'char': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['char']) == [['']])
+            export2 = self.export_data.create({
+                    'char': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['char']), [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['char']) == [['test'], ['']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['char']),
+                [['test'], ['']])
 
             transaction.cursor.rollback()
 
@@ -150,20 +159,21 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'text': 'test',
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['text']) == [['test']])
+            export1 = self.export_data.create({
+                    'text': 'test',
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['text']), [['test']])
 
-            export2_id = self.export_data.create({
-                'text': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['text']) == [['']])
+            export2 = self.export_data.create({
+                    'text': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['text']), [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['text']) == [['test'], ['']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['text']),
+                [['test'], ['']])
 
             transaction.cursor.rollback()
 
@@ -173,11 +183,12 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'sha': 'Test',
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['sha']) == [['640ab2bae07bedc4c163f679a746f7ab7fb5d1fa']])
+            export1 = self.export_data.create({
+                    'sha': 'Test',
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['sha']),
+                [['640ab2bae07bedc4c163f679a746f7ab7fb5d1fa']])
 
             transaction.cursor.rollback()
 
@@ -187,20 +198,21 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
+            export1 = self.export_data.create({
                 'date': datetime.date(2010, 1, 1),
                 })
-            self.assert_(self.export_data.export_data([export1_id],
+            self.assert_(self.export_data.export_data([export1],
                 ['date']) == [[datetime.date(2010, 1, 1)]])
 
-            export2_id = self.export_data.create({
-                'date': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['date']) == [['']])
+            export2 = self.export_data.create({
+                    'date': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['date']), [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['date']) == [[datetime.date(2010, 1, 1)], ['']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['date']),
+                [[datetime.date(2010, 1, 1)], ['']])
 
             transaction.cursor.rollback()
 
@@ -210,21 +222,23 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'datetime': datetime.datetime(2010, 1, 1, 12, 0, 0),
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['datetime']) == [[datetime.datetime(2010, 1, 1, 12, 0, 0)]])
+            export1 = self.export_data.create({
+                    'datetime': datetime.datetime(2010, 1, 1, 12, 0, 0),
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['datetime']),
+                [[datetime.datetime(2010, 1, 1, 12, 0, 0)]])
 
-            export2_id = self.export_data.create({
-                'datetime': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['datetime']) == [['']])
+            export2 = self.export_data.create({
+                    'datetime': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['datetime']),
+                [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['datetime']) == [[datetime.datetime(2010, 1, 1, 12, 0, 0)],
-                    ['']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['datetime']),
+                [[datetime.datetime(2010, 1, 1, 12, 0, 0)], ['']])
 
             transaction.cursor.rollback()
 
@@ -234,20 +248,23 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({
-                'selection': 'select1',
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['selection']) == [['select1']])
+            export1 = self.export_data.create({
+                    'selection': 'select1',
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['selection']),
+                [['select1']])
 
-            export2_id = self.export_data.create({
-                'selection': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['selection']) == [['']])
+            export2 = self.export_data.create({
+                    'selection': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['selection']), [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['selection']) == [['select1'], ['']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2],
+                    ['selection']),
+                [['select1'], ['']])
 
             transaction.cursor.rollback()
 
@@ -257,23 +274,27 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            target_id = self.export_data_target.create({
-                'name': 'Target Test',
-                })
-            export1_id = self.export_data.create({
-                'many2one': target_id,
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['many2one/name']) == [['Target Test']])
+            target = self.export_data_target.create({
+                    'name': 'Target Test',
+                    })
+            export1 = self.export_data.create({
+                    'many2one': target.id,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['many2one/name']),
+                [['Target Test']])
 
-            export2_id = self.export_data.create({
-                'many2one': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['many2one/name']) == [['']])
+            export2 = self.export_data.create({
+                    'many2one': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['many2one/name']),
+                [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['many2one/name']) == [['Target Test'], ['']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2],
+                    ['many2one/name']),
+                [['Target Test'], ['']])
 
             transaction.cursor.rollback()
 
@@ -283,34 +304,38 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            target1_id = self.export_data_target.create({
-                'name': 'Target 1',
-                })
-            export1_id = self.export_data.create({
-                'many2many': [('set', [target1_id])],
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['many2many/name']) == [['Target 1']])
+            target1 = self.export_data_target.create({
+                    'name': 'Target 1',
+                    })
+            export1 = self.export_data.create({
+                    'many2many': [('set', [target1])],
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['many2many/name']),
+                [['Target 1']])
 
-            target2_id = self.export_data_target.create({
-                'name': 'Target 2',
-                })
-            self.export_data.write(export1_id, {
-                'many2many': [('set', [target1_id, target2_id])],
-                })
-            self.assert_(self.export_data.export_data([export1_id], ['id',
-                'many2many/name']) == [[export1_id, 'Target 1'],
-                ['', 'Target 2']])
+            target2 = self.export_data_target.create({
+                    'name': 'Target 2',
+                    })
+            self.export_data.write([export1], {
+                    'many2many': [('set', [target1.id, target2.id])],
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['id',
+                        'many2many/name']),
+                [[export1.id, 'Target 1'], ['', 'Target 2']])
 
-            export2_id = self.export_data.create({
-                'many2many': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['many2many/name']) == [['']])
+            export2 = self.export_data.create({
+                    'many2many': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['many2many/name']),
+                [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['id', 'many2many/name']) == [[export1_id, 'Target 1'],
-                    ['', 'Target 2'], [export2_id, '']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2],
+                    ['id', 'many2many/name']),
+                [[export1.id, 'Target 1'], ['', 'Target 2'], [export2.id, '']])
 
             transaction.cursor.rollback()
 
@@ -320,29 +345,33 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            export1_id = self.export_data.create({})
+            export1 = self.export_data.create({})
             self.export_data_target.create({
-                'name': 'Target 1',
-                'one2many': export1_id,
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['one2many/name']) == [['Target 1']])
+                    'name': 'Target 1',
+                    'one2many': export1.id,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['one2many/name']),
+                [['Target 1']])
 
             self.export_data_target.create({
-                'name': 'Target 2',
-                'one2many': export1_id,
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['id', 'one2many/name']) ==
-                [[export1_id, 'Target 1'], ['', 'Target 2']])
+                    'name': 'Target 2',
+                    'one2many': export1.id,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1],
+                    ['id', 'one2many/name']),
+                [[export1.id, 'Target 1'], ['', 'Target 2']])
 
-            export2_id = self.export_data.create({})
-            self.assert_(self.export_data.export_data([export2_id],
-                ['one2many/name']) == [['']])
+            export2 = self.export_data.create({})
+            self.assertEqual(
+                self.export_data.export_data([export2], ['one2many/name']),
+                [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['id', 'one2many/name']) == [[export1_id, 'Target 1'],
-                    ['', 'Target 2'], [export2_id, '']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2], ['id',
+                        'one2many/name']),
+                [[export1.id, 'Target 1'], ['', 'Target 2'], [export2.id, '']])
 
             transaction.cursor.rollback()
 
@@ -352,23 +381,24 @@ class ExportDataTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            target1_id = self.export_data_target.create({})
-            export1_id = self.export_data.create({
-                'reference': 'test.export_data.target,%s' % target1_id,
-                })
-            self.assert_(self.export_data.export_data([export1_id],
-                ['reference']) ==
-                [['test.export_data.target,%s' % target1_id]])
+            target1 = self.export_data_target.create({})
+            export1 = self.export_data.create({
+                    'reference': str(target1),
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export1], ['reference']),
+                [[str(target1)]])
 
-            export2_id = self.export_data.create({
-                'reference': None,
-                })
-            self.assert_(self.export_data.export_data([export2_id],
-                ['reference']) == [['']])
+            export2 = self.export_data.create({
+                    'reference': None,
+                    })
+            self.assertEqual(
+                self.export_data.export_data([export2], ['reference']), [['']])
 
-            self.assert_(self.export_data.export_data([export1_id, export2_id],
-                ['reference']) == [['test.export_data.target,%s' % target1_id],
-                    ['']])
+            self.assertEqual(
+                self.export_data.export_data([export1, export2],
+                    ['reference']),
+                [[str(target1)], ['']])
 
             transaction.cursor.rollback()
 

@@ -2,13 +2,13 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.model import ModelSQL, fields
 
+__all__ = [
+    'TestAccess',
+    ]
+
 
 class TestAccess(ModelSQL):
     'Test Access'
-    _name = 'test.access'
-    _description = __doc__
-
+    __name__ = 'test.access'
     field1 = fields.Char('Field 1')
     field2 = fields.Char('Field 2')
-
-TestAccess()

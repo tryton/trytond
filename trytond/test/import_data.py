@@ -3,182 +3,138 @@
 "Test for import_data"
 from trytond.model import ModelSQL, fields
 
+__all__ = [
+    'ImportDataBoolean', 'ImportDataInteger', 'ImportDataFloat',
+    'ImportDataNumeric', 'ImportDataChar', 'ImportDataText', 'ImportDataSha',
+    'ImportDataDate', 'ImportDataDateTime', 'ImportDataSelection',
+    'ImportDataMany2OneTarget', 'ImportDataMany2One',
+    'ImportDataMany2ManyTarget', 'ImportDataMany2Many',
+    'ImportDataMany2ManyRelation', 'ImportDataOne2Many',
+    'ImportDataOne2ManyTarget', 'ImportDataReferenceSelection',
+    'ImportDataReference',
+    ]
+
 
 class ImportDataBoolean(ModelSQL):
     "Import Data Boolean"
-    _name = 'test.import_data.boolean'
-    _description = __doc__
+    __name__ = 'test.import_data.boolean'
     boolean = fields.Boolean('Boolean')
-
-ImportDataBoolean()
 
 
 class ImportDataInteger(ModelSQL):
     "Import Data Integer"
-    _name = 'test.import_data.integer'
-    _description = __doc__
+    __name__ = 'test.import_data.integer'
     integer = fields.Integer('Integer')
-
-ImportDataInteger()
 
 
 class ImportDataFloat(ModelSQL):
     "Import Data Float"
-    _name = 'test.import_data.float'
-    _description = __doc__
+    __name__ = 'test.import_data.float'
     float = fields.Float('Float')
-
-ImportDataFloat()
 
 
 class ImportDataNumeric(ModelSQL):
     "Import Data Numeric"
-    _name = 'test.import_data.numeric'
-    _description = __doc__
+    __name__ = 'test.import_data.numeric'
     numeric = fields.Numeric('Numeric')
-
-ImportDataNumeric()
 
 
 class ImportDataChar(ModelSQL):
     "Import Data Char"
-    _name = 'test.import_data.char'
-    _description = __doc__
+    __name__ = 'test.import_data.char'
     char = fields.Char('Char')
-
-ImportDataChar()
 
 
 class ImportDataText(ModelSQL):
     "Import Data Text"
-    _name = 'test.import_data.text'
-    _description = __doc__
+    __name__ = 'test.import_data.text'
     text = fields.Text('Text')
-
-ImportDataText()
 
 
 class ImportDataSha(ModelSQL):
     "Import Data Sha"
-    _name = 'test.import_data.sha'
-    _description = __doc__
+    __name__ = 'test.import_data.sha'
     sha = fields.Sha('Sha')
-
-ImportDataSha()
 
 
 class ImportDataDate(ModelSQL):
     "Import Data Date"
-    _name = 'test.import_data.date'
-    _description = __doc__
+    __name__ = 'test.import_data.date'
     date = fields.Date('Date')
-
-ImportDataDate()
 
 
 class ImportDataDateTime(ModelSQL):
     "Import Data DateTime"
-    _name = 'test.import_data.datetime'
-    _description = __doc__
+    __name__ = 'test.import_data.datetime'
     datetime = fields.DateTime('DateTime')
-
-ImportDataDateTime()
 
 
 class ImportDataSelection(ModelSQL):
     "Import Data Selection"
-    _name = 'test.import_data.selection'
-    _description = __doc__
+    __name__ = 'test.import_data.selection'
     selection = fields.Selection([
         ('select1', 'Select 1'),
         ('select2', 'Select 2'),
         ], 'Selection')
 
-ImportDataSelection()
-
 
 class ImportDataMany2OneTarget(ModelSQL):
     "Import Data Many2One Target"
-    _name = 'test.import_data.many2one.target'
-    _description = __doc__
+    __name__ = 'test.import_data.many2one.target'
     name = fields.Char('Name')
-
-ImportDataMany2OneTarget()
 
 
 class ImportDataMany2One(ModelSQL):
     "Import Data Many2One"
-    _name = 'test.import_data.many2one'
-    _description = __doc__
+    __name__ = 'test.import_data.many2one'
     many2one = fields.Many2One('test.import_data.many2one.target',
             'Many2One')
-
-ImportDataMany2One()
 
 
 class ImportDataMany2ManyTarget(ModelSQL):
     "Import Data Many2Many Target"
-    _name = 'test.import_data.many2many.target'
-    _description = __doc__
+    __name__ = 'test.import_data.many2many.target'
     name = fields.Char('Name')
-
-ImportDataMany2ManyTarget()
 
 
 class ImportDataMany2Many(ModelSQL):
     "Import Data Many2Many"
-    _name = 'test.import_data.many2many'
-    _description = __doc__
+    __name__ = 'test.import_data.many2many'
     many2many = fields.Many2Many('test.import_data.many2many.relation',
             'many2many', 'target', 'Many2Many')
-
-ImportDataMany2Many()
 
 
 class ImportDataMany2ManyRelation(ModelSQL):
     "Import Data Many2Many Relation"
-    _name = 'test.import_data.many2many.relation'
+    __name__ = 'test.import_data.many2many.relation'
     many2many = fields.Many2One('test.import_data.many2many', 'Many2One')
     target = fields.Many2One('test.import_data.many2many.target', 'Target')
-
-ImportDataMany2ManyRelation()
 
 
 class ImportDataOne2Many(ModelSQL):
     "Import Data One2Many"
-    _name = 'test.import_data.one2many'
-    _description = __doc__
+    __name__ = 'test.import_data.one2many'
     name = fields.Char('Name')
     one2many = fields.One2Many('test.import_data.one2many.target', 'one2many',
             'One2Many')
 
-ImportDataOne2Many()
-
 
 class ImportDataOne2ManyTarget(ModelSQL):
     "Import Data One2Many Target"
-    _name = 'test.import_data.one2many.target'
-    _description = __doc__
+    __name__ = 'test.import_data.one2many.target'
     name = fields.Char('Name')
     one2many = fields.Many2One('test.import_data.one2many', 'One2Many')
-
-ImportDataOne2ManyTarget()
 
 
 class ImportDataReferenceSelection(ModelSQL):
     "Import Data Reference Selection"
-    _name = 'test.import_data.reference.selection'
-    _description = __doc__
+    __name__ = 'test.import_data.reference.selection'
     name = fields.Char('Name')
-
-ImportDataReferenceSelection()
 
 
 class ImportDataReference(ModelSQL):
     "Import Data Reference"
-    _name = 'test.import_data.reference'
+    __name__ = 'test.import_data.reference'
     reference = fields.Reference('Reference', [
         ('test.import_data.reference.selection', 'Test'),
         ])
-
-ImportDataReference()

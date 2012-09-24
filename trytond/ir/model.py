@@ -9,13 +9,19 @@ from ..transaction import Transaction
 from ..cache import Cache
 from ..pool import Pool
 from ..pyson import Bool, Eval
+from ..rpc import RPC
+
+__all__ = [
+    'Model', 'ModelField', 'ModelAccess', 'ModelFieldAccess', 'ModelButton',
+    'ModelData', 'PrintModelGraphStart', 'PrintModelGraph', 'ModelGraph',
+    ]
+
 IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 
 
 class Model(ModelSQL, ModelView):
     "Model"
-    _name = 'ir.model'
-    _description = __doc__
+    __name__ = 'ir.model'
     name = fields.Char('Model Description', translate=True, loading='lazy',
         states={
             'readonly': Bool(Eval('module')),
@@ -36,74 +42,74 @@ class Model(ModelSQL, ModelView):
     fields = fields.One2Many('ir.model.field', 'model', 'Fields',
        required=True)
 
-    def __init__(self):
-        super(Model, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(Model, cls).__setup__()
+        cls._sql_constraints += [
             ('model_uniq', 'UNIQUE(model)',
                 'The model must be unique!'),
         ]
-        self._constraints += [
+        cls._constraints += [
             ('check_module', 'invalid_module'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'invalid_module': 'Module Name must be a python identifier!',
         })
-        self._order.insert(0, ('model', 'ASC'))
-        self._rpc.update({
-                'list_models': False,
+        cls._order.insert(0, ('model', 'ASC'))
+        cls.__rpc__.update({
+                'list_models': RPC(),
                 })
 
-    def check_module(self, ids):
+    @classmethod
+    def check_module(cls, models):
         '''
         Check module
         '''
-        for model in self.browse(ids):
+        for model in models:
             if model.module and not IDENTIFIER.match(model.module):
                 return False
         return True
 
-    def list_models(self):
+    @classmethod
+    def list_models(cls):
         'Return a list of all models names'
         with Transaction().set_user(0):
-            model_ids = self.search([], order=[
+            models = cls.search([], order=[
                     ('module', 'ASC'),  # Optimization assumption
                     ('model', 'ASC'),
                     ('id', 'ASC'),
                     ])
-            models = self.browse(model_ids)
             return [m.model for m in models]
 
-    def create(self, vals):
+    @classmethod
+    def create(cls, vals):
         pool = Pool()
-        property_obj = pool.get('ir.property')
-        res = super(Model, self).create(vals)
+        Property = pool.get('ir.property')
+        res = super(Model, cls).create(vals)
         # Restart the cache of models_get
-        property_obj.models_get.reset()
+        Property._models_get_cache.clear()
         return res
 
-    def write(self, ids, vals):
+    @classmethod
+    def write(cls, models, vals):
         pool = Pool()
-        property_obj = pool.get('ir.property')
-        res = super(Model, self).write(ids, vals)
+        Property = pool.get('ir.property')
+        super(Model, cls).write(models, vals)
         # Restart the cache of models_get
-        property_obj.models_get.reset()
-        return res
+        Property._models_get_cache.clear()
 
-    def delete(self, ids):
+    @classmethod
+    def delete(cls, models):
         pool = Pool()
-        property_obj = pool.get('ir.property')
-        res = super(Model, self).delete(ids)
+        Property = pool.get('ir.property')
+        super(Model, cls).delete(models)
         # Restart the cache of models_get
-        property_obj.models_get.reset()
-        return res
-
-Model()
+        Property._models_get_cache.clear()
 
 
 class ModelField(ModelSQL, ModelView):
     "Model field"
-    _name = 'ir.model.field'
-    _description = __doc__
+    __name__ = 'ir.model.field'
     name = fields.Char('Name', required=True,
         states={
             'readonly': Bool(Eval('module')),
@@ -141,43 +147,48 @@ class ModelField(ModelSQL, ModelView):
     module = fields.Char('Module',
        help="Module in which this field is defined")
 
-    def __init__(self):
-        super(ModelField, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(ModelField, cls).__setup__()
+        cls._sql_constraints += [
             ('name_model_uniq', 'UNIQUE(name, model)',
                 'The field name in model must be unique!'),
         ]
-        self._constraints += [
+        cls._constraints += [
             ('check_name', 'invalid_name'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'invalid_name': 'Model Field Name must be a python identifier!',
         })
-        self._order.insert(0, ('name', 'ASC'))
+        cls._order.insert(0, ('name', 'ASC'))
 
-    def default_name(self):
+    @staticmethod
+    def default_name():
         return 'No Name'
 
-    def default_field_description(self):
+    @staticmethod
+    def default_field_description():
         return 'No description available'
 
-    def check_name(self, ids):
+    @classmethod
+    def check_name(cls, fields):
         '''
         Check name
         '''
-        for field in self.browse(ids):
+        for field in fields:
             if not IDENTIFIER.match(field.name):
                 return False
         return True
 
-    def read(self, ids, fields_names=None):
+    @classmethod
+    def read(cls, ids, fields_names=None):
         pool = Pool()
-        translation_obj = pool.get('ir.translation')
+        Translation = pool.get('ir.translation')
 
         to_delete = []
         if Transaction().context.get('language'):
             if fields_names is None:
-                fields_names = self._columns.keys()
+                fields_names = cls._fields.keys()
 
             if 'field_description' in fields_names \
                     or 'help' in fields_names:
@@ -188,11 +199,7 @@ class ModelField(ModelSQL, ModelView):
                     fields_names.append('name')
                     to_delete.append('name')
 
-        int_id = False
-        if isinstance(ids, (int, long)):
-            int_id = True
-            ids = [ids]
-        res = super(ModelField, self).read(ids, fields_names=fields_names)
+        res = super(ModelField, cls).read(ids, fields_names=fields_names)
 
         if (Transaction().context.get('language')
                 and ('field_description' in fields_names
@@ -221,20 +228,20 @@ class ModelField(ModelSQL, ModelView):
                 if 'help' in fields_names:
                     trans_args.append((id2model[model_id] + ',' + rec['name'],
                             'help', Transaction().language, None))
-            translation_obj.get_sources(trans_args)
+            Translation.get_sources(trans_args)
             for rec in res:
                 if isinstance(rec['model'], (list, tuple)):
                     model_id = rec['model'][0]
                 else:
                     model_id = rec['model']
                 if 'field_description' in fields_names:
-                    res_trans = translation_obj.get_source(
+                    res_trans = Translation.get_source(
                             id2model[model_id] + ',' + rec['name'],
                             'field', Transaction().language)
                     if res_trans:
                         rec['field_description'] = res_trans
                 if 'help' in fields_names:
-                    res_trans = translation_obj.get_source(
+                    res_trans = Translation.get_source(
                             id2model[model_id] + ',' + rec['name'],
                             'help', Transaction().language)
                     if res_trans:
@@ -244,17 +251,12 @@ class ModelField(ModelSQL, ModelView):
             for rec in res:
                 for field in to_delete:
                     del rec[field]
-        if int_id:
-            res = res[0]
         return res
-
-ModelField()
 
 
 class ModelAccess(ModelSQL, ModelView):
     "Model access"
-    _name = 'ir.model.access'
-    _description = __doc__
+    __name__ = 'ir.model.access'
     _rec_name = 'model'
     model = fields.Many2One('ir.model', 'Model', required=True,
             ondelete="CASCADE")
@@ -265,44 +267,62 @@ class ModelAccess(ModelSQL, ModelView):
     perm_create = fields.Boolean('Create Access')
     perm_delete = fields.Boolean('Delete Access')
     description = fields.Text('Description')
+    _get_access_cache = Cache('ir_model_access.get_access', context=False)
 
-    def __init__(self):
-        super(ModelAccess, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(ModelAccess, cls).__setup__()
+        cls._sql_constraints += [
             ('model_group_uniq', 'UNIQUE("model", "group")',
                 'Only one record by model and group is allowed!'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'read': 'You can not read this document! (%s)',
             'write': 'You can not write in this document! (%s)',
             'create': 'You can not create this kind of document! (%s)',
             'delete': 'You can not delete this document! (%s)',
             })
-        self._rpc.update({
-                'get_access': False,
+        cls.__rpc__.update({
+                'get_access': RPC(),
                 })
 
-    def check_xml_record(self, ids, values):
+    @staticmethod
+    def check_xml_record(accesses, values):
         return True
 
-    def default_perm_read(self):
+    @staticmethod
+    def default_perm_read():
         return False
 
-    def default_perm_write(self):
+    @staticmethod
+    def default_perm_write():
         return False
 
-    def default_perm_create(self):
+    @staticmethod
+    def default_perm_create():
         return False
 
-    def default_perm_delete(self):
+    @staticmethod
+    def default_perm_delete():
         return False
 
-    def get_access(self, models):
+    @classmethod
+    def get_access(cls, models):
         'Return access for models'
         pool = Pool()
-        ir_model_obj = pool.get('ir.model')
-        user_group_obj = pool.get('res.user-res.group')
+        Model = pool.get('ir.model')
+        UserGroup = pool.get('res.user-res.group')
         cursor = Transaction().cursor
+
+        access = {}
+        for model in models:
+            maccess = cls._get_access_cache.get(model, default=-1)
+            if maccess == -1:
+                break
+            access[model] = maccess
+        else:
+            return access
+
         default = {'read': True, 'write': True, 'create': True, 'delete': True}
         access = dict((m, default) for m in models)
         cursor.execute(('SELECT '
@@ -319,72 +339,57 @@ class ModelAccess(ModelSQL, ModelView):
                 'WHERE m.model IN (' + ','.join(('%%s',) * len(models)) + ') '
                     'AND (gu."user" = %%s OR a."group" IS NULL) '
                 'GROUP BY m.model')
-            % (self._table, ir_model_obj._table, user_group_obj._table),
+            % (cls._table, Model._table, UserGroup._table),
             list(models) + [Transaction().user])
         access.update(dict(
                 (m, {'read': r, 'write': w, 'create': c, 'delete': d})
                 for m, r, w, c, d in cursor.fetchall()))
+        for model, maccess in access.iteritems():
+            cls._get_access_cache.set(model, maccess)
         return access
 
-    @Cache('ir_model_access.check')
-    def check(self, model_name, mode='read', raise_exception=True):
+    @classmethod
+    def check(cls, model_name, mode='read', raise_exception=True):
         'Check access for model_name and mode'
         assert mode in ['read', 'write', 'create', 'delete'], \
                 'Invalid access mode for security'
         if Transaction().user == 0:
             return True
 
-        access = self.get_access([model_name])[model_name][mode]
-        if not access:
+        access = cls.get_access([model_name])[model_name][mode]
+        if not access and access is not None:
             if raise_exception:
-                self.raise_user_error(mode, model_name)
+                cls.raise_user_error(mode, model_name)
             else:
                 return False
         return True
 
-    def write(self, ids, vals):
-        res = super(ModelAccess, self).write(ids, vals)
+    @classmethod
+    def write(cls, accesses, vals):
+        super(ModelAccess, cls).write(accesses, vals)
         # Restart the cache
-        self.check.reset()
-        pool = Pool()
-        for _, model in pool.iterobject():
-            try:
-                model.fields_view_get.reset()
-            except Exception:
-                pass
+        cls._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
+
+    @classmethod
+    def create(cls, vals):
+        res = super(ModelAccess, cls).create(vals)
+        # Restart the cache
+        cls._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
         return res
 
-    def create(self, vals):
-        res = super(ModelAccess, self).create(vals)
+    @classmethod
+    def delete(cls, accesses):
+        super(ModelAccess, cls).delete(accesses)
         # Restart the cache
-        self.check.reset()
-        pool = Pool()
-        for _, model in pool.iterobject():
-            try:
-                model.fields_view_get.reset()
-            except Exception:
-                pass
-        return res
-
-    def delete(self, ids):
-        res = super(ModelAccess, self).delete(ids)
-        # Restart the cache
-        self.check.reset()
-        pool = Pool()
-        for _, model in pool.iterobject():
-            try:
-                model.fields_view_get.reset()
-            except Exception:
-                pass
-        return res
-
-ModelAccess()
+        cls._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
 
 
 class ModelFieldAccess(ModelSQL, ModelView):
     "Model Field Access"
-    _name = 'ir.model.field.access'
-    _description = __doc__
+    __name__ = 'ir.model.field.access'
     _rec_name = 'field'
     field = fields.Many2One('ir.model.field', 'Field', required=True,
             ondelete='CASCADE')
@@ -394,46 +399,45 @@ class ModelFieldAccess(ModelSQL, ModelView):
     perm_create = fields.Boolean('Create Access')
     perm_delete = fields.Boolean('Delete Access')
     description = fields.Text('Description')
+    _get_access_cache = Cache('ir_model_field_access.check')
 
-    def __init__(self):
-        super(ModelFieldAccess, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(ModelFieldAccess, cls).__setup__()
+        cls._sql_constraints += [
             ('field_group_uniq', 'UNIQUE("field", "group")',
                 'Only one record by field and group is allowed!'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'read': 'You can not read the field! (%s.%s)',
             'write': 'You can not write on the field! (%s.%s)',
             })
 
-    def check_xml_record(self, ids, values):
+    @staticmethod
+    def check_xml_record(field_accesses, values):
         return True
 
-    def default_perm_read(self):
+    @staticmethod
+    def default_perm_read():
         return False
 
-    def default_perm_write(self):
+    @staticmethod
+    def default_perm_write():
         return False
 
-    def default_perm_create(self):
+    @staticmethod
+    def default_perm_create():
         return True
 
-    def default_perm_delete(self):
+    @staticmethod
+    def default_perm_delete():
         return True
 
-    @Cache('ir_model_field_access.check')
-    def check(self, model_name, fields, mode='read', raise_exception=True,
+    @classmethod
+    def check(cls, model_name, fields, mode='read', raise_exception=True,
             access=False):
         '''
         Check access for fields on model_name.
-
-        :param model_name: the model name
-        :param fields: a list of fields
-        :param mode: 'read', 'write', 'create' or 'delete'
-        :param raise_exception: raise an exception if the test failed
-        :param access: return a dictionary with access right instead of boolean
-
-        :return: a boolean
         '''
         assert mode in ('read', 'write', 'create', 'delete'), \
             'Invalid access mode'
@@ -443,134 +447,128 @@ class ModelFieldAccess(ModelSQL, ModelView):
             return True
 
         pool = Pool()
-        ir_model_obj = pool.get('ir.model')
-        ir_model_field_obj = pool.get('ir.model.field')
-        user_group_obj = pool.get('res.user-res.group')
+        Model = pool.get('ir.model')
+        ModelField = pool.get('ir.model.field')
+        UserGroup = pool.get('res.user-res.group')
 
         cursor = Transaction().cursor
+        key = (model_name, mode, access, Transaction().user)
+        accesses = cls._get_access_cache.get(key)
 
-        cursor.execute('SELECT f.name, '
-            'MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
-            'FROM "%s" AS a '
-            'JOIN "%s" AS f '
-                'ON (a.field = f.id) '
-            'JOIN "%s" AS m '
-                'ON (f.model = m.id) '
-            'LEFT JOIN "%s" AS gu '
-                'ON (gu."group" = a."group") '
-            'WHERE m.model = %%s AND (gu."user" = %%s OR a."group" IS NULL) '
-            'GROUP BY f.name'
-            % (mode, self._table, ir_model_field_obj._table,
-                ir_model_obj._table, user_group_obj._table), (model_name,
-                Transaction().user))
-        accesses = dict(cursor.fetchall())
+        if accesses is None:
+            cursor.execute('SELECT f.name, '
+                'MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
+                'FROM "%s" AS a '
+                'JOIN "%s" AS f '
+                    'ON (a.field = f.id) '
+                'JOIN "%s" AS m '
+                    'ON (f.model = m.id) '
+                'LEFT JOIN "%s" AS gu '
+                    'ON (gu."group" = a."group") '
+                'WHERE m.model = %%s '
+                    'AND (gu."user" = %%s OR a."group" IS NULL) '
+                'GROUP BY f.name'
+                % (mode, cls._table, ModelField._table,
+                    Model._table, UserGroup._table), (model_name,
+                    Transaction().user))
+            accesses = dict(cursor.fetchall())
+            cls._get_access_cache.set(key, accesses)
         if access:
             return accesses
         for field in fields:
             if not accesses.get(field, True):
                 if raise_exception:
-                    self.raise_user_error(mode, (model_name, field))
+                    cls.raise_user_error(mode, (model_name, field))
                 else:
                     return False
         return True
 
-    def write(self, ids, vals):
-        res = super(ModelFieldAccess, self).write(ids, vals)
+    @classmethod
+    def write(cls, field_accesses, vals):
+        super(ModelFieldAccess, cls).write(field_accesses, vals)
         # Restart the cache
-        self.check.reset()
-        pool = Pool()
-        for _, model in pool.iterobject():
-            try:
-                model.fields_view_get.reset()
-            except Exception:
-                pass
+        cls._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
+
+    @classmethod
+    def create(cls, vals):
+        res = super(ModelFieldAccess, cls).create(vals)
+        # Restart the cache
+        cls._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
         return res
 
-    def create(self, vals):
-        res = super(ModelFieldAccess, self).create(vals)
+    @classmethod
+    def delete(cls, field_accesses):
+        super(ModelFieldAccess, cls).delete(field_accesses)
         # Restart the cache
-        self.check.reset()
-        pool = Pool()
-        for _, model in pool.iterobject():
-            try:
-                model.fields_view_get.reset()
-            except Exception:
-                pass
-        return res
-
-    def delete(self, ids):
-        res = super(ModelFieldAccess, self).delete(ids)
-        # Restart the cache
-        self.check.reset()
-        pool = Pool()
-        for _, model in pool.iterobject():
-            try:
-                model.fields_view_get.reset()
-            except Exception:
-                pass
-        return res
-
-ModelFieldAccess()
+        cls._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
 
 
 class ModelButton(ModelSQL, ModelView):
     "Model Button"
-    _name = 'ir.model.button'
-    _description = __doc__
+    __name__ = 'ir.model.button'
     name = fields.Char('Name', required=True, readonly=True)
     model = fields.Many2One('ir.model', 'Model', required=True, readonly=True,
         ondelete='CASCADE', select=True)
     groups = fields.Many2Many('ir.model.button-res.group', 'button', 'group',
         'Groups')
+    _groups_cache = Cache('ir.model.button.groups')
 
-    def __init__(self):
-        super(ModelButton, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(ModelButton, cls).__setup__()
+        cls._sql_constraints += [
             ('name_model_uniq', 'UNIQUE(name, model)',
                 'The button name in model must be unique!'),
             ]
-        self._order.insert(0, ('model', 'ASC'))
+        cls._order.insert(0, ('model', 'ASC'))
 
-    def create(self, values):
-        result = super(ModelButton, self).create(values)
+    @classmethod
+    def create(cls, values):
+        result = super(ModelButton, cls).create(values)
         # Restart the cache for get_groups
-        self.get_groups.reset()
+        cls._groups_cache.clear()
         return result
 
-    def write(self, ids, values):
-        result = super(ModelButton, self).write(ids, values)
+    @classmethod
+    def write(cls, buttons, values):
+        super(ModelButton, cls).write(buttons, values)
         # Restart the cache for get_groups
-        self.get_groups.reset()
-        return result
+        cls._groups_cache.clear()
 
-    def delete(self, ids):
-        result = super(ModelButton, self).delete(ids)
+    @classmethod
+    def delete(cls, buttons):
+        super(ModelButton, cls).delete(buttons)
         # Restart the cache for get_groups
-        self.get_groups.reset()
-        return result
+        cls._groups_cache.clear()
 
-    @Cache('ir.model.button')
-    def get_groups(self, model, name):
+    @classmethod
+    def get_groups(cls, model, name):
         '''
         Return a set of group ids for the named button on the model.
         '''
-        button_ids = self.search([
+        key = (model, name)
+        groups = cls._groups_cache.get(key)
+        if groups is not None:
+            return groups
+        buttons = cls.search([
                 ('model.model', '=', model),
                 ('name', '=', name),
                 ])
-        if not button_ids:
-            return set()
-        button_id, = button_ids
-        button = self.browse(button_id)
-        return set(g.id for g in button.groups)
-
-ModelButton()
+        if not buttons:
+            groups = set()
+        else:
+            button, = buttons
+            groups = set(g.id for g in button.groups)
+        cls._groups_cache.set(key, groups)
+        return groups
 
 
 class ModelData(ModelSQL, ModelView):
     "Model data"
-    _name = 'ir.model.data'
-    _description = __doc__
+    __name__ = 'ir.model.data'
     fs_id = fields.Char('Identifier on File System', required=True,
         help="The id of the record as known on the file system.",
         select=True)
@@ -584,68 +582,70 @@ class ModelData(ModelSQL, ModelView):
     values = fields.Text('Values')
     inherit = fields.Boolean('Inherit')
     noupdate = fields.Boolean('No Update')
+    _get_id_cache = Cache('ir_model_data.get_id', context=False)
 
-    def __init__(self):
-        super(ModelData, self).__init__()
-        self._sql_constraints = [
+    @classmethod
+    def __setup__(cls):
+        super(ModelData, cls).__setup__()
+        cls._sql_constraints = [
             ('fs_id_module_model_uniq', 'UNIQUE("fs_id", "module", "model")',
                 'The triple (fs_id, module, model) must be unique!'),
         ]
 
-    def default_date_init(self):
+    @staticmethod
+    def default_date_init():
         return datetime.datetime.now()
 
-    def default_inherit(self):
+    @staticmethod
+    def default_inherit():
         return False
 
-    def default_noupdate(self):
+    @staticmethod
+    def default_noupdate():
         return False
 
-    def write(self, ids, values):
-        result = super(ModelData, self).write(ids, values)
+    @classmethod
+    def write(cls, data, values):
+        super(ModelData, cls).write(data, values)
         # Restart the cache for get_id
-        self.get_id.reset()
-        return result
+        cls._get_id_cache.clear()
 
-    @Cache('ir_model_data.get_id')
-    def get_id(self, module, fs_id):
+    @classmethod
+    def get_id(cls, module, fs_id):
         """
         Return for an fs_id the corresponding db_id.
-
-        :param module: the module name
-        :param fs_id: the id in the xml file
-
-        :return: the database id
         """
-        ids = self.search([
+        key = (module, fs_id)
+        id_ = cls._get_id_cache.get(key)
+        if id_ is not None:
+            return id_
+        data = cls.search([
             ('module', '=', module),
             ('fs_id', '=', fs_id),
             ('inherit', '=', False),
             ], limit=1)
-        if not ids:
+        if not data:
             raise Exception("Reference to %s not found"
                 % ".".join([module, fs_id]))
-        return self.read(ids[0], ['db_id'])['db_id']
-
-ModelData()
+        id_ = cls.read([d.id for d in data], ['db_id'])[0]['db_id']
+        cls._get_id_cache.set(key, id_)
+        return id_
 
 
 class PrintModelGraphStart(ModelView):
     'Print Model Graph'
-    _name = 'ir.model.print_model_graph.start'
-    _description = __doc__
+    __name__ = 'ir.model.print_model_graph.start'
     level = fields.Integer('Level', required=True)
     filter = fields.Text('Filter', help="Entering a Python "
             "Regular Expression will exclude matching models from the graph.")
 
-    def default_level(self):
+    @staticmethod
+    def default_level():
         return 1
-
-PrintModelGraphStart()
 
 
 class PrintModelGraph(Wizard):
-    _name = 'ir.model.print_model_graph'
+    __name__ = 'ir.model.print_model_graph'
 
     start = StateView('ir.model.print_model_graph.start',
         'ir.print_model_graph_start_view_form', [
@@ -654,62 +654,56 @@ class PrintModelGraph(Wizard):
             ])
     print_ = StateAction('ir.report_model_graph')
 
-    def transition_print_(self, session):
+    def transition_print_(self):
         return 'end'
 
-    def do_print_(self, session, action):
+    def do_print_(self, action):
         return action, {
             'id': Transaction().context.get('active_id'),
             'ids': Transaction().context.get('active_ids'),
-            'level': session.start.level,
-            'filter': session.start.filter,
+            'level': self.start.level,
+            'filter': self.start.filter,
             }
-
-PrintModelGraph()
 
 
 class ModelGraph(Report):
-    _name = 'ir.model.graph'
+    __name__ = 'ir.model.graph'
 
-    def execute(self, ids, data):
+    @classmethod
+    def execute(cls, ids, data):
         import pydot
         pool = Pool()
-        model_obj = pool.get('ir.model')
-        action_report_obj = pool.get('ir.action.report')
+        Model = pool.get('ir.model')
+        ActionReport = pool.get('ir.action.report')
 
         if not data['filter']:
             filter = None
         else:
             filter = re.compile(data['filter'], re.VERBOSE)
-        action_report_ids = action_report_obj.search([
-            ('report_name', '=', self._name)
+        action_report_ids = ActionReport.search([
+            ('report_name', '=', cls.__name__)
             ])
         if not action_report_ids:
-            raise Exception('Error', 'Report (%s) not find!' % self._name)
-        action_report = action_report_obj.browse(action_report_ids[0])
+            raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
+        action_report = ActionReport.browse(action_report_ids[0])
 
-        models = model_obj.browse(ids)
+        models = Model.browse(ids)
 
         graph = pydot.Dot(fontsize="8")
         graph.set('center', '1')
         graph.set('ratio', 'auto')
-        self.fill_graph(models, graph, level=data['level'], filter=filter)
+        cls.fill_graph(models, graph, level=data['level'], filter=filter)
         data = graph.create(prog='dot', format='png')
         return ('png', buffer(data), False, action_report.name)
 
-    def fill_graph(self, models, graph, level=1, filter=None):
+    @classmethod
+    def fill_graph(cls, models, graph, level=1, filter=None):
         '''
         Fills a pydot graph with a models structure.
-
-        :param models: a BrowseRecordList of ir.model
-        :param graph: a pydot.Graph
-        :param level: the depth to dive into model reationships
-        :param filter: a compiled regular expression object to filter specific
-            models
         '''
         import pydot
         pool = Pool()
-        model_obj = pool.get('ir.model')
+        Model = pool.get('ir.model')
 
         sub_models = set()
         if level > 0:
@@ -720,12 +714,12 @@ class ModelGraph(Report):
                     if field.relation and not graph.get_node(field.relation):
                         sub_models.add(field.relation)
             if sub_models:
-                model_ids = model_obj.search([
+                model_ids = Model.search([
                     ('model', 'in', list(sub_models)),
                     ])
-                sub_models = model_obj.browse(model_ids)
+                sub_models = Model.browse(model_ids)
                 if set(sub_models) != set(models):
-                    self.fill_graph(sub_models, graph, level=level - 1,
+                    cls.fill_graph(sub_models, graph, level=level - 1,
                             filter=filter)
 
         for model in models:
@@ -792,5 +786,3 @@ class ModelGraph(Report):
 
                     edge = pydot.Edge(str(tail), str(head), **args)
                     graph.add_edge(edge)
-
-ModelGraph()

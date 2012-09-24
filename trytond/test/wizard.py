@@ -1,26 +1,30 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-from trytond.model import ModelView, fields
+from trytond.model import ModelView, ModelSQL, fields
 from trytond.wizard import Wizard, StateView, StateTransition, StateAction, \
     Button
 from trytond.transaction import Transaction
 
+__all__ = [
+    'TestWizardStart', 'TestWizard',
+    ]
 
-class TestWizardStart(ModelView):
-    _name = 'test.test_wizard.start'
+
+class TestWizardStart(ModelSQL, ModelView):
+    'Test Wizard'
+    __name__ = 'test.test_wizard.start'
     name = fields.Char('Test me')
     user = fields.Many2One('res.user', 'User')
     groups = fields.One2Many('res.group', None, 'Groups')
 
-    def default_user(self):
+    @staticmethod
+    def default_user():
         return Transaction().user
-
-TestWizardStart()
 
 
 class TestWizard(Wizard):
-    _name = 'test.test_wizard'
-
+    'Test Wizard'
+    __name__ = 'test.test_wizard'
     start = StateView('test.test_wizard.start',
         'test.test_wizard_start_view_form', [
             Button('Cancel', 'end', 'tryton-cancel'),
@@ -29,18 +33,20 @@ class TestWizard(Wizard):
     next_ = StateTransition()
     action = StateAction('ir.act_menu_tree')
 
-    def default_start(self, session, fields):
+    @staticmethod
+    def default_start(fields):
         return {
             'name': 'Test wizard',
             }
 
-    def transition_next_(self, session):
+    @staticmethod
+    def transition_next_():
         return 'action'
 
-    def do_action(self, session, action):
+    @staticmethod
+    def do_action(action):
         return action, {}
 
-    def transition_action(self, session):
+    @staticmethod
+    def transition_action():
         return 'end'
-
-TestWizard()
