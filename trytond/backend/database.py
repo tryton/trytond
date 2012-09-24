@@ -148,13 +148,15 @@ class CursorInterface(object):
         '''
         Commit the cursor
         '''
-        self.cache = {}
+        for cache in self.cache.itervalues():
+            cache.clear()
 
     def rollback(self):
         '''
         Rollback the cursor
         '''
-        self.cache = {}
+        for cache in self.cache.itervalues():
+            cache.clear()
 
     def test(self):
         '''

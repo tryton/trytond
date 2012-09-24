@@ -79,6 +79,7 @@ class Transaction(local):
         self.delete_records = {}
         self.delete = {}
         self.timestamp = {}
+        self.counter = 0
         return _TransactionManager()
 
     def stop(self):

@@ -5,6 +5,11 @@ from ..model import ModelView, ModelSQL, fields
 from ..pyson import Eval, If
 from ..transaction import Transaction
 from ..pool import Pool
+from ..rpc import RPC
+
+__all__ = [
+    'Request', 'RequestLink', 'RequestHistory', 'RequestReference',
+    ]
 
 _STATES = [
     ('draft', 'Draft'),
@@ -29,8 +34,7 @@ _DEPENDS = ['state', 'act_from']
 
 class Request(ModelSQL, ModelView):
     "Request"
-    _name = 'res.request'
-    _description = __doc__
+    __name__ = 'res.request'
     name = fields.Char('Subject', states={
             'readonly': _READONLY,
             }, required=True, depends=_DEPENDS)
@@ -59,20 +63,21 @@ class Request(ModelSQL, ModelView):
                 Eval('act_from', 0) != Eval('_user', 0)),
             }, depends=['state', 'act_from'])
     number_references = fields.Function(fields.Integer('Number of References',
-        on_change_with=['references']), 'get_number_references')
+        on_change_with=['references']), 'on_change_with_number_references')
     state = fields.Selection(_STATES, 'State', required=True, readonly=True)
     history = fields.One2Many('res.request.history', 'request',
            'History', readonly=True)
 
-    def __init__(self):
-        super(Request, self).__init__()
-        self._rpc.update({
-            'request_get': False,
-        })
-        self._order.insert(0, ('priority', 'DESC'))
-        self._order.insert(1, ('trigger_date', 'DESC'))
-        self._order.insert(2, ('create_date', 'DESC'))
-        self._buttons.update({
+    @classmethod
+    def __setup__(cls):
+        super(Request, cls).__setup__()
+        cls.__rpc__.update({
+                'request_get': RPC(),
+                })
+        cls._order.insert(0, ('priority', 'DESC'))
+        cls._order.insert(1, ('trigger_date', 'DESC'))
+        cls._order.insert(2, ('create_date', 'DESC'))
+        cls._buttons.update({
                 'send': {
                     'invisible': ~Eval('state').in_(['draft', 'chatting']),
                     'readonly': Eval('act_from') != Eval('_user'),
@@ -87,37 +92,31 @@ class Request(ModelSQL, ModelView):
                     },
                 })
 
-    def default_act_from(self):
+    @staticmethod
+    def default_act_from():
         return int(Transaction().user)
 
-    def default_state(self):
+    @staticmethod
+    def default_state():
         return 'draft'
 
-    def default_active(self):
+    @staticmethod
+    def default_active():
         return True
 
-    def default_priority(self):
+    @staticmethod
+    def default_priority():
         return '1'
 
-    def on_change_with_number_references(self, vals):
-        if vals.get('references'):
-            return len(vals['references'])
-        return 0
+    def on_change_with_number_references(self, name=None):
+        return len(self.references or '')
 
-    def get_number_references(self, ids, name):
-        res = {}
-        for request in self.browse(ids):
-            if request.references:
-                res[request.id] = len(request.references)
-            else:
-                res[request.id] = 0
-        return res
-
+    @classmethod
     @ModelView.button
-    def send(self, ids):
+    def send(cls, requests):
         pool = Pool()
-        request_history_obj = pool.get('res.request.history')
-        for request in self.browse(ids):
+        RequestHistory = pool.get('res.request.history')
+        for request in requests:
             values = {
                 'request': request.id,
                 'act_from': request.act_from.id,
@@ -132,17 +131,18 @@ class Request(ModelSQL, ModelView):
                 values['name'] = values['body'][:125] + '...'
             else:
                 values['name'] = values['body'] or '/'
-            request_history_obj.create(values)
-        self.write(ids, {
+            RequestHistory.create(values)
+        cls.write(requests, {
             'state': 'waiting',
             'date_sent': datetime.datetime.now(),
             })
 
+    @classmethod
     @ModelView.button
-    def reply(self, ids):
+    def reply(cls, requests):
         user = Transaction().user
-        for request in self.browse(ids):
-            self.write(request.id, {
+        for request in requests:
+            cls.write([request], {
                 'state': 'chatting',
                 'act_from': user,
                 'act_to': request.act_from.id,
@@ -150,13 +150,15 @@ class Request(ModelSQL, ModelView):
                 'body': '',
                 })
 
+    @classmethod
     @ModelView.button
-    def close(self, ids):
-        self.write(ids, {'state': 'closed', 'active': False})
+    def close(cls, requests):
+        cls.write(requests, {'state': 'closed', 'active': False})
 
-    def request_get(self):
+    @classmethod
+    def request_get(cls):
         user = Transaction().user
-        ids = self.search([
+        requests = cls.search([
             ('act_to', '=', user),
             ['OR',
                 ('trigger_date', '<=', datetime.datetime.now()),
@@ -164,48 +166,45 @@ class Request(ModelSQL, ModelView):
             ],
             ('active', '=', True),
             ])
-        ids2 = self.search([
+        requests2 = cls.search([
             ('act_from', '=', user),
             ('act_to', '!=', user),
             ('state', '!=', 'draft'),
             ('active', '=', True),
             ])
-        return (ids, ids2)
-
-Request()
+        return ([r.id for r in requests], [r.id for r in requests2])
 
 
 class RequestLink(ModelSQL, ModelView):
     "Request link"
-    _name = 'res.request.link'
-    _description = __doc__
+    __name__ = 'res.request.link'
     name = fields.Char('Name', required=True, translate=True)
     model = fields.Selection('models_get', 'Model', required=True)
     priority = fields.Integer('Priority', required=True)
 
-    def __init__(self):
-        super(RequestLink, self).__init__()
-        self._order.insert(0, ('priority', 'ASC'))
+    @classmethod
+    def __setup__(cls):
+        super(RequestLink, cls).__setup__()
+        cls._order.insert(0, ('priority', 'ASC'))
 
-    def default_priority(self):
+    @staticmethod
+    def default_priority():
         return 5
 
-    def models_get(self):
+    @staticmethod
+    def models_get():
         pool = Pool()
-        model_obj = pool.get('ir.model')
-        model_ids = model_obj.search([])
+        Model = pool.get('ir.model')
+        models = Model.search([])
         res = []
-        for model in model_obj.browse(model_ids):
+        for model in models:
             res.append((model.model, model.name))
         return res
-
-RequestLink()
 
 
 class RequestHistory(ModelSQL, ModelView):
     "Request history"
-    _name = 'res.request.history'
-    _description = __doc__
+    __name__ = 'res.request.history'
     name = fields.Char('Summary', required=True, readonly=True)
     request = fields.Many2One('res.request', 'Request', required=True,
        ondelete='CASCADE', select=True, readonly=True)
@@ -220,32 +219,35 @@ class RequestHistory(ModelSQL, ModelView):
     priority = fields.Selection(_PRIORITIES, 'Priority', required=True,
             readonly=True)
 
-    def __init__(self):
-        super(RequestHistory, self).__init__()
-        self._order.insert(0, ('date_sent', 'DESC'))
+    @classmethod
+    def __setup__(cls):
+        super(RequestHistory, cls).__setup__()
+        cls._order.insert(0, ('date_sent', 'DESC'))
 
-    def default_name(self):
+    @staticmethod
+    def default_name():
         return 'No Name'
 
-    def default_act_from(self):
+    @staticmethod
+    def default_act_from():
         return int(Transaction().user)
 
-    def default_act_to(self):
+    @staticmethod
+    def default_act_to():
         return int(Transaction().user)
 
-    def default_date_sent(self):
+    @staticmethod
+    def default_date_sent():
         return datetime.datetime.now()
 
-    def write(self, ids, vals):
+    @staticmethod
+    def write(records, vals):
         pass
-
-RequestHistory()
 
 
 class RequestReference(ModelSQL, ModelView):
     "Request Reference"
-    _name = 'res.request.reference'
-    _description = __doc__
+    __name__ = 'res.request.reference'
     _rec_name = 'reference'
 
     request = fields.Many2One('res.request', 'Request', required=True,
@@ -253,11 +255,9 @@ class RequestReference(ModelSQL, ModelView):
     reference = fields.Reference('Reference', selection='links_get',
             required=True)
 
-    def links_get(self):
+    @staticmethod
+    def links_get():
         pool = Pool()
-        request_link_obj = pool.get('res.request.link')
-        ids = request_link_obj.search([])
-        request_links = request_link_obj.browse(ids)
+        RequestLink = pool.get('res.request.link')
+        request_links = RequestLink.search([])
         return [(x.model, x.name) for x in request_links]
-
-RequestReference()

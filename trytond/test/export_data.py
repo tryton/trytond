@@ -3,20 +3,20 @@
 "Test for export_data"
 from trytond.model import ModelSQL, fields
 
+__all__ = [
+    'ExportDataTarget', 'ExportData', 'ExportDataRelation',
+    ]
+
 
 class ExportDataTarget(ModelSQL):
     "Export Data Target"
-    _name = 'test.export_data.target'
-    _description = __doc__
+    __name__ = 'test.export_data.target'
     name = fields.Char('Name')
-
-ExportDataTarget()
 
 
 class ExportData(ModelSQL):
     "Export Data"
-    _name = 'test.export_data'
-    _description = __doc__
+    __name__ = 'test.export_data'
     boolean = fields.Boolean('Boolean')
     integer = fields.Integer('Integer')
     float = fields.Float('Float')
@@ -40,20 +40,15 @@ class ExportData(ModelSQL):
         ('test.export_data.target', 'Target'),
         ])
 
-ExportData()
-
 
 class ExportDataTarget(ExportDataTarget):
+    'Export Date Target'
+    __name__ = 'test.export_data.target'
     one2many = fields.Many2One('test.export_data', 'Export Data')
-
-ExportDataTarget()
 
 
 class ExportDataRelation(ModelSQL):
     "Export Data Many2Many"
-    _name = 'test.export_data.relation'
-    _description = __doc__
+    __name__ = 'test.export_data.relation'
     many2many = fields.Many2One('test.export_data', 'Export Data')
     target = fields.Many2One('test.export_data.target', 'Target')
-
-ExportDataRelation()

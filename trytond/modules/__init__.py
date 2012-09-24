@@ -215,7 +215,7 @@ def load_module_graph(graph, pool, lang=None):
             continue
         logger.info(module)
         sys.stdout.flush()
-        objects = pool.instanciate(module)
+        classes = pool.setup(module)
         package_state = module2state.get(module, 'uninstalled')
         if (is_module_to_install(module)
                 or package_state in ('to install', 'to upgrade')):
@@ -223,13 +223,13 @@ def load_module_graph(graph, pool, lang=None):
                 package_state = 'to install'
             for child in package.childs:
                 module2state[child.name] = package_state
-            for type in objects.keys():
-                for obj in objects[type]:
-                    logger.info('%s:init %s' % (module, obj._name))
-                    obj.init(module)
-            for model in objects['model']:
+            for type in classes.keys():
+                for cls in classes[type]:
+                    logger.info('%s:register %s' % (module, cls.__name__))
+                    cls.__register__(module)
+            for model in classes['model']:
                 if hasattr(model, '_history'):
-                    models_to_update_history.add(model._name)
+                    models_to_update_history.add(model.__name__)
 
             #Instanciate a new parser for the package:
             tryton_parser = convert.TrytondXmlHandler(pool=pool, module=module)
@@ -251,8 +251,8 @@ def load_module_graph(graph, pool, lang=None):
                     continue
                 logger.info('%s:loading %s' % (module,
                         filename[len(package.info['directory']) + 1:]))
-                translation_obj = pool.get('ir.translation')
-                translation_obj.translation_import(lang2, module, filename)
+                Translation = pool.get('ir.translation')
+                Translation.translation_import(lang2, module, filename)
 
             cursor.execute('SELECT id FROM ir_module_module '
                 'WHERE name = %s', (package.name,))
@@ -271,23 +271,23 @@ def load_module_graph(graph, pool, lang=None):
 
     # Create missing reports
     from trytond.report import Report
-    report_obj = pool.get('ir.action.report')
-    report_ids = report_obj.search([
-        ('module', '=', module),
-        ])
+    ActionReport = pool.get('ir.action.report')
+    reports = ActionReport.search([
+            ('module', '=', module),
+            ])
     report_names = pool.object_name_list(type='report')
-    for report in report_obj.browse(report_ids):
+    for report in reports:
         report_name = report.report_name
         if report_name not in report_names:
             report = object.__new__(Report)
-            report._name = report_name
+            report.__name__ = report_name
             pool.add(report, type='report')
             report.__init__()
 
     for model_name in models_to_update_history:
         model = pool.get(model_name)
         if model._history:
-            logger.info('history:update %s' % model._name)
+            logger.info('history:update %s' % model.__name__)
             model._update_history_table()
 
     # Vacuum :
@@ -320,9 +320,13 @@ def register_classes():
     Import modules to register the classes in the Pool
     '''
     import trytond.ir
+    trytond.ir.register()
     import trytond.res
+    trytond.res.register()
     import trytond.webdav
+    trytond.webdav.register()
     import trytond.test
+    trytond.test.register()
     logger = logging.getLogger('modules')
 
     for package in create_graph(get_module_list())[0]:
@@ -338,7 +342,10 @@ def register_classes():
                     [MODULES_PATH])
             try:
                 imp.load_module('trytond.modules.' + module, mod_file,
-                        pathname, description)
+                        pathname, description).register()
+            except AttributeError:
+                # Some modules register nothing in the Pool
+                pass
             finally:
                 if mod_file is not None:
                     mod_file.close()
@@ -361,7 +368,7 @@ def register_classes():
                     [mod_path])
             try:
                 imp.load_module('trytond.modules.' + module, mod_file,
-                        pathname, description)
+                        pathname, description).register()
             finally:
                 if mod_file is not None:
                     mod_file.close()
@@ -428,8 +435,8 @@ def load_modules(database_name, pool, update=False, lang=None):
                 cursor.commit()
                 res = False
 
-            module_obj = pool.get('ir.module.module')
-            module_obj.update_list()
+            Module = pool.get('ir.module.module')
+            Module.update_list()
         cursor.commit()
     Cache.resets(database_name)
     return res

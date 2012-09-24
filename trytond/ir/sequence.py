@@ -10,23 +10,25 @@ from ..pool import Pool
 from ..config import CONFIG
 from ..backend import TableHandler
 
+__all__ = [
+    'SequenceType', 'Sequence', 'SequenceStrict',
+    ]
+
 sql_sequence = CONFIG.options['db_type'] == 'postgresql'
 
 
 class SequenceType(ModelSQL, ModelView):
     "Sequence type"
-    _name = 'ir.sequence.type'
-    _description = __doc__
+    __name__ = 'ir.sequence.type'
+
     name = fields.Char('Sequence Name', required=True, translate=True)
     code = fields.Char('Sequence Code', required=True)
-
-SequenceType()
 
 
 class Sequence(ModelSQL, ModelView):
     "Sequence"
-    _name = 'ir.sequence'
-    _description = __doc__
+    __name__ = 'ir.sequence'
+
     _strict = False
     name = fields.Char('Sequence Name', required=True, translate=True)
     code = fields.Selection('code_get', 'Sequence Code', required=True,
@@ -77,188 +79,197 @@ class Sequence(ModelSQL, ModelView):
                 ['decimal timestamp', 'hexadecimal timestamp']),
             }, depends=['type'])
 
-    def __init__(self):
-        super(Sequence, self).__init__()
-        self._constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(Sequence, cls).__setup__()
+        cls._constraints += [
             ('check_prefix_suffix', 'invalid_prefix_suffix'),
             ('check_last_timestamp', 'future_last_timestamp'),
         ]
-        self._sql_constraints += [
+        cls._sql_constraints += [
             ('check_timestamp_rounding', 'CHECK(timestamp_rounding > 0)',
                 'Timestamp rounding should be greater than 0'),
             ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'missing': 'Missing sequence!',
             'invalid_prefix_suffix': 'Invalid prefix/suffix!',
             'future_last_timestamp': 'Last Timestamp could not be in future!',
             })
 
-    def init(self, module_name):
+    @classmethod
+    def __register__(cls, module_name):
         cursor = Transaction().cursor
-        table = TableHandler(cursor, self, module_name)
+        table = TableHandler(cursor, cls, module_name)
 
         # Migration from 2.0 rename number_next into number_next_internal
         table.column_rename('number_next', 'number_next_internal')
 
-        super(Sequence, self).init(module_name)
+        super(Sequence, cls).__register__(module_name)
 
         # Migration from 2.0 create sql_sequence
-        if sql_sequence and not self._strict:
-            sequence_ids = self.search([])
-            for sequence in self.browse(sequence_ids):
+        if sql_sequence and not cls._strict:
+            sequences = cls.search([])
+            for sequence in sequences:
                 if sequence.type != 'incremental':
                     continue
                 if not TableHandler.sequence_exist(cursor,
-                        self._sql_sequence_name(sequence)):
-                    self.create_sql_sequence(sequence,
-                        sequence.number_next_internal)
+                        sequence._sql_sequence_name):
+                    sequence.create_sql_sequence(sequence.number_next_internal)
 
-    def default_active(self):
+    @staticmethod
+    def default_active():
         return True
 
-    def default_type(self):
+    @staticmethod
+    def default_type():
         return 'incremental'
 
-    def default_number_increment(self):
+    @staticmethod
+    def default_number_increment():
         return 1
 
-    def default_number_next(self):
+    @staticmethod
+    def default_number_next():
         return 1
 
-    def default_padding(self):
+    @staticmethod
+    def default_padding():
         return 0
 
-    def default_timestamp_rounding(self):
+    @staticmethod
+    def default_timestamp_rounding():
         return 1.0
 
-    def default_timestamp_offset(self):
+    @staticmethod
+    def default_timestamp_offset():
         return 946681200.0  # Offset for 2000-01-01
 
-    def default_last_timestamp(self):
+    @staticmethod
+    def default_last_timestamp():
         return 0.0
 
-    def default_code(self):
+    @staticmethod
+    def default_code():
         return Transaction().context.get('code')
 
-    def get_number_next(self, ids, name):
+    def get_number_next(self, name):
         cursor = Transaction().cursor
-        result = {}
-        for sequence in self.browse(ids):
-            sql_name = self._sql_sequence_name(sequence)
-            if sql_sequence and not self._strict:
-                cursor.execute('SELECT '
-                    'CASE WHEN NOT is_called THEN last_value '
-                        'ELSE last_value + increment_by '
-                    'END FROM "%s"' % sql_name)
-                value, = cursor.fetchone()
-            else:
-                value = sequence.number_next_internal
-            result[sequence.id] = value
-        return result
+        sql_name = self._sql_sequence_name
+        if sql_sequence and not self._strict:
+            cursor.execute('SELECT '
+                'CASE WHEN NOT is_called THEN last_value '
+                    'ELSE last_value + increment_by '
+                'END FROM "%s"' % sql_name)
+            return cursor.fetchone()[0]
+        else:
+            return self.number_next_internal
 
-    def set_number_next(self, ids, name, value):
-        super(Sequence, self).write(ids, {
+    @classmethod
+    def set_number_next(cls, sequences, name, value):
+        super(Sequence, cls).write(sequences, {
                 'number_next_internal': value,
                 })
 
-    def create(self, values):
-        sequence_id = super(Sequence, self).create(values)
-        if sql_sequence and not self._strict:
-            sequence = self.browse(sequence_id)
-            self.update_sql_sequence(sequence, values.get('number_next',
-                    self.default_number_next()))
+    @classmethod
+    def create(cls, values):
+        sequence_id = super(Sequence, cls).create(values)
+        if sql_sequence and not cls._strict:
+            sequence = cls(sequence_id)
+            sequence.update_sql_sequence(values.get('number_next',
+                    cls.default_number_next()))
         return sequence_id
 
-    def write(self, ids, values):
-        result = super(Sequence, self).write(ids, values)
-        if sql_sequence and not self._strict:
-            ids = [ids] if isinstance(ids, (int, long)) else ids
-            sequences = self.browse(ids)
+    @classmethod
+    def write(cls, sequences, values):
+        result = super(Sequence, cls).write(sequences, values)
+        if sql_sequence and not cls._strict:
             for sequence in sequences:
-                self.update_sql_sequence(sequence, values.get('number_next'))
+                sequence.update_sql_sequence(values.get('number_next'))
         return result
 
-    def delete(self, ids):
-        if sql_sequence and not self._strict:
-            ids = [ids] if isinstance(ids, (int, long)) else ids
-            sequences = self.browse(ids)
+    @classmethod
+    def delete(cls, sequences):
+        if sql_sequence and not cls._strict:
             for sequence in sequences:
-                self.delete_sql_sequence(sequence)
-        return super(Sequence, self).delete(ids)
+                sequence.delete_sql_sequence()
+        return super(Sequence, cls).delete(sequences)
 
-    def code_get(self):
+    @classmethod
+    def code_get(cls):
         pool = Pool()
-        sequence_type_obj = pool.get('ir.sequence.type')
-        sequence_type_ids = sequence_type_obj.search([])
-        sequence_types = sequence_type_obj.browse(sequence_type_ids)
+        SequenceType = pool.get('ir.sequence.type')
+        sequence_types = SequenceType.search([])
         return [(x.code, x.name) for x in sequence_types]
 
-    def check_prefix_suffix(self, ids):
+    @classmethod
+    def check_prefix_suffix(cls, sequences):
         "Check prefix and suffix"
 
-        for sequence in self.browse(ids):
+        for sequence in sequences:
             try:
-                self._process(sequence.prefix)
-                self._process(sequence.suffix)
+                cls._process(sequence.prefix)
+                cls._process(sequence.suffix)
             except Exception:
                 return False
         return True
 
-    def check_last_timestamp(self, ids):
+    @classmethod
+    def check_last_timestamp(cls, sequences):
         "Check last_timestamp"
 
-        for sequence in self.browse(ids):
-            next_timestamp = self._timestamp(sequence)
+        for sequence in sequences:
+            next_timestamp = cls._timestamp(sequence)
             if sequence.last_timestamp > next_timestamp:
                 return False
         return True
 
-    def _sql_sequence_name(self, sequence):
+    @property
+    def _sql_sequence_name(self):
         'Return SQL sequence name'
-        return '%s_%s' % (self._table, sequence.id)
+        return '%s_%s' % (self._table, self.id)
 
-    def create_sql_sequence(self, sequence, number_next=None):
+    def create_sql_sequence(self, number_next=None):
         'Create the SQL sequence'
         cursor = Transaction().cursor
-        if sequence.type != 'incremental':
+        if self.type != 'incremental':
             return
         if number_next is None:
-            number_next = sequence.number_next
-        cursor.execute('CREATE SEQUENCE "' + self._sql_sequence_name(sequence)
-            + '" INCREMENT BY %s START WITH %s', (sequence.number_increment,
-                number_next))
+            number_next = self.number_next
+        cursor.execute('CREATE SEQUENCE "' + self._sql_sequence_name
+            + '" INCREMENT BY %s START WITH %s',
+            (self.number_increment, number_next))
 
-    def update_sql_sequence(self, sequence, number_next=None):
+    def update_sql_sequence(self, number_next=None):
         'Update the SQL sequence'
         cursor = Transaction().cursor
-        exist = TableHandler.sequence_exist(cursor,
-            self._sql_sequence_name(sequence))
-        if sequence.type != 'incremental':
+        exist = TableHandler.sequence_exist(cursor, self._sql_sequence_name)
+        if self.type != 'incremental':
             if exist:
-                self.delete_sql_sequence(sequence)
+                self.delete_sql_sequence()
             return
         if not exist:
-            self.create_sql_sequence(sequence, number_next)
+            self.create_sql_sequence(number_next)
             return
         if number_next is None:
-            number_next = sequence.number_next
-        cursor.execute('ALTER SEQUENCE "' + self._sql_sequence_name(sequence)
-            + '" INCREMENT BY %s RESTART WITH %s', (sequence.number_increment,
-                number_next))
+            number_next = self.number_next
+        cursor.execute('ALTER SEQUENCE "' + self._sql_sequence_name
+            + '" INCREMENT BY %s RESTART WITH %s',
+            (self.number_increment, number_next))
 
-    def delete_sql_sequence(self, sequence):
+    def delete_sql_sequence(self):
         'Delete the SQL sequence'
         cursor = Transaction().cursor
-        if sequence.type != 'incremental':
+        if self.type != 'incremental':
             return
         cursor.execute('DROP SEQUENCE "%s"'
-            % self._sql_sequence_name(sequence))
+            % self._sql_sequence_name)
 
-    def _process(self, string, date=None):
+    @staticmethod
+    def _process(string, date=None):
         pool = Pool()
-        date_obj = pool.get('ir.date')
+        Date = pool.get('ir.date')
         if not date:
-            date = date_obj.today()
+            date = Date.today()
         year = datetime_strftime(date, '%Y')
         month = datetime_strftime(date, '%m')
         day = datetime_strftime(date, '%d')
@@ -268,23 +279,25 @@ class Sequence(ModelSQL, ModelView):
                 day=day,
                 )
 
-    def _timestamp(self, sequence):
+    @staticmethod
+    def _timestamp(sequence):
         return int((time.time() - sequence.timestamp_offset)
                 / sequence.timestamp_rounding)
 
-    def _get_sequence(self, sequence):
+    @classmethod
+    def _get_sequence(cls, sequence):
         if sequence.type == 'incremental':
-            if sql_sequence and not self._strict:
+            if sql_sequence and not cls._strict:
                 cursor = Transaction().cursor
                 cursor.execute('SELECT nextval(\'"%s"\')'
-                    % self._sql_sequence_name(sequence))
+                    % sequence._sql_sequence_name)
                 number_next, = cursor.fetchone()
             else:
                 #Pre-fetch number_next
                 number_next = sequence.number_next_internal
 
                 with Transaction().set_user(0):
-                    self.write(sequence.id, {
+                    cls.write([sequence], {
                             'number_next_internal': (number_next
                                 + sequence.number_increment),
                             })
@@ -292,9 +305,9 @@ class Sequence(ModelSQL, ModelView):
         elif sequence.type in ('decimal timestamp', 'hexadecimal timestamp'):
             timestamp = sequence.last_timestamp
             while timestamp == sequence.last_timestamp:
-                timestamp = self._timestamp(sequence)
+                timestamp = cls._timestamp(sequence)
             with Transaction().set_user(0):
-                self.write(sequence.id, {
+                cls.write([sequence], {
                     'last_timestamp': timestamp,
                     })
             if sequence.type == 'decimal timestamp':
@@ -303,45 +316,42 @@ class Sequence(ModelSQL, ModelView):
                 return hex(timestamp)[2:].upper()
         return ''
 
-    def get_id(self, domain):
+    @classmethod
+    def get_id(cls, domain):
         '''
         Return sequence value for the domain
-
-        :param domain: a domain or a sequence id
-        :return: the sequence value
         '''
+        if isinstance(domain, cls):
+            domain = domain.id
         if isinstance(domain, (int, long)):
             domain = [('id', '=', domain)]
 
         # bypass rules on sequences
         with Transaction().set_context(user=False):
             with Transaction().set_user(0):
-                sequence_ids = self.search(domain, limit=1)
+                try:
+                    sequence, = cls.search(domain, limit=1)
+                except TypeError:
+                    cls.raise_user_error('missing')
             date = Transaction().context.get('date')
-            if sequence_ids:
-                with Transaction().set_user(0):
-                    sequence = self.browse(sequence_ids[0])
-                return '%s%s%s' % (
-                        self._process(sequence.prefix, date=date),
-                        self._get_sequence(sequence),
-                        self._process(sequence.suffix, date=date),
-                        )
-        self.raise_user_error('missing')
+            return '%s%s%s' % (
+                cls._process(sequence.prefix, date=date),
+                cls._get_sequence(sequence),
+                cls._process(sequence.suffix, date=date),
+                )
 
-    def get(self, code):
-        return self.get_id([('code', '=', code)])
-
-Sequence()
+    @classmethod
+    def get(cls, code):
+        return cls.get_id([('code', '=', code)])
 
 
 class SequenceStrict(Sequence):
     "Sequence Strict"
-    _name = 'ir.sequence.strict'
-    _description = __doc__
+    __name__ = 'ir.sequence.strict'
+    _table = 'ir_sequence_strict'  # Needed to override Sequence._table
     _strict = True
 
-    def get_id(self, clause):
-        Transaction().cursor.lock(self._table)
-        return super(SequenceStrict, self).get_id(clause)
-
-SequenceStrict()
+    @classmethod
+    def get_id(cls, clause):
+        Transaction().cursor.lock(cls._table)
+        return super(SequenceStrict, cls).get_id(clause)

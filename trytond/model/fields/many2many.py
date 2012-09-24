@@ -60,12 +60,6 @@ class Many2Many(Field):
     def get(self, ids, model, name, values=None):
         '''
         Return target records ordered.
-
-        :param ids: a list of ids
-        :param model: a string with the name of the model
-        :param name: a string with the name of the field
-        :param values: a dictionary with the read values
-        :return: a dictionary with ids as key and values as value
         '''
         if values is None:
             values = {}
@@ -80,41 +74,34 @@ class Many2Many(Field):
         else:
             order = self.order
 
-        relation_obj = Pool().get(self.relation_name)
-        if self.origin in relation_obj._columns:
-            origin_field = relation_obj._columns[self.origin]
+        Relation = Pool().get(self.relation_name)
+        if self.origin in Relation._fields:
+            origin_field = Relation._fields[self.origin]
         else:
-            origin_field = relation_obj._inherit_fields[self.origin][2]
+            origin_field = Relation._inherit_fields[self.origin][2]
 
-        relation_ids = []
+        relations = []
         for i in range(0, len(ids), Transaction().cursor.IN_MAX):
             sub_ids = ids[i:i + Transaction().cursor.IN_MAX]
             if origin_field._type == 'reference':
-                references = ['%s,%s' % (model._name, x) for x in sub_ids]
+                references = ['%s,%s' % (model.__name__, x) for x in sub_ids]
                 clause = [(self.origin, 'in', references)]
             else:
                 clause = [(self.origin, 'in', sub_ids)]
             clause += [(self.target + '.id', '!=', None)]
-            relation_ids.append(relation_obj.search(clause, order=order))
-        relation_ids = list(chain(*relation_ids))
+            relations.append(Relation.search(clause, order=order))
+        relations = list(chain(*relations))
 
-        for relation in relation_obj.browse(relation_ids):
-            if origin_field._type == 'reference':
-                _, origin_id = relation[self.origin].split(',')
-                origin_id = int(origin_id)
-            else:
-                origin_id = relation[self.origin].id
-            res[origin_id].append(relation[self.target].id)
-        return res
+        for relation in relations:
+            origin_id = getattr(relation, self.origin).id
+            res[origin_id].append(getattr(relation, self.target).id)
+        return dict((key, tuple(value)) for key, value in res.iteritems())
 
     def set(self, ids, model, name, values):
         '''
         Set the values.
 
-        :param ids: A list of ids
-        :param model: A string with the name of the model
-        :param name: A string with the name of the field
-        :param values: A list of tuples:
+        values: A list of tuples:
             (``create``, ``{<field name>: value}``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),
@@ -127,44 +114,44 @@ class Many2Many(Field):
         pool = Pool()
         if not values:
             return
-        relation_obj = pool.get(self.relation_name)
-        target_obj = self.get_target()
+        Relation = pool.get(self.relation_name)
+        Target = self.get_target()
 
-        if self.origin in relation_obj._columns:
-            origin_field = relation_obj._columns[self.origin]
+        if self.origin in Relation._fields:
+            origin_field = Relation._fields[self.origin]
         else:
-            origin_field = relation_obj._inherit_fields[self.origin][2]
+            origin_field = Relation._inherit_fields[self.origin][2]
 
         def search_clause(ids):
             if origin_field._type == 'reference':
-                references = ['%s,%s' % (model._name, x) for x in ids]
+                references = ['%s,%s' % (model.__name__, x) for x in ids]
                 return (self.origin, 'in', references)
             else:
                 return (self.origin, 'in', ids)
 
         def field_value(record_id):
             if origin_field._type == 'reference':
-                return '%s,%s' % (model._name, record_id)
+                return '%s,%s' % (model.__name__, record_id)
             else:
                 return record_id
 
         for act in values:
             if act[0] == 'create':
                 for record_id in ids:
-                    relation_obj.create({
+                    Relation.create({
                             self.origin: field_value(record_id),
-                            self.target: target_obj.create(act[1]),
+                            self.target: Target.create(act[1]).id,
                             })
             elif act[0] == 'write':
-                target_obj.write(act[1], act[2])
+                Target.write(Target.browse(act[1]), act[2])
             elif act[0] == 'delete':
-                target_obj.delete(act[1])
+                Target.delete(Target.browse(act[1]))
             elif act[0] == 'delete_all':
-                relations = relation_obj.browse(relation_obj.search([
-                            search_clause(ids),
-                            ]))
-                target_obj.delete([r[self.target].id for r in relations
-                        if r[self.target].id])
+                relations = Relation.search([
+                        search_clause(ids),
+                        ])
+                Target.delete([getattr(r, self.target) for r in relations
+                        if getattr(r, self.target)])
             elif act[0] == 'unlink':
                 if isinstance(act[1], (int, long)):
                     target_ids = [act[1]]
@@ -172,58 +159,55 @@ class Many2Many(Field):
                     target_ids = list(act[1])
                 if not target_ids:
                     continue
-                relation_ids = []
+                relations = []
                 for i in range(0, len(target_ids),
                         Transaction().cursor.IN_MAX):
                     sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
-                    relation_ids += relation_obj.search([
+                    relations += Relation.search([
                             search_clause(ids),
                             (self.target, 'in', sub_ids),
                             ])
-                relation_obj.delete(relation_ids)
+                Relation.delete(relations)
             elif act[0] == 'add':
-                if isinstance(act[1], (int, long)):
-                    target_ids = [act[1]]
-                else:
-                    target_ids = list(act[1])
+                target_ids = list(act[1])
                 if not target_ids:
                     continue
                 existing_ids = []
                 for i in range(0, len(target_ids),
                         Transaction().cursor.IN_MAX):
                     sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
-                    relation_ids = relation_obj.search([
+                    relations = Relation.search([
                             search_clause(ids),
                             (self.target, 'in', sub_ids),
                             ])
-                    for relation in relation_obj.browse(relation_ids):
-                        existing_ids.append(relation[self.target].id)
+                    for relation in relations:
+                        existing_ids.append(getattr(relation, self.target).id)
                 for new_id in (x for x in target_ids if x not in existing_ids):
                     for record_id in ids:
-                        relation_obj.create({
+                        Relation.create({
                                 self.origin: field_value(record_id),
                                 self.target: new_id,
                                 })
             elif act[0] == 'unlink_all':
-                target_ids = relation_obj.search([
+                targets = Relation.search([
                         search_clause(ids),
                         (self.target + '.id', '!=', None),
                         ])
-                relation_obj.delete(target_ids)
+                Relation.delete(targets)
             elif act[0] == 'set':
                 if not act[1]:
                     target_ids = []
                 else:
                     target_ids = list(act[1])
-                target_ids2 = relation_obj.search([
+                targets2 = Relation.search([
                         search_clause(ids),
                         (self.target + '.id', '!=', None),
                         ])
-                relation_obj.delete(target_ids2)
+                Relation.delete(targets2)
 
                 for new_id in target_ids:
                     for record_id in ids:
-                        relation_obj.create({
+                        Relation.create({
                                 self.origin: field_value(record_id),
                                 self.target: new_id,
                                 })
@@ -231,18 +215,24 @@ class Many2Many(Field):
                 raise Exception('Bad arguments')
 
     def get_target(self):
-        '''
-        Return the target model.
-
-        :return: A Model
-        '''
-        relation_obj = Pool().get(self.relation_name)
+        'Return the target model'
+        Relation = Pool().get(self.relation_name)
         if not self.target:
-            return relation_obj
-        if self.target in relation_obj._columns:
-            target_obj = Pool().get(
-                    relation_obj._columns[self.target].model_name)
+            return Relation
+        if self.target in Relation._fields:
+            return Relation._fields[self.target].get_target()
         else:
-            target_obj = Pool().get(
-                    relation_obj._inherit_fields[self.target][2].model_name)
-        return target_obj
+            return Relation._inherit_fields[self.target][2].get_target()
+
+    def __set__(self, inst, value):
+        Target = self.get_target()
+
+        def instance(data):
+            if isinstance(data, Target):
+                return data
+            elif isinstance(data, dict):
+                return Target(**data)
+            else:
+                return Target(data)
+        value = [instance(x) for x in (value or [])]
+        super(Many2Many, self).__set__(inst, value)

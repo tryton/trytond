@@ -25,6 +25,9 @@ class Property(Function):
     def __copy__(self):
         return Property(copy.copy(self._field))
 
+    def __deepcopy__(self, memo):
+        return Property(copy.deepcopy(self._field))
+
     def get(self, ids, model, name, values=None):
         '''
         Retreive the property.
@@ -36,9 +39,8 @@ class Property(Function):
         :return: a dictionary with ids as key and values as value
         '''
         pool = Pool()
-        property_obj = pool.get('ir.property')
-        res = property_obj.get(name, model._name, ids)
-        return res
+        Property = pool.get('ir.property')
+        return Property.get(name, model.__name__, ids)
 
     def set(self, ids, model, name, value):
         '''
@@ -50,13 +52,13 @@ class Property(Function):
         :param value: The value to set.
         '''
         pool = Pool()
-        property_obj = pool.get('ir.property')
+        Property = pool.get('ir.property')
         if value is not None:
             prop_value = '%s,%s' % (getattr(self, 'model_name', ''),
                 str(value))
         else:
             prop_value = None
-        return property_obj.set(name, model._name, ids, prop_value)
+        Property.set(name, model.__name__, ids, prop_value)
 
     def search(self, model, name, clause):
         '''
@@ -65,21 +67,21 @@ class Property(Function):
         :return: New list of domain.
         '''
         pool = Pool()
-        rule_obj = pool.get('ir.rule')
-        property_obj = pool.get('ir.property')
-        model_obj = pool.get('ir.model')
-        field_obj = pool.get('ir.model.field')
+        Rule = pool.get('ir.rule')
+        Property = pool.get('ir.property')
+        Model = pool.get('ir.model')
+        Field = pool.get('ir.model.field')
         cursor = Transaction().cursor
 
         field_class = backend.FIELDS[self._type]
         if not field_class:
             return []
-        sql_type = field_class.sql_type(model._columns[name])
+        sql_type = field_class.sql_type(model._fields[name])
         if not sql_type:
             return []
         sql_type = sql_type[0]
 
-        property_query, property_val = rule_obj.domain_get('ir.property')
+        property_query, property_val = Rule.domain_get('ir.property')
 
         property_clause = ''
         if property_query:
@@ -88,27 +90,27 @@ class Property(Function):
         #Fetch res ids that comply with the domain
         cursor.execute(
             'SELECT CAST('
-                'SPLIT_PART("' + property_obj._table + '".res,\',\',2) '
+                'SPLIT_PART("' + Property._table + '".res,\',\',2) '
                     'AS INTEGER), '
-                '"' + property_obj._table + '".id '
-            'FROM "' + property_obj._table + '" '
-                'JOIN "' + field_obj._table + '" ON '
-                    '("' + field_obj._table + '"' +
-                        '.id = "' + property_obj._table + '".field) '
-                'JOIN "' + model_obj._table + '" ON '
-                    '("' + model_obj._table +
-                        '".id = "' + field_obj._table + '".model) '
+                '"' + Property._table + '".id '
+            'FROM "' + Property._table + '" '
+                'JOIN "' + Field._table + '" ON '
+                    '("' + Field._table + '"' +
+                        '.id = "' + Property._table + '".field) '
+                'JOIN "' + Model._table + '" ON '
+                    '("' + Model._table +
+                        '".id = "' + Field._table + '".model) '
             'WHERE '
                 'CASE WHEN "' +
-                    model_obj._table + '".model = %s '
-                    'AND "' + field_obj._table + '".name = %s '
+                    Model._table + '".model = %s '
+                    'AND "' + Field._table + '".name = %s '
                     + property_clause +
                 ' THEN ' +
                     self.get_condition(sql_type, clause) +
                 ' ELSE '
                     '%s '
                 'END',
-            [model._name, name] + property_val +
+            [model.__name__, name] + property_val +
             self.get_condition_args(clause) + [False])
 
         props = cursor.fetchall()
@@ -134,7 +136,7 @@ class Property(Function):
         #Fetch the res ids that doesn't use the default value
         cursor.execute(
             "SELECT cast(split_part(res,',',2) as integer) "
-            'FROM "' + property_obj._table + '"'
+            'FROM "' + Property._table + '"'
             'WHERE ' + property_query + ' AND res is not null',
             property_val)
 

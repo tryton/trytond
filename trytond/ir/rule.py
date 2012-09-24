@@ -10,11 +10,14 @@ from ..cache import Cache
 from ..const import OPERATORS
 from ..pool import Pool
 
+__all__ = [
+    'RuleGroup', 'Rule',
+    ]
+
 
 class RuleGroup(ModelSQL, ModelView):
     "Rule group"
-    _name = 'ir.rule.group'
-    _description = __doc__
+    __name__ = 'ir.rule.group'
     name = fields.Char('Name', select=True)
     model = fields.Many2One('ir.model', 'Model', select=True,
             required=True)
@@ -34,60 +37,65 @@ class RuleGroup(ModelSQL, ModelView):
     perm_create = fields.Boolean('Create Access')
     perm_delete = fields.Boolean('Delete Access')
 
-    def __init__(self):
-        super(RuleGroup, self).__init__()
-        self._order.insert(0, ('model', 'ASC'))
-        self._order.insert(1, ('global_p', 'ASC'))
-        self._order.insert(2, ('default_p', 'ASC'))
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(RuleGroup, cls).__setup__()
+        cls._order.insert(0, ('model', 'ASC'))
+        cls._order.insert(1, ('global_p', 'ASC'))
+        cls._order.insert(2, ('default_p', 'ASC'))
+        cls._sql_constraints += [
             ('global_default_exclusive', 'CHECK(NOT(global_p AND default_p))',
                 'Global and Default are mutually exclusive!'),
         ]
 
-    def default_global_p(self):
+    @staticmethod
+    def default_global_p():
         return True
 
-    def default_default_p(self):
+    @staticmethod
+    def default_default_p():
         return False
 
-    def default_perm_read(self):
+    @staticmethod
+    def default_perm_read():
         return True
 
-    def default_perm_write(self):
+    @staticmethod
+    def default_perm_write():
         return True
 
-    def default_perm_create(self):
+    @staticmethod
+    def default_perm_create():
         return True
 
-    def default_perm_delete(self):
+    @staticmethod
+    def default_perm_delete():
         return True
 
-    def delete(self, ids):
-        res = super(RuleGroup, self).delete(ids)
+    @classmethod
+    def delete(cls, groups):
+        super(RuleGroup, cls).delete(groups)
         # Restart the cache on the domain_get method of ir.rule
-        Pool().get('ir.rule').domain_get.reset()
+        Pool().get('ir.rule')._domain_get_cache.clear()
+
+    @classmethod
+    def create(cls, vals):
+        res = super(RuleGroup, cls).create(vals)
+        # Restart the cache on the domain_get method of ir.rule
+        Pool().get('ir.rule')._domain_get_cache.clear()
         return res
 
-    def create(self, vals):
-        res = super(RuleGroup, self).create(vals)
+    @classmethod
+    def write(cls, groups, vals):
+        super(RuleGroup, cls).write(groups, vals)
         # Restart the cache on the domain_get method of ir.rule
-        Pool().get('ir.rule').domain_get.reset()
-        return res
-
-    def write(self, ids, vals):
-        res = super(RuleGroup, self).write(ids, vals)
-        # Restart the cache on the domain_get method of ir.rule
-        Pool().get('ir.rule').domain_get.reset()
-        return res
-
-RuleGroup()
+        Pool().get('ir.rule')._domain_get_cache.clear()
 
 
 class Rule(ModelSQL, ModelView):
     "Rule"
-    _name = 'ir.rule'
+    __name__ = 'ir.rule'
     _rec_name = 'field'
-    _description = __doc__
     field = fields.Many2One('ir.model.field', 'Field',
         domain=[('model', '=', Eval('_parent_rule_group', {}).get('model'))],
         select=True, required=True)
@@ -96,18 +104,21 @@ class Rule(ModelSQL, ModelView):
     operand = fields.Selection('get_operand', 'Operand', required=True)
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=True,
        required=True, ondelete="CASCADE")
+    _domain_get_cache = Cache('ir_rule.domain_get')
 
-    def init(self, module_name):
+    @classmethod
+    def __register__(cls, module_name):
         cursor = Transaction().cursor
 
-        super(Rule, self).init(module_name)
+        super(Rule, cls).__register__(module_name)
 
         # Migration from 2.0: rename operator '<>' into '!='
         cursor.execute('UPDATE "%s" '
             'SET operator = %%s '
-            'WHERE operator = %%s' % self._table, ('!=', '<>'))
+            'WHERE operator = %%s' % cls._table, ('!=', '<>'))
 
-    def _operand_get(self, obj_name='', level=3, recur=None, root_tech='',
+    @classmethod
+    def _operand_get(cls, obj_name='', level=3, recur=None, root_tech='',
             root=''):
         res = {}
         if not obj_name:
@@ -123,33 +134,36 @@ class Rule(ModelSQL, ModelView):
 
             if obj_fields[k]['type'] in ('many2one'):
                 res[root + '/' + obj_fields[k]['string']] = (
-                    '(' + root_tech + '.' + k + '.id '
-                    'if ' + root_tech + ' else None)')
+                    '(%s.%s.id if %s.%s else None)'
+                    % (root_tech, k, root_tech, k))
 
             elif obj_fields[k]['type'] in ('many2many', 'one2many'):
-                res[root + '/' + obj_fields[k]['string']] = \
-                        '[x.id for x in ' + root_tech + '.' + k + ']'
+                res[root + '/' + obj_fields[k]['string']] = (
+                    '[x.id for x in (%s.%s or [])]'
+                    % (root_tech, k))
             else:
                 res[root + '/' + obj_fields[k]['string']] = \
-                        root_tech + '.' + k
+                    root_tech + '.' + k
 
             if (obj_fields[k]['type'] in recur) and (level > 0):
-                res.update(self._operand_get(obj_fields[k]['relation'],
-                    level - 1, recur, root_tech + '.' + k,
-                    root + '/' + obj_fields[k]['string']))
+                res.update(cls._operand_get(obj_fields[k]['relation'],
+                        level - 1, recur,
+                        '(%s.%s if %s else None)' % (root_tech,  k, root_tech),
+                        root + '/' + obj_fields[k]['string']))
 
         return res
 
-    def get_operand(self):
+    @classmethod
+    def get_operand(cls):
         res = []
-        operands = self._operand_get('res.user', level=1, recur=['many2one'],
+        operands = cls._operand_get('res.user', level=1, recur=['many2one'],
                 root_tech='user', root='User')
         for i in operands.keys():
             res.append((i, i))
         return res
 
-    @Cache('ir_rule.domain_get')
-    def domain_get(self, model_name, mode='read'):
+    @classmethod
+    def domain_get(cls, model_name, mode='read'):
         assert mode in ['read', 'write', 'create', 'delete'], \
                 'Invalid domain mode for security'
 
@@ -158,30 +172,35 @@ class Rule(ModelSQL, ModelView):
             if not Transaction().context.get('user'):
                 return '', []
             with Transaction().set_user(Transaction().context['user']):
-                return self.domain_get(model_name, mode=mode)
+                return cls.domain_get(model_name, mode=mode)
+
+        key = (model_name, mode)
+        domain = cls._domain_get_cache.get(key)
+        if domain:
+            return domain
 
         pool = Pool()
-        rule_group_obj = pool.get('ir.rule.group')
-        model_obj = pool.get('ir.model')
-        rule_group_user_obj = pool.get('ir.rule.group-res.user')
-        rule_group_group_obj = pool.get('ir.rule.group-res.group')
-        user_group_obj = pool.get('res.user-res.group')
-        user_obj = pool.get('res.user')
+        RuleGroup = pool.get('ir.rule.group')
+        Model = pool.get('ir.model')
+        RuleGroup_User = pool.get('ir.rule.group-res.user')
+        RuleGroup_Group = pool.get('ir.rule.group-res.group')
+        User_Group = pool.get('res.user-res.group')
+        User = pool.get('res.user')
 
         cursor = Transaction().cursor
-        cursor.execute('SELECT r.id FROM "' + self._table + '" r '
-            'JOIN "' + rule_group_obj._table + '" g '
+        cursor.execute('SELECT r.id FROM "' + cls._table + '" r '
+            'JOIN "' + RuleGroup._table + '" g '
                 "ON (g.id = r.rule_group) "
-            'JOIN "' + model_obj._table + '" m ON (g.model = m.id) '
+            'JOIN "' + Model._table + '" m ON (g.model = m.id) '
             "WHERE m.model = %s "
                 "AND g.perm_" + mode + " "
                 "AND (g.id IN ("
                         'SELECT rule_group '
-                        'FROM "' + rule_group_user_obj._table + '" '
+                        'FROM "' + RuleGroup_User._table + '" '
                         'WHERE "user" = %s '
                         "UNION SELECT rule_group "
-                        'FROM "' + rule_group_group_obj._table + '" g_rel '
-                        'JOIN "' + user_group_obj._table + '" u_rel '
+                        'FROM "' + RuleGroup_Group._table + '" g_rel '
+                        'JOIN "' + User_Group._table + '" u_rel '
                             'ON (g_rel."group" = u_rel."group") '
                         'WHERE u_rel."user" = %s) '
                     "OR default_p "
@@ -189,19 +208,20 @@ class Rule(ModelSQL, ModelView):
                 (model_name, Transaction().user, Transaction().user))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
+            cls._domain_get_cache.set(key, ('', []))
             return '', []
         obj = pool.get(model_name)
         clause = {}
         clause_global = {}
-        operand2query = self._operand_get('res.user', level=1,
+        operand2query = cls._operand_get('res.user', level=1,
                 recur=['many2one'], root_tech='user', root='User')
         user_id = Transaction().user
         with Transaction().set_user(0, set_context=True):
-            user = user_obj.browse(user_id)
+            user = User(user_id)
         # Use root user without context to prevent recursion
         with contextlib.nested(Transaction().set_user(0),
                 Transaction().set_context(user=0)):
-            for rule in self.browse(ids):
+            for rule in cls.browse(ids):
                 dom = safe_eval("[('%s', '%s', %s)]" % \
                         (rule.field.name, rule.operator,
                             operand2query[rule.operand]), {
@@ -209,7 +229,7 @@ class Rule(ModelSQL, ModelView):
                                 'time': time,
                                 })
 
-                if rule.rule_group['global_p']:
+                if rule.rule_group.global_p:
                     clause_global.setdefault(rule.rule_group.id, ['OR'])
                     clause_global[rule.rule_group.id].append(dom)
                 else:
@@ -220,17 +240,17 @@ class Rule(ModelSQL, ModelView):
         val = []
 
         # Test if there is no rule_group that have no rule
-        cursor.execute('SELECT g.id FROM "' + rule_group_obj._table + '" g ' \
-                'JOIN "' + model_obj._table + '" m ON (g.model = m.id) ' \
+        cursor.execute('SELECT g.id FROM "' + RuleGroup._table + '" g ' \
+                'JOIN "' + Model._table + '" m ON (g.model = m.id) ' \
             'WHERE m.model = %s ' \
                 'AND (g.id NOT IN (SELECT rule_group ' \
-                        'FROM "' + self._table + '")) ' \
+                        'FROM "' + cls._table + '")) ' \
                 'AND (g.id IN (SELECT rule_group ' \
-                        'FROM "' + rule_group_user_obj._table + '" ' \
+                        'FROM "' + RuleGroup_User._table + '" ' \
                         'WHERE "user" = %s ' \
                         'UNION SELECT rule_group ' \
-                        'FROM "' + rule_group_group_obj._table + '" g_rel ' \
-                            'JOIN "' + user_group_obj._table + '" u_rel ' \
+                        'FROM "' + RuleGroup_Group._table + '" g_rel ' \
+                            'JOIN "' + User_Group._table + '" u_rel ' \
                                 'ON g_rel."group" = u_rel."group" ' \
                         'WHERE u_rel."user" = %s))',
             (model_name, user_id, user_id))
@@ -249,24 +269,24 @@ class Rule(ModelSQL, ModelView):
 
         query, val, _, _ = obj.search_domain(clause, active_test=False)
 
+        cls._domain_get_cache.set(key, (query, val))
         return query, val
 
-    def delete(self, ids):
-        res = super(Rule, self).delete(ids)
+    @classmethod
+    def delete(cls, rules):
+        super(Rule, cls).delete(rules)
         # Restart the cache on the domain_get method of ir.rule
-        self.domain_get.reset()
+        cls._domain_get_cache.clear()
+
+    @classmethod
+    def create(cls, vals):
+        res = super(Rule, cls).create(vals)
+        # Restart the cache on the domain_get method of ir.rule
+        cls._domain_get_cache.clear()
         return res
 
-    def create(self, vals):
-        res = super(Rule, self).create(vals)
-        # Restart the cache on the domain_get method of ir.rule
-        self.domain_get.reset()
-        return res
-
-    def write(self, ids, vals):
-        res = super(Rule, self).write(ids, vals)
+    @classmethod
+    def write(cls, rules, vals):
+        super(Rule, cls).write(rules, vals)
         # Restart the cache on the domain_get method
-        self.domain_get.reset()
-        return res
-
-Rule()
+        cls._domain_get_cache.clear()

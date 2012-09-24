@@ -12,23 +12,21 @@ class WorkflowTestCase(unittest.TestCase):
 
     def setUp(self):
         install_module('test')
-        self.workflow_obj = POOL.get('test.workflowed')
+        self.workflow = POOL.get('test.workflowed')
 
     # TODO add test for Workflow.transition
     def test0010transition(self):
         'Test transition'
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            wkf_id = self.workflow_obj.create({})
+            wkf = self.workflow.create({})
 
-            self.workflow_obj.run([wkf_id])
-            self.assertEqual(self.workflow_obj.read(wkf_id)['state'],
-                'running')
+            self.workflow.run([wkf])
+            self.assertEqual(wkf.state, 'running')
 
-            self.workflow_obj.write(wkf_id, {
-                    'state': 'end',
-                    })
-            self.workflow_obj.run([wkf_id])
-            self.assertEqual(self.workflow_obj.read(wkf_id)['state'], 'end')
+            wkf.state = 'end'
+            wkf.save()
+            self.workflow.run([wkf])
+            self.assertEqual(wkf.state, 'end')
 
 
 def suite():

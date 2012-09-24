@@ -3,27 +3,32 @@
 
 from trytond.model import ModelSQL, Workflow, fields
 
+__all__ = [
+    'WorkflowedModel',
+    ]
+
 
 class WorkflowedModel(Workflow, ModelSQL):
-    _name = 'test.workflowed'
-
+    'Workflowed Model'
+    __name__ = 'test.workflowed'
     state = fields.Selection([
             ('start', 'Start'),
             ('running', 'Running'),
             ('end', 'End'),
             ], 'State')
 
-    def __init__(self):
-        super(WorkflowedModel, self).__init__()
-        self._transitions |= set((
+    @classmethod
+    def __setup__(cls):
+        super(WorkflowedModel, cls).__setup__()
+        cls._transitions |= set((
                 ('start', 'running'),
                 ))
 
-    def default_state(self):
+    @staticmethod
+    def default_state(cls):
         return 'start'
 
+    @classmethod
     @Workflow.transition('running')
-    def run(self, ids):
+    def run(cls, records):
         pass
-
-WorkflowedModel()

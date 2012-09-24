@@ -3,12 +3,15 @@
 from lxml import etree
 from functools import wraps
 from trytond.model import Model
-from trytond.tools import safe_eval
+from trytond.tools import safe_eval, ClassProperty
 from trytond.pyson import PYSONEncoder, CONTEXT
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.pool import Pool
 from trytond.exceptions import UserError
+from trytond.rpc import RPC
+
+__all__ = ['ModelView']
 
 
 def _find(tree, element):
@@ -74,12 +77,16 @@ class ModelView(Model):
     Define a model with views in Tryton.
     """
     __modules_list = None  # Cache for the modules list sorted by dependency
+    _fields_view_get_cache = Cache('modelview.fields_view_get')
+    _view_toolbar_get_cache = Cache('modelview.view_toolbar_get')
 
     @staticmethod
     def _reset_modules_list():
         ModelView.__modules_list = None
 
-    def _get_modules_list(self):
+    @ClassProperty
+    @classmethod
+    def _modules_list(cls):
         from trytond.modules import create_graph, get_module_list
         if ModelView.__modules_list:
             return ModelView.__modules_list
@@ -87,27 +94,28 @@ class ModelView(Model):
         ModelView.__modules_list = [x.name for x in graph] + [None]
         return ModelView.__modules_list
 
-    _modules_list = property(fget=_get_modules_list)
+    @classmethod
+    def __setup__(cls):
+        super(ModelView, cls).__setup__()
+        cls.__rpc__['fields_view_get'] = RPC()
+        cls.__rpc__['view_toolbar_get'] = RPC()
+        cls._buttons = {}
 
-    def __init__(self):
-        super(ModelView, self).__init__()
-        self._rpc['fields_view_get'] = False
-        self._rpc['view_toolbar_get'] = False
-        self._buttons = {}
-
-    @Cache('modelview.fields_view_get')
-    def fields_view_get(self, view_id=None, view_type='form'):
+    @classmethod
+    def fields_view_get(cls, view_id=None, view_type='form'):
         '''
         Return a view definition.
-
-        :param view_id: the id of the view, if None the first one will be used
-        :param view_type: the type of the view if view_id is None
-        :return: a dictionary with keys:
+        If view_id is None the first one will be used of view_type.
+        The definition is a dictionary with keys:
            - model: the model name
            - arch: the xml description of the view
            - fields: a dictionary with the definition of each field in the view
         '''
-        result = {'model': self._name}
+        key = (cls.__name__, view_id, view_type)
+        result = cls._fields_view_get_cache.get(key)
+        if result:
+            return result
+        result = {'model': cls.__name__}
         pool = Pool()
 
         test = True
@@ -117,7 +125,7 @@ class ModelView(Model):
         cursor = Transaction().cursor
         while test:
             if view_id:
-                where = (model and (" and model='%s'" % (self._name,))) or ''
+                where = (model and (" and model='%s'" % (cls.__name__,))) or ''
                 cursor.execute('SELECT arch, field_childs, id, type, ' \
                             'inherit, model ' \
                         'FROM ir_ui_view WHERE id = %s ' + where, (view_id,))
@@ -127,7 +135,7 @@ class ModelView(Model):
                         'FROM ir_ui_view ' \
                         'WHERE model = %s AND type = %s ' \
                         'ORDER BY inherit DESC, priority ASC, id ASC',
-                        (self._name, view_type))
+                        (cls.__name__, view_type))
             sql_res = cursor.fetchone()
             if not sql_res:
                 break
@@ -145,9 +153,9 @@ class ModelView(Model):
             result['field_childs'] = sql_res[1] or False
 
             # Check if view is not from an inherited model
-            if sql_res[5] != self._name:
-                inherit_obj = pool.get(sql_res[5])
-                result['arch'] = inherit_obj.fields_view_get(
+            if sql_res[5] != cls.__name__:
+                Inherit = pool.get(sql_res[5])
+                result['arch'] = Inherit.fields_view_get(
                         result['view_id'])['arch']
                 view_id = inherit_view_id
 
@@ -156,13 +164,13 @@ class ModelView(Model):
                     'WHERE (inherit = %s AND model = %s) OR ' \
                         ' (id = %s AND inherit IS NOT NULL) '
                     'ORDER BY priority ASC, id ASC',
-                    (view_id, self._name, view_id))
+                    (view_id, cls.__name__, view_id))
             sql_inherit = cursor.fetchall()
             raise_p = False
             while True:
                 try:
                     sql_inherit.sort(key=lambda x:
-                        self._modules_list.index(x[2] or None))
+                        cls._modules_list.index(x[2] or None))
                     break
                 except ValueError:
                     if raise_p:
@@ -182,9 +190,9 @@ class ModelView(Model):
         # otherwise, build some kind of default view
         else:
             if view_type == 'form':
-                res = self.fields_get()
+                res = cls.fields_get()
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
-                '''<form string="%s" col="4">''' % (self._description,)
+                '''<form string="%s" col="4">''' % (cls.__doc__,)
                 for i in res:
                     if i in ('create_uid', 'create_date',
                             'write_uid', 'write_date', 'id', 'rec_name'):
@@ -199,11 +207,11 @@ class ModelView(Model):
                 xml += "</form>"
             elif view_type == 'tree':
                 field = 'id'
-                if self._rec_name in self._columns:
-                    field = self._rec_name
+                if cls._rec_name in cls._fields:
+                    field = cls._rec_name
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
                 '''<tree string="%s"><field name="%s"/></tree>''' \
-                % (self._description, field)
+                % (cls.__doc__, field)
             else:
                 xml = ''
             result['type'] = view_type
@@ -214,34 +222,41 @@ class ModelView(Model):
         # Update arch and compute fields from arch
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(result['arch'], parser)
-        xarch, xfields = self._view_look_dom_arch(tree, result['type'],
+        xarch, xfields = cls._view_look_dom_arch(tree, result['type'],
                 result['field_childs'])
         result['arch'] = xarch
         result['fields'] = xfields
 
+        cls._fields_view_get_cache.set(key, result)
         return result
 
-    @Cache('modelview.view_toolbar_get')
-    def view_toolbar_get(self):
+    @classmethod
+    def view_toolbar_get(cls):
         """
         Returns the model specific actions.
-
-        :return: a dictionary with keys:
+        A dictionary with keys:
             - print: a list of available reports
             - action: a list of available actions
             - relate: a list of available relations
         """
-        action_obj = Pool().get('ir.action.keyword')
-        prints = action_obj.get_keyword('form_print', (self._name, -1))
-        actions = action_obj.get_keyword('form_action', (self._name, -1))
-        relates = action_obj.get_keyword('form_relate', (self._name, -1))
-        return {
+        Action = Pool().get('ir.action.keyword')
+        key = (cls.__name__, repr(Transaction().context))
+        result = cls._view_toolbar_get_cache.get(key)
+        if result:
+            return result
+        prints = Action.get_keyword('form_print', (cls.__name__, -1))
+        actions = Action.get_keyword('form_action', (cls.__name__, -1))
+        relates = Action.get_keyword('form_relate', (cls.__name__, -1))
+        result = {
             'print': prints,
             'action': actions,
             'relate': relates,
-        }
+            }
+        cls._view_toolbar_get_cache.set(key, result)
+        return result
 
-    def view_header_get(self, value, view_type='form'):
+    @classmethod
+    def view_header_get(cls, value, view_type='form'):
         """
         Overload this method if you need a window title.
         which depends on the context
@@ -252,30 +267,31 @@ class ModelView(Model):
         """
         return value
 
-    def _view_look_dom_arch(self, tree, type, field_children=None):
+    @classmethod
+    def _view_look_dom_arch(cls, tree, type, field_children=None):
         pool = Pool()
-        model_access_obj = pool.get('ir.model.access')
-        field_access_obj = pool.get('ir.model.field.access')
+        ModelAccess = pool.get('ir.model.access')
+        FieldAccess = pool.get('ir.model.field.access')
 
         fields_width = {}
         tree_root = tree.getroottree().getroot()
 
         # Find field without read access
-        fread_accesses = field_access_obj.check(self._name,
-                self._columns.keys(), 'read', access=True)
+        fread_accesses = FieldAccess.check(cls.__name__,
+                cls._fields.keys(), 'read', access=True)
         fields_to_remove = list(x for x, y in fread_accesses.iteritems()
                 if not y)
 
         def check_relation(model, field):
             if field._type in ('one2many', 'many2one'):
-                if not model_access_obj.check(field.model_name, mode='read',
+                if not ModelAccess.check(field.model_name, mode='read',
                         raise_exception=False):
                     return False
             if field._type in ('many2many', 'one2one'):
-                if not model_access_obj.check(field.target, mode='read',
+                if not ModelAccess.check(field.target, mode='read',
                         raise_exception=False):
                     return False
-                elif not model_access_obj.check(field.relation_name,
+                elif not ModelAccess.check(field.relation_name,
                         mode='read', raise_exception=False):
                     return False
             if field._type == 'reference':
@@ -283,35 +299,35 @@ class ModelView(Model):
                 if isinstance(selection, basestring):
                     selection = getattr(model, field.selection)()
                 for model_name, _ in selection:
-                    if not model_access_obj.check(model_name, mode='read',
+                    if not ModelAccess.check(model_name, mode='read',
                             raise_exception=False):
                         return False
             return True
 
         # Find relation field without read access
-        for name, field in self._columns.iteritems():
-            if not check_relation(self, field):
+        for name, field in cls._fields.iteritems():
+            if not check_relation(cls, field):
                 fields_to_remove.append(name)
 
-        for name, field in self._columns.iteritems():
+        for name, field in cls._fields.iteritems():
             for field_to_remove in fields_to_remove:
                 if field_to_remove in field.depends:
                     fields_to_remove.append(name)
 
         # Find field inherited without read access
-        for inherit_name in self._inherits:
-            inherit_obj = pool.get(inherit_name)
-            fread_accesses = field_access_obj.check(inherit_obj._name,
-                    inherit_obj._columns.keys(), 'read', access=True)
+        for inherit_name in cls._inherits:
+            Inherit = pool.get(inherit_name)
+            fread_accesses = FieldAccess.check(Inherit.__name__,
+                    Inherit._fields.keys(), 'read', access=True)
             fields_to_remove += list(x for x, y in fread_accesses.iteritems()
-                    if not y and x not in self._columns.keys())
+                    if not y and x not in cls._fields.keys())
 
             # Find relation field without read access
-            for name, field in inherit_obj._columns.iteritems():
-                if not check_relation(inherit_obj, field):
+            for name, field in Inherit._fields.iteritems():
+                if not check_relation(Inherit, field):
                     fields_to_remove.append(name)
 
-            for name, field in inherit_obj._columns.iteritems():
+            for name, field in Inherit._fields.iteritems():
                 for field_to_remove in fields_to_remove:
                     if field_to_remove in field.depends:
                         fields_to_remove.append(name)
@@ -329,55 +345,56 @@ class ModelView(Model):
                     parent.remove(element)
 
         if type == 'tree':
-            viewtreewidth_obj = pool.get('ir.ui.view_tree_width')
-            viewtreewidth_ids = viewtreewidth_obj.search([
-                ('model', '=', self._name),
+            ViewTreeWidth = pool.get('ir.ui.view_tree_width')
+            viewtreewidth_ids = ViewTreeWidth.search([
+                ('model', '=', cls.__name__),
                 ('user', '=', Transaction().user),
                 ])
-            for viewtreewidth in viewtreewidth_obj.browse(viewtreewidth_ids):
+            for viewtreewidth in ViewTreeWidth.browse(viewtreewidth_ids):
                 if viewtreewidth.width > 0:
                     fields_width[viewtreewidth.field] = viewtreewidth.width
 
-        fields_def = self.__view_look_dom(tree_root, type,
+        fields_def = cls.__view_look_dom(tree_root, type,
                 fields_width=fields_width)
 
         if field_children:
             fields_def.setdefault(field_children, {'name': field_children})
             model, field = None, None
-            if field_children in self._columns:
-                model = self
-                field = self._columns[field_children]
-            elif field_children in self._inherit_fields:
-                model_name, model, field = self._inherit_fields[field_children]
-            if model and field and field.model_name == model._name:
+            if field_children in cls._fields:
+                model = cls
+                field = cls._fields[field_children]
+            elif field_children in cls._inherit_fields:
+                model_name, model, field = cls._inherit_fields[field_children]
+            if model and field and field.model_name == model.__name__:
                 fields_def.setdefault(field.field, {'name': field.field})
 
         for field_name in fields_def.keys():
-            if field_name in self._columns:
-                field = self._columns[field_name]
-            elif field_name in self._inherit_fields:
-                field = self._inherit_fields[field_name][2]
+            if field_name in cls._fields:
+                field = cls._fields[field_name]
+            elif field_name in cls._inherit_fields:
+                field = cls._inherit_fields[field_name][2]
             else:
                 continue
             for depend in field.depends:
                 fields_def.setdefault(depend, {'name': depend})
 
-        if ('active' in self._columns) or ('active' in self._inherit_fields):
+        if ('active' in cls._fields) or ('active' in cls._inherit_fields):
             fields_def.setdefault('active', {'name': 'active'})
 
         arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
-        fields2 = self.fields_get(fields_def.keys())
+        fields2 = cls.fields_get(fields_def.keys())
         for field in fields_def:
             if field in fields2:
                 fields2[field].update(fields_def[field])
         return arch, fields2
 
-    def __view_look_dom(self, element, type, fields_width=None):
+    @classmethod
+    def __view_look_dom(cls, element, type, fields_width=None):
         pool = Pool()
-        translation_obj = pool.get('ir.translation')
-        model_data_obj = pool.get('ir.model.data')
-        button_obj = pool.get('ir.model.button')
-        user_obj = pool.get('res.user')
+        Translation = pool.get('ir.translation')
+        ModelData = pool.get('ir.model.data')
+        Button = pool.get('ir.model.button')
+        User = pool.get('res.user')
 
         if fields_width is None:
             fields_width = {}
@@ -389,15 +406,15 @@ class ModelView(Model):
                 if element.get(attr):
                     attrs = {}
                     try:
-                        if element.get(attr) in self._columns:
-                            field = self._columns[element.get(attr)]
+                        if element.get(attr) in cls._fields:
+                            field = cls._fields[element.get(attr)]
                         else:
-                            field = self._inherit_fields[element.get(
+                            field = cls._inherit_fields[element.get(
                                 attr)][2]
                         if hasattr(field, 'model_name'):
                             relation = field.model_name
                         else:
-                            relation = field.get_target()._name
+                            relation = field.get_target().__name__
                     except Exception:
                         relation = False
                     if relation and element.tag == 'field':
@@ -411,9 +428,9 @@ class ModelView(Model):
                                 try:
                                     view_ids.append(int(view_id))
                                 except ValueError:
-                                    view_ids.append(model_data_obj.get_id(
+                                    view_ids.append(ModelData.get_id(
                                             *view_id.split('.')))
-                        relation_obj = pool.get(relation)
+                        Relation = pool.get(relation)
                         if (not len(element)
                                 and type == 'form'
                                 and field._type in ('one2many', 'many2many')):
@@ -421,14 +438,14 @@ class ModelView(Model):
                             # loop
                             if view_ids:
                                 for view_id in view_ids:
-                                    view = relation_obj.fields_view_get(
+                                    view = Relation.fields_view_get(
                                         view_id=view_id)
                                     views[view['type']] = view
                                     break
                             else:
                                 for view_type in mode:
                                     views[view_type] = \
-                                        relation_obj.fields_view_get(
+                                        Relation.fields_view_get(
                                             view_type=view_type)
                                     break
                         element.attrib['mode'] = ','.join(mode)
@@ -451,12 +468,12 @@ class ModelView(Model):
 
         if element.tag == 'button':
             button_name = element.attrib['name']
-            if button_name in self._buttons:
-                states = self._buttons[button_name]
+            if button_name in cls._buttons:
+                states = cls._buttons[button_name]
             else:
                 states = {}
-            groups = set(user_obj.get_groups())
-            button_groups = button_obj.get_groups(self._name, button_name)
+            groups = set(User.get_groups())
+            button_groups = Button.get_groups(cls.__name__, button_name)
             if button_groups and not groups & button_groups:
                 states = states.copy()
                 states['readonly'] = True
@@ -466,14 +483,14 @@ class ModelView(Model):
         if Transaction().language != 'en_US':
             for attr in ('string', 'sum', 'confirm', 'help'):
                 if element.get(attr):
-                    trans = translation_obj.get_source(self._name, 'view',
+                    trans = Translation.get_source(cls.__name__, 'view',
                             Transaction().language, element.get(attr))
                     if trans:
                         element.set(attr, trans)
 
         # Set header string
         if element.tag in ('form', 'tree', 'graph'):
-            element.set('string', self.view_header_get(
+            element.set('string', cls.view_header_get(
                 element.get('string') or '', view_type=element.tag))
 
         if element.tag == 'tree' and element.get('sequence'):
@@ -481,26 +498,26 @@ class ModelView(Model):
 
         if childs:
             for field in element:
-                fields_attrs.update(self.__view_look_dom(field, type,
+                fields_attrs.update(cls.__view_look_dom(field, type,
                     fields_width=fields_width))
         return fields_attrs
 
     @staticmethod
     def button(func):
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(cls, *args, **kwargs):
             pool = Pool()
-            button_obj = pool.get('ir.model.button')
-            user_obj = pool.get('res.user')
+            Button = pool.get('ir.model.button')
+            User = pool.get('res.user')
 
             if Transaction().user != 0:
-                groups = set(user_obj.get_groups())
-                button_groups = button_obj.get_groups(self._name,
+                groups = set(User.get_groups())
+                button_groups = Button.get_groups(cls.__name__,
                     func.__name__)
                 if button_groups and not groups & button_groups:
                     raise UserError('Calling button %s on %s is not allowed!'
-                        % (func.__name__, self._name))
-            return func(self, *args, **kwargs)
+                        % (func.__name__, cls.__name__))
+            return func(cls, *args, **kwargs)
         return wrapper
 
     @staticmethod
@@ -511,14 +528,14 @@ class ModelView(Model):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 pool = Pool()
-                model_data_obj = pool.get('ir.model.data')
-                action_obj = pool.get('ir.action')
+                ModelData = pool.get('ir.model.data')
+                Action = pool.get('ir.action')
 
                 func(*args, **kwargs)
 
                 module, fs_id = action.split('.')
-                action_id = action_obj.get_action_id(
-                    model_data_obj.get_id(module, fs_id))
+                action_id = Action.get_action_id(
+                    ModelData.get_id(module, fs_id))
                 return action_id
             return wrapper
         return decorator

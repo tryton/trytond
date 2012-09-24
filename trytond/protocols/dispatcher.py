@@ -20,10 +20,11 @@ from trytond.transaction import Transaction
 from trytond.cache import Cache
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
     ConcurrencyException
+from trytond.rpc import RPC
 
 
 def dispatch(host, port, protocol, database_name, user, session, object_type,
-        object_name, method, *args, **kargs):
+        object_name, method, *args, **kwargs):
 
     if object_type == 'common':
         if method == 'login':
@@ -68,7 +69,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             ]
         elif method == 'db_exist':
             try:
-                database = Database(*args, **kargs).connect()
+                database = Database(*args, **kwargs).connect()
                 cursor = database.cursor()
                 cursor.close(close=True)
                 return True
@@ -88,13 +89,13 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 res = []
             return res
         elif method == 'create':
-            return create(*args, **kargs)
+            return create(*args, **kwargs)
         elif method == 'restore':
-            return restore(*args, **kargs)
+            return restore(*args, **kwargs)
         elif method == 'drop':
-            return drop(*args, **kargs)
+            return drop(*args, **kwargs)
         elif method == 'dump':
-            return dump(*args, **kargs)
+            return dump(*args, **kwargs)
         return
     elif object_type == 'system':
         database = Database(database_name).connect()
@@ -131,34 +132,36 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             pool.init()
     obj = pool.get(object_name, type=object_type)
 
-    if method in obj._rpc:
-        readonly = not obj._rpc[method]
+    if method in obj.__rpc__:
+        rpc = obj.__rpc__[method]
     elif method in getattr(obj, '_buttons', {}):
-        readonly = False
+        rpc = RPC(readonly=False, instantiate=0)
     else:
         raise UserError('Calling method %s on %s %s is not allowed!'
             % (method, object_type, object_name))
 
     for count in range(int(CONFIG['retry']), -1, -1):
         with Transaction().start(database_name, user,
-                readonly=readonly) as transaction:
+                readonly=rpc.readonly) as transaction:
             try:
-
-                args_without_context = list(args)
-                if 'context' in kargs:
-                    context = kargs.pop('context')
+                args, kwargs, transaction.context, transaction.timestamp = \
+                    rpc.convert(obj, *args, **kwargs)
+                meth = getattr(obj, method)
+                if not hasattr(meth, 'im_self') or meth.im_self:
+                    result = rpc.result(meth(*args, **kwargs))
                 else:
-                    context = args_without_context.pop()
-                if '_timestamp' in context:
-                    transaction.timestamp = context['_timestamp']
-                    del context['_timestamp']
-                transaction.context = context
-                res = getattr(obj, method)(*args_without_context, **kargs)
-                if not readonly:
+                    assert rpc.instantiate == 0
+                    inst = args.pop(0)
+                    if hasattr(inst, method):
+                        result = rpc.result(meth(inst, *args, **kwargs))
+                    else:
+                        result = [rpc.result(meth(i, *args, **kwargs))
+                            for i in inst]
+                if not rpc.readonly:
                     transaction.cursor.commit()
             except DatabaseOperationalError, exception:
                 transaction.cursor.rollback()
-                if count and not readonly:
+                if count and not rpc.readonly:
                     continue
                 raise
             except Exception, exception:
@@ -176,16 +179,16 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
         if not (object_name == 'res.request' and method == 'request_get'):
             with Transaction().start(database_name, 0) as transaction:
                 pool = Pool(database_name)
-                session_obj = pool.get('ir.session')
+                Session = pool.get('ir.session')
                 try:
-                    session_obj.reset(session)
+                    Session.reset(session)
                 except DatabaseOperationalError:
                     # Silently fail when reseting session
                     transaction.cursor.rollback()
                 else:
                     transaction.cursor.commit()
         Cache.resets(database_name)
-        return res
+        return result
 
 
 def create(database_name, password, lang, admin_password):
@@ -237,9 +240,9 @@ def create(database_name, password, lang, admin_password):
             cursor.execute('UPDATE res_user ' \
                     'SET password = %s ' \
                     'WHERE login = \'admin\'', (admin_password,))
-            module_obj = pool.get('ir.module.module')
-            if module_obj:
-                module_obj.update_list()
+            Module = pool.get('ir.module.module')
+            if Module:
+                Module.update_list()
             cursor.commit()
             res = True
     except Exception:

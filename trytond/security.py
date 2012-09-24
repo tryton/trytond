@@ -17,16 +17,16 @@ def _get_pool(dbname):
 def login(dbname, loginname, password, cache=True):
     with Transaction().start(dbname, 0) as transaction:
         pool = _get_pool(dbname)
-        user_obj = pool.get('res.user')
+        User = pool.get('res.user')
         password = password.decode('utf-8')
-        user_id = user_obj.get_login(loginname, password)
+        user_id = User.get_login(loginname, password)
         transaction.cursor.commit()
     if user_id:
         if not cache:
             return user_id
         with Transaction().start(dbname, user_id) as transaction:
-            session_obj = pool.get('ir.session')
-            session = session_obj.browse(session_obj.create({}))
+            Session = pool.get('ir.session')
+            session = Session.create({})
             transaction.cursor.commit()
             return user_id, session.key
     return False
@@ -35,13 +35,12 @@ def login(dbname, loginname, password, cache=True):
 def logout(dbname, user, session):
     with Transaction().start(dbname, 0) as transaction:
         pool = _get_pool(dbname)
-        session_obj = pool.get('ir.session')
-        session_id, = session_obj.search([
+        Session = pool.get('ir.session')
+        session, = Session.search([
                 ('key', '=', session),
                 ])
-        session = session_obj.browse(session_id)
         name = session.create_uid.login
-        session_obj.delete(session_id)
+        Session.delete([session])
         transaction.cursor.commit()
     return name
 
@@ -60,9 +59,9 @@ def check(dbname, user, session):
         raise NotLogged()
     with Transaction().start(dbname, user) as transaction:
         pool = _get_pool(dbname)
-        session_obj = pool.get('ir.session')
+        Session = pool.get('ir.session')
         try:
-            if not session_obj.check(user, session):
+            if not Session.check(user, session):
                 raise NotLogged()
             else:
                 return user

@@ -13,3 +13,4 @@ API Reference
     transaction
     tools/singleton
     pool
+    rpc

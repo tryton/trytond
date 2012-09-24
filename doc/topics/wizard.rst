@@ -5,7 +5,7 @@ Wizard
 ======
 
 A wizard describes a series of steps defined as :class:`trytond.wizard.State`.
-The wizard uses a :class:`trytond.wizard.Session` to store data between states.
+The wizard stores data in `ir.session.wizard` between states.
 
 The basics:
 
@@ -18,13 +18,18 @@ The basics:
 Example
 =======
 
-This example defines a wizard which export translations::
+This example defines a wizard which export translations
+
+.. highlight:: python
+
+::
 
     from trytond.wizard import Wizard, StateView, StateTransition, Button
+    from trytond.pool import Pool
 
     class TranslationExport(Wizard):
         "Export translation"
-        _name = "ir.translation.export"
+        __name__ = "ir.translation.export"
 
         start = StateView('ir.translation.export.start',
             'ir.translation_export_start_view_form', [
@@ -37,21 +42,19 @@ This example defines a wizard which export translations::
                 Button('Close', 'end', 'tryton-close'),
                 ])
 
-        def transition_export(self, session):
+        def transition_export(self):
             pool = Pool()
             translation_obj = pool.get('ir.translation')
             file_data = translation_obj.translation_export(
-                session.start.language.code, session.start.module.name)
-            session.result.file = buffer(file_data)
+                self.start.language.code, self.start.module.name)
+            self.result.file = buffer(file_data)
             return 'result'
 
-        def default_result(self, session, fields):
+        def default_result(self, fields):
             return {
-                'file': session.result.file,
+                'file': self.result.file,
                 }
 
-    TranslationExport()
+    Pool.register(TranslationExport, type_='wizard')
 
-Instantiating the class registers the wizard class in the framework. Later the
-class will be instantiated once per database and stored in the
-:ref:`Pool <topics-pool>`.
+The class must be registered in the :ref:`Pool <ref-pool>`.

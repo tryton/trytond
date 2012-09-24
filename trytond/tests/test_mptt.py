@@ -18,80 +18,76 @@ class MPTTTestCase(unittest.TestCase):
         self.mptt = POOL.get('test.mptt')
 
     def CheckTree(self, parent_id=False, left=0, right=0):
-        child_ids = self.mptt.search([
-            ('parent', '=', parent_id),
-            ])
-        childs = self.mptt.read(child_ids, ['left', 'right'])
-        childs.sort(key=lambda x: child_ids.index(x['id']))
+        childs = self.mptt.search([
+                ('parent', '=', parent_id),
+                ])
+        child_index = dict((x.id, i) for i, x in enumerate(childs))
+        childs.sort(key=lambda x: child_index[x.id])
         for child in childs:
-            assert child['left'] > left, \
-                    'Record (%d): left %d <= parent left %d' % \
-                    (child['id'], child['left'], left)
-            assert child['left'] < child['right'], \
-                    'Record (%d): left %d >= right %d' % \
-                    (child['id'], child['left'], child['right'])
-            assert right == 0 or child['right'] < right, \
-                    'Record (%d): right %d >= parent right %d' % \
-                    (child['id'], child['right'], right)
-            self.CheckTree(child['id'], left=child['left'],
-                    right=child['right'])
+            assert child.left > left, \
+                '%s: left %d <= parent left %d' % \
+                (child, child.left, left)
+            assert child.left < child.right, \
+                '%s: left %d >= right %d' % \
+                (child, child.left, child.right)
+            assert right == 0 or child.right < right, \
+                '%s: right %d >= parent right %d' % \
+                (child, child.right, right)
+            self.CheckTree(child.id, left=child.left,
+                right=child.right)
         next_left = 0
         for child in childs:
-            assert child['left'] > next_left, \
-                    'Record (%d): left %d <= next left %d' % \
-                    (child['id'], child['left'], next_left)
-            next_left = child['right']
+            assert child.left > next_left, \
+                '%s: left %d <= next left %d' % \
+                (child, child.left, next_left)
+            next_left = child.right
         childs.reverse()
         previous_right = 0
         for child in childs:
-            assert previous_right == 0 or child['right'] < previous_right, \
-                'Record (%d): right %d >= previous right %d' \
-                % (child['id'], child['right'], previous_right)
-            previous_right = child['left']
+            assert previous_right == 0 or child.right < previous_right, \
+                '%s: right %d >= previous right %d' \
+                % (child, child.right, previous_right)
+            previous_right = child.left
 
-    def ReParent(self, parent_id=False):
-        record_ids = self.mptt.search([
-            ('parent', '=', parent_id),
-            ])
-        if not record_ids:
+    def ReParent(self, parent=None):
+        records = self.mptt.search([
+                ('parent', '=', parent),
+                ])
+        if not records:
             return
-        for record_id in record_ids:
-            for record2_id in record_ids:
-                if record_id != record2_id:
-                    self.mptt.write(record_id, {
-                        'parent': record2_id,
-                        })
-                    self.mptt.write(record_id, {
-                        'parent': parent_id,
-                        })
-        for record_id in record_ids:
-            self.ReParent(record_id)
+        for record in records:
+            for record2 in records:
+                if record != record2:
+                    record.parent = record2
+                    record.save()
+                    record.parent = parent
+                    record.save()
+        for record in records:
+            self.ReParent(record)
 
-    def ReOrder(self, parent_id=False):
-        record_ids = self.mptt.search([
-            ('parent', '=', parent_id),
-            ])
-        if not record_ids:
+    def ReOrder(self, parent=None):
+        records = self.mptt.search([
+                ('parent', '=', parent),
+                ])
+        if not records:
             return
-        i = len(record_ids)
-        for record_id in record_ids:
-            self.mptt.write(record_id, {
-                'sequence': i,
-                })
+        i = len(records)
+        for record in records:
+            record.sequence = i
+            record.save()
             i -= 1
         i = 0
-        for record_id in record_ids:
-            self.mptt.write(record_id, {
-                'sequence': i,
-                })
+        for record in records:
+            record.sequence = i
+            record.save()
             i += 1
-        for record_id in record_ids:
-            self.ReOrder(record_id)
+        for record in records:
+            self.ReOrder(record)
 
-        record_ids = self.mptt.search([])
-        self.mptt.write(record_ids, {
-            'sequence': 0,
-            })
+        records = self.mptt.search([])
+        self.mptt.write(records, {
+                'sequence': 0,
+                })
 
     def test0010create(self):
         '''
@@ -106,11 +102,12 @@ class MPTTTestCase(unittest.TestCase):
                 k = 0
                 for parent_record in parent_records:
                     for i in range(3):
-                        record_id = self.mptt.create({
+                        record = self.mptt.create({
                             'name': 'Test %d %d %d' % (j, k, i),
-                            'parent': parent_record,
+                            'parent': (parent_record.id
+                                    if parent_record else None),
                             })
-                        new_records.append(record_id)
+                        new_records.append(record)
                     k += 1
             self.CheckTree()
 
@@ -137,12 +134,11 @@ class MPTTTestCase(unittest.TestCase):
     def test0040active(self):
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            record_ids = self.mptt.search([])
-            for record_id in record_ids:
-                if record_id % 2:
-                    self.mptt.write(record_id, {
-                            'active': False
-                            })
+            records = self.mptt.search([])
+            for record in records:
+                if record.id % 2:
+                    record.active = False
+                    record.save()
             self.CheckTree()
             self.ReParent()
             self.CheckTree()
@@ -153,8 +149,8 @@ class MPTTTestCase(unittest.TestCase):
 
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            record_ids = self.mptt.search([])
-            self.mptt.write(record_ids[:len(record_ids) // 2], {
+            records = self.mptt.search([])
+            self.mptt.write(records[:len(records) // 2], {
                     'active': False
                     })
             self.CheckTree()
@@ -163,8 +159,8 @@ class MPTTTestCase(unittest.TestCase):
 
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            record_ids = self.mptt.search([])
-            self.mptt.write(record_ids, {
+            records = self.mptt.search([])
+            self.mptt.write(records, {
                     'active': False
                     })
             self.ReParent()
@@ -180,26 +176,26 @@ class MPTTTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            record_ids = self.mptt.search([])
-            for record_id in record_ids:
-                if record_id % 2:
-                    self.mptt.delete(record_id)
+            records = self.mptt.search([])
+            for record in records:
+                if record.id % 2:
+                    self.mptt.delete([record])
             self.CheckTree()
 
             transaction.cursor.rollback()
 
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            record_ids = self.mptt.search([])
-            self.mptt.delete(record_ids[:len(record_ids) // 2])
+            records = self.mptt.search([])
+            self.mptt.delete(records[:len(records) // 2])
             self.CheckTree()
 
             transaction.cursor.rollback()
 
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            record_ids = self.mptt.search([])
-            self.mptt.delete(record_ids)
+            records = self.mptt.search([])
+            self.mptt.delete(records)
             self.CheckTree()
 
             transaction.cursor.rollback()

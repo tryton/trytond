@@ -35,6 +35,10 @@ database transaction.
 
     The language code defines in the context.
 
+.. attribute:: Transaction.counter
+
+    Count the number of modification made in this transaction.
+
 .. method:: Transaction.start(database_name, user[, context])
 
     Start a new transaction and return a `context manager`_.
