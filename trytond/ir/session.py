@@ -12,36 +12,42 @@ from trytond.config import CONFIG
 from ..backend import TableHandler
 from ..transaction import Transaction
 
+__all__ = [
+    'Session', 'SessionWizard',
+    ]
+
 
 class Session(ModelSQL):
     "Session"
-    _name = 'ir.session'
-    _description = __doc__
+    __name__ = 'ir.session'
     _rec_name = 'key'
 
     key = fields.Char('Key', required=True, select=True)
 
-    def __init__(self):
-        super(Session, self).__init__()
-        self._rpc = {}
+    @classmethod
+    def __setup__(cls):
+        super(Session, cls).__setup__()
+        cls.__rpc__ = {}
 
-    def init(self, module_name):
-        super(Session, self).init(module_name)
+    @classmethod
+    def __register__(cls, module_name):
+        super(Session, cls).__register__(module_name)
 
-        table = TableHandler(Transaction().cursor, self, module_name)
+        table = TableHandler(Transaction().cursor, cls, module_name)
         table.index_action('create_uid', 'add')
 
-    def default_key(self):
+    @staticmethod
+    def default_key():
         return uuid.uuid4().hex
 
-    def check(self, user, key):
+    @classmethod
+    def check(cls, user, key):
         "Check user key and delete old one"
         now = datetime.datetime.now()
         timeout = datetime.timedelta(seconds=int(CONFIG['session_timeout']))
-        session_ids = self.search([
+        sessions = cls.search([
                 ('create_uid', '=', user),
                 ])
-        sessions = self.browse(session_ids)
         find = False
         for session in sessions:
             timestamp = session.write_date or session.create_date
@@ -49,31 +55,29 @@ class Session(ModelSQL):
                 if session.key == key:
                     find = True
             else:
-                self.delete(session.id)
+                cls.delete([session])
         return find
 
-    def reset(self, session):
+    @classmethod
+    def reset(cls, session):
         "Reset session timestamp"
-        session_id = self.search([
+        sessions = cls.search([
                 ('key', '=', session),
                 ])
-        self.write(session_id, {})
-
-Session()
+        cls.write(sessions, {})
 
 
 class SessionWizard(ModelSQL):
     "Session Wizard"
-    _name = 'ir.session.wizard'
-    _description = __doc__
+    __name__ = 'ir.session.wizard'
 
     data = fields.Text('Data')
 
-    def __init__(self):
-        super(SessionWizard, self).__init__()
-        self._rpc = {}
+    @classmethod
+    def __setup__(cls):
+        super(SessionWizard, cls).__setup__()
+        cls.__rpc__ = {}
 
-    def default_data(self):
+    @staticmethod
+    def default_data():
         return json.dumps({})
-
-SessionWizard()

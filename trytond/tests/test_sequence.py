@@ -24,25 +24,25 @@ class SequenceTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            sequence_id = self.sequence.create({
-                'name': 'Test incremental',
-                'code': 'test',
-                'prefix': '',
-                'suffix': '',
-                'type': 'incremental',
-                })
-            self.assertEqual(self.sequence.get_id(sequence_id), '1')
+            sequence = self.sequence.create({
+                    'name': 'Test incremental',
+                    'code': 'test',
+                    'prefix': '',
+                    'suffix': '',
+                    'type': 'incremental',
+                    })
+            self.assertEqual(self.sequence.get_id(sequence), '1')
 
-            self.sequence.write(sequence_id, {
-                'number_increment': 10,
-                })
-            self.assertEqual(self.sequence.get_id(sequence_id), '2')
-            self.assertEqual(self.sequence.get_id(sequence_id), '12')
+            self.sequence.write([sequence], {
+                    'number_increment': 10,
+                    })
+            self.assertEqual(self.sequence.get_id([sequence]), '2')
+            self.assertEqual(self.sequence.get_id([sequence]), '12')
 
-            self.sequence.write(sequence_id, {
-                'padding': 3,
-                })
-            self.assertEqual(self.sequence.get_id(sequence_id), '022')
+            self.sequence.write([sequence], {
+                    'padding': 3,
+                    })
+            self.assertEqual(self.sequence.get_id([sequence]), '022')
 
             transaction.cursor.rollback()
 
@@ -52,24 +52,22 @@ class SequenceTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            sequence_id = self.sequence.create({
-                'name': 'Test decimal timestamp',
-                'code': 'test',
-                'prefix': '',
-                'suffix': '',
-                'type': 'decimal timestamp',
-                })
-            timestamp = self.sequence.get_id(sequence_id)
-            sequence = self.sequence.read(sequence_id, ['last_timestamp'])
-            self.assertEqual(timestamp, str(sequence['last_timestamp']))
+            sequence = self.sequence.create({
+                    'name': 'Test decimal timestamp',
+                    'code': 'test',
+                    'prefix': '',
+                    'suffix': '',
+                    'type': 'decimal timestamp',
+                    })
+            timestamp = self.sequence.get_id(sequence)
+            self.assertEqual(timestamp, str(sequence.last_timestamp))
 
-            self.assertNotEqual(self.sequence.get_id(sequence_id), timestamp)
+            self.assertNotEqual(self.sequence.get_id(sequence), timestamp)
 
-            sequence = self.sequence.browse(sequence_id)
             next_timestamp = self.sequence._timestamp(sequence)
-            self.assertRaises(Exception, self.sequence.write, sequence_id, {
-                'last_timestamp': next_timestamp + 100,
-                })
+            self.assertRaises(Exception, self.sequence.write, [sequence], {
+                    'last_timestamp': next_timestamp + 100,
+                    })
 
             transaction.cursor.rollback()
 
@@ -79,25 +77,23 @@ class SequenceTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            sequence_id = self.sequence.create({
-                'name': 'Test hexadecimal timestamp',
-                'code': 'test',
-                'prefix': '',
-                'suffix': '',
-                'type': 'hexadecimal timestamp',
-                })
-            timestamp = self.sequence.get_id(sequence_id)
-            sequence = self.sequence.read(sequence_id, ['last_timestamp'])
+            sequence = self.sequence.create({
+                    'name': 'Test hexadecimal timestamp',
+                    'code': 'test',
+                    'prefix': '',
+                    'suffix': '',
+                    'type': 'hexadecimal timestamp',
+                    })
+            timestamp = self.sequence.get_id(sequence)
             self.assertEqual(timestamp,
-                    hex(int(sequence['last_timestamp']))[2:].upper())
+                hex(int(sequence.last_timestamp))[2:].upper())
 
-            self.assertNotEqual(self.sequence.get_id(sequence_id), timestamp)
+            self.assertNotEqual(self.sequence.get_id(sequence), timestamp)
 
-            sequence = self.sequence.browse(sequence_id)
             next_timestamp = self.sequence._timestamp(sequence)
-            self.assertRaises(Exception, self.sequence.write, sequence_id, {
-                'last_timestamp': next_timestamp + 100,
-                })
+            self.assertRaises(Exception, self.sequence.write, [sequence], {
+                    'last_timestamp': next_timestamp + 100,
+                    })
 
             transaction.cursor.rollback()
 
@@ -106,23 +102,23 @@ class SequenceTestCase(unittest.TestCase):
         Test prefix/suffix
         '''
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            sequence_id = self.sequence.create({
-                'name': 'Test incremental',
-                'code': 'test',
-                'prefix': 'prefix/',
-                'suffix': '/suffix',
-                'type': 'incremental',
-                })
-            self.assertEqual(self.sequence.get_id(sequence_id),
-                    'prefix/1/suffix')
+            sequence = self.sequence.create({
+                    'name': 'Test incremental',
+                    'code': 'test',
+                    'prefix': 'prefix/',
+                    'suffix': '/suffix',
+                    'type': 'incremental',
+                    })
+            self.assertEqual(self.sequence.get_id(sequence),
+                'prefix/1/suffix')
 
-            self.sequence.write(sequence_id, {
-                'prefix': '${year}-${month}-${day}/',
-                'suffix': '/${day}.${month}.${year}',
-                })
+            self.sequence.write([sequence], {
+                    'prefix': '${year}-${month}-${day}/',
+                    'suffix': '/${day}.${month}.${year}',
+                    })
             with Transaction().set_context(date=datetime.date(2010, 8, 15)):
-                self.assertEqual(self.sequence.get_id(sequence_id),
-                        '2010-08-15/2/15.08.2010')
+                self.assertEqual(self.sequence.get_id(sequence),
+                    '2010-08-15/2/15.08.2010')
 
 
 def suite():

@@ -39,6 +39,13 @@ class Function(Field):
         return Function(copy.copy(self._field), self.getter,
                 setter=self.setter, searcher=self.searcher)
 
+    def __deepcopy__(self, memo):
+        return Function(copy.deepcopy(self._field, memo),
+            copy.deepcopy(self.getter, memo),
+            setter=copy.deepcopy(self.setter, memo),
+            searcher=copy.deepcopy(self.searcher, memo),
+            loading=copy.deepcopy(self.loading, memo))
+
     def __getattr__(self, name):
         return getattr(self._field, name)
 
@@ -46,60 +53,52 @@ class Function(Field):
         return self._field[name]
 
     def __setattr__(self, name, value):
-        if name in ('_field', '_type', 'getter', 'setter', 'searcher'):
-            return object.__setattr__(self, name, value)
-        return setattr(self._field, name, value)
+        if name in ('_field', '_type', 'getter', 'setter', 'searcher', 'name'):
+            object.__setattr__(self, name, value)
+            if name != 'name':
+                return
+        setattr(self._field, name, value)
 
     def search(self, model, name, clause):
         '''
         Call the searcher.
-
-        :param model: The model.
-        :param name: The name of the field.
-        :param clause: The search domain clause. See ModelStorage.search
-        :return: a list of domain clause.
+        Return a list of clauses.
         '''
         if not self.searcher:
             model.raise_user_error('search_function_missing', name)
         return getattr(model, self.searcher)(name, tuple(clause))
 
-    def get(self, ids, model, name, values=None):
+    def get(self, ids, Model, name, values=None):
         '''
         Call the getter.
         If the function has ``names`` in the function definition then
         it will call it with a list of name.
-
-        :param ids: A list of ids.
-        :param model: The model.
-        :param name: The name of the field or a list of name field.
-        :param values:
-        :return: a dictionary with ids as key and values as value or
-            a dictionary with name as key and a dictionary as value if
-            name is a list of field name.
         '''
+        def call(name):
+            method = getattr(Model, self.getter)
+            records = Model.browse(ids)
+            if not hasattr(method, 'im_self') or method.im_self:
+                return method(records, name)
+            else:
+                return dict((r.id, method(r, name)) for r in records)
         if isinstance(name, list):
             names = name
             # Test is the function works with a list of names
-            if 'names' in inspect.getargspec(getattr(model, self.getter))[0]:
-                return getattr(model, self.getter)(ids, names)
-            res = {}
-            for name in names:
-                res[name] = getattr(model, self.getter)(ids, name)
-            return res
+            if 'names' in inspect.getargspec(getattr(Model, self.getter))[0]:
+                return call(names)
+            return dict((name, call(name)) for name in names)
         else:
             # Test is the function works with a list of names
-            if 'names' in inspect.getargspec(getattr(model, self.getter))[0]:
+            if 'names' in inspect.getargspec(getattr(Model, self.getter))[0]:
                 name = [name]
-            return getattr(model, self.getter)(ids, name)
+            return call(name)
 
-    def set(self, ids, model, name, value):
+    def set(self, ids, Model, name, value):
         '''
         Call the setter.
-
-        :param ids: A list of ids.
-        :param model: The model.
-        :param name: The name of the field.
-        :param value: The value to set.
         '''
         if self.setter:
-            getattr(model, self.setter)(ids, name, value)
+            getattr(Model, self.setter)(Model.browse(ids), name, value)
+
+    def __set__(self, inst, value):
+        self._field.__set__(inst, value)

@@ -191,11 +191,11 @@ class RecordTagHandler:
             eval_attr = attributes.get('eval', '')
 
             if search_attr:
-                search_model = self.model._columns[field_name].model_name
-                f_obj = self.mh.pool.get(search_model)
+                search_model = self.model._fields[field_name].model_name
+                SearchModel = self.mh.pool.get(search_model)
                 with Transaction().set_context(active_test=False):
-                    self.values[field_name], = \
-                            f_obj.search(safe_eval(search_attr))
+                    found, = SearchModel.search(safe_eval(search_attr))
+                    self.values[field_name] = found.id
 
             elif ref_attr:
                 self.values[field_name] = self.mh.get_id(ref_attr)
@@ -255,7 +255,8 @@ class RecordTagHandler:
         elif name == "record":
             if self.xml_id in self.xml_ids and not self.update:
                 raise Exception('Duplicate id: "%s".' % (self.xml_id,))
-            self.mh.import_record(self.model._name, self.values, self.xml_id)
+            self.mh.import_record(
+                self.model.__name__, self.values, self.xml_id)
             self.xml_ids.append(self.xml_id)
             return None
         else:
@@ -263,7 +264,7 @@ class RecordTagHandler:
 
     def current_state(self):
         return "In tag record: model %s with id %s." % \
-               (self.model and self.model._name or "?", self.xml_id)
+               (self.model and self.model.__name__ or "?", self.xml_id)
 
 
 # Custom exception:
@@ -280,10 +281,10 @@ class Fs2bdAccessor:
     Provide some helper function to ease cache access and management.
     """
 
-    def __init__(self, modeldata_obj, pool):
+    def __init__(self, ModelData, pool):
         self.fs2db = {}
         self.fetched_modules = []
-        self.modeldata_obj = modeldata_obj
+        self.ModelData = ModelData
         self.browserecord = {}
         self.pool = pool
 
@@ -317,15 +318,10 @@ class Fs2bdAccessor:
         if module not in self.fetched_modules:
             return
         self.browserecord[module].setdefault(model_name, {})
-        model_obj = self.pool.get(model_name)
+        Model = self.pool.get(model_name)
         if not ids:
-            object_ids = self.browserecord[module][model_name].keys()
-        else:
-            if isinstance(ids, (int, long)):
-                object_ids = [ids]
-            else:
-                object_ids = ids
-        models = model_obj.browse(object_ids)
+            ids = self.browserecord[module][model_name].keys()
+        models = Model.browse(ids)
         for model in models:
             if model.id in self.browserecord[module][model_name]:
                 for cache in Transaction().cursor.cache.values():
@@ -339,13 +335,13 @@ class Fs2bdAccessor:
     def fetch_new_module(self, module):
         cursor = Transaction().cursor
         self.fs2db[module] = {}
-        module_data_ids = self.modeldata_obj.search([
+        module_data_ids = self.ModelData.search([
                 ('module', '=', module),
                 ('inherit', '=', None),
                 ], order=[('db_id', 'ASC')])
 
         record_ids = {}
-        for rec in self.modeldata_obj.browse(module_data_ids):
+        for rec in self.ModelData.browse(module_data_ids):
             self.fs2db[rec.module][rec.fs_id] = {
                 "db_id": rec.db_id, "model": rec.model,
                 "id": rec.id, "values": rec.values
@@ -359,16 +355,16 @@ class Fs2bdAccessor:
         for model_name in record_ids.keys():
             if model_name not in object_name_list:
                 continue
-            model_obj = self.pool.get(model_name)
+            Model = self.pool.get(model_name)
             self.browserecord[module][model_name] = {}
             for i in range(0, len(record_ids[model_name]), cursor.IN_MAX):
                 sub_record_ids = record_ids[model_name][i:i + cursor.IN_MAX]
                 with Transaction().set_context(active_test=False):
-                    ids = model_obj.search([
+                    records = Model.search([
                         ('id', 'in', sub_record_ids),
                         ])
                 with Transaction().set_context(language='en_US'):
-                    models = model_obj.browse(ids)
+                    models = Model.browse(map(int, records))
                 for model in models:
                     self.browserecord[module][model_name][model.id] = model
         self.fetched_modules.append(module)
@@ -382,8 +378,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         self.pool = pool
         self.module = module
-        self.modeldata_obj = pool.get('ir.model.data')
-        self.fs2db = Fs2bdAccessor(self.modeldata_obj, pool)
+        self.ModelData = pool.get('ir.model.data')
+        self.fs2db = Fs2bdAccessor(self.ModelData, pool)
         self.to_delete = self.populate_to_delete()
         self.noupdate = None
         self.skip_data = False
@@ -481,26 +477,28 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         return self.fs2db.get(module, xml_id)["db_id"]
 
     @staticmethod
-    def _clean_value(key, browse_record, object_ref):
+    def _clean_value(key, record):
         """
         Take a field name, a browse_record, and a reference to the
         corresponding object.  Return a raw value has it must look on the
         db.
         """
-
+        Model = record.__class__
         # search the field type in the object or in a parent
-        if key in object_ref._columns:
-            field_type = object_ref._columns[key]._type
+        if key in Model._fields:
+            field_type = Model._fields[key]._type
         else:
-            field_type = object_ref._inherit_fields[key][2]._type
+            field_type = Model._inherit_fields[key][2]._type
 
         # handle the value regarding to the type
         if field_type == 'many2one':
-            return browse_record[key] and browse_record[key].id or None
+            return getattr(record, key).id if getattr(record, key) else None
         elif field_type == 'reference':
-            if not browse_record[key]:
+            if not getattr(record, key):
                 return None
-            ref_mode, ref_id = browse_record[key].split(',', 1)
+            elif not isinstance(getattr(record, key), basestring):
+                return str(getattr(record, key))
+            ref_mode, ref_id = getattr(record, key).split(',', 1)
             try:
                 ref_id = safe_eval(ref_id)
             except Exception:
@@ -511,7 +509,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         elif field_type in ['one2many', 'many2many']:
             raise Unhandled_field("Unhandled field %s" % key)
         else:
-            return browse_record[key]
+            return getattr(record, key)
 
     def populate_to_delete(self):
         """Create a list of all the records that whe should met in the update
@@ -520,12 +518,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         # Fetch the data in id descending order to avoid depedendcy
         # problem when the corresponding recordds will be deleted:
-        module_data_ids = self.modeldata_obj.search([
+        module_data = self.ModelData.search([
                 ('module', '=', self.module),
                 ('inherit', '=', None),
                 ], order=[('id', 'DESC')])
-        return set(rec.fs_id for rec in self.modeldata_obj.browse(
-            module_data_ids))
+        return set(rec.fs_id for rec in module_data)
 
     def import_record(self, model, values, fs_id):
         module = self.module
@@ -544,7 +541,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 raise Exception('Reference to %s.%s not found' % \
                         (module, fs_id))
 
-        object_ref = self.pool.get(model)
+        Model = self.pool.get(model)
 
         if self.fs2db.get(module, fs_id):
 
@@ -581,62 +578,58 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 raise Exception("This record try to overwrite " \
                 "data with the wrong model: %s (module: %s)" % (fs_id, module))
 
+            record = self.fs2db.get_browserecord(module, Model.__name__, db_id)
             #Re-create record if it was deleted
-            if not self.fs2db.get_browserecord(
-                    module, object_ref._name, db_id):
+            if not record:
                 with Transaction().set_context(
                         module=module, language='en_US'):
-                    db_id = object_ref.create(values)
+                    record = Model.create(values)
 
                 # reset_browsercord
-                self.fs2db.reset_browsercord(module, object_ref._name, db_id)
+                self.fs2db.reset_browsercord(
+                    module, Model.__name__, [record.id])
 
-                record = self.fs2db.get_browserecord(module, object_ref._name,
-                        db_id)
+                record = self.fs2db.get_browserecord(
+                    module, Model.__name__, record.id)
                 for table, field_name, field in \
-                        object_ref._inherit_fields.values():
-                    inherit_db_ids[table] = record[field_name].id
+                        Model._inherit_fields.values():
+                    inherit_db_ids[table] = getattr(record, field_name).id
 
                 for table in inherit_db_ids.keys():
-                    data_id = self.modeldata_obj.search([
+                    data = self.ModelData.search([
                         ('fs_id', '=', fs_id),
                         ('module', '=', module),
                         ('model', '=', table),
                         ], limit=1)
-                    if data_id:
-                        self.modeldata_obj.write(data_id, {
+                    if data:
+                        self.ModelData.write(data, {
                             'db_id': inherit_db_ids[table],
                             'inherit': True,
                             })
                     else:
-                        data_id = self.modeldata_obj.create({
+                        data = self.ModelData.create({
                             'fs_id': fs_id,
                             'module': module,
                             'model': table,
                             'db_id': inherit_db_ids[table],
                             'inherit': True,
                             })
-                    inherit_mdata_ids.append((table, data_id))
+                    inherit_mdata_ids.append((table, data.id))
 
-                data_id = self.modeldata_obj.search([
+                data = self.ModelData.search([
                     ('fs_id', '=', fs_id),
                     ('module', '=', module),
-                    ('model', '=', object_ref._name),
-                    ], limit=1)[0]
-                self.modeldata_obj.write(data_id, {
-                    'db_id': db_id,
+                    ('model', '=', Model.__name__),
+                    ], limit=1)
+                self.ModelData.write(data, {
+                    'db_id': record.id,
                     })
-                self.fs2db.get(module, fs_id)["db_id"] = db_id
-
-            db_val = self.fs2db.get_browserecord(module, object_ref._name,
-                    db_id)
-            if not db_val:
-                db_val = object_ref.browse(db_id)
+                self.fs2db.get(module, fs_id)["db_id"] = record.id
 
             to_update = {}
             for key in values:
 
-                db_field = self._clean_value(key, db_val, object_ref)
+                db_field = self._clean_value(key, record)
 
                 # if the fs value is the same has in the db, whe ignore it
                 val = values[key]
@@ -648,22 +641,22 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
                 # we cannot update a field if it was changed by a user...
                 if key not in old_values:
-                    if key in object_ref._columns:
-                        expected_value = object_ref._defaults.get(
+                    if key in Model._fields:
+                        expected_value = Model._defaults.get(
                             key, lambda *a: None)()
                     else:
-                        inherit_obj = self.pool.get(
-                            object_ref._inherit_fields[key][0])
-                        expected_value = inherit_obj._defaults.get(
+                        Inherit = self.pool.get(
+                            Model._inherit_fields[key][0])
+                        expected_value = Inherit._defaults.get(
                             key, lambda *a: None)()
                 else:
                     expected_value = old_values[key]
 
                 # Migration from 2.0: Reference field change value
-                if key in object_ref._columns:
-                    field_type = object_ref._columns[key]._type
+                if key in Model._fields:
+                    field_type = Model._fields[key]._type
                 else:
-                    field_type = object_ref._inherit_fields[key][2]._type
+                    field_type = Model._inherit_fields[key][2]._type
                 if field_type == 'reference':
                     if (expected_value and expected_value.endswith(',0')
                             and not db_field):
@@ -677,7 +670,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     logging.getLogger("convert").warning(
                         "Field %s of %s@%s not updated (id: %s), because "\
                         "it has changed since the last update" % \
-                        (key, db_id, model, fs_id))
+                        (key, record.id, model, fs_id))
                     continue
 
                 # so, the field in the fs and in the db are different,
@@ -689,32 +682,32 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # write the values in the db:
                 with Transaction().set_context(
                         module=module, language='en_US'):
-                    object_ref.write(db_id, to_update)
-                self.fs2db.reset_browsercord(module, object_ref._name, db_id)
+                    Model.write([record], to_update)
+                self.fs2db.reset_browsercord(
+                    module, Model.__name__, [record.id])
 
             if not inherit_db_ids:
-                record = object_ref.browse(db_id)
                 for table, field_name, field in \
-                        object_ref._inherit_fields.values():
-                    inherit_db_ids[table] = record[field_name].id
+                        Model._inherit_fields.values():
+                    inherit_db_ids[table] = getattr(record, field_name).id
             if not inherit_mdata_ids:
                 for table in inherit_db_ids.keys():
-                    data_id = self.modeldata_obj.search([
+                    data, = self.ModelData.search([
                         ('fs_id', '=', fs_id),
                         ('module', '=', module),
                         ('model', '=', table),
                         ], limit=1)
-                    inherit_mdata_ids.append((table, data_id))
+                    inherit_mdata_ids.append((table, data.id))
 
             if to_update:
                 # re-read it: this ensure that we store the real value
                 # in the model_data table:
-                db_val = self.fs2db.get_browserecord(module, object_ref._name,
-                        db_id)
-                if not db_val:
-                    db_val = object_ref.browse(db_id)
+                record = self.fs2db.get_browserecord(
+                    module, Model.__name__, record.id)
+                if not record:
+                    record = Model(record.id)
                 for key in to_update:
-                    values[key] = self._clean_value(key, db_val, object_ref)
+                    values[key] = self._clean_value(key, record)
 
             if module != self.module:
                 temp_values = old_values.copy()
@@ -722,16 +715,17 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 values = temp_values
 
             if values != old_values:
-                self.modeldata_obj.write(mdata_id, {
+                self.ModelData.write([self.ModelData(mdata_id)], {
                     'fs_id': fs_id,
                     'model': model,
                     'module': module,
-                    'db_id': db_id,
+                    'db_id': record.id,
                     'values': str(values),
                     'date_update': datetime.datetime.now(),
                     })
                 for table, inherit_mdata_id in inherit_mdata_ids:
-                    self.modeldata_obj.write(inherit_mdata_id, {
+                    self.ModelData.write(
+                        [self.ModelData(inherit_mdata_id)], {
                         'fs_id': fs_id,
                         'model': table,
                         'module': module,
@@ -740,27 +734,26 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                         'date_update': datetime.datetime.now(),
                         })
             # reset_browsercord to keep cache memory low
-            self.fs2db.reset_browsercord(module, object_ref._name, db_id)
+            self.fs2db.reset_browsercord(module, Model.__name__, [record.id])
 
         else:
             # this record is new, create it in the db:
             with Transaction().set_context(module=module, language='en_US'):
-                db_id = object_ref.create(values)
+                record = Model.create(values)
             inherit_db_ids = {}
 
-            record = object_ref.browse(db_id)
             for table, field_name, field in (
-                    object_ref._inherit_fields.values()):
-                inherit_db_ids[table] = record[field_name].id
+                    Model._inherit_fields.values()):
+                inherit_db_ids[table] = getattr(record, field_name).id
 
             # re-read it: this ensure that we store the real value
             # in the model_data table:
-            db_val = object_ref.browse(db_id)
+            record = Model(record.id)
             for key in values:
-                values[key] = self._clean_value(key, db_val, object_ref)
+                values[key] = self._clean_value(key, record)
 
             for table in inherit_db_ids.keys():
-                self.modeldata_obj.create({
+                self.ModelData.create({
                     'fs_id': fs_id,
                     'model': table,
                     'module': module,
@@ -770,20 +763,20 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'noupdate': self.noupdate,
                     })
 
-            mdata_id = self.modeldata_obj.create({
+            mdata = self.ModelData.create({
                 'fs_id': fs_id,
                 'model': model,
                 'module': module,
-                'db_id': db_id,
+                'db_id': record.id,
                 'values': str(values),
                 'noupdate': self.noupdate,
                 })
 
             # update fs2db:
             self.fs2db.set(module, fs_id, {
-                    "db_id": db_id, "model": model,
-                    "id": mdata_id, "values": str(values)})
-            self.fs2db.reset_browsercord(module, model, db_id)
+                    "db_id": record.id, "model": model,
+                    "id": mdata.id, "values": str(values)})
+            self.fs2db.reset_browsercord(module, model, [record.id])
 
 
 def post_import(pool, module, to_delete):
@@ -792,26 +785,26 @@ def post_import(pool, module, to_delete):
     """
     cursor = Transaction().cursor
     mdata_delete = []
-    modeldata_obj = pool.get("ir.model.data")
+    ModelData = pool.get("ir.model.data")
 
     with Transaction().set_context(active_test=False):
-        mdata_ids = modeldata_obj.search([
+        mdata = ModelData.search([
             ('fs_id', 'in', to_delete),
             ('module', '=', module),
             ], order=[('id', 'DESC')])
 
     object_name_list = set(pool.object_name_list())
-    for mrec in modeldata_obj.browse(mdata_ids):
-        mdata_id, model, db_id = mrec.id, mrec.model, mrec.db_id
+    for mrec in mdata:
+        model, db_id = mrec.model, mrec.db_id
 
         logging.getLogger("convert").info(
                 'Deleting %s@%s' % (db_id, model))
         try:
             # Deletion of the record
             if model in object_name_list:
-                model_obj = pool.get(model)
-                model_obj.delete(db_id)
-                mdata_delete.append(mdata_id)
+                Model = pool.get(model)
+                Model.delete([Model(db_id)])
+                mdata_delete.append(mrec)
             else:
                 logging.getLogger("convert").warning(
                         'Could not delete id %d of model %s because model no '
@@ -831,7 +824,7 @@ def post_import(pool, module, to_delete):
 
     # Clean model_data:
     if mdata_delete:
-        modeldata_obj.delete(mdata_delete)
+        ModelData.delete(mdata_delete)
         cursor.commit()
 
     return True

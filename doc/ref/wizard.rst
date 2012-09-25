@@ -12,7 +12,7 @@ There is also a more :ref:`practical introduction into wizards
 
 .. _`finite state machine`: http://en.wikipedia.org/wiki/Finite-state_machine
 
-.. class:: Wizard()
+.. class:: Wizard(session_id)
 
     This is the base for any wizard. It contains the engine for the finite
     state machine. A wizard must have some :class:`State` instance attributes
@@ -20,7 +20,7 @@ There is also a more :ref:`practical introduction into wizards
 
 Class attributes are:
 
-.. attribute:: Wizard._name
+.. attribute:: Wizard.__name__
 
     It contains the unique name to reference the wizard throughout the
     platform.
@@ -33,58 +33,45 @@ Class attributes are:
 
     It contains the name of the ending state.
 
-.. attribute:: Wizard._rpc
+.. attribute:: Wizard.__rpc__
 
-    Same as :attr:`trytond.model.Model._rpc`.
+    Same as :attr:`trytond.model.Model.__rpc__`.
 
 .. attribute:: Wizard.states
 
     It contains a dictionary with state name as key and :class:`State` as
     value.
 
-Instance methods are:
+Class methods are:
 
-.. method:: Wizard.init(module_name)
+.. classmethod:: Wizard.__setup__()
+
+    Setup the class before adding into the :class:`trytond.pool.Pool`.
+
+.. classmethod:: Wizard.__post_setup__()
+
+    Setup the class after added into the :class:`trytond.pool.Pool`.
+
+.. classmethod:: Wizard.__register__(module_name)
 
     Register the wizard.
 
-.. method:: Wizard.create()
+.. classmethod:: Wizard.create()
 
     Create a session for the wizard and returns a tuple containing the session
     id, the starting and ending state.
 
-.. method:: Wizard.delete(session_id)
+.. classmethod:: Wizard.delete(session_id)
 
     Delete the session.
 
-.. method:: Wizard.execute(session, data, state_name)
+.. classmethod:: Wizard.execute(session, data, state_name)
 
     Execute the wizard for the state.
     `session` can be an instance of :class:`Session` or a session id.
     `data` is a dictionary with the session data to update.
     `active_id`, `active_ids` and `active_model` must be set in the context
     according to the records on which the wizard is run.
-
-=======
-Session
-=======
-
-.. class:: Session(wizard, session_id)
-
-    A wizard session contains values of each :class:`StateView` associated to
-    the wizard.
-
-Instance attributes are:
-
-.. attribute:: Session.data
-
-    Raw storage of session data.
-
-Instance methods are:
-
-.. method:: Session.save()
-
-    Save the session in database.
 
 =====
 State
@@ -93,6 +80,12 @@ State
 .. class:: State()
 
     This is the base for any wizard state.
+
+Instance attributes are:
+
+.. attribute:: State.name
+
+    The name of the state.
 
 =========
 StateView
@@ -120,7 +113,7 @@ Instance attributes are:
 
 Instance methods are:
 
-.. method:: StateView.get_view
+.. method:: StateView.get_view()
 
     Returns the view definition like
     :meth:`~trytond.model.ModelView.fields_view_get`.

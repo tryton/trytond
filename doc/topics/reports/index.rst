@@ -228,17 +228,21 @@ context.  Now the invoice report will be able to access the employee object.
 
 ::
 
-  class InvoiceReport(Report):
-      _name = 'account.invoice'
-      def parse(self, report, objects, datas, localcontext):
-          employee_obj = Pool().get('company.employee')
-          employee = False
-          if Transaction().context.get('employee'):
-              employee = employee_obj.browse(Transaction().context['employee'])
-          localcontext['employee'] = employee
-          return super(InvoiceReport, self).parse(report, objects, datas,
-                   localcontext)
-  InvoiceReport()
+    from trytond.report import Report
+    from tryton.pool import Pool
+
+    class InvoiceReport(Report):
+        __name__ = 'account.invoice'
+
+        def parse(self, report, objects, datas, localcontext):
+            employee_obj = Pool().get('company.employee')
+            employee = False
+            if Transaction().context.get('employee'):
+                employee = employee_obj.browse(Transaction().context['employee'])
+            localcontext['employee'] = employee
+            return super(InvoiceReport, self).parse(report, objects, datas,
+                     localcontext)
+    Pool.register(InvoiceReport, type_='report')
 
 
 Replacing existing Tryton styles

@@ -20,8 +20,8 @@ A module is a directory in trytond/modules which contains at least two files:
 ``__init__.py`` file
 --------------------
 
-It is the Python ``__init__.py`` to define a module. It must import all the
-Python files from the module.
+It is the Python ``__init__.py`` to define a module. It must contains a method
+named `register()` that must register to the pool all the objects of the module.
 
 
 ``tryton.cfg`` file

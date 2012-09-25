@@ -9,36 +9,35 @@ class Workflow(object):
     """
     _transition_state = 'state'
 
-    def __init__(self):
-        super(Workflow, self).__init__()
-        self._transitions = set()
+    @classmethod
+    def __setup__(cls):
+        super(Workflow, cls).__setup__()
+        cls._transitions = set()
 
     @staticmethod
     def transition(state):
         def check_transition(func):
             @wraps(func)
-            def wrapper(self, ids, *args, **kwargs):
-                records = self.browse(ids)
+            def wrapper(cls, records, *args, **kwargs):
                 filtered = []
                 to_update = {}
 
                 for record in records:
-                    current_state = getattr(record, self._transition_state)
+                    current_state = getattr(record, cls._transition_state)
                     transition = (current_state, state)
-                    if transition in self._transitions:
-                        filtered.append(record.id)
+                    if transition in cls._transitions:
+                        filtered.append(record)
                         if current_state != state:
-                            to_update[record.id] = current_state
+                            to_update[record] = current_state
 
-                result = func(self, filtered, *args, **kwargs)
+                result = func(cls, filtered, *args, **kwargs)
                 if to_update:
-                    records = self.browse(to_update.keys())
-                    for record in records:
-                        current_state = getattr(record, self._transition_state)
-                        if current_state != to_update[record.id]:
-                            del to_update[record.id]
-                    self.write(to_update.keys(), {
-                            self._transition_state: state,
+                    for record in to_update.keys():
+                        current_state = getattr(record, cls._transition_state)
+                        if current_state != to_update[record]:
+                            del to_update[record]
+                    cls.write(to_update.keys(), {
+                            cls._transition_state: state,
                             })
                 return result
             return wrapper

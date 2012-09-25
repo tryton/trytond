@@ -202,11 +202,11 @@ class TrytonServer(object):
                     try:
                         if 'ir.cron' not in pool.object_name_list():
                             continue
-                        cron_obj = pool.get('ir.cron')
+                        Cron = pool.get('ir.cron')
                     finally:
                         pool.lock.release()
                     thread = threading.Thread(
-                            target=cron_obj.run,
+                            target=Cron.run,
                             args=(dbname,), kwargs={})
                     thread.start()
                     threads[dbname] = thread

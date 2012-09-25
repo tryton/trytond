@@ -16,6 +16,10 @@ from trytond.pool import Pool
 from trytond.config import CONFIG
 from trytond.pyson import Eval
 
+__all__ = [
+    'Collection', 'Share', 'Attachment',
+    ]
+
 
 def get_webdav_url():
     if CONFIG['ssl_webdav']:
@@ -32,8 +36,7 @@ def get_webdav_url():
 
 class Collection(ModelSQL, ModelView):
     "Collection"
-    _name = "webdav.collection"
-    _description = __doc__
+    __name__ = "webdav.collection"
     name = fields.Char('Name', required=True, select=True)
     parent = fields.Many2One('webdav.collection', 'Parent',
        ondelete='RESTRICT', domain=[('model', '=', None)])
@@ -43,66 +46,61 @@ class Collection(ModelSQL, ModelView):
     complete_name = fields.Function(fields.Char('Complete Name',
             order_field='name'), 'get_rec_name')
 
-    def __init__(self):
-        super(Collection, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(Collection, cls).__setup__()
+        cls._sql_constraints += [
             ('name_parent_uniq', 'UNIQUE (name, parent)',
                 'The collection name must be unique inside a collection!'),
         ]
-        self._constraints += [
+        cls._constraints += [
             ('check_recursion', 'recursive_collections'),
             ('check_attachment', 'collection_file_name'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'recursive_collections': 'You can not create recursive ' \
                     'collections!',
             'collection_file_name': 'You can not create a collection\n' \
                     'in a collection with the name of an ' \
                     'existing file!',
         })
-        self.ext2mime = {
+        cls.ext2mime = {
             '.png': 'image/png',
             '.odt': 'application/vnd.oasis.opendocument.text',
             '.pdf': 'application/pdf',
         }
 
-    def default_domain(self):
+    @staticmethod
+    def default_domain():
         return '[]'
 
-    def get_rec_name(self, ids, name):
-        if not ids:
-            return {}
-        names = {}
+    def get_rec_name(self, name):
+        if self.parent:
+            return self.parent.rec_name + '/' + self.name
+        else:
+            return self.name
 
-        def _name(collection):
-            if collection.id in names:
-                return names[collection.id]
-            elif collection.parent:
-                return _name(collection.parent) + '/' + collection.name
-            else:
-                return collection.name
-        for collection in self.browse(ids):
-            names[collection.id] = _name(collection)
-        return names
-
-    def check_attachment(self, ids):
+    @classmethod
+    def check_attachment(cls, collections):
         pool = Pool()
-        attachment_obj = pool.get('ir.attachment')
-        for collection in self.browse(ids):
+        Attachment = pool.get('ir.attachment')
+        for collection in collections:
             if collection.parent:
-                attachment_ids = attachment_obj.search([
+                attachments = Attachment.search([
                     ('resource', '=', '%s,%s' %
-                        (self._name, collection.parent.id)),
+                        (cls.__name__, collection.parent.id)),
                     ])
-                for attachment in attachment_obj.browse(attachment_ids):
+                for attachment in attachments:
                     if attachment.name == collection.name:
                         return False
         return True
 
-    def _uri2object(self, uri, object_name=_name, object_id=None, cache=None):
+    @classmethod
+    def _uri2object(cls, uri, object_name=__name__, object_id=None,
+            cache=None):
         pool = Pool()
-        attachment_obj = pool.get('ir.attachment')
-        report_obj = pool.get('ir.action.report')
+        Attachment = pool.get('ir.attachment')
+        Report = pool.get('ir.action.report')
         cache_uri = uri
 
         if cache is not None:
@@ -112,10 +110,10 @@ class Collection(ModelSQL, ModelView):
 
         if not uri:
             if cache is not None:
-                cache['_uri2object'][cache_uri] = (self._name, None)
-            return self._name, None
+                cache['_uri2object'][cache_uri] = (cls.__name__, None)
+            return cls.__name__, None
         name, uri = (uri.split('/', 1) + [None])[0:2]
-        if object_name == self._name:
+        if object_name == cls.__name__:
             collection_ids = None
             if cache is not None:
                 cache.setdefault('_parent2collection_ids', {})
@@ -123,10 +121,9 @@ class Collection(ModelSQL, ModelView):
                     collection_ids = cache['_parent2collection_ids'][
                         object_id].get(name, [])
             if collection_ids is None:
-                collection_ids = self.search([
+                collections = cls.search([
                     ('parent', '=', object_id),
                     ])
-                collections = self.browse(collection_ids)
                 collection_ids = []
                 if cache is not None:
                     cache['_parent2collection_ids'].setdefault(object_id, {})
@@ -142,7 +139,7 @@ class Collection(ModelSQL, ModelView):
                                 collection.model.model
                         else:
                             cache['_collection_name'][collection.id] = \
-                                self._name
+                                cls.__name__
                     if collection.name == name:
                         collection_ids.append(collection.id)
             if collection_ids:
@@ -153,7 +150,7 @@ class Collection(ModelSQL, ModelView):
                     if object_id in cache['_collection_name']:
                         object_name2 = cache['_collection_name'][object_id]
                 if object_name2 is None:
-                    collection = self.browse(object_id)
+                    collection = cls(object_id)
                     if collection.model and uri:
                         object_name = collection.model.model
                         if cache is not None:
@@ -175,10 +172,9 @@ class Collection(ModelSQL, ModelView):
                             (object_name, object_id)].get(name, [])
                 attachment_id = None
                 if attachment_ids is None:
-                    attachment_ids = attachment_obj.search([
+                    attachments = Attachment.search([
                         ('resource', '=', '%s,%s' % (object_name, object_id)),
                         ])
-                    attachments = attachment_obj.browse(attachment_ids)
                     key = (object_name, object_id)
                     attachment_ids = []
                     if cache is not None:
@@ -219,10 +215,9 @@ class Collection(ModelSQL, ModelView):
                     if cache is not None:
                         cache['_uri2object'][cache_uri] = (None, 0)
                     return None, 0
-                report_ids = report_obj.search([
+                reports = Report.search([
                     ('model', '=', object_name),
                     ])
-                reports = report_obj.browse(report_ids)
                 for report in reports:
                     report_name = report.name + '-' + str(report.id) \
                             + '.' + report.extension
@@ -240,10 +235,9 @@ class Collection(ModelSQL, ModelView):
                         attachment_ids = cache['_model&id2attachment_ids'][
                             (object_name, object_id)].get(name, [])
                 if attachment_ids is None:
-                    attachment_ids = attachment_obj.search([
+                    attachments = Attachment.search([
                         ('resource', '=', '%s,%s' % (object_name, object_id)),
                         ])
-                    attachments = attachment_obj.browse(attachment_ids)
                     key = (object_name, object_id)
                     attachment_ids = []
                     if cache is not None:
@@ -266,7 +260,7 @@ class Collection(ModelSQL, ModelView):
                     cache['_uri2object'][cache_uri] = (object_name, object_id)
                 return object_name, object_id
         if uri:
-            res = self._uri2object(uri, object_name, object_id, cache=cache)
+            res = cls._uri2object(uri, object_name, object_id, cache=cache)
             if cache is not None:
                 cache['_uri2object'][cache_uri] = res
             return res
@@ -274,40 +268,41 @@ class Collection(ModelSQL, ModelView):
             cache['_uri2object'][cache_uri] = (object_name, object_id)
         return object_name, object_id
 
-    def get_childs(self, uri, filter=None, cache=None):
+    @classmethod
+    def get_childs(cls, uri, filter=None, cache=None):
         pool = Pool()
-        report_obj = pool.get('ir.action.report')
+        Report = pool.get('ir.action.report')
         res = []
         if filter:
             return []
         if not uri:
-            collection_ids = self.search([
+            collections = cls.search([
                 ('parent', '=', None),
                 ])
-            for collection in self.browse(collection_ids):
+            for collection in collections:
                 if '/' in collection.name:
                     continue
                 res.append(collection.name)
                 if cache is not None:
-                    cache.setdefault(self._name, {})
-                    cache[self._name][collection.id] = {}
+                    cache.setdefault(cls.__name__, {})
+                    cache[cls.__name__][collection.id] = {}
             return res
-        object_name, object_id = self._uri2object(uri, cache=cache)
-        if object_name == self._name and object_id:
-            collection = self.browse(object_id)
+        object_name, object_id = cls._uri2object(uri, cache=cache)
+        if object_name == cls.__name__ and object_id:
+            collection = cls(object_id)
             if collection.model:
-                model_obj = pool.get(collection.model.model)
-                if not model_obj:
+                Model = pool.get(collection.model.model)
+                if not Model:
                     return res
-                model_ids = model_obj.search(
+                models = Model.search(
                         safe_eval(collection.domain or "[]"))
-                for child in model_obj.browse(model_ids):
+                for child in models:
                     if '/' in child.rec_name:
                         continue
                     res.append(child.rec_name + '-' + str(child.id))
                     if cache is not None:
-                        cache.setdefault(model_obj._name, {})
-                        cache[model_obj._name][child.id] = {}
+                        cache.setdefault(Model.__name__, {})
+                        cache[Model.__name__][child.id] = {}
                 return res
             else:
                 for child in collection.childs:
@@ -315,13 +310,12 @@ class Collection(ModelSQL, ModelView):
                         continue
                     res.append(child.name)
                     if cache is not None:
-                        cache.setdefault(self._name, {})
-                        cache[self._name][child.id] = {}
+                        cache.setdefault(cls.__name__, {})
+                        cache[cls.__name__][child.id] = {}
         if object_name not in ('ir.attachment', 'ir.action.report'):
-            report_ids = report_obj.search([
+            reports = Report.search([
                 ('model', '=', object_name),
                 ])
-            reports = report_obj.browse(report_ids)
             for report in reports:
                 report_name = report.name + '-' + str(report.id) \
                         + '.' + report.extension
@@ -329,40 +323,43 @@ class Collection(ModelSQL, ModelView):
                     continue
                 res.append(report_name)
                 if cache is not None:
-                    cache.setdefault(report_obj._name, {})
-                    cache[report_obj._name][report.id] = {}
+                    cache.setdefault(Report.__name__, {})
+                    cache[Report.__name__][report.id] = {}
 
-            attachment_obj = pool.get('ir.attachment')
-            attachment_ids = attachment_obj.search([
-                ('resource', '=', '%s,%s' % (object_name, object_id)),
-                ])
-            for attachment in attachment_obj.browse(attachment_ids):
+            Attachment = pool.get('ir.attachment')
+            attachments = Attachment.search([
+                    ('resource', '=', '%s,%s' % (object_name, object_id)),
+                    ])
+            for attachment in attachments:
                 if attachment.name and not attachment.link:
                     if '/' in attachment.name:
                         continue
                     res.append(attachment.name)
                     if cache is not None:
-                        cache.setdefault(attachment_obj._name, {})
-                        cache[attachment_obj._name][attachment.id] = {}
+                        cache.setdefault(Attachment.__name__, {})
+                        cache[Attachment.__name__][attachment.id] = {}
         return res
 
-    def get_resourcetype(self, uri, cache=None):
+    @classmethod
+    def get_resourcetype(cls, uri, cache=None):
         from pywebdav.lib.constants import COLLECTION, OBJECT
-        object_name, object_id = self._uri2object(uri, cache=cache)
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if object_name in ('ir.attachment', 'ir.action.report'):
             return OBJECT
         return COLLECTION
 
-    def get_displayname(self, uri, cache=None):
-        object_name, object_id = self._uri2object(uri, cache=cache)
-        model_obj = Pool().get(object_name)
-        return model_obj.browse(object_id).rec_name
+    @classmethod
+    def get_displayname(cls, uri, cache=None):
+        object_name, object_id = cls._uri2object(uri, cache=cache)
+        Model = Pool().get(object_name)
+        return Model(object_id).rec_name
 
-    def get_contentlength(self, uri, cache=None):
+    @classmethod
+    def get_contentlength(cls, uri, cache=None):
         pool = Pool()
-        attachment_obj = pool.get('ir.attachment')
+        Attachment = pool.get('ir.attachment')
 
-        object_name, object_id = self._uri2object(uri, cache=cache)
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if object_name == 'ir.attachment':
 
             if cache is not None:
@@ -375,7 +372,7 @@ class Collection(ModelSQL, ModelView):
             else:
                 ids = [object_id]
 
-            attachments = attachment_obj.browse(ids)
+            attachments = Attachment.browse(ids)
 
             res = '0'
             for attachment in attachments:
@@ -394,28 +391,30 @@ class Collection(ModelSQL, ModelView):
             return res
         return '0'
 
-    def get_contenttype(self, uri, cache=None):
-        object_name, object_id = self._uri2object(uri, cache=cache)
+    @classmethod
+    def get_contenttype(cls, uri, cache=None):
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if object_name in ('ir.attachment', 'ir.action.report'):
             ext = os.path.splitext(uri)[1]
             if not ext:
                 return "application/octet-stream"
-            return self.ext2mime.get(ext, 'application/octet-stream')
+            return cls.ext2mime.get(ext, 'application/octet-stream')
         return "application/octet-stream"
 
-    def get_creationdate(self, uri, cache=None):
+    @classmethod
+    def get_creationdate(cls, uri, cache=None):
         pool = Pool()
-        object_name, object_id = self._uri2object(uri, cache=cache)
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if object_name == 'ir.attachment':
-            model_obj = pool.get(object_name)
+            Model = pool.get(object_name)
             if object_id:
                 if cache is not None:
-                    cache.setdefault(model_obj._name, {})
-                    ids = cache[model_obj._name].keys()
+                    cache.setdefault(Model.__name__, {})
+                    ids = cache[Model.__name__].keys()
                     if object_id not in ids:
                         ids.append(object_id)
-                    elif 'creationdate' in cache[model_obj._name][object_id]:
-                        return cache[model_obj._name][object_id][
+                    elif 'creationdate' in cache[Model.__name__][object_id]:
+                        return cache[Model.__name__][object_id][
                             'creationdate']
                 else:
                     ids = [object_id]
@@ -426,32 +425,33 @@ class Collection(ModelSQL, ModelView):
                     red_sql, red_ids = reduce_ids('id', sub_ids)
                     cursor.execute('SELECT id, '
                         'EXTRACT(epoch FROM create_date) '
-                        'FROM "' + model_obj._table + '" '
+                        'FROM "' + Model._table + '" '
                         'WHERE ' + red_sql, red_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date
                         if cache is not None:
-                            cache[model_obj._name].setdefault(object_id2, {})
-                            cache[model_obj._name][object_id2][
+                            cache[Model.__name__].setdefault(object_id2, {})
+                            cache[Model.__name__][object_id2][
                                 'creationdate'] = date
                 if res is not None:
                     return res
         return time.time()
 
-    def get_lastmodified(self, uri, cache=None):
+    @classmethod
+    def get_lastmodified(cls, uri, cache=None):
         pool = Pool()
-        object_name, object_id = self._uri2object(uri, cache=cache)
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if object_name == 'ir.attachment':
-            model_obj = pool.get(object_name)
+            Model = pool.get(object_name)
             if object_id:
                 if cache is not None:
-                    cache.setdefault(model_obj._name, {})
-                    ids = cache[model_obj._name].keys()
+                    cache.setdefault(Model.__name__, {})
+                    ids = cache[Model.__name__].keys()
                     if object_id not in ids:
                         ids.append(object_id)
-                    elif 'lastmodified' in cache[model_obj._name][object_id]:
-                        return cache[model_obj._name][object_id][
+                    elif 'lastmodified' in cache[Model.__name__][object_id]:
+                        return cache[Model.__name__][object_id][
                             'lastmodified']
                 else:
                     ids = [object_id]
@@ -463,27 +463,28 @@ class Collection(ModelSQL, ModelView):
                     cursor.execute('SELECT id, '
                         'EXTRACT(epoch FROM '
                             'COALESCE(write_date, create_date)) '
-                        'FROM "' + model_obj._table + '" '
+                        'FROM "' + Model._table + '" '
                         'WHERE ' + red_sql, red_ids)
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date
                         if cache is not None:
-                            cache[model_obj._name].setdefault(object_id2, {})
-                            cache[model_obj._name][object_id2][
+                            cache[Model.__name__].setdefault(object_id2, {})
+                            cache[Model.__name__][object_id2][
                                 'lastmodified'] = date
                 if res is not None:
                     return res
         return time.time()
 
-    def get_data(self, uri, cache=None):
+    @classmethod
+    def get_data(cls, uri, cache=None):
         from pywebdav.lib.errors import DAV_NotFound
         pool = Pool()
-        attachment_obj = pool.get('ir.attachment')
-        report_obj = pool.get('ir.action.report')
+        Attachment = pool.get('ir.attachment')
+        Report = pool.get('ir.action.report')
 
         if uri:
-            object_name, object_id = self._uri2object(uri, cache=cache)
+            object_name, object_id = cls._uri2object(uri, cache=cache)
 
             if object_name == 'ir.attachment' and object_id:
                 if cache is not None:
@@ -498,7 +499,7 @@ class Collection(ModelSQL, ModelView):
                         return res
                 else:
                     ids = [object_id]
-                attachments = attachment_obj.browse(ids)
+                attachments = Attachment.browse(ids)
 
                 res = DAV_NotFound
                 for attachment in attachments:
@@ -520,31 +521,32 @@ class Collection(ModelSQL, ModelView):
             if object_name == 'ir.action.report' and object_id:
                 report_id = int(uri.rsplit('/', 1)[-1].rsplit('-',
                     1)[-1].rsplit('.', 1)[0])
-                report = report_obj.browse(report_id)
+                report = Report(report_id)
                 if report.report_name:
-                    report_obj = pool.get(report.report_name,
+                    Report = pool.get(report.report_name,
                             type='report')
-                    val = report_obj.execute([object_id],
-                            {'id': object_id, 'ids': [object_id]})
+                    val = Report.execute([object_id],
+                        {'id': object_id, 'ids': [object_id]})
                     return val[1]
         raise DAV_NotFound
 
-    def put(self, uri, data, content_type, cache=None):
+    @classmethod
+    def put(cls, uri, data, content_type, cache=None):
         from pywebdav.lib.errors import DAV_Forbidden
         from pywebdav.lib.utils import get_uriparentpath, get_urifilename
-        object_name, object_id = self._uri2object(get_uriparentpath(uri),
+        object_name, object_id = cls._uri2object(get_uriparentpath(uri),
                 cache=cache)
         if not object_name \
                 or object_name in ('ir.attachment') \
                 or not object_id:
             raise DAV_Forbidden
         pool = Pool()
-        attachment_obj = pool.get('ir.attachment')
-        object_name2, object_id2 = self._uri2object(uri, cache=cache)
+        Attachment = pool.get('ir.attachment')
+        object_name2, object_id2 = cls._uri2object(uri, cache=cache)
         if not object_id2:
             name = get_urifilename(uri)
             try:
-                attachment_obj.create({
+                Attachment.create({
                     'name': name,
                     'data': data,
                     'resource': '%s,%s' % (object_name, object_id),
@@ -553,25 +555,26 @@ class Collection(ModelSQL, ModelView):
                 raise DAV_Forbidden
         else:
             try:
-                attachment_obj.write(object_id2, {
+                Attachment.write(object_id2, {
                     'data': data,
                     })
             except Exception:
                 raise DAV_Forbidden
         return
 
-    def mkcol(self, uri, cache=None):
+    @classmethod
+    def mkcol(cls, uri, cache=None):
         from pywebdav.lib.errors import DAV_Forbidden
         from pywebdav.lib.utils import get_uriparentpath, get_urifilename
         if uri[-1:] == '/':
             uri = uri[:-1]
-        object_name, object_id = self._uri2object(get_uriparentpath(uri),
+        object_name, object_id = cls._uri2object(get_uriparentpath(uri),
                 cache=cache)
         if object_name != 'webdav.collection':
             raise DAV_Forbidden
         name = get_urifilename(uri)
         try:
-            self.create({
+            cls.create({
                 'name': name,
                 'parent': object_id,
                 })
@@ -579,50 +582,51 @@ class Collection(ModelSQL, ModelView):
             raise DAV_Forbidden
         return 201
 
-    def rmcol(self, uri, cache=None):
+    @classmethod
+    def rmcol(cls, uri, cache=None):
         from pywebdav.errors import DAV_Forbidden
-        object_name, object_id = self._uri2object(uri, cache=cache)
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if object_name != 'webdav.collection' \
                 or not object_id:
             raise DAV_Forbidden
         try:
-            self.delete(object_id)
+            cls.delete(object_id)
         except Exception:
             raise DAV_Forbidden
         return 200
 
-    def rm(self, uri, cache=None):
+    @classmethod
+    def rm(cls, uri, cache=None):
         from pywebdav.errors import DAV_Forbidden
-        object_name, object_id = self._uri2object(uri, cache=cache)
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if not object_name:
             raise DAV_Forbidden
         if object_name != 'ir.attachment' \
                 or not object_id:
             raise DAV_Forbidden
         pool = Pool()
-        model_obj = pool.get(object_name)
+        Model = pool.get(object_name)
         try:
-            model_obj.delete(object_id)
+            Model.delete(object_id)
         except Exception:
             raise DAV_Forbidden
         return 200
 
-    def exists(self, uri, cache=None):
-        object_name, object_id = self._uri2object(uri, cache=cache)
+    @classmethod
+    def exists(cls, uri, cache=None):
+        object_name, object_id = cls._uri2object(uri, cache=cache)
         if object_name and object_id:
             return 1
         return None
 
-    def current_user_privilege_set(self, uri, cache=None):
+    @staticmethod
+    def current_user_privilege_set(uri, cache=None):
         return ['create', 'read', 'write', 'delete']
-
-Collection()
 
 
 class Share(ModelSQL, ModelView):
     "Share"
-    _name = 'webdav.share'
-    _description = __doc__
+    __name__ = 'webdav.share'
     _rec_name = 'key'
 
     path = fields.Char('Path', required=True, select=True)
@@ -635,50 +639,49 @@ class Share(ModelSQL, ModelView):
     note = fields.Text('Note')
     url = fields.Function(fields.Char('URL'), 'get_url')
 
-    def default_key(self):
+    @staticmethod
+    def default_key():
         return uuid.uuid4().hex
 
-    def default_user(self):
+    @staticmethod
+    def default_user():
         return Transaction().user
 
-    def default_expiration_date(self):
+    @staticmethod
+    def default_expiration_date():
         return datetime.date.today() + relativedelta(months=1)
 
-    def get_url(self, ids, name):
-        urls = {}
-        webdav_url = get_webdav_url()
-        for share in self.browse(ids):
-            urls[share.id] = urlparse.urljoin(webdav_url,
-                urlparse.urlunsplit((None, None, urllib.quote(share.path),
-                        urllib.urlencode([('key', share.key)]), None)))
-        return urls
+    def get_url(self, name):
+        return urlparse.urljoin(get_webdav_url(),
+            urlparse.urlunsplit((None, None, urllib.quote(self.path),
+                    urllib.urlencode([('key', self.key)]), None)))
 
-    def match(self, share, command, path):
+    @staticmethod
+    def match(share, command, path):
         "Test if share match with command and path"
         today = datetime.date.today()
         return (path.startswith(share.path)
             and share.expiration_date > today
             and command == 'GET')
 
-    def get_login(self, key, command, path):
+    @classmethod
+    def get_login(cls, key, command, path):
         """Validate the key for the command and path
         Return the user id if succeed or None
         """
-        share_ids = self.search([
+        shares = cls.search([
                 ('key', '=', key),
                 ])
-        if not share_ids:
+        if not shares:
             return None
-        for share in self.browse(share_ids):
-            if self.match(share, command, path):
+        for share in shares:
+            if cls.match(share, command, path):
                 return share.user.id
         return None
 
-Share()
-
 
 class Attachment(ModelSQL, ModelView):
-    _name = 'ir.attachment'
+    __name__ = 'ir.attachment'
 
     path = fields.Function(fields.Char('Path'), 'get_path')
     url = fields.Function(fields.Char('URL'), 'get_url')
@@ -688,36 +691,38 @@ class Attachment(ModelSQL, ModelView):
                 ],
             depends=['path']), 'get_shares', 'set_shares')
 
-    def __init__(self):
-        super(Attachment, self).__init__()
-        self._constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(Attachment, cls).__setup__()
+        cls._constraints += [
             ('check_collection', 'collection_attachment_name'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'collection_attachment_name': ('You can not create an attachment\n'
                     'in a collection with the name\n'
                     'of an existing child collection!'),
         })
 
-    def check_collection(self, ids):
+    @classmethod
+    def check_collection(cls, attachments):
         pool = Pool()
-        collection_obj = pool.get('webdav.collection')
-        for attachment in self.browse(ids):
+        Collection = pool.get('webdav.collection')
+        for attachment in attachments:
             if attachment.resource:
                 model_name, record_id = attachment.resource.split(',')
                 if model_name == 'webdav.collection':
-                    collection = collection_obj.browse(int(record_id))
+                    collection = Collection(int(record_id))
                     for child in collection.childs:
                         if child.name == attachment.name:
                             return False
         return True
 
-    def get_path(self, ids, name):
+    @classmethod
+    def get_path(cls, attachments, name):
         pool = Pool()
-        collection_obj = pool.get('webdav.collection')
-        paths = dict((x, None) for x in ids)
+        Collection = pool.get('webdav.collection')
+        paths = dict((a.id, None) for a in attachments)
 
-        attachments = self.browse(ids)
         resources = {}
         resource2attachments = {}
         for attachment in attachments:
@@ -728,17 +733,17 @@ class Attachment(ModelSQL, ModelView):
             resources.setdefault(model_name, set()).add(record_id)
             resource2attachments.setdefault((model_name, record_id),
                 []).append(attachment)
-        collection_ids = collection_obj.search([
+        collections = Collection.search([
                 ('model.model', 'in', resources.keys()),
                 ])
-        for collection in collection_obj.browse(collection_ids):
+        for collection in collections:
             model_name = collection.model.model
-            model_obj = pool.get(model_name)
+            Model = pool.get(model_name)
             ids = list(resources[model_name])
             domain = safe_eval(collection.domain or '[]')
             domain = [domain, ('id', 'in', ids)]
-            record_ids = model_obj.search(domain)
-            for record in model_obj.browse(record_ids):
+            records = Model.search(domain)
+            for record in records:
                 for attachment in resource2attachments[
                         (model_name, record.id)]:
                     paths[attachment.id] = '/'.join((collection.rec_name,
@@ -746,59 +751,52 @@ class Attachment(ModelSQL, ModelView):
                             attachment.name))
         if 'webdav.collection' in resources:
             collection_ids = list(resources['webdav.collection'])
-            for collection in collection_obj.browse(collection_ids):
+            for collection in Collection.browse(collection_ids):
                 for attachment in resource2attachments[
                         ('webdav.collection', collection.id)]:
                     paths[attachment.id] = '/'.join((collection.rec_name,
                             attachment.name))
         return paths
 
-    def get_url(self, ids, name):
-        webdav_url = get_webdav_url()
-        urls = {}
-        for attachment in self.browse(ids):
-            if attachment.path:
-                urls[attachment.id] = urlparse.urljoin(webdav_url,
-                    urllib.quote(attachment.path))
-            else:
-                urls[attachment.id] = None
-        return urls
+    def get_url(self, name):
+        if self.path:
+            return urlparse.urljoin(get_webdav_url(), urllib.quote(self.path))
 
-    def get_shares(self, ids, name):
-        share_obj = Pool().get('webdav.share')
-        shares = dict((x, []) for x in ids)
-        attachements = self.browse(ids)
-        path2attachement = dict((a.path, a) for a in attachements)
-        share_ids = share_obj.search([
+    @classmethod
+    def get_shares(cls, attachments, name):
+        Share = Pool().get('webdav.share')
+        shares = dict((a.id, []) for a in attachments)
+        path2attachement = dict((a.path, a) for a in attachments)
+        shares = Share.search([
                 ('path', 'in', path2attachement.keys()),
                 ])
-        for share in share_obj.browse(share_ids):
+        for share in shares:
             attachment = path2attachement[share.path]
             shares[attachment.id].append(share.id)
         return shares
 
-    def set_shares(self, ids, name, value):
-        share_obj = Pool().get('webdav.share')
+    @classmethod
+    def set_shares(cls, attachments, name, value):
+        Share = Pool().get('webdav.share')
 
         if not value:
             return
 
-        attachments = self.browse(ids)
         for action in value:
             if action[0] == 'create':
                 for attachment in attachments:
                     action[1]['path'] = attachment.path
-                    share_obj.create(action[1])
+                    Share.create(action[1])
             elif action[0] == 'write':
-                share_obj.write(action[1], action[2])
+                Share.write(action[1], action[2])
             elif action[0] == 'delete':
-                share_obj.delete(action[1])
+                Share.delete(Share.browse(action[1]))
             elif action[0] == 'delete_all':
                 paths = [a.path for a in attachments]
-                share_ids = share_obj.search([
+                shares = Share.search([
                         ('path', 'in', paths),
                         ])
-                share_obj.delete(share_ids)
+                Share.delete(shares)
             elif action[0] == 'unlink':
                 pass
             elif action[0] == 'add':
@@ -809,5 +807,3 @@ class Attachment(ModelSQL, ModelView):
                 pass
             else:
                 raise Exception('Bad arguments')
-
-Attachment()

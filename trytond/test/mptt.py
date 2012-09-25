@@ -3,11 +3,14 @@
 "Test for Tree"
 from trytond.model import ModelView, ModelSQL, fields
 
+__all__ = [
+    'MPTT',
+    ]
+
 
 class MPTT(ModelSQL, ModelView):
     'Modified Preorder Tree Traversal'
-    _name = 'test.mptt'
-    _description = __doc__
+    __name__ = 'test.mptt'
     name = fields.Char('Name', required=True)
     sequence = fields.Integer('Sequence',
         order_field='(%(table)s.sequence IS NULL) %(order)s, '
@@ -19,23 +22,25 @@ class MPTT(ModelSQL, ModelView):
     childs = fields.One2Many('test.mptt', 'parent', 'Children')
     active = fields.Boolean('Active')
 
-    def __init__(self):
-        super(MPTT, self).__init__()
-        self._order.insert(0, ('sequence', 'ASC'))
-        self._constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(MPTT, cls).__setup__()
+        cls._order.insert(0, ('sequence', 'ASC'))
+        cls._constraints += [
             ('check_recursion', 'recursive_mptt'),
         ]
-        self._error_messages.update({
+        cls._error_messages.update({
             'recursive_mptt': 'You can not create recursive Tree!',
         })
 
-    def default_active(self):
+    @staticmethod
+    def default_active():
         return True
 
-    def default_left(self):
+    @staticmethod
+    def default_left():
         return 0
 
-    def default_right(self):
+    @staticmethod
+    def default_right():
         return 0
-
-MPTT()

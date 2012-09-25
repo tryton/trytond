@@ -1,5 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.modules import create_graph, get_module_list, get_module_info
 from trytond.wizard import Wizard, StateView, Button, StateTransition, \
@@ -8,12 +13,20 @@ from trytond.backend import TableHandler
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Eval
+from trytond.protocols.jsonrpc import object_hook
+from trytond.rpc import RPC
+
+__all__ = [
+    'Module', 'ModuleDependency', 'ModuleConfigWizardItem',
+    'ModuleConfigWizardFirst', 'ModuleConfigWizardOther', 'ModuleConfigWizard',
+    'ModuleInstallUpgradeStart', 'ModuleInstallUpgradeDone',
+    'ModuleInstallUpgrade', 'ModuleConfig',
+    ]
 
 
 class Module(ModelSQL, ModelView):
     "Module"
-    _name = "ir.module.module"
-    _description = __doc__
+    __name__ = "ir.module.module"
     name = fields.Char("Name", readonly=True, required=True)
     version = fields.Function(fields.Char('Version'), 'get_version')
     dependencies = fields.One2Many('ir.module.module.dependency',
@@ -30,24 +43,25 @@ class Module(ModelSQL, ModelView):
         ('to install', 'To be installed'),
         ], string='State', readonly=True)
 
-    def __init__(self):
-        super(Module, self).__init__()
-        self._sql_constraints = [
+    @classmethod
+    def __setup__(cls):
+        super(Module, cls).__setup__()
+        cls._sql_constraints = [
             ('name_uniq', 'unique (name)',
                 'The name of the module must be unique!'),
         ]
-        self._order.insert(0, ('name', 'ASC'))
-        self._rpc.update({
-            'on_write': False,
-        })
-        self._error_messages.update({
+        cls._order.insert(0, ('name', 'ASC'))
+        cls.__rpc__.update({
+                'on_write': RPC(instantiate=0),
+                })
+        cls._error_messages.update({
             'delete_state': 'You can not remove a module that is installed ' \
                     'or will be installed',
             'missing_dep': 'Missing dependencies %s for module "%s"',
             'uninstall_dep': 'The modules you are trying to uninstall ' \
                     'depends on installed modules:',
             })
-        self._buttons.update({
+        cls._buttons.update({
                 'install': {
                     'invisible': Eval('state') != 'uninstalled',
                     },
@@ -68,62 +82,54 @@ class Module(ModelSQL, ModelView):
                     },
                 })
 
-    def default_state(self):
+    @staticmethod
+    def default_state():
         return 'uninstalled'
 
-    def get_version(self, ids, name):
-        res = {}
-        for module in self.browse(ids):
-            res[module.id] = get_module_info(module.name).get('version', '')
-        return res
+    def get_version(self, name):
+        return get_module_info(self.name).get('version', '')
 
-    def get_parents(self, ids, name):
-        parents = {}
-        modules = self.browse(ids)
+    @classmethod
+    def get_parents(cls, modules, name):
         parent_names = list(set(d.name for m in modules
                     for d in m.dependencies))
-        parent_ids = self.search([
+        parents = cls.search([
                 ('name', 'in', parent_names),
                 ])
-        name2id = dict((m.name, m.id) for m in self.browse(parent_ids))
-        for module in self.browse(ids):
-            parents[module.id] = [name2id[d.name] for d in module.dependencies]
-        return parents
+        name2id = dict((m.name, m.id) for m in parents)
+        return dict((m.id, [name2id[d.name] for d in m.dependencies])
+            for m in modules)
 
-    def get_childs(self, ids, name):
-        childs = dict((i, []) for i in ids)
-        modules = self.browse(ids)
+    @classmethod
+    def get_childs(cls, modules, name):
+        child_ids = dict((m.id, []) for m in modules)
         names = [m.name for m in modules]
-        child_ids = self.search([
+        childs = cls.search([
                 ('dependencies.name', 'in', names),
                 ])
-        for child in self.browse(child_ids):
+        for child in childs:
             for dep in child.dependencies:
-                if dep.module.id in childs:
-                    childs[dep.module.id].append(child.id)
-        return childs
+                if dep.module.id in child_ids:
+                    child_ids[dep.module.id].append(child.id)
+        return child_ids
 
-    def delete(self, ids):
-        if not ids:
-            return True
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        for module in self.browse(ids):
+    @classmethod
+    def delete(cls, records):
+        for module in records:
             if module.state in (
                     'installed',
                     'to upgrade',
                     'to remove',
                     'to install',
                     ):
-                self.raise_user_error('delete_state')
-        return super(Module, self).delete(ids)
+                cls.raise_user_error('delete_state')
+        return super(Module, cls).delete(records)
 
-    def on_write(self, ids):
-        if not ids:
-            return []
-        res = []
+    @classmethod
+    def on_write(cls, modules):
+        ids = set()
         graph, packages, later = create_graph(get_module_list())
-        for module in self.browse(ids):
+        for module in modules:
             if module.name not in graph:
                 continue
 
@@ -140,20 +146,22 @@ class Module(ModelSQL, ModelView):
                     childs.update(get_childs(c))
                 return childs
             dependencies.update(get_childs(module))
-            res += self.search([
-                ('name', 'in', list(dependencies)),
-                ])
-        return list({}.fromkeys(res))
+            ids |= set(x.id for x in cls.search([
+                        ('name', 'in', list(dependencies)),
+                        ]))
+        return list(ids)
 
-    def state_install(self, ids):
+    @classmethod
+    @ModelView.button
+    def install(cls, modules):
         graph, packages, later = create_graph(get_module_list())
-        for module in self.browse(ids):
+        for module in modules:
             if module.name not in graph:
                 missings = []
                 for package, deps, xdep, info in packages:
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
-                self.raise_user_error('missing_dep', (missings, module.name))
+                cls.raise_user_error('missing_dep', (missings, module.name))
 
             def get_parents(module):
                 parents = set(p.name for p in module.parents)
@@ -161,23 +169,25 @@ class Module(ModelSQL, ModelView):
                     parents.update(get_parents(p))
                 return parents
             dependencies = list(get_parents(module))
-            module_install_ids = self.search([
-                ('name', 'in', dependencies),
-                ('state', '=', 'uninstalled'),
-                ])
-            self.write(module_install_ids + [module.id], {
-                'state': 'to install',
-                })
+            modules_install = cls.search([
+                    ('name', 'in', dependencies),
+                    ('state', '=', 'uninstalled'),
+                    ])
+            cls.write(modules_install + [module], {
+                    'state': 'to install',
+                    })
 
-    def state_upgrade(self, ids):
+    @classmethod
+    @ModelView.button
+    def upgrade(cls, modules):
         graph, packages, later = create_graph(get_module_list())
-        for module in self.browse(ids):
+        for module in modules:
             if module.name not in graph:
                 missings = []
                 for package, deps, xdep, info in packages:
                     if package == module.name:
                         missings = [x for x in deps if x not in graph]
-                self.raise_user_error('missing_dep', (missings, module.name))
+                cls.raise_user_error('missing_dep', (missings, module.name))
 
             def get_childs(name, graph):
                 childs = set(x.name for x in graph[name].childs)
@@ -187,29 +197,26 @@ class Module(ModelSQL, ModelView):
                 childs.update(childs2)
                 return childs
             dependencies = list(get_childs(module.name, graph))
-            module_installed_ids = self.search([
-                ('name', 'in', dependencies),
-                ('state', '=', 'installed'),
-                ])
-            self.write(module_installed_ids + [module.id], {
-                'state': 'to upgrade',
+            modules_installed = cls.search([
+                    ('name', 'in', dependencies),
+                    ('state', '=', 'installed'),
+                    ])
+            cls.write(modules_installed + [module], {
+                    'state': 'to upgrade',
+                    })
+
+    @classmethod
+    @ModelView.button
+    def install_cancel(cls, modules):
+        cls.write(modules, {
+                'state': 'uninstalled',
                 })
 
+    @classmethod
     @ModelView.button
-    def install(self, ids):
-        return self.state_install(ids)
-
-    @ModelView.button
-    def install_cancel(self, ids):
-        self.write(ids, {
-            'state': 'uninstalled',
-            })
-        return True
-
-    @ModelView.button
-    def uninstall(self, ids):
+    def uninstall(cls, modules):
         cursor = Transaction().cursor
-        for module in self.browse(ids):
+        for module in modules:
             cursor.execute('SELECT m.state, m.name ' \
                     'FROM ir_module_module_dependency d ' \
                     'JOIN ir_module_module m on (d.module = m.id) ' \
@@ -219,33 +226,28 @@ class Module(ModelSQL, ModelView):
                             (module.name,))
             res = cursor.fetchall()
             if res:
-                self.raise_user_error('uninstall_dep',
+                cls.raise_user_error('uninstall_dep',
                         error_description='\n'.join(
                             '\t%s: %s' % (x[0], x[1]) for x in res))
-        self.write(ids, {'state': 'to remove'})
-        return True
+        cls.write(modules, {'state': 'to remove'})
 
+    @classmethod
     @ModelView.button
-    def uninstall_cancel(self, ids):
-        self.write(ids, {'state': 'installed'})
-        return True
+    def uninstall_cancel(cls, modules):
+        cls.write(modules, {'state': 'installed'})
 
+    @classmethod
     @ModelView.button
-    def upgrade(self, ids):
-        return self.state_upgrade(ids)
+    def upgrade_cancel(cls, modules):
+        cls.write(modules, {'state': 'installed'})
 
-    @ModelView.button
-    def upgrade_cancel(self, ids):
-        self.write(ids, {'state': 'installed'})
-        return True
-
-    # update the list of available packages
-    def update_list(self):
+    @classmethod
+    def update_list(cls):
+        'Update the list of available packages'
         count = 0
         module_names = get_module_list()
 
-        module_ids = self.search([])
-        modules = self.browse(module_ids)
+        modules = cls.search([])
         name2module = dict((m.name, m) for m in modules)
 
         # iterate through installed modules and mark them as being so
@@ -253,45 +255,42 @@ class Module(ModelSQL, ModelView):
             if name in name2module:
                 module = name2module[name]
                 tryton = get_module_info(name)
-                self._update_dependencies(module, tryton.get('depends', []))
+                cls._update_dependencies(module, tryton.get('depends', []))
                 continue
 
             tryton = get_module_info(name)
             if not tryton:
                 continue
-            module_id = self.create({
+            module = cls.create({
                     'name': name,
                     'state': 'uninstalled',
                     })
             count += 1
-            module = self.browse(module_id)
-            self._update_dependencies(module, tryton.get('depends', []))
+            cls._update_dependencies(module, tryton.get('depends', []))
         return count
 
-    def _update_dependencies(self, module, depends=None):
+    @classmethod
+    def _update_dependencies(cls, module, depends=None):
         pool = Pool()
-        dependency_obj = pool.get('ir.module.module.dependency')
-        dependency_obj.delete([x.id for x in module.dependencies
-                if x.name not in depends])
+        Dependency = pool.get('ir.module.module.dependency')
+        Dependency.delete([x for x in module.dependencies
+            if x.name not in depends])
         if depends is None:
             depends = []
         # Restart Browse Cache for deleted dependencies
-        module = self.browse(module.id)
+        module = cls(module.id)
         dependency_names = [x.name for x in module.dependencies]
         for depend in depends:
             if depend not in dependency_names:
-                dependency_obj.create({
+                Dependency.create({
                         'module': module.id,
                         'name': depend,
                         })
 
-Module()
-
 
 class ModuleDependency(ModelSQL, ModelView):
     "Module dependency"
-    _name = "ir.module.module.dependency"
-    _description = __doc__
+    __name__ = "ir.module.module.dependency"
     name = fields.Char('Name')
     module = fields.Many2One('ir.module.module', 'Module', select=True,
        ondelete='CASCADE', required=True)
@@ -304,34 +303,29 @@ class ModuleDependency(ModelSQL, ModelView):
                 ('unknown', 'Unknown'),
                 ], 'State', readonly=True), 'get_state')
 
-    def __init__(self):
-        super(ModuleDependency, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(ModuleDependency, cls).__setup__()
+        cls._sql_constraints += [
             ('name_module_uniq', 'UNIQUE(name, module)',
                 'Dependency must be unique by module!'),
         ]
 
-    def get_state(self, ids, name):
-        result = {}
+    def get_state(self, name):
         pool = Pool()
-        module_obj = pool.get('ir.module.module')
-        for dependency in self.browse(ids):
-            ids = module_obj.search([
-                ('name', '=', dependency.name),
+        Module = pool.get('ir.module.module')
+        dependencies = Module.search([
+                ('name', '=', self.name),
                 ])
-            if ids:
-                result[dependency.id] = module_obj.browse(ids[0]).state
-            else:
-                result[dependency.id] = 'unknown'
-        return result
-
-ModuleDependency()
+        if dependencies:
+            return dependencies[0].state
+        else:
+            return 'unknown'
 
 
 class ModuleConfigWizardItem(ModelSQL, ModelView):
     "Config wizard to run after installing module"
-    _name = 'ir.module.module.config_wizard.item'
-    _description = __doc__
+    __name__ = 'ir.module.module.config_wizard.item'
     _rec_name = 'action'
     action = fields.Many2One('ir.action', 'Action', required=True,
         readonly=True)
@@ -341,57 +335,54 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
         ('done', 'Done'),
         ], string='State', required=True, select=True)
 
-    def __init__(self):
-        super(ModuleConfigWizardItem, self).__init__()
-        self._order.insert(0, ('sequence', 'ASC'))
+    @classmethod
+    def __setup__(cls):
+        super(ModuleConfigWizardItem, cls).__setup__()
+        cls._order.insert(0, ('sequence', 'ASC'))
 
-    def init(self, module_name):
-        table = TableHandler(Transaction().cursor, self, module_name)
+    @classmethod
+    def __register__(cls, module_name):
+        table = TableHandler(Transaction().cursor, cls, module_name)
 
         # Migrate from 2.2 remove name
         table.drop_column('name')
 
-        super(ModuleConfigWizardItem, self).init(module_name)
+        super(ModuleConfigWizardItem, cls).__register__(module_name)
 
-    def default_state(self):
+    @staticmethod
+    def default_state():
         return 'open'
 
-    def default_sequence(self):
+    @staticmethod
+    def default_sequence():
         return 10
-
-ModuleConfigWizardItem()
 
 
 class ModuleConfigWizardFirst(ModelView):
     'Module Config Wizard First'
-    _name = 'ir.module.module.config_wizard.first'
-    _description = __doc__
-
-ModuleConfigWizardFirst()
+    __name__ = 'ir.module.module.config_wizard.first'
 
 
 class ModuleConfigWizardOther(ModelView):
     'Module Config Wizard Other'
-    _name = 'ir.module.module.config_wizard.other'
-    _description = __doc__
+    __name__ = 'ir.module.module.config_wizard.other'
 
     percentage = fields.Float('Percentage', readonly=True)
 
-    def default_percentage(self):
+    @staticmethod
+    def default_percentage():
         pool = Pool()
-        item_obj = pool.get('ir.module.module.config_wizard.item')
-        done = item_obj.search([
+        Item = pool.get('ir.module.module.config_wizard.item')
+        done = Item.search([
             ('state', '=', 'done'),
             ], count=True)
-        all = item_obj.search([], count=True)
+        all = Item.search([], count=True)
         return 100.0 * done / all
-
-ModuleConfigWizardOther()
 
 
 class ModuleConfigWizard(Wizard):
     'Run config wizards'
-    _name = 'ir.module.module.config_wizard'
+    __name__ = 'ir.module.module.config_wizard'
 
     class ConfigStateAction(StateAction):
 
@@ -400,18 +391,18 @@ class ModuleConfigWizard(Wizard):
 
         def get_action(self):
             pool = Pool()
-            item_obj = pool.get('ir.module.module.config_wizard.item')
-            action_obj = pool.get('ir.action')
-            item_ids = item_obj.search([
+            Item = pool.get('ir.module.module.config_wizard.item')
+            Action = pool.get('ir.action')
+            items = Item.search([
                 ('state', '=', 'open'),
                 ], limit=1)
-            if item_ids:
-                item = item_obj.browse(item_ids[0])
-                item_obj.write(item.id, {
-                    'state': 'done',
-                    })
-                return action_obj.get_action_values(item.action.type,
-                    item.action.id)
+            if items:
+                item = items[0]
+                Item.write([item], {
+                        'state': 'done',
+                        })
+                return Action.get_action_values(item.action.type,
+                    [item.action.id])[0]
 
     start = StateTransition()
     first = StateView('ir.module.module.config_wizard.first',
@@ -426,45 +417,37 @@ class ModuleConfigWizard(Wizard):
             ])
     action = ConfigStateAction()
 
-    def transition_start(self, session):
-        res = self.transition_action(session)
+    def transition_start(self):
+        res = self.transition_action()
         if res == 'other':
             return 'first'
         return res
 
-    def transition_action(self, session):
+    def transition_action(self):
         pool = Pool()
-        item_obj = pool.get('ir.module.module.config_wizard.item')
-        item_ids = item_obj.search([
-            ('state', '=', 'open'),
-            ])
-        if item_ids:
+        Item = pool.get('ir.module.module.config_wizard.item')
+        items = Item.search([
+                ('state', '=', 'open'),
+                ])
+        if items:
             return 'other'
         return 'end'
-
-ModuleConfigWizard()
 
 
 class ModuleInstallUpgradeStart(ModelView):
     'Module Install Upgrade Start'
-    _name = 'ir.module.module.install_upgrade.start'
-    _description = __doc__
+    __name__ = 'ir.module.module.install_upgrade.start'
     module_info = fields.Text('Modules to update', readonly=True)
-
-ModuleInstallUpgradeStart()
 
 
 class ModuleInstallUpgradeDone(ModelView):
     'Module Install Upgrade Done'
-    _name = 'ir.module.module.install_upgrade.done'
-    _description = __doc__
-
-ModuleInstallUpgradeDone()
+    __name__ = 'ir.module.module.install_upgrade.done'
 
 
 class ModuleInstallUpgrade(Wizard):
     "Install / Upgrade modules"
-    _name = 'ir.module.module.install_upgrade'
+    __name__ = 'ir.module.module.install_upgrade'
 
     start = StateView('ir.module.module.install_upgrade.start',
         'ir.module_install_upgrade_start_view_form', [
@@ -478,49 +461,52 @@ class ModuleInstallUpgrade(Wizard):
             ])
     config = StateAction('ir.act_module_config_wizard')
 
-    def default_start(self, session, fields):
+    @staticmethod
+    def default_start(fields):
         pool = Pool()
-        module_obj = pool.get('ir.module.module')
-        module_ids = module_obj.search([
-            ('state', 'in', ['to upgrade', 'to remove', 'to install']),
-            ])
-        modules = module_obj.browse(module_ids)
-        return {
-            'module_info': '\n'.join(x.name + ': ' + x.state \
-                    for x in modules),
-        }
-
-    def transition_upgrade(self, session):
-        pool = Pool()
-        module_obj = pool.get('ir.module.module')
-        lang_obj = pool.get('ir.lang')
-        with Transaction().new_cursor() as transaction:
-            module_ids = module_obj.search([
+        Module = pool.get('ir.module.module')
+        modules = Module.search([
                 ('state', 'in', ['to upgrade', 'to remove', 'to install']),
                 ])
-            lang_ids = lang_obj.search([
+        return {
+            'module_info': '\n'.join(x.name + ': ' + x.state \
+                for x in modules),
+            }
+
+    def transition_upgrade(self):
+        pool = Pool()
+        Module = pool.get('ir.module.module')
+        Lang = pool.get('ir.lang')
+        Session = pool.get('ir.session.wizard')
+        with Transaction().new_cursor() as transaction:
+            modules = Module.search([
+                ('state', 'in', ['to upgrade', 'to remove', 'to install']),
+                ])
+            langs = Lang.search([
                 ('translatable', '=', True),
                 ])
-            lang = [x.code for x in lang_obj.browse(lang_ids)]
+            lang = [x.code for x in langs]
             transaction.cursor.commit()
-        if module_ids:
+        if modules:
             pool.init(update=True, lang=lang)
-        if session:
-            # Don't store session to prevent concurrent update
-            for state_name in session.data:
-                getattr(session, state_name).dirty = False
+        # Don't store session to prevent concurrent update
+        session = Session(self._session_id)
+        data = json.loads(session.data.encode('utf-8'),
+            object_hook=object_hook)
+        for state_name, state in self.states.iteritems():
+            if isinstance(state, StateView):
+                Target = pool.get(state.model_name)
+                data.setdefault(state_name, {})
+                setattr(self, state_name, Target(*data[state_name]))
         return 'done'
-
-ModuleInstallUpgrade()
 
 
 class ModuleConfig(Wizard):
     'Configure Modules'
-    _name = 'ir.module.module.config'
+    __name__ = 'ir.module.module.config'
 
     start = StateAction('ir.act_module_form')
 
-    def transition_start(self, session):
+    @staticmethod
+    def transition_start():
         return 'end'
-
-ModuleConfig()

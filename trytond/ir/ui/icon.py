@@ -6,12 +6,16 @@ import os
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import file_open
 from trytond.transaction import Transaction
+from trytond.rpc import RPC
+
+__all__ = [
+    'Icon',
+    ]
 
 
 class Icon(ModelSQL, ModelView):
     'Icon'
-    _name = 'ir.ui.icon'
-    _description = __doc__
+    __name__ = 'ir.ui.icon'
 
     name = fields.Char('Name', required=True, select=True)
     module = fields.Char('Module', readonly=True, required=True)
@@ -19,33 +23,32 @@ class Icon(ModelSQL, ModelView):
     icon = fields.Function(fields.Char('Icon', depends=['path']), 'get_icon')
     sequence = fields.Integer('Sequence', required=True)
 
-    def __init__(self):
-        super(Icon, self).__init__()
-        self._order.insert(0, ('sequence', 'ASC'))
-        self._rpc.update({
-            'list_icons': False,
-        })
+    @classmethod
+    def __setup__(cls):
+        super(Icon, cls).__setup__()
+        cls._order.insert(0, ('sequence', 'ASC'))
+        cls.__rpc__.update({
+                'list_icons': RPC(),
+                })
 
-    def default_module(self):
+    @staticmethod
+    def default_module():
         return Transaction().context.get('module') or ''
 
-    def default_sequence(self):
+    @staticmethod
+    def default_sequence():
         return 10
 
-    def list_icons(self):
+    @classmethod
+    def list_icons(cls):
         icons = {}
-        for icon in self.browse(self.search([],
+        for icon in cls.browse(cls.search([],
                 order=[('sequence', 'ASC'), ('id', 'ASC')])):
             if icon.name not in icons:
                 icons[icon.name] = icon.id
         return sorted((icon_id, name) for name, icon_id in icons.iteritems())
 
-    def get_icon(self, ids, name):
-        result = {}
-        for icon in self.browse(ids):
-            path = os.path.join(icon.module, icon.path.replace('/', os.sep))
-            with file_open(path, subdir='modules') as fp:
-                result[icon.id] = fp.read()
-        return result
-
-Icon()
+    def get_icon(self, name):
+        path = os.path.join(self.module, self.path.replace('/', os.sep))
+        with file_open(path, subdir='modules') as fp:
+            return fp.read()

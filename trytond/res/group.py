@@ -4,22 +4,26 @@
 from itertools import chain
 from ..model import ModelView, ModelSQL, fields
 from ..transaction import Transaction
-from ..pool import Pool
+from ..pool import Pool, PoolMeta
+
+__all__ = [
+    'Group', 'Group2',
+    ]
 
 
 class MenuMany2Many(fields.Many2Many):
 
     def get(self, ids, model, name, values=None):
-        menu_obj = self.get_target()
+        Menu = self.get_target()
         res = super(MenuMany2Many, self).get(ids, model, name,
                 values=values)
         menu_ids = list(set(chain(*res.values())))
         test_ids = []
         for i in range(0, len(menu_ids), Transaction().cursor.IN_MAX):
             sub_ids = menu_ids[i:i + Transaction().cursor.IN_MAX]
-            test_ids.append(menu_obj.search([
-                ('id', 'in', sub_ids),
-                ]))
+            test_ids.append(map(int, Menu.search([
+                            ('id', 'in', sub_ids),
+                            ])))
         menu_ids = set(chain(*test_ids))
         for ids in res.itervalues():
             for id_ in ids[:]:
@@ -30,8 +34,7 @@ class MenuMany2Many(fields.Many2Many):
 
 class Group(ModelSQL, ModelView):
     "Group"
-    _name = "res.group"
-    _description = __doc__
+    __name__ = "res.group"
     name = fields.Char('Name', required=True, select=True, translate=True)
     model_access = fields.One2Many('ir.model.access', 'group',
        'Access Model')
@@ -43,67 +46,68 @@ class Group(ModelSQL, ModelView):
     menu_access = MenuMany2Many('ir.ui.menu-res.group',
        'group', 'menu', 'Access Menu')
 
-    def __init__(self):
-        super(Group, self).__init__()
-        self._sql_constraints += [
+    @classmethod
+    def __setup__(cls):
+        super(Group, cls).__setup__()
+        cls._sql_constraints += [
             ('name_uniq', 'unique (name)',
                 'The name of the group must be unique!')
         ]
 
-    def copy(self, ids, default=None):
-        int_id = isinstance(ids, (int, long))
-        if int_id:
-            ids = [ids]
-
+    @classmethod
+    def copy(cls, groups, default=None):
         if default is None:
             default = {}
         default = default.copy()
 
-        new_ids = []
-        for group in self.browse(ids):
+        new_groups = []
+        for group in groups:
             i = 1
             while True:
                 name = '%s (%d)' % (group.name, i)
-                if not self.search([('name', '=', name)], order=[]):
+                if not cls.search([('name', '=', name)], order=[]):
                     break
                 i += 1
             default['name'] = name
-            new_ids.append(super(Group, self).copy(group.id, default=default))
-        if int_id:
-            return new_ids[0]
-        return new_ids
+            new_groups.extend(super(Group, cls).copy([group], default=default))
+        return new_groups
 
-    def create(self, vals):
-        res = super(Group, self).create(vals)
+    @classmethod
+    def create(cls, vals):
+        res = super(Group, cls).create(vals)
         pool = Pool()
         # Restart the cache on the domain_get method
-        pool.get('ir.rule').domain_get.reset()
+        pool.get('ir.rule')._domain_get_cache.clear()
         # Restart the cache for get_groups
-        pool.get('res.user').get_groups.reset()
+        pool.get('res.user')._get_groups_cache.clear()
         # Restart the cache for get_preferences
-        pool.get('res.user').get_preferences.reset()
+        pool.get('res.user')._get_preferences_cache.clear()
         return res
 
-    def write(self, ids, vals):
-        res = super(Group, self).write(ids, vals)
+    @classmethod
+    def write(cls, groups, vals):
+        super(Group, cls).write(groups, vals)
         pool = Pool()
         # Restart the cache on the domain_get method
-        pool.get('ir.rule').domain_get.reset()
+        pool.get('ir.rule')._domain_get_cache.clear()
         # Restart the cache for get_groups
-        pool.get('res.user').get_groups.reset()
+        pool.get('res.user')._get_groups_cache.clear()
         # Restart the cache for get_preferences
-        pool.get('res.user').get_preferences.reset()
-        return res
+        pool.get('res.user')._get_preferences_cache.clear()
 
-    def delete(self, ids):
-        res = super(Group, self).delete(ids)
+    @classmethod
+    def delete(cls, groups):
+        super(Group, cls).delete(groups)
         pool = Pool()
         # Restart the cache on the domain_get method
-        pool.get('ir.rule').domain_get.reset()
+        pool.get('ir.rule')._domain_get_cache.clear()
         # Restart the cache for get_groups
-        pool.get('res.user').get_groups.reset()
+        pool.get('res.user')._get_groups_cache.clear()
         # Restart the cache for get_preferences
-        pool.get('res.user').get_preferences.reset()
-        return res
+        pool.get('res.user')._get_preferences_cache.clear()
 
-Group()
+
+class Group2:
+    __metaclass__ = PoolMeta
+    __name__ = "res.group"
+    users = fields.Many2Many('res.user-res.group', 'group', 'user', 'Users')

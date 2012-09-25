@@ -76,19 +76,13 @@ class One2Many(Field):
     def get(self, ids, model, name, values=None):
         '''
         Return target records ordered.
-
-        :param ids: a list of ids
-        :param model: the model
-        :param name: a string with the name of the field
-        :param values: a dictionary with the read values
-        :return: a dictionary with ids as key and values as value
         '''
         pool = Pool()
-        relation_obj = pool.get(self.model_name)
-        if self.field in relation_obj._columns:
-            field = relation_obj._columns[self.field]
+        Relation = pool.get(self.model_name)
+        if self.field in Relation._fields:
+            field = Relation._fields[self.field]
         else:
-            field = relation_obj._inherit_fields[self.field][2]
+            field = Relation._inherit_fields[self.field][2]
         res = {}
         for i in ids:
             res[i] = []
@@ -96,11 +90,11 @@ class One2Many(Field):
         for i in range(0, len(ids), Transaction().cursor.IN_MAX):
             sub_ids = ids[i:i + Transaction().cursor.IN_MAX]
             if field._type == 'reference':
-                references = ['%s,%s' % (model._name, x) for x in sub_ids]
+                references = ['%s,%s' % (model.__name__, x) for x in sub_ids]
                 clause = [(self.field, 'in', references)]
             else:
                 clause = [(self.field, 'in', sub_ids)]
-            ids2.append(relation_obj.search(clause, order=self.order))
+            ids2.append(map(int, Relation.search(clause, order=self.order)))
 
         cache = Transaction().cursor.get_cache(Transaction().context)
         cache.setdefault(self.model_name, {})
@@ -118,7 +112,7 @@ class One2Many(Field):
                 ids3.append(i)
 
         if ids3:
-            for i in relation_obj.read(ids3, [self.field]):
+            for i in Relation.read(ids3, [self.field]):
                 if field._type == 'reference':
                     _, id_ = i[self.field].split(',')
                     id_ = int(id_)
@@ -128,18 +122,14 @@ class One2Many(Field):
 
         index_of_ids2 = dict((i, index)
             for index, i in enumerate(chain(*ids2)))
-        for val in res.values():
-            val.sort(key=lambda x: index_of_ids2[x])
+        for id_, val in res.iteritems():
+            res[id_] = tuple(sorted(val, key=lambda x: index_of_ids2[x]))
         return res
 
     def set(self, ids, model, name, values):
         '''
         Set the values.
-
-        :param ids: A list of ids
-        :param model: the model
-        :param name: A string with the name of the field
-        :param values: A list of tuples:
+        values: A list of tuples:
             (``create``, ``{<field name>: value}``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),
@@ -149,25 +139,24 @@ class One2Many(Field):
             (``unlink_all``),
             (``set``, ``<ids>``)
         '''
-        pool = Pool()
         if not values:
             return
-        target_obj = pool.get(self.model_name)
-        if self.field in target_obj._columns:
-            field = target_obj._columns[self.field]
+        Target = self.get_target()
+        if self.field in Target._fields:
+            field = Target._fields[self.field]
         else:
-            field = target_obj._inherit_fields[self.field][2]
+            field = Target._inherit_fields[self.field][2]
 
         def search_clause(ids):
             if field._type == 'reference':
-                references = ['%s,%s' % (model._name, x) for x in ids]
+                references = ['%s,%s' % (model.__name__, x) for x in ids]
                 return (self.field, 'in', references)
             else:
                 return (self.field, 'in', ids)
 
         def field_value(record_id):
             if field._type == 'reference':
-                return '%s,%s' % (model._name, record_id)
+                return '%s,%s' % (model.__name__, record_id)
             else:
                 return record_id
 
@@ -175,63 +164,75 @@ class One2Many(Field):
             if act[0] == 'create':
                 for record_id in ids:
                     act[1][self.field] = field_value(record_id)
-                    target_obj.create(act[1])
+                    Target.create(act[1])
             elif act[0] == 'write':
-                target_obj.write(act[1], act[2])
+                Target.write(Target.browse(act[1]), act[2])
             elif act[0] == 'delete':
-                target_obj.delete(act[1])
+                Target.delete(Target.browse(act[1]))
             elif act[0] == 'delete_all':
-                target_obj.delete(target_obj.search([
-                            search_clause(ids),
-                            ]))
+                targets = Target.search([
+                        search_clause(ids),
+                        ])
+                Target.delete(targets)
             elif act[0] == 'unlink':
-                if isinstance(act[1], (int, long)):
-                    target_ids = [act[1]]
-                else:
-                    target_ids = list(act[1])
+                target_ids = map(int, act[1])
                 if not target_ids:
                     continue
-                target_ids = target_obj.search([
+                targets = Target.search([
                         search_clause(ids),
                         ('id', 'in', target_ids),
                         ])
-                target_obj.write(target_ids, {
+                Target.write(targets, {
                         self.field: None,
                         })
             elif act[0] == 'add':
-                if isinstance(act[1], (int, long)):
-                    target_ids = [act[1]]
-                else:
-                    target_ids = list(act[1])
+                target_ids = map(int, act[1])
                 if not target_ids:
                     continue
                 for record_id in ids:
-                    target_obj.write(target_ids, {
+                    Target.write(Target.browse(target_ids), {
                             self.field: field_value(record_id),
                             })
             elif act[0] == 'unlink_all':
-                target_ids = target_obj.search([
+                targets = Target.search([
                         search_clause(ids),
                         ])
-                target_obj.write(target_ids, {
+                Target.write(targets, {
                         self.field: None,
                         })
             elif act[0] == 'set':
                 if not act[1]:
-                    target_ids = [0]
+                    target_ids = [-1]
                 else:
-                    target_ids = list(act[1])
+                    target_ids = map(int, act[1])
                 for record_id in ids:
-                    target_ids2 = target_obj.search([
+                    targets = Target.search([
                             search_clause([record_id]),
                             ('id', 'not in', target_ids),
                             ])
-                    target_obj.write(target_ids2, {
+                    Target.write(targets, {
                             self.field: None,
                             })
                     if act[1]:
-                        target_obj.write(target_ids, {
+                        Target.write(Target.browse(target_ids), {
                                 self.field: field_value(record_id),
                                 })
             else:
                 raise Exception('Bad arguments')
+
+    def get_target(self):
+        'Return the target Model'
+        return Pool().get(self.model_name)
+
+    def __set__(self, inst, value):
+        Target = self.get_target()
+
+        def instance(data):
+            if isinstance(data, Target):
+                return data
+            elif isinstance(data, dict):
+                return Target(**data)
+            else:
+                return Target(data)
+        value = [instance(x) for x in (value or [])]
+        super(One2Many, self).__set__(inst, value)

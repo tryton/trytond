@@ -2,12 +2,13 @@
 #this repository contains the full copyright notices and license terms.
 from ..model import ModelSQL, fields
 
+__all__ = [
+    'Cache',
+    ]
+
 
 class Cache(ModelSQL):
     "Cache"
-    _name = 'ir.cache'
-    _description = __doc__
+    __name__ = 'ir.cache'
     name = fields.Char('Name', required=True)
     timestamp = fields.DateTime('Timestamp')
-
-Cache()

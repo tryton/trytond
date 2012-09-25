@@ -24,8 +24,9 @@ class TableHandler(TableHandlerInterface):
         if not self.table_exist(self.cursor, self.table_name):
             self.cursor.execute('CREATE TABLE "%s" ()' % self.table_name)
 
-        self.cursor.execute('COMMENT ON TABLE "%s" IS \'%s\'' %
-                (self.table_name, model._description.replace("'", "''")))
+        if model.__doc__:
+            self.cursor.execute('COMMENT ON TABLE "%s" IS \'%s\'' %
+                (self.table_name, model.__doc__.replace("'", "''")))
 
         self._update_definitions()
         if 'id' not in self._columns:

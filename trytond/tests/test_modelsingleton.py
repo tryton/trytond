@@ -24,7 +24,7 @@ class ModelSingletonTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            singleton = self.singleton.read(1, ['name'])
+            singleton, = self.singleton.read([1], ['name'])
             self.assert_(singleton['name'] == 'test')
             self.assert_(singleton['id'] == 1)
 
@@ -32,7 +32,7 @@ class ModelSingletonTestCase(unittest.TestCase):
             self.assert_(singleton['name'] == 'test')
             self.assert_(singleton['id'] == 1)
 
-            singleton = self.singleton.read(1, [
+            singleton, = self.singleton.read([1], [
                 'create_uid',
                 'create_date',
                 'write_uid',
@@ -51,20 +51,17 @@ class ModelSingletonTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            singleton_id = self.singleton.create({'name': 'bar'})
-            self.assert_(singleton_id)
+            singleton = self.singleton.create({'name': 'bar'})
+            self.assert_(singleton)
+            self.assertEqual(singleton.name, 'bar')
 
-            singleton = self.singleton.read(singleton_id, ['name'])
-            self.assert_(singleton['name'] == 'bar')
+            singleton2 = self.singleton.create({'name': 'foo'})
+            self.assertEqual(singleton2, singleton)
 
-            singleton2_id = self.singleton.create({'name': 'foo'})
-            self.assert_(singleton2_id == singleton_id)
+            self.assertEqual(singleton.name, 'foo')
 
-            singleton = self.singleton.read(singleton_id, ['name'])
-            self.assert_(singleton['name'] == 'foo')
-
-            singleton_ids = self.singleton.search([])
-            self.assert_(len(singleton_ids) == 1)
+            singletons = self.singleton.search([])
+            self.assertEqual(singletons, [singleton])
 
             transaction.cursor.rollback()
 
@@ -74,19 +71,19 @@ class ModelSingletonTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            singleton_id = self.singleton.search([])[0]
+            singleton, = self.singleton.search([])
 
-            singleton2_id = self.singleton.copy(singleton_id)
-            self.assert_(singleton2_id == singleton_id)
+            singleton2, = self.singleton.copy([singleton])
+            self.assertEqual(singleton2, singleton)
 
-            singleton_ids = self.singleton.search([])
-            self.assert_(len(singleton_ids) == 1)
+            singletons = self.singleton.search([])
+            self.assertEqual(singletons, [singleton])
 
-            singleton3_id = self.singleton.copy(singleton_id, {'name': 'bar'})
-            self.assert_(singleton3_id == singleton_id)
+            singleton3, = self.singleton.copy([singleton], {'name': 'bar'})
+            self.assertEqual(singleton3, singleton)
 
-            singleton_ids = self.singleton.search([])
-            self.assert_(len(singleton_ids) == 1)
+            singletons = self.singleton.search([])
+            self.assertEqual(singletons, [singleton])
 
             transaction.cursor.rollback()
 
@@ -97,26 +94,26 @@ class ModelSingletonTestCase(unittest.TestCase):
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             default = self.singleton.default_get(['name'])
-            self.assert_(default == {'name': 'test'})
+            self.assertEqual(default, {'name': 'test'})
 
             default = self.singleton.default_get(['create_uid'])
-            self.assert_(len(default) == 2)
+            self.assertEqual(len(default), 2)
 
             default = self.singleton.default_get(['create_uid'],
                     with_rec_name=False)
-            self.assert_(len(default) == 1)
+            self.assertEqual(len(default), 1)
 
             self.singleton.create({'name': 'bar'})
 
             default = self.singleton.default_get(['name'])
-            self.assert_(default == {'name': 'bar'})
+            self.assertEqual(default, {'name': 'bar'})
 
             default = self.singleton.default_get(['create_uid'])
-            self.assert_(len(default) == 2)
+            self.assertEqual(len(default), 2)
 
             default = self.singleton.default_get(['create_uid'],
                     with_rec_name=False)
-            self.assert_(len(default) == 1)
+            self.assertEqual(len(default), 1)
 
             transaction.cursor.rollback()
 
@@ -126,14 +123,14 @@ class ModelSingletonTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            singleton_ids = self.singleton.search([])
-            self.assert_(singleton_ids == [1])
+            singletons = self.singleton.search([])
+            self.assertEqual(map(int, singletons), [1])
 
-            singleton_ids = self.singleton.search([])
-            self.assert_(singleton_ids == [1])
+            singletons = self.singleton.search([])
+            self.assertEqual(map(int, singletons), [1])
 
-            singleton_ids = self.singleton.search([], count=True)
-            self.assert_(singleton_ids == 1)
+            count = self.singleton.search([], count=True)
+            self.assertEqual(count, 1)
 
             transaction.cursor.rollback()
 
