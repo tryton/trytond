@@ -2,20 +2,21 @@
 #this repository contains the full copyright notices and license terms.
 from trytond.model import ModelSQL, fields
 
+__all__ = [
+    'Triggered',
+    ]
+
 TRIGGER_LOGS = []
 
 
 class Triggered(ModelSQL):
     'Triggered'
-    _name = 'test.triggered'
-    _description = __doc__
-
+    __name__ = 'test.triggered'
     name = fields.Char('Name')
 
-    def trigger(self, ids, trigger_id):
+    @staticmethod
+    def trigger(records, trigger):
         '''
         Trigger function for test
         '''
-        TRIGGER_LOGS.append((ids, trigger_id))
-
-Triggered()
+        TRIGGER_LOGS.append((records, trigger))

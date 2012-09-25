@@ -7,7 +7,8 @@ from trytond.exceptions import UserError, UserWarning
 
 class WarningErrorMixin(object):
 
-    def raise_user_error(self, error, error_args=None,
+    @classmethod
+    def raise_user_error(cls, error, error_args=None,
             error_description='', error_description_args=None,
             raise_exception=True):
         '''
@@ -26,14 +27,14 @@ class WarningErrorMixin(object):
             (or tuple if error_description is not empty) instead of raising an
             exception.
         '''
-        translation_obj = Pool().get('ir.translation')
+        Translation = Pool().get('ir.translation')
 
-        error = self._error_messages.get(error, error)
+        error = cls._error_messages.get(error, error)
 
         language = Transaction().language
-        res = translation_obj.get_source(self._name, 'error', language, error)
+        res = Translation.get_source(cls.__name__, 'error', language, error)
         if not res:
-            res = translation_obj.get_source(error, 'error', language)
+            res = Translation.get_source(error, 'error', language)
         if res:
             error = res
 
@@ -44,13 +45,13 @@ class WarningErrorMixin(object):
                 pass
 
         if error_description:
-            error_description = self._error_messages.get(error_description,
+            error_description = cls._error_messages.get(error_description,
                     error_description)
 
-            res = translation_obj.get_source(self._name, 'error', language,
-                    error_description)
+            res = Translation.get_source(cls.__name__, 'error', language,
+                error_description)
             if not res:
-                res = translation_obj.get_source(error_description, 'error',
+                res = Translation.get_source(error_description, 'error',
                     language)
             if res:
                 error_description = res
@@ -70,7 +71,8 @@ class WarningErrorMixin(object):
         else:
             return error
 
-    def raise_user_warning(self, warning_name, warning,
+    @classmethod
+    def raise_user_warning(cls, warning_name, warning,
             warning_args=None, warning_description='',
             warning_description_args=None):
         '''
@@ -87,16 +89,16 @@ class WarningErrorMixin(object):
         :param warning_description_args: the arguments that will be used
             for "%"-based substitution
         '''
-        warning_obj = Pool().get('res.user.warning')
-        if warning_obj.check(warning_name):
+        Warning_ = Pool().get('res.user.warning')
+        if Warning_.check(warning_name):
             if warning_description:
-                warning, warning_description = self.raise_user_error(warning,
+                warning, warning_description = cls.raise_user_error(warning,
                         error_args=warning_args,
                         error_description=warning_description,
                         error_description_args=warning_description_args,
                         raise_exception=False)
                 raise UserWarning(warning_name, warning, warning_description)
             else:
-                warning = self.raise_user_error(warning,
+                warning = cls.raise_user_error(warning,
                         error_args=warning_args, raise_exception=False)
                 raise UserWarning(warning_name, warning)

@@ -547,8 +547,8 @@ class Id(PYSON):
 
     def pyson(self):
         from trytond.pool import Pool
-        model_data_obj = Pool().get('ir.model.data')
-        return model_data_obj.get_id(self._module, self._fs_id)
+        ModelData = Pool().get('ir.model.data')
+        return ModelData.get_id(self._module, self._fs_id)
 
     def types(self):
         return set([int])

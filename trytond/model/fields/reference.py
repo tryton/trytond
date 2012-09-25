@@ -1,6 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import contextlib
+from types import NoneType
+
 from trytond.model.fields.field import Field
 from trytond.transaction import Transaction
 from trytond.pool import Pool
@@ -32,13 +34,7 @@ class Reference(Field):
 
     def get(self, ids, model, name, values=None):
         '''
-        Replace removed reference id by False.
-
-        :param ids: a list of ids
-        :param model: a string with the name of the model
-        :param name: a string with the name of the field
-        :param values: a dictionary with the read values
-        :return: a dictionary with ids as key and values as value
+        Replace removed reference id by None.
         '''
         pool = Pool()
         if values is None:
@@ -71,15 +67,28 @@ class Reference(Field):
         with contextlib.nested(Transaction().set_context(active_test=False),
                 Transaction().set_user(0)):
             for ref_model, (ref_ids, ids) in ref_to_check.iteritems():
-                if ref_model not in pool.object_name_list():
-                    res.update(dict((i, False) for i in ids))
+                try:
+                    pool.get(ref_model)
+                except KeyError:
+                    res.update(dict((i, None) for i in ids))
                     continue
-                ref_obj = pool.get(ref_model)
-                ref_ids = ref_obj.search([
+                Ref = pool.get(ref_model)
+                refs = Ref.search([
                     ('id', 'in', list(ref_ids)),
                     ], order=[])
-                refs = [ref_model + ',' + str(ref_id) for ref_id in ref_ids]
+                refs = map(str, refs)
                 for i in ids:
                     if res[i] not in refs:
-                        res[i] = False
+                        res[i] = None
         return res
+
+    def __set__(self, inst, value):
+        from ..model import Model
+        if not isinstance(value, (Model, NoneType)):
+            if isinstance(value, basestring):
+                target, id_ = value.split(',')
+            else:
+                target, id_ = value
+            Target = Pool().get(target)
+            value = Target(id_)
+        super(Reference, self).__set__(inst, value)

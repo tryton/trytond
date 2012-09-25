@@ -1,6 +1,8 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from types import NoneType
 
+from trytond.model.fields.field import Field
 from trytond.model.fields.many2many import Many2Many
 from trytond.pool import Pool
 
@@ -36,14 +38,23 @@ class One2One(Many2Many):
         :param value: The id to link
         '''
         pool = Pool()
-        relation_obj = pool.get(self.relation_name)
-        relation_ids = relation_obj.search([
-            (self.origin, 'in', ids),
-            ])
-        relation_obj.delete(relation_ids)
+        Relation = pool.get(self.relation_name)
+        relations = Relation.search([
+                (self.origin, 'in', ids),
+                ])
+        Relation.delete(relations)
         if value:
             for record_id in ids:
-                relation_obj.create({
-                    self.origin: record_id,
-                    self.target: value,
-                    })
+                Relation.create({
+                        self.origin: record_id,
+                        self.target: value,
+                        })
+
+    def __set__(self, inst, value):
+        Target = self.get_target()
+        if isinstance(value, dict):
+            value = Target(*value)
+        elif isinstance(value, (int, long)):
+            value = Target(value)
+        assert isinstance(value, (Target, NoneType))
+        Field.__set__(self, inst, value)

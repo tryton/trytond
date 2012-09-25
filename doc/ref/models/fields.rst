@@ -146,6 +146,13 @@ field*.
 
 Define how the field must be loaded: ``lazy`` or ``eager``.
 
+``name``
+--------
+
+.. attribute:: Field.name
+
+The name of the field.
+
 Default value
 =============
 

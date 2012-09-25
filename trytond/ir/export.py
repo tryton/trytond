@@ -3,25 +3,23 @@
 "Exports"
 from ..model import ModelView, ModelSQL, fields
 
+__all__ = [
+    'Export', 'ExportLine',
+    ]
+
 
 class Export(ModelSQL, ModelView):
     "Export"
-    _name = "ir.export"
-    _description = __doc__
+    __name__ = "ir.export"
     name = fields.Char('Name')
     resource = fields.Char('Resource')
     export_fields = fields.One2Many('ir.export.line', 'export',
        'Fields')
 
-Export()
-
 
 class ExportLine(ModelSQL, ModelView):
     "Export line"
-    _name = 'ir.export.line'
-    _description = __doc__
+    __name__ = 'ir.export.line'
     name = fields.Char('Name')
     export = fields.Many2One('ir.export', 'Export',
        select=True)
-
-ExportLine()

@@ -4,7 +4,6 @@ import unittest
 from trytond.tests.test_tryton import (POOL, DB_NAME, USER, CONTEXT,
     install_module)
 from trytond.transaction import Transaction
-from trytond.wizard import Session
 
 
 class WizardTestCase(unittest.TestCase):
@@ -13,6 +12,7 @@ class WizardTestCase(unittest.TestCase):
         install_module('test')
         self.wizard = POOL.get('test.test_wizard', type='wizard')
         self.session = POOL.get('ir.session.wizard')
+        self.group = POOL.get('res.group')
 
     def test0010create(self):
         'Create Session Wizard'
@@ -32,17 +32,27 @@ class WizardTestCase(unittest.TestCase):
         'Session Wizard'
         with Transaction().start(DB_NAME, USER, CONTEXT):
             session_id = self.session.create({})
-            session = Session(self.wizard, session_id)
-            self.assertEqual(session.start.name, None)
+            session = self.wizard(session_id)
+            self.assertEqual(session.start.id, None)
+            self.assertRaises(AttributeError, getattr, session.start, 'name')
+            self.assertEqual(hasattr(session.start, 'name'), False)
             session.start.name = 'Test'
-            self.assertEqual(session.start.user.id, None)
+            self.assertRaises(AttributeError, getattr, session.start, 'user')
+            self.assertEqual(hasattr(session.start, 'user'), False)
             session.start.user = USER
+            group_a = self.group.create({
+                    'name': 'Group A',
+                    })
+            group_b = self.group.create({
+                    'name': 'Group B',
+                    })
             session.start.groups = [
-                {'name': 'Group A'},
-                {'name': 'Group B'},
+                group_a,
+                group_b,
                 ]
-            session.save()
-            session = Session(self.wizard, session_id)
+            session._save()
+            session = self.wizard(session_id)
+            self.assertEqual(session.start.id, None)
             self.assertEqual(session.start.name, 'Test')
             self.assertEqual(session.start.user.id, USER)
             self.assertEqual(session.start.user.login, 'admin')
