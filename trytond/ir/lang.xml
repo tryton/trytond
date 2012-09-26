@@ -92,47 +92,12 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="lang_view_tree">
             <field name="model">ir.lang</field>
             <field name="type">tree</field>
-            <field name="arch" type="xml">
-              <![CDATA[
-                <tree string="Languages" editable="bottom">
-                    <field name="name"/>
-                    <field name="code"/>
-                    <field name="direction"/>
-                    <field name="translatable"/>
-                    <field name="active"/>
-                </tree>
-                ]]>
-            </field>
+            <field name="name">lang_list</field>
         </record>
         <record model="ir.ui.view" id="lang_view_form">
             <field name="model">ir.lang</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Language" col="6">
-                    <label name="name"/>
-                    <field name="name"/>
-                    <label name="code"/>
-                    <field name="code"/>
-                    <label name="active"/>
-                    <field name="active"/>
-                    <label name="direction"/>
-                    <field name="direction"/>
-                    <label name="translatable"/>
-                    <field name="translatable"/>
-                    <separator string="Date Formatting" colspan="6" id="date"/>
-                    <label name="date"/>
-                    <field name="date"/>
-                    <separator string="Numbers Formatting" colspan="6" id="number"/>
-                    <label name="grouping"/>
-                    <field name="grouping"/>
-                    <label name="thousands_sep"/>
-                    <field name="thousands_sep"/>
-                    <label name="decimal_point"/>
-                    <field name="decimal_point"/>
-                </form>
-                ]]>
-            </field>
+            <field name="name">lang_form</field>
         </record>
         <record model="ir.action.act_window" id="act_lang_form">
             <field name="name">Languages</field>

@@ -16,94 +16,18 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="user_view_form">
             <field name="model">res.user</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-              <![CDATA[
-                <form string="User">
-                    <label name="name"/>
-                    <field name="name"/>
-                    <label name="active"/>
-                    <field name="active"/>
-                    <notebook colspan="4">
-                        <page string="User" id="user">
-                            <label name="login"/>
-                            <field name="login"/>
-                            <label name="password"/>
-                            <field name="password"/>
-                            <label name="email"/>
-                            <field name="email" widget="email"/>
-                            <separator name="signature" colspan="4"/>
-                            <field name="signature" colspan="4"/>
-                        </page>
-                        <page string="Actions" id="actions">
-                            <label name="menu"/>
-                            <field name="menu"/>
-                            <field name="actions" colspan="4"/>
-                        </page>
-                        <page string="Access Permissions" col="1" id="permissions">
-                            <field name="groups"/>
-                            <field name="rule_groups"/>
-                        </page>
-                        <page string="Preferences" col="2" id="preferences">
-                            <label name="language"/>
-                            <field name="language" widget="selection"/>
-                            <label name="timezone"/>
-                            <field name="timezone"/>
-                        </page>
-                    </notebook>
-                </form>
-              ]]>
-            </field>
+            <field name="name">user_form</field>
         </record>
         <record model="ir.ui.view" id="user_view_form_preferences">
             <field name="model">res.user</field>
             <field name="type">form</field>
             <field name="priority" eval="20"/>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="User">
-                    <label name="name"/>
-                    <field name="name"/>
-                    <notebook colspan="4">
-                        <page string="User" id="user">
-                            <label name="email"/>
-                            <field name="email" widget="email"/>
-                            <label name="password"/>
-                            <field name="password"/>
-                            <separator name="signature" colspan="4"/>
-                            <field name="signature" colspan="4"/>
-                        </page>
-                        <page string="Actions" id="actions">
-                            <label name="menu"/>
-                            <field name="menu" widget="selection"/>
-                            <field name="actions" colspan="4"/>
-                        </page>
-                        <page string="Group Membership" col="1" id="membership">
-                            <field name="groups"/>
-                        </page>
-                        <page string="Preferences" col="2" id="preferences">
-                            <label name="language"/>
-                            <field name="language" widget="selection"/>
-                            <label name="timezone"/>
-                            <field name="timezone"/>
-                        </page>
-                    </notebook>
-                </form>
-                ]]>
-            </field>
+            <field name="name">user_form_preferences</field>
         </record>
         <record model="ir.ui.view" id="user_view_tree">
             <field name="model">res.user</field>
             <field name="type">tree</field>
-            <field name="arch" type="xml">
-              <![CDATA[
-                <tree string="Users">
-                    <field name="name"/>
-                    <field name="login"/>
-                    <field name="sessions"/>
-                    <field name="active"/>
-                </tree>
-              ]]>
-            </field>
+            <field name="name">user_list</field>
         </record>
         <record model="ir.action.act_window" id="act_user_form">
             <field name="name">Users</field>
@@ -147,21 +71,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="user_config_start_view_form">
             <field name="model">res.user.config.start</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Add Users" col="2">
-                    <image name="tryton-dialog-information" xexpand="0" xfill="0"/>
-                    <group col="1" id="labels">
-                        <label string="You can now add some users into the system."
-                            id="add"
-                            yalign="0.0" xalign="0.0" xexpand="1"/>
-                        <label string="Be careful that the login must be unique!"
-                            id="carefull"
-                            yalign="0.0" xalign="0.0" xexpand="1"/>
-                    </group>
-                </form>
-                ]]>
-            </field>
+            <field name="name">user_config_start_form</field>
         </record>
 
         <record model="ir.action.wizard" id="act_user_config">
@@ -177,33 +87,13 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="user_warning_view_form">
             <field name="model">res.user.warning</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Warning">
-                    <label name="user"/>
-                    <field name="user"/>
-                    <newline/>
-                    <label name="name"/>
-                    <field name="name"/>
-                    <label name="always"/>
-                    <field name="always"/>
-                </form>
-                ]]>
-            </field>
+            <field name="name">user_warning_form</field>
         </record>
 
         <record model="ir.ui.view" id="user_warning_view_tree">
             <field name="model">res.user.warning</field>
             <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <tree string="Warnings">
-                    <field name="user"/>
-                    <field name="name"/>
-                    <field name="always"/>
-                </tree>
-                ]]>
-            </field>
+            <field name="name">user_warning_tree</field>
         </record>
 
         <record model="ir.rule.group" id="rule_group_user_warning">

@@ -9,36 +9,12 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="group_view_form">
             <field name="model">res.group</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-              <![CDATA[
-                <form string="Group">
-                    <label name="name"/>
-                    <field name="name"/>
-                    <notebook>
-                        <page string="Members" col="2" id="members">
-                            <field name="users" colspan="2"/>
-                        </page>
-                        <page string="Access Permissions" col="2" id="permissions">
-                            <field name="model_access"/>
-                            <field name="field_access"/>
-                            <field name="menu_access" colspan="2"/>
-                            <field name="rule_groups" colspan="2"/>
-                        </page>
-                    </notebook>
-                </form>
-                ]]>
-            </field>
+            <field name="name">group_form</field>
         </record>
         <record model="ir.ui.view" id="group_view_tree">
             <field name="model">res.group</field>
             <field name="type">tree</field>
-            <field name="arch" type="xml">
-              <![CDATA[
-                <tree string="Groups">
-                    <field name="name" expand="1"/>
-                </tree>
-                ]]>
-            </field>
+            <field name="name">group_list</field>
         </record>
         <record model="ir.action.act_window" id="act_group_form">
             <field name="name">Groups</field>

@@ -702,17 +702,7 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="sequence_type_view_form">
           <field name="model">ir.sequence.type</field>
           <field name="inherit" ref="ir.sequence_type_view_form"/>
-          <field name="arch" type="xml">
-                <![CDATA[
-                    <data>
-                        <xpath
-                            expr="/form/field[@name=&quot;code&quot;]"
-                            position="after">
-                          <field name="groups" colspan="4"/>
-                        </xpath>
-                    </data>
-                ]]>
-            </field>
+          <field name="name">sequence_type_form</field>
         </record>
 
         <record model="ir.rule.group" id="rule_group_sequence">

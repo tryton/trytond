@@ -40,6 +40,7 @@ def monitor():
     '''
     global _MODULES
     modified = False
+    directories = set()
     for module in sys.modules.keys():
         if not module.startswith('trytond.'):
             continue
@@ -57,6 +58,19 @@ def monitor():
                 modified = False
                 break
             modified = True
+
+        # Check view XML
+        directory = os.path.dirname(path)
+        if directory not in directories:
+            directories.add(directory)
+            view_dir = os.path.join(directory, 'view')
+            if os.path.isdir(view_dir):
+                for view in os.listdir(view_dir):
+                    view = os.path.join(view_dir, view)
+                    if os.path.splitext(view)[1] == '.xml':
+                        if _modified(view):
+                            modified = True
+
     modules = set(get_module_list())
     if _MODULES is None:
         _MODULES = modules

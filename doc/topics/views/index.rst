@@ -4,15 +4,17 @@
 Views
 =====
 
-The views are used to display records of an object to the user.
+The views are used to display records of an :class:`ModelView
+<trytond.model.ModelView>` to the user.
 
-In Tryton, objects can have several views. An `action` opens a window and
-defines which view to show.
+In Tryton, :class:`ModelView <trytond.model.ModelView>` can have several views.
+An `action` opens a window and defines which view to show.
 
-The views are built from XML that is stored in the databases with the object
-ir.ui.view.
+The views are built from XML that is stored in the `view` directory of the
+module or in the databases thanks to the model ir.ui.view.
 
-So generally, they are defined in xml files with this kind of xml:
+So generally, they are defined in xml files with this kind of xml where name is
+the name of the XML file in the `view` directory:
 
 .. highlight:: xml
 
@@ -23,11 +25,7 @@ So generally, they are defined in xml files with this kind of xml:
       <field name="type">type name</field>
       <!--field name="inherit" ref="inherit_view_id"/-->
       <!--field name="field_childs">field name</field-->
-      <field name="arch" type="xml">
-          <![CDATA[
-          View XML ...
-          ]]>
-      </field>
+      <field name="name">view_name</field>
   </record>
 
 

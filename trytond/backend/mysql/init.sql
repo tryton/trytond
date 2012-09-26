@@ -24,7 +24,7 @@ CREATE TABLE ir_ui_view (
     id BIGINT AUTO_INCREMENT NOT NULL,
     model VARCHAR(255) NOT NULL,
     type VARCHAR(255),
-    arch TEXT NOT NULL,
+    data TEXT NOT NULL,
     field_childs VARCHAR(255),
     priority BIGINT NOT NULL default 0,
     PRIMARY KEY(id)

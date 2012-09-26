@@ -1,3 +1,4 @@
+* Allow to use XML file for views
 * Add RPC definition
 * Repace BrowseRecord by Model instance
 * Replace Cache decorator by a simple LRU Cache
