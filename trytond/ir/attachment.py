@@ -206,7 +206,7 @@ class Attachment(ModelSQL, ModelView):
         with Transaction().set_user(0):
             for attachment in cls.browse(ids):
                 if attachment.resource:
-                    model_names.add(attachment.resource.split(',')[0])
+                    model_names.add(attachment.resource.__name__)
         for model_name in model_names:
             ModelAccess.check(model_name, mode=mode)
 
