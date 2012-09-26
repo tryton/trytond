@@ -30,7 +30,7 @@ CREATE TABLE ir_ui_view (
     id INTEGER DEFAULT NEXTVAL('ir_ui_view_id_seq') NOT NULL,
     model VARCHAR NOT NULL,
     "type" VARCHAR,
-    arch TEXT NOT NULL,
+    data TEXT NOT NULL,
     field_childs VARCHAR,
     priority INTEGER NOT NULL,
     PRIMARY KEY(id)

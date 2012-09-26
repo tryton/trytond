@@ -117,60 +117,71 @@ class ModelView(Model):
             return result
         result = {'model': cls.__name__}
         pool = Pool()
+        View = pool.get('ir.ui.view')
 
         test = True
         model = True
-        sql_res = False
+        view = None
         inherit_view_id = False
-        cursor = Transaction().cursor
         while test:
             if view_id:
-                where = (model and (" and model='%s'" % (cls.__name__,))) or ''
-                cursor.execute('SELECT arch, field_childs, id, type, ' \
-                            'inherit, model ' \
-                        'FROM ir_ui_view WHERE id = %s ' + where, (view_id,))
+                domain = [('id', '=', view_id)]
+                if model:
+                    domain.append(('model', '=', cls.__name__))
+                views = View.search(domain, order=[])
             else:
-                cursor.execute('SELECT arch, field_childs, id, type, ' \
-                        'inherit, model ' \
-                        'FROM ir_ui_view ' \
-                        'WHERE model = %s AND type = %s ' \
-                        'ORDER BY inherit DESC, priority ASC, id ASC',
-                        (cls.__name__, view_type))
-            sql_res = cursor.fetchone()
-            if not sql_res:
+                domain = [
+                    ('model', '=', cls.__name__),
+                    ('type', '=', view_type),
+                    ]
+                order = [
+                    ('inherit', 'DESC'),
+                    ('priority', 'ASC'),
+                    ('id', 'ASC'),
+                    ]
+                views = View.search(domain, order=order)
+            if not views:
                 break
-            test = sql_res[4]
+            view = views[0]
+            test = view.inherit
             if test:
-                inherit_view_id = sql_res[2]
-            view_id = test or sql_res[2]
+                inherit_view_id = view.id
+            view_id = test.id if test else view.id
             model = False
 
         # if a view was found
-        if sql_res:
-            result['type'] = sql_res[3]
+        if view:
+            result['type'] = view.type
             result['view_id'] = view_id
-            result['arch'] = sql_res[0]
-            result['field_childs'] = sql_res[1] or False
+            result['arch'] = view.arch
+            result['field_childs'] = view.field_childs
 
             # Check if view is not from an inherited model
-            if sql_res[5] != cls.__name__:
-                Inherit = pool.get(sql_res[5])
+            if view.model != cls.__name__:
+                Inherit = pool.get(view.model)
                 result['arch'] = Inherit.fields_view_get(
                         result['view_id'])['arch']
                 view_id = inherit_view_id
 
             # get all views which inherit from (ie modify) this view
-            cursor.execute('SELECT arch, domain, module FROM ir_ui_view ' \
-                    'WHERE (inherit = %s AND model = %s) OR ' \
-                        ' (id = %s AND inherit IS NOT NULL) '
-                    'ORDER BY priority ASC, id ASC',
-                    (view_id, cls.__name__, view_id))
-            sql_inherit = cursor.fetchall()
+            views = View.search([
+                    'OR', [
+                        ('inherit', '=', view_id),
+                        ('model', '=', cls.__name__),
+                        ], [
+                        ('id', '=', view_id),
+                        ('inherit', '!=', None),
+                        ],
+                    ],
+                order=[
+                    ('priority', 'ASC'),
+                    ('id', 'ASC'),
+                    ])
             raise_p = False
             while True:
                 try:
-                    sql_inherit.sort(key=lambda x:
-                        cls._modules_list.index(x[2] or None))
+                    views.sort(key=lambda x:
+                        cls._modules_list.index(x.module or None))
                     break
                 except ValueError:
                     if raise_p:
@@ -178,14 +189,14 @@ class ModelView(Model):
                     # There is perhaps a new module in the directory
                     ModelView._reset_modules_list()
                     raise_p = True
-            for arch, domain, _ in sql_inherit:
-                if domain:
-                    if not safe_eval(domain,
+            for view in views:
+                if view.domain:
+                    if not safe_eval(view.domain,
                             {'context': Transaction().context}):
                         continue
-                if not arch or not arch.strip():
+                if not view.arch or not view.arch.strip():
                     continue
-                result['arch'] = _inherit_apply(result['arch'], arch)
+                result['arch'] = _inherit_apply(result['arch'], view.arch)
 
         # otherwise, build some kind of default view
         else:

@@ -6,8 +6,8 @@ from lxml import etree
 from difflib import SequenceMatcher
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.backend import TableHandler
-from trytond.pyson import CONTEXT, Eval
-from trytond.tools import safe_eval
+from trytond.pyson import CONTEXT, Eval, Bool
+from trytond.tools import safe_eval, file_open
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
 from trytond.pool import Pool
@@ -34,13 +34,21 @@ class View(ModelSQL, ModelView):
             ('graph', 'Graph'),
             ('board', 'Board'),
             ], 'View Type', select=True)
-    arch = fields.Text('View Architecture')
+    data = fields.Text('Data')
+    name = fields.Char('Name', states={
+            'invisible': ~(Eval('module') & Eval('name')),
+            }, depends=['module'], readonly=True)
+    arch = fields.Function(fields.Text('View Architecture', states={
+                'readonly': Bool(Eval('name')),
+                }, depends=['name']), 'get_arch', setter='set_arch')
     inherit = fields.Many2One('ir.ui.view', 'Inherited View', select=True,
             ondelete='CASCADE')
     field_childs = fields.Char('Children Field', states={
             'invisible': Eval('type') != 'tree',
             }, depends=['type'])
-    module = fields.Char('Module', readonly=True)
+    module = fields.Char('Module', states={
+            'invisible': ~Eval('module'),
+            }, readonly=True)
     domain = fields.Char('Domain', states={
             'invisible': ~Eval('inherit'),
             }, depends=['inherit'])
@@ -61,18 +69,20 @@ class View(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        cursor = Transaction().cursor
+        table = TableHandler(cursor, cls, module_name)
+
+        # Migration from 2.4 arch moved into data
+        if table.column_exist('arch'):
+            table.column_rename('arch', 'data')
+
         super(View, cls).__register__(module_name)
-        table = TableHandler(Transaction().cursor, cls, module_name)
 
         # Migration from 1.0 arch no more required
         table.not_null_action('arch', action='remove')
 
         # Migration from 2.4 model no more required
         table.not_null_action('model', action='remove')
-
-    @staticmethod
-    def default_arch():
-        return '<?xml version="1.0"?>'
 
     @staticmethod
     def default_priority():
@@ -212,6 +222,23 @@ class View(ModelSQL, ModelView):
                                 '(' + ','.join(('%s',) * len(strings)) + ')',
                         (view.model, 'view', view.module) + tuple(strings))
         return True
+
+    def get_arch(self, name):
+        value = None
+        if self.name and self.module:
+            path = os.path.join(self.module, 'view', self.name + '.xml')
+            try:
+                with file_open(path, subdir='modules') as fp:
+                    value = fp.read()
+            except IOError:
+                pass
+        if not value:
+            value = self.data
+        return value
+
+    @classmethod
+    def set_arch(cls, views, name, value):
+        cls.write(views, {'data': value})
 
     @classmethod
     def delete(cls, views):

@@ -22,7 +22,7 @@ CREATE TABLE ir_ui_view (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     model VARCHAR,
     "type" VARCHAR,
-    arch TEXT,
+    data TEXT,
     field_childs VARCHAR,
     priority INTEGER
 );

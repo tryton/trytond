@@ -8,52 +8,20 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">tree</field>
             <field name="field_childs">childs</field>
             <field name="priority" eval="20"/>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <tree string="Menu" keyword_open="1">
-                    <field name="name" icon="icon" expand="1"/>
-                </tree>
-                ]]>
-            </field>
+            <field name="name">ui_menu_tree</field>
         </record>
 
         <record model="ir.ui.view" id="menu_view_list">
             <field name="model">ir.ui.menu</field>
             <field name="type">tree</field>
             <field name="priority" eval="10"/>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <tree string="Menu">
-                    <field name="complete_name" icon="icon" expand="1"/>
-                </tree>
-                ]]>
-            </field>
+            <field name="name">ui_menu_list</field>
         </record>
 
         <record model="ir.ui.view" id="menu_view_form">
             <field name="model">ir.ui.menu</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Menu">
-                    <label name="name"/>
-                    <field name="name"/>
-                    <label name="active"/>
-                    <field name="active"/>
-                    <label name="parent"/>
-                    <field name="parent"/>
-                    <label name="icon"/>
-                    <field name="icon"/>
-                    <label name="action"/>
-                    <field name="action"/>
-                    <label name="sequence"/>
-                    <field name="sequence"/>
-                    <label name="complete_name"/>
-                    <field name="complete_name" colspan="3"/>
-                    <field name="groups" colspan="4"/>
-                </form>
-                ]]>
-            </field>
+            <field name="name">ui_menu_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_menu_tree">

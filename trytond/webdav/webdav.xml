@@ -14,49 +14,19 @@ this repository contains the full copyright notices and license terms. -->
             <field name="model">webdav.collection</field>
             <field name="type">tree</field>
             <field name="field_childs">childs</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                    <tree string="Collections">
-                        <field name="name"/>
-                        <field name="model"/>
-                        <field name="parent" tree_invisible="1"/>
-                        <field name="childs" tree_invisible="1"/>
-                    </tree>
-                ]]>
-            </field>
+            <field name="name">collection_tree</field>
         </record>
 
         <record model="ir.ui.view" id="collection_view_list">
             <field name="model">webdav.collection</field>
             <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                    <tree string="Collections">
-                        <field name="name"/>
-                        <field name="model"/>
-                    </tree>
-                ]]>
-            </field>
+            <field name="name">collection_list</field>
         </record>
 
         <record model="ir.ui.view" id="collection_view_form">
             <field name="model">webdav.collection</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                    <form string="Collection">
-                        <label name="name"/>
-                        <field name="name"/>
-                        <label name="parent"/>
-                        <field name="parent"/>
-                        <label name="model"/>
-                        <field name="model"/>
-                        <label name="domain"/>
-                        <field name="domain"/>
-                        <field name="childs" colspan="4"/>
-                    </form>
-                ]]>
-            </field>
+            <field name="name">collection_form</field>
         </record>
         <record model="ir.action.act_window" id="act_collection_tree">
             <field name="name">Collections</field>
@@ -109,44 +79,13 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="share_view_list">
             <field name="model">webdav.share</field>
             <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <tree string="Shares">
-                    <field name="path"/>
-                    <field name="user"/>
-                    <field name="expiration_date"/>
-                </tree>
-                ]]>
-            </field>
+            <field name="name">share_list</field>
         </record>
 
         <record model="ir.ui.view" id="share_view_form">
             <field name="model">webdav.share</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Share">
-                    <label name="path"/>
-                    <field name="path"/>
-                    <label name="key"/>
-                    <field name="key"/>
-                    <label name="user"/>
-                    <field name="user"/>
-                    <label name="expiration_date"/>
-                    <field name="expiration_date"/>
-                    <label name="url"/>
-                    <group id="url" colspan="2">
-                        <field name="url"/>
-                        <field name="url" widget="url"/>
-                    </group>
-                    <notebook>
-                        <page name="note">
-                            <field name="note" colspan="4"/>
-                        </page>
-                    </notebook>
-                </form>
-                ]]>
-            </field>
+            <field name="name">share_form</field>
         </record>
 
         <record model="ir.action.act_window" id="act_share_list">
@@ -203,23 +142,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="model">ir.attachment</field>
             <field name="type">form</field>
             <field name="inherit" ref="ir.attachment_view_form"/>
-            <field name="arch" type="xml">
-              <![CDATA[
-              <data>
-                  <xpath expr="/form/notebook/page[@name='description']"
-                      position="after">
-                      <page string="WebDAV" id="webdav">
-                          <label name="url"/>
-                          <group id="url">
-                              <field name="url"/>
-                              <field name="url" widget="url"/>
-                          </group>
-                          <field name="shares" colspan="4"/>
-                      </page>
-                  </xpath>
-              </data>
-              ]]>
-          </field>
+            <field name="name">attachment_form</field>
       </record>
 
     </data>

@@ -6,31 +6,12 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.ui.view" id="property_view_form">
             <field name="model">ir.property</field>
             <field name="type">form</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <form string="Property">
-                    <label name="field"/>
-                    <field name="field" colspan="3"/>
-                    <label name="value"/>
-                    <field name="value" colspan="3"/>
-                    <label name="res"/>
-                    <field name="res" colspan="3"/>
-                </form>
-                ]]>
-            </field>
+            <field name="name">property_form</field>
         </record>
         <record model="ir.ui.view" id="property_view_tree">
             <field name="model">ir.property</field>
             <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <tree string="Properties">
-                    <field name="field"/>
-                    <field name="value"/>
-                    <field name="res"/>
-                </tree>
-                ]]>
-            </field>
+            <field name="name">property_list</field>
         </record>
         <record model="ir.action.act_window" id="act_property_form_default">
             <field name="name">Default Properties</field>
