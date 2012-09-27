@@ -74,18 +74,6 @@ class ModelStorage(Model):
         return datetime.datetime.today()
 
     @classmethod
-    def __fields_by_model(cls, values):
-        "Return a dictionary with list of fields from values grouped by model"
-        fields_by_model = {}
-        for field in values:
-            if field in cls._fields:
-                model = cls.__name__
-            else:
-                model = cls._inherit_fields[field][0]
-            fields_by_model.setdefault(model, []).append(field)
-        return fields_by_model
-
-    @classmethod
     def create(cls, values):
         '''
         Create record and return an instance.
@@ -95,8 +83,8 @@ class ModelStorage(Model):
         ModelFieldAccess = pool.get('ir.model.field.access')
 
         ModelAccess.check(cls.__name__, 'create')
-        for model, fields in cls.__fields_by_model(values).iteritems():
-            ModelFieldAccess.check(model, fields, 'write')
+        ModelFieldAccess.check(cls.__name__,
+            [x for x in values if x in cls._fields], 'write')
 
         # Increase transaction counter
         Transaction().counter += 1
@@ -142,8 +130,8 @@ class ModelStorage(Model):
         ModelFieldAccess = pool.get('ir.model.field.access')
 
         ModelAccess.check(cls.__name__, 'write')
-        for model, fields in cls.__fields_by_model(values).iteritems():
-            ModelFieldAccess.check(model, fields, 'write')
+        ModelFieldAccess.check(cls.__name__,
+            [x for x in values if x in cls._fields], 'write')
         if not cls.check_xml_record(records, values):
             cls.raise_user_error('write_xml_record',
                     error_description='xml_record_desc')
