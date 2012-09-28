@@ -141,6 +141,7 @@ def install_module(name):
         InstallUpgrade = POOL.get('ir.module.module.install_upgrade',
             type='wizard')
         instance_id, _, _ = InstallUpgrade.create()
+        transaction.cursor.commit()
         InstallUpgrade(instance_id).transition_upgrade()
         InstallUpgrade.delete(instance_id)
         transaction.cursor.commit()
