@@ -77,13 +77,13 @@ class ModelSingletonTestCase(unittest.TestCase):
             self.assertEqual(singleton2, singleton)
 
             singletons = self.singleton.search([])
-            self.assertEqual(singletons, [singleton])
+            self.assertEqual(len(singletons), 1)
 
             singleton3, = self.singleton.copy([singleton], {'name': 'bar'})
             self.assertEqual(singleton3, singleton)
 
             singletons = self.singleton.search([])
-            self.assertEqual(singletons, [singleton])
+            self.assertEqual(len(singletons), 1)
 
             transaction.cursor.rollback()
 
