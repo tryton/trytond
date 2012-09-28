@@ -111,6 +111,7 @@ def register():
         ImportDataReference,
         ExportDataTarget,
         ExportData,
+        ExportDataTarget2,
         ExportDataRelation,
         Triggered,
         TestAccess,
