@@ -473,11 +473,16 @@ class ModuleInstallUpgrade(Wizard):
                 for x in modules),
             }
 
+    def __init__(self, session_id):
+        pass
+
+    def _save(self):
+        pass
+
     def transition_upgrade(self):
         pool = Pool()
         Module = pool.get('ir.module.module')
         Lang = pool.get('ir.lang')
-        Session = pool.get('ir.session.wizard')
         with Transaction().new_cursor() as transaction:
             modules = Module.search([
                 ('state', 'in', ['to upgrade', 'to remove', 'to install']),
@@ -489,15 +494,6 @@ class ModuleInstallUpgrade(Wizard):
             transaction.cursor.commit()
         if modules:
             pool.init(update=True, lang=lang)
-        # Don't store session to prevent concurrent update
-        session = Session(self._session_id)
-        data = json.loads(session.data.encode('utf-8'),
-            object_hook=object_hook)
-        for state_name, state in self.states.iteritems():
-            if isinstance(state, StateView):
-                Target = pool.get(state.model_name)
-                data.setdefault(state_name, {})
-                setattr(self, state_name, Target(*data[state_name]))
         return 'done'
 
 
