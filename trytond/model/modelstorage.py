@@ -861,6 +861,9 @@ class ModelStorage(Model):
             with Transaction().set_user(Transaction().context.get('user')):
                 return cls._validate(cls.browse(records))
 
+        for record in records:
+            record.pre_validate()
+
         def call(name):
             method = getattr(cls, name)
             if not hasattr(method, 'im_self') or method.im_self:

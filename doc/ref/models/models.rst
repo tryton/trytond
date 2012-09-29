@@ -98,6 +98,12 @@ Class methods:
 
     Return the definition of each field on the model.
 
+Instance methods:
+
+.. method:: Model.pre_validate()
+
+    This method is called by the client to validate the instance.
+
 =========
 ModelView
 =========

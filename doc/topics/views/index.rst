@@ -118,6 +118,13 @@ List of attributes shared by many form elements:
     * ``help``: The string that will be displayed when the cursor hovers over
       the widget.
 
+    .. _common-attributes-pre_validate:
+
+    * ``pre_validate``: A boolean only for fields
+      :class:`trytond.model.fields.One2Many` to specify if the client must
+      pre-validate the records using
+      :meth:`trytond.model.Model.pre_validate`.
+
 
 form
 ^^^^
@@ -215,6 +222,8 @@ Display a field of the object with the value of the current record.
     * ``colspan``: see in common-attributes-colspan_.
 
     * ``help``: see in common-attributes-help_.
+
+    * ``pre_validate``: see in common-attributes-pre_validate_.
 
 image
 ^^^^^
@@ -470,6 +479,8 @@ field
       available extra space in the view. This space is shared equally among all
       columns that have their "expand" property set to True. Resize don't work
       if this option is enabled.
+
+    * ``pre_validate``: see in common-attributes-pre_validate_.
 
 Example
 -------
