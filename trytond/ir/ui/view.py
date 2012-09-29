@@ -103,7 +103,7 @@ class View(ModelSQL, ModelView):
     def get_rng(cls, type_):
         key = (cls.__name__, type_)
         rng = cls._get_rng_cache.get(key)
-        if rng is not None:
+        if not rng:
             rng_name = os.path.join(os.path.dirname(__file__), type_ + '.rng')
             rng = etree.fromstring(open(rng_name).read())
             cls._get_rng_cache.set(key, rng)
