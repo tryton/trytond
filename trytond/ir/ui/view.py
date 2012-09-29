@@ -11,6 +11,7 @@ from trytond.tools import safe_eval, file_open
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
 from trytond.pool import Pool
+from trytond.cache import Cache
 from trytond.rpc import RPC
 
 __all__ = [
@@ -52,6 +53,7 @@ class View(ModelSQL, ModelView):
     domain = fields.Char('Domain', states={
             'invisible': ~Eval('inherit'),
             }, depends=['inherit'])
+    _get_rng_cache = Cache('ir_ui_view.get_rng')
 
     @classmethod
     def __setup__(cls):
@@ -98,6 +100,16 @@ class View(ModelSQL, ModelView):
         pass
 
     @classmethod
+    def get_rng(cls, type_):
+        key = (cls.__name__, type_)
+        rng = cls._get_rng_cache.get(key)
+        if not rng:
+            rng_name = os.path.join(os.path.dirname(__file__), type_ + '.rng')
+            rng = etree.fromstring(open(rng_name).read())
+            cls._get_rng_cache.set(key, rng)
+        return rng
+
+    @classmethod
     def check_xml(cls, views):
         "Check XML"
         pool = Pool()
@@ -120,11 +132,9 @@ class View(ModelSQL, ModelView):
                 continue
             tree = etree.fromstring(xml)
 
-            # validate the tree using RelaxNG
-            rng_name = os.path.join(os.path.dirname(__file__),
-                    (view.inherit and view.inherit.type or view.type) + '.rng')
             if hasattr(etree, 'RelaxNG'):
-                validator = etree.RelaxNG(file=rng_name)
+                rng_type = view.inherit.type if view.inherit else view.type
+                validator = etree.RelaxNG(etree=cls.get_rng(rng_type))
                 if not validator.validate(tree):
                     logger = logging.getLogger('ir')
                     error_log = reduce(lambda x, y: str(x) + '\n' + str(y),
