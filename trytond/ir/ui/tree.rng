@@ -147,6 +147,16 @@
       <attribute name="float_time"/>
     </optional>
   </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="pre_validate" a:defaultValue="0">
+        <choice>
+          <value>0</value>
+          <value>1</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
   <define name="button">
     <element name="button">
       <ref name="attlist.button"/>

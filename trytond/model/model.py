@@ -53,6 +53,7 @@ class Model(WarningErrorMixin, URLMixin):
             'default_get': RPC(),
             'fields_get': RPC(),
             'on_change_with': RPC(instantiate=0),
+            'pre_validate': RPC(instantiate=0),
             }
         cls._error_messages = {}
 
@@ -570,6 +571,9 @@ class Model(WarningErrorMixin, URLMixin):
             method_name = 'on_change_with_%s' % fieldname
             changes[fieldname] = getattr(self, method_name)()
         return changes
+
+    def pre_validate(self):
+        pass
 
     def __init__(self, id=None, **kwargs):
         super(Model, self).__init__()
