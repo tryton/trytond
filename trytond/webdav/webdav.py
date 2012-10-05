@@ -31,7 +31,9 @@ def get_webdav_url():
     hostname = '.'.join(encodings.idna.ToASCII(part) for part in
         hostname.split('.'))
     return urlparse.urlunsplit((protocol, hostname,
-        urllib.quote(Transaction().cursor.database_name + '/'), None, None))
+        urllib.quote(
+            Transaction().cursor.database_name.encode('utf-8') + '/'),
+            None, None))
 
 
 class Collection(ModelSQL, ModelView):
@@ -653,7 +655,8 @@ class Share(ModelSQL, ModelView):
 
     def get_url(self, name):
         return urlparse.urljoin(get_webdav_url(),
-            urlparse.urlunsplit((None, None, urllib.quote(self.path),
+            urlparse.urlunsplit((None, None,
+                    urllib.quote(self.path.encode('utf-8')),
                     urllib.urlencode([('key', self.key)]), None)))
 
     @staticmethod
@@ -760,7 +763,8 @@ class Attachment(ModelSQL, ModelView):
 
     def get_url(self, name):
         if self.path:
-            return urlparse.urljoin(get_webdav_url(), urllib.quote(self.path))
+            return urlparse.urljoin(get_webdav_url(),
+                urllib.quote(self.path.encode('utf-8')))
 
     @classmethod
     def get_shares(cls, attachments, name):
