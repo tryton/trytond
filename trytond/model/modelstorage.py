@@ -1332,8 +1332,10 @@ class ModelStorage(Model):
                     Transaction().set_context(self._context)):
                 if self.id < 0:
                     self._ids.remove(self.id)
-                    self.id = self.create(self._save_values).id
-                    self._ids.append(self.id)
+                    try:
+                        self.id = self.create(self._save_values).id
+                    finally:
+                        self._ids.append(self.id)
                 else:
                     self.write([self], self._save_values)
         self._values = None
