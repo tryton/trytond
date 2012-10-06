@@ -712,7 +712,8 @@ class Attachment(ModelSQL, ModelView):
         Collection = pool.get('webdav.collection')
         for attachment in attachments:
             if attachment.resource:
-                model_name, record_id = attachment.resource.split(',')
+                model_name = attachment.resource.__name__
+                record_id = attachment.resource.id
                 if model_name == 'webdav.collection':
                     collection = Collection(int(record_id))
                     for child in collection.childs:
@@ -731,8 +732,9 @@ class Attachment(ModelSQL, ModelView):
         for attachment in attachments:
             if not attachment.resource:
                 paths[attachment.id] = None
-            model_name, record_id = attachment.resource.split(',')
-            record_id = int(record_id)
+                continue
+            model_name = attachment.resource.__name__
+            record_id = attachment.resource.id
             resources.setdefault(model_name, set()).add(record_id)
             resource2attachments.setdefault((model_name, record_id),
                 []).append(attachment)
