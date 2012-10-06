@@ -771,15 +771,15 @@ class Attachment(ModelSQL, ModelView):
     @classmethod
     def get_shares(cls, attachments, name):
         Share = Pool().get('webdav.share')
-        shares = dict((a.id, []) for a in attachments)
+        result = dict((a.id, []) for a in attachments)
         path2attachement = dict((a.path, a) for a in attachments)
         shares = Share.search([
                 ('path', 'in', path2attachement.keys()),
                 ])
         for share in shares:
             attachment = path2attachement[share.path]
-            shares[attachment.id].append(share.id)
-        return shares
+            result[attachment.id].append(share.id)
+        return result
 
     @classmethod
     def set_shares(cls, attachments, name, value):
