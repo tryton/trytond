@@ -93,10 +93,6 @@ class TrytonServer(object):
             with open(CONFIG['pidfile'], 'w') as fd_pid:
                 fd_pid.write("%d" % (os.getpid()))
 
-        if CONFIG['psyco']:
-            import psyco
-            psyco.full()
-
         if not CONFIG["db_name"] \
                 and bool(CONFIG['init'] or CONFIG['update']):
             raise Exception('Missing database option!')
