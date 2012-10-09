@@ -347,7 +347,7 @@ class ModelSQL(ModelStorage):
                     if field.required and \
                             not hasattr(field, 'set') and \
                             field_name not in ('create_uid', 'create_date'):
-                        if not values.get(field_name):
+                        if values.get(field_name) is None:
                             cls.raise_user_error('required_field',
                                     error_args=cls._get_error_args(
                                         field_name))
