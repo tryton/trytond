@@ -254,7 +254,7 @@ class ModelStorage(Model):
 
                 if field_name in default:
                     data[field_name] = default[field_name]
-                elif ftype == 'function':
+                elif isinstance(cls._fields[field_name], fields.Function):
                     del data[field_name]
                 elif ftype in ('many2one', 'one2one'):
                     try:
