@@ -592,7 +592,7 @@ class ModelStorage(Model):
                     warn('too_many_relations_found', value, relation)
                     res = None
                 else:
-                    res = '%s,%s' % (relation, str(res[0]))
+                    res = '%s,%s' % (relation, res[0].id)
                 return res
 
             def get_by_id(value):
