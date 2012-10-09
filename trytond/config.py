@@ -72,7 +72,6 @@ class ConfigManager(object):
             'data_path': '/var/lib/trytond',
             'multi_server': False,
             'session_timeout': 600,
-            'psyco': False,
             'auto_reload': True,
             'prevent_dblist': False,
             'init': {},
