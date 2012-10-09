@@ -1362,7 +1362,7 @@ class EvalEnvironment(dict):
             value = getattr(self._record, item)
             if isinstance(value, Model):
                 return value.id
-            elif isinstance(value, list):
+            elif isinstance(value, (list, tuple)):
                 return [r.id for r in value]
             else:
                 return value
