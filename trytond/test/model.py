@@ -5,7 +5,7 @@ from trytond.model import ModelSingleton, ModelSQL, fields
 __all__ = [
     'Singleton', 'URLObject', 'ModelInherits', 'ModelInheritsSubModel',
     'ModelInheritsSubSubModel', 'ModelInheritsSubSubSubModel',
-    'ModelInheritsOverriddenFieldModel',
+    'ModelInheritsOverriddenFieldModel', 'ModelSQLRequiredField'
     ]
 
 
@@ -70,3 +70,11 @@ class ModelInheritsOverriddenFieldModel(ModelSQL):
     subfield = fields.Integer('Overridden field')
     parent_model = fields.Many2One('test.subsubmodel', 'Parent model',
         required=True)
+
+
+class ModelSQLRequiredField(ModelSQL):
+    'model with a required field'
+    __name__ = 'test.modelsql'
+
+    integer = fields.Integer(string="integer", required=True)
+    desc = fields.Char(string="desc", required=True)

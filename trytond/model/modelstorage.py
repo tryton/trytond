@@ -254,7 +254,7 @@ class ModelStorage(Model):
 
                 if field_name in default:
                     data[field_name] = default[field_name]
-                elif ftype == 'function':
+                elif isinstance(cls._fields[field_name], fields.Function):
                     del data[field_name]
                 elif ftype in ('many2one', 'one2one'):
                     try:
@@ -592,7 +592,7 @@ class ModelStorage(Model):
                     warn('too_many_relations_found', value, relation)
                     res = None
                 else:
-                    res = '%s,%s' % (relation, str(res[0]))
+                    res = '%s,%s' % (relation, res[0].id)
                 return res
 
             def get_by_id(value):
@@ -1362,7 +1362,7 @@ class EvalEnvironment(dict):
             value = getattr(self._record, item)
             if isinstance(value, Model):
                 return value.id
-            elif isinstance(value, list):
+            elif isinstance(value, (list, tuple)):
                 return [r.id for r in value]
             else:
                 return value

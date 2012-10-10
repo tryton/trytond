@@ -107,7 +107,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             res = []
             for type in ('model', 'wizard', 'report'):
                 for object_name, obj in pool.iterobject(type=type):
-                    for method in obj._rpc:
+                    for method in obj.__rpc__:
                         res.append(type + '.' + object_name + '.' + method)
             return res
         elif method == 'methodSignature':

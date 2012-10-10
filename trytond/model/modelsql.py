@@ -347,7 +347,7 @@ class ModelSQL(ModelStorage):
                     if field.required and \
                             not hasattr(field, 'set') and \
                             field_name not in ('create_uid', 'create_date'):
-                        if not values.get(field_name):
+                        if values.get(field_name) is None:
                             cls.raise_user_error('required_field',
                                     error_args=cls._get_error_args(
                                         field_name))
@@ -1047,7 +1047,8 @@ class ModelSQL(ModelStorage):
                 if rowcount == -1 or rowcount is None:
                     rowcount = len(cursor.fetchall())
                 if not rowcount == len({}.fromkeys(sub_ids)):
-                    cls.raise_user_error('access_error', cls._description)
+                    cls.raise_user_error('access_error',
+                        cls.__doc__.splitlines()[0])
 
         cls.trigger_delete(records)
 
