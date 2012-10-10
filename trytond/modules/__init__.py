@@ -340,15 +340,13 @@ def register_classes():
         if os.path.isdir(OPJ(MODULES_PATH, module)):
             mod_file, pathname, description = imp.find_module(module,
                     [MODULES_PATH])
-            try:
-                imp.load_module('trytond.modules.' + module, mod_file,
-                        pathname, description).register()
-            except AttributeError:
-                # Some modules register nothing in the Pool
-                pass
-            finally:
-                if mod_file is not None:
-                    mod_file.close()
+            the_module = imp.load_module(
+                'trytond.modules.' + module, mod_file, pathname, description)
+            # Some modules register nothing in the Pool
+            if hasattr(the_module, 'register'):
+                the_module.register()
+            if mod_file is not None:
+                mod_file.close()
         elif module in EGG_MODULES:
             ep = EGG_MODULES[module]
             mod_path = os.path.join(ep.dist.location,
