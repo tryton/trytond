@@ -685,7 +685,7 @@ class ModelGraph(Report):
             ])
         if not action_report_ids:
             raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
-        action_report = ActionReport.browse(action_report_ids[0])
+        action_report = ActionReport(action_report_ids[0])
 
         models = Model.browse(ids)
 
