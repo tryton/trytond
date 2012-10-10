@@ -550,6 +550,8 @@ field
     * ``empty``: defined if the line graph must put a point for missing
       dates.
 
+    * ``color``: the color of the field.
+
     * ``interpolation``: defined how the line graph must interpolate points.
       The default is ``linear``.
 
