@@ -364,19 +364,34 @@ class ImportDataTestCase(unittest.TestCase):
             self.assertEqual(self.reference.import_data(['reference'],
                 [['test.import_data.reference.selection,Test']]),
                 (1, 0, 0, 0))
+            reference, = self.reference.search([])
+            self.assertEqual(reference.reference.__name__,
+                'test.import_data.reference.selection')
+            transaction.cursor.rollback()
 
             self.assertEqual(self.reference.import_data(['reference:id'],
                 [['test.import_data.reference.selection,'
                     'test.import_data_reference_selection_test']]),
                 (1, 0, 0, 0))
+            reference, = self.reference.search([])
+            self.assertEqual(reference.reference.__name__,
+                'test.import_data.reference.selection')
+            transaction.cursor.rollback()
 
             self.assertEqual(self.reference.import_data(['reference'],
                 [['']]), (1, 0, 0, 0))
+            reference, = self.reference.search([])
+            self.assertEqual(reference.reference, None)
+            transaction.cursor.rollback()
 
             self.assertEqual(self.reference.import_data(['reference'],
                 [['test.import_data.reference.selection,Test'],
                     ['test.import_data.reference.selection,Test']]),
                 (2, 0, 0, 0))
+            for reference in self.reference.search([]):
+                self.assertEqual(reference.reference.__name__,
+                    'test.import_data.reference.selection')
+            transaction.cursor.rollback()
 
             self.assertEqual(self.reference.import_data(['reference'],
                 [['test.import_data.reference.selection,foo']])[0], -1)

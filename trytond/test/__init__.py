@@ -89,6 +89,7 @@ def register():
         ModelInheritsSubSubModel,
         ModelInheritsSubSubSubModel,
         ModelInheritsOverriddenFieldModel,
+        ModelSQLRequiredField,
         MPTT,
         ImportDataBoolean,
         ImportDataInteger,
