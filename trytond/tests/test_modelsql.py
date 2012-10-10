@@ -11,6 +11,7 @@ from trytond.transaction import Transaction
 from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
     install_module
 
+
 class ModelSQLTestCase(unittest.TestCase):
     '''
     Test ModelSQL
@@ -20,14 +21,15 @@ class ModelSQLTestCase(unittest.TestCase):
         install_module('test')
         self.modelsql = POOL.get('test.modelsql')
 
-    # SQLite not concerned because tryton don't set "NOT NULL" constraint:
-    # 'ALTER TABLE' don't support NOT NULL constraint without default value
-    @unittest.skipIf(CONFIG['db_type'] not in ('postgresql', 'mysql'),
-            'postgresql or mysql needed')
     def test0010required_field_missing(self):
         '''
         Test error message when a required field is missing.
         '''
+        if CONFIG['db_type'] not in ('postgresql', 'mysql'):
+            # SQLite not concerned because tryton don't set "NOT NULL"
+            # constraint: 'ALTER TABLE' don't support NOT NULL constraint
+            # without default value
+            return
         fields = {
             'desc': '',
             'integer': 0,
@@ -43,6 +45,7 @@ class ModelSQLTestCase(unittest.TestCase):
                     self.assertTrue(key not in err.message, msg)
                     continue
                 self.fail('UserError should be caught')
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ModelSQLTestCase)
