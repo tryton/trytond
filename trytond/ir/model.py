@@ -725,7 +725,7 @@ class ModelGraph(Report):
         for model in models:
             if filter and re.search(filter, model.model):
                     continue
-            label = '{' + model.model + '\\n'
+            label = '"{' + model.model + '\\n'
             if model.fields:
                 label += '|'
             for field in model.fields:
@@ -736,32 +736,23 @@ class ModelGraph(Report):
                 if field.relation:
                     label += ' ' + field.relation
                 label += '\l'
-            label += '}'
-            if pydot.__version__ == '1.0.2':
-                # version 1.0.2 doesn't quote correctly label on Node object
-                label = '"' + label + '"'
-            node = pydot.Node(str(model.model), shape='record', label=label)
+            label += '}"'
+            node_name = '"%s"' % model.model
+            node = pydot.Node(node_name, shape='record', label=label)
             graph.add_node(node)
 
             for field in model.fields:
                 if field.name in ('create_uid', 'write_uid'):
                     continue
                 if field.relation:
-                    node_name = field.relation
-                    if pydot.__version__ == '1.0.2':
-                        # version 1.0.2 doesn't quote correctly node name
-                        node_name = '"' + node_name + '"'
+                    node_name = '"%s"' % field.relation
                     if not graph.get_node(node_name):
                         continue
                     args = {}
                     tail = model.model
                     head = field.relation
-                    edge_model_name = model.model
-                    edge_relation_name = field.relation
-                    if pydot.__version__ == '1.0.2':
-                        # version 1.0.2 doesn't quote correctly edge name
-                        edge_model_name = '"' + edge_model_name + '"'
-                        edge_relation_name = '"' + edge_relation_name + '"'
+                    edge_model_name = '"%s"' % model.model
+                    edge_relation_name = '"%s"' % field.relation
                     if field.ttype == 'many2one':
                         edge = graph.get_edge(edge_model_name,
                                 edge_relation_name)
