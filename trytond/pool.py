@@ -118,11 +118,14 @@ class Pool(object):
         lang is a list of language code to be updated
         '''
         logger = logging.getLogger('pool')
-        logger.info('init pool for "%s"' % self.database_name)
         with self._lock:
             if not self._started:
                 self.start()
         with self._locks[self.database_name]:
+            # Don't reset pool if already init and not to update
+            if not update and self._pool.get(self.database_name):
+                return
+            logger.info('init pool for "%s"' % self.database_name)
             self._pool.setdefault(self.database_name, {})
             #Clean the _pool before loading modules
             for type in self.classes.keys():
