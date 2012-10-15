@@ -116,8 +116,6 @@ class ModelStorage(Model):
         ModelAccess.check(cls.__name__, 'read')
         ModelFieldAccess.check(cls.__name__,
                 fields_names or cls._fields.keys(), 'read')
-        if isinstance(ids, (int, long)):
-            return {}
         return []
 
     @classmethod
