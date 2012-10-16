@@ -138,6 +138,17 @@ class Model(WarningErrorMixin, URLMixin):
                     % (cls, field.name, name))
 
     @classmethod
+    def _get_name(cls):
+        '''
+        Returns the first non-empty line of the model docstring.
+        '''
+        lines= cls.__doc__.splitlines()
+        for line in lines:
+            line = line.strip()
+            if line:
+                return line
+
+    @classmethod
     def __register__(cls, module_name):
         """
         Add model in ir.model and ir.model.field.
@@ -160,7 +171,7 @@ class Model(WarningErrorMixin, URLMixin):
         if not model_id:
             cursor.execute("INSERT INTO ir_model "
                 "(model, name, info, module) VALUES (%s, %s, %s, %s)",
-                (cls.__name__, cls.__doc__.splitlines()[0], cls.__doc__,
+                (cls.__name__, cls._get_name(), cls.__doc__,
                     module_name))
             Property._models_get_cache.clear()
             cursor.execute("SELECT id FROM ir_model WHERE model = %s",
@@ -171,12 +182,12 @@ class Model(WarningErrorMixin, URLMixin):
                 'SET name = %s, '
                     'info = %s '
                 'WHERE id = %s',
-                (cls.__doc__.splitlines()[0], cls.__doc__, model_id))
+                (cls._get_name(), cls.__doc__, model_id))
 
         # Update translation of model
         if cls.__doc__:
             name = cls.__name__ + ',name'
-            src = cls.__doc__.splitlines()[0]
+            src = cls._get_name()
             cursor.execute('SELECT id FROM ir_translation ' \
                     'WHERE lang = %s ' \
                         'AND type = %s ' \
