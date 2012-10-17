@@ -895,6 +895,7 @@ class ModelStorage(Model):
             return False
 
         with Transaction().set_context(ctx_pref):
+            # Ensure that records are readable
             with Transaction().set_user(0, set_context=True):
                 records = cls.browse(records)
 
