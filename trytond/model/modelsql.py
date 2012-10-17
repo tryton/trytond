@@ -1048,7 +1048,7 @@ class ModelSQL(ModelStorage):
                     rowcount = len(cursor.fetchall())
                 if not rowcount == len({}.fromkeys(sub_ids)):
                     cls.raise_user_error('access_error',
-                        cls.__doc__.splitlines()[0])
+                        cls._get_name())
 
         cls.trigger_delete(records)
 
