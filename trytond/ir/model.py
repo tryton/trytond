@@ -313,10 +313,11 @@ class ModelAccess(ModelSQL, ModelView):
         Model = pool.get('ir.model')
         UserGroup = pool.get('res.user-res.group')
         cursor = Transaction().cursor
+        user = Transaction().user
 
         access = {}
         for model in models:
-            maccess = cls._get_access_cache.get(model, default=-1)
+            maccess = cls._get_access_cache.get((user, model), default=-1)
             if maccess == -1:
                 break
             access[model] = maccess
@@ -345,7 +346,7 @@ class ModelAccess(ModelSQL, ModelView):
                 (m, {'read': r, 'write': w, 'create': c, 'delete': d})
                 for m, r, w, c, d in cursor.fetchall()))
         for model, maccess in access.iteritems():
-            cls._get_access_cache.set(model, maccess)
+            cls._get_access_cache.set((user, model), maccess)
         return access
 
     @classmethod
