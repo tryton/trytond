@@ -895,6 +895,9 @@ class ModelStorage(Model):
             return False
 
         with Transaction().set_context(ctx_pref):
+            with Transaction().set_user(0, set_context=True):
+                records = cls.browse(records)
+
             for field_name, field in cls._fields.iteritems():
                 if isinstance(field, fields.Function) and \
                         not field.setter:
