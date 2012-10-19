@@ -1,10 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.modules import create_graph, get_module_list, get_module_info
 from trytond.wizard import Wizard, StateView, Button, StateTransition, \
@@ -13,7 +8,6 @@ from trytond.backend import TableHandler
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Eval
-from trytond.protocols.jsonrpc import object_hook
 from trytond.rpc import RPC
 
 __all__ = [
