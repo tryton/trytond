@@ -319,7 +319,7 @@ class ViewShortcut(ModelSQL, ModelView):
 
     name = fields.Char('Shortcut Name', required=True)
     res_id = fields.Integer('Resource Ref.', required=True)
-    sequence = fields.Integer('Sequence', required=True)
+    sequence = fields.Integer('Sequence')
     user_id = fields.Many2One('res.user', 'User Ref.', required=True,
        ondelete='CASCADE')
     resource = fields.Char('Resource Name', required=True)
@@ -331,6 +331,15 @@ class ViewShortcut(ModelSQL, ModelView):
                 'get_sc': RPC(),
                 })
         cls._order.insert(0, ('sequence', 'ASC'))
+
+    @classmethod
+    def __register__(cls, module_name):
+        cursor = Transaction().cursor
+        super(ViewShortcut, cls).__register__(module_name)
+        table = TableHandler(cursor, cls, module_name)
+
+        # Migration from 2.4 sequence is not required anymore
+        table.not_null_action('sequence', action='remove')
 
     @classmethod
     def get_sc(cls, user_id, model='ir.ui.menu'):
