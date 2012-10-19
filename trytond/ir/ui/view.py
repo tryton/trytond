@@ -319,7 +319,9 @@ class ViewShortcut(ModelSQL, ModelView):
 
     name = fields.Char('Shortcut Name', required=True)
     res_id = fields.Integer('Resource Ref.', required=True)
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence',
+        order_field='(%(table)s.sequence IS NULL) %(order)s, '
+        '%(table)s.sequence %(order)s')
     user_id = fields.Many2One('res.user', 'User Ref.', required=True,
        ondelete='CASCADE')
     resource = fields.Char('Resource Name', required=True)
