@@ -142,7 +142,7 @@ class Model(WarningErrorMixin, URLMixin):
         '''
         Returns the first non-empty line of the model docstring.
         '''
-        lines= cls.__doc__.splitlines()
+        lines = cls.__doc__.splitlines()
         for line in lines:
             line = line.strip()
             if line:
