@@ -274,7 +274,9 @@ class ModelStorage(Model):
             return data, data_o2m
 
         new_ids = {}
-        fields_names = cls._fields.keys()
+        fields_names = [n for n, f in cls._fields.iteritems()
+            if (not isinstance(f, fields.Function)
+                or isinstance(f, fields.Property))]
         ids = map(int, records)
         datas = cls.read(ids, fields_names=fields_names)
         field_defs = cls.fields_get(fields_names=fields_names)
