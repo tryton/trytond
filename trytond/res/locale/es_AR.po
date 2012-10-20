@@ -524,10 +524,6 @@ msgctxt "field:res.user,active:"
 msgid "Active"
 msgstr "Activo"
 
-msgctxt "field:res.user,connections:"
-msgid "Connections"
-msgstr "Conexiones"
-
 msgctxt "field:res.user,create_date:"
 msgid "Create Date"
 msgstr "Fecha de Creación"
@@ -591,6 +587,10 @@ msgstr "Reglas"
 msgctxt "field:res.user,salt:"
 msgid "Salt"
 msgstr "Sal"
+
+msgctxt "field:res.user,sessions:"
+msgid "Sessions"
+msgstr "Sesiones"
 
 msgctxt "field:res.user,signature:"
 msgid "Signature"
@@ -841,8 +841,8 @@ msgid "Cron Trigger"
 msgstr "Disparador del Programador de tareas"
 
 msgctxt "model:res.user-ir.action,name:"
-msgid "res.user-ir.action"
-msgstr "res.user-ir.action"
+msgid "User - Action"
+msgstr "Usuario - Acción"
 
 msgctxt "model:res.user-res.group,name:"
 msgid "User - Group"
