@@ -614,6 +614,10 @@ msgctxt "field:res.user,salt:"
 msgid "Salt"
 msgstr "Sel"
 
+msgctxt "field:res.user,sessions:"
+msgid "Sessions"
+msgstr "Sessions"
+
 msgctxt "field:res.user,signature:"
 msgid "Signature"
 msgstr "Signature"
@@ -863,7 +867,7 @@ msgid "Cron Trigger"
 msgstr "Déclencheur du planificateur"
 
 msgctxt "model:res.user-ir.action,name:"
-msgid "res.user-ir.action"
+msgid "User - Action"
 msgstr ""
 
 msgctxt "model:res.user-res.group,name:"

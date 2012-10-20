@@ -514,6 +514,10 @@ msgctxt "error:size_validation_record:"
 msgid "The field \"%s\" on \"%s\" is too long."
 msgstr "Le champ \"%s\" de \"%s\" est trop long"
 
+msgctxt "error:time_format_validation_record:"
+msgid "The time value of field \"%s\" on \"%s\" is not valid."
+msgstr "La valeur de type temps du champ \"%s\" de \"%s\" n'est pas valide"
+
 msgctxt "error:too_many_relations_found:"
 msgid "Too many relations found: %r in %s"
 msgstr "Trop de relations pour : %r dans %s"
@@ -737,6 +741,10 @@ msgstr "Date de création"
 msgctxt "field:ir.action.keyword,create_uid:"
 msgid "Create User"
 msgstr "Créé par"
+
+msgctxt "field:ir.action.keyword,groups:"
+msgid "Groups"
+msgstr "Groupes"
 
 msgctxt "field:ir.action.keyword,id:"
 msgid "ID"
@@ -1076,11 +1084,11 @@ msgstr "Nom"
 
 msgctxt "field:ir.cron,repeat_missed:"
 msgid "Repeat Missed"
-msgstr "Répéter les manqués"
+msgstr "Répéter si échec"
 
 msgctxt "field:ir.cron,request_user:"
 msgid "Request User"
-msgstr "Demande utilisateur"
+msgstr "Utilisateur de la demande"
 
 msgctxt "field:ir.cron,user:"
 msgid "Execution User"
@@ -1144,7 +1152,7 @@ msgstr "Créé par"
 
 msgctxt "field:ir.export.line,export:"
 msgid "Export"
-msgstr "Exportation"
+msgstr "Exports"
 
 msgctxt "field:ir.export.line,id:"
 msgid "ID"
@@ -1428,7 +1436,7 @@ msgstr "Créé par"
 
 msgctxt "field:ir.model.field,field_description:"
 msgid "Field Description"
-msgstr "Champ de description"
+msgstr "Description du champ"
 
 msgctxt "field:ir.model.field,groups:"
 msgid "Groups"
@@ -1460,11 +1468,11 @@ msgstr "Nom"
 
 msgctxt "field:ir.model.field,relation:"
 msgid "Model Relation"
-msgstr "Relation du modèle"
+msgstr "Modèle associé"
 
 msgctxt "field:ir.model.field,ttype:"
 msgid "Field Type"
-msgstr "Champ du type"
+msgstr "Type de champ"
 
 msgctxt "field:ir.model.field,write_date:"
 msgid "Write Date"
@@ -1497,6 +1505,14 @@ msgstr "Groupe"
 msgctxt "field:ir.model.field.access,id:"
 msgid "ID"
 msgstr "ID"
+
+msgctxt "field:ir.model.field.access,perm_create:"
+msgid "Create Access"
+msgstr "Accès en creation"
+
+msgctxt "field:ir.model.field.access,perm_delete:"
+msgid "Delete Access"
+msgstr "Accès en suppression"
 
 msgctxt "field:ir.model.field.access,perm_read:"
 msgid "Read Access"
@@ -2402,6 +2418,10 @@ msgctxt "field:ir.ui.view,create_uid:"
 msgid "Create User"
 msgstr "Créé par"
 
+msgctxt "field:ir.ui.view,data:"
+msgid "Data"
+msgstr "Données"
+
 msgctxt "field:ir.ui.view,domain:"
 msgid "Domain"
 msgstr "Domaine"
@@ -2425,6 +2445,10 @@ msgstr "Modèle"
 msgctxt "field:ir.ui.view,module:"
 msgid "Module"
 msgstr "Module"
+
+msgctxt "field:ir.ui.view,name:"
+msgid "Name"
+msgstr "Nom"
 
 msgctxt "field:ir.ui.view,priority:"
 msgid "Priority"
@@ -2464,7 +2488,7 @@ msgstr "ID"
 
 msgctxt "field:ir.ui.view_sc,name:"
 msgid "Shortcut Name"
-msgstr "Nom du raccourcis"
+msgstr "Nom du raccourci"
 
 msgctxt "field:ir.ui.view_sc,rec_name:"
 msgid "Name"
@@ -2863,7 +2887,7 @@ msgstr "Montrer la vue"
 
 msgctxt "model:ir.action,name:act_view_tree_expanded_state"
 msgid "Tree Expanded State"
-msgstr "État d'arbre développé"
+msgstr "État des arbres développés"
 
 msgctxt "model:ir.action,name:act_view_tree_width_form"
 msgid "View Tree Width"
@@ -3151,7 +3175,7 @@ msgstr "Actions planifiées"
 
 msgctxt "model:ir.ui.menu,name:menu_export_form"
 msgid "Exports"
-msgstr "Exportations"
+msgstr "Exports"
 
 msgctxt "model:ir.ui.menu,name:menu_icon_form"
 msgid "Icons"
@@ -3271,7 +3295,7 @@ msgstr "Raccourcis de la vue"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
 msgid "Tree Expanded State"
-msgstr "État d'arbre développé"
+msgstr "État des arbres développés"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_width"
 msgid "View Tree Width"
@@ -3286,7 +3310,7 @@ msgid "View"
 msgstr "Vue"
 
 msgctxt "model:ir.ui.view.show.start,name:"
-msgid "ir.ui.view.show.start"
+msgid "Show view"
 msgstr ""
 
 msgctxt "model:ir.ui.view_sc,name:"
@@ -3294,8 +3318,8 @@ msgid "View shortcut"
 msgstr "Vue raccourci"
 
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
-msgid "ir.ui.view_tree_expanded_state"
-msgstr ""
+msgid "View Tree Expanded State"
+msgstr "État des vues arbres développées"
 
 msgctxt "model:ir.ui.view_tree_width,name:"
 msgid "View Tree Width"
@@ -3638,6 +3662,10 @@ msgid "Wizard Button"
 msgstr "Bouton de l'assistant"
 
 msgctxt "selection:ir.ui.menu,action:"
+msgid ""
+msgstr ""
+
+msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
 msgstr ""
 
@@ -3708,6 +3736,10 @@ msgstr "Arbre"
 msgctxt "selection:ir.ui.view,type:"
 msgid "Tree"
 msgstr "Arbre"
+
+msgctxt "view:ir.action.act_window.view:"
+msgid "View"
+msgstr "Vue"
 
 msgctxt "view:ir.action.act_window.view:"
 msgid "Views"
@@ -3899,11 +3931,11 @@ msgstr "Actions planifiées"
 
 msgctxt "view:ir.export:"
 msgid "Exports"
-msgstr "Exportations"
+msgstr "Exports"
 
 msgctxt "view:ir.export:"
 msgid "Exports"
-msgstr "Exportations"
+msgstr "Exports"
 
 msgctxt "view:ir.lang:"
 msgid "Date Formatting"
@@ -3960,6 +3992,10 @@ msgstr "Droits d'accès au champs"
 msgctxt "view:ir.model.field.access:"
 msgid "Field Access"
 msgstr "Droits d'accès au champs"
+
+msgctxt "view:ir.model.field:"
+msgid "Field"
+msgstr "Champ"
 
 msgctxt "view:ir.model.field:"
 msgid "Fields"
@@ -4123,11 +4159,11 @@ msgstr "Installer"
 
 msgctxt "view:ir.module.module:"
 msgid "Mark for Installation"
-msgstr "Sélectionner pour l'installation"
+msgstr "Marquer pour l'installation"
 
 msgctxt "view:ir.module.module:"
 msgid "Mark for Installation"
-msgstr "Sélectionner pour l'installation"
+msgstr "Marquer pour l'installation"
 
 msgctxt "view:ir.module.module:"
 msgid "Mark for Uninstallation (beta)"
@@ -4477,11 +4513,11 @@ msgstr "_Montrer"
 
 msgctxt "view:ir.ui.view_sc:"
 msgid "Shortcut"
-msgstr "Raccourcis"
+msgstr "Raccourci"
 
 msgctxt "view:ir.ui.view_sc:"
 msgid "Shortcut"
-msgstr "Raccourcis"
+msgstr "Raccourci"
 
 msgctxt "view:ir.ui.view_sc:"
 msgid "Shortcuts"
@@ -4581,7 +4617,7 @@ msgstr "Annuler"
 
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
-msgstr "Exportation"
+msgstr "Exports"
 
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
