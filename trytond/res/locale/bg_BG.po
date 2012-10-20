@@ -524,10 +524,6 @@ msgctxt "field:res.user,active:"
 msgid "Active"
 msgstr "Активен"
 
-msgctxt "field:res.user,connections:"
-msgid "Connections"
-msgstr "Връзки"
-
 msgctxt "field:res.user,create_date:"
 msgid "Create Date"
 msgstr "Създадено на"
@@ -562,7 +558,7 @@ msgstr "Потребителско име"
 
 msgctxt "field:res.user,login_try:"
 msgid "Login Try"
-msgstr ""
+msgstr "Пробно влизане"
 
 msgctxt "field:res.user,menu:"
 msgid "Menu Action"
@@ -726,7 +722,7 @@ msgstr "Групите на които е позволено да редакти
 
 msgctxt "help:res.user,actions:"
 msgid "Actions that will be run at login"
-msgstr ""
+msgstr "Действие което ще бъде изпълнено при влизане"
 
 msgctxt "model:ir.action,name:act_group_form"
 msgid "Groups"
@@ -742,7 +738,7 @@ msgstr "Връзки към заявка"
 
 msgctxt "model:ir.action,name:act_user_config"
 msgid "Configure Users"
-msgstr ""
+msgstr " Настройки на потребители"
 
 msgctxt "model:ir.action,name:act_user_form"
 msgid "Users"
@@ -758,7 +754,7 @@ msgstr "Стартиране при настъпване на време"
 
 msgctxt "model:ir.model.button-res.group,name:"
 msgid "Model Button - Group"
-msgstr ""
+msgstr "Бутон модел - група"
 
 msgctxt "model:ir.model.field-res.group,name:"
 msgid "Model Field Group Rel"

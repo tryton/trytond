@@ -48,7 +48,7 @@ msgstr "Грешен модел на помощник!"
 
 msgctxt "error:ir.action.report:"
 msgid "Invalid email!"
-msgstr ""
+msgstr "Грешен email!"
 
 msgctxt "error:ir.action.report:"
 msgid "The internal name must be unique by module!"
@@ -108,7 +108,7 @@ msgstr "Не може да пишете в този документ! (%s)"
 
 msgctxt "error:ir.model.button:"
 msgid "The button name in model must be unique!"
-msgstr ""
+msgstr "Името на бутон в модела трябва да е уникално!"
 
 msgctxt "error:ir.model.data:"
 msgid "The triple (fs_id, module, model) must be unique!"
@@ -181,7 +181,7 @@ msgstr "Липсва последователност!"
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Timestamp rounding should be greater than 0"
-msgstr ""
+msgstr "Закръгляване дата и час трябва да бъде по-голяма от 0"
 
 msgctxt "error:ir.sequence:"
 msgid "Invalid prefix/suffix!"
@@ -197,7 +197,7 @@ msgstr "Липсва последователност!"
 
 msgctxt "error:ir.sequence:"
 msgid "Timestamp rounding should be greater than 0"
-msgstr ""
+msgstr "Закръгляване дата и час трябва да бъде по-голяма от 0"
 
 msgctxt "error:ir.translation:"
 msgid "Translation must be unique"
@@ -1251,13 +1251,9 @@ msgctxt "field:ir.model.print_model_graph.start,level:"
 msgid "Level"
 msgstr "Ниво"
 
-msgctxt "field:ir.module.module,author:"
-msgid "Author"
-msgstr "Автор"
-
 msgctxt "field:ir.module.module,childs:"
 msgid "Childs"
-msgstr ""
+msgstr "Деца"
 
 msgctxt "field:ir.module.module,create_date:"
 msgid "Create Date"
@@ -1271,10 +1267,6 @@ msgctxt "field:ir.module.module,dependencies:"
 msgid "Dependencies"
 msgstr "Зависимости"
 
-msgctxt "field:ir.module.module,description:"
-msgid "Description"
-msgstr "Описание"
-
 msgctxt "field:ir.module.module,id:"
 msgid "ID"
 msgstr "ID"
@@ -1285,15 +1277,11 @@ msgstr "Име"
 
 msgctxt "field:ir.module.module,parents:"
 msgid "Parents"
-msgstr ""
+msgstr "Родители"
 
 msgctxt "field:ir.module.module,rec_name:"
 msgid "Name"
 msgstr "Име"
-
-msgctxt "field:ir.module.module,shortdesc:"
-msgid "Short description"
-msgstr "Кратко описание"
 
 msgctxt "field:ir.module.module,state:"
 msgid "State"
@@ -1302,10 +1290,6 @@ msgstr "Състояние"
 msgctxt "field:ir.module.module,version:"
 msgid "Version"
 msgstr "Версия"
-
-msgctxt "field:ir.module.module,website:"
-msgid "Website"
-msgstr "Website"
 
 msgctxt "field:ir.module.module,write_date:"
 msgid "Write Date"
@@ -2061,7 +2045,7 @@ msgstr "Активен"
 
 msgctxt "field:ir.ui.menu,childs:"
 msgid "Children"
-msgstr "Деца"
+msgstr "Наследници"
 
 msgctxt "field:ir.ui.menu,complete_name:"
 msgid "Complete Name"
@@ -2129,7 +2113,7 @@ msgstr "Домейн"
 
 msgctxt "field:ir.ui.view,field_childs:"
 msgid "Children Field"
-msgstr "Подчинено поле"
+msgstr "Наследено поле"
 
 msgctxt "field:ir.ui.view,id:"
 msgid "ID"
@@ -2320,6 +2304,8 @@ msgid ""
 "Python dictonary where keys define \"to\" \"cc\" \"subject\"\n"
 "Example: {'to': 'test@example.com', 'cc': 'user@example.com'}"
 msgstr ""
+"Python речник където ключове са \"до\", \"копие\", \"относно\"\n"
+"Пример: {'до': 'test@example.com', 'копие': 'user@example.com'}"
 
 msgctxt "help:ir.action.report,extension:"
 msgid ""
@@ -2499,7 +2485,7 @@ msgstr "Модели"
 
 msgctxt "model:ir.action,name:act_module_config"
 msgid "Configure Modules"
-msgstr ""
+msgstr "Настройване на модули"
 
 msgctxt "model:ir.action,name:act_module_config_wizard"
 msgid "Module Configuration"
@@ -2651,7 +2637,7 @@ msgstr "Език"
 
 msgctxt "model:ir.lang,name:lang_ar"
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Испански (Аржентина)"
 
 msgctxt "model:ir.lang,name:lang_bg"
 msgid "Bulgarian"
@@ -2703,7 +2689,7 @@ msgstr "Модел на достъпа"
 
 msgctxt "model:ir.model.button,name:"
 msgid "Model Button"
-msgstr ""
+msgstr "Битон от модел"
 
 msgctxt "model:ir.model.data,name:"
 msgid "Model data"
@@ -2735,7 +2721,7 @@ msgstr "Задаване на помощника да се стартира сл
 
 msgctxt "model:ir.module.module.config_wizard.other,name:"
 msgid "Module Config Wizard Other"
-msgstr ""
+msgstr "Помощник за настройка на модук - други"
 
 msgctxt "model:ir.module.module.dependency,name:"
 msgid "Module dependency"
@@ -2743,7 +2729,7 @@ msgstr "Зависимости на модула"
 
 msgctxt "model:ir.module.module.install_upgrade.done,name:"
 msgid "Module Install Upgrade Done"
-msgstr ""
+msgstr "Приключи инсталиране/обновяване на модул"
 
 msgctxt "model:ir.module.module.install_upgrade.start,name:"
 msgid "Module Install Upgrade Start"
@@ -2775,17 +2761,16 @@ msgstr "Вид последователност"
 
 msgctxt "model:ir.session,name:"
 msgid "Session"
-msgstr ""
+msgstr "Сесия"
 
 msgctxt "model:ir.session.wizard,name:"
 msgid "Session Wizard"
-msgstr ""
+msgstr "Помощник за сесия"
 
 msgctxt "model:ir.translation,name:"
 msgid "Translation"
 msgstr "Превод"
 
-#, fuzzy
 msgctxt "model:ir.translation.clean.start,name:"
 msgid "Clean translation"
 msgstr "Начало на изчистване на преводи"
@@ -2798,7 +2783,6 @@ msgctxt "model:ir.translation.export.result,name:"
 msgid "Export translation"
 msgstr "Извличане на превод - файл"
 
-#, fuzzy
 msgctxt "model:ir.translation.export.start,name:"
 msgid "Export translation"
 msgstr "Извличане на превод - файл"
@@ -2813,7 +2797,7 @@ msgstr "Обновяване на преводи на справки"
 
 msgctxt "model:ir.translation.update.start,name:"
 msgid "Update translation"
-msgstr ""
+msgstr "Обновяване на превод"
 
 msgctxt "model:ir.trigger,name:"
 msgid "Trigger"
@@ -3428,7 +3412,7 @@ msgstr "Елементи на помощника за конфигуриране
 
 msgctxt "view:ir.module.module.config_wizard.other:"
 msgid "Configuration Wizard Next Step!"
-msgstr ""
+msgstr "Следваща стъпа на помощника за конфигуриране!"
 
 msgctxt "view:ir.module.module.dependency:"
 msgid "Dependencies"
@@ -3440,7 +3424,7 @@ msgstr "Зависимост"
 
 msgctxt "view:ir.module.module.install_upgrade.done:"
 msgid "System Upgrade Done"
-msgstr ""
+msgstr "Обновяване на системата завършено"
 
 msgctxt "view:ir.module.module.install_upgrade.done:"
 msgid "The modules have been upgraded / installed !"
@@ -3719,14 +3703,9 @@ msgctxt "wizard_button:ir.translation.clean,start,clean:"
 msgid "Clean"
 msgstr "Празно"
 
-#, fuzzy
 msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
-
-msgctxt "wizard_button:ir.translation.clean,start,end:"
-msgid "Ok"
-msgstr "Добре"
 
 msgctxt "wizard_button:ir.translation.clean,succeed,end:"
 msgid "Ok"
@@ -3736,27 +3715,17 @@ msgctxt "wizard_button:ir.translation.export,result,end:"
 msgid "Close"
 msgstr "Затваряне"
 
-#, fuzzy
 msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
-
-msgctxt "wizard_button:ir.translation.export,start,end:"
-msgid "Close"
-msgstr "Затваряне"
 
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
 msgstr "Извличане"
 
-#, fuzzy
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
 msgstr "Отказ"
-
-msgctxt "wizard_button:ir.translation.set_report,start,end:"
-msgid "Ok"
-msgstr "Добре"
 
 msgctxt "wizard_button:ir.translation.set_report,start,set_report:"
 msgid "Start Update"
@@ -3772,7 +3741,7 @@ msgstr "Отказ"
 
 msgctxt "wizard_button:ir.translation.update,start,update:"
 msgid "Update"
-msgstr ""
+msgstr "Обновяване"
 
 msgctxt "wizard_button:ir.ui.view.show,start,end:"
 msgid "Close"
