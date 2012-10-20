@@ -35,7 +35,7 @@ msgstr "Път"
 
 msgctxt "field:ir.attachment,shares:"
 msgid "Shares"
-msgstr ""
+msgstr "Споделени папки"
 
 msgctxt "field:ir.attachment,url:"
 msgid "URL"
@@ -43,7 +43,7 @@ msgstr "URL"
 
 msgctxt "field:webdav.collection,childs:"
 msgid "Children"
-msgstr "Деца"
+msgstr "Наследници"
 
 msgctxt "field:webdav.collection,complete_name:"
 msgid "Complete Name"
@@ -99,7 +99,7 @@ msgstr "Създадено от"
 
 msgctxt "field:webdav.share,expiration_date:"
 msgid "Expiration Date"
-msgstr ""
+msgstr "Крайна дата"
 
 msgctxt "field:webdav.share,id:"
 msgid "ID"
@@ -147,7 +147,7 @@ msgstr "Колекции"
 
 msgctxt "model:ir.action,name:act_share_list"
 msgid "Shares"
-msgstr ""
+msgstr "Споделени папки"
 
 msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
@@ -159,7 +159,7 @@ msgstr "Колекции"
 
 msgctxt "model:ir.ui.menu,name:menu_share_list"
 msgid "Shares"
-msgstr ""
+msgstr "Споделени папки"
 
 msgctxt "model:ir.ui.menu,name:menu_webdav"
 msgid "WebDAV"
@@ -171,7 +171,7 @@ msgstr "Колекция"
 
 msgctxt "model:webdav.share,name:"
 msgid "Share"
-msgstr ""
+msgstr "Споделена папка"
 
 msgctxt "view:ir.attachment:"
 msgid "WebDAV"
@@ -187,8 +187,8 @@ msgstr "Колекции"
 
 msgctxt "view:webdav.share:"
 msgid "Share"
-msgstr ""
+msgstr "Споделена папка"
 
 msgctxt "view:webdav.share:"
 msgid "Shares"
-msgstr ""
+msgstr "Споделени папки"
