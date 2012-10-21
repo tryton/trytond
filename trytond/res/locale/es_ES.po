@@ -314,11 +314,11 @@ msgstr "Usuario modificación"
 
 msgctxt "field:res.request,act_from:"
 msgid "From"
-msgstr "De"
+msgstr "Des de"
 
 msgctxt "field:res.request,act_to:"
 msgid "To"
-msgstr "A"
+msgstr "Para"
 
 msgctxt "field:res.request,active:"
 msgid "Active"
@@ -386,11 +386,11 @@ msgstr "Usuario modificación"
 
 msgctxt "field:res.request.history,act_from:"
 msgid "From"
-msgstr "De"
+msgstr "Des de"
 
 msgctxt "field:res.request.history,act_to:"
 msgid "To"
-msgstr "A"
+msgstr "Para"
 
 msgctxt "field:res.request.history,body:"
 msgid "Body"
@@ -524,10 +524,6 @@ msgctxt "field:res.user,active:"
 msgid "Active"
 msgstr "Activo"
 
-msgctxt "field:res.user,connections:"
-msgid "Connections"
-msgstr "Conexiones"
-
 msgctxt "field:res.user,create_date:"
 msgid "Create Date"
 msgstr "Fecha creación"
@@ -591,6 +587,10 @@ msgstr "Reglas"
 msgctxt "field:res.user,salt:"
 msgid "Salt"
 msgstr "Sal"
+
+msgctxt "field:res.user,sessions:"
+msgid "Sessions"
+msgstr "Sesiones"
 
 msgctxt "field:res.user,signature:"
 msgid "Signature"
@@ -841,8 +841,8 @@ msgid "Cron Trigger"
 msgstr "Disparador planificador"
 
 msgctxt "model:res.user-ir.action,name:"
-msgid "res.user-ir.action"
-msgstr "res.user-ir.action"
+msgid "User - Action"
+msgstr "Usuario - Acción"
 
 msgctxt "model:res.user-res.group,name:"
 msgid "User - Group"
