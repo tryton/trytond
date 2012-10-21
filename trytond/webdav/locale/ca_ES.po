@@ -8,9 +8,9 @@ msgid ""
 "in a collection with the name\n"
 "of an existing child collection!"
 msgstr ""
-"No pot crear un adjunt\n"
+"No podeu crear un adjunt\n"
 "en una col·lecció amb el nom\n"
-"d'una col·lecció filla existent"
+"d'una col·lecció filla existent."
 
 msgctxt "error:webdav.collection:"
 msgid "The collection name must be unique inside a collection!"
@@ -21,14 +21,13 @@ msgid ""
 "You can not create a collection\n"
 "in a collection with the name of an existing file!"
 msgstr ""
-"No pot crear una col·lecció\n"
-"en una col·lecció amb el nom d'un arxiu existent"
+"No podeu crear una col·lecció\n"
+"en una col·lecció amb el nom d'un arxiu existent."
 
 msgctxt "error:webdav.collection:"
 msgid "You can not create recursive collections!"
-msgstr "No pot crear col·leccions recursives"
+msgstr "No podeu crear col·leccions recursives."
 
-#, fuzzy
 msgctxt "field:ir.attachment,path:"
 msgid "Path"
 msgstr "Ruta"
@@ -37,7 +36,6 @@ msgctxt "field:ir.attachment,shares:"
 msgid "Shares"
 msgstr "Comparteix"
 
-#, fuzzy
 msgctxt "field:ir.attachment,url:"
 msgid "URL"
 msgstr "URL"
@@ -46,7 +44,6 @@ msgctxt "field:webdav.collection,childs:"
 msgid "Children"
 msgstr "Fills"
 
-#, fuzzy
 msgctxt "field:webdav.collection,complete_name:"
 msgid "Complete Name"
 msgstr "Nom complet"
@@ -55,10 +52,9 @@ msgctxt "field:webdav.collection,create_date:"
 msgid "Create Date"
 msgstr "Data creació"
 
-#, fuzzy
 msgctxt "field:webdav.collection,create_uid:"
 msgid "Create User"
-msgstr "Crear usuari"
+msgstr "Usuari creació"
 
 msgctxt "field:webdav.collection,domain:"
 msgid "Domain"
@@ -96,10 +92,9 @@ msgctxt "field:webdav.share,create_date:"
 msgid "Create Date"
 msgstr "Data creació"
 
-#, fuzzy
 msgctxt "field:webdav.share,create_uid:"
 msgid "Create User"
-msgstr "Crear usuari"
+msgstr "Usuari creació"
 
 msgctxt "field:webdav.share,expiration_date:"
 msgid "Expiration Date"
@@ -113,27 +108,22 @@ msgctxt "field:webdav.share,key:"
 msgid "Key"
 msgstr "Clau"
 
-#, fuzzy
 msgctxt "field:webdav.share,note:"
 msgid "Note"
 msgstr "Nota"
 
-#, fuzzy
 msgctxt "field:webdav.share,path:"
 msgid "Path"
 msgstr "Ruta"
 
-#, fuzzy
 msgctxt "field:webdav.share,rec_name:"
 msgid "Name"
-msgstr "Nom del camp"
+msgstr "Nom"
 
-#, fuzzy
 msgctxt "field:webdav.share,url:"
 msgid "URL"
 msgstr "URL"
 
-#, fuzzy
 msgctxt "field:webdav.share,user:"
 msgid "User"
 msgstr "Usuari"
@@ -146,7 +136,6 @@ msgctxt "field:webdav.share,write_uid:"
 msgid "Write User"
 msgstr "Usuari modificació"
 
-#, fuzzy
 msgctxt "model:ir.action,name:act_collection_list"
 msgid "Collections"
 msgstr "Col·leccions"
@@ -157,9 +146,8 @@ msgstr "Col·leccions"
 
 msgctxt "model:ir.action,name:act_share_list"
 msgid "Shares"
-msgstr ""
+msgstr "Comparteix"
 
-#, fuzzy
 msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
 msgstr "Col·leccions"
@@ -170,7 +158,7 @@ msgstr "Col·leccions"
 
 msgctxt "model:ir.ui.menu,name:menu_share_list"
 msgid "Shares"
-msgstr ""
+msgstr "Comparteix"
 
 msgctxt "model:ir.ui.menu,name:menu_webdav"
 msgid "WebDAV"
@@ -184,7 +172,6 @@ msgctxt "model:webdav.share,name:"
 msgid "Share"
 msgstr "Comparteix"
 
-#, fuzzy
 msgctxt "view:ir.attachment:"
 msgid "WebDAV"
 msgstr "WebDAV"
