@@ -776,7 +776,7 @@ msgstr "ID"
 
 msgctxt "field:ir.cron,interval_number:"
 msgid "Interval Number"
-msgstr "Número de intérvalos"
+msgstr "Número de intervalos"
 
 msgctxt "field:ir.cron,interval_type:"
 msgid "Interval Unit"
@@ -808,7 +808,7 @@ msgstr "Repetir perdidos"
 
 msgctxt "field:ir.cron,request_user:"
 msgid "Request User"
-msgstr "Solicitud usuario"
+msgstr "Usuario solicitante"
 
 msgctxt "field:ir.cron,user:"
 msgid "Execution User"
@@ -1104,11 +1104,11 @@ msgstr "Fecha de actualización"
 
 msgctxt "field:ir.model.data,db_id:"
 msgid "Resource ID"
-msgstr "Recurso ID"
+msgstr "ID del recurso"
 
 msgctxt "field:ir.model.data,fs_id:"
 msgid "Identifier on File System"
-msgstr "Identificador en el sistema de ficheros"
+msgstr "Identificador en el sistema de archivos"
 
 msgctxt "field:ir.model.data,id:"
 msgid "ID"
@@ -1188,7 +1188,7 @@ msgstr "Nombre"
 
 msgctxt "field:ir.model.field,relation:"
 msgid "Model Relation"
-msgstr "Relación modelo"
+msgstr "Relación del modelo"
 
 msgctxt "field:ir.model.field,ttype:"
 msgid "Field Type"
@@ -1584,7 +1584,7 @@ msgstr "Nombre de la secuencia"
 
 msgctxt "field:ir.sequence,number_increment:"
 msgid "Increment Number"
-msgstr "Número incremental"
+msgstr "Cantidad a incrementar"
 
 msgctxt "field:ir.sequence,number_next:"
 msgid "Next Number"
@@ -1596,7 +1596,7 @@ msgstr "Siguiente número"
 
 msgctxt "field:ir.sequence,padding:"
 msgid "Number padding"
-msgstr "Relleno de números"
+msgstr "Dígitos de relleno"
 
 msgctxt "field:ir.sequence,prefix:"
 msgid "Prefix"
@@ -1660,7 +1660,7 @@ msgstr "Nombre de la secuencia"
 
 msgctxt "field:ir.sequence.strict,number_increment:"
 msgid "Increment Number"
-msgstr "Número incremental"
+msgstr "Cantidad a incrementar"
 
 msgctxt "field:ir.sequence.strict,number_next:"
 msgid "Next Number"
@@ -1672,7 +1672,7 @@ msgstr "Siguiente número"
 
 msgctxt "field:ir.sequence.strict,padding:"
 msgid "Number padding"
-msgstr "Relleno de números"
+msgstr "Dígitos de relleno"
 
 msgctxt "field:ir.sequence.strict,prefix:"
 msgid "Prefix"
@@ -1752,7 +1752,7 @@ msgstr "ID"
 
 msgctxt "field:ir.session,key:"
 msgid "Key"
-msgstr "Tecla"
+msgstr "Clave"
 
 msgctxt "field:ir.session,rec_name:"
 msgid "Name"
@@ -1832,7 +1832,7 @@ msgstr "Nombre"
 
 msgctxt "field:ir.translation,res_id:"
 msgid "Resource ID"
-msgstr "Recurso ID"
+msgstr "ID del recurso"
 
 msgctxt "field:ir.translation,src:"
 msgid "Source"
@@ -1848,7 +1848,7 @@ msgstr "Tipo"
 
 msgctxt "field:ir.translation,value:"
 msgid "Translation Value"
-msgstr "Valor de la traducción"
+msgstr "Traducción"
 
 msgctxt "field:ir.translation,write_date:"
 msgid "Write Date"
@@ -1868,7 +1868,7 @@ msgstr "ID"
 
 msgctxt "field:ir.translation.export.result,file:"
 msgid "File"
-msgstr "Fichero"
+msgstr "Archivo"
 
 msgctxt "field:ir.translation.export.result,id:"
 msgid "ID"
@@ -1904,7 +1904,7 @@ msgstr "Idioma"
 
 msgctxt "field:ir.trigger,action_function:"
 msgid "Action Function"
-msgstr "Acción de función"
+msgstr "Función de la acción"
 
 msgctxt "field:ir.trigger,action_model:"
 msgid "Action Model"
@@ -1936,7 +1936,7 @@ msgstr "Número límite"
 
 msgctxt "field:ir.trigger,minimum_delay:"
 msgid "Minimum Delay"
-msgstr ""
+msgstr "Margen mínimo"
 
 msgctxt "field:ir.trigger,model:"
 msgid "Model"
@@ -1992,7 +1992,7 @@ msgstr "Nombre"
 
 msgctxt "field:ir.trigger.log,record_id:"
 msgid "Record ID"
-msgstr "ID registro"
+msgstr "ID del registro"
 
 msgctxt "field:ir.trigger.log,trigger:"
 msgid "Trigger"
@@ -2132,7 +2132,7 @@ msgstr "Dominio"
 
 msgctxt "field:ir.ui.view,field_childs:"
 msgid "Children Field"
-msgstr "Campo del hijo"
+msgstr "Campo de los hijos"
 
 msgctxt "field:ir.ui.view,id:"
 msgid "ID"
@@ -2140,7 +2140,7 @@ msgstr "ID"
 
 msgctxt "field:ir.ui.view,inherit:"
 msgid "Inherited View"
-msgstr "Herencia de la vista"
+msgstr "Vista heredada"
 
 msgctxt "field:ir.ui.view,model:"
 msgid "Model"
@@ -2200,11 +2200,11 @@ msgstr "Nombre"
 
 msgctxt "field:ir.ui.view_sc,res_id:"
 msgid "Resource Ref."
-msgstr "Recurs Ref."
+msgstr "Ref. del recurso"
 
 msgctxt "field:ir.ui.view_sc,resource:"
 msgid "Resource Name"
-msgstr "Nombre recurso"
+msgstr "Nombre del recurso"
 
 msgctxt "field:ir.ui.view_sc,sequence:"
 msgid "Sequence"
@@ -2212,7 +2212,7 @@ msgstr "Secuencia"
 
 msgctxt "field:ir.ui.view_sc,user_id:"
 msgid "User Ref."
-msgstr "Usuarios Ref."
+msgstr "Ref. del usuario"
 
 msgctxt "field:ir.ui.view_sc,write_date:"
 msgid "Write Date"
@@ -2248,7 +2248,7 @@ msgstr "Modelo"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,nodes:"
 msgid "Expanded Nodes"
-msgstr "Expandir nodos"
+msgstr "Nodos expandidos"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,rec_name:"
 msgid "Name"
@@ -2308,11 +2308,11 @@ msgstr "Usuario modificación"
 
 msgctxt "help:ir.action.act_window,auto_refresh:"
 msgid "Add an auto-refresh on the view"
-msgstr "Añade un auto-refresco a la vista"
+msgstr "Añade un auto-refresco a la vista."
 
 msgctxt "help:ir.action.act_window,limit:"
 msgid "Default limit for the list view"
-msgstr "Límite por defecto en las vistas de lista"
+msgstr "Límite por defecto en las vistas de lista."
 
 msgctxt "help:ir.action.act_window,search_value:"
 msgid "Default search criteria for the list view"
@@ -2332,23 +2332,23 @@ msgstr ""
 
 msgctxt "help:ir.action.report,extension:"
 msgid "Leave empty for the same as template, see unoconv documentation for compatible format"
-msgstr ""
+msgstr "Dejarlo vacío para el mismo tipo que la plantilla. Ver la documentación unoconv para formatos compatibles."
 
 msgctxt "help:ir.action.report,style:"
 msgid "Define the style to apply on the report."
-msgstr "Añade un estilo para aplicar en los informes."
+msgstr "Define el estilo a aplicar en el informe."
 
 msgctxt "help:ir.action.wizard,window:"
 msgid "Run wizard in a new window"
-msgstr "Ejecutar el asistente en una nueva ventana."
+msgstr "Ejecuta el asistente en una nueva ventana."
 
 msgctxt "help:ir.cron,number_calls:"
 msgid "Number of times the function is called, a negative number indicates that the function will always be called"
-msgstr "Número de llamadasde la función, un número negativo inica que esta función siempre se ejecutará."
+msgstr "Número de veces que se ejecuta la función, un número negativo indica que esta función se ejecutará siempre."
 
 msgctxt "help:ir.cron,request_user:"
 msgid "The user who will receive requests in case of failure"
-msgstr "El usuario que recebirá solicitudes en caso de error."
+msgstr "El usuario que recibirá solicitudes en caso de error."
 
 msgctxt "help:ir.cron,user:"
 msgid "The user used to execute this action"
@@ -2356,11 +2356,11 @@ msgstr "El usuario que ejecutará esta acción."
 
 msgctxt "help:ir.lang,code:"
 msgid "RFC 4646 tag: http://tools.ietf.org/html/rfc4646"
-msgstr ""
+msgstr "Etiqueta RFC 4646: http://tools.ietf.org/html/rfc4646"
 
 msgctxt "help:ir.model,module:"
 msgid "Module in which this model is defined"
-msgstr ""
+msgstr "Módulo donde se define este modelo."
 
 msgctxt "help:ir.model.data,db_id:"
 msgid "The id of the record in the database."
@@ -2368,11 +2368,11 @@ msgstr "El id del registro en la base de datos."
 
 msgctxt "help:ir.model.data,fs_id:"
 msgid "The id of the record as known on the file system."
-msgstr "El id del registro que se conoce en el sistema de ficheros."
+msgstr "El id del registro que se conoce en el sistema de archivos."
 
 msgctxt "help:ir.model.field,module:"
 msgid "Module in which this field is defined"
-msgstr ""
+msgstr "Módulo donde se define este campo."
 
 msgctxt "help:ir.model.print_model_graph.start,filter:"
 msgid "Entering a Python Regular Expression will exclude matching models from the graph."
@@ -2380,39 +2380,43 @@ msgstr "Una expresión regular de Python para excluir del gráfico modelos que c
 
 msgctxt "help:ir.rule.group,default_p:"
 msgid "Add this rule to all users by default"
-msgstr "Añade esta regla a todos los usuarios por defecto"
+msgstr "Añade esta regla a todos los usuarios por defecto."
 
 msgctxt "help:ir.rule.group,global_p:"
 msgid ""
 "Make the rule global \n"
 "so every users must follow this rule"
-msgstr "Marcar esta regla global"
+msgstr ""
+"Marca esta regla global\n"
+"de forma que todos los usuarios deban seguirla."
 
 msgctxt "help:ir.rule.group,rules:"
 msgid "The rule is satisfied if at least one test is True"
-msgstr "La regla es correcta si el último test es cierto."
+msgstr "La regla se satisface si al menos una condición es cierta."
 
 msgctxt "help:ir.trigger,condition:"
 msgid ""
 "A Python statement evaluated with record represented by \"self\"\n"
 "It triggers the action if true."
 msgstr ""
-"Una declaración de Python evaluado con el registro representado por \"self\".\n"
+"Una instrucción de Python evaluada con el registro representado por \"self\".\n"
 "Dispara la acción si es verdadera."
 
 msgctxt "help:ir.trigger,limit_number:"
 msgid ""
 "Limit the number of call to \"Action Function\" by records.\n"
 "0 for no limit."
-msgstr "Número límite de llamadas \"Acción de funciones\"."
+msgstr ""
+"Número límite de llamadas a la \"Función de la acción\".\n"
+"0 para no límite."
 
 msgctxt "help:ir.trigger,minimum_delay:"
 msgid ""
 "Set a minimum delay in minutes between call to \"Action Function\" for the same record.\n"
 "0 for no delay."
 msgstr ""
-"Intérvalo mínimo en minutos entre las llamadas \"Acción de función\" para el mismo registro.\n"
-"0 para no intérvalo."
+"Margen mínimo en minutos entre las llamadas a la \"Función de la acción\" para el mismo registro.\n"
+"0 para no dejar margen."
 
 msgctxt "model:ir.action,name:"
 msgid "Action"
@@ -2516,7 +2520,7 @@ msgstr "Propiedades por defecto"
 
 msgctxt "model:ir.action,name:act_rule_group_form"
 msgid "Record Rules"
-msgstr "Reglas de los registros"
+msgstr "Reglas de registros"
 
 msgctxt "model:ir.action,name:act_sequence_form"
 msgid "Sequences"
@@ -2528,7 +2532,7 @@ msgstr "Secuencia estricta"
 
 msgctxt "model:ir.action,name:act_sequence_type_form"
 msgid "Sequence Types"
-msgstr "Tipos de secuencias"
+msgstr "Tipos de secuencia"
 
 msgctxt "model:ir.action,name:act_translation_clean"
 msgid "Clean Translations"
@@ -2576,7 +2580,7 @@ msgstr "Mostrar vista"
 
 msgctxt "model:ir.action,name:act_view_tree_expanded_state"
 msgid "Tree Expanded State"
-msgstr "Estado árbol extendido"
+msgstr "Estado árbol expandido"
 
 msgctxt "model:ir.action,name:act_view_tree_width_form"
 msgid "View Tree Width"
@@ -2584,11 +2588,11 @@ msgstr "Ancho vista de árbol"
 
 msgctxt "model:ir.action,name:print_model_graph"
 msgid "Graph"
-msgstr "Gráfica"
+msgstr "Gráfico"
 
 msgctxt "model:ir.action,name:report_model_graph"
 msgid "Graph"
-msgstr "Gráfica"
+msgstr "Gráfico"
 
 msgctxt "model:ir.action.act_window,name:"
 msgid "Action act window"
@@ -2636,7 +2640,7 @@ msgstr "Exportar"
 
 msgctxt "model:ir.export.line,name:"
 msgid "Export line"
-msgstr "Exportar línia"
+msgstr "Exportar línea"
 
 msgctxt "model:ir.lang,name:"
 msgid "Language"
@@ -2648,7 +2652,7 @@ msgstr "Español (Argentina)"
 
 msgctxt "model:ir.lang,name:lang_bg"
 msgid "Bulgarian"
-msgstr "Bulgaria"
+msgstr "Búlgaro"
 
 msgctxt "model:ir.lang,name:lang_ca"
 msgid "Català"
@@ -2656,15 +2660,15 @@ msgstr "Català"
 
 msgctxt "model:ir.lang,name:lang_cs"
 msgid "Czech"
-msgstr "Chequia"
+msgstr "Checo"
 
 msgctxt "model:ir.lang,name:lang_de"
 msgid "German"
-msgstr "Alemany"
+msgstr "Alemán"
 
 msgctxt "model:ir.lang,name:lang_en"
 msgid "English"
-msgstr "Ingles"
+msgstr "Inglés"
 
 msgctxt "model:ir.lang,name:lang_es"
 msgid "Spanish (Spain)"
@@ -2680,7 +2684,7 @@ msgstr "Francés"
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
-msgstr "Holandés "
+msgstr "Holandés"
 
 msgctxt "model:ir.lang,name:lang_ru"
 msgid "Russian"
@@ -2712,7 +2716,7 @@ msgstr "Acceso campo modelo"
 
 msgctxt "model:ir.model.print_model_graph.start,name:"
 msgid "Print Model Graph"
-msgstr "Imprimir gráfico modelo"
+msgstr "Imprimir gráfico de modelos"
 
 msgctxt "model:ir.module.module,name:"
 msgid "Module"
@@ -2736,11 +2740,11 @@ msgstr "Dependencias del módulo"
 
 msgctxt "model:ir.module.module.install_upgrade.done,name:"
 msgid "Module Install Upgrade Done"
-msgstr "El módulo instalado se ha finalizado"
+msgstr "Finalizar la instalación o actualización de módulos"
 
 msgctxt "model:ir.module.module.install_upgrade.start,name:"
 msgid "Module Install Upgrade Start"
-msgstr "El módulo instalado se ha iniciado"
+msgstr "Iniciar la instalación o actualización de módulos"
 
 msgctxt "model:ir.property,name:"
 msgid "Property"
@@ -2752,7 +2756,7 @@ msgstr "Regla"
 
 msgctxt "model:ir.rule.group,name:"
 msgid "Rule group"
-msgstr "Regla del grupo"
+msgstr "Grupo de reglas"
 
 msgctxt "model:ir.sequence,name:"
 msgid "Sequence"
@@ -2768,7 +2772,7 @@ msgstr "Tipo de secuencia"
 
 msgctxt "model:ir.session,name:"
 msgid "Session"
-msgstr "Sessiones"
+msgstr "Sesión"
 
 msgctxt "model:ir.session.wizard,name:"
 msgid "Session Wizard"
@@ -2796,11 +2800,11 @@ msgstr "Exportar traducción"
 
 msgctxt "model:ir.translation.set_report.start,name:"
 msgid "Update Report Translation"
-msgstr "Actualizar traducciones de los informes"
+msgstr "Actualizar las traducciones de los informes"
 
 msgctxt "model:ir.translation.set_report.succeed,name:"
 msgid "Update Report Translation"
-msgstr "Actualizado las traducciones de los informes"
+msgstr "Actualizadas las traducciones de los informes"
 
 msgctxt "model:ir.translation.update.start,name:"
 msgid "Update translation"
@@ -2872,7 +2876,7 @@ msgstr "Iconos"
 
 msgctxt "model:ir.ui.menu,name:menu_ir_sequence_type"
 msgid "Sequence Types"
-msgstr "Tipos de secuencias"
+msgstr "Tipos de secuencia"
 
 msgctxt "model:ir.ui.menu,name:menu_lang_form"
 msgid "Languages"
@@ -2928,7 +2932,7 @@ msgstr "Propiedades por defecto"
 
 msgctxt "model:ir.ui.menu,name:menu_rule_group_form"
 msgid "Record Rules"
-msgstr "Reglas de los registros"
+msgstr "Reglas de registros"
 
 msgctxt "model:ir.ui.menu,name:menu_scheduler"
 msgid "Scheduler"
@@ -2960,7 +2964,7 @@ msgstr "Traducciones"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_set_report"
 msgid "Set Report Translations"
-msgstr "Extraer traducciones de los informes"
+msgstr "Extraer traducciones de informes"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_update"
 msgid "Synchronize Translations"
@@ -2984,7 +2988,7 @@ msgstr "Ver atajos"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
 msgid "Tree Expanded State"
-msgstr "Estado árbol extendido"
+msgstr "Estado árbol expandido"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_width"
 msgid "View Tree Width"
@@ -3008,7 +3012,7 @@ msgstr "Ver atajos"
 
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
 msgid "View Tree Expanded State"
-msgstr "Estado vistas de árbol extendidas"
+msgstr "Estado vistas de árbol expandidas"
 
 msgctxt "model:ir.ui.view_tree_width,name:"
 msgid "View Tree Width"
@@ -3068,11 +3072,11 @@ msgstr "Semanas"
 
 msgctxt "selection:ir.lang,direction:"
 msgid "Left-to-right"
-msgstr "De derecha a izquierda"
+msgstr "De izquierda a derecha"
 
 msgctxt "selection:ir.lang,direction:"
 msgid "Right-to-left"
-msgstr "Derecha a izquierda"
+msgstr "De derecha a izquierda"
 
 msgctxt "selection:ir.module.module,state:"
 msgid "Installed"
@@ -3124,7 +3128,7 @@ msgstr "Para actualizar"
 
 msgctxt "selection:ir.module.module.dependency,state:"
 msgid "Unknown"
-msgstr "No se conoze"
+msgstr "Desconocido"
 
 msgctxt "selection:ir.sequence,type:"
 msgid "Decimal Timestamp"
@@ -3208,15 +3212,15 @@ msgstr ""
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
-msgstr "Tablón"
+msgstr "Tablero"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Form"
-msgstr "Desde"
+msgstr "Formulario"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Graph"
-msgstr "Gráfica"
+msgstr "Gráfico"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Tree"
@@ -3260,7 +3264,7 @@ msgstr "Informe"
 
 msgctxt "view:ir.action.report:"
 msgid "Report xml"
-msgstr "XML informe"
+msgstr "Informe XML"
 
 msgctxt "view:ir.action.url:"
 msgid "General"
@@ -3292,7 +3296,7 @@ msgstr "Adjuntos"
 
 msgctxt "view:ir.cron:"
 msgid "Action to trigger"
-msgstr "Acción de disparador"
+msgstr "Acción a disparar"
 
 msgctxt "view:ir.cron:"
 msgid "Scheduled Action"
@@ -3348,7 +3352,7 @@ msgstr "Campos"
 
 msgctxt "view:ir.model.print_model_graph.start:"
 msgid "Print Model Graph"
-msgstr "Imprimir gráfico modelo"
+msgstr "Imprimir gráfico de modelos"
 
 msgctxt "view:ir.model:"
 msgid "Model Description"
@@ -3388,7 +3392,7 @@ msgstr "Los módulos han sido actualizados/instalados."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "Note that this operation my take a few minutes."
-msgstr "Esta operación puede llevar algunos minutos."
+msgstr "Tenga en cuenta que esta operación puede tardar varios minutos."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "System Upgrade"
@@ -3440,15 +3444,15 @@ msgstr "Propiedades"
 
 msgctxt "view:ir.rule.group:"
 msgid "If there is no test defined, the rule is always satisfied if not global"
-msgstr "Si no se encuentra definido, la regla es siempre satisfatoria si no es global."
+msgstr "Si no hay ningún test definido, la regla se satisface siempre si no es global."
 
 msgctxt "view:ir.rule.group:"
 msgid "Record rules"
-msgstr "Reglas de los registros"
+msgstr "Reglas de registros"
 
 msgctxt "view:ir.rule.group:"
 msgid "The rule is satisfied if at least one test is True"
-msgstr "La regla es correcta si el último test es cierto."
+msgstr "La regla se satisface si al menos una condición es cierta."
 
 msgctxt "view:ir.rule:"
 msgid "Test"
@@ -3480,7 +3484,7 @@ msgstr "Incremental"
 
 msgctxt "view:ir.sequence:"
 msgid "Legend (Placeholders for prefix, suffix)"
-msgstr "Leyenda (marcadores por prefijo/sufijo)"
+msgstr "Leyenda (marcadores para prefijo/sufijo)"
 
 msgctxt "view:ir.sequence:"
 msgid "Month:"
@@ -3504,7 +3508,7 @@ msgstr "Limpiar traducciones"
 
 msgctxt "view:ir.translation.clean.start:"
 msgid "Clean Translations?"
-msgstr "Limpiar traducciones?"
+msgstr "¿Limpiar las traducciones?"
 
 msgctxt "view:ir.translation.clean.succeed:"
 msgid "Clean Translations"
@@ -3512,7 +3516,7 @@ msgstr "Limpiar traducciones"
 
 msgctxt "view:ir.translation.clean.succeed:"
 msgid "Clean Translations Succeed!"
-msgstr "Se han limpiado las traducciones"
+msgstr "Las traducciones se han limpiado correctamente."
 
 msgctxt "view:ir.translation.export.result:"
 msgid "Export Translation"
@@ -3528,7 +3532,7 @@ msgstr "Extraer traducciones de los informes"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Synchronize Report Translations?"
-msgstr "Sincronizar traducciones de los informes?"
+msgstr "¿Sincronizar las traducciones de los informes?"
 
 msgctxt "view:ir.translation.set_report.succeed:"
 msgid "Set Report Translations"
@@ -3536,7 +3540,7 @@ msgstr "Extraer traducciones de los informes"
 
 msgctxt "view:ir.translation.set_report.succeed:"
 msgid "Set Translations Succeed!"
-msgstr "Se ha realizado las traducciones."
+msgstr "La extracción de las traducciones terminó correctamente."
 
 msgctxt "view:ir.translation.update.start:"
 msgid "Synchronize Translations"
@@ -3584,11 +3588,11 @@ msgstr "Atajos"
 
 msgctxt "view:ir.ui.view_tree_expanded_state:"
 msgid "View Tree Expanded State"
-msgstr "Estado vistas de árbol extendidas"
+msgstr "Estado vistas de árbol expandidas"
 
 msgctxt "view:ir.ui.view_tree_expanded_state:"
 msgid "Views Tree Expanded State"
-msgstr "Estado vistas de árbol extendidas"
+msgstr "Estado vistas de árbol expandidas"
 
 msgctxt "view:ir.ui.view_tree_width:"
 msgid "View Tree Width"
