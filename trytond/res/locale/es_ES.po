@@ -314,7 +314,7 @@ msgstr "Usuario modificación"
 
 msgctxt "field:res.request,act_from:"
 msgid "From"
-msgstr "Des de"
+msgstr "Desde"
 
 msgctxt "field:res.request,act_to:"
 msgid "To"
@@ -374,7 +374,7 @@ msgstr "Estado"
 
 msgctxt "field:res.request,trigger_date:"
 msgid "Trigger Date"
-msgstr "Fecha activación"
+msgstr "Fecha disparo"
 
 msgctxt "field:res.request,write_date:"
 msgid "Write Date"
@@ -386,7 +386,7 @@ msgstr "Usuario modificación"
 
 msgctxt "field:res.request.history,act_from:"
 msgid "From"
-msgstr "Des de"
+msgstr "Desde"
 
 msgctxt "field:res.request.history,act_to:"
 msgid "To"
