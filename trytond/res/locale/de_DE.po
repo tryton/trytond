@@ -523,10 +523,6 @@ msgctxt "field:res.user,active:"
 msgid "Active"
 msgstr "Aktiv"
 
-msgctxt "field:res.user,connections:"
-msgid "Connections"
-msgstr "Verbindungen"
-
 msgctxt "field:res.user,create_date:"
 msgid "Create Date"
 msgstr "Erstellungsdatum"
@@ -590,6 +586,10 @@ msgstr "Datensatzregeln"
 msgctxt "field:res.user,salt:"
 msgid "Salt"
 msgstr "Salt"
+
+msgctxt "field:res.user,sessions:"
+msgid "Sessions"
+msgstr ""
 
 msgctxt "field:res.user,signature:"
 msgid "Signature"
@@ -841,7 +841,7 @@ msgid "Cron Trigger"
 msgstr "Zeitplaner Trigger"
 
 msgctxt "model:res.user-ir.action,name:"
-msgid "res.user-ir.action"
+msgid "User - Action"
 msgstr ""
 
 msgctxt "model:res.user-res.group,name:"

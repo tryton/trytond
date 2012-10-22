@@ -588,6 +588,10 @@ msgctxt "field:res.user,salt:"
 msgid "Salt"
 msgstr "Ключ"
 
+msgctxt "field:res.user,sessions:"
+msgid "Sessions"
+msgstr ""
+
 msgctxt "field:res.user,signature:"
 msgid "Signature"
 msgstr "Подпис"
@@ -837,7 +841,7 @@ msgid "Cron Trigger"
 msgstr "Превключвател на планировщик"
 
 msgctxt "model:res.user-ir.action,name:"
-msgid "res.user-ir.action"
+msgid "User - Action"
 msgstr ""
 
 msgctxt "model:res.user-res.group,name:"

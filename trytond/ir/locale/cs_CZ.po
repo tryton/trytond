@@ -250,6 +250,10 @@ msgctxt "error:size_validation_record:"
 msgid "The field \"%s\" on \"%s\" is too long."
 msgstr ""
 
+msgctxt "error:time_format_validation_record:"
+msgid "The time value of field \"%s\" on \"%s\" is not valid."
+msgstr ""
+
 msgctxt "error:too_many_relations_found:"
 msgid "Too many relations found: %r in %s"
 msgstr ""
@@ -446,6 +450,10 @@ msgstr ""
 
 msgctxt "field:ir.action.keyword,create_uid:"
 msgid "Create User"
+msgstr ""
+
+msgctxt "field:ir.action.keyword,groups:"
+msgid "Groups"
 msgstr ""
 
 msgctxt "field:ir.action.keyword,id:"
@@ -1208,6 +1216,14 @@ msgctxt "field:ir.model.field.access,id:"
 msgid "ID"
 msgstr ""
 
+msgctxt "field:ir.model.field.access,perm_create:"
+msgid "Create Access"
+msgstr ""
+
+msgctxt "field:ir.model.field.access,perm_delete:"
+msgid "Delete Access"
+msgstr ""
+
 msgctxt "field:ir.model.field.access,perm_read:"
 msgid "Read Access"
 msgstr ""
@@ -1240,10 +1256,6 @@ msgctxt "field:ir.model.print_model_graph.start,level:"
 msgid "Level"
 msgstr ""
 
-msgctxt "field:ir.module.module,author:"
-msgid "Author"
-msgstr ""
-
 msgctxt "field:ir.module.module,childs:"
 msgid "Childs"
 msgstr ""
@@ -1258,10 +1270,6 @@ msgstr ""
 
 msgctxt "field:ir.module.module,dependencies:"
 msgid "Dependencies"
-msgstr ""
-
-msgctxt "field:ir.module.module,description:"
-msgid "Description"
 msgstr ""
 
 msgctxt "field:ir.module.module,id:"
@@ -1280,20 +1288,12 @@ msgctxt "field:ir.module.module,rec_name:"
 msgid "Name"
 msgstr ""
 
-msgctxt "field:ir.module.module,shortdesc:"
-msgid "Short description"
-msgstr ""
-
 msgctxt "field:ir.module.module,state:"
 msgid "State"
 msgstr ""
 
 msgctxt "field:ir.module.module,version:"
 msgid "Version"
-msgstr ""
-
-msgctxt "field:ir.module.module,website:"
-msgid "Website"
 msgstr ""
 
 msgctxt "field:ir.module.module,write_date:"
@@ -2112,6 +2112,10 @@ msgctxt "field:ir.ui.view,create_uid:"
 msgid "Create User"
 msgstr ""
 
+msgctxt "field:ir.ui.view,data:"
+msgid "Data"
+msgstr ""
+
 msgctxt "field:ir.ui.view,domain:"
 msgid "Domain"
 msgstr ""
@@ -2134,6 +2138,10 @@ msgstr ""
 
 msgctxt "field:ir.ui.view,module:"
 msgid "Module"
+msgstr ""
+
+msgctxt "field:ir.ui.view,name:"
+msgid "Name"
 msgstr ""
 
 msgctxt "field:ir.ui.view,priority:"
@@ -2981,7 +2989,7 @@ msgid "View"
 msgstr ""
 
 msgctxt "model:ir.ui.view.show.start,name:"
-msgid "ir.ui.view.show.start"
+msgid "Show view"
 msgstr ""
 
 msgctxt "model:ir.ui.view_sc,name:"
@@ -2989,7 +2997,7 @@ msgid "View shortcut"
 msgstr ""
 
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
-msgid "ir.ui.view_tree_expanded_state"
+msgid "View Tree Expanded State"
 msgstr ""
 
 msgctxt "model:ir.ui.view_tree_width,name:"
@@ -3165,6 +3173,10 @@ msgid "Wizard Button"
 msgstr ""
 
 msgctxt "selection:ir.ui.menu,action:"
+msgid ""
+msgstr ""
+
+msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
 msgstr ""
 
@@ -3198,6 +3210,10 @@ msgstr ""
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Tree"
+msgstr ""
+
+msgctxt "view:ir.action.act_window.view:"
+msgid "View"
 msgstr ""
 
 msgctxt "view:ir.action.act_window.view:"
@@ -3354,6 +3370,10 @@ msgstr ""
 
 msgctxt "view:ir.model.field.access:"
 msgid "Field Access"
+msgstr ""
+
+msgctxt "view:ir.model.field:"
+msgid "Field"
 msgstr ""
 
 msgctxt "view:ir.model.field:"
@@ -3683,10 +3703,6 @@ msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Cancel"
 msgstr ""
 
-msgctxt "wizard_button:ir.translation.clean,start,end:"
-msgid "Ok"
-msgstr ""
-
 msgctxt "wizard_button:ir.translation.clean,succeed,end:"
 msgid "Ok"
 msgstr ""
@@ -3699,20 +3715,12 @@ msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Cancel"
 msgstr ""
 
-msgctxt "wizard_button:ir.translation.export,start,end:"
-msgid "Close"
-msgstr ""
-
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
 msgstr ""
 
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
-msgstr ""
-
-msgctxt "wizard_button:ir.translation.set_report,start,end:"
-msgid "Ok"
 msgstr ""
 
 msgctxt "wizard_button:ir.translation.set_report,start,set_report:"

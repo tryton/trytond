@@ -262,6 +262,10 @@ msgctxt "error:size_validation_record:"
 msgid "The field \"%s\" on \"%s\" is too long."
 msgstr "Veld \"%s\" op \"%s\" is te lang."
 
+msgctxt "error:time_format_validation_record:"
+msgid "The time value of field \"%s\" on \"%s\" is not valid."
+msgstr ""
+
 msgctxt "error:too_many_relations_found:"
 msgid "Too many relations found: %r in %s"
 msgstr "Te veel relaties gevonden: %r in %s"
@@ -462,6 +466,11 @@ msgstr ""
 msgctxt "field:ir.action.keyword,create_uid:"
 msgid "Create User"
 msgstr ""
+
+#, fuzzy
+msgctxt "field:ir.action.keyword,groups:"
+msgid "Groups"
+msgstr "Groepen"
 
 msgctxt "field:ir.action.keyword,id:"
 msgid "ID"
@@ -1234,6 +1243,16 @@ msgid "ID"
 msgstr ""
 
 #, fuzzy
+msgctxt "field:ir.model.field.access,perm_create:"
+msgid "Create Access"
+msgstr "Mag aanmaken"
+
+#, fuzzy
+msgctxt "field:ir.model.field.access,perm_delete:"
+msgid "Delete Access"
+msgstr "Toegang verwijderen"
+
+#, fuzzy
 msgctxt "field:ir.model.field.access,perm_read:"
 msgid "Read Access"
 msgstr "Leesrecht"
@@ -1268,10 +1287,6 @@ msgctxt "field:ir.model.print_model_graph.start,level:"
 msgid "Level"
 msgstr ""
 
-msgctxt "field:ir.module.module,author:"
-msgid "Author"
-msgstr "Auteur"
-
 msgctxt "field:ir.module.module,childs:"
 msgid "Childs"
 msgstr ""
@@ -1287,10 +1302,6 @@ msgstr ""
 msgctxt "field:ir.module.module,dependencies:"
 msgid "Dependencies"
 msgstr "Afhankelijkheden"
-
-msgctxt "field:ir.module.module,description:"
-msgid "Description"
-msgstr "Omschrijving"
 
 msgctxt "field:ir.module.module,id:"
 msgid "ID"
@@ -1308,10 +1319,6 @@ msgctxt "field:ir.module.module,rec_name:"
 msgid "Name"
 msgstr "Naam"
 
-msgctxt "field:ir.module.module,shortdesc:"
-msgid "Short description"
-msgstr "Korte omschrijving"
-
 msgctxt "field:ir.module.module,state:"
 msgid "State"
 msgstr "Status"
@@ -1319,10 +1326,6 @@ msgstr "Status"
 msgctxt "field:ir.module.module,version:"
 msgid "Version"
 msgstr "Versie"
-
-msgctxt "field:ir.module.module,website:"
-msgid "Website"
-msgstr "Website"
 
 msgctxt "field:ir.module.module,write_date:"
 msgid "Write Date"
@@ -2154,6 +2157,10 @@ msgctxt "field:ir.ui.view,create_uid:"
 msgid "Create User"
 msgstr ""
 
+msgctxt "field:ir.ui.view,data:"
+msgid "Data"
+msgstr ""
+
 msgctxt "field:ir.ui.view,domain:"
 msgid "Domain"
 msgstr "Domein"
@@ -2177,6 +2184,11 @@ msgstr "Model"
 msgctxt "field:ir.ui.view,module:"
 msgid "Module"
 msgstr "Module"
+
+#, fuzzy
+msgctxt "field:ir.ui.view,name:"
+msgid "Name"
+msgstr "Naam bijlage"
 
 msgctxt "field:ir.ui.view,priority:"
 msgid "Priority"
@@ -3042,7 +3054,7 @@ msgid "View"
 msgstr "Overzicht"
 
 msgctxt "model:ir.ui.view.show.start,name:"
-msgid "ir.ui.view.show.start"
+msgid "Show view"
 msgstr ""
 
 msgctxt "model:ir.ui.view_sc,name:"
@@ -3050,7 +3062,7 @@ msgid "View shortcut"
 msgstr "Bekijk sneltoets"
 
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
-msgid "ir.ui.view_tree_expanded_state"
+msgid "View Tree Expanded State"
 msgstr ""
 
 msgctxt "model:ir.ui.view_tree_width,name:"
@@ -3227,6 +3239,10 @@ msgid "Wizard Button"
 msgstr "Assistent knop"
 
 msgctxt "selection:ir.ui.menu,action:"
+msgid ""
+msgstr ""
+
+msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
 msgstr ""
 
@@ -3261,6 +3277,11 @@ msgstr "Grafiek"
 msgctxt "selection:ir.ui.view,type:"
 msgid "Tree"
 msgstr "Boomstructuur"
+
+#, fuzzy
+msgctxt "view:ir.action.act_window.view:"
+msgid "View"
+msgstr "Overzicht"
 
 #, fuzzy
 msgctxt "view:ir.action.act_window.view:"
@@ -3424,6 +3445,11 @@ msgstr ""
 msgctxt "view:ir.model.field.access:"
 msgid "Field Access"
 msgstr ""
+
+#, fuzzy
+msgctxt "view:ir.model.field:"
+msgid "Field"
+msgstr "Veld"
 
 msgctxt "view:ir.model.field:"
 msgid "Fields"
@@ -3776,10 +3802,6 @@ msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Cancel"
 msgstr "Annuleren"
 
-msgctxt "wizard_button:ir.translation.clean,start,end:"
-msgid "Ok"
-msgstr "Oké"
-
 #, fuzzy
 msgctxt "wizard_button:ir.translation.clean,succeed,end:"
 msgid "Ok"
@@ -3795,10 +3817,6 @@ msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Cancel"
 msgstr "Annuleren"
 
-msgctxt "wizard_button:ir.translation.export,start,end:"
-msgid "Close"
-msgstr "Sluiten"
-
 #, fuzzy
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
@@ -3808,10 +3826,6 @@ msgstr "Exporteren"
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
 msgstr "Annuleren"
-
-msgctxt "wizard_button:ir.translation.set_report,start,end:"
-msgid "Ok"
-msgstr "Oké"
 
 msgctxt "wizard_button:ir.translation.set_report,start,set_report:"
 msgid "Start Update"

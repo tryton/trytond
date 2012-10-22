@@ -1546,10 +1546,6 @@ msgctxt "field:ir.model.print_model_graph.start,level:"
 msgid "Level"
 msgstr "Niveau"
 
-msgctxt "field:ir.module.module,author:"
-msgid "Author"
-msgstr "Auteur"
-
 msgctxt "field:ir.module.module,childs:"
 msgid "Childs"
 msgstr "Enfants"
@@ -1565,10 +1561,6 @@ msgstr "Créé par"
 msgctxt "field:ir.module.module,dependencies:"
 msgid "Dependencies"
 msgstr "Dépendances"
-
-msgctxt "field:ir.module.module,description:"
-msgid "Description"
-msgstr "Description"
 
 msgctxt "field:ir.module.module,id:"
 msgid "ID"
@@ -1586,10 +1578,6 @@ msgctxt "field:ir.module.module,rec_name:"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:ir.module.module,shortdesc:"
-msgid "Short description"
-msgstr "Description courte"
-
 msgctxt "field:ir.module.module,state:"
 msgid "State"
 msgstr "État"
@@ -1597,10 +1585,6 @@ msgstr "État"
 msgctxt "field:ir.module.module,version:"
 msgid "Version"
 msgstr "Version"
-
-msgctxt "field:ir.module.module,website:"
-msgid "Website"
-msgstr "Site web"
 
 msgctxt "field:ir.module.module,write_date:"
 msgid "Write Date"

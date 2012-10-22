@@ -546,10 +546,6 @@ msgctxt "field:res.user,active:"
 msgid "Active"
 msgstr "Actif"
 
-msgctxt "field:res.user,connections:"
-msgid "Connections"
-msgstr "Connexions"
-
 msgctxt "field:res.user,create_date:"
 msgid "Create Date"
 msgstr "Date de création"

@@ -1270,10 +1270,6 @@ msgctxt "field:ir.model.print_model_graph.start,level:"
 msgid "Level"
 msgstr "Nivel"
 
-msgctxt "field:ir.module.module,author:"
-msgid "Author"
-msgstr "Autor"
-
 msgctxt "field:ir.module.module,childs:"
 msgid "Childs"
 msgstr "Hijos"
@@ -1289,10 +1285,6 @@ msgstr "Creado por Usuario"
 msgctxt "field:ir.module.module,dependencies:"
 msgid "Dependencies"
 msgstr "Dependencias"
-
-msgctxt "field:ir.module.module,description:"
-msgid "Description"
-msgstr "Descripción"
 
 msgctxt "field:ir.module.module,id:"
 msgid "ID"
@@ -1310,10 +1302,6 @@ msgctxt "field:ir.module.module,rec_name:"
 msgid "Name"
 msgstr "Nombre"
 
-msgctxt "field:ir.module.module,shortdesc:"
-msgid "Short description"
-msgstr "Descripción corta"
-
 msgctxt "field:ir.module.module,state:"
 msgid "State"
 msgstr "Estado"
@@ -1321,10 +1309,6 @@ msgstr "Estado"
 msgctxt "field:ir.module.module,version:"
 msgid "Version"
 msgstr "Versión"
-
-msgctxt "field:ir.module.module,website:"
-msgid "Website"
-msgstr "Sitio web"
 
 msgctxt "field:ir.module.module,write_date:"
 msgid "Write Date"
@@ -3219,9 +3203,10 @@ msgctxt "selection:ir.translation,type:"
 msgid "Wizard Button"
 msgstr "Botón de asistente"
 
+#, fuzzy
 msgctxt "selection:ir.ui.menu,action:"
 msgid ""
-msgstr ""
+msgstr "Punto de Orden"
 
 msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
@@ -3239,9 +3224,10 @@ msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.wizard"
 msgstr "ir.action.wizard"
 
+#, fuzzy
 msgctxt "selection:ir.ui.view,type:"
 msgid ""
-msgstr ""
+msgstr "Punto de Orden"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
@@ -3806,10 +3792,6 @@ msgctxt "wizard_button:ir.translation.clean,start,end:"
 msgid "Cancel"
 msgstr "Cancelar"
 
-msgctxt "wizard_button:ir.translation.clean,start,end:"
-msgid "Ok"
-msgstr "Aceptar"
-
 msgctxt "wizard_button:ir.translation.clean,succeed,end:"
 msgid "Ok"
 msgstr "Aceptar"
@@ -3822,10 +3804,6 @@ msgctxt "wizard_button:ir.translation.export,start,end:"
 msgid "Cancel"
 msgstr "Cancelar"
 
-msgctxt "wizard_button:ir.translation.export,start,end:"
-msgid "Close"
-msgstr "Cerrar"
-
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
 msgstr "Exportar"
@@ -3833,10 +3811,6 @@ msgstr "Exportar"
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
 msgstr "Cancelar"
-
-msgctxt "wizard_button:ir.translation.set_report,start,end:"
-msgid "Ok"
-msgstr "Aceptar"
 
 msgctxt "wizard_button:ir.translation.set_report,start,set_report:"
 msgid "Start Update"
