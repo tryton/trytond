@@ -2855,7 +2855,7 @@ msgstr "Traductions"
 
 msgctxt "model:ir.action,name:act_translation_set_report"
 msgid "Set Report Translations"
-msgstr "Mettre à jours les traductions des rapports"
+msgstr "Mettre à jour les traductions des rapports"
 
 msgctxt "model:ir.action,name:act_translation_update"
 msgid "Synchronize Translations"
@@ -3271,7 +3271,7 @@ msgstr "Traductions"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_set_report"
 msgid "Set Report Translations"
-msgstr "Mettre à jours les traductions des rapports"
+msgstr "Mettre à jour les traductions des rapports"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_update"
 msgid "Synchronize Translations"
@@ -4421,11 +4421,11 @@ msgstr "Exporter les traductions"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Set Report Translations"
-msgstr "Mettre à jours les traductions des rapports"
+msgstr "Mettre à jour les traductions des rapports"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Set Report Translations"
-msgstr "Mettre à jours les traductions des rapports"
+msgstr "Mettre à jour les traductions des rapports"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Set Translations Succeed!"
@@ -4437,7 +4437,7 @@ msgstr "Synchroniser les traductions des rapports ?"
 
 msgctxt "view:ir.translation.set_report.succeed:"
 msgid "Set Report Translations"
-msgstr "Mettre à jours les traductions des rapports"
+msgstr "Mettre à jour les traductions des rapports"
 
 msgctxt "view:ir.translation.set_report.succeed:"
 msgid "Set Translations Succeed!"
