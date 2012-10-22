@@ -259,6 +259,10 @@ msgctxt "error:size_validation_record:"
 msgid "The field \"%s\" on \"%s\" is too long."
 msgstr "Полето \"%s\" от \"%s\" е много дълго."
 
+msgctxt "error:time_format_validation_record:"
+msgid "The time value of field \"%s\" on \"%s\" is not valid."
+msgstr ""
+
 msgctxt "error:too_many_relations_found:"
 msgid "Too many relations found: %r in %s"
 msgstr "Намерени са твърде много зависимости: %r в %s"
@@ -458,6 +462,11 @@ msgstr "Създадено на"
 msgctxt "field:ir.action.keyword,create_uid:"
 msgid "Create User"
 msgstr "Създадено от"
+
+#, fuzzy
+msgctxt "field:ir.action.keyword,groups:"
+msgid "Groups"
+msgstr "Групи"
 
 msgctxt "field:ir.action.keyword,id:"
 msgid "ID"
@@ -1218,6 +1227,16 @@ msgstr "Група"
 msgctxt "field:ir.model.field.access,id:"
 msgid "ID"
 msgstr "ID"
+
+#, fuzzy
+msgctxt "field:ir.model.field.access,perm_create:"
+msgid "Create Access"
+msgstr "Права за създаване"
+
+#, fuzzy
+msgctxt "field:ir.model.field.access,perm_delete:"
+msgid "Delete Access"
+msgstr "Права за изтриване"
 
 msgctxt "field:ir.model.field.access,perm_read:"
 msgid "Read Access"
@@ -2107,6 +2126,11 @@ msgctxt "field:ir.ui.view,create_uid:"
 msgid "Create User"
 msgstr "Създадено от"
 
+#, fuzzy
+msgctxt "field:ir.ui.view,data:"
+msgid "Data"
+msgstr "Данни"
+
 msgctxt "field:ir.ui.view,domain:"
 msgid "Domain"
 msgstr "Домейн"
@@ -2130,6 +2154,11 @@ msgstr "Модел"
 msgctxt "field:ir.ui.view,module:"
 msgid "Module"
 msgstr "Модул"
+
+#, fuzzy
+msgctxt "field:ir.ui.view,name:"
+msgid "Name"
+msgstr "Име на прикачен файл"
 
 msgctxt "field:ir.ui.view,priority:"
 msgid "Priority"
@@ -2992,16 +3021,17 @@ msgid "View"
 msgstr "Изглед"
 
 msgctxt "model:ir.ui.view.show.start,name:"
-msgid "ir.ui.view.show.start"
+msgid "Show view"
 msgstr ""
 
 msgctxt "model:ir.ui.view_sc,name:"
 msgid "View shortcut"
 msgstr "Изглед бърз клавиш"
 
+#, fuzzy
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
-msgid "ir.ui.view_tree_expanded_state"
-msgstr ""
+msgid "View Tree Expanded State"
+msgstr "Изгледи на дърво с разтворени възли"
 
 msgctxt "model:ir.ui.view_tree_width,name:"
 msgid "View Tree Width"
@@ -3176,6 +3206,10 @@ msgid "Wizard Button"
 msgstr "Бутон на помощник"
 
 msgctxt "selection:ir.ui.menu,action:"
+msgid ""
+msgstr ""
+
+msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
 msgstr ""
 
@@ -3210,6 +3244,11 @@ msgstr "Графика"
 msgctxt "selection:ir.ui.view,type:"
 msgid "Tree"
 msgstr "Дърво"
+
+#, fuzzy
+msgctxt "view:ir.action.act_window.view:"
+msgid "View"
+msgstr "Изглед"
 
 msgctxt "view:ir.action.act_window.view:"
 msgid "Views"
@@ -3370,6 +3409,11 @@ msgstr "Бутони"
 msgctxt "view:ir.model.field.access:"
 msgid "Field Access"
 msgstr "Достъп до поле"
+
+#, fuzzy
+msgctxt "view:ir.model.field:"
+msgid "Field"
+msgstr "Поле"
 
 msgctxt "view:ir.model.field:"
 msgid "Fields"
