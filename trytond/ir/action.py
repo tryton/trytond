@@ -734,11 +734,14 @@ class ActionActWindow(ModelSQL, ModelView):
 
     @classmethod
     def get(cls, xml_id):
-        'Get values from XML id'
+        'Get values from XML id or id'
         pool = Pool()
         ModelData = pool.get('ir.model.data')
         Action = pool.get('ir.action')
-        action_id = ModelData.get_id(*xml_id.split('.'))
+        if '.' in xml_id:
+            action_id = ModelData.get_id(*xml_id.split('.'))
+        else:
+            action_id = int(xml_id)
         return Action.get_action_values(cls.__name__, [action_id])[0]
 
     @classmethod
