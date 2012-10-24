@@ -338,15 +338,7 @@ def register_classes():
             continue
 
         if os.path.isdir(OPJ(MODULES_PATH, module)):
-            mod_file, pathname, description = imp.find_module(module,
-                    [MODULES_PATH])
-            the_module = imp.load_module(
-                'trytond.modules.' + module, mod_file, pathname, description)
-            # Some modules register nothing in the Pool
-            if hasattr(the_module, 'register'):
-                the_module.register()
-            if mod_file is not None:
-                mod_file.close()
+            mod_path = MODULES_PATH
         elif module in EGG_MODULES:
             ep = EGG_MODULES[module]
             mod_path = os.path.join(ep.dist.location,
@@ -362,16 +354,17 @@ def register_classes():
                     # When testing modules from setuptools location is the
                     # module directory
                     mod_path = os.path.dirname(ep.dist.location)
-            mod_file, pathname, description = imp.find_module(module,
-                    [mod_path])
-            try:
-                imp.load_module('trytond.modules.' + module, mod_file,
-                        pathname, description).register()
-            finally:
-                if mod_file is not None:
-                    mod_file.close()
         else:
             raise Exception('Couldn\'t find module %s' % module)
+        mod_file, pathname, description = imp.find_module(module,
+                [mod_path])
+        the_module = imp.load_module('trytond.modules.' + module,
+            mod_file, pathname, description)
+        # Some modules register nothing in the Pool
+        if hasattr(the_module, 'register'):
+            the_module.register()
+        if mod_file is not None:
+            mod_file.close()
         MODULES.append(module)
 
 
