@@ -303,14 +303,13 @@ class ModelStorage(Model):
                 fields_translate[field_name] = field
 
         if fields_translate:
-            lang_ids = Lang.search([
+            langs = Lang.search([
                 ('translatable', '=', True),
                 ])
-            if lang_ids:
-                lang_ids += Lang.search([
+            if langs:
+                langs += Lang.search([
                     ('code', '=', CONFIG['language']),
                     ])
-                langs = Lang.browse(lang_ids)
                 for lang in langs:
                     with Transaction().set_context(language=lang.code):
                         datas = cls.read(ids,
@@ -777,18 +776,18 @@ class ModelStorage(Model):
         if Transaction().user == 0:
             return True
         with Transaction().set_user(0):
-            model_data_ids = ModelData.search([
+            models_data = ModelData.search([
                 ('model', '=', cls.__name__),
                 ('db_id', 'in', map(int, records)),
                 ])
-            if not model_data_ids:
+            if not models_data:
                 return True
             if values == None:
                 return False
-            for line in ModelData.browse(model_data_ids):
-                if not line.values:
+            for model_data in models_data:
+                if not model_data.values:
                     continue
-                xml_values = safe_eval(line.values, {
+                xml_values = safe_eval(model_data.values, {
                     'Decimal': Decimal,
                     'datetime': datetime,
                     })
