@@ -143,7 +143,7 @@ class UIMenu(ModelSQL, ModelView):
             for name in values:
                 domain.append((field, clause[1], name))
                 field = 'parent.' + field
-            ids = cls.search(domain, order=[])
+            ids = [m.id for m in cls.search(domain, order=[])]
             return [('id', 'in', ids)]
         #TODO Handle list
         return [('name',) + tuple(clause[1:])]
