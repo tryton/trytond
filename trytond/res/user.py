@@ -4,11 +4,7 @@
 import copy
 import string
 import random
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import sha
+import hashlib
 import time
 import datetime
 from itertools import groupby, ifilter
@@ -460,10 +456,7 @@ class User(ModelSQL, ModelView):
         password += salt or ''
         if isinstance(password, unicode):
             password = password.encode('utf-8')
-        if hashlib:
-            password_sha = hashlib.sha1(password).hexdigest()
-        else:
-            password_sha = sha.new(password).hexdigest()
+        password_sha = hashlib.sha1(password).hexdigest()
         cursor = Transaction().cursor
         if password_sha == user_password:
             cursor.execute('UPDATE "' + cls._table + '" '
