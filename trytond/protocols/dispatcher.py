@@ -5,11 +5,7 @@ import traceback
 import logging
 import time
 import sys
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import sha
+import hashlib
 import pydoc
 from trytond.pool import Pool
 from trytond import security
@@ -236,10 +232,7 @@ def create(database_name, password, lang, admin_password):
                         cursor.limit_clause('SELECT id FROM ir_lang ' \
                         'WHERE code = %s', 1) + ')' \
                     'WHERE login <> \'root\'', (lang,))
-            if hashlib:
-                admin_password = hashlib.sha1(admin_password).hexdigest()
-            else:
-                admin_password = sha.new(admin_password).hexdigest()
+            admin_password = hashlib.sha1(admin_password).hexdigest()
             cursor.execute('UPDATE res_user ' \
                     'SET password = %s ' \
                     'WHERE login = \'admin\'', (admin_password,))

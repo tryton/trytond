@@ -2,11 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 import datetime
 from decimal import Decimal
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import sha
+import hashlib
 
 
 class Field(object):
@@ -54,10 +50,7 @@ class Sha(Field):
         if value is not None:
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
-            if hashlib:
-                value = hashlib.sha1(value).hexdigest()
-            else:
-                value = sha.new(value).hexdigest()
+            value = hashlib.sha1(value).hexdigest()
         return Char.sql_format(value)
 
 

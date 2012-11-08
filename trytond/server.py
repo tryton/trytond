@@ -11,11 +11,7 @@ import signal
 import time
 from trytond.config import CONFIG
 from getpass import getpass
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import sha
+import hashlib
 import threading
 import string
 import random
@@ -169,10 +165,7 @@ class TrytonServer(object):
                     salt = ''.join(random.sample(
                         string.letters + string.digits, 8))
                     password += salt
-                    if hashlib:
-                        password = hashlib.sha1(password).hexdigest()
-                    else:
-                        password = sha.new(password).hexdigest()
+                    password = hashlib.sha1(password).hexdigest()
                     cursor.execute('UPDATE res_user ' \
                             'SET password = %s, salt = %s ' \
                             'WHERE login = \'admin\'', (password, salt))
