@@ -70,7 +70,6 @@ class Database(DatabaseInterface):
         else:
             conn.set_isolation_level(ISOLATION_LEVEL_REPEATABLE_READ)
         cursor = Cursor(self._connpool, conn, self)
-        # TODO change for set_session
         if readonly:
             cursor.execute('SET TRANSACTION READ ONLY')
         return cursor
