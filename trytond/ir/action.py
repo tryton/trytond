@@ -51,6 +51,12 @@ class Action(ModelSQL, ModelView):
         return True
 
     @classmethod
+    def write(cls, actions, values):
+        pool = Pool()
+        super(Action, cls).write(actions, values)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
+
+    @classmethod
     def get_action_id(cls, action_id):
         pool = Pool()
         with Transaction().set_context(active_test=False):
@@ -525,12 +531,14 @@ class ActionReport(ModelSQL, ModelView):
 
     @classmethod
     def write(cls, reports, vals):
+        pool = Pool()
         context = Transaction().context
         if 'module' in context:
             vals = vals.copy()
             vals['module'] = context['module']
 
         super(ActionReport, cls).write(reports, vals)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
 
     @classmethod
     def delete(cls, reports):
@@ -725,6 +733,12 @@ class ActionActWindow(ModelSQL, ModelView):
         return act_window
 
     @classmethod
+    def write(cls, act_windows, values):
+        pool = Pool()
+        super(ActionActWindow, cls).write(act_windows, values)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
+
+    @classmethod
     def delete(cls, act_windows):
         Action = Pool().get('ir.action')
 
@@ -781,6 +795,25 @@ class ActionActWindowView(ModelSQL, ModelView):
         # Migration from 1.0 remove multi
         table.drop_column('multi')
 
+    @classmethod
+    def create(cls, values):
+        pool = Pool()
+        window = super(ActionActWindowView, cls).create(values)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
+        return window
+
+    @classmethod
+    def write(cls, windows, values):
+        pool = Pool()
+        super(ActionActWindowView, cls).write(windows, values)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
+
+    @classmethod
+    def delete(cls, windows):
+        pool = Pool()
+        super(ActionActWindowView, cls).delete(windows)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
+
 
 class ActionWizard(ModelSQL, ModelView):
     "Action wizard"
@@ -818,6 +851,12 @@ class ActionWizard(ModelSQL, ModelView):
         wizard = cls(new_id)
         cls.write([wizard], later)
         return wizard
+
+    @classmethod
+    def write(cls, wizards, values):
+        pool = Pool()
+        super(ActionWizard, cls).write(wizards, values)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
 
     @classmethod
     def delete(cls, wizards):
@@ -881,6 +920,12 @@ class ActionURL(ModelSQL, ModelView):
         url = cls(new_id)
         cls.write([url], later)
         return url
+
+    @classmethod
+    def write(cls, urls, values):
+        pool = Pool()
+        super(ActionURL, cls).write(urls, values)
+        pool.get('ir.action.keyword')._get_keyword_cache.clear()
 
     @classmethod
     def delete(cls, urls):
