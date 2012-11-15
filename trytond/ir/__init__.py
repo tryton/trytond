@@ -47,6 +47,7 @@ def register():
         ActionReport,
         ActionActWindow,
         ActionActWindowView,
+        ActionActWindowDomain,
         ActionWizard,
         ActionURL,
         Model,

@@ -16,6 +16,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="icon"/>
             <field name="act_window_views" colspan="6"
                 view_ids="ir.act_window_view_view_list2"/>
+            <field name="act_window_domains" colspan="6"
+                view_ids="ir.act_window_domain_view_list2"/>
             <label name="domain"/>
             <field name="domain" colspan="5"/>
             <label name="context"/>
