@@ -15,8 +15,9 @@ from ..cache import Cache
 from ..rpc import RPC
 
 __all__ = [
-    'Action', 'ActionKeyword', 'ActionReport', 'ActionActWindow',
-    'ActionActWindowView', 'ActionWizard', 'ActionURL',
+    'Action', 'ActionKeyword', 'ActionReport',
+    'ActionActWindow', 'ActionActWindowView', 'ActionActWindowDomain',
+    'ActionWizard', 'ActionURL',
     ]
 
 EMAIL_REFKEYS = set(('cc', 'to', 'subject'))
@@ -559,6 +560,9 @@ class ActionActWindow(ModelSQL, ModelView):
     act_window_views = fields.One2Many('ir.action.act_window.view',
             'act_window', 'Views')
     views = fields.Function(fields.Binary('Views'), 'get_views')
+    act_window_domains = fields.One2Many('ir.action.act_window.domain',
+        'act_window', 'Domains')
+    domains = fields.Function(fields.Binary('Domains'), 'get_domains')
     limit = fields.Integer('Limit', required=True,
             help='Default limit for the list view')
     auto_refresh = fields.Integer('Auto-Refresh', required=True,
@@ -695,6 +699,12 @@ class ActionActWindow(ModelSQL, ModelView):
         return [(view.view.id, view.view.type)
             for view in self.act_window_views]
 
+    def get_domains(self, name):
+        encoder = PYSONEncoder()
+        return [(domain.name,
+                encoder.encode(safe_eval(domain.domain or '[]', CONTEXT)))
+            for domain in self.act_window_domains]
+
     @classmethod
     def get_pyson(cls, windows, name):
         pysons = {}
@@ -813,6 +823,26 @@ class ActionActWindowView(ModelSQL, ModelView):
         pool = Pool()
         super(ActionActWindowView, cls).delete(windows)
         pool.get('ir.action.keyword')._get_keyword_cache.clear()
+
+
+class ActionActWindowDomain(ModelSQL, ModelView):
+    "Action act window domain"
+    __name__ = 'ir.action.act_window.domain'
+    name = fields.Char('Name', translate=True)
+    sequence = fields.Integer('Sequence', required=True)
+    domain = fields.Char('Domain')
+    act_window = fields.Many2One('ir.action.act_window', 'Action',
+        select=True, required=True, ondelete='CASCADE')
+    active = fields.Boolean('Active')
+
+    @classmethod
+    def __setup__(cls):
+        super(ActionActWindowDomain, cls).__setup__()
+        cls._order.insert(0, ('sequence', 'ASC'))
+
+    @staticmethod
+    def default_active():
+        return True
 
 
 class ActionWizard(ModelSQL, ModelView):
