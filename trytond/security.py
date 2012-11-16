@@ -18,7 +18,6 @@ def login(dbname, loginname, password, cache=True):
     with Transaction().start(dbname, 0) as transaction:
         pool = _get_pool(dbname)
         User = pool.get('res.user')
-        password = password.decode('utf-8')
         user_id = User.get_login(loginname, password)
         transaction.cursor.commit()
     if user_id:
