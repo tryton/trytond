@@ -149,5 +149,35 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <menuitem parent="menu_ui" action="act_view_tree_expanded_state"
             id="menu_view_tree_expanded_state"/>
+
+        <record model="ir.ui.view" id="view_search_form">
+            <field name="model">ir.ui.view_search</field> 
+            <field name="type">form</field>
+            <field name="name">ui_view_search_form</field>
+        </record>
+        <record model="ir.ui.view" id="view_search_tree">
+            <field name="model">ir.ui.view_search</field>
+            <field name="type">tree</field>
+            <field name="name">ui_view_search_list</field>
+        </record>
+        <record model="ir.action.act_window" id="act_view_search">
+            <field name="name">View Search</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.ui.view_search</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_search_tree">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="view_search_tree"/>
+            <field name="act_window" ref="act_view_search"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_search_form">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="view_search_form"/>
+            <field name="act_window" ref="act_view_search"/>
+        </record>
+        <menuitem parent="menu_ui" action="act_view_search"
+            id="menu_view_search"/>
     </data>
 </tryton>

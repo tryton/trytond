@@ -40,6 +40,7 @@ def register():
         ViewShortcut,
         ViewTreeWidth,
         ViewTreeExpandedState,
+        ViewSearch,
         Icon,
         Property,
         Action,
