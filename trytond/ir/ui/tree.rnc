@@ -51,6 +51,7 @@ attlist.field &=
   }?
 attlist.field &= attribute float_time { text }?
 attlist.field &= [a:defaultValue = "0"] attribute pre_validate { "0" | "1" }?
+attlist.field &= [a:defaultValue = "1"] attribute completion { "0" | "1" }?
 button = element button { attlist.button, empty }
 attlist.button &= attribute help { text }?
 attlist.button &=

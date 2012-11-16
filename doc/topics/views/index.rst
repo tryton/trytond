@@ -125,6 +125,14 @@ List of attributes shared by many form elements:
       pre-validate the records using
       :meth:`trytond.model.Model.pre_validate`.
 
+    .. _common-attributes-completion:
+
+    * ``completion``: A boolean only for fields
+      :class:`trytond.model.fields.Many2One`,
+      :class:`trytond.model.fields.Many2Many` and
+      :class:`trytond.model.fields.One2Many` to specifiy if the client must
+      auto-complete the field. The default value is True.
+
 
 form
 ^^^^
@@ -224,6 +232,8 @@ Display a field of the object with the value of the current record.
     * ``help``: see in common-attributes-help_.
 
     * ``pre_validate``: see in common-attributes-pre_validate_.
+
+    * ``completion``: see in common-attributes-completion_.
 
 image
 ^^^^^
@@ -481,6 +491,8 @@ field
       if this option is enabled.
 
     * ``pre_validate``: see in common-attributes-pre_validate_.
+
+    * ``completion``: see in common-attributes-completion_.
 
 Example
 -------
