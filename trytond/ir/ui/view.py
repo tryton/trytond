@@ -6,7 +6,7 @@ from lxml import etree
 from difflib import SequenceMatcher
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.backend import TableHandler
-from trytond.pyson import CONTEXT, Eval, Bool
+from trytond.pyson import CONTEXT, Eval, Bool, PYSONDecoder
 from trytond.tools import safe_eval, file_open
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
@@ -16,7 +16,7 @@ from trytond.rpc import RPC
 
 __all__ = [
     'View', 'ShowViewStart', 'ShowView', 'ViewShortcut', 'ShowView',
-    'OpenShortcut', 'ViewTreeWidth', 'ViewTreeExpandedState',
+    'OpenShortcut', 'ViewTreeWidth', 'ViewTreeExpandedState', 'ViewSearch',
     ]
 
 
@@ -529,3 +529,39 @@ class ViewTreeExpandedState(ModelSQL, ModelView):
             except ValueError:
                 return '[]'
             return cls(expanded_info).nodes
+
+
+class ViewSearch(ModelSQL, ModelView):
+    "View Search"
+    __name__ = 'ir.ui.view_search'
+
+    name = fields.Char('Name', required=True)
+    model = fields.Char('Model', required=True)
+    domain = fields.Char('Domain', help="The PYSON domain")
+    user = fields.Many2One('res.user', 'User', required=True,
+        ondelete='CASCADE')
+
+    @classmethod
+    def __setup__(cls):
+        super(ViewSearch, cls).__setup__()
+        cls.__rpc__.update({
+                'get_search': RPC(),
+                })
+
+    @staticmethod
+    def default_user():
+        return Transaction().user
+
+    @classmethod
+    def get_search(cls, user_id=None):
+        if user_id is None:
+            user_id = Transaction().user
+        decoder = PYSONDecoder()
+        searches = cls.search([
+                ('user', '=', user_id),
+                ], order=[('model', 'ASC'), ('name', 'ASC')])
+        result = {}
+        for search in searches:
+            result.setdefault(search.model, []).append(
+                (search.id, search.name, decoder.decode(search.domain)))
+        return result
