@@ -15,7 +15,7 @@ from trytond.cache import Cache
 from trytond.rpc import RPC
 
 __all__ = [
-    'View', 'ShowViewStart', 'ShowView', 'ViewShortcut', 'ShowView',
+    'View', 'ShowViewStart', 'ShowView', 'ViewShortcut',
     'OpenShortcut', 'ViewTreeWidth', 'ViewTreeExpandedState',
     ]
 
