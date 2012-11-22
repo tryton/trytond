@@ -10,6 +10,11 @@ from trytond.transaction import Transaction
 
 __all__ = ['URLMixin']
 
+HOSTNAME = (CONFIG['hostname_jsonrpc']
+    or unicode(socket.getfqdn(), 'utf8'))
+HOSTNAME = '.'.join(encodings.idna.ToASCII(part) for part in
+    HOSTNAME.split('.'))
+
 
 class URLAccessor(object):
 
@@ -17,11 +22,6 @@ class URLAccessor(object):
         from trytond.model import Model
         from trytond.wizard import Wizard
         from trytond.report import Report
-
-        hostname = (CONFIG['hostname_jsonrpc']
-            or unicode(socket.getfqdn(), 'utf8'))
-        hostname = '.'.join(encodings.idna.ToASCII(part) for part in
-            hostname.split('.'))
 
         url_part = {}
         if issubclass(cls, Model):
@@ -39,7 +39,7 @@ class URLAccessor(object):
         local_part = urllib.quote('%(database)s/%(type)s/%(name)s' % url_part)
         if isinstance(inst, Model) and inst.id:
             local_part += '/%d' % inst.id
-        return 'tryton://%s/%s' % (hostname, local_part)
+        return 'tryton://%s/%s' % (HOSTNAME, local_part)
 
 
 class URLMixin(object):
