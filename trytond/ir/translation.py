@@ -69,7 +69,8 @@ class Translation(ModelSQL, ModelView):
     fuzzy = fields.Boolean('Fuzzy')
     model = fields.Function(fields.Char('Model'), 'get_model',
             searcher='search_model')
-    _translation_cache = Cache('ir.translation')
+    _translation_cache = Cache('ir.translation', size_limit=10240,
+        context=False)
 
     @classmethod
     def __setup__(cls):
@@ -79,7 +80,6 @@ class Translation(ModelSQL, ModelView):
                 'UNIQUE (name, res_id, lang, type, src_md5, module)',
                 'Translation must be unique'),
         ]
-        cls._max_len = 10240
 
     @classmethod
     def __register__(cls, module_name):
