@@ -166,6 +166,8 @@ class Wizard(WarningErrorMixin, URLMixin):
         # Set states
         cls.states = {}
         for attr in dir(cls):
+            if attr.startswith('_'):
+                continue
             if isinstance(getattr(cls, attr), State):
                 cls.states[attr] = getattr(cls, attr)
 
