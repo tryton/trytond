@@ -17,7 +17,7 @@ class Reference(Field):
     def __init__(self, string='', selection=None, help='', required=False,
             readonly=False, domain=None, states=None, select=False,
             on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None, loading='eager'):
+            order_field=None, context=None, loading='lazy'):
         '''
         :param selection: A list or a function name that returns a list.
             The list must be a list of tuples. First member is an internal name
