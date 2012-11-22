@@ -955,6 +955,7 @@ class ModelSQL(ModelStorage):
     def delete(cls, records):
         cursor = Transaction().cursor
         pool = Pool()
+        Translation = pool.get('ir.translation')
         ids = map(int, records)
 
         if not ids:
@@ -1112,6 +1113,8 @@ class ModelSQL(ModelStorage):
                         if name in exception[0]:
                             cls.raise_user_error(error)
                 raise
+
+        Translation.delete_ids(cls.__name__, 'model', ids)
 
         if cls._history:
             for obj_id in ids:
