@@ -332,6 +332,21 @@ class Translation(ModelSQL, ModelView):
         return len(ids)
 
     @classmethod
+    def delete_ids(cls, model, ttype, ids):
+        "Delete translation for each id"
+        cursor = Transaction().cursor
+        translations = []
+        for i in range(0, len(ids), cursor.IN_MAX):
+            sub_ids = ids[i:i + cursor.IN_MAX]
+            translations += cls.search([
+                    ('type', '=', ttype),
+                    ('name', 'like', model + ',%'),
+                    ('res_id', 'in', sub_ids),
+                    ])
+        with Transaction().set_user(0):
+            cls.delete(translations)
+
+    @classmethod
     def get_source(cls, name, ttype, lang, source=None):
         "Return translation for source"
         name = unicode(name)
