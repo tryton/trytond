@@ -1206,7 +1206,7 @@ class ModelSQL(ModelStorage):
         cursor.execute(query_str, tables_args + qu2)
 
         rows = cursor.dictfetchmany(cursor.IN_MAX)
-        cache = cursor.get_cache()
+        cache = cursor.get_cache(Transaction().context)
         cache.setdefault(cls.__name__, LRUDict(RECORD_CACHE_SIZE))
         delete_records = Transaction().delete_records.setdefault(cls.__name__,
                 set())
