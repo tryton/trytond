@@ -1257,10 +1257,10 @@ class ModelStorage(Model):
             except KeyError:
                 return value
             if getattr(field, 'datetime_field', None):
-                _datetime = data.get(field.datetime_field)
+                ctx = {'_datetime': data.get(field.datetime_field)}
             else:
-                _datetime = None
-            with Transaction().set_context(_datetime=_datetime):
+                ctx = {}
+            with Transaction().set_context(**ctx):
                 local_cache = model2cache.setdefault(Model,
                     LRUDict(RECORD_CACHE_SIZE))
                 ids = model2ids.setdefault(Model, [])
