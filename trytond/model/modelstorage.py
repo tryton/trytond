@@ -311,7 +311,10 @@ class ModelStorage(Model):
                     ('code', '=', CONFIG['language']),
                     ])
                 for lang in langs:
-                    with Transaction().set_context(language=lang.code):
+                    # Prevent fuzzing translations when copying as the terms
+                    # should be the same.
+                    with Transaction().set_context(language=lang.code,
+                            fuzzy_translation=False):
                         datas = cls.read(ids,
                                 fields_names=fields_translate.keys() + ['id'])
                         for data in datas:
