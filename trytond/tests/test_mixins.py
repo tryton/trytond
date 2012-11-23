@@ -4,13 +4,12 @@
 #this repository contains the full copyright notices and license terms.
 
 import unittest
-import socket
 import urllib
 
-from trytond.config import CONFIG
 from trytond.tests.test_tryton import (POOL, DB_NAME, USER, CONTEXT,
     install_module)
 from trytond.transaction import Transaction
+from trytond.url import HOSTNAME
 
 
 class UrlTestCase(unittest.TestCase):
@@ -20,7 +19,7 @@ class UrlTestCase(unittest.TestCase):
         install_module('test')
         self.urlmodel = POOL.get('test.urlobject')
         self.urlwizard = POOL.get('test.test_wizard', type='wizard')
-        self.hostname = socket.getfqdn()
+        self.hostname = HOSTNAME
 
     def testModelURL(self):
         "Test model URLs"
@@ -29,28 +28,15 @@ class UrlTestCase(unittest.TestCase):
                 'tryton://%s/%s/model/test.urlobject' % (self.hostname,
                     urllib.quote(DB_NAME)))
 
-            server_name = 'michaelscott.paper.test'
-            CONFIG['hostname_jsonrpc'] = server_name
-            self.assertEqual(self.urlmodel.__url__,
-                'tryton://%s/%s/model/test.urlobject' % (server_name,
-                    urllib.quote(DB_NAME)))
-
             self.assertEqual(self.urlmodel(1).__url__,
-                'tryton://%s/%s/model/test.urlobject/1' % (server_name,
+                'tryton://%s/%s/model/test.urlobject/1' % (self.hostname,
                     urllib.quote(DB_NAME)))
 
     def testWizardURL(self):
         "Test wizard URLs"
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            CONFIG['hostname_jsonrpc'] = None
             self.assertEqual(self.urlwizard.__url__,
                 'tryton://%s/%s/wizard/test.test_wizard' % (self.hostname,
-                    urllib.quote(DB_NAME)))
-
-            server_name = 'michaelscott.paper.test'
-            CONFIG['hostname_jsonrpc'] = server_name
-            self.assertEqual(self.urlwizard.__url__,
-                'tryton://%s/%s/wizard/test.test_wizard' % (server_name,
                     urllib.quote(DB_NAME)))
 
 
