@@ -229,6 +229,7 @@ class ModelStorage(Model):
         '''
         pool = Pool()
         Lang = pool.get('ir.lang')
+        Config = pool.get('ir.configuration')
         if default is None:
             default = {}
 
@@ -307,9 +308,6 @@ class ModelStorage(Model):
                 ('translatable', '=', True),
                 ])
             if langs:
-                langs += Lang.search([
-                    ('code', '=', CONFIG['language']),
-                    ])
                 for lang in langs:
                     # Prevent fuzzing translations when copying as the terms
                     # should be the same.

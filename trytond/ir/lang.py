@@ -8,7 +8,6 @@ from ..cache import Cache
 from ..tools import safe_eval, datetime_strftime
 from ..transaction import Transaction
 from ..pool import Pool
-from ..config import CONFIG
 from .time_locale import TIME_LOCALE
 
 warnings.filterwarnings('ignore', "", ImportWarning)
@@ -49,6 +48,7 @@ class Lang(ModelSQL, ModelView):
         cls._constraints += [
             ('check_grouping', 'invalid_grouping'),
             ('check_date', 'invalid_date'),
+            ('check_translatable', 'default_translatable'),
         ]
         cls._sql_constraints += [
             ('check_decimal_point_thousands_sep',
@@ -58,6 +58,9 @@ class Lang(ModelSQL, ModelView):
         cls._error_messages.update({
             'invalid_grouping': 'Invalid Grouping!',
             'invalid_date': 'The date format is not valid!',
+            'default_translatable':
+                'The default language must be translatable',
+            'delete_default': 'Default language can not be deleted',
         })
 
     @classmethod
@@ -72,11 +75,12 @@ class Lang(ModelSQL, ModelView):
     def read(cls, ids, fields_names=None):
         pool = Pool()
         Translation = pool.get('ir.translation')
+        Config = pool.get('ir.configuration')
         res = super(Lang, cls).read(ids, fields_names=fields_names)
         if (Transaction().context.get('translate_name')
                 and (not fields_names or 'name' in fields_names)):
             with Transaction().set_context(
-                    language=CONFIG['language'],
+                    language=Config.get_language(),
                     translate_name=False):
                 res2 = cls.read(ids, fields_names=['id', 'code', 'name'])
             for record2 in res2:
@@ -162,6 +166,20 @@ class Lang(ModelSQL, ModelView):
                 return False
         return True
 
+    @classmethod
+    def check_translatable(cls, langs):
+        pool = Pool()
+        Config = pool.get('ir.configuration')
+        # Skip check for root because when languages are created from XML file,
+        # translatable is not yet set.
+        if Transaction().user == 0:
+            return True
+        for lang in langs:
+            if (lang.code == Config.get_language()
+                    and not lang.translatable):
+                return False
+        return True
+
     @staticmethod
     def check_xml_record(langs, values):
         return True
@@ -191,6 +209,11 @@ class Lang(ModelSQL, ModelView):
 
     @classmethod
     def delete(cls, langs):
+        pool = Pool()
+        Config = pool.get('ir.configuration')
+        for lang in langs:
+            if lang.code == Config.get_language():
+                cls.raise_user_error('delete_default')
         # Clear cache
         cls._lang_cache.clear()
         super(Lang, cls).delete(langs)

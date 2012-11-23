@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 import traceback
 import sys
 import logging
-from ..config import CONFIG
+
 from ..model import ModelView, ModelSQL, fields
 from ..tools import safe_eval
 from ..transaction import Transaction
@@ -147,6 +147,7 @@ class Cron(ModelSQL, ModelView):
     @classmethod
     def _callback(cls, cron):
         pool = Pool()
+        Config = pool.get('ir.configuration')
         try:
             args = (cron.args or []) and safe_eval(cron.args)
             Model = pool.get(cron.model)
@@ -158,7 +159,7 @@ class Cron(ModelSQL, ModelView):
             Request = pool.get('res.request')
             req_user = cron.request_user
             language = (req_user.language.code if req_user.language
-                    else CONFIG['language'])
+                    else Config.get_language())
             with contextlib.nested(Transaction().set_user(cron.user.id),
                     Transaction().set_context(language=language)):
                 values = cls._get_request_values(cron)

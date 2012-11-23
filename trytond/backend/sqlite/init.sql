@@ -1,3 +1,8 @@
+CREATE TABLE ir_configuration (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    language VARCHAR
+);
+
 CREATE TABLE ir_model (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     model VARCHAR,

@@ -1,3 +1,11 @@
+CREATE SEQUENCE ir_configuration_id_seq;
+
+CREATE TABLE ir_configuration (
+    id INTEGER DEFAULT NEXTVAL('ir_configuration_id_seq') NOT NULL,
+    language VARCHAR,
+    PRIMARY KEY(id)
+);
+
 CREATE SEQUENCE ir_model_id_seq;
 
 CREATE TABLE ir_model (

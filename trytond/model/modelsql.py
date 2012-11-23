@@ -6,7 +6,7 @@ import re
 from functools import reduce
 from decimal import Decimal
 from itertools import islice
-from trytond.config import CONFIG
+
 from trytond.model import ModelStorage
 from trytond.model import fields
 from trytond.backend import FIELDS, TableHandler
@@ -707,6 +707,7 @@ class ModelSQL(ModelStorage):
         cursor = Transaction().cursor
         pool = Pool()
         Translation = pool.get('ir.translation')
+        Config = pool.get('ir.configuration')
         ids = map(int, records)
 
         # Call before cursor cache cleaning
@@ -777,7 +778,8 @@ class ModelSQL(ModelStorage):
             if field in cls._fields:
                 if not hasattr(cls._fields[field], 'set'):
                     if ((not getattr(cls._fields[field], 'translate', False))
-                            or (Transaction().language == CONFIG['language'])):
+                            or (Transaction().language
+                                == Config.get_language())):
                         upd0.append(('"' + field + '"', '%s'))
                         upd1.append(FIELDS[cls._fields[field]._type]\
                                 .sql_format(values[field]))
