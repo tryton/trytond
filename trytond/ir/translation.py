@@ -15,7 +15,7 @@ try:
 except ImportError:
     from md5 import md5
 from functools import reduce
-from ..config import CONFIG
+
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, StateTransition, StateAction, \
     Button
@@ -251,6 +251,7 @@ class Translation(ModelSQL, ModelView):
         pool = Pool()
         ModelFields = pool.get('ir.model.field')
         Model = pool.get('ir.model')
+        Config = pool.get('ir.configuration')
 
         model_name, field_name = name.split(',')
         if model_name in ('ir.model.field', 'ir.model'):
@@ -291,7 +292,7 @@ class Translation(ModelSQL, ModelView):
                             })
             return len(ids)
         Model = pool.get(model_name)
-        with Transaction().set_context(language=CONFIG['language']):
+        with Transaction().set_context(language=Config.get_language()):
             records = Model.browse(ids)
         for record in records:
             translation2 = cls.search([
@@ -317,7 +318,7 @@ class Translation(ModelSQL, ModelView):
                         'src': getattr(record, field_name),
                         'fuzzy': False,
                         })
-                    if (lang == CONFIG['language']
+                    if (lang == Config.get_language()
                             and Transaction().context.get('fuzzy_translation',
                                 True)):
                         other_langs = cls.search([
@@ -610,6 +611,7 @@ class Translation(ModelSQL, ModelView):
     def translation_export(cls, lang, module):
         pool = Pool()
         ModelData = pool.get('ir.model.data')
+        Config = pool.get('ir.configuration')
 
         models_data = ModelData.search([
                 ('module', '=', module),
@@ -624,7 +626,7 @@ class Translation(ModelSQL, ModelView):
             'Content-Type': 'text/plain; charset=utf-8',
             }
 
-        with Transaction().set_context(language=CONFIG['language']):
+        with Transaction().set_context(language=Config.get_language()):
             translations = cls.search([
                 ('lang', '=', lang),
                 ('module', '=', module),

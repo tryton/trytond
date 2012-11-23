@@ -56,7 +56,6 @@ class User(ModelSQL, ModelView):
     language = fields.Many2One('ir.lang', 'Language',
         domain=['OR',
             ('translatable', '=', True),
-            ('code', '=', CONFIG['language']),
             ])
     language_direction = fields.Function(fields.Char('Language Direction'),
             'get_language_direction')
@@ -282,6 +281,7 @@ class User(ModelSQL, ModelView):
         ModelData = pool.get('ir.model.data')
         Action = pool.get('ir.action')
         ConfigItem = pool.get('ir.module.module.config_wizard.item')
+        Config = pool.get('ir.configuration')
 
         res = {}
         if context_only:
@@ -294,7 +294,7 @@ class User(ModelSQL, ModelView):
                     if user.language:
                         res['language'] = user.language.code
                     else:
-                        res['language'] = CONFIG['language']
+                        res['language'] = Config.get_language()
                 else:
                     res[field] = None
                     if getattr(user, field):
@@ -396,10 +396,7 @@ class User(ModelSQL, ModelView):
 
         if 'language' in res['fields']:
             selection = convert2selection(res['fields'], 'language')
-            langs = Lang.search(['OR',
-                    ('translatable', '=', True),
-                    ('code', '=', CONFIG['language']),
-                    ])
+            langs = Lang.search(cls.language.domain)
             lang_ids = [l.id for l in langs]
             with Transaction().set_context(translate_name=True):
                 for lang in Lang.browse(lang_ids):

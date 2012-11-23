@@ -3,7 +3,6 @@
 from threading import local
 from trytond.tools.singleton import Singleton
 from trytond.backend import Database
-from trytond.config import CONFIG
 
 
 class _TransactionManager(object):
@@ -132,6 +131,10 @@ class Transaction(local):
 
     @property
     def language(self):
+        def get_language():
+            from trytond.pool import Pool
+            Config = Pool().get('ir.configuration')
+            return Config.get_language()
         if self.context:
-            return self.context.get('language') or CONFIG['language']
-        return CONFIG['language']
+            return self.context.get('language') or get_language()
+        return get_language()

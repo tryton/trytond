@@ -217,6 +217,8 @@ def create(database_name, password, lang, admin_password):
 
         with Transaction().start(database_name, 0) as transaction:
             database.init(transaction.cursor)
+            transaction.cursor.execute('INSERT INTO ir_configuration '
+                '(language) VALUES (%s)', (lang,))
             transaction.cursor.commit()
 
         pool = Pool(database_name)

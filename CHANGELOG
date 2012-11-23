@@ -1,3 +1,4 @@
+* Store default language in database
 * Add icon attribute on fields
 * Prevent Wizard State name to start with '_'
 * Add completion attribute for Many2One, Many2Many and One2Many

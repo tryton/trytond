@@ -1,3 +1,9 @@
+CREATE TABLE ir_configuration (
+    id BIGINT AUTO_INCREMENT NOT NULL,
+    language VARCHAR(255),
+    PRIMARY KEY(id)
+) ENGINE=InnoDB;
+
 CREATE TABLE ir_model (
     id BIGINT AUTO_INCREMENT NOT NULL,
     model VARCHAR(255) NOT NULL,

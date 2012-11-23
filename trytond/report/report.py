@@ -314,6 +314,7 @@ class Report(URLMixin):
             date=False, currency=None, symbol=True):
         pool = Pool()
         Lang = pool.get('ir.lang')
+        Config = pool.get('ir.configuration')
 
         if date:
             if lang:
@@ -321,7 +322,7 @@ class Report(URLMixin):
                 code = lang.code
             else:
                 locale_format = Lang.default_date()
-                code = CONFIG['language']
+                code = Config.get_language()
             if not isinstance(value, time.struct_time):
                 # assume string, parse it
                 if len(str(value)) == 10:
