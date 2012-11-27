@@ -3,9 +3,10 @@
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.transaction import Transaction
 from trytond.pool import Pool
+from trytond.rpc import RPC
 
 __all__ = [
-    'UIMenu',
+    'UIMenu', 'UIMenuFavorite',
     ]
 
 
@@ -89,6 +90,7 @@ class UIMenu(ModelSQL, ModelView):
                 ('ir.action.url', 'ir.action.url'),
                 ]), 'get_action', setter='set_action')
     active = fields.Boolean('Active')
+    favorite = fields.Function(fields.Boolean('Favorite'), 'get_favorite')
 
     @classmethod
     def __setup__(cls):
@@ -221,3 +223,72 @@ class UIMenu(ModelSQL, ModelView):
                     'model': str(menu),
                     'action': action.action.id,
                     })
+
+    @classmethod
+    def get_favorite(cls, menus, name):
+        pool = Pool()
+        Favorite = pool.get('ir.ui.menu.favorite')
+        user = Transaction().user
+        favorites = Favorite.search([
+                ('menu', 'in', [m.id for m in menus]),
+                ('user', '=', user),
+                ])
+        menu2favorite = dict((m.id, False if m.action else None)
+            for m in menus)
+        menu2favorite.update(dict((f.menu.id, True) for f in favorites))
+        return menu2favorite
+
+
+class UIMenuFavorite(ModelSQL, ModelView):
+    "Menu Favorite"
+    __name__ = 'ir.ui.menu.favorite'
+
+    menu = fields.Many2One('ir.ui.menu', 'Menu', required=True,
+        ondelete='CASCADE')
+    sequence = fields.Integer('Sequence',
+        order_field='(%(table)s.sequence IS NOT NULL) %(order)s, '
+        '%(table)s.sequence %(order)s')
+    user = fields.Many2One('res.user', 'User', required=True,
+        ondelete='CASCADE')
+
+    @classmethod
+    def __setup__(cls):
+        super(UIMenuFavorite, cls).__setup__()
+        cls.__rpc__.update({
+                'get': RPC(),
+                'set': RPC(readonly=False),
+                'unset': RPC(readonly=False),
+                })
+        cls._order = [
+            ('sequence', 'ASC'),
+            ('id', 'DESC'),
+            ]
+
+    @staticmethod
+    def default_user():
+        return Transaction().user
+
+    @classmethod
+    def get(cls):
+        user = Transaction().user
+        favorites = cls.search([
+                ('user', '=', user),
+                ])
+        return [(f.menu.id, f.menu.rec_name, f.menu.icon) for f in favorites]
+
+    @classmethod
+    def set(cls, menu_id):
+        user = Transaction().user
+        cls.create({
+                'menu': menu_id,
+                'user': user,
+                })
+
+    @classmethod
+    def unset(cls, menu_id):
+        user = Transaction().user
+        favorites = cls.search([
+                ('menu', '=', menu_id),
+                ('user', '=', user),
+                ])
+        cls.delete(favorites)

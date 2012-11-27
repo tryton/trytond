@@ -504,10 +504,6 @@ this repository contains the full copyright notices and license terms. -->
             <field name="menu" ref="ir.menu_view"/>
             <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu-res.group" id="menu_view_sc_group_admin">
-            <field name="menu" ref="ir.menu_view_sc"/>
-            <field name="group" ref="group_admin"/>
-        </record>
         <record model="ir.ui.menu-res.group" id="menu_view_tree_width_group_admin">
             <field name="menu" ref="ir.menu_view_tree_width"/>
             <field name="group" ref="group_admin"/>
@@ -841,6 +837,19 @@ this repository contains the full copyright notices and license terms. -->
             <field name="operator">=</field>
             <field name="operand">User</field>
             <field name="rule_group" ref="rule_group_session_wizard"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_ui_menu_favorite">
+            <field name="model"
+                search="[('model', '=', 'ir.ui.menu.favorite')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_ui_menu_favorite1">
+            <field name="field"
+                search="[('name', '=', 'user'), ('model.model', '=', 'ir.ui.menu.favorite')]"/>
+            <field name="operator">=</field>
+            <field name="operand">User</field>
+            <field name="rule_group" ref="rule_group_ui_menu_favorite"/>
         </record>
 
     </data>
