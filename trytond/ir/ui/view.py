@@ -9,14 +9,14 @@ from trytond.backend import TableHandler
 from trytond.pyson import CONTEXT, Eval, Bool, PYSONDecoder
 from trytond.tools import safe_eval, file_open
 from trytond.transaction import Transaction
-from trytond.wizard import Wizard, StateView, StateAction, Button
+from trytond.wizard import Wizard, StateView, Button
 from trytond.pool import Pool
 from trytond.cache import Cache
 from trytond.rpc import RPC
 
 __all__ = [
-    'View', 'ShowViewStart', 'ShowView', 'ViewShortcut',
-    'OpenShortcut', 'ViewTreeWidth', 'ViewTreeExpandedState', 'ViewSearch',
+    'View', 'ShowViewStart', 'ShowView',
+    'ViewTreeWidth', 'ViewTreeExpandedState', 'ViewSearch',
     ]
 
 
@@ -311,102 +311,6 @@ class ShowView(Wizard):
     start = ShowStateView('ir.ui.view.show.start', [
             Button('Close', 'end', 'tryton-close', default=True),
             ])
-
-
-class ViewShortcut(ModelSQL, ModelView):
-    "View shortcut"
-    __name__ = 'ir.ui.view_sc'
-
-    name = fields.Char('Shortcut Name', required=True)
-    res_id = fields.Integer('Resource Ref.', required=True)
-    sequence = fields.Integer('Sequence',
-        order_field='(%(table)s.sequence IS NULL) %(order)s, '
-        '%(table)s.sequence %(order)s')
-    user_id = fields.Many2One('res.user', 'User Ref.', required=True,
-       ondelete='CASCADE')
-    resource = fields.Char('Resource Name', required=True)
-
-    @classmethod
-    def __setup__(cls):
-        super(ViewShortcut, cls).__setup__()
-        cls.__rpc__.update({
-                'get_sc': RPC(),
-                })
-        cls._order.insert(0, ('sequence', 'ASC'))
-
-    @classmethod
-    def __register__(cls, module_name):
-        cursor = Transaction().cursor
-        super(ViewShortcut, cls).__register__(module_name)
-        table = TableHandler(cursor, cls, module_name)
-
-        # Migration from 2.4 sequence is not required anymore
-        table.not_null_action('sequence', action='remove')
-
-    @classmethod
-    def get_sc(cls, user_id, model='ir.ui.menu'):
-        "Provide user's shortcuts"
-        result = []
-        shortcuts = cls.search([
-                ('user_id', '=', user_id),
-                ('resource', '=', model),
-                ])
-        for shorcut in shortcuts:
-            result.append({
-                    'res_id': shorcut.res_id,
-                    'name': shorcut.name,
-                    })
-        return result
-
-    @staticmethod
-    def default_resource():
-        return 'ir.ui.menu'
-
-
-class OpenShortcut(Wizard):
-    'Open a shortcut'
-    __name__ = 'ir.ui.view_sc.open'
-
-    start_state = 'open_'
-
-    class OpenStateAction(StateAction):
-        def __init__(self):
-            StateAction.__init__(self, None)
-
-        def get_action(self):
-            pass
-
-    open_ = OpenStateAction()
-
-    @staticmethod
-    def transition_open_():
-        return 'end'
-
-    @staticmethod
-    def do_open_(action):
-        pool = Pool()
-        ViewSC = pool.get('ir.ui.view_sc')
-        ActionKeyword = pool.get('ir.action.keyword')
-        Action = pool.get('ir.action')
-
-        view_sc = ViewSC(Transaction().context.get('active_id'))
-        models = (
-                '%s,%d' % (view_sc.resource, view_sc.res_id),
-                '%s,0' % (view_sc.resource),
-                )
-        action_keywords = None
-        for model in models:
-            action_keywords = ActionKeyword.search([
-                    ('keyword', '=', 'tree_open'),
-                    ('model', '=', model),
-                    ])
-            if action_keywords:
-                break
-        if not action_keywords:
-            return {}, {}
-        action_keyword = action_keywords[0]
-        return Action.get_action_values(action_keyword.action.type,
-            [action_keyword.action.id])[0], {}
 
 
 class ViewTreeWidth(ModelSQL, ModelView):
