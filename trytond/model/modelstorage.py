@@ -1123,7 +1123,7 @@ class ModelStorage(Model):
             self._local_cache = _local_cache
         else:
             self._local_cache = LRUDict(RECORD_CACHE_SIZE)
-        self._local_counter = Transaction().counter
+        self._local_cache.counter = Transaction().counter
 
     @property
     def _cache(self):
@@ -1140,9 +1140,9 @@ class ModelStorage(Model):
                 raise
 
         counter = Transaction().counter
-        if self._local_counter != counter:
+        if self._local_cache.counter != counter:
             self._local_cache.clear()
-            self._local_counter = counter
+            self._local_cache.counter = counter
         try:
             return self._local_cache[self.id][name]
         except KeyError:
