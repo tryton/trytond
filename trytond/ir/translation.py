@@ -519,7 +519,7 @@ class Translation(ModelSQL, ModelView):
             fs_id2model_data.setdefault(model_data.model, {})
             fs_id2model_data[model_data.model][model_data.fs_id] = model_data
 
-        translations = []
+        translations = set()
         pofile = polib.pofile(po_path)
 
         id2translation = {}
@@ -573,7 +573,7 @@ class Translation(ModelSQL, ModelView):
             with contextlib.nested(Transaction().set_user(0),
                     Transaction().set_context(module=module)):
                 if not ids:
-                    translations.append(cls.create({
+                    translations.add(cls.create({
                         'name': name,
                         'res_id': res_id,
                         'lang': lang,
@@ -595,16 +595,15 @@ class Translation(ModelSQL, ModelView):
                             'value': value,
                             'fuzzy': fuzzy,
                             })
-                    translations += cls.browse(ids)
+                    translations |= set(cls.browse(ids))
 
         if translations:
-            all_translations = cls.search([
-                ('module', '=', module),
-                ('lang', '=', lang),
-                ])
-            translations_to_delete = [x for x in all_translations
-                    if x not in translations]
-            cls.delete(translations_to_delete)
+            all_translations = set(cls.search([
+                        ('module', '=', module),
+                        ('lang', '=', lang),
+                        ]))
+            translations_to_delete = all_translations - translations
+            cls.delete(list(translations_to_delete))
         return len(translations)
 
     @classmethod
