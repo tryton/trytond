@@ -435,6 +435,53 @@ class ModelFieldAccess(ModelSQL, ModelView):
         return True
 
     @classmethod
+    def get_access(cls, models):
+        'Return fields access for models'
+        pool = Pool()
+        Model = pool.get('ir.model')
+        ModelField = pool.get('ir.model.field')
+        UserGroup = pool.get('res.user-res.group')
+        cursor = Transaction().cursor
+        user = Transaction().user
+
+        accesses = {}
+        for model in models:
+            maccesses = cls._get_access_cache.get((user, model))
+            if maccesses is None:
+                break
+            accesses[model] = maccesses
+        else:
+            return accesses
+
+        default = {}
+        accesses = dict((m, default) for m in models)
+        cursor.execute(('SELECT '
+                    'm.model, '
+                    'f.name, '
+                    'MAX(CASE WHEN a.perm_read THEN 1 ELSE 0 END), '
+                    'MAX(CASE WHEN a.perm_write THEN 1 ELSE 0 END), '
+                    'MAX(CASE WHEN a.perm_create THEN 1 ELSE 0 END), '
+                    'MAX(CASE WHEN a.perm_delete THEN 1 ELSE 0 END) '
+                'FROM "%s" AS a '
+                'JOIN "%s" AS f '
+                    'ON (a.field = f.id) '
+                'JOIN "%s" AS m '
+                    'ON (f.model = m.id) '
+                'LEFT JOIN "%s" AS gu '
+                    'ON (gu."group" = a."group") '
+                'WHERE m.model IN (' + ','.join(('%%s',) * len(models)) + ') '
+                    'AND (gu."user" = %%s OR a."group" IS NULL) '
+                'GROUP BY m.model, f.name')
+            % (cls._table, ModelField._table,
+                Model._table, UserGroup._table),
+                list(models) + [Transaction().user])
+        for m, f, r, w, c, d in cursor.fetchall():
+            accesses[m][f] = {'read': r, 'write': w, 'create': c, 'delete': d}
+        for model, maccesses in accesses.iteritems():
+            cls._get_access_cache.set((user, model), maccesses)
+        return accesses
+
+    @classmethod
     def check(cls, model_name, fields, mode='read', raise_exception=True,
             access=False):
         '''
@@ -447,33 +494,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
                 return dict((x, True) for x in fields)
             return True
 
-        pool = Pool()
-        Model = pool.get('ir.model')
-        ModelField = pool.get('ir.model.field')
-        UserGroup = pool.get('res.user-res.group')
-
-        cursor = Transaction().cursor
-        key = (model_name, mode, access, Transaction().user)
-        accesses = cls._get_access_cache.get(key)
-
-        if accesses is None:
-            cursor.execute('SELECT f.name, '
-                'MAX(CASE WHEN a.perm_%s THEN 1 ELSE 0 END) '
-                'FROM "%s" AS a '
-                'JOIN "%s" AS f '
-                    'ON (a.field = f.id) '
-                'JOIN "%s" AS m '
-                    'ON (f.model = m.id) '
-                'LEFT JOIN "%s" AS gu '
-                    'ON (gu."group" = a."group") '
-                'WHERE m.model = %%s '
-                    'AND (gu."user" = %%s OR a."group" IS NULL) '
-                'GROUP BY f.name'
-                % (mode, cls._table, ModelField._table,
-                    Model._table, UserGroup._table), (model_name,
-                    Transaction().user))
-            accesses = dict(cursor.fetchall())
-            cls._get_access_cache.set(key, accesses)
+        accesses = dict((f, a[mode])
+            for f, a in cls.get_access([model_name])[model_name].iteritems())
         if access:
             return accesses
         for field in fields:
