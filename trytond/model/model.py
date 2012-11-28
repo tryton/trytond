@@ -451,12 +451,7 @@ class Model(WarningErrorMixin, URLMixin):
 
         encoder = PYSONEncoder()
 
-        fwrite_accesses = FieldAccess.check(cls.__name__, fields_names or
-            cls._fields.keys(), 'write', access=True)
-        fcreate_accesses = FieldAccess.check(cls.__name__, fields_names or
-            cls._fields.keys(), 'create', access=True)
-        fdelete_accesses = FieldAccess.check(cls.__name__, fields_names or
-            cls._fields.keys(), 'delete', access=True)
+        accesses = FieldAccess.get_access([cls.__name__])[cls.__name__]
         for field in (x for x in cls._fields.keys()
                 if ((not fields_names) or x in fields_names)):
             res[field] = {
@@ -484,7 +479,7 @@ class Model(WarningErrorMixin, URLMixin):
                 if getattr(cls._fields[field], arg, None) is not None:
                     res[field][arg] = copy.copy(getattr(cls._fields[field],
                         arg))
-            if not fwrite_accesses.get(field, True):
+            if not accesses.get(field, {}).get('read', True):
                 res[field]['readonly'] = True
                 if res[field].get('states') and \
                         'readonly' in res[field]['states']:
@@ -554,8 +549,10 @@ class Model(WarningErrorMixin, URLMixin):
                 res[field]['relation'] = relation
                 res[field]['domain'] = copy.copy(cls._fields[field].domain)
                 res[field]['context'] = copy.copy(cls._fields[field].context)
-                res[field]['create'] = fcreate_accesses.get(field, True)
-                res[field]['delete'] = fdelete_accesses.get(field, True)
+                res[field]['create'] = accesses.get(field, {}).get('create',
+                    True)
+                res[field]['delete'] = accesses.get(field, {}).get('delete',
+                    True)
             if res[field]['type'] == 'one2many' \
                     and hasattr(cls._fields[field], 'field'):
                 res[field]['relation_field'] = copy.copy(

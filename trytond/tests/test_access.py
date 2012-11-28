@@ -101,6 +101,7 @@ class ModelAccessTestCase(unittest.TestCase):
             self.test_access.read([test.id])
 
             transaction.cursor.rollback()
+            self.model_access._get_access_cache.clear()
 
     def test0020perm_write(self):
         '''
@@ -182,6 +183,7 @@ class ModelAccessTestCase(unittest.TestCase):
             self.test_access.write([test], {})
 
             transaction.cursor.rollback()
+            self.model_access._get_access_cache.clear()
 
     def test0030perm_create(self):
         '''
@@ -262,6 +264,7 @@ class ModelAccessTestCase(unittest.TestCase):
             self.test_access.create({})
 
             transaction.cursor.rollback()
+            self.model_access._get_access_cache.clear()
 
     def test0040perm_delete(self):
         '''
@@ -347,6 +350,7 @@ class ModelAccessTestCase(unittest.TestCase):
             self.test_access.delete([tests.pop()])
 
             transaction.cursor.rollback()
+            self.model_access._get_access_cache.clear()
 
 
 class ModelFieldAccessTestCase(unittest.TestCase):
@@ -571,6 +575,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
             test = self.test_access(test.id)
 
             transaction.cursor.rollback()
+            self.field_access._get_access_cache.clear()
 
     def test0010perm_write(self):
         '''
@@ -778,6 +783,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
                     })
 
             transaction.cursor.rollback()
+            self.field_access._get_access_cache.clear()
 
 
 def suite():
