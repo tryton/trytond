@@ -2,6 +2,8 @@
 #this repository contains the full copyright notices and license terms.
 import datetime
 import re
+import heapq
+
 from ..model import ModelView, ModelSQL, fields
 from ..report import Report
 from ..wizard import Wizard, StateView, StateAction, Button
@@ -10,6 +12,10 @@ from ..cache import Cache
 from ..pool import Pool
 from ..pyson import Bool, Eval
 from ..rpc import RPC
+try:
+    from ..tools.StringMatcher import StringMatcher
+except ImportError:
+    from difflib import SequenceMatcher as StringMatcher
 
 __all__ = [
     'Model', 'ModelField', 'ModelAccess', 'ModelFieldAccess', 'ModelButton',
@@ -39,6 +45,7 @@ class Model(ModelSQL, ModelView):
         depends=['module'])
     module = fields.Char('Module',
        help="Module in which this model is defined", readonly=True)
+    global_search_p = fields.Boolean('Global Search')
     fields = fields.One2Many('ir.model.field', 'model', 'Fields',
        required=True)
 
@@ -58,6 +65,7 @@ class Model(ModelSQL, ModelView):
         cls._order.insert(0, ('model', 'ASC'))
         cls.__rpc__.update({
                 'list_models': RPC(),
+                'global_search': RPC(),
                 })
 
     @classmethod
@@ -105,6 +113,40 @@ class Model(ModelSQL, ModelView):
         super(Model, cls).delete(models)
         # Restart the cache of models_get
         Property._models_get_cache.clear()
+
+    @classmethod
+    def global_search(cls, text, limit):
+        """
+        Search on models for text
+        Returns a list of tuple (ratio, model, model_name, id, rec_name, icon)
+        The size of the list is limited to limit
+        """
+        pool = Pool()
+        ModelAccess = pool.get('ir.model.access')
+
+        if not limit > 0:
+            raise ValueError('limit must be > 0: %r' % (limit,))
+
+        models = cls.search(['OR',
+                ('global_search_p', '=', True),
+                ('name', '=', 'ir.ui.menu'),
+                ])
+        access = ModelAccess.get_access([m.model for m in models])
+        s = StringMatcher()
+        s.set_seq2(text.decode('utf-8'))
+
+        def generate():
+            for model in models:
+                if not access[model.model]['read']:
+                    continue
+                Model = pool.get(model.model)
+                if not hasattr(Model, 'search_global'):
+                    continue
+                for id_, rec_name, icon in Model.search_global(text):
+                    s.set_seq1(rec_name)
+                    yield (s.ratio(), model.model, model.rec_name,
+                        id_, rec_name, icon)
+        return heapq.nlargest(int(limit), generate())
 
 
 class ModelField(ModelSQL, ModelView):
