@@ -21,6 +21,8 @@ Prerequisites
     * Optional: sphinx (http://sphinx.pocoo.org/)
     * Optional: simplejson (http://undefined.org/python/#simplejson)
     * Optional: cdecimal (http://www.bytereef.org/mpdecimal/index.html)
+    * Optional: python-Levenshtein
+      (http://github.com/miohtama/python-Levenshtein)
 
 Install Tryton
 ==============

@@ -415,6 +415,17 @@ class ModelStorage(Model):
         return [(rec_name,) + clause[1:]]
 
     @classmethod
+    def search_global(cls, text):
+        '''
+        Yield tuples (id, rec_name, icon) for text
+        '''
+        # TODO improve search clause
+        for record in cls.search([
+                    ('rec_name', 'ilike', '%%%s%%' % text),
+                    ]):
+            yield record.id, record.rec_name, None
+
+    @classmethod
     def browse(cls, ids):
         '''
         Return a list of instance for the ids

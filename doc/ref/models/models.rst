@@ -294,6 +294,11 @@ CLass methods:
     Searcher for the :class:`trytond.model.fields.Function` field
     :attr:`rec_name`.
 
+.. classmethod:: ModelStorage.search_global(cls, text)
+
+    Yield tuples (id, rec_name, icon) for records matching text.
+    It is used for the global search.
+
 .. classmethod:: ModelStorage.browse(ids)
 
     Return a list of record instance for the ``ids``.

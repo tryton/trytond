@@ -151,6 +151,15 @@ class UIMenu(ModelSQL, ModelView):
         return [('name',) + tuple(clause[1:])]
 
     @classmethod
+    def search_global(cls, text):
+        # TODO improve search clause
+        for record in cls.search([
+                    ('rec_name', 'ilike', '%%%s%%' % text),
+                    ]):
+            if record.action:
+                yield record.id, record.rec_name, record.icon
+
+    @classmethod
     def search(cls, domain, offset=0, limit=None, order=None, count=False,
             query_string=False):
         menus = super(UIMenu, cls).search(domain, offset=offset, limit=limit,

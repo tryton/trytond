@@ -5,5 +5,6 @@ this repository contains the full copyright notices and license terms. -->
     <field name="name"/>
     <field name="model"/>
     <field name="info"/>
+    <field name="global_search_p"/>
     <field name="module"/>
 </tree>
