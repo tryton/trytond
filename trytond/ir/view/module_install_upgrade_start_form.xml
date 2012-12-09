@@ -7,7 +7,7 @@ this repository contains the full copyright notices and license terms. -->
     <group col="1" id="labels">
         <label string="Your system will be upgraded." id="upgraded"
             yalign="0.0" xalign="0.0" xexpand="1"/>
-        <label string="Note that this operation my take a few minutes."
+        <label string="Note that this operation may take a few minutes."
             id="operation"
             yalign="0.0" xalign="0.0" xexpand="1"/>
     </group>
