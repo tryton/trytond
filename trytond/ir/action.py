@@ -522,10 +522,12 @@ class ActionReport(ModelSQL, ModelView):
         if cursor.nextid(cls._table):
             cursor.setnextid(cls._table, cursor.currid('ir_action'))
         report = super(ActionReport, cls).create(vals)
-        new_id = report.action.id
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s ' \
-                'WHERE id = %s', (report.action.id, report.id))
-        cursor.update_auto_increment(cls._table, report.action.id)
+        cursor.execute('SELECT action FROM "' + cls._table + '" '
+            'WHERE id = %s', (report.id,))
+        new_id, = cursor.fetchone()
+        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+            'WHERE id = %s', (new_id, report.id))
+        cursor.update_auto_increment(cls._table, new_id)
         report = cls(new_id)
         cls.write([report], later)
         return report
@@ -734,10 +736,12 @@ class ActionActWindow(ModelSQL, ModelView):
         if cursor.nextid(cls._table):
             cursor.setnextid(cls._table, cursor.currid('ir_action'))
         act_window = super(ActionActWindow, cls).create(vals)
-        new_id = act_window.action.id
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s ' \
-                'WHERE id = %s', (act_window.action.id, act_window.id))
-        cursor.update_auto_increment(cls._table, act_window.action.id)
+        cursor.execute('SELECT action FROM "' + cls._table + '" '
+            'WHERE id = %s', (act_window.id,))
+        new_id, = cursor.fetchone()
+        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+            'WHERE id = %s', (new_id, act_window.id))
+        cursor.update_auto_increment(cls._table, new_id)
         act_window = cls(new_id)
         cls.write([act_window], later)
         return act_window
@@ -874,10 +878,12 @@ class ActionWizard(ModelSQL, ModelView):
         if cursor.nextid(cls._table):
             cursor.setnextid(cls._table, cursor.currid('ir_action'))
         wizard = super(ActionWizard, cls).create(vals)
-        new_id = wizard.action.id
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s ' \
-                'WHERE id = %s', (wizard.action.id, wizard.id))
-        cursor.update_auto_increment(cls._table, wizard.action.id)
+        cursor.execute('SELECT action FROM "' + cls._table + '" '
+            'WHERE id = %s', (wizard.id,))
+        new_id, = cursor.fetchone()
+        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+            'WHERE id = %s', (new_id, wizard.id))
+        cursor.update_auto_increment(cls._table, new_id)
         wizard = cls(new_id)
         cls.write([wizard], later)
         return wizard
@@ -943,10 +949,13 @@ class ActionURL(ModelSQL, ModelView):
         if cursor.nextid(cls._table):
             cursor.setnextid(cls._table, cursor.currid('ir_action'))
         url = super(ActionURL, cls).create(vals)
-        new_id = url.action.id
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s ' \
-                'WHERE id = %s', (url.action.id, url.id))
-        cursor.update_auto_increment(cls._table, url.action.id)
+        cursor.execute('SELECT action FROM "' + cls._table + '" '
+            'WHERE id = %s', (url.id,))
+        new_id, = cursor.fetchone()
+        cls.write([url], {})  # simulate write to clear the cache
+        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+            'WHERE id = %s', (new_id, url.id))
+        cursor.update_auto_increment(cls._table, new_id)
         url = cls(new_id)
         cls.write([url], later)
         return url
