@@ -221,6 +221,12 @@ class User(ModelSQL, ModelView):
     def write(cls, users, vals):
         vals = cls._convert_vals(vals)
         super(User, cls).write(users, vals)
+        # Clean cursor cache as it could be filled by domain_get
+        for cache in Transaction().cursor.cache.itervalues():
+            if cls.__name__ in cache:
+                for user in users:
+                    if user.id in cache[cls.__name__]:
+                        cache[cls.__name__][user.id].clear()
         # Restart the cache for domain_get method
         pool = Pool()
         pool.get('ir.rule')._domain_get_cache.clear()

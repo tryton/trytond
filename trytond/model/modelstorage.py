@@ -1154,14 +1154,6 @@ class ModelStorage(Model):
         if self._local_cache.counter != counter:
             self._local_cache.clear()
             self._local_cache.counter = counter
-        try:
-            return self._local_cache[self.id][name]
-        except KeyError:
-            pass
-        try:
-            return self._cache[self.id][name]
-        except KeyError:
-            pass
 
         # fetch the definition of the field
         if name in self._fields:
@@ -1171,6 +1163,16 @@ class ModelStorage(Model):
         else:
             raise AttributeError("'%s' Model has no attribute '%s'"
                 % (self.__name__, name))
+
+        try:
+            return self._local_cache[self.id][name]
+        except KeyError:
+            pass
+        try:
+            if field._type not in ('many2one', 'reference'):
+                return self._cache[self.id][name]
+        except KeyError:
+            pass
 
         # build the list of fields we will fetch
         ffields = {
@@ -1233,18 +1235,12 @@ class ModelStorage(Model):
                 ffields[field.datetime_field] = datetime_field
 
         def filter_(id_):
-            try:
-                if name in self._local_cache[id_]:
-                    return False
-                if name in self._cache[id_]:
-                    return False
-            except KeyError:
-                pass
-            return True
+            return (name not in self._cache.get(id_, {})
+                and name not in self._local_cache.get(id_, {}))
         index = self._ids.index(self.id)
         ids = chain(islice(self._ids, index, None),
             islice(self._ids, 0, max(index - 1, 0)))
-        ids = list(islice(ifilter(filter_, ids), self._cursor.IN_MAX))
+        ids = islice(ifilter(filter_, ids), self._cursor.IN_MAX)
 
         def instantiate(field, value, data):
             if field._type in ('many2one', 'one2one', 'reference'):
@@ -1287,25 +1283,40 @@ class ModelStorage(Model):
         with contextlib.nested(Transaction().set_cursor(self._cursor),
                 Transaction().set_user(self._user),
                 Transaction().set_context(self._context)):
+            if self.id in self._cache and name in self._cache[self.id]:
+                # Use values from cache
+                ids = islice(chain(islice(self._ids, index, None),
+                        islice(self._ids, 0, max(index - 1, 0))),
+                    self._cursor.IN_MAX)
+                ffields = {name: ffields[name]}
+                read_data = [{'id': i, name: self._cache[i][name]}
+                    for i in ids
+                    if i in self._cache and name in self._cache[i]]
+            else:
+                read_data = self.read(list(ids), ffields.keys())
             # create browse records for 'remote' models
-            for data in self.read(ids, ffields.keys()):
+            for data in read_data:
                 for fname, field in ffields.iteritems():
+                    fvalue = data[fname]
                     if field._type in ('many2one', 'one2one', 'one2many',
                             'many2many', 'reference'):
-                        data[fname] = instantiate(field, data[fname], data)
-                    elif not isinstance(field, fields.Function):
-                        continue
+                        fvalue = instantiate(field, data[fname], data)
                     if data['id'] == self.id and fname == name:
-                        value = data[fname]
+                        value = fvalue
+                    if (field._type not in ('many2one', 'one2one', 'one2many',
+                                'many2many', 'reference')
+                            and not isinstance(field, fields.Function)):
+                        continue
                     if data['id'] not in self._local_cache:
                         self._local_cache[data['id']] = {}
-                    self._local_cache[data['id']][fname] = data[fname]
-                    del data[fname]
+                    self._local_cache[data['id']][fname] = fvalue
+                    if (field._type not in ('many2one', 'reference')
+                            or getattr(field, 'datetime_field', None)
+                            or isinstance(field, fields.Function)):
+                        del data[fname]
                 if data['id'] not in self._cache:
                     self._cache[data['id']] = {}
                 self._cache[data['id']].update(data)
-                if data['id'] == self.id and name in data:
-                    value = data[name]
         return value
 
     @property

@@ -1209,21 +1209,22 @@ class ModelSQL(ModelStorage):
 
         rows = cursor.dictfetchmany(cursor.IN_MAX)
         cache = cursor.get_cache(Transaction().context)
-        cache.setdefault(cls.__name__, LRUDict(RECORD_CACHE_SIZE))
+        if cls.__name__ not in cache:
+            cache[cls.__name__] = LRUDict(RECORD_CACHE_SIZE)
         delete_records = Transaction().delete_records.setdefault(cls.__name__,
                 set())
         keys = None
         for data in islice(rows, 0, cache.size_limit):
             if data['id'] in delete_records:
                 continue
-            if not keys:
+            if keys is None:
                 keys = data.keys()
                 for k in keys[:]:
                     if k in ('_timestamp', '_datetime'):
                         keys.remove(k)
                         continue
                     field = cls._fields[k]
-                    if field._type not in ('many2one',):
+                    if not getattr(field, 'datetime_field', None):
                         keys.remove(k)
                         continue
             for k in keys:
