@@ -27,7 +27,7 @@ class Cache(object):
 
     def _key(self, key):
         if self.context:
-            return (key, Transaction().user, repr(Transaction.context))
+            return (key, Transaction().user, repr(Transaction().context))
         return key
 
     def get(self, key, default=None):
