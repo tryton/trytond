@@ -255,10 +255,8 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
 class SecureJSONRPCRequestHandler(SimpleJSONRPCRequestHandler):
 
     def setup(self):
-        self.server.handlers.add(self)
-        self.connection = SSLSocket(self.request)
-        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
-        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
+        self.request = SSLSocket(self.request)
+        SimpleJSONRPCRequestHandler.setup(self)
 
 
 class SimpleJSONRPCServer(SocketServer.TCPServer,
@@ -343,8 +341,8 @@ class SecureThreadedJSONRPCServer(SimpleThreadedJSONRPCServer):
     def __init__(self, server_address, HandlerClass, logRequests=1):
         SimpleThreadedJSONRPCServer.__init__(self, server_address,
             HandlerClass, logRequests)
-        self.socket = SSLSocket(socket.socket(self.address_family,
-            self.socket_type))
+        self.socket = socket.socket(self.address_family,
+            self.socket_type)
         self.server_bind()
         self.server_activate()
 
