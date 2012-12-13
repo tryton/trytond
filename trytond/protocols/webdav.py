@@ -88,8 +88,7 @@ class SecureThreadedHTTPServer(BaseThreadedHTTPServer):
 
     def __init__(self, server_address, HandlerClass):
         BaseThreadedHTTPServer.__init__(self, server_address, HandlerClass)
-        self.socket = SSLSocket(socket.socket(self.address_family,
-                                              self.socket_type))
+        self.socket = socket.socket(self.address_family, self.socket_type)
         self.server_bind()
         self.server_activate()
 
@@ -593,6 +592,5 @@ class WebDAVAuthRequestHandler(WebDAVServer.DAVRequestHandler):
 class SecureWebDAVAuthRequestHandler(WebDAVAuthRequestHandler):
 
     def setup(self):
-        self.connection = SSLSocket(self.request)
-        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
-        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
+        self.request = SSLSocket(self.request)
+        WebDAVAuthRequestHandler.setup(self)

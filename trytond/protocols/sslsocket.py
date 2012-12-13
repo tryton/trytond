@@ -3,22 +3,11 @@
 from trytond.config import CONFIG
 
 
-class SSLSocket(object):
-
-    def __init__(self, socket):
-        if not hasattr(socket, 'sock_shutdown'):
-            from OpenSSL import SSL
-            ctx = SSL.Context(SSL.SSLv23_METHOD)
-            ctx.use_privatekey_file(CONFIG['privatekey'])
-            ctx.use_certificate_file(CONFIG['certificate'])
-            self.socket = SSL.Connection(ctx, socket)
-        else:
-            self.socket = socket
-
-    def shutdown(self, how):
-        return self.socket.sock_shutdown(how)
-
-    def __getattr__(self, name):
-        if name == 'shutdown':
-            return self.shutdown
-        return getattr(self.socket, name)
+def SSLSocket(socket):
+    # Let the import error raise only when used
+    import ssl
+    return ssl.wrap_socket(socket,
+        server_side=True,
+        certfile=CONFIG['certificate'],
+        keyfile=CONFIG['privatekey'],
+        ssl_version=ssl.PROTOCOL_SSLv23)
