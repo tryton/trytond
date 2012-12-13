@@ -1059,6 +1059,28 @@ class ModelStorage(Model):
                             digits_test(getattr(record, field_name),
                                 field.digits, field_name)
 
+                # validate selection
+                if hasattr(field, 'selection') and field.selection:
+                    if isinstance(field.selection, (tuple, list)):
+                        test = set(dict(field.selection).keys())
+                    else:
+                        test = set(dict(getattr(cls,
+                                    field.selection)()).keys())
+                    # None and '' are equivalent
+                    if '' in test or None in test:
+                        test.add('')
+                        test.add(None)
+                    for record in records:
+                        value = getattr(record, field_name)
+                        if field._type == 'reference':
+                            if isinstance(value, ModelStorage):
+                                value = value.__class__.__name__
+                            elif value:
+                                value, _ = value.split(',')
+                        if value not in test:
+                            cls.raise_user_error('selection_validation_record',
+                                error_args=cls._get_error_args(field_name))
+
                 def format_test(value, format, field_name):
                     if not value:
                         return

@@ -73,9 +73,10 @@ class ImportDataSelection(ModelSQL):
     "Import Data Selection"
     __name__ = 'test.import_data.selection'
     selection = fields.Selection([
-        ('select1', 'Select 1'),
-        ('select2', 'Select 2'),
-        ], 'Selection')
+            (None, ''),
+            ('select1', 'Select 1'),
+            ('select2', 'Select 2'),
+            ], 'Selection')
 
 
 class ImportDataMany2OneTarget(ModelSQL):
@@ -136,5 +137,6 @@ class ImportDataReference(ModelSQL):
     "Import Data Reference"
     __name__ = 'test.import_data.reference'
     reference = fields.Reference('Reference', [
-        ('test.import_data.reference.selection', 'Test'),
-        ])
+            (None, ''),
+            ('test.import_data.reference.selection', 'Test'),
+            ])

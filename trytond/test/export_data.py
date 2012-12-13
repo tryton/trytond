@@ -29,9 +29,10 @@ class ExportData(ModelSQL):
     date = fields.Date('Date')
     datetime = fields.DateTime('DateTime')
     selection = fields.Selection([
-        ('select1', 'Select 1'),
-        ('select2', 'Select 2'),
-        ], 'Selection')
+            (None, ''),
+            ('select1', 'Select 1'),
+            ('select2', 'Select 2'),
+            ], 'Selection')
     many2one = fields.Many2One('test.export_data.target',
             'Many2One')
     many2many = fields.Many2Many('test.export_data.relation',
@@ -39,8 +40,9 @@ class ExportData(ModelSQL):
     one2many = fields.One2Many('test.export_data.target', 'one2many',
             'One2Many')
     reference = fields.Reference('Reference', [
-        ('test.export_data.target', 'Target'),
-        ])
+            (None, ''),
+            ('test.export_data.target', 'Target'),
+            ])
 
 
 class ExportDataTarget2:

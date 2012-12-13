@@ -297,23 +297,6 @@ class ModelSQL(ModelStorage):
                 upd2.append(FIELDS[field._type].sql_format(value))
             else:
                 upd_todo.append(fname)
-            if (hasattr(field, 'selection')
-                    and field.selection
-                    and value):
-                if field._type == 'reference':
-                    if isinstance(value, basestring):
-                        value = value.split(',')[0]
-                    else:
-                        value, _ = value
-                if isinstance(field.selection, (tuple, list)):
-                    test = dict(field.selection)
-                else:
-                    test = dict(getattr(cls, field.selection)())
-                if value not in test:
-                    raise Exception('ValidateError',
-                        'The value "%s" for the field "%s" '
-                        'is not in the selection'
-                        % (value, fname))
         upd0 += ', create_uid, create_date'
         upd1 += ', %s, %s'
         upd2.append(Transaction().user)
@@ -788,30 +771,6 @@ class ModelSQL(ModelStorage):
                     upd_todo.append(field)
             else:
                 updend.append(field)
-            if field in cls._fields \
-                    and hasattr(cls._fields[field], 'selection') \
-                    and cls._fields[field].selection \
-                    and values[field]:
-                if cls._fields[field]._type == 'reference':
-                    if isinstance(values[field], basestring):
-                        val = values[field].split(',')[0]
-                    else:
-                        val, _ = values[field]
-                else:
-                    val = values[field]
-                if isinstance(cls._fields[field].selection, (tuple, list)):
-                    if val not in dict(cls._fields[field].selection):
-                        raise Exception('ValidateError',
-                        'The value "%s" for the field "%s" ' \
-                                'is not in the selection' % \
-                                (val, field))
-                else:
-                    if val not in dict(getattr(cls,
-                        cls._fields[field].selection)()):
-                        raise Exception('ValidateError',
-                        'The value "%s" for the field "%s" ' \
-                                'is not in the selection' % \
-                                (val, field))
 
         upd0.append(('write_uid', '%s'))
         upd0.append(('write_date', '%s'))
