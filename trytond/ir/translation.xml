@@ -141,6 +141,16 @@ this repository contains the full copyright notices and license terms. -->
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
+        <record model="ir.translation"
+            id="translation_selection_validation_record">
+            <field name="name">selection_validation_record</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">The field "%s" on "%s" is not in the selection.</field>
+            <field name="value">The field "%s" on "%s" is not in the selection.</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
         <record model="ir.translation" id="translation_time_format_validation_record">
             <field name="name">time_format_validation_record</field>
             <field name="lang">en_US</field>

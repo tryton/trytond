@@ -429,6 +429,7 @@ class One2ManyReferenceTarget(ModelSQL):
     __name__ = 'test.one2many_reference.target'
     name = fields.Char('Name', required=True)
     origin = fields.Reference('Origin', [
+            (None, ''),
             ('test.one2many_reference', 'One2Many Reference'),
             ])
 
@@ -520,6 +521,7 @@ class Many2ManyReferenceRelation(ModelSQL):
     'Many2Many Relation'
     __name__ = 'test.many2many_reference.relation'
     origin = fields.Reference('Origin', [
+            (None, ''),
             ('test.many2many_reference', 'Many2Many Reference'),
             ])
     target = fields.Many2One('test.many2many_reference.target',
@@ -551,6 +553,7 @@ class Reference(ModelSQL):
     __name__ = 'test.reference'
     name = fields.Char('Name', required=True)
     reference = fields.Reference('Reference', selection=[
+            (None, ''),
             ('test.reference.target', 'Target'),
             ])
 
@@ -566,6 +569,7 @@ class ReferenceRequired(ModelSQL):
     __name__ = 'test.reference_required'
     name = fields.Char('Name', required=True)
     reference = fields.Reference('Reference', selection=[
+            (None, ''),
             ('test.reference.target', 'Target'),
             ], required=True)
 
@@ -578,6 +582,7 @@ class Property(ModelSQL):
             'Test Many2One'))
     numeric = fields.Property(fields.Numeric('Test Numeric'))
     selection = fields.Property(fields.Selection([
+                (None, ''),
                 ('option_a', 'Option A'),
                 ('option_b', 'Option B')
             ], 'Test Selection'))

@@ -26,6 +26,7 @@ try:
     TIMEZONES = [(x, x) for x in pytz.common_timezones]
 except ImportError:
     TIMEZONES = []
+TIMEZONES += [(None, '')]
 
 __all__ = [
     'User', 'UserAction', 'UserGroup', 'Warning_',
