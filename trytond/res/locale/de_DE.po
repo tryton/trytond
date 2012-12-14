@@ -589,7 +589,7 @@ msgstr "Salt"
 
 msgctxt "field:res.user,sessions:"
 msgid "Sessions"
-msgstr ""
+msgstr "Sitzungen"
 
 msgctxt "field:res.user,signature:"
 msgid "Signature"
@@ -842,7 +842,7 @@ msgstr "Zeitplaner Trigger"
 
 msgctxt "model:res.user-ir.action,name:"
 msgid "User - Action"
-msgstr ""
+msgstr "Benutzer - Aktion"
 
 msgctxt "model:res.user-res.group,name:"
 msgid "User - Group"
