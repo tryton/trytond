@@ -86,12 +86,20 @@ msgstr ""
 "%s"
 
 msgctxt "error:ir.lang:"
+msgid "Default language can not be deleted"
+msgstr "Die Standardsprache kann nicht gelöscht werden"
+
+msgctxt "error:ir.lang:"
 msgid "Invalid Grouping!"
 msgstr "Ungültige Gruppierung"
 
 msgctxt "error:ir.lang:"
 msgid "The date format is not valid!"
 msgstr "Ungültiges Datumsformat"
+
+msgctxt "error:ir.lang:"
+msgid "The default language must be translatable"
+msgstr "Die Standardsprache muss übersetzbar sein"
 
 msgctxt "error:ir.lang:"
 msgid "decimal_point and thousands_sep must be different!"
@@ -355,6 +363,10 @@ msgctxt "field:ir.action,write_uid:"
 msgid "Write User"
 msgstr "Letzte Änderung durch"
 
+msgctxt "field:ir.action.act_window,act_window_domains:"
+msgid "Domains"
+msgstr "Wertebereiche (Domains)"
+
 msgctxt "field:ir.action.act_window,act_window_views:"
 msgid "Views"
 msgstr "Sichten"
@@ -382,6 +394,10 @@ msgstr "Erstellt durch"
 msgctxt "field:ir.action.act_window,domain:"
 msgid "Domain Value"
 msgstr "Wertebereich (Domain)"
+
+msgctxt "field:ir.action.act_window,domains:"
+msgid "Domains"
+msgstr "Wertebereiche (Domains)"
 
 msgctxt "field:ir.action.act_window,id:"
 msgid "ID"
@@ -428,6 +444,50 @@ msgid "Write Date"
 msgstr "Zuletzt geändert"
 
 msgctxt "field:ir.action.act_window,write_uid:"
+msgid "Write User"
+msgstr "Letzte Änderung durch"
+
+msgctxt "field:ir.action.act_window.domain,act_window:"
+msgid "Action"
+msgstr "Aktion"
+
+msgctxt "field:ir.action.act_window.domain,active:"
+msgid "Active"
+msgstr "Aktiv"
+
+msgctxt "field:ir.action.act_window.domain,create_date:"
+msgid "Create Date"
+msgstr "Erstellungsdatum"
+
+msgctxt "field:ir.action.act_window.domain,create_uid:"
+msgid "Create User"
+msgstr "Erstellt durch"
+
+msgctxt "field:ir.action.act_window.domain,domain:"
+msgid "Domain"
+msgstr "Wertebereich (Domain)"
+
+msgctxt "field:ir.action.act_window.domain,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.action.act_window.domain,name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:ir.action.act_window.domain,rec_name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:ir.action.act_window.domain,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
+
+msgctxt "field:ir.action.act_window.domain,write_date:"
+msgid "Write Date"
+msgstr "Zuletzt geändert"
+
+msgctxt "field:ir.action.act_window.domain,write_uid:"
 msgid "Write User"
 msgstr "Letzte Änderung durch"
 
@@ -767,6 +827,34 @@ msgctxt "field:ir.cache,write_uid:"
 msgid "Write User"
 msgstr "Letzte Änderung durch"
 
+msgctxt "field:ir.configuration,create_date:"
+msgid "Create Date"
+msgstr "Erstellungsdatum"
+
+msgctxt "field:ir.configuration,create_uid:"
+msgid "Create User"
+msgstr "Erstellt durch"
+
+msgctxt "field:ir.configuration,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.configuration,language:"
+msgid "language"
+msgstr "Sprache"
+
+msgctxt "field:ir.configuration,rec_name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:ir.configuration,write_date:"
+msgid "Write Date"
+msgstr "Zuletzt geändert"
+
+msgctxt "field:ir.configuration,write_uid:"
+msgid "Write User"
+msgstr "Letzte Änderung durch"
+
 msgctxt "field:ir.cron,active:"
 msgid "Active"
 msgstr "Aktiv"
@@ -982,6 +1070,10 @@ msgstr "Erstellt durch"
 msgctxt "field:ir.model,fields:"
 msgid "Fields"
 msgstr "Felder"
+
+msgctxt "field:ir.model,global_search_p:"
+msgid "Global Search"
+msgstr "Globale Suche"
 
 msgctxt "field:ir.model,id:"
 msgid "ID"
@@ -2091,6 +2183,10 @@ msgctxt "field:ir.ui.menu,create_uid:"
 msgid "Create User"
 msgstr "Erstellt durch"
 
+msgctxt "field:ir.ui.menu,favorite:"
+msgid "Favorite"
+msgstr "Favorit"
+
 msgctxt "field:ir.ui.menu,groups:"
 msgid "Groups"
 msgstr "Gruppen"
@@ -2124,6 +2220,42 @@ msgid "Write Date"
 msgstr "Zuletzt geändert"
 
 msgctxt "field:ir.ui.menu,write_uid:"
+msgid "Write User"
+msgstr "Letzte Änderung durch"
+
+msgctxt "field:ir.ui.menu.favorite,create_date:"
+msgid "Create Date"
+msgstr "Erstellungsdatum"
+
+msgctxt "field:ir.ui.menu.favorite,create_uid:"
+msgid "Create User"
+msgstr "Erstellt durch"
+
+msgctxt "field:ir.ui.menu.favorite,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.ui.menu.favorite,menu:"
+msgid "Menu"
+msgstr "Menü"
+
+msgctxt "field:ir.ui.menu.favorite,rec_name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:ir.ui.menu.favorite,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
+
+msgctxt "field:ir.ui.menu.favorite,user:"
+msgid "User"
+msgstr "Benutzer"
+
+msgctxt "field:ir.ui.menu.favorite,write_date:"
+msgid "Write Date"
+msgstr "Zuletzt geändert"
+
+msgctxt "field:ir.ui.menu.favorite,write_uid:"
 msgid "Write User"
 msgstr "Letzte Änderung durch"
 
@@ -2195,47 +2327,43 @@ msgctxt "field:ir.ui.view.show.start,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.ui.view_sc,create_date:"
+msgctxt "field:ir.ui.view_search,create_date:"
 msgid "Create Date"
 msgstr "Erstellungsdatum"
 
-msgctxt "field:ir.ui.view_sc,create_uid:"
+msgctxt "field:ir.ui.view_search,create_uid:"
 msgid "Create User"
 msgstr "Erstellt durch"
 
-msgctxt "field:ir.ui.view_sc,id:"
+msgctxt "field:ir.ui.view_search,domain:"
+msgid "Domain"
+msgstr "Wertebereich (Domain)"
+
+msgctxt "field:ir.ui.view_search,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.ui.view_sc,name:"
-msgid "Shortcut Name"
-msgstr "Name"
+msgctxt "field:ir.ui.view_search,model:"
+msgid "Model"
+msgstr "Modell"
 
-msgctxt "field:ir.ui.view_sc,rec_name:"
+msgctxt "field:ir.ui.view_search,name:"
 msgid "Name"
 msgstr "Name"
 
-msgctxt "field:ir.ui.view_sc,res_id:"
-msgid "Resource Ref."
-msgstr "Ref. Ressource"
+msgctxt "field:ir.ui.view_search,rec_name:"
+msgid "Name"
+msgstr "Name"
 
-msgctxt "field:ir.ui.view_sc,resource:"
-msgid "Resource Name"
-msgstr "Name Ressource"
+msgctxt "field:ir.ui.view_search,user:"
+msgid "User"
+msgstr "Benutzer"
 
-msgctxt "field:ir.ui.view_sc,sequence:"
-msgid "Sequence"
-msgstr "Reihenfolge"
-
-msgctxt "field:ir.ui.view_sc,user_id:"
-msgid "User Ref."
-msgstr "Ref. Benutzer"
-
-msgctxt "field:ir.ui.view_sc,write_date:"
+msgctxt "field:ir.ui.view_search,write_date:"
 msgid "Write Date"
 msgstr "Zuletzt geändert"
 
-msgctxt "field:ir.ui.view_sc,write_uid:"
+msgctxt "field:ir.ui.view_search,write_uid:"
 msgid "Write User"
 msgstr "Letzte Änderung durch"
 
@@ -2448,6 +2576,10 @@ msgstr ""
 "Minimale Verzögerung in Minuten zwischen Aufrufen von \"Aktion Funktion\" für den selben Datensatz.\n"
 "0 bedeutet keine Verzögerung."
 
+msgctxt "help:ir.ui.view_search,domain:"
+msgid "The PYSON domain"
+msgstr "PySON Wertebereich (Domain)"
+
 msgctxt "model:ir.action,name:"
 msgid "Action"
 msgstr "Aktion"
@@ -2592,17 +2724,9 @@ msgctxt "model:ir.action,name:act_view_form"
 msgid "Views"
 msgstr "Sichten"
 
-msgctxt "model:ir.action,name:act_view_sc_add"
-msgid "Add Shortcut"
-msgstr "Favorit hinzufügen"
-
-msgctxt "model:ir.action,name:act_view_sc_form"
-msgid "View Shortcuts"
-msgstr "Favoriten"
-
-msgctxt "model:ir.action,name:act_view_sc_open"
-msgid "Open Shortcut"
-msgstr "Favorit öffnen"
+msgctxt "model:ir.action,name:act_view_search"
+msgid "View Search"
+msgstr "Suchansicht"
 
 msgctxt "model:ir.action,name:act_view_show"
 msgid "Show View"
@@ -2627,6 +2751,10 @@ msgstr "Graphik"
 msgctxt "model:ir.action.act_window,name:"
 msgid "Action act window"
 msgstr "Aktion aktives Fenster"
+
+msgctxt "model:ir.action.act_window.domain,name:"
+msgid "Action act window domain"
+msgstr "Wertebereich Aktion Aktuelles Fenster"
 
 msgctxt "model:ir.action.act_window.view,name:"
 msgid "Action act window view"
@@ -2655,6 +2783,10 @@ msgstr "Anhang"
 msgctxt "model:ir.cache,name:"
 msgid "Cache"
 msgstr "Cache"
+
+msgctxt "model:ir.configuration,name:"
+msgid "Configuration"
+msgstr "Einstellungen"
 
 msgctxt "model:ir.cron,name:"
 msgid "Cron"
@@ -3012,9 +3144,9 @@ msgctxt "model:ir.ui.menu,name:menu_view"
 msgid "Views"
 msgstr "Sichten"
 
-msgctxt "model:ir.ui.menu,name:menu_view_sc"
-msgid "View Shortcuts"
-msgstr "Favoriten"
+msgctxt "model:ir.ui.menu,name:menu_view_search"
+msgid "View Search"
+msgstr "Suchansicht"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
 msgid "Tree Expanded State"
@@ -3028,6 +3160,10 @@ msgctxt "model:ir.ui.menu,name:model_model_fields_form"
 msgid "Fields"
 msgstr "Felder"
 
+msgctxt "model:ir.ui.menu.favorite,name:"
+msgid "Menu Favorite"
+msgstr "Favorit"
+
 msgctxt "model:ir.ui.view,name:"
 msgid "View"
 msgstr "Sicht"
@@ -3036,9 +3172,9 @@ msgctxt "model:ir.ui.view.show.start,name:"
 msgid "Show view"
 msgstr "Sicht anzeigen"
 
-msgctxt "model:ir.ui.view_sc,name:"
-msgid "View shortcut"
-msgstr "Favoriten"
+msgctxt "model:ir.ui.view_search,name:"
+msgid "View Search"
+msgstr "Suchansicht"
 
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
 msgid "View Tree Expanded State"
@@ -3255,6 +3391,14 @@ msgstr "Diagramm"
 msgctxt "selection:ir.ui.view,type:"
 msgid "Tree"
 msgstr "Baum"
+
+msgctxt "view:ir.action.act_window.domain:"
+msgid "Domain"
+msgstr "Wertebereich (Domain)"
+
+msgctxt "view:ir.action.act_window.domain:"
+msgid "Domains"
+msgstr "Wertebereiche (Domains)"
 
 msgctxt "view:ir.action.act_window.view:"
 msgid "View"
@@ -3735,6 +3879,14 @@ msgctxt "view:ir.ui.icon:"
 msgid "Icons"
 msgstr "Symbole"
 
+msgctxt "view:ir.ui.menu.favorite:"
+msgid "Menu Favorite"
+msgstr "Favorit"
+
+msgctxt "view:ir.ui.menu.favorite:"
+msgid "Menu Favorites"
+msgstr "Favoriten"
+
 msgctxt "view:ir.ui.menu:"
 msgid "Menu"
 msgstr "Menü"
@@ -3747,13 +3899,13 @@ msgctxt "view:ir.ui.view:"
 msgid "_Show"
 msgstr "_Anzeigen"
 
-msgctxt "view:ir.ui.view_sc:"
-msgid "Shortcut"
-msgstr "Favorit"
+msgctxt "view:ir.ui.view_search:"
+msgid "View Search"
+msgstr "Suchansicht"
 
-msgctxt "view:ir.ui.view_sc:"
-msgid "Shortcuts"
-msgstr "Favoriten"
+msgctxt "view:ir.ui.view_search:"
+msgid "View Searches"
+msgstr "Suchsichten"
 
 msgctxt "view:ir.ui.view_tree_expanded_state:"
 msgid "View Tree Expanded State"
