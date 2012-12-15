@@ -82,7 +82,7 @@ method ``on_change_<field name>`` of the model when the user changes the
 current field value and will give the values of each fields in this list. The
 method signature is::
 
-    on_change_<field name>(values)
+    on_change_<field name>()
 
 This method must return a dictionary with the values of fields to be updated.
 
@@ -102,7 +102,7 @@ around. If this attribute is set, the client will call the method
 fields defined in the list and will give the values of each fields in this
 list. The method signature is::
 
-    on_change_with_<field name>(values)
+    on_change_with_<field name>()
 
 This method must return the new value of the field.
 
