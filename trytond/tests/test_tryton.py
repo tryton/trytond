@@ -202,6 +202,8 @@ def test_depends():
                 encoder.encode(field.domain)
                 if hasattr(field, 'digits'):
                     encoder.encode(field.digits)
+                if hasattr(field, 'add_remove'):
+                    encoder.encode(field.add_remove)
                 encoder.fields.discard(fname)
                 encoder.fields.discard('context')
                 encoder.fields.discard('_user')
