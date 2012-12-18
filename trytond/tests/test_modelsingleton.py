@@ -40,8 +40,8 @@ class ModelSingletonTestCase(unittest.TestCase):
                 ])
             self.assertEqual(singleton['create_uid'], USER)
             self.assert_(isinstance(singleton['create_date'], datetime))
-            self.assertEqual(singleton['write_uid'], False)
-            self.assertEqual(singleton['write_date'], False)
+            self.assertEqual(singleton['write_uid'], None)
+            self.assertEqual(singleton['write_date'], None)
 
             transaction.cursor.rollback()
 
