@@ -36,7 +36,7 @@ class ModelSingleton(ModelStorage):
                     + cls._inherit_fields.keys()))
             for field_name in fields_names:
                 if field_name not in res:
-                    res[field_name] = False
+                    res[field_name] = None
             res['id'] = ids[0]
             return [res]
         res = super(ModelSingleton, cls).read([singleton.id],

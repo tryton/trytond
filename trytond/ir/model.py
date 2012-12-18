@@ -115,9 +115,9 @@ class Model(ModelSQL, ModelView):
         Property._models_get_cache.clear()
 
     @classmethod
-    def global_search(cls, text, limit):
+    def global_search(cls, text, limit, menu='ir.ui.menu'):
         """
-        Search on models for text
+        Search on models for text including menu
         Returns a list of tuple (ratio, model, model_name, id, rec_name, icon)
         The size of the list is limited to limit
         """
@@ -129,7 +129,7 @@ class Model(ModelSQL, ModelView):
 
         models = cls.search(['OR',
                 ('global_search_p', '=', True),
-                ('name', '=', 'ir.ui.menu'),
+                ('model', '=', menu),
                 ])
         access = ModelAccess.get_access([m.model for m in models])
         s = StringMatcher()
