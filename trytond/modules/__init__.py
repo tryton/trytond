@@ -269,21 +269,6 @@ def load_module_graph(graph, pool, lang=None):
 
         cursor.commit()
 
-    # Create missing reports
-    from trytond.report import Report
-    ActionReport = pool.get('ir.action.report')
-    reports = ActionReport.search([
-            ('module', '=', module),
-            ])
-    report_names = pool.object_name_list(type='report')
-    for report in reports:
-        report_name = report.report_name
-        if report_name not in report_names:
-            report = object.__new__(Report)
-            report.__name__ = report_name
-            pool.add(report, type='report')
-            report.__init__()
-
     for model_name in models_to_update_history:
         model = pool.get(model_name)
         if model._history:
