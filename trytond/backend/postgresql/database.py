@@ -344,14 +344,6 @@ class Cursor(CursorInterface):
             self._print_log('from')
             self._print_log('into')
         self.cursor.close()
-
-        # This force the cursor to be freed, and thus, available again. It is
-        # important because otherwise we can overload the server very easily
-        # because of a cursor shortage (because cursors are not garbage
-        # collected as fast as they should). The problem is probably due in
-        # part because browse records keep a reference to the cursor.
-        del self.cursor
-        #if id(self._conn) in self._connpool._rused:
         self.rollback()
         self._connpool.putconn(self._conn, close=close)
 
