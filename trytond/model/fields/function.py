@@ -74,8 +74,9 @@ class Function(Field):
         If the function has ``names`` in the function definition then
         it will call it with a list of name.
         '''
+        method = getattr(Model, self.getter)
+
         def call(name):
-            method = getattr(Model, self.getter)
             records = Model.browse(ids)
             if not hasattr(method, 'im_self') or method.im_self:
                 return method(records, name)
@@ -84,12 +85,12 @@ class Function(Field):
         if isinstance(name, list):
             names = name
             # Test is the function works with a list of names
-            if 'names' in inspect.getargspec(getattr(Model, self.getter))[0]:
+            if 'names' in inspect.getargspec(method)[0]:
                 return call(names)
             return dict((name, call(name)) for name in names)
         else:
             # Test is the function works with a list of names
-            if 'names' in inspect.getargspec(getattr(Model, self.getter))[0]:
+            if 'names' in inspect.getargspec(method)[0]:
                 name = [name]
             return call(name)
 
