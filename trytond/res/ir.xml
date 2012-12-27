@@ -428,15 +428,11 @@ this repository contains the full copyright notices and license terms. -->
             <field name="global_p" eval="True"/>
         </record>
         <record model="ir.rule" id="rule_menu1">
-            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.ui.menu')]"/>
-            <field name="operator">in</field>
-            <field name="operand">User/Groups</field>
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
             <field name="rule_group" ref="rule_group_menu"/>
         </record>
         <record model="ir.rule" id="rule_menu2">
-            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.ui.menu')]"/>
-            <field name="operator">=</field>
-            <field name="operand">False</field>
+            <field name="domain">[('groups', '=', None)]</field>
             <field name="rule_group" ref="rule_group_menu"/>
         </record>
         <record model="ir.rule.group" id="rule_group_action">
@@ -444,15 +440,11 @@ this repository contains the full copyright notices and license terms. -->
             <field name="global_p" eval="True"/>
         </record>
         <record model="ir.rule" id="rule_action1">
-            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.action')]"/>
-            <field name="operator">in</field>
-            <field name="operand">User/Groups</field>
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
             <field name="rule_group" ref="rule_group_action"/>
         </record>
         <record model="ir.rule" id="rule_action2">
-            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.action')]"/>
-            <field name="operator">=</field>
-            <field name="operand">False</field>
+            <field name="domain">[('groups', '=', None)]</field>
             <field name="rule_group" ref="rule_group_action"/>
         </record>
         <record model="ir.rule.group" id="rule_group_action_keyword">
@@ -460,15 +452,11 @@ this repository contains the full copyright notices and license terms. -->
             <field name="global_p" eval="True"/>
         </record>
         <record model="ir.rule" id="rule_action_keyword1">
-            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.action.keyword')]"/>
-            <field name="operator">in</field>
-            <field name="operand">User/Groups</field>
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
             <field name="rule_group" ref="rule_group_action_keyword"/>
         </record>
         <record model="ir.rule" id="rule_action_keyword2">
-            <field name="field" search="[('name', '=', 'groups'),('model.model', '=', 'ir.action.keyword')]"/>
-            <field name="operator">=</field>
-            <field name="operand">False</field>
+            <field name="domain">[('groups', '=', None)]</field>
             <field name="rule_group" ref="rule_group_action_keyword"/>
         </record>
         <record model="ir.action-res.group" id="act_module_install_upgrade_group_admin">
@@ -722,9 +710,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_read" eval="False"/>
         </record>
         <record model="ir.rule" id="rule_sequence">
-            <field name="field" search="[('name', '=', 'groups'), ('model.model', '=', 'ir.sequence')]"/>
-            <field name="operator">in</field>
-            <field name="operand">User/Groups</field>
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
             <field name="rule_group" ref="rule_group_sequence"/>
         </record>
 
@@ -734,9 +720,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_read" eval="False"/>
         </record>
         <record model="ir.rule" id="rule_sequence_strict">
-            <field name="field" search="[('name', '=', 'groups'), ('model.model', '=', 'ir.sequence.strict')]"/>
-            <field name="operator">in</field>
-            <field name="operand">User/Groups</field>
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
             <field name="rule_group" ref="rule_group_sequence_strict"/>
         </record>
 
@@ -790,10 +774,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.rule" id="rule_group_view_search1">
-            <field name="field"
-                search="[('name', '=', 'user'), ('model.model', '=', 'ir.ui.view_search')]"/>
-            <field name="operator">=</field>
-            <field name="operand">User</field>
+            <field name="domain">[('user', '=', user.id)]</field>
             <field name="rule_group" ref="rule_group_view_search"/>
         </record>
 
@@ -819,10 +800,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="global_p" eval="True"/>
         </record>
         <record model="ir.rule" id="rule_session1">
-            <field name="field"
-                search="[('name', '=', 'create_uid'), ('model.model', '=', 'ir.session')]"/>
-            <field name="operator">=</field>
-            <field name="operand">User</field>
+            <field name="domain">[('create_uid', '=', user.id)]</field>
             <field name="rule_group" ref="rule_group_session"/>
         </record>
 
@@ -832,10 +810,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="global_p" eval="True"/>
         </record>
         <record model="ir.rule" id="rule_session_wizard1">
-            <field name="field"
-                search="[('name', '=', 'create_uid'), ('model.model', '=', 'ir.session.wizard')]"/>
-            <field name="operator">=</field>
-            <field name="operand">User</field>
+            <field name="domain">[('create_uid', '=', user.id)]</field>
             <field name="rule_group" ref="rule_group_session_wizard"/>
         </record>
 
