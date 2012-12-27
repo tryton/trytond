@@ -438,7 +438,7 @@ class User(ModelSQL, ModelView):
 
     @classmethod
     def _get_login(cls, login):
-        result = cls._get_groups_cache.get(login)
+        result = cls._get_login_cache.get(login)
         if result:
             return result
         cursor = Transaction().cursor
@@ -446,7 +446,7 @@ class User(ModelSQL, ModelView):
                 'FROM "' + cls._table + '" '
                 'WHERE login = %s AND active', (login,))
         result = cursor.fetchone() or (None, None, None)
-        cls._get_groups_cache.set(login, result)
+        cls._get_login_cache.set(login, result)
         return result
 
     @classmethod
