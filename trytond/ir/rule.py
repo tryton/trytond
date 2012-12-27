@@ -2,12 +2,12 @@
 #this repository contains the full copyright notices and license terms.
 import contextlib
 import time
+import datetime
+
 from ..model import ModelView, ModelSQL, fields
 from ..tools import safe_eval
-from ..pyson import Eval
 from ..transaction import Transaction
 from ..cache import Cache
-from ..const import OPERATORS
 from ..pool import Pool
 
 __all__ = [
@@ -96,15 +96,21 @@ class Rule(ModelSQL, ModelView):
     "Rule"
     __name__ = 'ir.rule'
     _rec_name = 'field'
-    field = fields.Many2One('ir.model.field', 'Field',
-        domain=[('model', '=', Eval('_parent_rule_group', {}).get('model'))],
-        select=True, required=True)
-    operator = fields.Selection([(x, x) for x in OPERATORS], 'Operator',
-        required=True, translate=False)
-    operand = fields.Selection('get_operand', 'Operand', required=True)
     rule_group = fields.Many2One('ir.rule.group', 'Group', select=True,
        required=True, ondelete="CASCADE")
+    domain = fields.Char('Domain', required=True,
+        help='Domain is evaluated with "user" as the current user')
     _domain_get_cache = Cache('ir_rule.domain_get')
+
+    @classmethod
+    def __setup__(cls):
+        super(Rule, cls).__setup__()
+        cls._constraints += [
+            ('check_domain', 'invalid_domain'),
+            ]
+        cls._error_messages.update({
+                'invalid_domain': 'Invalid domain',
+                })
 
     @classmethod
     def __register__(cls, module_name):
@@ -118,49 +124,34 @@ class Rule(ModelSQL, ModelView):
             'WHERE operator = %%s' % cls._table, ('!=', '<>'))
 
     @classmethod
-    def _operand_get(cls, obj_name='', level=3, recur=None, root_tech='',
-            root=''):
-        res = {}
-        if not obj_name:
-            obj_name = 'res.user'
-        res.update({"False": "False", "True": "True", "User": "user.id"})
-        if not recur:
-            recur = []
-        with Transaction().set_context(language='en_US'):
-            obj_fields = Pool().get(obj_name).fields_get()
-        key = obj_fields.keys()
-        key.sort()
-        for k in key:
-
-            if obj_fields[k]['type'] in ('many2one'):
-                res[root + '/' + obj_fields[k]['string']] = (
-                    '(%s.%s.id if %s.%s else None)'
-                    % (root_tech, k, root_tech, k))
-
-            elif obj_fields[k]['type'] in ('many2many', 'one2many'):
-                res[root + '/' + obj_fields[k]['string']] = (
-                    '[x.id for x in (%s.%s or [])]'
-                    % (root_tech, k))
+    def check_domain(cls, rules):
+        ctx = cls._get_context()
+        for rule in rules:
+            try:
+                value = safe_eval(rule.domain, ctx)
+            except Exception:
+                return False
+            if not isinstance(value, list):
+                return False
             else:
-                res[root + '/' + obj_fields[k]['string']] = \
-                    root_tech + '.' + k
+                try:
+                    fields.domain_validate(value)
+                except Exception:
+                    return False
+        return True
 
-            if (obj_fields[k]['type'] in recur) and (level > 0):
-                res.update(cls._operand_get(obj_fields[k]['relation'],
-                        level - 1, recur,
-                        '(%s.%s if %s else None)' % (root_tech,  k, root_tech),
-                        root + '/' + obj_fields[k]['string']))
-
-        return res
-
-    @classmethod
-    def get_operand(cls):
-        res = []
-        operands = cls._operand_get('res.user', level=1, recur=['many2one'],
-                root_tech='user', root='User')
-        for i in operands.keys():
-            res.append((i, i))
-        return res
+    @staticmethod
+    def _get_context():
+        User = Pool().get('res.user')
+        user_id = Transaction().user
+        with Transaction().set_user(0, set_context=True):
+            user = User(user_id)
+        return {
+            'user': user,
+            'current_date': datetime.datetime.today(),
+            'time': time,
+            'context': Transaction().context,
+            }
 
     @classmethod
     def domain_get(cls, model_name, mode='read'):
@@ -185,7 +176,6 @@ class Rule(ModelSQL, ModelView):
         RuleGroup_User = pool.get('ir.rule.group-res.user')
         RuleGroup_Group = pool.get('ir.rule.group-res.group')
         User_Group = pool.get('res.user-res.group')
-        User = pool.get('res.user')
 
         cursor = Transaction().cursor
         cursor.execute('SELECT r.id FROM "' + cls._table + '" r '
@@ -213,31 +203,21 @@ class Rule(ModelSQL, ModelView):
         obj = pool.get(model_name)
         clause = {}
         clause_global = {}
-        operand2query = cls._operand_get('res.user', level=1,
-                recur=['many2one'], root_tech='user', root='User')
         user_id = Transaction().user
-        with Transaction().set_user(0, set_context=True):
-            user = User(user_id)
+        ctx = cls._get_context()
         # Use root user without context to prevent recursion
         with contextlib.nested(Transaction().set_user(0),
                 Transaction().set_context(user=0)):
             for rule in cls.browse(ids):
-                dom = safe_eval("[('%s', '%s', %s)]" % \
-                        (rule.field.name, rule.operator,
-                            operand2query[rule.operand]), {
-                                'user': user,
-                                'time': time,
-                                })
-
+                assert rule.domain, ('Rule domain empty,'
+                    'check if migration was done')
+                dom = safe_eval(rule.domain, ctx)
                 if rule.rule_group.global_p:
                     clause_global.setdefault(rule.rule_group.id, ['OR'])
                     clause_global[rule.rule_group.id].append(dom)
                 else:
                     clause.setdefault(rule.rule_group.id, ['OR'])
                     clause[rule.rule_group.id].append(dom)
-
-        query = ''
-        val = []
 
         # Test if there is no rule_group that have no rule
         cursor.execute('SELECT g.id FROM "' + RuleGroup._table + '" g ' \
@@ -267,7 +247,11 @@ class Rule(ModelSQL, ModelView):
             clause_global.insert(0, 'AND')
             clause = ['AND', clause_global, clause]
 
-        query, val, _, _ = obj.search_domain(clause, active_test=False)
+        # Use root to prevent infinite recursion
+        with contextlib.nested(Transaction().set_user(0),
+                Transaction().set_context(active_test=False, user=0)):
+            query, val = obj.search(clause, order=[], query_string=True)
+        query = '("%s".id IN (%s))' % (obj._table, query)
 
         cls._domain_get_cache.set(key, (query, val))
         return query, val

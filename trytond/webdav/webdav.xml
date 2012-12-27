@@ -116,10 +116,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="perm_delete" eval="True"/>
         </record>
         <record model="ir.rule" id="rule_share">
-            <field name="field"
-                search="[('name', '=', 'user'), ('model.model', '=', 'webdav.share')]"/>
-            <field name="operator">=</field>
-            <field name="operand">User</field>
+            <field name="domain">[('user', '=', user.id)]</field>
             <field name="rule_group" ref="rule_group_share"/>
         </record>
 
