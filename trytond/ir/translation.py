@@ -268,7 +268,9 @@ class Translation(ModelSQL, ModelView):
                     records = Model.browse(ids)
             for record in records:
                 if ttype in ('field', 'help'):
-                    name = record.model + ',' + record.name
+                    name = record.model.model + ',' + record.name
+                else:
+                    name = record.model + ',' + field_name
                 translation2 = cls.search([
                     ('lang', '=', lang),
                     ('type', '=', ttype),
