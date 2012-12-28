@@ -113,17 +113,6 @@ class Rule(ModelSQL, ModelView):
                 })
 
     @classmethod
-    def __register__(cls, module_name):
-        cursor = Transaction().cursor
-
-        super(Rule, cls).__register__(module_name)
-
-        # Migration from 2.0: rename operator '<>' into '!='
-        cursor.execute('UPDATE "%s" '
-            'SET operator = %%s '
-            'WHERE operator = %%s' % cls._table, ('!=', '<>'))
-
-    @classmethod
     def check_domain(cls, rules):
         ctx = cls._get_context()
         for rule in rules:
