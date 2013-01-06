@@ -25,7 +25,7 @@ def login(dbname, loginname, password, cache=True):
             return user_id
         with Transaction().start(dbname, user_id) as transaction:
             Session = pool.get('ir.session')
-            session = Session.create({})
+            session, = Session.create([{}])
             transaction.cursor.commit()
             return user_id, session.key
     return False

@@ -24,13 +24,13 @@ class SequenceTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            sequence = self.sequence.create({
-                    'name': 'Test incremental',
-                    'code': 'test',
-                    'prefix': '',
-                    'suffix': '',
-                    'type': 'incremental',
-                    })
+            sequence, = self.sequence.create([{
+                        'name': 'Test incremental',
+                        'code': 'test',
+                        'prefix': '',
+                        'suffix': '',
+                        'type': 'incremental',
+                        }])
             self.assertEqual(self.sequence.get_id(sequence), '1')
 
             self.sequence.write([sequence], {
@@ -52,13 +52,13 @@ class SequenceTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            sequence = self.sequence.create({
-                    'name': 'Test decimal timestamp',
-                    'code': 'test',
-                    'prefix': '',
-                    'suffix': '',
-                    'type': 'decimal timestamp',
-                    })
+            sequence, = self.sequence.create([{
+                        'name': 'Test decimal timestamp',
+                        'code': 'test',
+                        'prefix': '',
+                        'suffix': '',
+                        'type': 'decimal timestamp',
+                        }])
             timestamp = self.sequence.get_id(sequence)
             self.assertEqual(timestamp, str(sequence.last_timestamp))
 
@@ -77,13 +77,13 @@ class SequenceTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            sequence = self.sequence.create({
-                    'name': 'Test hexadecimal timestamp',
-                    'code': 'test',
-                    'prefix': '',
-                    'suffix': '',
-                    'type': 'hexadecimal timestamp',
-                    })
+            sequence, = self.sequence.create([{
+                        'name': 'Test hexadecimal timestamp',
+                        'code': 'test',
+                        'prefix': '',
+                        'suffix': '',
+                        'type': 'hexadecimal timestamp',
+                        }])
             timestamp = self.sequence.get_id(sequence)
             self.assertEqual(timestamp,
                 hex(int(sequence.last_timestamp))[2:].upper())
@@ -102,13 +102,13 @@ class SequenceTestCase(unittest.TestCase):
         Test prefix/suffix
         '''
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            sequence = self.sequence.create({
-                    'name': 'Test incremental',
-                    'code': 'test',
-                    'prefix': 'prefix/',
-                    'suffix': '/suffix',
-                    'type': 'incremental',
-                    })
+            sequence, = self.sequence.create([{
+                        'name': 'Test incremental',
+                        'code': 'test',
+                        'prefix': 'prefix/',
+                        'suffix': '/suffix',
+                        'type': 'incremental',
+                        }])
             self.assertEqual(self.sequence.get_id(sequence),
                 'prefix/1/suffix')
 

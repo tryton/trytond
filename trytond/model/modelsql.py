@@ -5,7 +5,7 @@ import datetime
 import re
 from functools import reduce
 from decimal import Decimal
-from itertools import islice
+from itertools import islice, izip
 
 from trytond.model import ModelStorage
 from trytond.model import fields
@@ -220,186 +220,212 @@ class ModelSQL(ModelStorage):
         return None
 
     @classmethod
-    def create(cls, values):
-        super(ModelSQL, cls).create(values)
+    def create(cls, vlist):
+        super(ModelSQL, cls).create(vlist)
         cursor = Transaction().cursor
         pool = Pool()
 
         if cls.table_query():
             return False
 
-        values = values.copy()
+        modified_fields = set()
+        new_ids = []
+        vlist = [v.copy() for v in vlist]
+        for values in vlist:
+            # Clean values
+            for key in ('create_uid', 'create_date', 'write_uid', 'write_date',
+                    'id'):
+                if key in values:
+                    del values[key]
+            modified_fields |= set(values.keys())
 
-        # Clean values
-        for key in ('create_uid', 'create_date', 'write_uid', 'write_date',
-                'id'):
-            if key in values:
-                del values[key]
+            # Get default values
+            default = []
+            avoid_table = []
+            for (i, j) in cls._inherits.items():
+                if j in values:
+                    avoid_table.append(i)
+            for i in cls._fields.keys():
+                if not i in values \
+                        and i not in ('create_uid', 'create_date',
+                                'write_uid', 'write_date'):
+                    default.append(i)
+            for i in cls._inherit_fields.keys():
+                if ((not i in values)
+                        and (not cls._inherit_fields[i][0] in avoid_table)
+                        and i in cls._defaults):
+                    default.append(i)
 
-        # Get default values
-        default = []
-        avoid_table = []
-        for (i, j) in cls._inherits.items():
-            if j in values:
-                avoid_table.append(i)
-        for i in cls._fields.keys():
-            if not i in values \
-                    and i not in ('create_uid', 'create_date',
+            if len(default):
+                defaults = cls.default_get(default, with_rec_name=False)
+                for field in defaults.keys():
+                    if '.' in field:
+                        del defaults[field]
+                    if field in ('create_uid', 'create_date',
                             'write_uid', 'write_date'):
-                default.append(i)
-        for i in cls._inherit_fields.keys():
-            if ((not i in values)
-                    and (not cls._inherit_fields[i][0] in avoid_table)
-                    and i in cls._defaults):
-                default.append(i)
+                        del defaults[field]
+                    if field in values:
+                        del defaults[field]
+                values.update(cls._clean_defaults(defaults))
 
-        if len(default):
-            defaults = cls.default_get(default, with_rec_name=False)
-            for field in defaults.keys():
-                if '.' in field:
-                    del defaults[field]
-                if field in ('create_uid', 'create_date',
-                        'write_uid', 'write_date'):
-                    del defaults[field]
-                if field in values:
-                    del defaults[field]
-            values.update(cls._clean_defaults(defaults))
+            (upd0, upd1, upd2) = ('', '', [])
+            upd_todo = []
 
-        (upd0, upd1, upd2) = ('', '', [])
-        upd_todo = []
+            # Create inherits
+            tocreate = {}
+            for i in cls._inherits:
+                if cls._inherits[i] not in values:
+                    tocreate[i] = {}
 
-        # Create inherits
-        tocreate = {}
-        for i in cls._inherits:
-            if cls._inherits[i] not in values:
-                tocreate[i] = {}
+            for i in values.keys():
+                if i in cls._inherit_fields:
+                    (inherits, _, _) = cls._inherit_fields[i]
+                    if i in cls._fields:
+                        continue
+                    if inherits in tocreate:
+                        tocreate[inherits][i] = values[i]
+                    del values[i]
 
-        for i in values.keys():
-            if i in cls._inherit_fields:
-                (inherits, _, _) = cls._inherit_fields[i]
-                if i in cls._fields:
-                    continue
-                if inherits in tocreate:
-                    tocreate[inherits][i] = values[i]
-                del values[i]
+            for inherits in tocreate:
+                Inherits = pool.get(inherits)
+                inherits_record, = Inherits.create([tocreate[inherits]])
+                values[cls._inherits[inherits]] = inherits_record.id
 
-        for inherits in tocreate:
-            Inherits = pool.get(inherits)
-            inherits_record = Inherits.create(tocreate[inherits])
-            values[cls._inherits[inherits]] = inherits_record.id
-
-        # Insert record
-        for fname, value in values.iteritems():
-            field = cls._fields[fname]
-            if not hasattr(field, 'set'):
-                upd0 = upd0 + ',"' + fname + '"'
-                upd1 = upd1 + ', %s'
-                upd2.append(FIELDS[field._type].sql_format(value))
-            else:
-                upd_todo.append(fname)
-        upd0 += ', create_uid, create_date'
-        upd1 += ', %s, %s'
-        upd2.append(Transaction().user)
-        upd2.append(datetime.datetime.now())
-        try:
-            if cursor.has_returning():
-                cursor.execute('INSERT INTO "' + cls._table + '" '
-                    '(' + upd0[1:] + ') '
-                    'VALUES (' + upd1[1:] + ') RETURNING id',
-                    tuple(upd2))
-                id_new, = cursor.fetchone()
-            else:
-                id_new = cursor.nextid(cls._table)
-                if id_new:
-                    cursor.execute('INSERT INTO "' + cls._table + '" '
-                        '(id' + upd0 + ') '
-                        'VALUES (' + str(id_new) + upd1 + ')',
-                        tuple(upd2))
+            # Insert record
+            for fname, value in values.iteritems():
+                field = cls._fields[fname]
+                if not hasattr(field, 'set'):
+                    upd0 = upd0 + ',"' + fname + '"'
+                    upd1 = upd1 + ', %s'
+                    upd2.append(FIELDS[field._type].sql_format(value))
                 else:
+                    upd_todo.append(fname)
+            upd0 += ', create_uid, create_date'
+            upd1 += ', %s, %s'
+            upd2.append(Transaction().user)
+            upd2.append(datetime.datetime.now())
+
+            try:
+                if cursor.has_returning():
                     cursor.execute('INSERT INTO "' + cls._table + '" '
                         '(' + upd0[1:] + ') '
-                        'VALUES (' + upd1[1:] + ')',
+                        'VALUES (' + upd1[1:] + ') RETURNING id',
                         tuple(upd2))
-                    id_new = cursor.lastid()
-        except DatabaseIntegrityError, exception:
-            with contextlib.nested(Transaction().new_cursor(),
-                    Transaction().set_user(0)):
-                for field_name in cls._fields:
-                    field = cls._fields[field_name]
-                    # Check required fields
-                    if field.required and \
-                            not hasattr(field, 'set') and \
-                            field_name not in ('create_uid', 'create_date'):
-                        if values.get(field_name) is None:
-                            cls.raise_user_error('required_field',
-                                    error_args=cls._get_error_args(
-                                        field_name))
-                    if isinstance(field, fields.Many2One) \
-                            and values.get(field_name):
-                        Model = pool.get(field.model_name)
-                        create_records = Transaction().create_records.get(
-                                field.model_name, set())
-                        delete_records = Transaction().delete_records.get(
-                                field.model_name, set())
-                        if not ((Model.search([
-                                            ('id', '=', values[field_name]),
-                                            ], order=[])
-                                    or values[field_name] in create_records)
-                                and values[field_name] not in delete_records):
-                            cls.raise_user_error('foreign_model_missing',
-                                    error_args=cls._get_error_args(
-                                        field_name))
-                for name, _, error in cls._sql_constraints:
-                    if name in exception[0]:
-                        cls.raise_user_error(error)
-                for name, error in cls._sql_error_messages:
-                    if name in exception[0]:
-                        cls.raise_user_error(error)
-            raise
+                    id_new, = cursor.fetchone()
+                else:
+                    id_new = cursor.nextid(cls._table)
+                    if id_new:
+                        cursor.execute('INSERT INTO "' + cls._table + '" '
+                            '(id' + upd0 + ') '
+                            'VALUES (' + str(id_new) + upd1 + ')',
+                            tuple(upd2))
+                    else:
+                        cursor.execute('INSERT INTO "' + cls._table + '" '
+                            '(' + upd0[1:] + ') '
+                            'VALUES (' + upd1[1:] + ')',
+                            tuple(upd2))
+                        id_new = cursor.lastid()
+                new_ids.append(id_new)
+            except DatabaseIntegrityError, exception:
+                with contextlib.nested(Transaction().new_cursor(),
+                        Transaction().set_user(0)):
+                    for field_name in cls._fields:
+                        field = cls._fields[field_name]
+                        # Check required fields
+                        if field.required and \
+                                not hasattr(field, 'set') and \
+                                field_name not in ('create_uid', 'create_date'):
+                            if values.get(field_name) is None:
+                                cls.raise_user_error('required_field',
+                                        error_args=cls._get_error_args(
+                                            field_name))
+                        if isinstance(field, fields.Many2One) \
+                                and values.get(field_name):
+                            Model = pool.get(field.model_name)
+                            create_records = Transaction().create_records.get(
+                                    field.model_name, set())
+                            delete_records = Transaction().delete_records.get(
+                                    field.model_name, set())
+                            if not ((Model.search([
+                                                ('id', '=', values[field_name]),
+                                                ], order=[])
+                                        or values[field_name] in create_records)
+                                    and values[field_name] not in 
+                                    delete_records):
+                                cls.raise_user_error('foreign_model_missing',
+                                        error_args=cls._get_error_args(
+                                            field_name))
+                    for name, _, error in cls._sql_constraints:
+                        if name in exception[0]:
+                            cls.raise_user_error(error)
+                    for name, error in cls._sql_error_messages:
+                        if name in exception[0]:
+                            cls.raise_user_error(error)
+                raise
 
         domain1, domain2 = pool.get('ir.rule').domain_get(cls.__name__,
                 mode='create')
         if domain1:
-            cursor.execute('SELECT id FROM "' + cls._table + '" ' \
-                    'WHERE id = %s AND (' + domain1 + ')',
-                    [id_new] + domain2)
-            if not cursor.fetchone():
-                cls.raise_user_error('access_error', cls.__name__)
+            in_max = Transaction().cursor.IN_MAX
+            for i in range(0, len(new_ids), in_max):
+                sub_ids = new_ids[i:i + in_max]
+                red_sql, red_ids = reduce_ids('id', sub_ids)
 
-        Transaction().create_records.setdefault(
-            cls.__name__, set()).add(id_new)
+                cursor.execute('SELECT id FROM "' + cls._table + '" WHERE ' +
+                        red_sql + ' AND (' + domain1 + ')', red_ids + domain2)
+                if len(cursor.fetchall()) != len(sub_ids):
+                    cls.raise_user_error('access_error', cls.__name__)
 
-        for field in values:
-            if getattr(cls._fields[field], 'translate', False):
-                pool.get('ir.translation').set_ids(
-                        cls.__name__ + ',' + field, 'model',
-                        Transaction().language, [id_new], values[field])
+        create_records = Transaction().create_records.setdefault(cls.__name__, 
+                set()).update(new_ids)
 
-        for field in upd_todo:
-            cls._fields[field].set([id_new], cls, field, values[field])
+        for values, new_id in izip(vlist, new_ids):
+            for field in values:
+                if getattr(cls._fields[field], 'translate', False):
+                        pool.get('ir.translation').set_ids(
+                                cls.__name__ + ',' + field, 'model',
+                                Transaction().language, [new_id], values[field])
+
+            for field in upd_todo:
+                if field in values:
+                    cls._fields[field].set([new_id], cls, field, values[field])
 
         if cls._history:
-            cursor.execute('INSERT INTO "' + cls._table + '__history" '
-                '(id' + upd0 + ') '
-                'SELECT id' + upd0 + ' '
-                'FROM "' + cls._table + '" '
-                'WHERE id = %s', (id_new,))
+            columns = ['"' + str(x) + '"' for x in cls._fields 
+                if not hasattr(cls._fields[x], 'set')]
+            columns = ','.join(columns)
+            for i in range(0, len(new_ids), cursor.IN_MAX):
+                sub_ids = new_ids[i:i + cursor.IN_MAX]
+                red_sql, red_ids = reduce_ids('id', sub_ids)
+                cursor.execute('INSERT INTO "' + cls._table + '__history" ' 
+                    '(' + columns + ') '
+                    'SELECT ' + columns + ' '
+                    'FROM "' + cls._table + '" '
+                    'WHERE ' + red_sql, red_ids)
 
-        record = cls(id_new)
-        cls._validate([record])
+        records = cls.browse(new_ids)
+        cls._validate(records)
 
         # Check for Modified Preorder Tree Traversal
         for k in cls._fields:
             field = cls._fields[k]
-            if isinstance(field, fields.Many2One) \
-                    and field.model_name == cls.__name__ \
-                    and field.left and field.right:
-                cls._update_tree(id_new, k, field.left, field.right)
+            if (isinstance(field, fields.Many2One)
+                    and field.model_name == cls.__name__
+                    and field.left and field.right):
+                if (field.left in modified_fields 
+                        or field.right in modified_fields):
+                    raise Exception('ValidateError',
+                            'You can not update fields: "%s", "%s"' %
+                            (field.left, field.right))
+                if len(new_ids) == 1:
+                    cls._update_tree(new_ids[0], k, field.left, field.right)
+                else:
+                    with Transaction().set_user(0):
+                        cls._rebuild_tree(k, False, 0)
 
-        cls.trigger_create(record)
-
-        return record
-
+        cls.trigger_create(records)
+        return records
+    
     @classmethod
     def read(cls, ids, fields_names=None):
         pool = Pool()

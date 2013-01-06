@@ -225,13 +225,16 @@ class UIMenu(ModelSQL, ModelView):
             return
         Action = pool.get(action_type)
         action = Action(int(action_id))
+        to_create = []
         for menu in menus:
             with Transaction().set_context(_timestamp=False):
-                ActionKeyword.create({
-                    'keyword': 'tree_open',
-                    'model': str(menu),
-                    'action': action.action.id,
-                    })
+                to_create.append({
+                        'keyword': 'tree_open',
+                        'model': str(menu),
+                        'action': action.action.id,
+                        })
+        if to_create:
+            ActionKeyword.create(to_create)
 
     @classmethod
     def get_favorite(cls, menus, name):
@@ -288,10 +291,10 @@ class UIMenuFavorite(ModelSQL, ModelView):
     @classmethod
     def set(cls, menu_id):
         user = Transaction().user
-        cls.create({
-                'menu': menu_id,
-                'user': user,
-                })
+        cls.create([{
+                    'menu': menu_id,
+                    'user': user,
+                    }])
 
     @classmethod
     def unset(cls, menu_id):

@@ -255,10 +255,10 @@ class Module(ModelSQL, ModelView):
             tryton = get_module_info(name)
             if not tryton:
                 continue
-            module = cls.create({
-                    'name': name,
-                    'state': 'uninstalled',
-                    })
+            module, = cls.create([{
+                        'name': name,
+                        'state': 'uninstalled',
+                        }])
             count += 1
             cls._update_dependencies(module, tryton.get('depends', []))
         return count
@@ -274,12 +274,15 @@ class Module(ModelSQL, ModelView):
         # Restart Browse Cache for deleted dependencies
         module = cls(module.id)
         dependency_names = [x.name for x in module.dependencies]
+        to_create = []
         for depend in depends:
             if depend not in dependency_names:
-                Dependency.create({
+                to_create.append({
                         'module': module.id,
                         'name': depend,
                         })
+        if to_create:
+            Dependency.create(to_create)
 
 
 class ModuleDependency(ModelSQL, ModelView):

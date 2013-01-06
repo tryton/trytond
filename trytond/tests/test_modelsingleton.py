@@ -51,11 +51,11 @@ class ModelSingletonTestCase(unittest.TestCase):
         '''
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
-            singleton = self.singleton.create({'name': 'bar'})
+            singleton, = self.singleton.create([{'name': 'bar'}])
             self.assert_(singleton)
             self.assertEqual(singleton.name, 'bar')
 
-            singleton2 = self.singleton.create({'name': 'foo'})
+            singleton2, = self.singleton.create([{'name': 'foo'}])
             self.assertEqual(singleton2, singleton)
 
             self.assertEqual(singleton.name, 'foo')
@@ -103,7 +103,7 @@ class ModelSingletonTestCase(unittest.TestCase):
                     with_rec_name=False)
             self.assertEqual(len(default), 1)
 
-            self.singleton.create({'name': 'bar'})
+            self.singleton.create([{'name': 'bar'}])
 
             default = self.singleton.default_get(['name'])
             self.assertEqual(default, {'name': 'bar'})

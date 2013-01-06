@@ -14,7 +14,7 @@ except ImportError:
     import StringIO
 
 from decimal import Decimal
-from itertools import islice, ifilter, ifilterfalse, chain
+from itertools import islice, ifilter, ifilterfalse, chain, izip
 from functools import reduce
 
 from trytond.model import Model
@@ -49,7 +49,7 @@ class ModelStorage(Model):
         super(ModelStorage, cls).__setup__()
         if issubclass(cls, ModelView):
             cls.__rpc__.update({
-                    'create': RPC(readonly=False, result=int),
+                    'create': RPC(readonly=False, result=lambda r: map(int, r)),
                     'read': RPC(),
                     'write': RPC(readonly=False, instantiate=0),
                     'delete': RPC(readonly=False, instantiate=0),
@@ -74,23 +74,24 @@ class ModelStorage(Model):
         return datetime.datetime.today()
 
     @classmethod
-    def create(cls, values):
+    def create(cls, vlist):
         '''
-        Create record and return an instance.
+        Returns the list of created records.
         '''
         pool = Pool()
         ModelAccess = pool.get('ir.model.access')
         ModelFieldAccess = pool.get('ir.model.field.access')
 
         ModelAccess.check(cls.__name__, 'create')
-        ModelFieldAccess.check(cls.__name__,
-            [x for x in values if x in cls._fields], 'write')
+
+        all_fields = list(set(chain(*(v.iterkeys() for v in vlist))))
+        ModelFieldAccess.check(cls.__name__, all_fields, 'write')
 
         # Increase transaction counter
         Transaction().counter += 1
 
     @classmethod
-    def trigger_create(cls, record):
+    def trigger_create(cls, records):
         '''
         Trigger create actions
         '''
@@ -99,8 +100,12 @@ class ModelStorage(Model):
         if not triggers:
             return
         for trigger in triggers:
-            if Trigger.eval(trigger, record):
-                Trigger.trigger_action([record], trigger)
+            triggers = []
+            for record in records:
+                if Trigger.eval(trigger, record):
+                    triggers.append(record)
+            if triggers:
+                Trigger.trigger_action(triggers, trigger)
 
     @classmethod
     def read(cls, ids, fields_names=None):
@@ -281,21 +286,26 @@ class ModelStorage(Model):
         ids = map(int, records)
         datas = cls.read(ids, fields_names=fields_names)
         field_defs = cls.fields_get(fields_names=fields_names)
+        data_ids = []
+        to_create = []
+        o2m_to_create = []
         for data in datas:
-            data_id = data['id']
+            data_ids.append(data['id'])
             data, data_o2m = convert_data(field_defs, data)
-            new_record = cls.create(data)
-            if new_record:
-                new_ids[data_id] = new_record.id
-            else:
-                continue
+            to_create.append(data)
+            o2m_to_create.append(data_o2m)
+        if to_create:
+            new_records = cls.create(to_create)
+        for data_id, new_record, data_o2m in izip(data_ids, new_records,
+                o2m_to_create):
+            new_ids[data_id] = new_record.id
             for field_name in data_o2m:
                 Relation = pool.get(
                         field_defs[field_name]['relation'])
                 relation_field = field_defs[field_name]['relation_field']
                 if relation_field:
                     Relation.copy(Relation.browse(data_o2m[field_name]),
-                        default={relation_field: new_ids[data_id]})
+                        default={relation_field: new_record.id})
 
         fields_translate = {}
         for field_name, field in field_defs.iteritems():
@@ -709,7 +719,7 @@ class ModelStorage(Model):
                 nbrmax = max(nbrmax, max2)
                 reduce(lambda x, y: x and y, newrow)
                 row[field] = (reduce(lambda x, y: x or y, newrow.values()) and
-                         [('create', newrow)]) or []
+                         [('create', [newrow])]) or []
                 i = max2
                 while (position + i) < len(data):
                     test = True
@@ -724,7 +734,7 @@ class ModelStorage(Model):
                             process_lines(data, prefix + [field], newfd,
                                     position + i)
                     if reduce(lambda x, y: x or y, newrow.values()):
-                        row[field].append(('create', newrow))
+                        row[field].append(('create', [newrow]))
                     i += max2
                     nbrmax = max(nbrmax, i)
             if prefix_len == 0:
@@ -756,7 +766,7 @@ class ModelStorage(Model):
                     # XXX should raise Exception
                     Transaction().cursor.rollback()
                     return (-1, res, warning, '')
-                new_id = cls.create(res)
+                new_id, = cls.create([res])
                 for lang in translate:
                     with Transaction().set_context(language=lang):
                         cls.write(new_id, translate[lang])
@@ -1128,7 +1138,7 @@ class ModelStorage(Model):
                 vals[field] = []
                 for defaults2 in defaults[field]:
                     vals2 = obj._clean_defaults(defaults2)
-                    vals[field].append(('create', vals2))
+                    vals[field].append(('create', [vals2]))
             elif fld_def._type in ('many2many',):
                 vals[field] = [('set', defaults[field])]
             elif fld_def._type in ('boolean',):
@@ -1366,7 +1376,7 @@ class ModelStorage(Model):
                     ]
                 for target in targets:
                     if target.id < 0:
-                        value.append(('create', target._save_values))
+                        value.append(('create', [target._save_values]))
                     elif target._save_values:
                         value.append(
                             ('write', [target.id], target._save_values))
@@ -1383,7 +1393,7 @@ class ModelStorage(Model):
                 if self.id < 0:
                     self._ids.remove(self.id)
                     try:
-                        self.id = self.create(self._save_values).id
+                        self.id = self.create([self._save_values])[0].id
                     finally:
                         self._ids.append(self.id)
                 else:

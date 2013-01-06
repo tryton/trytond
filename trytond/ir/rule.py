@@ -79,8 +79,8 @@ class RuleGroup(ModelSQL, ModelView):
         Pool().get('ir.rule')._domain_get_cache.clear()
 
     @classmethod
-    def create(cls, vals):
-        res = super(RuleGroup, cls).create(vals)
+    def create(cls, vlist):
+        res = super(RuleGroup, cls).create(vlist)
         # Restart the cache on the domain_get method of ir.rule
         Pool().get('ir.rule')._domain_get_cache.clear()
         return res
@@ -252,8 +252,8 @@ class Rule(ModelSQL, ModelView):
         cls._domain_get_cache.clear()
 
     @classmethod
-    def create(cls, vals):
-        res = super(Rule, cls).create(vals)
+    def create(cls, vlist):
+        res = super(Rule, cls).create(vlist)
         # Restart the cache on the domain_get method of ir.rule
         cls._domain_get_cache.clear()
         return res

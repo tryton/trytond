@@ -135,9 +135,9 @@ class Cron(ModelSQL, ModelView):
             'body': body,
             'date_sent': datetime.datetime.now(),
             'references': [
-                ('create', {
-                    'reference': '%s,%s' % (cls.__name__, cron.id),
-                }),
+                ('create', [{
+                            'reference': '%s,%s' % (cls.__name__, cron.id),
+                            }]),
             ],
             'state': 'waiting',
             'trigger_date': datetime.datetime.now(),
@@ -163,7 +163,7 @@ class Cron(ModelSQL, ModelView):
             with contextlib.nested(Transaction().set_user(cron.user.id),
                     Transaction().set_context(language=language)):
                 values = cls._get_request_values(cron)
-                Request.create(values)
+                Request.create([values])
             Transaction().cursor.commit()
 
     @classmethod

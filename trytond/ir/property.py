@@ -157,4 +157,4 @@ class Property(ModelSQL, ModelView):
             for res_id in ids:
                 vals = cls._set_values(model, res_id, val, model_field.id)
                 with Transaction().set_user(0, set_context=True):
-                    cls.create(vals).id
+                    cls.create([vals])

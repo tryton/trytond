@@ -175,12 +175,14 @@ class ActionKeyword(ModelSQL, ModelView):
         super(ActionKeyword, cls).delete(keywords)
 
     @classmethod
-    def create(cls, vals):
+    def create(cls, vlist):
         ModelView._fields_view_get_cache.clear()
         ModelView._view_toolbar_get_cache.clear()
         cls._get_keyword_cache.clear()
-        vals = cls._convert_vals(vals)
-        return super(ActionKeyword, cls).create(vals)
+        new_vlist = []
+        for vals in vlist:
+            new_vlist.append(cls._convert_vals(vals))
+        return super(ActionKeyword, cls).create(new_vlist)
 
     @classmethod
     def write(cls, keywords, vals):
@@ -509,28 +511,31 @@ class ActionReport(ModelSQL, ModelView):
         return new_reports
 
     @classmethod
-    def create(cls, vals):
-        later = {}
-        vals = vals.copy()
-        for field in vals:
-            if (field in cls._fields
-                    and hasattr(cls._fields[field], 'set')):
-                later[field] = vals[field]
-        for field in later:
-            del vals[field]
-        cursor = Transaction().cursor
-        if cursor.nextid(cls._table):
-            cursor.setnextid(cls._table, cursor.currid('ir_action'))
-        report = super(ActionReport, cls).create(vals)
-        cursor.execute('SELECT action FROM "' + cls._table + '" '
-            'WHERE id = %s', (report.id,))
-        new_id, = cursor.fetchone()
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-            'WHERE id = %s', (new_id, report.id))
-        cursor.update_auto_increment(cls._table, new_id)
-        report = cls(new_id)
-        cls.write([report], later)
-        return report
+    def create(cls, vlist):
+        new_vlist = []
+        for vals in vlist:
+            later = {}
+            vals = vals.copy()
+            for field in vals:
+                if (field in cls._fields
+                        and hasattr(cls._fields[field], 'set')):
+                    later[field] = vals[field]
+            for field in later:
+                del vals[field]
+            cursor = Transaction().cursor
+            if cursor.nextid(cls._table):
+                cursor.setnextid(cls._table, cursor.currid('ir_action'))
+            report, = super(ActionReport, cls).create([vals])
+            cursor.execute('SELECT action FROM "' + cls._table + '" '
+                'WHERE id = %s', (report.id,))
+            new_id, = cursor.fetchone()
+            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+                'WHERE id = %s', (new_id, report.id))
+            cursor.update_auto_increment(cls._table, new_id)
+            report = cls(new_id)
+            new_vlist.append(report)
+            cls.write([report], later)
+        return new_vlist
 
     @classmethod
     def write(cls, reports, vals):
@@ -723,28 +728,31 @@ class ActionActWindow(ModelSQL, ModelView):
         return pysons
 
     @classmethod
-    def create(cls, vals):
-        later = {}
-        vals = vals.copy()
-        for field in vals:
-            if (field in cls._fields
-                    and hasattr(cls._fields[field], 'set')):
-                later[field] = vals[field]
-        for field in later:
-            del vals[field]
-        cursor = Transaction().cursor
-        if cursor.nextid(cls._table):
-            cursor.setnextid(cls._table, cursor.currid('ir_action'))
-        act_window = super(ActionActWindow, cls).create(vals)
-        cursor.execute('SELECT action FROM "' + cls._table + '" '
-            'WHERE id = %s', (act_window.id,))
-        new_id, = cursor.fetchone()
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-            'WHERE id = %s', (new_id, act_window.id))
-        cursor.update_auto_increment(cls._table, new_id)
-        act_window = cls(new_id)
-        cls.write([act_window], later)
-        return act_window
+    def create(cls, vlist):
+        new_vlist = []
+        for vals in vlist:
+            later = {}
+            vals = vals.copy()
+            for field in vals:
+                if (field in cls._fields
+                        and hasattr(cls._fields[field], 'set')):
+                    later[field] = vals[field]
+            for field in later:
+                del vals[field]
+            cursor = Transaction().cursor
+            if cursor.nextid(cls._table):
+                cursor.setnextid(cls._table, cursor.currid('ir_action'))
+            act_window, = super(ActionActWindow, cls).create([vals])
+            cursor.execute('SELECT action FROM "' + cls._table + '" '
+                'WHERE id = %s', (act_window.id,))
+            new_id, = cursor.fetchone()
+            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+                'WHERE id = %s', (new_id, act_window.id))
+            cursor.update_auto_increment(cls._table, new_id)
+            act_window = cls(new_id)
+            new_vlist.append(act_window)
+            cls.write([act_window], later)
+        return new_vlist
 
     @classmethod
     def write(cls, act_windows, values):
@@ -810,11 +818,11 @@ class ActionActWindowView(ModelSQL, ModelView):
         table.drop_column('multi')
 
     @classmethod
-    def create(cls, values):
+    def create(cls, vlist):
         pool = Pool()
-        window = super(ActionActWindowView, cls).create(values)
+        windows = super(ActionActWindowView, cls).create(vlist)
         pool.get('ir.action.keyword')._get_keyword_cache.clear()
-        return window
+        return windows
 
     @classmethod
     def write(cls, windows, values):
@@ -865,28 +873,31 @@ class ActionWizard(ModelSQL, ModelView):
         return 'ir.action.wizard'
 
     @classmethod
-    def create(cls, vals):
-        later = {}
-        vals = vals.copy()
-        for field in vals:
-            if (field in cls._fields
-                    and hasattr(cls._fields[field], 'set')):
-                later[field] = vals[field]
-        for field in later:
-            del vals[field]
-        cursor = Transaction().cursor
-        if cursor.nextid(cls._table):
-            cursor.setnextid(cls._table, cursor.currid('ir_action'))
-        wizard = super(ActionWizard, cls).create(vals)
-        cursor.execute('SELECT action FROM "' + cls._table + '" '
-            'WHERE id = %s', (wizard.id,))
-        new_id, = cursor.fetchone()
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-            'WHERE id = %s', (new_id, wizard.id))
-        cursor.update_auto_increment(cls._table, new_id)
-        wizard = cls(new_id)
-        cls.write([wizard], later)
-        return wizard
+    def create(cls, vlist):
+        new_vlist = []
+        for vals in vlist:
+            later = {}
+            vals = vals.copy()
+            for field in vals:
+                if (field in cls._fields
+                        and hasattr(cls._fields[field], 'set')):
+                    later[field] = vals[field]
+            for field in later:
+                del vals[field]
+            cursor = Transaction().cursor
+            if cursor.nextid(cls._table):
+                cursor.setnextid(cls._table, cursor.currid('ir_action'))
+            wizard, = super(ActionWizard, cls).create([vals])
+            cursor.execute('SELECT action FROM "' + cls._table + '" '
+                'WHERE id = %s', (wizard.id,))
+            new_id, = cursor.fetchone()
+            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+                'WHERE id = %s', (new_id, wizard.id))
+            cursor.update_auto_increment(cls._table, new_id)
+            wizard = cls(new_id)
+            new_vlist.append(wizard)
+            cls.write([wizard], later)
+        return new_vlist
 
     @classmethod
     def write(cls, wizards, values):
@@ -936,29 +947,32 @@ class ActionURL(ModelSQL, ModelView):
         return 'new'
 
     @classmethod
-    def create(cls, vals):
-        later = {}
-        vals = vals.copy()
-        for field in vals:
-            if (field in cls._fields
-                    and hasattr(cls._fields[field], 'set')):
-                later[field] = vals[field]
-        for field in later:
-            del vals[field]
-        cursor = Transaction().cursor
-        if cursor.nextid(cls._table):
-            cursor.setnextid(cls._table, cursor.currid('ir_action'))
-        url = super(ActionURL, cls).create(vals)
-        cursor.execute('SELECT action FROM "' + cls._table + '" '
-            'WHERE id = %s', (url.id,))
-        new_id, = cursor.fetchone()
-        cls.write([url], {})  # simulate write to clear the cache
-        cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-            'WHERE id = %s', (new_id, url.id))
-        cursor.update_auto_increment(cls._table, new_id)
-        url = cls(new_id)
-        cls.write([url], later)
-        return url
+    def create(cls, vlist):
+        new_vlist = []
+        for vals in vlist:
+            later = {}
+            vals = vals.copy()
+            for field in vals:
+                if (field in cls._fields
+                        and hasattr(cls._fields[field], 'set')):
+                    later[field] = vals[field]
+            for field in later:
+                del vals[field]
+            cursor = Transaction().cursor
+            if cursor.nextid(cls._table):
+                cursor.setnextid(cls._table, cursor.currid('ir_action'))
+            url, = super(ActionURL, cls).create([vals])
+            cursor.execute('SELECT action FROM "' + cls._table + '" '
+                'WHERE id = %s', (url.id,))
+            new_id, = cursor.fetchone()
+            cls.write([url], {})  # simulate write to clear the cache
+            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+                'WHERE id = %s', (new_id, url.id))
+            cursor.update_auto_increment(cls._table, new_id)
+            url = cls(new_id)
+            new_vlist.append(url)
+            cls.write([url], later)
+        return new_vlist
 
     @classmethod
     def write(cls, urls, values):

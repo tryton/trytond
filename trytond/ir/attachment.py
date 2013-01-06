@@ -227,10 +227,10 @@ class Attachment(ModelSQL, ModelView):
         cls.check_access(attachments, mode='write')
 
     @classmethod
-    def create(cls, vals):
-        attachment = super(Attachment, cls).create(vals)
-        cls.check_access([attachment.id], mode='create')
-        return attachment
+    def create(cls, vlist):
+        attachments = super(Attachment, cls).create(vlist)
+        cls.check_access([a.id for a in attachments], mode='create')
+        return attachments
 
     @classmethod
     def view_header_get(cls, value, view_type='form'):

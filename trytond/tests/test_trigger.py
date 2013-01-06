@@ -61,7 +61,7 @@ class TriggerTestCase(unittest.TestCase):
                 'action_model': model.id,
                 'action_function': 'test',
                 }
-            self.assert_(self.trigger.create(values))
+            self.assert_(self.trigger.create([values]))
 
             # on_exclusive
             for i in range(1, 4):
@@ -71,13 +71,13 @@ class TriggerTestCase(unittest.TestCase):
                     for mode in combination:
                         combination_values['on_%s' % mode] = True
                     self.assertRaises(Exception, self.trigger.create,
-                        combination_values)
+                        [combination_values])
 
             # check_condition
             condition_values = values.copy()
             condition_values['condition'] = '='
             self.assertRaises(Exception, self.trigger.create,
-                condition_values)
+                [condition_values])
 
             # Restart the cache on the get_triggers method of ir.trigger
             self.trigger._get_triggers_cache.clear()
@@ -93,18 +93,18 @@ class TriggerTestCase(unittest.TestCase):
                     ('model', '=', 'test.triggered'),
                     ])
 
-            trigger = self.trigger.create({
-                    'name': 'Test',
-                    'model': model.id,
-                    'on_create': True,
-                    'condition': 'True',
-                    'action_model': model.id,
-                    'action_function': 'trigger',
-                    })
+            trigger, = self.trigger.create([{
+                        'name': 'Test',
+                        'model': model.id,
+                        'on_create': True,
+                        'condition': 'True',
+                        'action_model': model.id,
+                        'action_function': 'trigger',
+                        }])
 
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
 
             self.assertEqual(TRIGGER_LOGS, [([triggered], trigger)])
             TRIGGER_LOGS.pop()
@@ -115,16 +115,16 @@ class TriggerTestCase(unittest.TestCase):
                     })
 
             # Matching condition
-            triggered = self.triggered.create({
-                    'name': 'Bar',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Bar',
+                        }])
             self.assertEqual(TRIGGER_LOGS, [([triggered], trigger)])
             TRIGGER_LOGS.pop()
 
             # Non matching condition
-            triggered = self.triggered.create({
-                    'name': 'Foo',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Foo',
+                        }])
             self.assertEqual(TRIGGER_LOGS, [])
 
             # With limit number
@@ -132,9 +132,9 @@ class TriggerTestCase(unittest.TestCase):
                     'condition': 'True',
                     'limit_number': 1,
                     })
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
             self.assertEqual(TRIGGER_LOGS, [([triggered], trigger)])
             TRIGGER_LOGS.pop()
 
@@ -143,9 +143,9 @@ class TriggerTestCase(unittest.TestCase):
                     'limit_number': 0,
                     'minimum_delay': 1,
                     })
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
             self.assertEqual(TRIGGER_LOGS, [([triggered], trigger)])
             TRIGGER_LOGS.pop()
 
@@ -163,18 +163,18 @@ class TriggerTestCase(unittest.TestCase):
                     ('model', '=', 'test.triggered'),
                     ])
 
-            trigger = self.trigger.create({
-                    'name': 'Test',
-                    'model': model.id,
-                    'on_write': True,
-                    'condition': 'True',
-                    'action_model': model.id,
-                    'action_function': 'trigger',
-                    })
+            trigger, = self.trigger.create([{
+                        'name': 'Test',
+                        'model': model.id,
+                        'on_write': True,
+                        'condition': 'True',
+                        'action_model': model.id,
+                        'action_function': 'trigger',
+                        }])
 
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
 
             self.triggered.write([triggered], {
                     'name': 'Foo',
@@ -210,9 +210,9 @@ class TriggerTestCase(unittest.TestCase):
                     'condition': 'self.name == "Bar"',
                     'limit_number': 1,
                     })
-            triggered = self.triggered.create({
-                    'name': 'Foo',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Foo',
+                        }])
             self.triggered.write([triggered], {
                     'name': 'Bar',
                     })
@@ -230,9 +230,9 @@ class TriggerTestCase(unittest.TestCase):
                     'limit_number': 0,
                     'minimum_delay': MAXINT,
                     })
-            triggered = self.triggered.create({
-                    'name': 'Foo',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Foo',
+                        }])
             for name in ('Bar', 'Foo', 'Bar'):
                 self.triggered.write([triggered], {
                         'name': name,
@@ -243,9 +243,9 @@ class TriggerTestCase(unittest.TestCase):
             self.trigger.write([trigger], {
                     'minimum_delay': 0.02,
                     })
-            triggered = self.triggered.create({
-                    'name': 'Foo',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Foo',
+                        }])
             for name in ('Bar', 'Foo'):
                 self.triggered.write([triggered], {
                         'name': name,
@@ -273,18 +273,18 @@ class TriggerTestCase(unittest.TestCase):
                     ('model', '=', 'test.triggered'),
                     ])
 
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
 
-            trigger = self.trigger.create({
-                    'name': 'Test',
-                    'model': model.id,
-                    'on_delete': True,
-                    'condition': 'True',
-                    'action_model': model.id,
-                    'action_function': 'trigger',
-                    })
+            trigger, = self.trigger.create([{
+                        'name': 'Test',
+                        'model': model.id,
+                        'on_delete': True,
+                        'condition': 'True',
+                        'action_model': model.id,
+                        'action_function': 'trigger',
+                        }])
 
             self.triggered.delete([triggered])
             self.assertEqual(TRIGGER_LOGS, [([triggered], trigger)])
@@ -296,9 +296,9 @@ class TriggerTestCase(unittest.TestCase):
                     'condition': 'self.name == "Bar"',
                     })
 
-            triggered = self.triggered.create({
-                    'name': 'Bar',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Bar',
+                        }])
 
             # Matching condition
             self.triggered.delete([triggered])
@@ -306,18 +306,18 @@ class TriggerTestCase(unittest.TestCase):
             TRIGGER_LOGS.pop()
             Transaction().delete = {}
 
-            triggered = self.triggered.create({
-                    'name': 'Foo',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Foo',
+                        }])
 
             # Non matching condition
             self.triggered.delete([triggered])
             self.assertEqual(TRIGGER_LOGS, [])
             Transaction().delete = {}
 
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
 
             # With limit number
             self.trigger.write([trigger], {
@@ -333,9 +333,9 @@ class TriggerTestCase(unittest.TestCase):
                         ('trigger', '=', trigger.id),
                         ]))
 
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
 
             # With minimum delay
             self.trigger.write([trigger], {
@@ -361,18 +361,18 @@ class TriggerTestCase(unittest.TestCase):
                     ('model', '=', 'test.triggered'),
                     ])
 
-            trigger = self.trigger.create({
-                    'name': 'Test',
-                    'model': model.id,
-                    'on_time': True,
-                    'condition': 'True',
-                    'action_model': model.id,
-                    'action_function': 'trigger',
-                    })
+            trigger, = self.trigger.create([{
+                        'name': 'Test',
+                        'model': model.id,
+                        'on_time': True,
+                        'condition': 'True',
+                        'action_model': model.id,
+                        'action_function': 'trigger',
+                        }])
 
-            triggered = self.triggered.create({
-                    'name': 'Test',
-                    })
+            triggered, = self.triggered.create([{
+                        'name': 'Test',
+                        }])
             self.trigger.trigger_time()
             self.assert_(TRIGGER_LOGS == [([triggered], trigger)])
             TRIGGER_LOGS.pop()

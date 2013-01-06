@@ -107,7 +107,7 @@ class One2Many(Field):
         '''
         Set the values.
         values: A list of tuples:
-            (``create``, ``{<field name>: value}``),
+            (``create``, ``[{<field name>: value}, ...]``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),
             (``delete_all``),
@@ -139,9 +139,15 @@ class One2Many(Field):
 
         for act in values:
             if act[0] == 'create':
+                to_create = []
                 for record_id in ids:
-                    act[1][self.field] = field_value(record_id)
-                    Target.create(act[1])
+                    value = field_value(record_id)
+                    for vals in act[1]:
+                        vals = vals.copy()
+                        vals[self.field] = value
+                        to_create.append(vals)
+                if to_create:
+                    Target.create(to_create)
             elif act[0] == 'write':
                 Target.write(Target.browse(act[1]), act[2])
             elif act[0] == 'delete':

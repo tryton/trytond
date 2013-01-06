@@ -257,11 +257,11 @@ class View(ModelSQL, ModelView):
         ModelView._fields_view_get_cache.clear()
 
     @classmethod
-    def create(cls, vals):
-        view = super(View, cls).create(vals)
+    def create(cls, vlist):
+        views = super(View, cls).create(vlist)
         # Restart the cache
         ModelView._fields_view_get_cache.clear()
-        return view
+        return views
 
     @classmethod
     def write(cls, views, vals):
@@ -336,8 +336,8 @@ class ViewTreeWidth(ModelSQL, ModelView):
         super(ViewTreeWidth, cls).delete(records)
 
     @classmethod
-    def create(cls, vals):
-        res = super(ViewTreeWidth, cls).create(vals)
+    def create(cls, vlist):
+        res = super(ViewTreeWidth, cls).create(vlist)
         ModelView._fields_view_get_cache.clear()
         return res
 
@@ -359,13 +359,16 @@ class ViewTreeWidth(ModelSQL, ModelView):
             ])
         cls.delete(records)
 
+        to_create = []
         for field in fields.keys():
-            cls.create({
-                'model': model,
-                'field': field,
-                'user': Transaction().user,
-                'width': fields[field],
-                })
+            to_create.append({
+                    'model': model,
+                    'field': field,
+                    'user': Transaction().user,
+                    'width': fields[field],
+                    })
+        if to_create:
+            cls.create(to_create)
 
 
 class ViewTreeExpandedState(ModelSQL, ModelView):
@@ -410,13 +413,13 @@ class ViewTreeExpandedState(ModelSQL, ModelView):
                     ('child_name', '=', child_name),
                     ])
             cls.delete(records)
-            cls.create({
-                    'user': current_user,
-                    'model': model,
-                    'domain': domain,
-                    'child_name': child_name,
-                    'nodes': nodes,
-                    })
+            cls.create([{
+                        'user': current_user,
+                        'model': model,
+                        'domain': domain,
+                        'child_name': child_name,
+                        'nodes': nodes,
+                        }])
 
     @classmethod
     def get_expanded(cls, model, domain, child_name):

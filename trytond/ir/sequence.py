@@ -2,6 +2,7 @@
 #this repository contains the full copyright notices and license terms.
 from string import Template
 import time
+from itertools import izip
 from ..model import ModelView, ModelSQL, fields
 from ..tools import datetime_strftime
 from ..pyson import Eval, And
@@ -171,13 +172,13 @@ class Sequence(ModelSQL, ModelView):
                 })
 
     @classmethod
-    def create(cls, values):
-        sequence_id = super(Sequence, cls).create(values)
-        if sql_sequence and not cls._strict:
-            sequence = cls(sequence_id)
-            sequence.update_sql_sequence(values.get('number_next',
-                    cls.default_number_next()))
-        return sequence_id
+    def create(cls, vlist):
+        sequences = super(Sequence, cls).create(vlist)
+        for sequence, values in izip(sequences, vlist):
+            if sql_sequence and not cls._strict:
+                sequence.update_sql_sequence(values.get('number_next',
+                        cls.default_number_next()))
+        return sequences
 
     @classmethod
     def write(cls, sequences, values):

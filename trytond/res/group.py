@@ -73,8 +73,8 @@ class Group(ModelSQL, ModelView):
         return new_groups
 
     @classmethod
-    def create(cls, vals):
-        res = super(Group, cls).create(vals)
+    def create(cls, vlist):
+        res = super(Group, cls).create(vlist)
         pool = Pool()
         # Restart the cache on the domain_get method
         pool.get('ir.rule')._domain_get_cache.clear()

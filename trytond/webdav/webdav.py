@@ -548,11 +548,11 @@ class Collection(ModelSQL, ModelView):
         if not object_id2:
             name = get_urifilename(uri)
             try:
-                Attachment.create({
-                    'name': name,
-                    'data': data,
-                    'resource': '%s,%s' % (object_name, object_id),
-                    })
+                Attachment.create([{
+                            'name': name,
+                            'data': data,
+                            'resource': '%s,%s' % (object_name, object_id),
+                            }])
             except Exception:
                 raise DAV_Forbidden
         else:
@@ -576,10 +576,10 @@ class Collection(ModelSQL, ModelView):
             raise DAV_Forbidden
         name = get_urifilename(uri)
         try:
-            cls.create({
-                'name': name,
-                'parent': object_id,
-                })
+            cls.create([{
+                        'name': name,
+                        'parent': object_id,
+                        }])
         except Exception:
             raise DAV_Forbidden
         return 201
@@ -790,9 +790,14 @@ class Attachment(ModelSQL, ModelView):
 
         for action in value:
             if action[0] == 'create':
+                to_create = []
                 for attachment in attachments:
-                    action[1]['path'] = attachment.path
-                    Share.create(action[1])
+                    for values in action[1]:
+                        values = values.copy()
+                        values['path'] = attachment.path
+                        to_create.append(values)
+                if to_create:
+                    Share.create(to_create)
             elif action[0] == 'write':
                 Share.write(action[1], action[2])
             elif action[0] == 'delete':

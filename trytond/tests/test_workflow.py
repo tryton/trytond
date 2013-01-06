@@ -18,7 +18,7 @@ class WorkflowTestCase(unittest.TestCase):
     def test0010transition(self):
         'Test transition'
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            wkf = self.workflow.create({})
+            wkf, = self.workflow.create([{}])
 
             self.workflow.run([wkf])
             self.assertEqual(wkf.state, 'running')
