@@ -1,3 +1,4 @@
+* Use lists of values in create
 * (Field, Operator, Operand) are replaced by Domain on Rule
 * Add global search
 * Replace view shortcut by menu favorite

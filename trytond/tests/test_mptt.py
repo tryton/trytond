@@ -102,12 +102,11 @@ class MPTTTestCase(unittest.TestCase):
                 k = 0
                 for parent_record in parent_records:
                     for i in range(3):
-                        record = self.mptt.create({
-                            'name': 'Test %d %d %d' % (j, k, i),
-                            'parent': (parent_record.id
-                                    if parent_record else None),
-                            })
-                        new_records.append(record)
+                        new_records += self.mptt.create([{
+                                    'name': 'Test %d %d %d' % (j, k, i),
+                                    'parent': (parent_record.id
+                                            if parent_record else None),
+                                    }])
                     k += 1
             self.CheckTree()
 

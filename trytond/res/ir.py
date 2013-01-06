@@ -36,8 +36,8 @@ class UIMenuGroup(ModelSQL):
         super(UIMenuGroup, cls).__register__(module_name)
 
     @classmethod
-    def create(cls, vals):
-        res = super(UIMenuGroup, cls).create(vals)
+    def create(cls, vlist):
+        res = super(UIMenuGroup, cls).create(vlist)
         # Restart the cache on the domain_get method
         Pool().get('ir.rule')._domain_get_cache.clear()
         return res
@@ -77,12 +77,13 @@ class ActionGroup(ModelSQL):
         super(ActionGroup, cls).__register__(module_name)
 
     @classmethod
-    def create(cls, vals):
+    def create(cls, vlist):
         Action = Pool().get('ir.action')
-        if vals.get('action'):
-            vals = vals.copy()
-            vals['action'] = Action.get_action_id(vals['action'])
-        res = super(ActionGroup, cls).create(vals)
+        vlist = [x.copy() for x in vlist]
+        for vals in vlist:
+            if vals.get('action'):
+                vals['action'] = Action.get_action_id(vals['action'])
+        res = super(ActionGroup, cls).create(vlist)
         # Restart the cache on the domain_get method
         Pool().get('ir.rule')._domain_get_cache.clear()
         return res
@@ -137,9 +138,9 @@ class ModelButtonGroup(ModelSQL):
         return True
 
     @classmethod
-    def create(cls, values):
+    def create(cls, vlist):
         pool = Pool()
-        result = super(ModelButtonGroup, cls).create(values)
+        result = super(ModelButtonGroup, cls).create(vlist)
         # Restart the cache for get_groups
         pool.get('ir.model.button')._groups_cache.clear()
         return result
@@ -238,9 +239,9 @@ class SequenceTypeGroup(ModelSQL):
         Rule._domain_get_cache.clear()
 
     @classmethod
-    def create(cls, vals):
+    def create(cls, vlist):
         Rule = Pool().get('ir.rule')
-        res = super(SequenceTypeGroup, cls).create(vals)
+        res = super(SequenceTypeGroup, cls).create(vlist)
         # Restart the cache on the domain_get method of ir.rule
         Rule._domain_get_cache.clear()
         return res
@@ -295,10 +296,10 @@ class ModuleConfigWizardItem:
     __name__ = 'ir.module.module.config_wizard.item'
 
     @classmethod
-    def create(cls, values):
+    def create(cls, vlist):
         pool = Pool()
         User = pool.get('res.user')
-        result = super(ModuleConfigWizardItem, cls).create(values)
+        result = super(ModuleConfigWizardItem, cls).create(vlist)
         # Restart the cache for get_preferences
         User._get_preferences_cache.clear()
         return result

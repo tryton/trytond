@@ -227,7 +227,7 @@ class Wizard(WarningErrorMixin, URLMixin):
     def create(cls):
         "Create a session"
         Session = Pool().get('ir.session.wizard')
-        return (Session.create({}).id, cls.start_state, cls.end_state)
+        return (Session.create([{}])[0].id, cls.start_state, cls.end_state)
 
     @classmethod
     def delete(cls, session_id):

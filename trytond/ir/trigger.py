@@ -223,11 +223,14 @@ class Trigger(ModelSQL, ModelView):
         if records:
             getattr(Model, trigger.action_function)(records, trigger)
         if trigger.limit_number or trigger.minimum_delay:
+            to_create = []
             for record in records:
-                TriggerLog.create({
-                    'trigger': trigger.id,
-                    'record_id': record.id,
-                    })
+                to_create.append({
+                        'trigger': trigger.id,
+                        'record_id': record.id,
+                        })
+            if to_create:
+                TriggerLog.create(to_create)
 
     @classmethod
     def trigger_time(cls):
@@ -250,8 +253,8 @@ class Trigger(ModelSQL, ModelView):
                 cls.trigger_action(triggered, trigger)
 
     @classmethod
-    def create(cls, values):
-        res = super(Trigger, cls).create(values)
+    def create(cls, vlist):
+        res = super(Trigger, cls).create(vlist)
         # Restart the cache on the get_triggers method of ir.trigger
         cls._get_triggers_cache.clear()
         return res

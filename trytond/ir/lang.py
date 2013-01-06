@@ -196,10 +196,10 @@ class Lang(ModelSQL, ModelView):
         return res
 
     @classmethod
-    def create(cls, vals):
+    def create(cls, vlist):
         # Clear cache
         cls._lang_cache.clear()
-        return super(Lang, cls).create(vals)
+        return super(Lang, cls).create(vlist)
 
     @classmethod
     def write(cls, langs, vals):

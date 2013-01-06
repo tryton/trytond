@@ -102,7 +102,7 @@ class Many2Many(Field):
         Set the values.
 
         values: A list of tuples:
-            (``create``, ``{<field name>: value}``),
+            (``create``, ``[{<field name>: value}, ...]``),
             (``write``, ``<ids>``, ``{<field name>: value}``),
             (``delete``, ``<ids>``),
             (``delete_all``),
@@ -116,7 +116,6 @@ class Many2Many(Field):
             return
         Relation = pool.get(self.relation_name)
         Target = self.get_target()
-
         if self.origin in Relation._fields:
             origin_field = Relation._fields[self.origin]
         else:
@@ -137,11 +136,15 @@ class Many2Many(Field):
 
         for act in values:
             if act[0] == 'create':
+                to_create = []
                 for record_id in ids:
-                    Relation.create({
-                            self.origin: field_value(record_id),
-                            self.target: Target.create(act[1]).id,
-                            })
+                    for new in Target.create(act[1]):
+                        to_create.append({
+                                self.origin: field_value(record_id),
+                                self.target: new.id,
+                                })
+                if to_create:
+                    Relation.create(to_create)
             elif act[0] == 'write':
                 Target.write(Target.browse(act[1]), act[2])
             elif act[0] == 'delete':
@@ -182,12 +185,15 @@ class Many2Many(Field):
                             ])
                     for relation in relations:
                         existing_ids.append(getattr(relation, self.target).id)
+                to_create = []
                 for new_id in (x for x in target_ids if x not in existing_ids):
                     for record_id in ids:
-                        Relation.create({
+                        to_create.append({
                                 self.origin: field_value(record_id),
                                 self.target: new_id,
                                 })
+                if to_create:
+                    Relation.create(to_create)
             elif act[0] == 'unlink_all':
                 targets = Relation.search([
                         search_clause(ids),
@@ -205,12 +211,15 @@ class Many2Many(Field):
                         ])
                 Relation.delete(targets2)
 
+                to_create = []
                 for new_id in target_ids:
                     for record_id in ids:
-                        Relation.create({
+                        to_create.append({
                                 self.origin: field_value(record_id),
                                 self.target: new_id,
                                 })
+                if to_create:
+                    Relation.create(to_create)
             else:
                 raise Exception('Bad arguments')
 

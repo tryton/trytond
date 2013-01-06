@@ -22,26 +22,26 @@ class ModelInheritsTestCase(unittest.TestCase):
         self.overridden = POOL.get('test.overriddeninheritedfieldmodel')
 
     def create_data(self):
-        parent_id = self.parent.create({'name': 'parent'})
-        sub_id = self.sub.create({
-                'name': 'sub',
-                'subfield': 'level1',
-            })
-        subsub_id = self.subsub.create({
-                'name': 'subsub',
-                'subfield': 'level2',
-                'subsubfield': 'ssfcontent',
-            })
-        subsubsub_id = self.subsubsub.create({
-                'name': 'subsubsub',
-                'subfield': 'level3',
-                'subsubfield': 'ssfcontent2',
-                'subsubsubfield': 'sssfcontent',
-            })
-        overridden_id = self.overridden.create({
-                'name': 'overridden',
-                'subfield': 3,
-            })
+        parent_id, = self.parent.create([{'name': 'parent'}])
+        sub_id, = self.sub.create([{
+                    'name': 'sub',
+                    'subfield': 'level1',
+                    }])
+        subsub_id, = self.subsub.create([{
+                    'name': 'subsub',
+                    'subfield': 'level2',
+                    'subsubfield': 'ssfcontent',
+                    }])
+        subsubsub_id, = self.subsubsub.create([{
+                    'name': 'subsubsub',
+                    'subfield': 'level3',
+                    'subsubfield': 'ssfcontent2',
+                    'subsubsubfield': 'sssfcontent',
+                    }])
+        overridden_id, = self.overridden.create([{
+                    'name': 'overridden',
+                    'subfield': 3,
+                    }])
         return (parent_id, sub_id, subsub_id, subsubsub_id, overridden_id)
 
     def test0010selfsearch(self):

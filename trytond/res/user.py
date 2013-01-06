@@ -211,9 +211,9 @@ class User(ModelSQL, ModelView):
         return vals
 
     @classmethod
-    def create(cls, vals):
-        vals = cls._convert_vals(vals)
-        res = super(User, cls).create(vals)
+    def create(cls, vlist):
+        vlist = [cls._convert_vals(vals) for vals in vlist]
+        res = super(User, cls).create(vlist)
         # Restart the cache for _get_login
         cls._get_login_cache.clear()
         return res
@@ -495,9 +495,9 @@ class UserAction(ModelSQL):
         return values
 
     @classmethod
-    def create(cls, values):
-        values = cls._convert_values(values)
-        return super(UserAction, cls).create(values)
+    def create(cls, vlist):
+        vlist = [cls._convert_values(values) for values in vlist]
+        return super(UserAction, cls).create(vlist)
 
     @classmethod
     def write(cls, records, values):

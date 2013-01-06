@@ -231,12 +231,12 @@ Static methods:
 
 CLass methods:
 
-.. classmethod:: ModelStorage.create(values)
+.. classmethod:: ModelStorage.create(vlist)
 
-    Create a record. ``values`` is a dictionary with fields names as key and
-    created values as value and return the new instance.
+    Create records. ``vlist`` is list of dictionaries with fields names as key
+    and created values as value and return the list of new instances.
 
-.. classmethod:: ModelStorage.trigger_create(record)
+.. classmethod:: ModelStorage.trigger_create(records)
 
     Trigger create actions. It will call actions defined in ``ir.trigger`` if
     ``on_create`` is set and ``condition`` is true.

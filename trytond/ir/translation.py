@@ -278,14 +278,14 @@ class Translation(ModelSQL, ModelView):
                     ])
                 with Transaction().set_user(0):
                     if not translation2:
-                        cls.create({
-                            'name': name,
-                            'lang': lang,
-                            'type': ttype,
-                            'src': getattr(record, field_name),
-                            'value': value,
-                            'fuzzy': False,
-                            })
+                        cls.create([{
+                                    'name': name,
+                                    'lang': lang,
+                                    'type': ttype,
+                                    'src': getattr(record, field_name),
+                                    'value': value,
+                                    'fuzzy': False,
+                                    }])
                     else:
                         cls.write(translation2, {
                             'src': getattr(record, field_name),
@@ -305,15 +305,15 @@ class Translation(ModelSQL, ModelView):
                 ])
             with Transaction().set_user(0):
                 if not translation2:
-                    cls.create({
-                        'name': name,
-                        'lang': lang,
-                        'type': ttype,
-                        'res_id': record.id,
-                        'value': value,
-                        'src': getattr(record, field_name),
-                        'fuzzy': False,
-                        })
+                    cls.create([{
+                                'name': name,
+                                'lang': lang,
+                                'type': ttype,
+                                'res_id': record.id,
+                                'value': value,
+                                'src': getattr(record, field_name),
+                                'fuzzy': False,
+                                }])
                 else:
                     cls.write(translation2, {
                         'value': value,
@@ -462,43 +462,43 @@ class Translation(ModelSQL, ModelView):
         return super(Translation, cls).delete(translations)
 
     @classmethod
-    def create(cls, vals):
+    def create(cls, vlist):
         cls._translation_cache.clear()
         ModelView._fields_view_get_cache.clear()
+        vlist = [x.copy() for x in vlist]
+
         cursor = Transaction().cursor
-        if not vals.get('module'):
-            if Transaction().context.get('module'):
-                vals = vals.copy()
-                vals['module'] = Transaction().context['module']
-            elif vals.get('type', '') in ('odt', 'view', 'wizard_button',
-                    'selection', 'error'):
-                cursor.execute('SELECT module FROM ir_translation '
-                    'WHERE name = %s '
-                        'AND res_id = %s '
-                        'AND lang = %s '
-                        'AND type = %s '
-                        'AND src = %s ',
-                    (vals.get('name') or '', vals.get('res_id') or 0, 'en_US',
-                        vals.get('type') or '', vals.get('src') or ''))
-                fetchone = cursor.fetchone()
-                if fetchone:
-                    vals = vals.copy()
-                    vals['module'] = fetchone[0]
-            else:
-                cursor.execute('SELECT module, src FROM ir_translation '
-                    'WHERE name = %s '
-                        'AND res_id = %s '
-                        'AND lang = %s '
-                        'AND type = %s',
-                    (vals.get('name') or '', vals.get('res_id') or 0, 'en_US',
-                        vals.get('type') or ''))
-                fetchone = cursor.fetchone()
-                if fetchone:
-                    vals = vals.copy()
-                    vals['module'], vals['src'] = fetchone
-        vals = vals.copy()
-        vals['src_md5'] = cls.get_src_md5(vals.get('src'))
-        return super(Translation, cls).create(vals)
+        for vals in vlist:
+            if not vals.get('module'):
+                if Transaction().context.get('module'):
+                    vals['module'] = Transaction().context['module']
+                elif vals.get('type', '') in ('odt', 'view', 'wizard_button',
+                        'selection', 'error'):
+                    cursor.execute('SELECT module FROM ir_translation '
+                        'WHERE name = %s '
+                            'AND res_id = %s '
+                            'AND lang = %s '
+                            'AND type = %s '
+                            'AND src = %s ',
+                        (vals.get('name') or '', vals.get('res_id') or 0,
+                            'en_US', vals.get('type') or '', vals.get('src')
+                            or ''))
+                    fetchone = cursor.fetchone()
+                    if fetchone:
+                        vals['module'] = fetchone[0]
+                else:
+                    cursor.execute('SELECT module, src FROM ir_translation '
+                        'WHERE name = %s '
+                            'AND res_id = %s '
+                            'AND lang = %s '
+                            'AND type = %s',
+                        (vals.get('name') or '', vals.get('res_id') or 0, 
+                            'en_US', vals.get('type') or ''))
+                    fetchone = cursor.fetchone()
+                    if fetchone:
+                        vals['module'], vals['src'] = fetchone
+            vals['src_md5'] = cls.get_src_md5(vals.get('src'))
+        return super(Translation, cls).create(vlist)
 
     @classmethod
     def write(cls, translations, vals):
@@ -522,6 +522,7 @@ class Translation(ModelSQL, ModelView):
             fs_id2model_data[model_data.model][model_data.fs_id] = model_data
 
         translations = set()
+        to_create = []
         pofile = polib.pofile(po_path)
 
         id2translation = {}
@@ -575,7 +576,7 @@ class Translation(ModelSQL, ModelView):
             with contextlib.nested(Transaction().set_user(0),
                     Transaction().set_context(module=module)):
                 if not ids:
-                    translations.add(cls.create({
+                    to_create.append({
                         'name': name,
                         'res_id': res_id,
                         'lang': lang,
@@ -584,7 +585,7 @@ class Translation(ModelSQL, ModelView):
                         'value': value,
                         'fuzzy': fuzzy,
                         'module': module,
-                        }))
+                        })
                 else:
                     translations2 = []
                     for translation_id in ids:
@@ -598,6 +599,9 @@ class Translation(ModelSQL, ModelView):
                             'fuzzy': fuzzy,
                             })
                     translations |= set(cls.browse(ids))
+
+        if to_create:
+            translations |= set(cls.create(to_create))
 
         if translations:
             all_translations = set(cls.search([
@@ -1063,16 +1067,19 @@ class TranslationUpdate(Wizard):
                     'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
                     ' \'selection\', \'error\')',
                 (lang,))
+        to_create = []
         for row in cursor.dictfetchall():
+            to_create.append({
+                'name': row['name'],
+                'res_id': row['res_id'],
+                'lang': lang,
+                'type': row['type'],
+                'src': row['src'],
+                'module': row['module'],
+                })
+        if to_create:
             with Transaction().set_user(0):
-                Translation.create({
-                    'name': row['name'],
-                    'res_id': row['res_id'],
-                    'lang': lang,
-                    'type': row['type'],
-                    'src': row['src'],
-                    'module': row['module'],
-                    })
+                Translation.create(to_create)
         cursor.execute('SELECT name, res_id, type, module ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \
@@ -1082,15 +1089,18 @@ class TranslationUpdate(Wizard):
                 'WHERE lang=%s ' \
                     'AND type in (\'field\', \'model\', \'help\')',
                 (lang,))
+        to_create = []
         for row in cursor.dictfetchall():
+            to_create.append({
+                'name': row['name'],
+                'res_id': row['res_id'],
+                'lang': lang,
+                'type': row['type'],
+                'module': row['module'],
+                })
+        if to_create:
             with Transaction().set_user(0):
-                Translation.create({
-                    'name': row['name'],
-                    'res_id': row['res_id'],
-                    'lang': lang,
-                    'type': row['type'],
-                    'module': row['module'],
-                    })
+                Translation.create(to_create)
         cursor.execute('SELECT name, res_id, type, src ' \
                 'FROM ir_translation ' \
                 'WHERE lang=\'en_US\' ' \

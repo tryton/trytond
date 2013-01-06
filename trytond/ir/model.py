@@ -90,10 +90,10 @@ class Model(ModelSQL, ModelView):
             return [m.model for m in models]
 
     @classmethod
-    def create(cls, vals):
+    def create(cls, vlist):
         pool = Pool()
         Property = pool.get('ir.property')
-        res = super(Model, cls).create(vals)
+        res = super(Model, cls).create(vlist)
         # Restart the cache of models_get
         Property._models_get_cache.clear()
         return res
@@ -415,8 +415,8 @@ class ModelAccess(ModelSQL, ModelView):
         ModelView._fields_view_get_cache.clear()
 
     @classmethod
-    def create(cls, vals):
-        res = super(ModelAccess, cls).create(vals)
+    def create(cls, vlist):
+        res = super(ModelAccess, cls).create(vlist)
         # Restart the cache
         cls._get_access_cache.clear()
         ModelView._fields_view_get_cache.clear()
@@ -556,8 +556,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
         ModelView._fields_view_get_cache.clear()
 
     @classmethod
-    def create(cls, vals):
-        res = super(ModelFieldAccess, cls).create(vals)
+    def create(cls, vlist):
+        res = super(ModelFieldAccess, cls).create(vlist)
         # Restart the cache
         cls._get_access_cache.clear()
         ModelView._fields_view_get_cache.clear()
@@ -591,8 +591,8 @@ class ModelButton(ModelSQL, ModelView):
         cls._order.insert(0, ('model', 'ASC'))
 
     @classmethod
-    def create(cls, values):
-        result = super(ModelButton, cls).create(values)
+    def create(cls, vlist):
+        result = super(ModelButton, cls).create(vlist)
         # Restart the cache for get_groups
         cls._groups_cache.clear()
         return result

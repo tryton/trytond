@@ -31,7 +31,7 @@ class WizardTestCase(unittest.TestCase):
     def test0030session(self):
         'Session Wizard'
         with Transaction().start(DB_NAME, USER, CONTEXT):
-            session_id = self.session.create({})
+            session_id, = self.session.create([{}])
             session = self.wizard(session_id)
             self.assertEqual(session.start.id, None)
             self.assertRaises(AttributeError, getattr, session.start, 'name')
@@ -40,12 +40,12 @@ class WizardTestCase(unittest.TestCase):
             self.assertRaises(AttributeError, getattr, session.start, 'user')
             self.assertEqual(hasattr(session.start, 'user'), False)
             session.start.user = USER
-            group_a = self.group.create({
-                    'name': 'Group A',
-                    })
-            group_b = self.group.create({
-                    'name': 'Group B',
-                    })
+            group_a, = self.group.create([{
+                        'name': 'Group A',
+                        }])
+            group_b, = self.group.create([{
+                        'name': 'Group B',
+                        }])
             session.start.groups = [
                 group_a,
                 group_b,

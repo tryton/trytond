@@ -18,13 +18,13 @@ class ModelSingleton(ModelStorage):
             return singletons[0]
 
     @classmethod
-    def create(cls, values):
+    def create(cls, vlist):
+        assert len(vlist) == 1
         singleton = cls.get_singleton()
-        if singleton:
-            cls.write([singleton], values)
-        else:
-            singleton = super(ModelSingleton, cls).create(values)
-        return singleton
+        if not singleton:
+            return super(ModelSingleton, cls).create(vlist)
+        cls.write([singleton], vlist[0])
+        return [singleton]
 
     @classmethod
     def read(cls, ids, fields_names=None):
@@ -48,7 +48,7 @@ class ModelSingleton(ModelStorage):
     def write(cls, records, values):
         singleton = cls.get_singleton()
         if not singleton:
-            return cls.create(values)
+            return cls.create([values])
         return super(ModelSingleton, cls).write([singleton], values)
 
     @classmethod

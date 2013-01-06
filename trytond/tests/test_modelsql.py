@@ -37,7 +37,7 @@ class ModelSQLTestCase(unittest.TestCase):
         for key, value in fields.iteritems():
             with Transaction().start(DB_NAME, USER, context=CONTEXT):
                 try:
-                    self.modelsql.create({key: value})
+                    self.modelsql.create([{key: value}])
                 except UserError, err:
                     # message must not quote key
                     msg = "'%s' not missing but quoted in error: '%s'" % (key,

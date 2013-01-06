@@ -433,8 +433,8 @@ model.
 
 This field accepts as written value a list of tuples like this:
 
-    - ``('create', {<field name>: value, ...})``: it will create a new target
-      record and link it to this one.
+    - ``('create', [{<field name>: value, ...}, ...])``: it will create new
+      target records and link them to this one.
 
     - ``('write'[, ids, ...], {<field name>: value, ...})``: it will write
       values to target ids.

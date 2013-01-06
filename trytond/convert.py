@@ -583,7 +583,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             if not record:
                 with Transaction().set_context(
                         module=module, language='en_US'):
-                    record = Model.create(values)
+                    record, = Model.create([values])
 
                 # reset_browsercord
                 self.fs2db.reset_browsercord(
@@ -607,13 +607,13 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             'inherit': True,
                             })
                     else:
-                        data = self.ModelData.create({
-                            'fs_id': fs_id,
-                            'module': module,
-                            'model': table,
-                            'db_id': inherit_db_ids[table],
-                            'inherit': True,
-                            })
+                        data, = self.ModelData.create([{
+                                    'fs_id': fs_id,
+                                    'module': module,
+                                    'model': table,
+                                    'db_id': inherit_db_ids[table],
+                                    'inherit': True,
+                                    }])
                     inherit_mdata_ids.append((table, data.id))
 
                 data = self.ModelData.search([
@@ -739,7 +739,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         else:
             # this record is new, create it in the db:
             with Transaction().set_context(module=module, language='en_US'):
-                record = Model.create(values)
+                record, = Model.create([values])
             inherit_db_ids = {}
 
             for table, field_name, field in (
@@ -752,25 +752,25 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             for key in values:
                 values[key] = self._clean_value(key, record)
 
-            for table in inherit_db_ids.keys():
-                self.ModelData.create({
+            to_create = [{
                     'fs_id': fs_id,
-                    'model': table,
+                    'model': model,
                     'module': module,
-                    'db_id': inherit_db_ids[table],
+                    'db_id': record.id,
                     'values': str(values),
-                    'inherit': True,
                     'noupdate': self.noupdate,
-                    })
-
-            mdata = self.ModelData.create({
-                'fs_id': fs_id,
-                'model': model,
-                'module': module,
-                'db_id': record.id,
-                'values': str(values),
-                'noupdate': self.noupdate,
-                })
+                    }]
+            for table in inherit_db_ids.keys():
+                to_create.append({
+                            'fs_id': fs_id,
+                            'model': table,
+                            'module': module,
+                            'db_id': inherit_db_ids[table],
+                            'values': str(values),
+                            'inherit': True,
+                            'noupdate': self.noupdate,
+                            })
+            mdata = self.ModelData.create(to_create)[0]
 
             # update fs2db:
             self.fs2db.set(module, fs_id, {

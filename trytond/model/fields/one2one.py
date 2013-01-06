@@ -44,11 +44,14 @@ class One2One(Many2Many):
                 ])
         Relation.delete(relations)
         if value:
+            to_create = []
             for record_id in ids:
-                Relation.create({
+                to_create.append({
                         self.origin: record_id,
                         self.target: value,
                         })
+            if to_create:
+                Relation.create(to_create)
 
     def __set__(self, inst, value):
         Target = self.get_target()

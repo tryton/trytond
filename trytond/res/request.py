@@ -116,6 +116,7 @@ class Request(ModelSQL, ModelView):
     def send(cls, requests):
         pool = Pool()
         RequestHistory = pool.get('res.request.history')
+        to_create = []
         for request in requests:
             values = {
                 'request': request.id,
@@ -131,7 +132,9 @@ class Request(ModelSQL, ModelView):
                 values['name'] = values['body'][:125] + '...'
             else:
                 values['name'] = values['body'] or '/'
-            RequestHistory.create(values)
+            to_create.append(values)
+        if to_create:
+            RequestHistory.create(to_create)
         cls.write(requests, {
             'state': 'waiting',
             'date_sent': datetime.datetime.now(),
