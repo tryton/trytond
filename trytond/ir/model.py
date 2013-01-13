@@ -12,6 +12,7 @@ from ..cache import Cache
 from ..pool import Pool
 from ..pyson import Bool, Eval
 from ..rpc import RPC
+from ..backend import TableHandler
 try:
     from ..tools.StringMatcher import StringMatcher
 except ImportError:
@@ -314,10 +315,6 @@ class ModelAccess(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(ModelAccess, cls).__setup__()
-        cls._sql_constraints += [
-            ('model_group_uniq', 'UNIQUE("model", "group")',
-                'Only one record by model and group is allowed!'),
-        ]
         cls._error_messages.update({
             'read': 'You can not read this document! (%s)',
             'write': 'You can not write in this document! (%s)',
@@ -327,6 +324,17 @@ class ModelAccess(ModelSQL, ModelView):
         cls.__rpc__.update({
                 'get_access': RPC(),
                 })
+
+    @classmethod
+    def __register__(cls, module_name):
+        cursor = Transaction().cursor
+
+        super(ModelAccess, cls).__register__(module_name)
+
+        table = TableHandler(cursor, cls, module_name)
+
+        # Migration from 2.6 (model, group) no more unique
+        table.drop_constraint('model_group_uniq')
 
     @staticmethod
     def check_xml_record(accesses, values):
@@ -447,14 +455,21 @@ class ModelFieldAccess(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(ModelFieldAccess, cls).__setup__()
-        cls._sql_constraints += [
-            ('field_group_uniq', 'UNIQUE("field", "group")',
-                'Only one record by field and group is allowed!'),
-        ]
         cls._error_messages.update({
             'read': 'You can not read the field! (%s.%s)',
             'write': 'You can not write on the field! (%s.%s)',
             })
+
+    @classmethod
+    def __register__(cls, module_name):
+        cursor = Transaction().cursor
+
+        super(ModelFieldAccess, cls).__register__(module_name)
+
+        table = TableHandler(cursor, cls, module_name)
+
+        # Migration from 2.6 (field, group) no more unique
+        table.drop_constraint('field_group_uniq')
 
     @staticmethod
     def check_xml_record(field_accesses, values):
