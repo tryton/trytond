@@ -9,6 +9,7 @@ from ..tools import safe_eval
 from ..transaction import Transaction
 from ..cache import Cache
 from ..pool import Pool
+from ..backend import TableHandler
 
 __all__ = [
     'RuleGroup', 'Rule',
@@ -111,6 +112,16 @@ class Rule(ModelSQL, ModelView):
         cls._error_messages.update({
                 'invalid_domain': 'Invalid domain',
                 })
+
+    @classmethod
+    def __register__(cls, module_name):
+        super(Rule, cls).__register__(module_name)
+        table = TableHandler(Transaction().cursor, cls, module_name)
+
+        # Migration from 2.6: replace field, operator and operand by domain
+        table.not_null_action('field', action='remove')
+        table.not_null_action('operator', action='remove')
+        table.not_null_action('operand', action='remove')
 
     @classmethod
     def check_domain(cls, rules):
