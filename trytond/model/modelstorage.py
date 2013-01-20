@@ -1386,18 +1386,19 @@ class ModelStorage(Model):
         return values
 
     def save(self):
-        if self._save_values or self.id < 0:
+        values = self._save_values
+        if values or self.id < 0:
             with contextlib.nested(Transaction().set_cursor(self._cursor),
                     Transaction().set_user(self._user),
                     Transaction().set_context(self._context)):
                 if self.id < 0:
                     self._ids.remove(self.id)
                     try:
-                        self.id = self.create([self._save_values])[0].id
+                        self.id = self.create([values])[0].id
                     finally:
                         self._ids.append(self.id)
                 else:
-                    self.write([self], self._save_values)
+                    self.write([self], values)
         self._values = None
 
 
