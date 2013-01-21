@@ -479,7 +479,7 @@ class Model(WarningErrorMixin, URLMixin):
                 if getattr(cls._fields[field], arg, None) is not None:
                     res[field][arg] = copy.copy(getattr(cls._fields[field],
                         arg))
-            if not accesses.get(field, {}).get('read', True):
+            if not accesses.get(field, {}).get('write', True):
                 res[field]['readonly'] = True
                 if res[field].get('states') and \
                         'readonly' in res[field]['states']:
