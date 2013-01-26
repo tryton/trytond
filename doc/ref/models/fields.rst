@@ -570,21 +570,34 @@ A function field can emulate any other given `field`.
 
 .. attribute:: Function.getter
 
-    The name of the classmethod of the :class:`~trytond.model.Model` for
-    getting values.
-    The signature of the method is::
+    The name of the classmethod or instance of the
+    :class:`~trytond.model.Model` for getting values.
+    The signature of the classmethod is::
 
-        getter(ids, name)
+        getter(instances, name)
 
     where `name` is the name of the field, and it must return a dictionary with
-    a value for each ids.
+    a value for each instance.
 
-    Or the signature of the method is::
+    The signature of the instancemethod is::
 
-        getter(ids, names)
+        getter(name)
+
+    where `name` is the name of the field, and it must return the value.
+
+    Or the signature of the classmethod is::
+
+        getter(instances, names)
 
     where `names` is a list of name fields, and it must return a dictionary
-    containing for each names a dictionary with a value for each ids.
+    containing for each names a dictionary with a value for each instance.
+
+    the signature of the instancemethod is::
+
+        getter(names)
+
+    where `names` is a list of name fields, and it must return a dictionary
+    containing for each names the value.
 
 :class:`Function` has some extra optional arguments:
 
