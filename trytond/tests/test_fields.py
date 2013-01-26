@@ -102,6 +102,10 @@ class FieldsTestCase(unittest.TestCase):
         self.ir_property = POOL.get('ir.property')
         self.model_field = POOL.get('ir.model.field')
 
+        self.dict_ = POOL.get('test.dict')
+        self.dict_default = POOL.get('test.dict_default')
+        self.dict_required = POOL.get('test.dict_required')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -3127,6 +3131,33 @@ class FieldsTestCase(unittest.TestCase):
             self.property_.write([prop_c], {'selection': 'option_b'})
             self.assertEqual(prop_c.selection, 'option_b')
 
+            transaction.cursor.rollback()
+
+    def test0160dict(self):
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            dict1, = self.dict_.create([{
+                        'dico': {'a': 1, 'b': 2},
+                        }])
+            self.assert_(dict1.dico == {'a': 1, 'b': 2})
+
+            self.dict_.write([dict1], {'dico': {'z': 26}})
+            self.assert_(dict1.dico == {'z': 26})
+
+            dict2, = self.dict_.create([{}])
+            self.assert_(dict2.dico is None)
+
+            dict3, = self.dict_default.create([{}])
+            self.assert_(dict3.dico == {'a': 1})
+
+            self.assertRaises(Exception, self.dict_required.create, [{}])
+            transaction.cursor.rollback()
+
+            dict4, = self.dict_required.create([{'dico': dict(a=1)}])
+            self.assert_(dict4.dico == {'a': 1})
+
+            self.assertRaises(Exception, self.dict_required.create,
+                [{'dico': {}}])
             transaction.cursor.rollback()
 
 

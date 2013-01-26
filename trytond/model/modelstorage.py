@@ -988,7 +988,7 @@ class ModelStorage(Model):
 
                 def required_test(value, field_name):
                     if (isinstance(value, (type(None), type(False), list,
-                                    tuple, basestring))
+                                    tuple, basestring, dict))
                             and not value):
                         cls.raise_user_error('required_validation_record',
                             error_args=cls._get_error_args(field_name))

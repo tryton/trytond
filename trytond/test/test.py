@@ -32,6 +32,7 @@ __all__ = [
     'Many2ManySize', 'Many2ManySizeTarget', 'Many2ManySizeRelation',
     'Reference', 'ReferenceTarget', 'ReferenceRequired',
     'Property',
+    'Dict', 'DictDefault', 'DictRequired',
     ]
 
 
@@ -586,3 +587,25 @@ class Property(ModelSQL):
                 ('option_a', 'Option A'),
                 ('option_b', 'Option B')
             ], 'Test Selection'))
+
+
+class Dict(ModelSQL):
+    'Dict'
+    __name__ = 'test.dict'
+    dico = fields.Dict('Test Dict')
+
+
+class DictDefault(ModelSQL):
+    'Dict Default'
+    __name__ = 'test.dict_default'
+    dico = fields.Dict('Test Dict')
+
+    @staticmethod
+    def default_dico():
+        return dict(a=1)
+
+
+class DictRequired(ModelSQL):
+    'Dict Required'
+    __name__ = 'test.dict_required'
+    dico = fields.Dict('Test Dict', required=True)
