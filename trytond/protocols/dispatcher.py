@@ -120,7 +120,13 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             obj = pool.get(object_name, type=object_type)
             return pydoc.getdoc(getattr(obj, method))
 
-    user = security.check(database_name, user, session)
+    for count in range(int(CONFIG['retry']), -1, -1):
+        try:
+            user = security.check(database_name, user, session)
+        except DatabaseOperationalError:
+            if count:
+                continue
+            raise
 
     Cache.clean(database_name)
     database_list = Pool.database_list()
