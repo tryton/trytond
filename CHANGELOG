@@ -1,3 +1,4 @@
+* Add Dict fields
 * Remove unique constraint on model and field access
 * Use lists of values in create
 * (Field, Operator, Operand) are replaced by Domain on Rule

@@ -6,6 +6,7 @@ from .modelstorage import ModelStorage
 from .modelsingleton import ModelSingleton
 from .modelsql import ModelSQL
 from .workflow import Workflow
+from .dictschema import DictSchemaMixin
 
 __all__ = ['Model', 'ModelView', 'ModelStorage', 'ModelSingleton', 'ModelSQL',
-    'Workflow']
+    'Workflow', 'DictSchemaMixin']

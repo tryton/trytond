@@ -3,6 +3,10 @@
 import datetime
 import re
 import heapq
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from ..model import ModelView, ModelSQL, fields
 from ..report import Report

@@ -121,6 +121,13 @@ class Many2One(fields.Many2One):
     def sql_type(field):
         return ('int4', 'int4')
 
+
+class Dict(fields.Dict):
+
+    @staticmethod
+    def sql_type(field):
+        return ('text', 'text')
+
 FIELDS = {
     'boolean': Boolean,
     'integer': Integer,
@@ -142,4 +149,5 @@ FIELDS = {
     'many2many': fields.Many2Many,
     'function': fields.Function,
     'property': fields.Property,
+    'dict': Dict,
 }

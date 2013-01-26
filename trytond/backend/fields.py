@@ -3,6 +3,10 @@
 import datetime
 from decimal import Decimal
 import hashlib
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 
 class Field(object):
@@ -186,3 +190,14 @@ class Function(Field):
 
 class Property(Function):
     pass
+
+
+class Dict(Field):
+
+    @staticmethod
+    def sql_format(value):
+        from trytond.protocols.jsonrpc import JSONEncoder
+        if value is None:
+            return None
+        assert isinstance(value, dict)
+        return json.dumps(value, cls=JSONEncoder)
