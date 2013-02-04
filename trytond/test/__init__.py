@@ -10,6 +10,7 @@ from .trigger import *
 from .access import *
 from .wizard import *
 from .workflow import *
+from .copy import *
 
 
 def register():
@@ -121,6 +122,10 @@ def register():
         TestAccess,
         TestWizardStart,
         WorkflowedModel,
+        CopyOne2Many,
+        CopyOne2ManyTarget,
+        CopyOne2ManyReference,
+        CopyOne2ManyReferenceTarget,
         module='test', type_='model')
     Pool.register(
         TestWizard,
