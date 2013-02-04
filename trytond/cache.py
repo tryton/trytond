@@ -7,6 +7,17 @@ from trytond.config import CONFIG
 from trytond.backend import Database
 from trytond.tools import OrderedDict
 
+__all__ = ['Cache', 'LRUDict']
+
+
+def freeze(o):
+    if isinstance(o, (set, tuple, list)):
+        return tuple(freeze(x) for x in o)
+    elif isinstance(o, dict):
+        return frozenset((x, freeze(y)) for x, y in o.iteritems())
+    else:
+        return o
+
 
 class Cache(object):
     """
@@ -27,7 +38,7 @@ class Cache(object):
 
     def _key(self, key):
         if self.context:
-            return (key, Transaction().user, repr(Transaction().context))
+            return (key, Transaction().user, freeze(Transaction().context))
         return key
 
     def get(self, key, default=None):
@@ -39,7 +50,7 @@ class Cache(object):
             try:
                 result = cache[key] = cache.pop(key)
                 return result
-            except KeyError:
+            except (KeyError, TypeError):
                 return default
 
     def set(self, key, value):
@@ -48,7 +59,10 @@ class Cache(object):
         with self._lock:
             cache = self._cache.setdefault(cursor.dbname,
                 LRUDict(self.size_limit))
-            cache[key] = value
+            try:
+                cache[key] = value
+            except TypeError:
+                pass
 
     def clear(self):
         cursor = Transaction().cursor
