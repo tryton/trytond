@@ -1301,14 +1301,15 @@ class ModelStorage(Model):
                     Model = field.get_target()
             except KeyError:
                 return value
+            ctx = {}
+            datetime_ = None
             if getattr(field, 'datetime_field', None):
-                ctx = {'_datetime': data.get(field.datetime_field)}
-            else:
-                ctx = {}
+                datetime_ = data.get(field.datetime_field)
+                ctx = {'_datetime': datetime_}
             with Transaction().set_context(**ctx):
-                local_cache = model2cache.setdefault(Model,
+                local_cache = model2cache.setdefault((Model, datetime_),
                     LRUDict(RECORD_CACHE_SIZE))
-                ids = model2ids.setdefault(Model, [])
+                ids = model2ids.setdefault((Model, datetime_), [])
                 if field._type in ('many2one', 'one2one', 'reference'):
                     ids.append(value)
                     return Model(value, _ids=ids, _local_cache=local_cache)
