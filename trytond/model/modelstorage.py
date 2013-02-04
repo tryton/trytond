@@ -293,8 +293,16 @@ class ModelStorage(Model):
                         field_defs[field_name]['relation'])
                 relation_field = field_defs[field_name]['relation_field']
                 if relation_field:
+                    if relation_field in Relation._fields:
+                        field = Relation._fields[relation_field]
+                    else:
+                        field = Relation._inherit_fields[relation_field][2]
+                    if field._type == 'reference':
+                        value = str(new_record)
+                    else:
+                        value = new_record.id
                     Relation.copy(Relation.browse(data_o2m[field_name]),
-                        default={relation_field: new_ids[data_id]})
+                        default={relation_field: value})
 
         fields_translate = {}
         for field_name, field in field_defs.iteritems():
