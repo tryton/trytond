@@ -259,6 +259,8 @@ def all_suite():
     suite_.addTests(test_inherits.suite())
     import trytond.tests.test_modelsql as test_modelsql
     suite_.addTests(test_modelsql.suite())
+    import trytond.tests.test_cache as test_cache
+    suite_.addTests(test_cache.suite())
     return suite_
 
 
