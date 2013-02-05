@@ -590,12 +590,6 @@ A function field can emulate any other given `field`.
     where `name` is the name of the field, and it must return a dictionary with
     a value for each instance.
 
-    The signature of the instancemethod is::
-
-        getter(name)
-
-    where `name` is the name of the field, and it must return the value.
-
     Or the signature of the classmethod is::
 
         getter(instances, names)
@@ -603,12 +597,11 @@ A function field can emulate any other given `field`.
     where `names` is a list of name fields, and it must return a dictionary
     containing for each names a dictionary with a value for each instance.
 
-    the signature of the instancemethod is::
+    The signature of the instancemethod is::
 
-        getter(names)
+        getter(name)
 
-    where `names` is a list of name fields, and it must return a dictionary
-    containing for each names the value.
+    where `name` is the name of the field, and it must return the value.
 
 :class:`Function` has some extra optional arguments:
 
