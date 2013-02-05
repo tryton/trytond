@@ -2,6 +2,8 @@
 #this repository contains the full copyright notices and license terms.
 from lxml import etree
 from functools import wraps
+import copy
+
 from trytond.model import Model
 from trytond.tools import safe_eval, ClassProperty
 from trytond.pyson import PYSONEncoder, CONTEXT
@@ -400,7 +402,8 @@ class ModelView(Model):
         return arch, fields2
 
     @classmethod
-    def __view_look_dom(cls, element, type, fields_width=None):
+    def __view_look_dom(cls, element, type, fields_width=None,
+            fields_attrs=None):
         pool = Pool()
         Translation = pool.get('ir.translation')
         ModelData = pool.get('ir.model.data')
@@ -409,13 +412,16 @@ class ModelView(Model):
 
         if fields_width is None:
             fields_width = {}
-        fields_attrs = {}
+        if not fields_attrs:
+            fields_attrs = {}
+        else:
+            fields_attrs = copy.deepcopy(fields_attrs)
         childs = True
 
         if element.tag in ('field', 'label', 'separator', 'group'):
             for attr in ('name', 'icon'):
                 if element.get(attr):
-                    attrs = {}
+                    fields_attrs.setdefault(element.get(attr), {})
                     try:
                         if element.get(attr) in cls._fields:
                             field = cls._fields[element.get(attr)]
@@ -451,7 +457,7 @@ class ModelView(Model):
                                 for view_id in view_ids:
                                     view = Relation.fields_view_get(
                                         view_id=view_id)
-                                    views[view['type']] = view
+                                    views[str(view_id)] = view
                                     break
                             else:
                                 for view_type in mode:
@@ -462,10 +468,8 @@ class ModelView(Model):
                         element.attrib['mode'] = ','.join(mode)
                         element.attrib['view_ids'] = ','.join(
                             map(str, view_ids))
-                        attrs = {
-                            'views': views,
-                            }
-                    fields_attrs[element.get(attr)] = attrs
+                        fields_attrs[element.get(attr)].setdefault('views', {}
+                            ).update(views)
             if element.get('name') in fields_width:
                 element.set('width', str(fields_width[element.get('name')]))
 
@@ -509,8 +513,8 @@ class ModelView(Model):
 
         if childs:
             for field in element:
-                fields_attrs.update(cls.__view_look_dom(field, type,
-                    fields_width=fields_width))
+                fields_attrs = cls.__view_look_dom(field, type,
+                    fields_width=fields_width, fields_attrs=fields_attrs)
         return fields_attrs
 
     @staticmethod
