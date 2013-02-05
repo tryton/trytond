@@ -310,7 +310,7 @@ A binary field. It will be represented in Python by a ``str`` instance.
 Selection
 ---------
 
-.. class:: Selection(selection, string[, sort[, translate[, \**options]]])
+.. class:: Selection(selection, string[, sort[, selection_change_with[, translate[, \**options]]])
 
 A string field with limited values to choice.
 
@@ -328,7 +328,7 @@ A string field with limited values to choice.
     The first element in each tuple is the actual value stored. The second
     element is the human-readable name.
 
-    It can also be the name of a method on the model, that will return an
+    It can also be the name of a class method on the model, that will return an
     appropriate list. The signature of the method is::
 
         selection()
@@ -345,6 +345,13 @@ A string field with limited values to choice.
     If true, the choices will be sorted by human-readable value. Default value
     is ``True``.
 
+.. attribute:: Selection.selection_change_with
+
+    A list of field names. If this attribute is set, the client will call the
+    ``selection`` method of the model when the user changes on of the fields
+    defined in the list and will give the values of each fields in the list.
+    The ``selection`` method should be an instance method.
+
 .. attribute:: Selection.translate_selection
 
     If true, the human-readable values will be translated. Default value is
@@ -353,7 +360,7 @@ A string field with limited values to choice.
 Reference
 ---------
 
-.. class:: Reference(string[, selection[, \**options]])
+.. class:: Reference(string[, selection[, selection_change_with[, \**options]])
 
 A field that refers to a record of a model. It will be represented in Python by
 a ``str`` instance like this::
@@ -367,6 +374,10 @@ But a ``tuple`` can be used to search or set value.
 .. attribute:: Reference.selection
 
     Same as :attr:`Selection.selection` but only for model name.
+
+.. attribute:: Reference.selection_change_with
+
+Same like :attr:`Selection.selection_change_with`.
 
 Many2One
 --------

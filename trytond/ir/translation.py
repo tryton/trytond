@@ -965,6 +965,7 @@ class TranslationClean(Wizard):
                 'foreign_model_exist',
                 'search_function_missing',
                 'time_format_validation_record',
+                'selection_value_notfound',
                 ):
             return False
         if model_name in pool.object_name_list():

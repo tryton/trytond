@@ -83,6 +83,8 @@ def register():
         ReferenceTarget,
         ReferenceRequired,
         Property,
+        Selection,
+        SelectionRequired,
         Dict,
         DictDefault,
         DictRequired,

@@ -14,9 +14,9 @@ class Reference(Field):
     '''
     _type = 'reference'
 
-    def __init__(self, string='', selection=None, help='', required=False,
-            readonly=False, domain=None, states=None, select=False,
-            on_change=None, on_change_with=None, depends=None,
+    def __init__(self, string='', selection=None, selection_change_with=None,
+            help='', required=False, readonly=False, domain=None, states=None,
+            select=False, on_change=None, on_change_with=None, depends=None,
             order_field=None, context=None, loading='lazy'):
         '''
         :param selection: A list or a function name that returns a list.
@@ -29,6 +29,7 @@ class Reference(Field):
             depends=depends, order_field=order_field, context=context,
             loading=loading)
         self.selection = selection or None
+        self.selection_change_with = selection_change_with
 
     __init__.__doc__ += Field.__init__.__doc__
 

@@ -102,6 +102,9 @@ class FieldsTestCase(unittest.TestCase):
         self.ir_property = POOL.get('ir.property')
         self.model_field = POOL.get('ir.model.field')
 
+        self.selection = POOL.get('test.selection')
+        self.selection_required = POOL.get('test.selection_required')
+
         self.dict_ = POOL.get('test.dict')
         self.dict_default = POOL.get('test.dict_default')
         self.dict_required = POOL.get('test.dict_required')
@@ -3133,7 +3136,55 @@ class FieldsTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
-    def test0160dict(self):
+    def test_0160selection(self):
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            selection1, = self.selection.create([{'select': 'arabic'}])
+            self.assert_(selection1)
+            self.assertEqual(selection1.select, 'arabic')
+
+            selection2, = self.selection.create([{'select': None}])
+            self.assert_(selection2)
+            self.assertEqual(selection2.select, None)
+
+            self.assertRaises(Exception, self.selection.create,
+                [{'select': 'chinese'}])
+
+            selection3, = self.selection.create(
+                [{'select': 'arabic', 'dyn_select': '1'}])
+            self.assert_(selection3)
+            self.assertEqual(selection3.select, 'arabic')
+            self.assertEqual(selection3.dyn_select, '1')
+
+            selection4, = self.selection.create(
+                [{'select': 'hexa', 'dyn_select': '0x3'}])
+            self.assert_(selection4)
+            self.assertEqual(selection4.select, 'hexa')
+            self.assertEqual(selection4.dyn_select, '0x3')
+
+            selection5, = self.selection.create(
+                [{'select': 'hexa', 'dyn_select': None}])
+            self.assert_(selection5)
+            self.assertEqual(selection5.select, 'hexa')
+            self.assertEqual(selection5.dyn_select, None)
+
+            self.assertRaises(Exception, self.selection.create,
+                [{'select': 'arabic', 'dyn_select': '0x3'}])
+            self.assertRaises(Exception, self.selection.create,
+                [{'select': 'hexa', 'dyn_select': '3'}])
+
+            self.assertRaises(Exception, self.selection_required.create, [{}])
+            transaction.cursor.rollback()
+
+            self.assertRaises(Exception, self.selection_required.create,
+                [{'select': None}])
+            transaction.cursor.rollback()
+
+            selection6, = self.selection_required.create([{'select': 'latin'}])
+            self.assert_(selection6)
+            self.assertEqual(selection6.select, 'latin')
+
+    def test0170dict(self):
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             dict1, = self.dict_.create([{

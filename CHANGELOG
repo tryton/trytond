@@ -1,3 +1,4 @@
+* Add selection_change_with on Selection and Reference fields
 * Add Dict fields
 * Remove unique constraint on model and field access
 * Use lists of values in create
