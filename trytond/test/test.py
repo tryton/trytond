@@ -5,6 +5,7 @@ import datetime
 from decimal import Decimal
 from trytond.model import ModelSQL, fields
 from trytond.pyson import Eval
+from trytond.transaction import Transaction
 
 __all__ = [
     'Boolean', 'BooleanDefault',
@@ -32,6 +33,7 @@ __all__ = [
     'Many2ManySize', 'Many2ManySizeTarget', 'Many2ManySizeRelation',
     'Reference', 'ReferenceTarget', 'ReferenceRequired',
     'Property',
+    'Selection', 'SelectionRequired',
     'Dict', 'DictDefault', 'DictRequired',
     ]
 
@@ -587,6 +589,35 @@ class Property(ModelSQL):
                 ('option_a', 'Option A'),
                 ('option_b', 'Option B')
             ], 'Test Selection'))
+
+
+class Selection(ModelSQL):
+    'Selection'
+    __name__ = 'test.selection'
+    select = fields.Selection([
+            ('', ''), ('arabic', 'Arabic'), ('hexa', 'Hexadecimal')],
+        'Selection')
+    dyn_select = fields.Selection('get_selection',
+        'Instance Dynamic Selection', selection_change_with=['select'])
+    dyn_select_static = fields.Selection('static_selection',
+        'Static Selection')
+
+    def get_selection(self):
+        if self.select == 'arabic':
+            return [('', '')] + [(str(i), str(i)) for i in range(1, 11)]
+        else:
+            return [('', '')] + [(hex(i), hex(i)) for i in range(1, 11)]
+
+    @staticmethod
+    def static_selection():
+        return [('', '')] + [(str(i), str(i)) for i in range(1, 11)]
+
+
+class SelectionRequired(ModelSQL):
+    'Selection Required'
+    __name__ = 'test.selection_required'
+    select = fields.Selection([('arabic', 'Arabic'), ('latin', 'Latin')],
+        'Selection', required=True)
 
 
 class Dict(ModelSQL):

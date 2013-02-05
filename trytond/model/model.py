@@ -475,6 +475,7 @@ class Model(WarningErrorMixin, URLMixin):
                     'datetime_field',
                     'loading',
                     'filename',
+                    'selection_change_with',
                     ):
                 if getattr(cls._fields[field], arg, None) is not None:
                     res[field][arg] = copy.copy(getattr(cls._fields[field],
@@ -563,6 +564,8 @@ class Model(WarningErrorMixin, URLMixin):
                         cls._fields[field].field)
             if res[field]['type'] in ('datetime', 'time'):
                 res[field]['format'] = copy.copy(cls._fields[field].format)
+            if res[field]['type'] == 'selection':
+                res[field]['context'] = copy.copy(cls._fields[field].context)
             if res[field]['type'] == 'dict':
                 res[field]['context'] = copy.copy(cls._fields[field].context)
                 res[field]['create'] = accesses.get(field, {}).get('create',

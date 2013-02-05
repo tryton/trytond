@@ -927,6 +927,13 @@ class ModelStorage(Model):
                     if isinstance(i, (list, tuple)):
                         if is_pyson(i):
                             return True
+            if isinstance(test, dict):
+                for key, value in test.items():
+                    if isinstance(value, PYSON):
+                        return True
+                    if isinstance(value, (list, tuple, dict)):
+                        if is_pyson(value):
+                            return True
             return False
 
         with Transaction().set_context(ctx_pref):
@@ -1081,13 +1088,6 @@ class ModelStorage(Model):
                 if hasattr(field, 'selection') and field.selection:
                     if isinstance(field.selection, (tuple, list)):
                         test = set(dict(field.selection).keys())
-                    else:
-                        test = set(dict(getattr(cls,
-                                    field.selection)()).keys())
-                    # None and '' are equivalent
-                    if '' in test or None in test:
-                        test.add('')
-                        test.add(None)
                     for record in records:
                         value = getattr(record, field_name)
                         if field._type == 'reference':
@@ -1095,6 +1095,17 @@ class ModelStorage(Model):
                                 value = value.__class__.__name__
                             elif value:
                                 value, _ = value.split(',')
+                        if not isinstance(field.selection, (tuple, list)):
+                            sel_func = getattr(cls, field.selection)
+                            if field.selection_change_with:
+                                test = sel_func(record)
+                            else:
+                                test = sel_func()
+                            test = set(dict(test))
+                        # None and '' are equivalent
+                        if '' in test or None in test:
+                            test.add('')
+                            test.add(None)
                         if value not in test:
                             cls.raise_user_error('selection_validation_record',
                                 error_args=cls._get_error_args(field_name))
