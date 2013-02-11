@@ -1265,8 +1265,7 @@ class ModelStorage(Model):
             datetime_ = None
             if getattr(field, 'datetime_field', None):
                 datetime_ = data.get(field.datetime_field)
-                _datetime = data.get(field.datetime_field)
-            with Transaction().set_context(_datetime=_datetime):
+            with Transaction().set_context(_datetime=datetime_):
                 local_cache = model2cache.setdefault((Model, datetime_),
                     LRUDict(RECORD_CACHE_SIZE))
                 ids = model2ids.setdefault((Model, datetime_), [])
