@@ -52,7 +52,7 @@ class DictSchemaMixin(object):
 
     def get_selection_json(self, name):
         db_selection = self.selection or ''
-        selection = [map(str.strip, v.split(':', 1))
+        selection = [[w.strip() for w in v.split(':', 1)]
             for v in db_selection.splitlines() if v]
         return json.dumps(selection)
 
