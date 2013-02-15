@@ -105,9 +105,9 @@ class Translation(ModelSQL, ModelView):
             while translations:
                 translations = cls.search([], offset=offset, limit=limit)
                 offset += limit
-                for translation in cls.browse(translations):
+                for translation in translations:
                     src_md5 = cls.get_src_md5(translation.src)
-                    cls.write(translation.id, {
+                    cls.write([translation], {
                         'src_md5': src_md5,
                     })
             table = TableHandler(cursor, cls, module_name)
