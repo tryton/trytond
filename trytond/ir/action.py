@@ -65,11 +65,11 @@ class Action(ModelSQL, ModelView):
                     'ir.action.url',
                     ):
                 Action = pool.get(action_type)
-                action_id2 = Action.search([
+                actions = Action.search([
                     ('id', '=', action_id),
                     ])
-                if action_id2:
-                    action = Action.browse(action_id2[0])
+                if actions:
+                    action, = actions
                     return action.action.id
 
     @classmethod
