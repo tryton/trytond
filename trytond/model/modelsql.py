@@ -269,7 +269,6 @@ class ModelSQL(ModelStorage):
                 values.update(cls._clean_defaults(defaults))
 
             (upd0, upd1, upd2) = ('', '', [])
-            upd_todo = []
 
             # Create inherits
             tocreate = {}
@@ -298,8 +297,6 @@ class ModelSQL(ModelStorage):
                     upd0 = upd0 + ',"' + fname + '"'
                     upd1 = upd1 + ', %s'
                     upd2.append(FIELDS[field._type].sql_format(value))
-                else:
-                    upd_todo.append(fname)
             upd0 += ', create_uid, create_date'
             upd1 += ', %s, %s'
             upd2.append(Transaction().user)
@@ -380,15 +377,14 @@ class ModelSQL(ModelStorage):
                 set()).update(new_ids)
 
         for values, new_id in izip(vlist, new_ids):
-            for field in values:
-                if getattr(cls._fields[field], 'translate', False):
+            for fname, value in values.iteritems():
+                field = cls._fields[fname]
+                if getattr(field, 'translate', False):
                         pool.get('ir.translation').set_ids(
-                                cls.__name__ + ',' + field, 'model',
-                                Transaction().language, [new_id], values[field])
-
-            for field in upd_todo:
-                if field in values:
-                    cls._fields[field].set([new_id], cls, field, values[field])
+                                cls.__name__ + ',' + fname, 'model',
+                                Transaction().language, [new_id], value)
+                if hasattr(field, 'set'):
+                    field.set([new_id], cls, fname, value)
 
         if cls._history:
             columns = ['"' + str(x) + '"' for x in cls._fields 
