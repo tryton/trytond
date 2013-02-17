@@ -575,5 +575,8 @@ class UserConfig(Wizard):
     add = StateTransition()
 
     def transition_add(self):
+        pool = Pool()
+        User = pool.get('res.user')
         self.user.save()
+        self.user = User()
         return 'user'
