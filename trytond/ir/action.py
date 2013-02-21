@@ -728,7 +728,7 @@ class ActionActWindow(ModelSQL, ModelView):
     def delete(cls, act_windows):
         Action = Pool().get('ir.action')
 
-        actions = [x.action.id for x in act_windows]
+        actions = [x.action for x in act_windows]
         super(ActionActWindow, cls).delete(act_windows)
         Action.delete(actions)
 
@@ -824,7 +824,7 @@ class ActionWizard(ModelSQL, ModelView):
         pool = Pool()
         Action = pool.get('ir.action')
 
-        actions = [x.action.id for x in wizards]
+        actions = [x.action for x in wizards]
 
         super(ActionWizard, cls).delete(wizards)
         Action.delete(actions)
