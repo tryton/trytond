@@ -13,10 +13,10 @@ class Dict(Field):
     'Define dict field.'
     _type = 'dict'
 
-    def __init__(self, string='', help='', required=False, readonly=False,
-            domain=None, states=None, select=False, on_change=None,
-            on_change_with=None, depends=None, order_field=None, context=None,
-            loading='lazy', schema_model=None):
+    def __init__(self, schema_model, string='', help='', required=False,
+            readonly=False, domain=None, states=None, select=False,
+            on_change=None, on_change_with=None, depends=None,
+            order_field=None, context=None, loading='lazy'):
         super(Dict, self).__init__(string, help, required, readonly, domain,
             states, select, on_change, on_change_with, depends, order_field,
             context, loading)

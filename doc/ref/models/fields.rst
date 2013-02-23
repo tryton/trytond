@@ -670,3 +670,17 @@ Instance methods:
 .. method:: Property.search(model, name, clause)
 
     Same as :meth:`Function.search`.
+
+Dict
+----
+
+.. class:: Dict(schema_model[, \**options])
+
+A dictionary field with predefined keys.
+
+:class:`Dict` has one extra required argument:
+
+.. attribute:: Dict.schema_model
+
+    The name of the :class:`DictSchemaMixin` model that stores the definition
+    of keys.

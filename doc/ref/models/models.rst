@@ -456,3 +456,74 @@ Class methods:
 .. classmethod:: ModelSingleton.get_singleton()
 
     Return the instance of the unique record if there is one.
+
+===============
+DictSchemaMixin
+===============
+
+.. class:: DictSchemaMixin
+
+A mixin_ for the schema of :class:`trytond.model.fields.Dict` field.
+
+Class attributes are:
+
+.. attribute:: DictSchemaMixin.name
+
+    The definition of the :class:`trytond.model.fields.Char` field for the name
+    of the key.
+
+.. attribute:: DictSchemaMixin.string
+
+    The definition of the :class:`trytond.model.fields.Char` field for the
+    string of the key.
+
+.. attribute:: DictSchemaMixin.type\_
+
+    The definition of the :class:`trytond.model.fields.Selection` field for the
+    type of the key. The available types are:
+
+    * boolean
+    * integer
+    * char
+    * float
+    * numeric
+    * date
+    * datetime
+    * selection
+
+.. attribute:: DictSchemaMixin.digits
+
+    The definition of the :class:`trytond.model.fields.Integer` field for the
+    digits number when the type is `float` or `numeric`.
+
+.. attribute:: DictSchemaMixin.selection
+
+    The definition of the :class:`trytond.model.fields.Text` field to store the
+    couple of key and label when the type is `selection`.
+    The format is a key/label separated by ":" per line.
+
+.. attribute:: DictSchemaMixin.selection_json
+
+    The definition of the :class:`trytond.model.fields.Function` field to
+    return the JSON_ version of the :attr:`selection`.
+
+Static methods:
+
+.. staticmethod:: DictSchemaMixin.default_digits()
+
+    Return the default value for :attr:`digits`.
+
+Class methods:
+
+.. classmethod:: DictSchemaMixin.get_keys(records)
+
+    Return the definition of the keys for the records.
+
+Instance methods:
+
+.. method:: DictSchemaMixin.get_selection_json(name)
+
+    Getter for the :attr:`selection_json`.
+
+.. _mixin: http://en.wikipedia.org/wiki/Mixin
+.. _JSON: http://en.wikipedia.org/wiki/Json
