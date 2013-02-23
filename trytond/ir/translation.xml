@@ -240,26 +240,26 @@ this repository contains the full copyright notices and license terms. -->
             <field name="fuzzy" eval="False"/>
         </record>
 
-        <record model="ir.ui.view" id="translation_set_report_start_view_form">
-            <field name="model">ir.translation.set_report.start</field>
+        <record model="ir.ui.view" id="translation_set_start_view_form">
+            <field name="model">ir.translation.set.start</field>
             <field name="type">form</field>
-            <field name="name">translation_set_report_start_form</field>
+            <field name="name">translation_set_start_form</field>
         </record>
 
-        <record model="ir.ui.view" id="translation_set_report_succeed_view_form">
-            <field name="model">ir.translation.set_report.succeed</field>
+        <record model="ir.ui.view" id="translation_set_succeed_view_form">
+            <field name="model">ir.translation.set.succeed</field>
             <field name="type">form</field>
-            <field name="name">translation_set_report_succeed_form</field>
+            <field name="name">translation_set_succeed_form</field>
         </record>
 
-        <record model="ir.action.wizard" id="act_translation_set_report">
+        <record model="ir.action.wizard" id="act_translation_set">
             <field name="name">Set Report Translations</field>
-            <field name="wiz_name">ir.translation.set_report</field>
+            <field name="wiz_name">ir.translation.set</field>
         </record>
-        <menuitem name="Set Report Translations"
+        <menuitem name="Set Translations"
             parent="menu_localization"
-            action="act_translation_set_report"
-            id="menu_translation_set_report"
+            action="act_translation_set"
+            id="menu_translation_set"
             sequence="10"/>
 
         <record model="ir.ui.view" id="translation_clean_start_view_form">

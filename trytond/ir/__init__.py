@@ -26,8 +26,8 @@ def register():
     Pool.register(
         Configuration,
         Translation,
-        ReportTranslationSetStart,
-        ReportTranslationSetSucceed,
+        TranslationSetStart,
+        TranslationSetSucceed,
         TranslationCleanStart,
         TranslationCleanSucceed,
         TranslationUpdateStart,
@@ -82,7 +82,7 @@ def register():
         SessionWizard,
         module='ir', type_='model')
     Pool.register(
-        ReportTranslationSet,
+        TranslationSet,
         TranslationClean,
         TranslationUpdate,
         TranslationExport,
