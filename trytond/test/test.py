@@ -623,13 +623,13 @@ class SelectionRequired(ModelSQL):
 class Dict(ModelSQL):
     'Dict'
     __name__ = 'test.dict'
-    dico = fields.Dict('Test Dict')
+    dico = fields.Dict(None, 'Test Dict')
 
 
 class DictDefault(ModelSQL):
     'Dict Default'
     __name__ = 'test.dict_default'
-    dico = fields.Dict('Test Dict')
+    dico = fields.Dict(None, 'Test Dict')
 
     @staticmethod
     def default_dico():
@@ -639,4 +639,4 @@ class DictDefault(ModelSQL):
 class DictRequired(ModelSQL):
     'Dict Required'
     __name__ = 'test.dict_required'
-    dico = fields.Dict('Test Dict', required=True)
+    dico = fields.Dict(None, 'Test Dict', required=True)
