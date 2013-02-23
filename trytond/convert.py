@@ -821,6 +821,10 @@ def post_import(pool, module, to_delete):
                     'and restart --update=module\n'
                     'Exception: %s' %
                     (db_id, model, tb_s))
+            if 'active' in Model._fields:
+                Model.write([Model(db_id)], {
+                        'active': False,
+                        })
 
     # Clean model_data:
     if mdata_delete:
