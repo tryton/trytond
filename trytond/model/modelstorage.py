@@ -1397,11 +1397,11 @@ class ModelStorage(Model):
                 for target in targets:
                     if target.id < 0:
                         value.append(('create', [target._save_values]))
-                    elif target._save_values:
-                        value.append(
-                            ('write', [target.id], target._save_values))
                     else:
                         value[0][1].append(target.id)
+                        if target._save_values:
+                            value.append(
+                                ('write', [target.id], target._save_values))
             values[fname] = value
         return values
 
