@@ -3,7 +3,6 @@
 import os
 import logging
 from lxml import etree
-from difflib import SequenceMatcher
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.backend import TableHandler
 from trytond.pyson import CONTEXT, Eval, Bool, PYSONDecoder
@@ -112,19 +111,7 @@ class View(ModelSQL, ModelView):
     @classmethod
     def check_xml(cls, views):
         "Check XML"
-        pool = Pool()
-        Translation = pool.get('ir.translation')
-        cursor = Transaction().cursor
         for view in views:
-            cursor.execute('SELECT id, name, src FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type = %s ' \
-                        'AND name = %s '\
-                        'AND module = %s',
-                            ('en_US', 'view', view.model, view.module))
-            trans_views = {}
-            for trans in cursor.dictfetchall():
-                trans_views[trans['src']] = trans
             if not view.arch:
                 continue
             xml = view.arch.strip()
@@ -174,63 +161,6 @@ class View(ModelSQL, ModelView):
             if not encode(root_element):
                 return False
 
-            strings = cls._translate_view(root_element)
-            with Transaction().set_user(0):
-                views2 = cls.search([
-                    ('model', '=', view.model),
-                    ('id', '!=', view.id),
-                    ('module', '=', view.module),
-                    ])
-                for view2 in views2:
-                    xml2 = view2.arch.strip()
-                    if not xml2:
-                        continue
-                    tree2 = etree.fromstring(xml2)
-                    root2_element = tree2.getroottree().getroot()
-                    strings += cls._translate_view(root2_element)
-            if not strings:
-                continue
-            for string in set(strings):
-                done = False
-                if string in trans_views:
-                    del trans_views[string]
-                    continue
-                string_md5 = Translation.get_src_md5(string)
-                for string_trans in trans_views:
-                    if string_trans in strings:
-                        continue
-                    seqmatch = SequenceMatcher(lambda x: x == ' ',
-                            string, string_trans)
-                    if seqmatch.ratio() == 1.0:
-                        del trans_views[string_trans]
-                        done = True
-                        break
-                    if seqmatch.ratio() > 0.6:
-                        cursor.execute('UPDATE ir_translation '
-                            'SET src = %s, '
-                                'src_md5 = %s, '
-                                'fuzzy = %s '
-                            'WHERE id = %s ',
-                            (string, string_md5, True,
-                                trans_views[string_trans]['id']))
-                        del trans_views[string_trans]
-                        done = True
-                        break
-                if not done:
-                    cursor.execute('INSERT INTO ir_translation '
-                        '(name, lang, type, src, src_md5, value, module, '
-                            'fuzzy) '
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                        (view.model, 'en_US', 'view', string, string_md5, '',
-                            view.module, False))
-            if strings:
-                cursor.execute('DELETE FROM ir_translation ' \
-                        'WHERE name = %s ' \
-                            'AND type = %s ' \
-                            'AND module = %s ' \
-                            'AND src NOT IN ' \
-                                '(' + ','.join(('%s',) * len(strings)) + ')',
-                        (view.model, 'view', view.module) + tuple(strings))
         return True
 
     def get_arch(self, name):
@@ -268,18 +198,6 @@ class View(ModelSQL, ModelView):
         super(View, cls).write(views, vals)
         # Restart the cache
         ModelView._fields_view_get_cache.clear()
-
-    @classmethod
-    def _translate_view(cls, element):
-        strings = []
-        for attr in ('string', 'sum', 'confirm', 'help'):
-            if element.get(attr):
-                string = element.get(attr)
-                if string:
-                    strings.append(string)
-        for child in element:
-            strings.extend(cls._translate_view(child))
-        return strings
 
 
 class ShowViewStart(ModelView):

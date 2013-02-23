@@ -15,6 +15,7 @@ try:
 except ImportError:
     from md5 import md5
 from functools import reduce
+from lxml import etree
 
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, StateTransition, StateAction, \
@@ -27,8 +28,7 @@ from ..pool import Pool
 from ..cache import Cache
 
 __all__ = ['Translation',
-    'ReportTranslationSetStart', 'ReportTranslationSetSucceed',
-    'ReportTranslationSet',
+    'TranslationSetStart', 'TranslationSetSucceed', 'TranslationSet',
     'TranslationCleanStart', 'TranslationCleanSucceed', 'TranslationClean',
     'TranslationUpdateStart', 'TranslationUpdate',
     'TranslationExportStart', 'TranslationExportResult', 'TranslationExport',
@@ -659,29 +659,28 @@ class Translation(ModelSQL, ModelView):
         return unicode(pofile).encode('utf-8')
 
 
-class ReportTranslationSetStart(ModelView):
-    "Update Report Translation"
-    __name__ = 'ir.translation.set_report.start'
+class TranslationSetStart(ModelView):
+    "Set Translation"
+    __name__ = 'ir.translation.set.start'
 
 
-class ReportTranslationSetSucceed(ModelView):
-    "Update Report Translation"
-    __name__ = 'ir.translation.set_report.succeed'
+class TranslationSetSucceed(ModelView):
+    "Set Translation"
+    __name__ = 'ir.translation.set.succeed'
 
 
-class ReportTranslationSet(Wizard):
-    "Update report translation"
-    __name__ = "ir.translation.set_report"
+class TranslationSet(Wizard):
+    "Set Translation"
+    __name__ = "ir.translation.set"
 
-    start = StateView('ir.translation.set_report.start',
-        'ir.translation_set_report_start_view_form', [
+    start = StateView('ir.translation.set.start',
+        'ir.translation_set_start_view_form', [
             Button('Cancel', 'end', 'tryton-cancel'),
-            Button('Start Update', 'set_report', 'tryton-ok',
-                default=True),
+            Button('Set', 'set_', 'tryton-ok', default=True),
             ])
-    set_report = StateTransition()
-    succeed = StateView('ir.translation.set_report.succeed',
-        'ir.translation_set_report_succeed_view_form', [
+    set_ = StateTransition()
+    succeed = StateView('ir.translation.set.succeed',
+        'ir.translation_set_succeed_view_form', [
             Button('Ok', 'end', 'tryton-ok', default=True),
             ])
 
@@ -703,7 +702,7 @@ class ReportTranslationSet(Wizard):
             strings.extend(self._translate_report(child))
         return strings
 
-    def transition_set_report(self):
+    def set_report(self):
         pool = Pool()
         Report = pool.get('ir.action.report')
         Translation = pool.get('ir.translation')
@@ -712,7 +711,7 @@ class ReportTranslationSet(Wizard):
             reports = Report.search([])
 
         if not reports:
-            return {}
+            return
 
         cursor = Transaction().cursor
         for report in reports:
@@ -805,6 +804,106 @@ class ReportTranslationSet(Wizard):
                                 '(' + ','.join(('%s',) * len(strings)) + ')',
                         (report.report_name, 'odt', report.module) + \
                                 tuple(strings))
+
+    def _translate_view(self, element):
+        strings = []
+        for attr in ('string', 'sum', 'confirm', 'help'):
+            if element.get(attr):
+                string = element.get(attr)
+                if string:
+                    strings.append(string)
+        for child in element:
+            strings.extend(self._translate_view(child))
+        return strings
+
+    def set_view(self):
+        pool = Pool()
+        View = pool.get('ir.ui.view')
+
+        with Transaction().set_context(active_test=False):
+            views = View.search([])
+
+        if not views:
+            return
+        cursor = Transaction().cursor
+
+        for view in views:
+            cursor.execute('SELECT id, name, src FROM ir_translation '
+                'WHERE lang = %s '
+                    'AND type = %s '
+                    'AND name = %s '
+                    'AND module = %s',
+                ('en_US', 'view', view.model, view.module))
+            trans_views = {}
+            for trans in cursor.dictfetchall():
+                trans_views[trans['src']] = trans
+
+            xml = view.arch.strip()
+            if not xml:
+                continue
+            tree = etree.fromstring(xml)
+            root_element = tree.getroottree().getroot()
+            strings = self._translate_view(root_element)
+            with Transaction().set_context(active_test=False):
+                views2 = View.search([
+                    ('model', '=', view.model),
+                    ('id', '!=', view.id),
+                    ('module', '=', view.module),
+                    ])
+            for view2 in views2:
+                xml2 = view2.arch.strip()
+                if not xml2:
+                    continue
+                tree2 = etree.fromstring(xml2)
+                root2_element = tree2.getroottree().getroot()
+                strings += self._translate_view(root2_element)
+            if not strings:
+                continue
+            for string in set(strings):
+                done = False
+                if string in trans_views:
+                    del trans_views[string]
+                    continue
+                string_md5 = Translation.get_src_md5(string)
+                for string_trans in trans_views:
+                    if string_trans in strings:
+                        continue
+                    seqmatch = SequenceMatcher(lambda x: x == ' ',
+                            string, string_trans)
+                    if seqmatch.ratio() == 1.0:
+                        del trans_views[string_trans]
+                        done = True
+                        break
+                    if seqmatch.ratio() > 0.6:
+                        cursor.execute('UPDATE ir_translation '
+                            'SET src = %s, '
+                                'src_md5 = %s, '
+                                'fuzzy = %s '
+                            'WHERE id = %s ',
+                            (string, string_md5, True,
+                                trans_views[string_trans]['id']))
+                        del trans_views[string_trans]
+                        done = True
+                        break
+                if not done:
+                    cursor.execute('INSERT INTO ir_translation '
+                        '(name, lang, type, src, src_md5, value, module, '
+                            'fuzzy) '
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                        (view.model, 'en_US', 'view', string, string_md5, '',
+                            view.module, False))
+            if strings:
+                cursor.execute('DELETE FROM ir_translation '
+                    'WHERE name = %s '
+                        'AND type = %s '
+                        'AND module = %s '
+                        'AND src NOT IN '
+                        '(' + ','.join(('%s',) * len(strings)) + ')',
+                    (view.model, 'view', view.module) + tuple(strings))
+
+    def transition_set_(self):
+        self.set_report()
+        self.set_view()
         return 'succeed'
 
 

@@ -580,8 +580,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="menu" ref="ir.menu_translation_form"/>
             <field name="group" ref="group_admin"/>
         </record>
-        <record model="ir.ui.menu-res.group" id="menu_translation_set_report_group_admin">
-            <field name="menu" ref="ir.menu_translation_set_report"/>
+        <record model="ir.ui.menu-res.group" id="menu_translation_set_group_admin">
+            <field name="menu" ref="ir.menu_translation_set"/>
             <field name="group" ref="group_admin"/>
         </record>
         <record model="ir.ui.menu-res.group" id="menu_translation_clean_group_admin">
