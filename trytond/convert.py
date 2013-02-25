@@ -606,6 +606,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                             'db_id': inherit_db_ids[table],
                             'inherit': True,
                             })
+                        data, = data
                     else:
                         data, = self.ModelData.create([{
                                     'fs_id': fs_id,
