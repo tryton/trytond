@@ -404,7 +404,8 @@ def load_modules(database_name, pool, update=False, lang=None):
                             'WHERE module = %s ' \
                             'ORDER BY id DESC', (mod_name,))
                     for rmod, rid in cursor.fetchall():
-                        pool.get(rmod).delete([rmod(rid)])
+                        Model = pool.get(rmod)
+                        Model.delete([Model(rid)])
                     cursor.commit()
                 cursor.execute("UPDATE ir_module_module SET state = %s " \
                         "WHERE state IN ('to remove')", ('uninstalled',))
