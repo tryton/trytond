@@ -113,10 +113,10 @@ class Database(DatabaseInterface):
         if self.database_name == ':memory:':
             path = ':memory:'
         else:
-            path = os.path.join(CONFIG['data_path'],
-                    self.database_name + '.sqlite')
+            db_filename = self.database_name + '.sqlite'
+            path = os.path.join(CONFIG['data_path'], db_filename)
             if not os.path.isfile(path):
-                raise Exception('Database doesn\'t exist!')
+                raise IOError('Database "%s" doesn\'t exist!' % db_filename)
         if self._conn is not None:
             return self
         self._conn = sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES)
