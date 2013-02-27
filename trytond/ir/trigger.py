@@ -125,7 +125,7 @@ class Trigger(ModelSQL, ModelView):
         Return triggers for a model and a mode
         """
         assert mode in ['create', 'write', 'delete', 'time'], \
-                'Invalid trigger mode'
+            'Invalid trigger mode'
 
         if Transaction().user == 0:
             return []  # XXX is it want we want?

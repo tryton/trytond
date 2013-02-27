@@ -34,16 +34,16 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             Cache.clean(database_name)
             logger = logging.getLogger('dispatcher')
             msg = res and 'successful login' or 'bad login or password'
-            logger.info('%s \'%s\' from %s:%d using %s on database \'%s\'' % \
-                    (msg, user, host, port, protocol, database_name))
+            logger.info('%s \'%s\' from %s:%d using %s on database \'%s\''
+                % (msg, user, host, port, protocol, database_name))
             Cache.resets(database_name)
             return res or False
         elif method == 'logout':
             name = security.logout(database_name, user, session)
             logger = logging.getLogger('dispatcher')
-            logger.info('logout \'%s\' from %s:%d ' \
-                    'using %s on database \'%s\'' %
-                    (name, host, port, protocol, database_name))
+            logger.info(('logout \'%s\' from %s:%d '
+                    'using %s on database \'%s\'')
+                % (name, host, port, protocol, database_name))
             return True
         elif method == 'version':
             return VERSION
@@ -232,19 +232,19 @@ def create(database_name, password, lang, admin_password):
         with Transaction().start(database_name, 0) as transaction:
             cursor = transaction.cursor
             #XXX replace with model write
-            cursor.execute('UPDATE ir_lang ' \
-                    'SET translatable = %s ' \
-                    'WHERE code = %s', (True, lang))
-            cursor.execute('UPDATE res_user ' \
-                    'SET language = (' + \
-                        cursor.limit_clause('SELECT id FROM ir_lang ' \
-                        'WHERE code = %s', 1) + ')' \
-                    'WHERE login <> \'root\'', (lang,))
+            cursor.execute('UPDATE ir_lang '
+                'SET translatable = %s '
+                'WHERE code = %s', (True, lang))
+            cursor.execute('UPDATE res_user '
+                'SET language = (' +
+                cursor.limit_clause('SELECT id FROM ir_lang '
+                    'WHERE code = %s', 1) + ')'
+                'WHERE login <> \'root\'', (lang,))
             admin_password = hashlib.sha1(admin_password.encode('utf-8'))\
                 .hexdigest()
-            cursor.execute('UPDATE res_user ' \
-                    'SET password = %s ' \
-                    'WHERE login = \'admin\'', (admin_password,))
+            cursor.execute('UPDATE res_user '
+                'SET password = %s '
+                'WHERE login = \'admin\'', (admin_password,))
             Module = pool.get('ir.module.module')
             if Module:
                 Module.update_list()
@@ -312,12 +312,12 @@ def restore(database_name, password, data, update=False):
     logger.info('RESTORE DB: %s' % (database_name))
     if update:
         cursor = Database(database_name).connect().cursor()
-        cursor.execute('SELECT code FROM ir_lang ' \
-                'WHERE translatable')
+        cursor.execute('SELECT code FROM ir_lang '
+            'WHERE translatable')
         lang = [x[0] for x in cursor.fetchall()]
-        cursor.execute('UPDATE ir_module_module SET ' \
-                "state = 'to upgrade' " \
-                "WHERE state = 'installed'")
+        cursor.execute('UPDATE ir_module_module SET '
+            "state = 'to upgrade' "
+            "WHERE state = 'installed'")
         cursor.commit()
         cursor.close()
         Pool(database_name).init(update=update, lang=lang)

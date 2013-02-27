@@ -40,9 +40,9 @@ class TrytonServer(object):
                     logf, 'D', 1, 30)
                 handler.rolloverAt -= diff
             except Exception, exception:
-                sys.stderr.write(\
-                        "ERROR: couldn't create the logfile directory:" \
-                        + str(exception))
+                sys.stderr.write(
+                    "ERROR: couldn't create the logfile directory:"
+                    + str(exception))
             else:
                 formatter = logging.Formatter(format, datefmt)
                 # tell the handler to use this format
@@ -62,8 +62,8 @@ class TrytonServer(object):
         self.logger = logging.getLogger("server")
 
         if CONFIG.configfile:
-            self.logger.info('using %s as configuration file' % \
-                    CONFIG.configfile)
+            self.logger.info('using %s as configuration file'
+                % CONFIG.configfile)
         else:
             self.logger.info('using default configuration')
         self.logger.info('initialising distributed objects services')
@@ -121,8 +121,8 @@ class TrytonServer(object):
                     if not cursor.test():
                         raise Exception("'%s' is not a Tryton database!"
                             % db_name)
-                    cursor.execute('SELECT code FROM ir_lang ' \
-                            'WHERE translatable')
+                    cursor.execute('SELECT code FROM ir_lang '
+                        'WHERE translatable')
                     lang = [x[0] for x in cursor.fetchall()]
                 finally:
                     cursor.close()
@@ -144,16 +144,16 @@ class TrytonServer(object):
                         with open(passpath) as passfile:
                             password = passfile.readline()[:-1]
                     except Exception, err:
-                        sys.stderr.write('Can not read password ' \
-                                'from "%s": "%s"\n' % (passpath, err))
+                        sys.stderr.write('Can not read password '
+                            'from "%s": "%s"\n' % (passpath, err))
 
                 if not password:
                     while True:
                         password = getpass('Admin Password for %s: ' % db_name)
                         password2 = getpass('Admin Password Confirmation: ')
                         if password != password2:
-                            sys.stderr.write('Admin Password Confirmation ' \
-                                    'doesn\'t match Admin Password!\n')
+                            sys.stderr.write('Admin Password Confirmation '
+                                'doesn\'t match Admin Password!\n')
                             continue
                         if not password:
                             sys.stderr.write('Admin Password is required!\n')
@@ -167,9 +167,9 @@ class TrytonServer(object):
                         string.letters + string.digits, 8))
                     password += salt
                     password = hashlib.sha1(password).hexdigest()
-                    cursor.execute('UPDATE res_user ' \
-                            'SET password = %s, salt = %s ' \
-                            'WHERE login = \'admin\'', (password, salt))
+                    cursor.execute('UPDATE res_user '
+                        'SET password = %s, salt = %s '
+                        'WHERE login = \'admin\'', (password, salt))
                     cursor.commit()
                 finally:
                     cursor.close()

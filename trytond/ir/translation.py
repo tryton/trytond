@@ -222,16 +222,16 @@ class Translation(ModelSQL, ModelView):
             for i in range(0, len(to_fetch), cursor.IN_MAX):
                 sub_to_fetch = to_fetch[i:i + cursor.IN_MAX]
                 red_sql, red_ids = reduce_ids('res_id', sub_to_fetch)
-                cursor.execute('SELECT res_id, value ' \
-                        'FROM ir_translation ' \
-                        'WHERE lang = %s ' \
-                            'AND type = %s ' \
-                            'AND name = %s ' \
-                            'AND value != \'\' ' \
-                            'AND value IS NOT NULL ' \
-                            + fuzzy_sql + \
-                            'AND ' + red_sql,
-                        [lang, ttype, name] + fuzzy + red_ids)
+                cursor.execute('SELECT res_id, value '
+                    'FROM ir_translation '
+                    'WHERE lang = %s '
+                        'AND type = %s '
+                        'AND name = %s '
+                        'AND value != \'\' '
+                        'AND value IS NOT NULL '
+                        + fuzzy_sql +
+                        'AND ' + red_sql,
+                    [lang, ttype, name] + fuzzy + red_ids)
                 for res_id, value in cursor.fetchall():
                     # Don't store fuzzy translation in cache
                     if not Transaction().context.get(
@@ -422,31 +422,31 @@ class Translation(ModelSQL, ModelView):
                 res[(name, ttype, lang, source)] = None
                 cls._translation_cache.set((lang, ttype, name, source), None)
                 if source is not None:
-                    clause += [('(lang = %s ' \
-                            'AND type = %s ' \
-                            'AND name = %s ' \
-                            'AND src = %s ' \
-                            'AND value != \'\' ' \
-                            'AND value IS NOT NULL ' \
-                            'AND fuzzy = %s ' \
+                    clause += [('(lang = %s '
+                            'AND type = %s '
+                            'AND name = %s '
+                            'AND src = %s '
+                            'AND value != \'\' '
+                            'AND value IS NOT NULL '
+                            'AND fuzzy = %s '
                             'AND res_id IS NULL)',
                             (lang, ttype, str(name), source, False))]
                 else:
-                    clause += [('(lang = %s ' \
-                            'AND type = %s ' \
-                            'AND name = %s ' \
-                            'AND value != \'\' ' \
-                            'AND value IS NOT NULL ' \
-                            'AND fuzzy = %s ' \
+                    clause += [('(lang = %s '
+                            'AND type = %s '
+                            'AND name = %s '
+                            'AND value != \'\' '
+                            'AND value IS NOT NULL '
+                            'AND fuzzy = %s '
                             'AND res_id IS NULL)',
                             (lang, ttype, str(name), False))]
         if clause:
             for i in range(0, len(clause), cursor.IN_MAX):
                 sub_clause = clause[i:i + cursor.IN_MAX]
-                cursor.execute('SELECT lang, type, name, src, value ' \
-                        'FROM ir_translation ' \
-                        'WHERE ' + ' OR '.join(x[0] for x in sub_clause),
-                        reduce(lambda x, y: x + y, [x[1] for x in sub_clause]))
+                cursor.execute('SELECT lang, type, name, src, value '
+                    'FROM ir_translation '
+                    'WHERE ' + ' OR '.join(x[0] for x in sub_clause),
+                    reduce(lambda x, y: x + y, [x[1] for x in sub_clause]))
                 for lang, ttype, name, source, value in cursor.fetchall():
                     if (name, ttype, lang, source) not in args:
                         source = None
@@ -492,7 +492,7 @@ class Translation(ModelSQL, ModelView):
                             'AND res_id = %s '
                             'AND lang = %s '
                             'AND type = %s',
-                        (vals.get('name') or '', vals.get('res_id') or 0, 
+                        (vals.get('name') or '', vals.get('res_id') or 0,
                             'en_US', vals.get('type') or ''))
                     fetchone = cursor.fetchone()
                     if fetchone:
@@ -535,7 +535,7 @@ class Translation(ModelSQL, ModelView):
             if translation.type in ('odt', 'view', 'wizard_button',
                     'selection', 'error'):
                 key = (translation.name, translation.res_id, translation.type,
-                        translation.src)
+                    translation.src)
             elif translation.type in ('field', 'model', 'help'):
                 key = (translation.name, translation.res_id, translation.type)
             else:
@@ -715,12 +715,12 @@ class TranslationSet(Wizard):
 
         cursor = Transaction().cursor
         for report in reports:
-            cursor.execute('SELECT id, name, src FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type = %s ' \
-                        'AND name = %s ' \
-                        'AND module = %s',
-                    ('en_US', 'odt', report.report_name, report.module or ''))
+            cursor.execute('SELECT id, name, src FROM ir_translation '
+                'WHERE lang = %s '
+                    'AND type = %s '
+                    'AND name = %s '
+                    'AND module = %s',
+                ('en_US', 'odt', report.report_name, report.module or ''))
             trans_reports = {}
             for trans in cursor.dictfetchall():
                 trans_reports[trans['src']] = trans
@@ -775,35 +775,35 @@ class TranslationSet(Wizard):
                         done = True
                         break
                     if seqmatch.ratio() > 0.6:
-                        cursor.execute('UPDATE ir_translation ' \
-                                'SET src = %s, ' \
-                                    'fuzzy = %s, ' \
-                                    'src_md5 = %s ' \
-                                'WHERE name = %s ' \
-                                    'AND type = %s ' \
-                                    'AND src = %s ' \
-                                    'AND module = %s',
-                                (string, True, src_md5, report.report_name,
-                                    'odt', string_trans, report.module))
+                        cursor.execute('UPDATE ir_translation '
+                            'SET src = %s, '
+                                'fuzzy = %s, '
+                                'src_md5 = %s '
+                            'WHERE name = %s '
+                                'AND type = %s '
+                                'AND src = %s '
+                                'AND module = %s',
+                            (string, True, src_md5, report.report_name,
+                                'odt', string_trans, report.module))
                         del trans_reports[string_trans]
                         done = True
                         break
                 if not done:
-                    cursor.execute('INSERT INTO ir_translation ' \
-                            '(name, lang, type, src, value, module, fuzzy, '\
-                             'src_md5)' \
-                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                            (report.report_name, 'en_US', 'odt', string, '',
-                                report.module, False, src_md5))
+                    cursor.execute('INSERT INTO ir_translation '
+                        '(name, lang, type, src, value, module, fuzzy, '
+                            'src_md5)'
+                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                        (report.report_name, 'en_US', 'odt', string, '',
+                            report.module, False, src_md5))
             if strings:
-                cursor.execute('DELETE FROM ir_translation ' \
-                        'WHERE name = %s ' \
-                            'AND type = %s ' \
-                            'AND module = %s ' \
-                            'AND src NOT IN ' \
-                                '(' + ','.join(('%s',) * len(strings)) + ')',
-                        (report.report_name, 'odt', report.module) + \
-                                tuple(strings))
+                cursor.execute('DELETE FROM ir_translation '
+                    'WHERE name = %s '
+                        'AND type = %s '
+                        'AND module = %s '
+                        'AND src NOT IN '
+                            '(' + ','.join(('%s',) * len(strings)) + ')',
+                    (report.report_name, 'odt', report.module) +
+                    tuple(strings))
 
     def _translate_view(self, element):
         strings = []
@@ -1008,7 +1008,7 @@ class TranslationClean(Wizard):
         pool = Pool()
         try:
             wizard_name, state_name, button_name = \
-                    translation.name.split(',', 2)
+                translation.name.split(',', 2)
         except ValueError:
             return True
         if (wizard_name not in
@@ -1069,8 +1069,8 @@ class TranslationClean(Wizard):
             return False
         if model_name in pool.object_name_list():
             Model = pool.get(model_name)
-            errors = Model._error_messages.values() + \
-                    Model._sql_error_messages.values()
+            errors = (Model._error_messages.values()
+                + Model._sql_error_messages.values())
             for _, _, error in Model._sql_constraints:
                 errors.append(error)
             if translation.src not in errors:
@@ -1095,7 +1095,7 @@ class TranslationClean(Wizard):
             if getattr(self, '_clean_%s' % translation.type)(translation):
                 to_delete.append(translation.id)
             elif translation.type in ('field', 'model', 'wizard_button',
-                'help'):
+                    'help'):
                 key = (translation.module, translation.lang, translation.type,
                     translation.name, translation.res_id)
                 if key in keys:
@@ -1156,17 +1156,17 @@ class TranslationUpdate(Wizard):
         Translation = pool.get('ir.translation')
         cursor = Transaction().cursor
         lang = self.start.language.code
-        cursor.execute('SELECT name, res_id, type, src, module ' \
-                'FROM ir_translation ' \
-                'WHERE lang=\'en_US\' ' \
-                    'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
-                    ' \'selection\', \'error\') ' \
-                'EXCEPT SELECT name, res_id, type, src, module ' \
-                'FROM ir_translation ' \
-                'WHERE lang=%s ' \
-                    'AND type in (\'odt\', \'view\', \'wizard_button\', ' \
-                    ' \'selection\', \'error\')',
-                (lang,))
+        cursor.execute('SELECT name, res_id, type, src, module '
+            'FROM ir_translation '
+            'WHERE lang=\'en_US\' '
+                'AND type in (\'odt\', \'view\', \'wizard_button\', '
+                ' \'selection\', \'error\') '
+            'EXCEPT SELECT name, res_id, type, src, module '
+            'FROM ir_translation '
+            'WHERE lang=%s '
+                'AND type in (\'odt\', \'view\', \'wizard_button\', '
+                ' \'selection\', \'error\')',
+            (lang,))
         to_create = []
         for row in cursor.dictfetchall():
             to_create.append({
@@ -1180,15 +1180,15 @@ class TranslationUpdate(Wizard):
         if to_create:
             with Transaction().set_user(0):
                 Translation.create(to_create)
-        cursor.execute('SELECT name, res_id, type, module ' \
-                'FROM ir_translation ' \
-                'WHERE lang=\'en_US\' ' \
-                    'AND type in (\'field\', \'model\', \'help\') ' \
-                'EXCEPT SELECT name, res_id, type, module ' \
-                'FROM ir_translation ' \
-                'WHERE lang=%s ' \
-                    'AND type in (\'field\', \'model\', \'help\')',
-                (lang,))
+        cursor.execute('SELECT name, res_id, type, module '
+            'FROM ir_translation '
+            'WHERE lang=\'en_US\' '
+                'AND type in (\'field\', \'model\', \'help\') '
+            'EXCEPT SELECT name, res_id, type, module '
+            'FROM ir_translation '
+            'WHERE lang=%s '
+                'AND type in (\'field\', \'model\', \'help\')',
+            (lang,))
         to_create = []
         for row in cursor.dictfetchall():
             to_create.append({
@@ -1201,17 +1201,17 @@ class TranslationUpdate(Wizard):
         if to_create:
             with Transaction().set_user(0):
                 Translation.create(to_create)
-        cursor.execute('SELECT name, res_id, type, src ' \
-                'FROM ir_translation ' \
-                'WHERE lang=\'en_US\' ' \
-                    'AND type in (\'field\', \'model\', \'selection\', ' \
-                        '\'help\') ' \
-                'EXCEPT SELECT name, res_id, type, src ' \
-                'FROM ir_translation ' \
-                'WHERE lang=%s ' \
-                    'AND type in (\'field\', \'model\', \'selection\', ' \
-                        '\'help\')',
-                (lang,))
+        cursor.execute('SELECT name, res_id, type, src '
+            'FROM ir_translation '
+            'WHERE lang=\'en_US\' '
+                'AND type in (\'field\', \'model\', \'selection\', '
+                    '\'help\') '
+            'EXCEPT SELECT name, res_id, type, src '
+            'FROM ir_translation '
+            'WHERE lang=%s '
+                'AND type in (\'field\', \'model\', \'selection\', '
+                    '\'help\')',
+            (lang,))
         for row in cursor.dictfetchall():
             cursor.execute('UPDATE ir_translation '
                 'SET fuzzy = %s, '
@@ -1224,28 +1224,28 @@ class TranslationUpdate(Wizard):
                 (True, row['src'], row['name'], row['type'], lang)
                 + ((row['res_id'],) if row['res_id'] else ()))
 
-        cursor.execute('SELECT src, MAX(value) AS value FROM ir_translation ' \
-                'WHERE lang = %s ' \
-                    'AND src IN (' \
-                        'SELECT src FROM ir_translation ' \
-                        'WHERE (value = \'\' OR value IS NULL) ' \
-                            'AND lang = %s) ' \
-                    'AND value != \'\' AND value IS NOT NULL ' \
-                'GROUP BY src', (lang, lang))
+        cursor.execute('SELECT src, MAX(value) AS value FROM ir_translation '
+            'WHERE lang = %s '
+                'AND src IN ('
+                    'SELECT src FROM ir_translation '
+                    'WHERE (value = \'\' OR value IS NULL) '
+                        'AND lang = %s) '
+                'AND value != \'\' AND value IS NOT NULL '
+            'GROUP BY src', (lang, lang))
 
         for row in cursor.dictfetchall():
-            cursor.execute('UPDATE ir_translation ' \
-                    'SET fuzzy = %s, ' \
-                        'value = %s ' \
-                    'WHERE src = %s ' \
-                        'AND (value = \'\' OR value IS NULL) ' \
-                        'AND lang = %s', (True, row['value'], row['src'],
-                    lang))
+            cursor.execute('UPDATE ir_translation '
+                'SET fuzzy = %s, '
+                    'value = %s '
+                'WHERE src = %s '
+                    'AND (value = \'\' OR value IS NULL) '
+                    'AND lang = %s',
+                (True, row['value'], row['src'], lang))
 
-        cursor.execute('UPDATE ir_translation ' \
-                'SET fuzzy = %s ' \
-                'WHERE (value = \'\' OR value IS NULL) ' \
-                    'AND lang = %s', (False, lang,))
+        cursor.execute('UPDATE ir_translation '
+            'SET fuzzy = %s '
+            'WHERE (value = \'\' OR value IS NULL) '
+                'AND lang = %s', (False, lang,))
 
         action['pyson_domain'] = PYSONEncoder().encode([
             ('module', '!=', False),

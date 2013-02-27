@@ -62,24 +62,27 @@ class MenuitemTagHandler:
 
             # TODO maybe use a prefetch for this:
             cursor.execute(cursor.limit_clause(
-            "SELECT a.name, a.type, v.type, v.field_childs, icon.name " \
-            "FROM ir_action a " \
-                "LEFT JOIN ir_action_report report ON (a.id = report.action) "\
-                "LEFT JOIN ir_action_act_window act ON (a.id = act.action) " \
-                "LEFT JOIN ir_action_wizard wizard ON (a.id = wizard.action) "\
-                "LEFT JOIN ir_action_url url ON (a.id = url.action) " \
-                "LEFT JOIN ir_action_act_window_view wv ON " \
-                    "(act.id = wv.act_window) " \
-                "LEFT JOIN ir_ui_view v ON (v.id = wv.view) " \
-                "LEFT JOIN ir_ui_icon icon ON (a.icon = icon.id) " \
-            "WHERE report.id = %s " \
-                "OR act.id = %s " \
-                "OR wizard.id = %s " \
-                "OR url.id = %s " \
-            "ORDER by wv.sequence", 1),
-            (action_id, action_id, action_id, action_id))
+                    "SELECT a.name, a.type, v.type, v.field_childs, icon.name "
+                    "FROM ir_action a "
+                        "LEFT JOIN ir_action_report report "
+                            "ON (a.id = report.action) "
+                        "LEFT JOIN ir_action_act_window act "
+                            "ON (a.id = act.action) "
+                        "LEFT JOIN ir_action_wizard wizard "
+                            "ON (a.id = wizard.action) "
+                        "LEFT JOIN ir_action_url url ON (a.id = url.action) "
+                        "LEFT JOIN ir_action_act_window_view wv ON "
+                            "(act.id = wv.act_window) "
+                        "LEFT JOIN ir_ui_view v ON (v.id = wv.view) "
+                        "LEFT JOIN ir_ui_icon icon ON (a.icon = icon.id) "
+                    "WHERE report.id = %s "
+                        "OR act.id = %s "
+                        "OR wizard.id = %s "
+                        "OR url.id = %s "
+                    "ORDER by wv.sequence", 1),
+                (action_id, action_id, action_id, action_id))
             action_name, action_type, view_type, field_childs, icon_name = \
-                    cursor.fetchone()
+                cursor.fetchone()
 
             values['action'] = '%s,%s' % (action_type, action_id)
 
@@ -158,8 +161,8 @@ class RecordTagHandler:
         # Manage the top level tag
         if name == "record":
             self.model = self.mh.pool.get(attributes["model"])
-            assert self.model, "The model %s does not exist !" % \
-                    (attributes["model"],)
+            assert self.model, ("The model %s does not exist !"
+                % (attributes["model"],))
 
             self.xml_id = attributes["id"]
             self.update = bool(int(attributes.get('update', '0')))
@@ -326,9 +329,9 @@ class Fs2bdAccessor:
             if model.id in self.browserecord[module][model_name]:
                 for cache in Transaction().cursor.cache.values():
                     for cache in (cache, cache.get('_language_cache',
-                        {}).values()):
-                        if model_name in cache \
-                                and model.id in cache[model_name]:
+                                {}).values()):
+                        if (model_name in cache
+                                and model.id in cache[model_name]):
                             cache[model_name][model.id] = {}
             self.browserecord[module][model_name][model.id] = model
 
@@ -412,10 +415,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             self.sax_parser.parse(source)
         except Exception:
             logging.getLogger("convert").error(
-                "Error while parsing xml file:\n" +\
-                    self.current_state()
-                )
-
+                "Error while parsing xml file:\n" + self.current_state())
             raise
         return self.to_delete
 
@@ -425,7 +425,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
         if not self.taghandler:
 
-            if  name in self.taghandlerlist:
+            if name in self.taghandlerlist:
                 self.taghandler = self.taghandlerlist[name]
                 self.taghandler.startElement(name, attributes)
 
@@ -472,8 +472,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             module = self.module
 
         if self.fs2db.get(module, xml_id) is None:
-            raise Exception("Reference to %s not found" % \
-                ".".join([module, xml_id]))
+            raise Exception("Reference to %s not found"
+                % ".".join([module, xml_id]))
         return self.fs2db.get(module, xml_id)["db_id"]
 
     @staticmethod
@@ -531,15 +531,15 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             raise Exception('import_record : Argument fs_id is mandatory')
 
         if '.' in fs_id:
-            assert len(fs_id.split('.')) == 2, '"%s" contains too many dots. '\
-                    'file system ids should contain ot most one dot ! ' \
-                    'These are used to refer to other modules data, ' \
-                    'as in module.reference_id' % (fs_id)
+            assert len(fs_id.split('.')) == 2, ('"%s" contains too many dots. '
+                'file system ids should contain ot most one dot ! '
+                'These are used to refer to other modules data, '
+                'as in module.reference_id' % (fs_id))
 
             module, fs_id = fs_id.split('.')
             if not self.fs2db.get(module, fs_id):
-                raise Exception('Reference to %s.%s not found' % \
-                        (module, fs_id))
+                raise Exception('Reference to %s.%s not found'
+                    % (module, fs_id))
 
         Model = self.pool.get(model)
 
@@ -555,9 +555,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
             # this record is already in the db:
             # XXX maybe use only one call to get()
-            db_id, db_model, mdata_id, old_values = \
-                    [self.fs2db.get(module, fs_id)[x] for x in \
-                    ["db_id", "model", "id", "values"]]
+            db_id, db_model, mdata_id, old_values = [
+                self.fs2db.get(module, fs_id)[x]
+                for x in ["db_id", "model", "id", "values"]]
             inherit_db_ids = {}
             inherit_mdata_ids = []
 
@@ -575,8 +575,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     old_values[key] = old_values[key].decode('utf-8')
 
             if model != db_model:
-                raise Exception("This record try to overwrite " \
-                "data with the wrong model: %s (module: %s)" % (fs_id, module))
+                raise Exception("This record try to overwrite "
+                    "data with the wrong model: %s (module: %s)"
+                    % (fs_id, module))
 
             record = self.fs2db.get_browserecord(module, Model.__name__, db_id)
             #Re-create record if it was deleted
@@ -669,9 +670,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # False, {} or [])
                 if db_field != expected_value and (db_field or expected_value):
                     logging.getLogger("convert").warning(
-                        "Field %s of %s@%s not updated (id: %s), because "\
-                        "it has changed since the last update" % \
-                        (key, record.id, model, fs_id))
+                        "Field %s of %s@%s not updated (id: %s), because "
+                        "it has changed since the last update"
+                        % (key, record.id, model, fs_id))
                     continue
 
                 # so, the field in the fs and in the db are different,
@@ -727,13 +728,13 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 for table, inherit_mdata_id in inherit_mdata_ids:
                     self.ModelData.write(
                         [self.ModelData(inherit_mdata_id)], {
-                        'fs_id': fs_id,
-                        'model': table,
-                        'module': module,
-                        'db_id': inherit_db_ids[table],
-                        'values': str(values),
-                        'date_update': datetime.datetime.now(),
-                        })
+                            'fs_id': fs_id,
+                            'model': table,
+                            'module': module,
+                            'db_id': inherit_db_ids[table],
+                            'values': str(values),
+                            'date_update': datetime.datetime.now(),
+                            })
             # reset_browsercord to keep cache memory low
             self.fs2db.reset_browsercord(module, Model.__name__, [record.id])
 

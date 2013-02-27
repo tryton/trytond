@@ -49,11 +49,11 @@ class Module(ModelSQL, ModelView):
                 'on_write': RPC(instantiate=0),
                 })
         cls._error_messages.update({
-            'delete_state': 'You can not remove a module that is installed ' \
-                    'or will be installed',
+            'delete_state': ('You can not remove a module that is installed '
+                    'or will be installed'),
             'missing_dep': 'Missing dependencies %s for module "%s"',
-            'uninstall_dep': 'The modules you are trying to uninstall ' \
-                    'depends on installed modules:',
+            'uninstall_dep': ('The modules you are trying to uninstall '
+                    'depends on installed modules:'),
             })
         cls._buttons.update({
                 'install': {
@@ -211,13 +211,13 @@ class Module(ModelSQL, ModelView):
     def uninstall(cls, modules):
         cursor = Transaction().cursor
         for module in modules:
-            cursor.execute('SELECT m.state, m.name ' \
-                    'FROM ir_module_module_dependency d ' \
-                    'JOIN ir_module_module m on (d.module = m.id) ' \
-                    'WHERE d.name = %s ' \
-                        'AND m.state not in ' \
-                        '(\'uninstalled\', \'to remove\')',
-                            (module.name,))
+            cursor.execute('SELECT m.state, m.name '
+                'FROM ir_module_module_dependency d '
+                'JOIN ir_module_module m on (d.module = m.id) '
+                'WHERE d.name = %s '
+                    'AND m.state not in '
+                    '(\'uninstalled\', \'to remove\')',
+                (module.name,))
             res = cursor.fetchall()
             if res:
                 cls.raise_user_error('uninstall_dep',
@@ -466,7 +466,7 @@ class ModuleInstallUpgrade(Wizard):
                 ('state', 'in', ['to upgrade', 'to remove', 'to install']),
                 ])
         return {
-            'module_info': '\n'.join(x.name + ': ' + x.state \
+            'module_info': '\n'.join(x.name + ': ' + x.state
                 for x in modules),
             }
 

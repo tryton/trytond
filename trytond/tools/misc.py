@@ -103,11 +103,11 @@ def file_open(name, mode="r", subdir='modules'):
                         os.path.dirname(epoint.dist.location), name)
 
     if subdir:
-        if subdir == 'modules'\
-                and (name.startswith('ir' + os.sep) \
-                    or name.startswith('res' + os.sep) \
-                    or name.startswith('webdav' + os.sep) \
-                    or name.startswith('test' + os.sep)):
+        if (subdir == 'modules'
+                and (name.startswith('ir' + os.sep)
+                    or name.startswith('res' + os.sep)
+                    or name.startswith('webdav' + os.sep)
+                    or name.startswith('test' + os.sep))):
             name = os.path.join(root_path, name)
         else:
             name = os.path.join(root_path, subdir, name)
@@ -278,7 +278,7 @@ class LocalDict(local):
         return self._dict.get(k, d)
 
     def has_key(self, k):
-        return self._dict.has_key(k)
+        return k in self._dict
 
     def items(self):
         return self._dict.items()
@@ -361,8 +361,8 @@ def reduce_ids(field, ids):
         args.append(continue_list[0])
         args.append(continue_list[-1])
     if discontinue_list:
-        sql.append('(' + field + ' IN (' + \
-                ','.join(('%s',) * len(discontinue_list)) + '))')
+        sql.append('(' + field + ' IN (' +
+            ','.join(('%s',) * len(discontinue_list)) + '))')
         args.extend(discontinue_list)
     return '(' + ' OR '.join(sql) + ')', args
 

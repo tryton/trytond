@@ -175,9 +175,9 @@ htmlhelp_basename = 'trytonddoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual])
 latex_documents = [
-  ('index', 'trytond.tex', u'trytond Documentation',
-   u'Bertrand Chenal, Cédric Krier, Ian Wilson, Udo Spallek', 'manual'),
-]
+    ('index', 'trytond.tex', u'trytond Documentation',
+        u'Bertrand Chenal, Cédric Krier, Ian Wilson, Udo Spallek', 'manual'),
+    ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.

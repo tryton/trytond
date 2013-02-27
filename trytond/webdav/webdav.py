@@ -60,12 +60,12 @@ class Collection(ModelSQL, ModelView):
             ('check_attachment', 'collection_file_name'),
         ]
         cls._error_messages.update({
-            'recursive_collections': 'You can not create recursive ' \
-                    'collections!',
-            'collection_file_name': 'You can not create a collection\n' \
-                    'in a collection with the name of an ' \
-                    'existing file!',
-        })
+                'recursive_collections': ('You can not create recursive '
+                    'collections!'),
+                'collection_file_name': ('You can not create a collection\n'
+                    'in a collection with the name of an '
+                    'existing file!'),
+                })
         cls.ext2mime = {
             '.png': 'image/png',
             '.odt': 'application/vnd.oasis.opendocument.text',
@@ -132,7 +132,7 @@ class Collection(ModelSQL, ModelView):
                 for collection in collections:
                     if cache is not None:
                         cache['_parent2collection_ids'][object_id]\
-                                .setdefault(collection.name, [])
+                            .setdefault(collection.name, [])
                         cache['_parent2collection_ids'][object_id][
                             collection.name].append(collection.id)
                         cache.setdefault('_collection_name', {})
@@ -188,7 +188,7 @@ class Collection(ModelSQL, ModelView):
                             cache['_model&id&name2attachment_ids'].setdefault(
                                     key, {})
                             cache['_model&id&name2attachment_ids'][key]\
-                                    .setdefault(attachment.name, [])
+                                .setdefault(attachment.name, [])
                             cache['_model&id&name2attachment_ids'][key][
                                 attachment.name].append(attachment.id)
                         if attachment.name == name:
@@ -221,12 +221,12 @@ class Collection(ModelSQL, ModelView):
                     ('model', '=', object_name),
                     ])
                 for report in reports:
-                    report_name = report.name + '-' + str(report.id) \
-                            + '.' + report.extension
+                    report_name = (report.name + '-' + str(report.id)
+                        + '.' + report.extension)
                     if uri == report_name:
                         if cache is not None:
                             cache['_uri2object'][cache_uri] = \
-                                    ('ir.action.report', object_id)
+                                ('ir.action.report', object_id)
                         return 'ir.action.report', object_id
                 name = uri
                 attachment_ids = None
@@ -247,7 +247,7 @@ class Collection(ModelSQL, ModelView):
                     for attachment in attachments:
                         if cache is not None:
                             cache['_model&id2attachment_ids'][key]\
-                                    .setdefault(attachment.name, [])
+                                .setdefault(attachment.name, [])
                             cache['_model&id2attachment_ids'][key][
                                 attachment.name].append(attachment.id)
                         if attachment.name == name:
@@ -319,8 +319,8 @@ class Collection(ModelSQL, ModelView):
                 ('model', '=', object_name),
                 ])
             for report in reports:
-                report_name = report.name + '-' + str(report.id) \
-                        + '.' + report.extension
+                report_name = (report.name + '-' + str(report.id)
+                    + '.' + report.extension)
                 if '/' in report_name:
                     continue
                 res.append(report_name)
@@ -389,7 +389,7 @@ class Collection(ModelSQL, ModelView):
                 if cache is not None:
                     cache['ir.attachment'].setdefault(attachment.id, {})
                     cache['ir.attachment'][attachment.id]['contentlength'] = \
-                            size
+                        size
             return res
         return '0'
 

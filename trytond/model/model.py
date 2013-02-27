@@ -188,12 +188,12 @@ class Model(WarningErrorMixin, URLMixin):
         if cls.__doc__:
             name = cls.__name__ + ',name'
             src = cls._get_name()
-            cursor.execute('SELECT id FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type = %s ' \
-                        'AND name = %s ' \
-                        'AND (res_id IS NULL OR res_id = %s)',
-                    ('en_US', 'model', name, 0))
+            cursor.execute('SELECT id FROM ir_translation '
+                'WHERE lang = %s '
+                    'AND type = %s '
+                    'AND name = %s '
+                    'AND (res_id IS NULL OR res_id = %s)',
+                ('en_US', 'model', name, 0))
             trans_id = None
             if cursor.rowcount == -1 or cursor.rowcount is None:
                 data = cursor.fetchone()
@@ -215,28 +215,27 @@ class Model(WarningErrorMixin, URLMixin):
                         (src, src_md5, trans_id))
 
         # Add field in ir_model_field and update translation
-        cursor.execute('SELECT f.id AS id, f.name AS name, ' \
-                    'f.field_description AS field_description, ' \
-                    'f.ttype AS ttype, f.relation AS relation, ' \
-                    'f.module as module, f.help AS help '\
-                'FROM ir_model_field AS f, ir_model AS m ' \
-                'WHERE f.model = m.id ' \
-                    'AND m.model = %s ',
-                        (cls.__name__,))
+        cursor.execute('SELECT f.id AS id, f.name AS name, '
+                'f.field_description AS field_description, '
+                'f.ttype AS ttype, f.relation AS relation, '
+                'f.module as module, f.help AS help '
+            'FROM ir_model_field AS f, ir_model AS m '
+            'WHERE f.model = m.id '
+                'AND m.model = %s ',
+            (cls.__name__,))
         model_fields = {}
         for field in cursor.dictfetchall():
             model_fields[field['name']] = field
 
         # Prefetch field translations
         if cls._fields:
-            cursor.execute('SELECT id, name, src, type FROM ir_translation ' \
-                    'WHERE lang = %s ' \
-                        'AND type IN (%s, %s, %s) ' \
-                        'AND name IN ' \
-                            '(' + ','.join(('%s',) * len(cls._fields)) + ')',
-                            ('en_US', 'field', 'help', 'selection') + \
-                                    tuple([cls.__name__ + ',' + x \
-                                        for x in cls._fields]))
+            cursor.execute('SELECT id, name, src, type FROM ir_translation '
+                'WHERE lang = %s '
+                    'AND type IN (%s, %s, %s) '
+                    'AND name IN '
+                        '(' + ','.join(('%s',) * len(cls._fields)) + ')',
+                ('en_US', 'field', 'help', 'selection')
+                + tuple([cls.__name__ + ',' + x for x in cls._fields]))
         trans_fields = {}
         trans_help = {}
         trans_selection = {}
@@ -257,24 +256,24 @@ class Model(WarningErrorMixin, URLMixin):
             elif hasattr(field, 'relation_name'):
                 relation = field.relation_name
             if field_name not in model_fields:
-                cursor.execute("INSERT INTO ir_model_field " \
-                        "(model, name, field_description, ttype, " \
-                            "relation, help, module) " \
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                        (model_id, field_name, field.string, field._type,
-                            relation, field.help, module_name))
+                cursor.execute("INSERT INTO ir_model_field "
+                    "(model, name, field_description, ttype, "
+                        "relation, help, module) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (model_id, field_name, field.string, field._type,
+                        relation, field.help, module_name))
             elif (model_fields[field_name]['field_description'] != field.string
                     or model_fields[field_name]['ttype'] != field._type
                     or model_fields[field_name]['relation'] != relation
                     or model_fields[field_name]['help'] != field.help):
-                cursor.execute('UPDATE ir_model_field ' \
-                        'SET field_description = %s, ' \
-                            'ttype = %s, ' \
-                            'relation = %s, ' \
-                            'help = %s ' \
-                        'WHERE id = %s ',
-                        (field.string, field._type, relation,
-                            field.help, model_fields[field_name]['id']))
+                cursor.execute('UPDATE ir_model_field '
+                    'SET field_description = %s, '
+                        'ttype = %s, '
+                        'relation = %s, '
+                        'help = %s '
+                    'WHERE id = %s ',
+                    (field.string, field._type, relation,
+                        field.help, model_fields[field_name]['id']))
             trans_name = cls.__name__ + ',' + field_name
             string_md5 = Translation.get_src_md5(field.string)
             if trans_name not in trans_fields:
@@ -302,14 +301,14 @@ class Model(WarningErrorMixin, URLMixin):
                     'SET src = %s, src_md5 = %s '
                     'WHERE id = %s ',
                     (field.help, help_md5, trans_help[trans_name]['id']))
-            if hasattr(field, 'selection') \
-                    and isinstance(field.selection, (tuple, list)) \
-                    and ((hasattr(field, 'translate_selection') \
-                        and field.translate_selection)
-                        or not hasattr(field, 'translate_selection')):
+            if (hasattr(field, 'selection')
+                    and isinstance(field.selection, (tuple, list))
+                    and ((hasattr(field, 'translate_selection')
+                            and field.translate_selection)
+                        or not hasattr(field, 'translate_selection'))):
                 for (_, val) in field.selection:
-                    if trans_name not in trans_selection \
-                            or val not in trans_selection[trans_name]:
+                    if (trans_name not in trans_selection
+                            or val not in trans_selection[trans_name]):
                         val_md5 = Translation.get_src_md5(val)
                         cursor.execute('INSERT INTO ir_translation '
                             '(name, lang, type, src, src_md5, value, module, '
@@ -323,16 +322,16 @@ class Model(WarningErrorMixin, URLMixin):
                     and field_name not in cls._fields:
                 #XXX This delete field even when it is defined later
                 # in the module
-                cursor.execute('DELETE FROM ir_model_field '\
-                                   'WHERE id = %s',
-                               (model_fields[field_name]['id'],))
+                cursor.execute('DELETE FROM ir_model_field '
+                    'WHERE id = %s',
+                    (model_fields[field_name]['id'],))
 
         # Add error messages in ir_translation
-        cursor.execute('SELECT id, src FROM ir_translation ' \
-                'WHERE lang = %s ' \
-                    'AND type = %s ' \
-                    'AND name = %s',
-                ('en_US', 'error', cls.__name__))
+        cursor.execute('SELECT id, src FROM ir_translation '
+            'WHERE lang = %s '
+                'AND type = %s '
+                'AND name = %s',
+            ('en_US', 'error', cls.__name__))
         trans_error = {}
         for trans in cursor.dictfetchall():
             trans_error[trans['src']] = trans
@@ -437,12 +436,12 @@ class Model(WarningErrorMixin, URLMixin):
             trans_args.append((cls.__name__ + ',' + field, 'help', language,
                 None))
             if hasattr(cls._fields[field], 'selection'):
-                if isinstance(cls._fields[field].selection, (tuple, list)) \
+                if (isinstance(cls._fields[field].selection, (tuple, list))
                         and ((hasattr(cls._fields[field],
-                            'translate_selection') \
-                            and cls._fields[field].translate_selection) \
+                                    'translate_selection')
+                                and cls._fields[field].translate_selection)
                             or not hasattr(cls._fields[field],
-                                'translate_selection')):
+                                'translate_selection'))):
                     sel = cls._fields[field].selection
                     for (key, val) in sel:
                         trans_args.append((cls.__name__ + ',' + field,
@@ -521,12 +520,12 @@ class Model(WarningErrorMixin, URLMixin):
             if hasattr(cls._fields[field], 'selection'):
                 if isinstance(cls._fields[field].selection, (tuple, list)):
                     sel = copy.copy(cls._fields[field].selection)
-                    if Transaction().context.get('language') and \
-                            ((hasattr(cls._fields[field],
-                                'translate_selection') \
-                                and cls._fields[field].translate_selection) \
+                    if (Transaction().context.get('language')
+                            and ((hasattr(cls._fields[field],
+                                        'translate_selection')
+                                    and cls._fields[field].translate_selection)
                                 or not hasattr(cls._fields[field],
-                                    'translate_selection')):
+                                    'translate_selection'))):
                         # translate each selection option
                         sel2 = []
                         for (key, val) in sel:

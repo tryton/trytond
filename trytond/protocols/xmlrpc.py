@@ -118,8 +118,8 @@ class GenericXMLRPCRequestHandler:
                 if object_type == 'system' and method == 'getCapabilities':
                     return {
                         'introspect': {
-                            'specUrl': 'http://xmlrpc-c.sourceforge.net/' \
-                                    'xmlrpc-c/introspection.html',
+                            'specUrl': ('http://xmlrpc-c.sourceforge.net/'
+                                'xmlrpc-c/introspection.html'),
                             'specVersion': 1,
                         },
                     }

@@ -49,7 +49,8 @@ class ModelStorage(Model):
         super(ModelStorage, cls).__setup__()
         if issubclass(cls, ModelView):
             cls.__rpc__.update({
-                    'create': RPC(readonly=False, result=lambda r: map(int, r)),
+                    'create': RPC(readonly=False,
+                        result=lambda r: map(int, r)),
                     'read': RPC(),
                     'write': RPC(readonly=False, instantiate=0),
                     'delete': RPC(readonly=False, instantiate=0),
@@ -234,7 +235,6 @@ class ModelStorage(Model):
         '''
         pool = Pool()
         Lang = pool.get('ir.lang')
-        Config = pool.get('ir.configuration')
         if default is None:
             default = {}
 
@@ -249,11 +249,11 @@ class ModelStorage(Model):
                 ftype = field_defs[field_name]['type']
 
                 if field_name in (
-                    'create_date',
-                    'create_uid',
-                    'write_date',
-                    'write_uid',
-                    ):
+                        'create_date',
+                        'create_uid',
+                        'write_date',
+                        'write_uid',
+                        ):
                     del data[field_name]
 
                 if field_name in default:
@@ -265,7 +265,7 @@ class ModelStorage(Model):
                 elif ftype in ('many2one', 'one2one'):
                     try:
                         data[field_name] = data[field_name] and \
-                                data[field_name][0]
+                            data[field_name][0]
                     except Exception:
                         pass
                 elif ftype in ('one2many',):
@@ -368,7 +368,7 @@ class ModelStorage(Model):
         records = cls.search(domain, offset=offset, limit=limit, order=order)
 
         if not fields_names:
-            fields_names = list(set(cls._fields.keys() \
+            fields_names = list(set(cls._fields.keys()
                     + cls._inherit_fields.keys()))
         if 'id' not in fields_names:
             fields_names.append('id')
@@ -392,18 +392,19 @@ class ModelStorage(Model):
             while i < len(domain):
                 arg = domain[i]
                 #add test for xmlrpc that doesn't handle tuple
-                if isinstance(arg, tuple) or \
-                        (isinstance(arg, list) and len(arg) > 2 and \
-                        arg[1] in OPERATORS):
+                if (isinstance(arg, tuple)
+                        or (isinstance(arg, list)
+                            and len(arg) > 2
+                            and arg[1] in OPERATORS)):
                     if arg[0] == 'active':
                         active_found = True
                 elif isinstance(arg, list):
                     domain[i] = process(domain[i])
                 i += 1
             if not active_found:
-                if domain and ((isinstance(domain[0], basestring) \
-                        and domain[0] == 'AND') \
-                        or (not isinstance(domain[0], basestring))):
+                if (domain and ((isinstance(domain[0], basestring)
+                                and domain[0] == 'AND')
+                            or (not isinstance(domain[0], basestring)))):
                     domain.append(('active', '=', True))
                 else:
                     domain = ['AND', domain, ('active', '=', True)]
@@ -504,7 +505,7 @@ class ModelStorage(Model):
                             for child_fpos in xrange(len(fields_names)):
                                 if child_lines and child_lines[0][child_fpos]:
                                     data[child_fpos] = \
-                                            child_lines[0][child_fpos]
+                                        child_lines[0][child_fpos]
                             lines += child_lines[1:]
                             first = False
                         else:
@@ -732,15 +733,15 @@ class ModelStorage(Model):
                 while (position + i) < len(data):
                     test = True
                     for j, field2 in enumerate(fields_names):
-                        if len(field2) <= (prefix_len + 1) \
-                               and data[position + i][j]:
+                        if (len(field2) <= (prefix_len + 1)
+                                and data[position + i][j]):
                             test = False
                             break
                     if not test:
                         break
                     (newrow, max2, _) = \
-                            process_lines(data, prefix + [field], newfd,
-                                    position + i)
+                        process_lines(data, prefix + [field], newfd,
+                            position + i)
                     if reduce(lambda x, y: x or y, newrow.values()):
                         row[field].append(('create', [newrow]))
                     i += max2
@@ -768,7 +769,7 @@ class ModelStorage(Model):
             res = {}
             try:
                 (res, _, translate) = \
-                        process_lines(data, [], fields_def)
+                    process_lines(data, [], fields_def)
                 warning = warning_stream.getvalue()
                 if warning:
                     # XXX should raise Exception
@@ -812,7 +813,7 @@ class ModelStorage(Model):
                 ])
             if not models_data:
                 return True
-            if values == None:
+            if values is None:
                 return False
             for model_data in models_data:
                 if not model_data.values:
@@ -837,13 +838,13 @@ class ModelStorage(Model):
         elif parent in cls._inherit_fields:
             parent_type = cls._inherit_fields[parent][2]._type
         else:
-            raise Exception('Field %s not available on object "%s"' % \
-                    (parent, cls.__name__))
+            raise Exception('Field %s not available on object "%s"'
+                % (parent, cls.__name__))
 
         if parent_type not in ('many2one', 'many2many'):
             raise Exception(
-                    'Unsupported field type "%s" for field "%s" on "%s"' % \
-                    (parent_type, parent, cls.__name__))
+                'Unsupported field type "%s" for field "%s" on "%s"'
+                % (parent_type, parent, cls.__name__))
 
         visited = set()
 
@@ -944,7 +945,7 @@ class ModelStorage(Model):
                 # validate domain
                 if (field._type in
                         ('many2one', 'many2many', 'one2many', 'one2one')
-                    and field.domain):
+                        and field.domain):
                     if field._type in ('many2one', 'one2many'):
                         Relation = pool.get(field.model_name)
                     else:
@@ -1146,7 +1147,7 @@ class ModelStorage(Model):
         vals = {}
         for field in defaults.keys():
             fld_def = (field in cls._fields) and cls._fields[field] \
-                    or cls._inherit_fields[field][2]
+                or cls._inherit_fields[field][2]
             if fld_def._type in ('many2one', 'one2one'):
                 if isinstance(defaults[field], (list, tuple)):
                     vals[field] = defaults[field][0]

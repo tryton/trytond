@@ -5,7 +5,6 @@ import datetime
 from decimal import Decimal
 from trytond.model import ModelSQL, fields
 from trytond.pyson import Eval
-from trytond.transaction import Transaction
 
 __all__ = [
     'Boolean', 'BooleanDefault',

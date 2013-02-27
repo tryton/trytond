@@ -58,8 +58,8 @@ class WarningErrorMixin(object):
 
             if error_description_args:
                 try:
-                    error_description = error_description % \
-                            error_description_args
+                    error_description = (error_description
+                        % error_description_args)
                 except TypeError:
                     pass
             if raise_exception:

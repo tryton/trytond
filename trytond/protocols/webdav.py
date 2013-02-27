@@ -196,14 +196,14 @@ class TrytonDAVInterface(iface.dav_interface):
     def get_data(self, uri, range=None):
         dbname, dburi = self._get_dburi(uri)
         if not dbname or (self.exists(uri) and self.is_collection(uri)):
-            res = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 '\
-                    'Transitional//EN">'
+            res = ('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 '
+                'Transitional//EN">')
             res += '<html>'
             res += '<head>'
-            res += '<meta http-equiv="Content-Type" content="text/html; '\
-                    'charset=utf-8">'
-            res += '<title>%s - WebDAV - %s</title>' \
-                    % (PACKAGE, dbname or 'root')
+            res += ('<meta http-equiv="Content-Type" content="text/html; '
+                'charset=utf-8">')
+            res += ('<title>%s - WebDAV - %s</title>'
+                % (PACKAGE, dbname or 'root'))
             res += '</head>'
             res += '<body>'
             res += '<h2>Collection: %s</h2>' % (get_urifilename(uri) or '/')
@@ -213,18 +213,18 @@ class TrytonDAVInterface(iface.dav_interface):
                     urlparse.urlparse(uri)
                 if path[-1:] != '/':
                     path += '/'
-                res += '<li><a href="%s">..</a></li>' \
-                        % urlparse.urlunparse((scheme, netloc, path + '..',
-                            params, query, fragment))
+                res += ('<li><a href="%s">..</a></li>'
+                    % urlparse.urlunparse((scheme, netloc, path + '..',
+                            params, query, fragment)))
             childs = self.get_childs(uri)
             childs.sort()
             for child in childs:
-                res += '<li><a href="%s">%s</a></li>' \
-                        % (quote_uri(child), get_urifilename(child))
+                res += ('<li><a href="%s">%s</a></li>'
+                    % (quote_uri(child), get_urifilename(child)))
             res += '</ul>'
             res += '<hr noshade>'
-            res += '<em>Powered by <a href="%s">%s</a> version %s</em>' \
-                    % (quote_uri(WEBSITE), PACKAGE, VERSION)
+            res += ('<em>Powered by <a href="%s">%s</a> version %s</em>'
+                % (quote_uri(WEBSITE), PACKAGE, VERSION))
             res += '</body>'
             res += '</html>'
             return res

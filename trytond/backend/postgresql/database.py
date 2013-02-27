@@ -53,8 +53,8 @@ class Database(DatabaseInterface):
         port = CONFIG['db_port'] and "port=%s" % CONFIG['db_port'] or ''
         name = "dbname=%s" % self.database_name
         user = CONFIG['db_user'] and "user=%s" % CONFIG['db_user'] or ''
-        password = CONFIG['db_password'] \
-                and "password=%s" % CONFIG['db_password'] or ''
+        password = (CONFIG['db_password']
+            and "password=%s" % CONFIG['db_password'] or '')
         minconn = int(CONFIG['db_minconn']) or 1
         maxconn = int(CONFIG['db_maxconn']) or 64
         dsn = '%s %s %s %s %s' % (host, port, name, user, password)
@@ -81,8 +81,8 @@ class Database(DatabaseInterface):
         self._connpool = None
 
     def create(self, cursor, database_name):
-        cursor.execute('CREATE DATABASE "' + database_name + '" ' \
-                'TEMPLATE template0 ENCODING \'unicode\'')
+        cursor.execute('CREATE DATABASE "' + database_name + '" '
+            'TEMPLATE template0 ENCODING \'unicode\'')
         Database._list_cache = None
 
     def drop(self, cursor, database_name):
@@ -176,32 +176,32 @@ class Database(DatabaseInterface):
         if not db_user and os.name == 'posix':
             db_user = pwd.getpwuid(os.getuid())[0]
         if not db_user:
-            cursor.execute("SELECT usename " \
-                    "FROM pg_user " \
-                    "WHERE usesysid = (" \
-                        "SELECT datdba " \
-                        "FROM pg_database " \
-                        "WHERE datname = %s)",
-                        (CONFIG["db_name"],))
+            cursor.execute("SELECT usename "
+                "FROM pg_user "
+                "WHERE usesysid = ("
+                    "SELECT datdba "
+                    "FROM pg_database "
+                    "WHERE datname = %s)",
+                (CONFIG["db_name"],))
             res = cursor.fetchone()
             db_user = res and res[0]
         if db_user:
-            cursor.execute("SELECT datname " \
-                    "FROM pg_database " \
-                    "WHERE datdba = (" \
-                        "SELECT usesysid " \
-                        "FROM pg_user " \
-                        "WHERE usename=%s) " \
-                        "AND datname not in " \
-                            "('template0', 'template1', 'postgres') " \
-                    "ORDER BY datname",
-                            (db_user,))
+            cursor.execute("SELECT datname "
+                "FROM pg_database "
+                "WHERE datdba = ("
+                    "SELECT usesysid "
+                    "FROM pg_user "
+                    "WHERE usename=%s) "
+                    "AND datname not in "
+                        "('template0', 'template1', 'postgres') "
+                "ORDER BY datname",
+                (db_user,))
         else:
-            cursor.execute("SELECT datname " \
-                    "FROM pg_database " \
-                    "WHERE datname not in " \
-                        "('template0', 'template1','postgres') " \
-                    "ORDER BY datname")
+            cursor.execute("SELECT datname "
+                "FROM pg_database "
+                "WHERE datname not in "
+                    "('template0', 'template1','postgres') "
+                "ORDER BY datname")
         res = []
         for db_name, in cursor.fetchall():
             db_name = db_name.encode('utf-8')
@@ -356,9 +356,9 @@ class Cursor(CursorInterface):
         self._conn.rollback()
 
     def test(self):
-        self.cursor.execute("SELECT relname " \
-                "FROM pg_class " \
-                "WHERE relkind = 'r' AND relname in (" \
+        self.cursor.execute("SELECT relname "
+            "FROM pg_class "
+            "WHERE relkind = 'r' AND relname in ("
                 "'ir_model', "
                 "'ir_model_field', "
                 "'ir_ui_view', "

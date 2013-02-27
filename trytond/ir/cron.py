@@ -39,12 +39,12 @@ class Cron(ModelSQL, ModelView):
     active = fields.Boolean('Active', select=True)
     interval_number = fields.Integer('Interval Number', required=True)
     interval_type = fields.Selection([
-       ('minutes', 'Minutes'),
-       ('hours', 'Hours'),
-       ('days', 'Days'),
-       ('weeks', 'Weeks'),
-       ('months', 'Months'),
-       ], 'Interval Unit')
+            ('minutes', 'Minutes'),
+            ('hours', 'Hours'),
+            ('days', 'Days'),
+            ('weeks', 'Weeks'),
+            ('months', 'Months'),
+            ], 'Interval Unit')
     number_calls = fields.Integer('Number of Calls', select=1, required=True,
        help=('Number of times the function is called, a negative '
            'number indicates that the function will always be '

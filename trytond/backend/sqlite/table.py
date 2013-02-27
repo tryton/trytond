@@ -20,21 +20,21 @@ class TableHandler(TableHandlerInterface):
         # Create new table if necessary
         if not self.table_exist(self.cursor, self.table_name):
             if not self.history:
-                self.cursor.execute('CREATE TABLE "%s" ' \
-                        '(id INTEGER PRIMARY KEY AUTOINCREMENT)' % \
-                        self.table_name)
+                self.cursor.execute('CREATE TABLE "%s" '
+                    '(id INTEGER PRIMARY KEY AUTOINCREMENT)'
+                    % self.table_name)
             else:
-                self.cursor.execute('CREATE TABLE "%s" ' \
-                        '(__id INTEGER PRIMARY KEY AUTOINCREMENT, ' \
-                        'id INTEGER)' % self.table_name)
+                self.cursor.execute('CREATE TABLE "%s" '
+                    '(__id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                    'id INTEGER)' % self.table_name)
 
         self._update_definitions()
 
     @staticmethod
     def table_exist(cursor, table_name):
-        cursor.execute("SELECT sql FROM sqlite_master " \
-                           "WHERE type = 'table' AND name = %s",
-                       (table_name,))
+        cursor.execute("SELECT sql FROM sqlite_master "
+            "WHERE type = 'table' AND name = %s",
+            (table_name,))
         res = cursor.fetchone()
         if not res:
             return False
@@ -65,17 +65,17 @@ class TableHandler(TableHandlerInterface):
 
     @staticmethod
     def table_rename(cursor, old_name, new_name):
-        if TableHandler.table_exist(cursor, old_name) and \
-                not TableHandler.table_exist(cursor, new_name):
-            cursor.execute('ALTER TABLE "%s" RENAME TO "%s"' % \
-                    (old_name, new_name))
+        if (TableHandler.table_exist(cursor, old_name)
+                and not TableHandler.table_exist(cursor, new_name)):
+            cursor.execute('ALTER TABLE "%s" RENAME TO "%s"'
+                % (old_name, new_name))
         #Rename history table
         old_history = old_name + "__history"
         new_history = new_name + "__history"
-        if TableHandler.table_exist(cursor, old_history) and \
-                not TableHandler.table_exist(cursor, new_history):
-            cursor.execute('ALTER TABLE "%s" RENAME TO "%s"' % \
-                    (old_history, new_history))
+        if (TableHandler.table_exist(cursor, old_history)
+                and not TableHandler.table_exist(cursor, new_history)):
+            cursor.execute('ALTER TABLE "%s" RENAME TO "%s"'
+                % (old_history, new_history))
 
     @staticmethod
     def sequence_exist(cursor, sequence_name):
@@ -105,17 +105,17 @@ class TableHandler(TableHandlerInterface):
             new_columns = new_table._columns.keys()
             old_columns = [x if x != old_name else new_name
                 for x in new_columns]
-            self.cursor.execute(('INSERT INTO "%s" (' + \
-                ','.join('"%s"' % x for x in new_columns) + \
-                ') SELECT ' + \
-                ','.join('"%s"' % x for x in old_columns) + ' ' + \
-                'FROM "%s"') % (self.table_name, temp_table))
+            self.cursor.execute(('INSERT INTO "%s" (' +
+                    ','.join('"%s"' % x for x in new_columns) +
+                    ') SELECT ' +
+                    ','.join('"%s"' % x for x in old_columns) + ' ' +
+                    'FROM "%s"') % (self.table_name, temp_table))
             self.cursor.execute('DROP TABLE "%s"' % temp_table)
         elif exception and self.column_exist(new_name):
-            raise Exception('Unable to rename column %s.%s to %s.%s: ' \
-                    '%s.%s already exist!' % \
-                    (self.table_name, old_name, self.table_name, new_name,
-                     self.table_name, new_name))
+            raise Exception('Unable to rename column %s.%s to %s.%s: '
+                '%s.%s already exist!'
+                % (self.table_name, old_name, self.table_name, new_name,
+                    self.table_name, new_name))
 
     def _update_definitions(self):
 
@@ -148,32 +148,31 @@ class TableHandler(TableHandlerInterface):
         # Keep track of which module created each field
         self._field2module = {}
         if self.object_name is not None:
-            self.cursor.execute('SELECT f.name, f.module '\
-                           'FROM ir_model_field f '\
-                             'JOIN ir_model m on (f.model=m.id) '\
-                           'WHERE m.model = %s',
-                           (self.object_name,)
-                           )
+            self.cursor.execute('SELECT f.name, f.module '
+                'FROM ir_model_field f '
+                'JOIN ir_model m on (f.model=m.id) '
+                'WHERE m.model = %s',
+                (self.object_name,))
             for line in self.cursor.fetchall():
                 self._field2module[line[0]] = line[1]
 
     def alter_size(self, column_name, column_type):
         logging.getLogger('init').warning(
-            'Unable to alter size of column %s ' \
-                'of table %s!' % \
-                (column_name, self.table_name))
+            'Unable to alter size of column %s '
+            'of table %s!'
+            % (column_name, self.table_name))
 
     def alter_type(self, column_name, column_type):
         logging.getLogger('init').warning(
-            'Unable to alter type of column %s ' \
-                'of table %s!' % \
-                (column_name, self.table_name))
+            'Unable to alter type of column %s '
+            'of table %s!'
+            % (column_name, self.table_name))
 
     def db_default(self, column_name, value):
         logging.getLogger('init').warning(
-            'Unable to set default on column %s ' \
-                'of table %s!' % \
-                (column_name, self.table_name))
+            'Unable to set default on column %s '
+            'of table %s!'
+            % (column_name, self.table_name))
 
     def add_raw_column(self, column_name, column_type, column_format,
             default_fun=None, field_size=None, migrate=True, string=''):
@@ -191,30 +190,30 @@ class TableHandler(TableHandlerInterface):
                     self.alter_type(column_name, base_type)
                 else:
                     logging.getLogger('init').warning(
-                        'Unable to migrate column %s on table %s ' \
-                                'from %s to %s.' % \
-                        (column_name, self.table_name,
+                        'Unable to migrate column %s on table %s '
+                        'from %s to %s.'
+                        % (column_name, self.table_name,
                             self._columns[column_name]['typname'], base_type))
 
-            if base_type == 'VARCHAR' \
-                    and self._columns[column_name]['typname'] == 'VARCHAR':
+            if (base_type == 'VARCHAR'
+                    and self._columns[column_name]['typname'] == 'VARCHAR'):
                 # Migrate size
-                if field_size == None:
+                if field_size is None:
                     if self._columns[column_name]['size'] > 0:
                         self.alter_size(column_name, base_type)
                 elif self._columns[column_name]['size'] == field_size:
                     pass
-                elif self._columns[column_name]['size'] > 0 and \
-                        self._columns[column_name]['size'] < field_size:
+                elif (self._columns[column_name]['size'] > 0
+                        and self._columns[column_name]['size'] < field_size):
                     self.alter_size(column_name, column_type[1])
                 else:
                     logging.getLogger('init').warning(
-                        'Unable to migrate column %s on table %s ' \
-                                'from varchar(%s) to varchar(%s).' % \
-                        (column_name, self.table_name,
-                         self._columns[column_name]['size'] > 0 and \
-                             self._columns[column_name]['size'] or "",
-                         field_size))
+                        'Unable to migrate column %s on table %s '
+                        'from varchar(%s) to varchar(%s).'
+                        % (column_name, self.table_name,
+                            self._columns[column_name]['size'] > 0
+                            and self._columns[column_name]['size'] or "",
+                            field_size))
             return
 
         column_type = column_type[1]
@@ -230,21 +229,21 @@ class TableHandler(TableHandlerInterface):
                 default = None
                 if default_fun is not None:
                     default = default_fun()
-                self.cursor.execute('UPDATE "' + self.table_name + '" '\
-                                    'SET "' + column_name + '" = %s',
-                                    (column_format(default),))
+                self.cursor.execute('UPDATE "' + self.table_name + '" '
+                    'SET "' + column_name + '" = %s',
+                    (column_format(default),))
 
         self._update_definitions()
 
     def add_fk(self, column_name, reference, on_delete=None):
         logging.getLogger('init').warning(
-            'Unable to add foreign key on table %s!' % \
-            (self.table_name,))
+            'Unable to add foreign key on table %s!'
+            % (self.table_name,))
 
     def drop_fk(self, column_name, table=None):
         logging.getLogger('init').warning(
-            'Unable to drop foreign key on table %s!' % \
-            (self.table_name,))
+            'Unable to drop foreign key on table %s!'
+            % (self.table_name,))
 
     def index_action(self, column_name, action='add', table=None):
         if isinstance(column_name, basestring):
@@ -254,10 +253,10 @@ class TableHandler(TableHandlerInterface):
         if action == 'add':
             if index_name in self._indexes:
                 return
-            self.cursor.execute('CREATE INDEX "' + index_name + '" ' \
-                               'ON "' + self.table_name + '" ( ' + \
-                               ','.join('"' + x + '"' for x in column_name) + \
-                               ')')
+            self.cursor.execute('CREATE INDEX "' + index_name + '" '
+                'ON "' + self.table_name + '" ( ' +
+                ','.join('"' + x + '"' for x in column_name) +
+                ')')
             self._update_definitions()
         elif action == 'remove':
             if len(column_name) == 1:
@@ -277,36 +276,36 @@ class TableHandler(TableHandlerInterface):
 
         if action == 'add':
             logging.getLogger('init').warning(
-                'Unable to set not null on column %s ' \
-                    'of table %s!' % \
-                    (column_name, self.table_name))
+                'Unable to set not null on column %s '
+                'of table %s!'
+                % (column_name, self.table_name))
         elif action == 'remove':
             logging.getLogger('init').warning(
-                    'Unable to remove not null on column %s ' \
-                            'of table %s!' % \
-                            (column_name, self.table_name))
+                'Unable to remove not null on column %s '
+                'of table %s!'
+                % (column_name, self.table_name))
         else:
             raise Exception('Not null action not supported!')
 
     def add_constraint(self, ident, constraint, exception=False):
         logging.getLogger('init').warning(
-            'Unable to add constraint on table %s!' % \
-            (self.table_name,))
+            'Unable to add constraint on table %s!'
+            % (self.table_name,))
 
     def drop_constraint(self, ident, exception=False, table=None):
         logging.getLogger('init').warning(
-            'Unable to drop constraint on table %s!' % \
-            (self.table_name,))
+            'Unable to drop constraint on table %s!'
+            % (self.table_name,))
 
     def drop_column(self, column_name, exception=False):
         logging.getLogger('init').warning(
-            'Unable to drop \'%s\' column on table %s!' % \
-            (column_name, self.table_name))
+            'Unable to drop \'%s\' column on table %s!'
+            % (column_name, self.table_name))
 
     @staticmethod
     def drop_table(cursor, model, table, cascade=False):
-        cursor.execute('DELETE from ir_model_data where '\
-                           'model = \'%s\'' % model)
+        cursor.execute('DELETE from ir_model_data where '
+            'model = \'%s\'' % model)
 
         query = 'DROP TABLE "%s"' % table
         if cascade:

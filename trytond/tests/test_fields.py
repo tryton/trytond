@@ -195,7 +195,7 @@ class FieldsTestCase(unittest.TestCase):
 
             boolean4, = self.boolean_default.create([{}])
             self.assert_(boolean4)
-            self.assert_(boolean4.boolean == True)
+            self.assertTrue(boolean4.boolean)
 
             self.boolean.write([boolean1], {
                     'boolean': False,
