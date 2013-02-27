@@ -17,8 +17,8 @@ setup(name=PACKAGE,
     long_description=read('README'),
     author='Tryton',
     url=WEBSITE,
-    download_url="http://downloads.tryton.org/" + \
-        VERSION.rsplit('.', 1)[0] + '/',
+    download_url=("http://downloads.tryton.org/" +
+        VERSION.rsplit('.', 1)[0] + '/'),
     packages=find_packages(exclude=['*.modules.*', 'modules.*', 'modules',
             '*.proteus.*', 'proteus.*', 'proteus']),
     package_data={

@@ -65,12 +65,12 @@ def _inherit_apply(src, inherit):
                     index = parent.index(element)
                     parent.insert(index, child)
             else:
-                raise AttributeError('Unknown position ' \
-                        'in inherited view %s!' % pos)
+                raise AttributeError(
+                    'Unknown position in inherited view %s!' % pos)
         else:
             raise AttributeError(
-                    'Couldn\'t find tag (%s: %s) in parent view!' % \
-                            (element2.tag, element2.get('expr')))
+                'Couldn\'t find tag (%s: %s) in parent view!'
+                % (element2.tag, element2.get('expr')))
     return etree.tostring(tree_src, encoding='utf-8')
 
 
@@ -205,7 +205,7 @@ class ModelView(Model):
             if view_type == 'form':
                 res = cls.fields_get()
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
-                '''<form string="%s" col="4">''' % (cls.__doc__,)
+                    '''<form string="%s" col="4">''' % (cls.__doc__,)
                 for i in res:
                     if i in ('create_uid', 'create_date',
                             'write_uid', 'write_date', 'id', 'rec_name'):
@@ -223,8 +223,8 @@ class ModelView(Model):
                 if cls._rec_name in cls._fields:
                     field = cls._rec_name
                 xml = '''<?xml version="1.0" encoding="utf-8"?>''' \
-                '''<tree string="%s"><field name="%s"/></tree>''' \
-                % (cls.__doc__, field)
+                    '''<tree string="%s"><field name="%s"/></tree>''' \
+                    % (cls.__doc__, field)
             else:
                 xml = ''
             result['type'] = view_type

@@ -62,8 +62,8 @@ class Action(ModelSQL, ModelView):
         pool = Pool()
         with Transaction().set_context(active_test=False):
             if cls.search([
-                ('id', '=', action_id),
-                ]):
+                        ('id', '=', action_id),
+                        ]):
                 return action_id
             for action_type in (
                     'ir.action.report',

@@ -41,7 +41,7 @@ class ModelSQL(ModelStorage):
             cls._table = cls.__name__.replace('.', '_')
 
         assert cls._table[-9:] != '__history', \
-                'Model _table %s cannot end with "__history"' % cls._table
+            'Model _table %s cannot end with "__history"' % cls._table
 
     @classmethod
     def __register__(cls, module_name):
@@ -158,7 +158,7 @@ class ModelSQL(ModelStorage):
                     field_name, action=required and 'add' or 'remove')
 
             elif not isinstance(field, (fields.One2Many, fields.Function,
-                fields.Many2Many)):
+                        fields.Many2Many)):
                 raise Exception('Unknow field type !')
 
         for field_name, field in cls._fields.iteritems():
@@ -180,13 +180,12 @@ class ModelSQL(ModelStorage):
                 if not cursor.fetchone():
                     columns = ['"' + str(x) + '"' for x in cls._fields
                             if not hasattr(cls._fields[x], 'set')]
-                    cursor.execute('INSERT ' \
-                            'INTO "' + cls._table + '__history" '\
-                            '(' + ','.join(columns) + ') ' \
-                            'SELECT ' + ','.join(columns) + \
-                            ' FROM "' + cls._table + '"')
-                    cursor.execute('UPDATE "' + cls._table + '__history" ' \
-                            'SET write_date = NULL')
+                    cursor.execute('INSERT INTO "' + cls._table + '__history" '
+                        '(' + ','.join(columns) + ') '
+                        'SELECT ' + ','.join(columns) +
+                        ' FROM "' + cls._table + '"')
+                    cursor.execute('UPDATE "' + cls._table + '__history" '
+                        'SET write_date = NULL')
 
     @classmethod
     def _update_history_table(cls):
@@ -329,9 +328,10 @@ class ModelSQL(ModelStorage):
                     for field_name in cls._fields:
                         field = cls._fields[field_name]
                         # Check required fields
-                        if field.required and \
-                                not hasattr(field, 'set') and \
-                                field_name not in ('create_uid', 'create_date'):
+                        if (field.required
+                                and not hasattr(field, 'set')
+                                and field_name not in (
+                                    'create_uid', 'create_date')):
                             if values.get(field_name) is None:
                                 cls.raise_user_error('required_field',
                                         error_args=cls._get_error_args(
@@ -344,10 +344,12 @@ class ModelSQL(ModelStorage):
                             delete_records = Transaction().delete_records.get(
                                     field.model_name, set())
                             if not ((Model.search([
-                                                ('id', '=', values[field_name]),
+                                                ('id', '=',
+                                                    values[field_name]),
                                                 ], order=[])
-                                        or values[field_name] in create_records)
-                                    and values[field_name] not in 
+                                        or values[field_name] in
+                                        create_records)
+                                    and values[field_name] not in
                                     delete_records):
                                 cls.raise_user_error('foreign_model_missing',
                                         error_args=cls._get_error_args(
@@ -373,8 +375,8 @@ class ModelSQL(ModelStorage):
                 if len(cursor.fetchall()) != len(sub_ids):
                     cls.raise_user_error('access_error', cls.__name__)
 
-        create_records = Transaction().create_records.setdefault(cls.__name__, 
-                set()).update(new_ids)
+        create_records = Transaction().create_records.setdefault(cls.__name__,
+            set()).update(new_ids)
 
         for values, new_id in izip(vlist, new_ids):
             for fname, value in values.iteritems():
@@ -387,13 +389,13 @@ class ModelSQL(ModelStorage):
                     field.set([new_id], cls, fname, value)
 
         if cls._history:
-            columns = ['"' + str(x) + '"' for x in cls._fields 
+            columns = ['"' + str(x) + '"' for x in cls._fields
                 if not hasattr(cls._fields[x], 'set')]
             columns = ','.join(columns)
             for i in range(0, len(new_ids), cursor.IN_MAX):
                 sub_ids = new_ids[i:i + cursor.IN_MAX]
                 red_sql, red_ids = reduce_ids('id', sub_ids)
-                cursor.execute('INSERT INTO "' + cls._table + '__history" ' 
+                cursor.execute('INSERT INTO "' + cls._table + '__history" '
                     '(' + columns + ') '
                     'SELECT ' + columns + ' '
                     'FROM "' + cls._table + '" '
@@ -408,7 +410,7 @@ class ModelSQL(ModelStorage):
             if (isinstance(field, fields.Many2One)
                     and field.model_name == cls.__name__
                     and field.left and field.right):
-                if (field.left in modified_fields 
+                if (field.left in modified_fields
                         or field.right in modified_fields):
                     raise Exception('ValidateError',
                             'You can not update fields: "%s", "%s"' %
@@ -421,7 +423,7 @@ class ModelSQL(ModelStorage):
 
         cls.trigger_create(records)
         return records
-    
+
     @classmethod
     def read(cls, ids, fields_names=None):
         pool = Pool()
@@ -431,7 +433,7 @@ class ModelSQL(ModelStorage):
         cursor = Transaction().cursor
 
         if not fields_names:
-            fields_names = list(set(cls._fields.keys() \
+            fields_names = list(set(cls._fields.keys()
                     + cls._inherit_fields.keys()))
 
         if not ids:
@@ -457,12 +459,11 @@ class ModelSQL(ModelStorage):
                 datetime_fields.append(field.datetime_field)
 
         # all inherited fields + all non inherited fields
-        fields_pre = [x for x in \
-                fields_names + fields_related.keys() + datetime_fields \
-                if (x in cls._fields and \
-                not hasattr(cls._fields[x], 'set')) or \
-                (x == '_timestamp')] + \
-                cls._inherits.values()
+        fields_pre = [x for x in
+            fields_names + fields_related.keys() + datetime_fields
+            if ((x in cls._fields
+                    and not hasattr(cls._fields[x], 'set'))
+                or (x == '_timestamp'))] + cls._inherits.values()
 
         res = []
         table_query = ''
@@ -548,7 +549,7 @@ class ModelSQL(ModelStorage):
         for table in cls._inherits:
             field = cls._inherits[table]
             inherits_fields = list(
-                    set(cls._inherit_fields.keys()).intersection(
+                set(cls._inherit_fields.keys()).intersection(
                     set(fields_names + fields_related.keys() + datetime_fields)
                     ).difference(set(cls._fields.keys())))
             if not inherits_fields:
@@ -580,15 +581,14 @@ class ModelSQL(ModelStorage):
         ids = [x['id'] for x in res]
 
         # all non inherited fields for which there is a get attribute
-        fields_post = [x for x in \
-                fields_names + fields_related.keys() + datetime_fields \
-                if x in cls._fields \
-                and hasattr(cls._fields[x], 'get')]
+        fields_post = [x for x in
+            fields_names + fields_related.keys() + datetime_fields
+            if x in cls._fields and hasattr(cls._fields[x], 'get')]
         func_fields = {}
         for field in fields_post:
             if isinstance(cls._fields[field], fields.Function):
                 key = (cls._fields[field].getter,
-                        getattr(cls._fields[field], 'datetime_field', None))
+                    getattr(cls._fields[field], 'datetime_field', None))
                 func_fields.setdefault(key, [])
                 func_fields[key].append(field)
                 continue
@@ -654,7 +654,7 @@ class ModelSQL(ModelStorage):
                                 field][record_id][record['id']] = record2
                 else:
                     for record in obj.read([x[field] for x in res
-                        if x[field]], fields_related[field]):
+                                if x[field]], fields_related[field]):
                         record_id = record['id']
                         del record['id']
                         fields_related2values[field].setdefault(record_id, {})
@@ -700,8 +700,8 @@ class ModelSQL(ModelStorage):
                                 if record_id < 0:
                                     continue
                                 record[field + '.' + related] = \
-                                        fields_related2values[field][
-                                            record[field]][related]
+                                    fields_related2values[field][
+                                        record[field]][related]
                 for field in to_del:
                     del record[field]
 
@@ -745,10 +745,10 @@ class ModelSQL(ModelStorage):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 clause = ('(id = %s AND '
-                        'CAST(EXTRACT(EPOCH FROM '
-                        'COALESCE(write_date, create_date)) AS ' + \
-                        FIELDS['numeric'].sql_type(cls.create_date)[1] + \
-                        ') > %s)')
+                    'CAST(EXTRACT(EPOCH FROM '
+                    'COALESCE(write_date, create_date)) AS ' +
+                    FIELDS['numeric'].sql_type(cls.create_date)[1] +
+                    ') > %s)')
                 args = []
                 for i in sub_ids:
                     if Transaction().timestamp.get(
@@ -757,10 +757,10 @@ class ModelSQL(ModelStorage):
                         args.append(Decimal(Transaction().timestamp[
                             cls.__name__ + ',' + str(i)]))
                 if args:
-                    cursor.execute("SELECT id " \
-                            'FROM "' + cls._table + '" ' \
-                            'WHERE ' + ' OR '.join(
-                                (clause,) * (len(args) // 2)), args)
+                    cursor.execute("SELECT id "
+                        'FROM "' + cls._table + '" '
+                        'WHERE ' + ' OR '.join(
+                            (clause,) * (len(args) // 2)), args)
                     if cursor.fetchone():
                         raise ConcurrencyException(
                             'Records were modified in the meanwhile')
@@ -786,8 +786,8 @@ class ModelSQL(ModelStorage):
                             or (Transaction().language
                                 == Config.get_language())):
                         upd0.append(('"' + field + '"', '%s'))
-                        upd1.append(FIELDS[cls._fields[field]._type]\
-                                .sql_format(values[field]))
+                        upd1.append(FIELDS[cls._fields[field]._type]
+                            .sql_format(values[field]))
                     direct.append(field)
                 else:
                     upd_todo.append(field)
@@ -807,19 +807,19 @@ class ModelSQL(ModelStorage):
             sub_ids = ids[i:i + cursor.IN_MAX]
             red_sql, red_ids = reduce_ids('id', sub_ids)
             if domain1:
-                cursor.execute('SELECT id FROM "' + cls._table + '" ' \
-                        'WHERE ' + red_sql + ' ' + domain1,
-                        red_ids + domain2)
+                cursor.execute('SELECT id FROM "' + cls._table + '" '
+                    'WHERE ' + red_sql + ' ' + domain1,
+                    red_ids + domain2)
             else:
-                cursor.execute('SELECT id FROM "' + cls._table + '" ' \
-                        'WHERE ' + red_sql, red_ids)
+                cursor.execute('SELECT id FROM "' + cls._table + '" '
+                    'WHERE ' + red_sql, red_ids)
             rowcount = cursor.rowcount
             if rowcount == -1 or rowcount is None:
                 rowcount = len(cursor.fetchall())
             if not rowcount == len({}.fromkeys(sub_ids)):
                 if domain1:
-                    cursor.execute('SELECT id FROM "' + cls._table + '" ' \
-                            'WHERE ' + red_sql, red_ids)
+                    cursor.execute('SELECT id FROM "' + cls._table + '" '
+                        'WHERE ' + red_sql, red_ids)
                     rowcount = cursor.rowcount
                     if rowcount == -1 or rowcount is None:
                         rowcount = len(cursor.fetchall())
@@ -888,11 +888,11 @@ class ModelSQL(ModelStorage):
             columns = ['"' + str(x) + '"' for x in cls._fields
                     if not hasattr(cls._fields[x], 'set')]
             for obj_id in ids:
-                cursor.execute('INSERT INTO "' + cls._table + '__history" ' \
-                        '(' + ','.join(columns) + ') ' \
-                        'SELECT ' + ','.join(columns) + ' ' + \
-                        'FROM "' + cls._table + '" ' \
-                        'WHERE id = %s', (obj_id,))
+                cursor.execute('INSERT INTO "' + cls._table + '__history" '
+                    '(' + ','.join(columns) + ') '
+                    'SELECT ' + ','.join(columns) + ' ' +
+                    'FROM "' + cls._table + '" '
+                    'WHERE id = %s', (obj_id,))
 
         for iname in cls._inherits:
             col = cls._inherits[iname]
@@ -900,9 +900,9 @@ class ModelSQL(ModelStorage):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 red_sql, red_ids = reduce_ids('id', sub_ids)
-                cursor.execute('SELECT DISTINCT "' + col + '" ' \
-                        'FROM "' + cls._table + '" WHERE ' + red_sql,
-                        red_ids)
+                cursor.execute('SELECT DISTINCT "' + col + '" '
+                    'FROM "' + cls._table + '" WHERE ' + red_sql,
+                    red_ids)
                 iids.extend([x[0] for x in cursor.fetchall()])
 
             values2 = {}
@@ -957,10 +957,10 @@ class ModelSQL(ModelStorage):
             for i in range(0, len(ids), cursor.IN_MAX):
                 sub_ids = ids[i:i + cursor.IN_MAX]
                 clause = ('(id = %s AND '
-                        'CAST(EXTRACT(EPOCH FROM '
-                        'COALESCE(write_date, create_date)) AS ' + \
-                        FIELDS['numeric'].sql_type(cls.create_date)[1] + \
-                        ') > %s)')
+                    'CAST(EXTRACT(EPOCH FROM '
+                    'COALESCE(write_date, create_date)) AS ' +
+                    FIELDS['numeric'].sql_type(cls.create_date)[1] +
+                    ') > %s)')
                 args = []
                 for i in sub_ids:
                     if Transaction().timestamp.get(
@@ -1101,9 +1101,9 @@ class ModelSQL(ModelStorage):
 
         if cls._history:
             for obj_id in ids:
-                cursor.execute('INSERT INTO "' + cls._table + '__history" ' \
-                        '(id, write_uid, write_date) VALUES (%s, %s, %s)',
-                        (obj_id, Transaction().user, datetime.datetime.now()))
+                cursor.execute('INSERT INTO "' + cls._table + '__history" '
+                    '(id, write_uid, write_date) VALUES (%s, %s, %s)',
+                    (obj_id, Transaction().user, datetime.datetime.now()))
 
         for k in tree_ids.keys():
             field = cls._fields[k]
@@ -1181,9 +1181,9 @@ class ModelSQL(ModelStorage):
                         '"' + cls._table + '".create_date))) AS VARCHAR'
                         ') AS _timestamp']
         query_str = cursor.limit_clause(
-                'SELECT ' + ','.join(select_fields) + ' FROM ' + \
-                ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
-                (order_by and ' ORDER BY ' + order_by or ''), limit, offset)
+            'SELECT ' + ','.join(select_fields) + ' FROM ' +
+            ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') +
+            (order_by and ' ORDER BY ' + order_by or ''), limit, offset)
         if query_string:
             return (query_str, tables_args + qu2)
         cursor.execute(query_str, tables_args + qu2)
@@ -1219,13 +1219,13 @@ class ModelSQL(ModelStorage):
                     and not query_string):
                 select_fields2 += [select_fields[1]]
             cursor.execute(
-                'SELECT * FROM (' + \
-                    cursor.limit_clause(
-                        'SELECT ' + ','.join(select_fields2) + ' FROM ' + \
-                        ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') + \
-                        (order_by and ' ORDER BY ' + order_by or ''),
-                        limit, offset) + ') AS "' + cls._table + '"',
-                    tables_args + qu2)
+                'SELECT * FROM (' +
+                cursor.limit_clause(
+                    'SELECT ' + ','.join(select_fields2) + ' FROM ' +
+                    ' '.join(tables) + (qu1 and ' WHERE ' + qu1 or '') +
+                    (order_by and ' ORDER BY ' + order_by or ''),
+                    limit, offset) + ') AS "' + cls._table + '"',
+                tables_args + qu2)
             rows = cursor.dictfetchall()
 
         if cls._history and Transaction().context.get('_datetime'):
@@ -1279,7 +1279,7 @@ class ModelSQL(ModelStorage):
             if qu1:
                 qu1 += ' AND'
             qu1 += ' (COALESCE("' + cls._table + '".write_date, "' + \
-                    cls._table + '".create_date) <= %s)'
+                cls._table + '".create_date) <= %s)'
             qu2 += [Transaction().context['_datetime']]
         return qu1, qu2, tables, tables_args
 
@@ -1296,9 +1296,9 @@ class ModelSQL(ModelStorage):
         list_args = []
         for arg in domain:
             #add test for xmlrpc that doesn't handle tuple
-            if isinstance(arg, tuple) \
-                    or (isinstance(arg, list) and len(arg) > 2 \
-                    and arg[1] in OPERATORS):
+            if (isinstance(arg, tuple)
+                    or (isinstance(arg, list) and len(arg) > 2
+                        and arg[1] in OPERATORS)):
                 tuple_args.append(tuple(arg))
             elif isinstance(arg, list):
                 list_args.append(arg)
@@ -1334,8 +1334,8 @@ class ModelSQL(ModelStorage):
             field = model._fields.get(field_name)
             if not field:
                 if not field_name in model._inherit_fields:
-                    raise Exception('ValidateError', 'Field "%s" doesn\'t ' \
-                            'exist on "%s"' % (field_name, model.__name__))
+                    raise Exception('ValidateError', 'Field "%s" doesn\'t '
+                        'exist on "%s"' % (field_name, model.__name__))
                 parent_model = pool.get(model._inherit_fields[field_name][0])
                 field = column_get(parent_model, field_name)
             return field
@@ -1356,10 +1356,11 @@ class ModelSQL(ModelStorage):
             if itable.table_query():
                 table_query, table_args = model.table_query()
                 table_query = '(' + table_query + ') AS '
-            table_join = 'LEFT JOIN ' + table_query + \
-                    '"' + itable._table + '" ON ' \
-                    '"%s".id = "%s"."%s"' % (itable._table, model._table,
-                            model._inherits[itable.__name__])
+            table_join = ('LEFT JOIN ' + table_query +
+                '"' + itable._table + '" ON '
+                '"%s".id = "%s"."%s"'
+                % (itable._table, model._table,
+                    model._inherits[itable.__name__]))
             inherits = [(table_join, table_arg)]
             inherits.extend(get_inherits_join(itable, field))
             return inherits
@@ -1438,9 +1439,9 @@ class ModelSQL(ModelStorage):
                         i += 1
                     continue
                 else:
-                    raise Exception('ValidateError', 'Clause on field "%s" ' \
-                            'doesn\'t work on "%s"' %
-                            (domain[i][0], cls.__name__))
+                    raise Exception('ValidateError',
+                        'Clause on field "%s" doesn\'t work on "%s"'
+                        % (domain[i][0], cls.__name__))
             if hasattr(field, 'search'):
                 clause = domain.pop(i)
                 domain.extend(field.search(table, clause[0], clause))
@@ -1463,10 +1464,9 @@ class ModelSQL(ModelStorage):
                     select = '"' + field.field + '"'
 
                 if isinstance(domain[i][2], bool) or domain[i][2] is None:
-                    query1 = 'SELECT ' + select + ' ' \
-                            'FROM ' + table_query + \
-                                '"' + Field._table + '" ' \
-                            'WHERE "' + field.field + '" IS NOT NULL'
+                    query1 = ('SELECT ' + select + ' '
+                        'FROM ' + table_query + '"' + Field._table + '" '
+                        'WHERE "' + field.field + '" IS NOT NULL')
                     query2 = table_args
                     clause = 'inselect'
                     if not domain[i][2]:
@@ -1523,10 +1523,10 @@ class ModelSQL(ModelStorage):
                         Relation = pool.get(field.relation_name)
                         red_sql, red_ids = reduce_ids('"' + field.target + '"',
                                 ids2)
-                        query1 = 'SELECT "' + field.origin + '" ' \
-                                'FROM "' + Relation._table + '" ' \
-                                'WHERE ' + red_sql + ' ' \
-                                    'AND "' + field.origin + '" IS NOT NULL'
+                        query1 = ('SELECT "' + field.origin + '" '
+                            'FROM "' + Relation._table + '" '
+                            'WHERE ' + red_sql + ' '
+                                'AND "' + field.origin + '" IS NOT NULL')
                         query2 = red_ids
                         if domain[i][1] == 'child_of':
                             domain[i] = ('id', 'inselect', (query1, query2))
@@ -1558,10 +1558,10 @@ class ModelSQL(ModelStorage):
                     else:
                         select = '"' + field.origin + '"'
                     if isinstance(domain[i][2], bool) or domain[i][2] is None:
-                        query1 = 'SELECT ' + select + ' ' \
-                                'FROM ' + table_query + ' '\
-                                    '"' + Relation._table + '" ' \
-                                'WHERE "' + field.origin + '" IS NOT NULL'
+                        query1 = ('SELECT ' + select + ' '
+                            'FROM ' + table_query + ' '
+                                '"' + Relation._table + '" '
+                            'WHERE "' + field.origin + '" IS NOT NULL')
                         query2 = table_args
                         clause = 'inselect'
                         if not domain[i][2]:
@@ -1621,20 +1621,20 @@ class ModelSQL(ModelStorage):
                     else:
                         if field.left and field.right and ids2:
                             red_sql, red_ids = reduce_ids('id', ids2)
-                            cursor.execute('SELECT "' + field.left + '", ' \
-                                        '"' + field.right + '" ' + \
-                                    'FROM "' + cls._table + '" ' + \
-                                    'WHERE ' + red_sql, red_ids)
+                            cursor.execute('SELECT "' + field.left + '", '
+                                    '"' + field.right + '" ' +
+                                'FROM "' + cls._table + '" ' +
+                                'WHERE ' + red_sql, red_ids)
                             clause = '(1=0) '
                             for left, right in cursor.fetchall():
                                 clause += 'OR '
-                                clause += '( "' + field.left + '" >= ' + \
-                                        str(left) + ' ' + \
-                                        'AND "' + field.right + '" <= ' + \
-                                        str(right) + ')'
+                                clause += ('( "' + field.left + '" >= ' +
+                                    str(left) + ' ' +
+                                    'AND "' + field.right + '" <= ' +
+                                    str(right) + ')')
 
-                            query = 'SELECT id FROM "' + cls._table + '" ' + \
-                                    'WHERE ' + clause
+                            query = ('SELECT id FROM "' + cls._table + '" ' +
+                                'WHERE ' + clause)
                             if domain[i][1] == 'child_of':
                                 domain[i] = ('id', 'inselect', (query, []))
                             else:
@@ -1661,37 +1661,37 @@ class ModelSQL(ModelStorage):
             else:
                 if getattr(field, 'translate', False):
                     if cls.__name__ == 'ir.model':
-                        table_join = 'LEFT JOIN "ir_translation" ' \
-                                'ON (ir_translation.name = ' \
-                                        'ir_model.model||\',%s\' ' \
-                                    'AND ir_translation.res_id = 0 ' \
-                                    'AND ir_translation.lang = %%s ' \
-                                    'AND ir_translation.type = \'model\' ' \
-                                    'AND ir_translation.fuzzy = %%s)' % \
-                                domain[i][0]
+                        table_join = ('LEFT JOIN "ir_translation" '
+                            'ON (ir_translation.name = '
+                                    'ir_model.model||\',%s\' '
+                                'AND ir_translation.res_id = 0 '
+                                'AND ir_translation.lang = %%s '
+                                'AND ir_translation.type = \'model\' '
+                                'AND ir_translation.fuzzy = %%s)'
+                            % domain[i][0])
                     elif cls.__name__ == 'ir.model.field':
                         if domain[i][0] == 'field_description':
                             ttype = 'field'
                         else:
                             ttype = 'help'
-                        table_join = 'LEFT JOIN "ir_model" ' \
-                                'ON ir_model.id = ir_model_field.model ' \
-                                'LEFT JOIN "ir_translation" ' \
-                                'ON (ir_translation.name = ' \
-                                        'ir_model.model||\',\'||%s.name ' \
-                                    'AND ir_translation.res_id = 0 ' \
-                                    'AND ir_translation.lang = %%s ' \
-                                    'AND ir_translation.type = \'%s\' ' \
-                                    'AND ir_translation.fuzzy = %%s)' % \
-                                (table._table, ttype)
+                        table_join = ('LEFT JOIN "ir_model" '
+                            'ON ir_model.id = ir_model_field.model '
+                            'LEFT JOIN "ir_translation" '
+                            'ON (ir_translation.name = '
+                                    'ir_model.model||\',\'||%s.name '
+                                'AND ir_translation.res_id = 0 '
+                                'AND ir_translation.lang = %%s '
+                                'AND ir_translation.type = \'%s\' '
+                                'AND ir_translation.fuzzy = %%s)'
+                            % (table._table, ttype))
                     else:
-                        table_join = 'LEFT JOIN "ir_translation" ' \
-                                'ON (ir_translation.res_id = %s.id ' \
-                                    'AND ir_translation.name = \'%s,%s\' ' \
-                                    'AND ir_translation.lang = %%s ' \
-                                    'AND ir_translation.type = \'model\' ' \
-                                    'AND ir_translation.fuzzy = %%s)' % \
-                                (table._table, table.__name__, domain[i][0])
+                        table_join = ('LEFT JOIN "ir_translation" '
+                            'ON (ir_translation.res_id = %s.id '
+                                'AND ir_translation.name = \'%s,%s\' '
+                                'AND ir_translation.lang = %%s '
+                                'AND ir_translation.type = \'model\' '
+                                'AND ir_translation.fuzzy = %%s)'
+                            % (table._table, table.__name__, domain[i][0]))
                     table_join_args = [Transaction().language, False]
 
                     table_query = ''
@@ -1703,15 +1703,15 @@ class ModelSQL(ModelStorage):
                     Translation = pool.get('ir.translation')
 
                     qu1, qu2, tables, table_args = \
-                            Translation.search_domain([
+                        Translation.search_domain([
                                 ('value', domain[i][1], domain[i][2]),
                                 ])
                     qu1 = qu1.replace('"ir_translation"."value"',
-                            'COALESCE(NULLIF("ir_translation"."value", \'\'), '
-                            '"%s"."%s")' % (table._table, domain[i][0]))
-                    query1 = 'SELECT "' + table._table + '".id ' \
-                            'FROM ' + table_query + '"' + table._table + '" ' \
-                            + table_join + ' WHERE ' + qu1
+                        'COALESCE(NULLIF("ir_translation"."value", \'\'), '
+                        '"%s"."%s")' % (table._table, domain[i][0]))
+                    query1 = ('SELECT "' + table._table + '".id '
+                        'FROM ' + table_query + '"' + table._table + '" '
+                        + table_join + ' WHERE ' + qu1)
                     query2 = table_args + table_join_args + qu2
 
                     domain[i] = ('id', 'inselect', (query1, query2), table)
@@ -1751,55 +1751,55 @@ class ModelSQL(ModelStorage):
                                     and isinstance(y, (int, long))
                                     and not isinstance(y, bool)),
                                 arg2, True):
-                            red_sql, red_ids = reduce_ids('"%s"."%s"' % \
-                                    (table._table, arg[0]), arg2)
+                            red_sql, red_ids = reduce_ids('"%s"."%s"'
+                                % (table._table, arg[0]), arg2)
                             if arg[1] == 'not in':
                                 red_sql = '(NOT(' + red_sql + '))'
                             qu1.append(red_sql)
                             qu2 += red_ids
                         else:
-                            qu1.append(('("%s"."%s" ' + arg[1] + ' (%s))') % \
-                                    (table._table, arg[0], ','.join(
+                            qu1.append(('("%s"."%s" ' + arg[1] + ' (%s))')
+                                % (table._table, arg[0], ','.join(
                                         ('%s',) * len(arg2))))
                             qu2 += arg2
                         if todel:
                             if column._type == 'boolean':
                                 if arg[1] == 'in':
-                                    qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '"%s"."%s" = %%s)' % \
-                                            (table._table, arg[0])
+                                    qu1[-1] = ('(' + qu1[-1] + ' OR '
+                                        '"%s"."%s" = %%s)'
+                                        % (table._table, arg[0]))
                                     qu2.append(False)
                                 else:
-                                    qu1[-1] = '(' + qu1[-1] + ' AND ' \
-                                            '"%s"."%s" != %%s)' % \
-                                            (table._table, arg[0])
+                                    qu1[-1] = ('(' + qu1[-1] + ' AND '
+                                        '"%s"."%s" != %%s)'
+                                        % (table._table, arg[0]))
                                     qu2.append(False)
                             else:
                                 if arg[1] == 'in':
-                                    qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                            '"%s"."%s" IS NULL)' % \
-                                            (table._table, arg[0])
+                                    qu1[-1] = ('(' + qu1[-1] + ' OR '
+                                        '"%s"."%s" IS NULL)'
+                                        % (table._table, arg[0]))
                                 else:
-                                    qu1[-1] = '(' + qu1[-1] + ' AND ' \
-                                            '"%s"."%s" IS NOT NULL)' % \
-                                            (table._table, arg[0])
+                                    qu1[-1] = ('(' + qu1[-1] + ' AND '
+                                        '"%s"."%s" IS NOT NULL)'
+                                        % (table._table, arg[0]))
                     elif todel:
                         if column._type == 'boolean':
                             if arg[1] == 'in':
-                                qu1.append('("%s"."%s" = %%s)' % \
-                                        (table._table, arg[0]))
+                                qu1.append('("%s"."%s" = %%s)'
+                                    % (table._table, arg[0]))
                                 qu2.append(False)
                             else:
-                                qu1.append('("%s"."%s" != %%s)' % \
-                                        (table._table, arg[0]))
+                                qu1.append('("%s"."%s" != %%s)'
+                                    % (table._table, arg[0]))
                                 qu2.append(False)
                         else:
                             if arg[1] == 'in':
-                                qu1.append('("%s"."%s" IS NULL)' % \
-                                        (table._table, arg[0]))
+                                qu1.append('("%s"."%s" IS NULL)'
+                                    % (table._table, arg[0]))
                             else:
-                                qu1.append('("%s"."%s" IS NOT NULL)' % \
-                                        (table._table, arg[0]))
+                                qu1.append('("%s"."%s" IS NOT NULL)'
+                                    % (table._table, arg[0]))
                 else:
                     if arg[1] == 'in':
                         qu1.append(' %s')
@@ -1814,8 +1814,8 @@ class ModelSQL(ModelStorage):
                             % (table._table, arg[0], table._table, arg[0]))
                         qu2.append(False)
                     else:
-                        qu1.append('("%s"."%s" IS NULL)' % \
-                            (table._table, arg[0]))
+                        qu1.append('("%s"."%s" IS NULL)'
+                            % (table._table, arg[0]))
                 elif (arg[2] is False or arg[2] is None) and (arg[1] == '!='):
                     if column._type == 'boolean':
                         qu1.append('(("%s"."%s" != %%s) '
@@ -1823,14 +1823,14 @@ class ModelSQL(ModelStorage):
                             % (table._table, arg[0], table._table, arg[0]))
                         qu2.append(False)
                     else:
-                        qu1.append('("%s"."%s" IS NOT NULL)' % \
-                                (table._table, arg[0]))
+                        qu1.append('("%s"."%s" IS NOT NULL)'
+                            % (table._table, arg[0]))
                 else:
                     if arg[0] == 'id':
-                        qu1.append('("%s"."%s" %s %%s)' % \
-                                (table._table, arg[0], arg[1]))
-                        qu2.append(FIELDS[column._type].\
-                                sql_format(arg[2]))
+                        qu1.append('("%s"."%s" %s %%s)'
+                            % (table._table, arg[0], arg[1]))
+                        qu2.append(FIELDS[column._type]
+                            .sql_format(arg[2]))
                     else:
                         add_null = False
                         if arg[1] in ('like', 'ilike'):
@@ -1856,9 +1856,9 @@ class ModelSQL(ModelStorage):
                         qu1.append('("%s"."%s" %s %%s)' % (table._table,
                             arg[0], arg[1]))
                         if add_null:
-                            qu1[-1] = '(' + qu1[-1] + ' OR ' \
-                                    '"' + table._table + '"."' + arg[0] + '"' \
-                                        ' IS NULL)'
+                            qu1[-1] = ('(' + qu1[-1] + ' OR '
+                                '"' + table._table + '"."' + arg[0] + '"'
+                                ' IS NULL)')
 
         return qu1, qu2
 
@@ -1896,10 +1896,10 @@ class ModelSQL(ModelStorage):
                 if field_name:
                     order_by, tables, tables_args = obj._order_calc(field_name,
                             otype)
-                    table_join = 'LEFT JOIN "' + table_name + '" AS ' \
-                            '"' + table_name + '.' + link_field + '" ON ' \
-                            '"%s.%s".id = "%s"."%s"' % (table_name, link_field,
-                                    cls._table, link_field)
+                    table_join = ('LEFT JOIN "' + table_name + '" AS '
+                        '"' + table_name + '.' + link_field + '" ON '
+                        '"%s.%s".id = "%s"."%s"'
+                        % (table_name, link_field, cls._table, link_field))
                     for i in range(len(order_by)):
                         if table_name in order_by[i]:
                             order_by[i] = order_by[i].replace(table_name,
@@ -1929,12 +1929,12 @@ class ModelSQL(ModelStorage):
                     table_name2 = obj2._table
                     link_field2 = obj._inherits[obj2.__name__]
                     order_by, tables, tables_args = \
-                            obj2._order_calc(field_name, otype)
+                        obj2._order_calc(field_name, otype)
 
-                    table_join = 'LEFT JOIN "' + table_name + '" AS ' \
-                            '"' + table_name + '.' + link_field + '" ON ' \
-                            '"%s.%s".id = "%s"."%s"' % \
-                            (table_name, link_field, cls._table, link_field)
+                    table_join = ('LEFT JOIN "' + table_name + '" AS '
+                        '"' + table_name + '.' + link_field + '" ON '
+                        '"%s.%s".id = "%s"."%s"'
+                        % (table_name, link_field, cls._table, link_field))
                     for i in range(len(order_by)):
                         if table_name in order_by[i]:
                             order_by[i] = order_by[i].replace(table_name,
@@ -1949,11 +1949,11 @@ class ModelSQL(ModelStorage):
                         tables.insert(0, table_join)
                         tables_args[table_join] = []
 
-                    table_join2 = 'LEFT JOIN "' + table_name2 + '" AS ' \
-                            '"' + table_name2 + '.' + link_field2 + '" ON ' \
-                            '"%s.%s".id = "%s.%s"."%s"' % \
-                            (table_name2, link_field2, table_name, link_field,
-                                    link_field2)
+                    table_join2 = ('LEFT JOIN "' + table_name2 + '" AS '
+                        '"' + table_name2 + '.' + link_field2 + '" ON '
+                        '"%s.%s".id = "%s.%s"."%s"'
+                        % (table_name2, link_field2, table_name, link_field,
+                            link_field2))
                     for i in range(len(order_by)):
                         if table_name2 in order_by[i]:
                             order_by[i] = order_by[i].replace(table_name2,
@@ -1969,66 +1969,65 @@ class ModelSQL(ModelStorage):
                         tables_args[table_join2] = []
                     return order_by, tables, tables_args
 
-            if field_name in cls._fields \
-                    and getattr(cls._fields[field_name], 'translate', False):
-                translation_table = 'ir_translation_%s_%s' % \
-                        (table_name, field_name)
+            if (field_name in cls._fields
+                    and getattr(cls._fields[field_name], 'translate', False)):
+                translation_table = ('ir_translation_%s_%s'
+                    % (table_name, field_name))
                 if cls.__name__ == 'ir.model':
-                    table_join = 'LEFT JOIN "ir_translation" ' \
-                            'AS "%s" ON ' \
-                            '("%s".name = "ir_model".model||\',%s\' ' \
-                                'AND "%s".res_id = 0 ' \
-                                'AND "%s".lang = %%s ' \
-                                'AND "%s".type = \'model\' ' \
-                                'AND "%s".fuzzy = %%s)' % \
-                            (translation_table, translation_table, field_name,
-                                    translation_table, translation_table,
-                                    translation_table, translation_table)
+                    table_join = ('LEFT JOIN "ir_translation" '
+                        'AS "%s" ON '
+                        '("%s".name = "ir_model".model||\',%s\' '
+                            'AND "%s".res_id = 0 '
+                            'AND "%s".lang = %%s '
+                            'AND "%s".type = \'model\' '
+                            'AND "%s".fuzzy = %%s)'
+                        % (translation_table, translation_table, field_name,
+                            translation_table, translation_table,
+                            translation_table, translation_table))
                 elif cls.__name__ == 'ir.model.field':
                     if field_name == 'field_description':
                         ttype = 'field'
                     else:
                         ttype = 'help'
-                    table_join = 'LEFT JOIN "ir_model" ON ' \
-                            'ir_model.id = ir_model_field.model'
+                    table_join = ('LEFT JOIN "ir_model" ON '
+                        'ir_model.id = ir_model_field.model')
                     if table_join not in tables:
                         tables.append(table_join)
-                    table_join = 'LEFT JOIN "ir_translation" ' \
-                            'AS "%s" ON ' \
-                            '("%s".name = "ir_model".model||\',\'||%s.name ' \
-                                'AND "%s".res_id = 0 ' \
-                                'AND "%s".lang = %%s ' \
-                                'AND "%s".type = \'%s\' ' \
-                                'AND "%s".fuzzy = %%s)' % \
-                            (translation_table, translation_table, table_name,
-                                    translation_table, translation_table,
-                                    translation_table,
-                                    ttype, translation_table)
+                    table_join = ('LEFT JOIN "ir_translation" '
+                        'AS "%s" ON '
+                        '("%s".name = "ir_model".model||\',\'||%s.name '
+                            'AND "%s".res_id = 0 '
+                            'AND "%s".lang = %%s '
+                            'AND "%s".type = \'%s\' '
+                            'AND "%s".fuzzy = %%s)'
+                        % (translation_table, translation_table, table_name,
+                            translation_table, translation_table,
+                            translation_table, ttype, translation_table))
                 else:
-                    table_join = 'LEFT JOIN "ir_translation" ' \
-                            'AS "%s" ON ' \
-                            '("%s".res_id = "%s".id ' \
-                                'AND "%s".name = \'%s,%s\' ' \
-                                'AND "%s".lang = %%s ' \
-                                'AND "%s".type = \'model\' ' \
-                                'AND "%s".fuzzy = %%s)' % \
-                            (translation_table, translation_table, table_name,
-                                translation_table, cls.__name__, field_name,
-                                translation_table, translation_table,
-                                translation_table)
+                    table_join = ('LEFT JOIN "ir_translation" '
+                        'AS "%s" ON '
+                        '("%s".res_id = "%s".id '
+                            'AND "%s".name = \'%s,%s\' '
+                            'AND "%s".lang = %%s '
+                            'AND "%s".type = \'model\' '
+                            'AND "%s".fuzzy = %%s)'
+                        % (translation_table, translation_table, table_name,
+                            translation_table, cls.__name__, field_name,
+                            translation_table, translation_table,
+                            translation_table))
                 if table_join not in tables:
                     tables.append(table_join)
                     tables_args[table_join] = [Transaction().language, False]
-                order_by.append('COALESCE(NULLIF(' \
-                        + '"' + translation_table + '".value, \'\'), ' \
-                        + '"' + table_name + '".' + field_name + ') ' + otype)
+                order_by.append('COALESCE(NULLIF('
+                    + '"' + translation_table + '".value, \'\'), '
+                    + '"' + table_name + '".' + field_name + ') ' + otype)
                 return order_by, tables, tables_args
 
-            if field_name in cls._fields \
-                    and cls._fields[field_name]._type == 'selection' \
-                    and cls._fields[field_name].order_field is None:
+            if (field_name in cls._fields
+                    and cls._fields[field_name]._type == 'selection'
+                    and cls._fields[field_name].order_field is None):
                 selections = cls.fields_get([field_name]
-                        )[field_name]['selection']
+                    )[field_name]['selection']
                 if not isinstance(selections, (tuple, list)):
                     selections = getattr(cls,
                             cls._fields[field_name].selection)()
@@ -2055,9 +2054,9 @@ class ModelSQL(ModelStorage):
             table_name = obj._table
             link_field = cls._inherits[obj.__name__]
             order_by, tables, tables_args = obj._order_calc(field, otype)
-            table_join = 'LEFT JOIN "' + table_name + '" ON ' \
-                    '"%s".id = "%s"."%s"' % \
-                    (table_name, cls._table, link_field)
+            table_join = ('LEFT JOIN "' + table_name + '" ON '
+                '"%s".id = "%s"."%s"'
+                % (table_name, cls._table, link_field))
             if table_join not in tables:
                 tables.insert(0, table_join)
             return order_by, tables, tables_args
@@ -2084,10 +2083,10 @@ class ModelSQL(ModelStorage):
         field = cls._fields[parent]
 
         if parent_id:
-            cursor.execute('UPDATE "' + cls._table + '" ' \
-                    'SET "' + field.left + '" = %s, ' \
-                        '"' + field.right + '" = %s ' \
-                    'WHERE id = %s', (left, right, parent_id))
+            cursor.execute('UPDATE "' + cls._table + '" '
+                'SET "' + field.left + '" = %s, '
+                    '"' + field.right + '" = %s '
+                'WHERE id = %s', (left, right, parent_id))
         return right + 1
 
     @classmethod
@@ -2100,42 +2099,42 @@ class ModelSQL(ModelStorage):
             - the order of the tree respects the default _order
         '''
         cursor = Transaction().cursor
-        cursor.execute('SELECT "' + left + '", "' + right + '" ' \
-                'FROM "' + cls._table + '" ' \
-                'WHERE id = %s', (object_id,))
+        cursor.execute('SELECT "' + left + '", "' + right + '" '
+            'FROM "' + cls._table + '" '
+            'WHERE id = %s', (object_id,))
         fetchone = cursor.fetchone()
         if not fetchone:
             return
         old_left, old_right = fetchone
         if old_left == old_right:
-            cursor.execute('UPDATE "' + cls._table + '" ' \
-                    'SET "' + right + '" = "' + right + '" + 1 ' \
-                    'WHERE id = %s', (object_id,))
+            cursor.execute('UPDATE "' + cls._table + '" '
+                'SET "' + right + '" = "' + right + '" + 1 '
+                'WHERE id = %s', (object_id,))
             old_right += 1
 
         parent_right = 1
 
-        cursor.execute('SELECT "' + field_name + '" ' \
-                'FROM "' + cls._table + '" ' \
-                'WHERE id = %s', (object_id,))
+        cursor.execute('SELECT "' + field_name + '" '
+            'FROM "' + cls._table + '" '
+            'WHERE id = %s', (object_id,))
         parent_id = cursor.fetchone()[0] or False
 
         if parent_id:
-            cursor.execute('SELECT "' + right + '" ' \
-                    'FROM "' + cls._table + '" ' \
-                    'WHERE id = %s', (parent_id,))
+            cursor.execute('SELECT "' + right + '" '
+                'FROM "' + cls._table + '" '
+                'WHERE id = %s', (parent_id,))
             parent_right = cursor.fetchone()[0]
         else:
-            cursor.execute('SELECT MAX("' + right + '") ' \
-                    'FROM "' + cls._table + '" ' \
-                    'WHERE "' + field_name + '" IS NULL')
+            cursor.execute('SELECT MAX("' + right + '") '
+                'FROM "' + cls._table + '" '
+                'WHERE "' + field_name + '" IS NULL')
             fetchone = cursor.fetchone()
             if fetchone:
                 parent_right = fetchone[0] + 1
 
-        cursor.execute('SELECT id FROM "' + cls._table + '" ' \
-                'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
-                (old_left, old_right))
+        cursor.execute('SELECT id FROM "' + cls._table + '" '
+            'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
+            (old_left, old_right))
         child_ids = [x[0] for x in cursor.fetchall()]
 
         if len(child_ids) > cursor.IN_MAX:
@@ -2144,42 +2143,42 @@ class ModelSQL(ModelStorage):
 
         red_child_sql, red_child_ids = reduce_ids('id', child_ids)
         # ids for left update
-        cursor.execute('SELECT id FROM "' + cls._table + '" ' \
-                'WHERE "' + left + '" >= %s ' \
-                    'AND NOT ' + red_child_sql,
-                    [parent_right] + red_child_ids)
+        cursor.execute('SELECT id FROM "' + cls._table + '" '
+            'WHERE "' + left + '" >= %s '
+                'AND NOT ' + red_child_sql,
+            [parent_right] + red_child_ids)
         left_ids = [x[0] for x in cursor.fetchall()]
 
         # ids for right update
-        cursor.execute('SELECT id FROM "' + cls._table + '" ' \
-                'WHERE "' + right + '" >= %s ' \
-                    'AND NOT ' + red_child_sql,
-                    [parent_right] + red_child_ids)
+        cursor.execute('SELECT id FROM "' + cls._table + '" '
+            'WHERE "' + right + '" >= %s '
+                'AND NOT ' + red_child_sql,
+            [parent_right] + red_child_ids)
         right_ids = [x[0] for x in cursor.fetchall()]
 
         if left_ids:
             for i in range(0, len(left_ids), cursor.IN_MAX):
                 sub_ids = left_ids[i:i + cursor.IN_MAX]
                 red_sub_sql, red_sub_ids = reduce_ids('id', sub_ids)
-                cursor.execute('UPDATE "' + cls._table + '" ' \
-                        'SET "' + left + '" = "' + left + '" + ' \
-                            + str(old_right - old_left + 1) + ' ' \
-                        'WHERE ' + red_sub_sql, red_sub_ids)
+                cursor.execute('UPDATE "' + cls._table + '" '
+                    'SET "' + left + '" = "' + left + '" + '
+                        + str(old_right - old_left + 1) + ' '
+                    'WHERE ' + red_sub_sql, red_sub_ids)
         if right_ids:
             for i in range(0, len(right_ids), cursor.IN_MAX):
                 sub_ids = right_ids[i:i + cursor.IN_MAX]
                 red_sub_sql, red_sub_ids = reduce_ids('id', sub_ids)
-                cursor.execute('UPDATE "' + cls._table + '" ' \
-                        'SET "' + right + '" = "' + right + '" + ' \
-                            + str(old_right - old_left + 1) + ' ' \
-                        'WHERE ' + red_sub_sql, red_sub_ids)
+                cursor.execute('UPDATE "' + cls._table + '" '
+                    'SET "' + right + '" = "' + right + '" + '
+                        + str(old_right - old_left + 1) + ' '
+                    'WHERE ' + red_sub_sql, red_sub_ids)
 
-        cursor.execute('UPDATE "' + cls._table + '" ' \
-                'SET "' + left + '" = "' + left + '" + ' \
-                        + str(parent_right - old_left) + ', ' \
-                    '"' + right + '" = "' + right + '" + ' \
-                        + str(parent_right - old_left) + ' ' \
-                'WHERE ' + red_child_sql, red_child_ids)
+        cursor.execute('UPDATE "' + cls._table + '" '
+            'SET "' + left + '" = "' + left + '" + '
+                    + str(parent_right - old_left) + ', '
+                '"' + right + '" = "' + right + '" + '
+                    + str(parent_right - old_left) + ' '
+            'WHERE ' + red_child_sql, red_child_ids)
 
         # Use root user to by-pass rules
         with contextlib.nested(Transaction().set_user(0),
@@ -2189,29 +2188,29 @@ class ModelSQL(ModelStorage):
                         ]))
         if brother_ids[-1] != object_id:
             next_id = brother_ids[brother_ids.index(object_id) + 1]
-            cursor.execute('SELECT "' + left + '" ' \
-                    'FROM "' + cls._table + '" ' \
-                    'WHERE id = %s', (next_id,))
+            cursor.execute('SELECT "' + left + '" '
+                'FROM "' + cls._table + '" '
+                'WHERE id = %s', (next_id,))
             next_left = cursor.fetchone()[0]
-            cursor.execute('SELECT "' + left + '" '\
-                    'FROM "' + cls._table + '" ' \
-                    'WHERE id = %s', (object_id,))
+            cursor.execute('SELECT "' + left + '" '
+                'FROM "' + cls._table + '" '
+                'WHERE id = %s', (object_id,))
             current_left = cursor.fetchone()[0]
 
-            cursor.execute('UPDATE "' + cls._table + '" ' \
-                    'SET "' + left + '" = "' + left + '" + ' \
-                            + str(old_right - old_left + 1) + ', ' \
-                        '"' + right + '" = "' + right + '" + ' \
-                            + str(old_right - old_left + 1) + ' ' \
-                    'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
-                    (next_left, current_left))
+            cursor.execute('UPDATE "' + cls._table + '" '
+                'SET "' + left + '" = "' + left + '" + '
+                        + str(old_right - old_left + 1) + ', '
+                    '"' + right + '" = "' + right + '" + '
+                        + str(old_right - old_left + 1) + ' '
+                'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
+                (next_left, current_left))
 
-            cursor.execute('UPDATE "' + cls._table + '" ' \
-                    'SET "' + left + '" = "' + left + '" - ' \
-                            + str(current_left - next_left) + ', ' \
-                        '"' + right + '" = "' + right + '" - ' \
-                            + str(current_left - next_left) + ' ' \
-                    'WHERE ' + red_child_sql, red_child_ids)
+            cursor.execute('UPDATE "' + cls._table + '" '
+                'SET "' + left + '" = "' + left + '" - '
+                        + str(current_left - next_left) + ', '
+                    '"' + right + '" = "' + right + '" - '
+                        + str(current_left - next_left) + ' '
+                'WHERE ' + red_child_sql, red_child_ids)
 
     @classmethod
     def _validate(cls, records):
@@ -2225,24 +2224,24 @@ class ModelSQL(ModelStorage):
             match = _RE_UNIQUE.match(sql)
             if match:
                 sql = match.group(1)
-                sql_clause = ' AND '.join('%s = %%s' % \
-                        i for i in sql.split(','))
+                sql_clause = ' AND '.join('%s = %%s'
+                    % i for i in sql.split(','))
                 sql_clause = '(id != %s AND ' + sql_clause + ')'
 
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
                     red_sql, red_ids = reduce_ids('id', sub_ids)
 
-                    cursor.execute('SELECT id,' + sql + ' ' \
-                            'FROM "' + cls._table + '" ' \
-                            'WHERE ' + red_sql, red_ids)
+                    cursor.execute('SELECT id,' + sql + ' '
+                        'FROM "' + cls._table + '" '
+                        'WHERE ' + red_sql, red_ids)
 
                     fetchall = cursor.fetchall()
-                    cursor.execute('SELECT id ' \
-                            'FROM "' + cls._table + '" ' \
-                            'WHERE ' + \
-                                ' OR '.join((sql_clause,) * len(fetchall)),
-                            reduce(lambda x, y: x + list(y), fetchall, []))
+                    cursor.execute('SELECT id '
+                        'FROM "' + cls._table + '" '
+                        'WHERE ' +
+                            ' OR '.join((sql_clause,) * len(fetchall)),
+                        reduce(lambda x, y: x + list(y), fetchall, []))
 
                     if cursor.fetchone():
                         cls.raise_user_error(error)
@@ -2253,10 +2252,10 @@ class ModelSQL(ModelStorage):
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
                     red_sql, red_ids = reduce_ids('id', sub_ids)
-                    cursor.execute('SELECT id ' \
-                            'FROM "' + cls._table + '" ' \
-                            'WHERE NOT (' + sql + ') ' \
-                                'AND ' + red_sql, red_ids)
+                    cursor.execute('SELECT id '
+                        'FROM "' + cls._table + '" '
+                        'WHERE NOT (' + sql + ') '
+                            'AND ' + red_sql, red_ids)
                     if cursor.fetchone():
                         cls.raise_user_error(error)
                     continue

@@ -21,18 +21,17 @@ class RuleGroup(ModelSQL, ModelView):
     __name__ = 'ir.rule.group'
     name = fields.Char('Name', select=True)
     model = fields.Many2One('ir.model', 'Model', select=True,
-            required=True)
+        required=True)
     global_p = fields.Boolean('Global', select=True,
-            help="Make the rule global \n" \
-                    "so every users must follow this rule")
+        help="Make the rule global \nso every users must follow this rule")
     default_p = fields.Boolean('Default', select=True,
-            help="Add this rule to all users by default")
+        help="Add this rule to all users by default")
     rules = fields.One2Many('ir.rule', 'rule_group', 'Tests',
-            help="The rule is satisfied if at least one test is True")
+        help="The rule is satisfied if at least one test is True")
     groups = fields.Many2Many('ir.rule.group-res.group',
-            'rule_group', 'group', 'Groups')
+        'rule_group', 'group', 'Groups')
     users = fields.Many2Many('ir.rule.group-res.user',
-            'rule_group', 'user', 'Users')
+        'rule_group', 'user', 'Users')
     perm_read = fields.Boolean('Read Access')
     perm_write = fields.Boolean('Write Access')
     perm_create = fields.Boolean('Create Access')
@@ -156,7 +155,7 @@ class Rule(ModelSQL, ModelView):
     @classmethod
     def domain_get(cls, model_name, mode='read'):
         assert mode in ['read', 'write', 'create', 'delete'], \
-                'Invalid domain mode for security'
+            'Invalid domain mode for security'
 
         # root user above constraint
         if Transaction().user == 0:
@@ -220,18 +219,18 @@ class Rule(ModelSQL, ModelView):
                     clause[rule.rule_group.id].append(dom)
 
         # Test if there is no rule_group that have no rule
-        cursor.execute('SELECT g.id FROM "' + RuleGroup._table + '" g ' \
-                'JOIN "' + Model._table + '" m ON (g.model = m.id) ' \
-            'WHERE m.model = %s ' \
-                'AND (g.id NOT IN (SELECT rule_group ' \
-                        'FROM "' + cls._table + '")) ' \
-                'AND (g.id IN (SELECT rule_group ' \
-                        'FROM "' + RuleGroup_User._table + '" ' \
-                        'WHERE "user" = %s ' \
-                        'UNION SELECT rule_group ' \
-                        'FROM "' + RuleGroup_Group._table + '" g_rel ' \
-                            'JOIN "' + User_Group._table + '" u_rel ' \
-                                'ON g_rel."group" = u_rel."group" ' \
+        cursor.execute('SELECT g.id FROM "' + RuleGroup._table + '" g '
+                'JOIN "' + Model._table + '" m ON (g.model = m.id) '
+            'WHERE m.model = %s '
+                'AND (g.id NOT IN (SELECT rule_group '
+                        'FROM "' + cls._table + '")) '
+                'AND (g.id IN (SELECT rule_group '
+                        'FROM "' + RuleGroup_User._table + '" '
+                        'WHERE "user" = %s '
+                        'UNION SELECT rule_group '
+                        'FROM "' + RuleGroup_Group._table + '" g_rel '
+                            'JOIN "' + User_Group._table + '" u_rel '
+                                'ON g_rel."group" = u_rel."group" '
                         'WHERE u_rel."user" = %s))',
             (model_name, user_id, user_id))
         fetchone = cursor.fetchone()

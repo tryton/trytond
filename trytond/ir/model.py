@@ -3,10 +3,6 @@
 import datetime
 import re
 import heapq
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 from ..model import ModelView, ModelSQL, fields
 from ..report import Report
@@ -259,8 +255,8 @@ class ModelField(ModelSQL, ModelView):
                     model_ids.add(rec['model'])
             model_ids = list(model_ids)
             cursor = Transaction().cursor
-            cursor.execute('SELECT id, model FROM ir_model WHERE id IN ' \
-                    '(' + ','.join(('%s',) * len(model_ids)) + ')', model_ids)
+            cursor.execute('SELECT id, model FROM ir_model WHERE id IN '
+                '(' + ','.join(('%s',) * len(model_ids)) + ')', model_ids)
             id2model = dict(cursor.fetchall())
 
             trans_args = []
@@ -407,7 +403,7 @@ class ModelAccess(ModelSQL, ModelView):
     def check(cls, model_name, mode='read', raise_exception=True):
         'Check access for model_name and mode'
         assert mode in ['read', 'write', 'create', 'delete'], \
-                'Invalid access mode for security'
+            'Invalid access mode for security'
         if Transaction().user == 0:
             return True
 

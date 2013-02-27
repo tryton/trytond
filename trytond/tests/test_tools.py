@@ -25,23 +25,23 @@ class ToolsTestCase(unittest.TestCase):
         '''
         Test reduce_ids continue list.
         '''
-        self.assert_(('(((id >= %s) AND (id <= %s)))', [0, 9]) == \
-                reduce_ids('id', range(10)))
+        self.assert_(('(((id >= %s) AND (id <= %s)))', [0, 9])
+            == reduce_ids('id', range(10)))
 
     def test0020reduce_ids_one_hole(self):
         '''
         Test reduce_ids continue list with one hole.
         '''
-        self.assert_(('(((id >= %s) AND (id <= %s)) OR ' \
-                '((id >= %s) AND (id <= %s)))', [0, 9, 20, 29]) == \
-                reduce_ids('id', range(10) + map(lambda x: x + 20, range(10))))
+        self.assert_(('(((id >= %s) AND (id <= %s)) OR '
+                '((id >= %s) AND (id <= %s)))', [0, 9, 20, 29])
+            == reduce_ids('id', range(10) + map(lambda x: x + 20, range(10))))
 
     def test0030reduce_ids_short_continue(self):
         '''
         Test reduce_ids short continue list.
         '''
-        self.assert_(('((id IN (%s,%s,%s,%s)))', [0, 1, 2, 3]) == \
-                reduce_ids('id', range(4)))
+        self.assert_(('((id IN (%s,%s,%s,%s)))', [0, 1, 2, 3])
+            == reduce_ids('id', range(4)))
 
     def test0040reduce_ids_complex(self):
         '''
@@ -66,9 +66,9 @@ class ToolsTestCase(unittest.TestCase):
         Test reduce_ids with integer as float.
         '''
         self.assert_(('(((id >= %s) AND (id <= %s)) OR (id IN (%s,%s,%s,%s)))',
-                [1.0, 12.0, 15.0, 18.0, 19.0, 21.0]) == \
-                    reduce_ids('id', [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0,
-                    9.0, 10.0, 11.0, 12.0, 15.0, 18.0, 19.0, 21.0]))
+                [1.0, 12.0, 15.0, 18.0, 19.0, 21.0])
+            == reduce_ids('id', [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0,
+                    10.0, 11.0, 12.0, 15.0, 18.0, 19.0, 21.0]))
         self.assertRaises(AssertionError, reduce_ids, 'id', [1.1])
 
     def test0060safe_eval_builtin(self):

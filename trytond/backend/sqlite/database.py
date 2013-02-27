@@ -309,9 +309,9 @@ class Cursor(CursorInterface):
 
     def test(self):
         try:
-            self.cursor.execute("SELECT name " \
-                    "FROM sqlite_master " \
-                    "WHERE type = 'table' AND name in (" \
+            self.cursor.execute("SELECT name "
+                "FROM sqlite_master "
+                "WHERE type = 'table' AND name in ("
                     "'ir_model', "
                     "'ir_model_field', "
                     "'ir_ui_view', "

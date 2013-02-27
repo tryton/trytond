@@ -272,7 +272,7 @@ def modules_suite():
     '''
     suite_ = all_suite()
     from trytond.modules import create_graph, get_module_list, \
-            MODULES_PATH, EGG_MODULES
+        MODULES_PATH, EGG_MODULES
     graph = create_graph(get_module_list())[0]
     for package in graph:
         module = package.name

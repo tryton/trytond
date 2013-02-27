@@ -93,7 +93,7 @@ class Date(Field):
         # datetime must be tested separately because datetime is a
         # subclass of date
         assert(not isinstance(value, datetime.datetime)
-                or value.time() == datetime.time())
+            or value.time() == datetime.time())
         return value
 
 

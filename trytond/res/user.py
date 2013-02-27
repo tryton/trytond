@@ -100,10 +100,10 @@ class User(ModelSQL, ModelView):
             'groups',
         ]
         cls._error_messages.update({
-            'rm_root': 'You can not remove the root user\n' \
-                            'as it is used internally for resources\n' \
-                            'created by the system ' \
-                            '(updates, module installation, ...)',
+            'rm_root': ('You can not remove the root user\n'
+                    'as it is used internally for resources\n'
+                    'created by the system '
+                    '(updates, module installation, ...)'),
             'wrong_password': 'Wrong password!',
             })
 
@@ -442,9 +442,9 @@ class User(ModelSQL, ModelView):
         if result:
             return result
         cursor = Transaction().cursor
-        cursor.execute('SELECT id, password, salt ' \
-                'FROM "' + cls._table + '" '
-                'WHERE login = %s AND active', (login,))
+        cursor.execute('SELECT id, password, salt '
+            'FROM "' + cls._table + '" '
+            'WHERE login = %s AND active', (login,))
         result = cursor.fetchone() or (None, None, None)
         cls._get_login_cache.set(login, result)
         return result

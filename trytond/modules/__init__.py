@@ -107,7 +107,7 @@ class Node(Singleton):
 
     def has_child(self, name):
         return Node(name, self.graph) in self.childs or \
-                bool([c for c in self.childs if c.has_child(name)])
+            bool([c for c in self.childs if c.has_child(name)])
 
     def __setattr__(self, name, value):
         super(Node, self).__setattr__(name, value)
@@ -368,15 +368,15 @@ def load_modules(database_name, pool, update=False, lang=None):
             cursor.execute('DELETE FROM ir_module_module '
                 'WHERE name = %s', ('workflow',))
             if 'all' in CONFIG['init']:
-                cursor.execute("SELECT name FROM ir_module_module " \
-                        "WHERE name != \'test\'")
+                cursor.execute("SELECT name FROM ir_module_module "
+                    "WHERE name != \'test\'")
             else:
-                cursor.execute("SELECT name FROM ir_module_module " \
-                        "WHERE state IN ('installed', 'to install', " \
-                            "'to upgrade', 'to remove')")
+                cursor.execute("SELECT name FROM ir_module_module "
+                    "WHERE state IN ('installed', 'to install', "
+                    "'to upgrade', 'to remove')")
         else:
-            cursor.execute("SELECT name FROM ir_module_module " \
-                    "WHERE state IN ('installed', 'to upgrade', 'to remove')")
+            cursor.execute("SELECT name FROM ir_module_module "
+                "WHERE state IN ('installed', 'to upgrade', 'to remove')")
         module_list = [name for (name,) in cursor.fetchall()]
         if update:
             for module in CONFIG['init'].keys():
@@ -394,21 +394,21 @@ def load_modules(database_name, pool, update=False, lang=None):
             raise
 
         if update:
-            cursor.execute("SELECT name FROM ir_module_module " \
-                    "WHERE state IN ('to remove')")
+            cursor.execute("SELECT name FROM ir_module_module "
+                "WHERE state IN ('to remove')")
             fetchall = cursor.fetchall()
             if fetchall:
                 for (mod_name,) in fetchall:
                     #TODO check if ressource not updated by the user
-                    cursor.execute('SELECT model, db_id FROM ir_model_data ' \
-                            'WHERE module = %s ' \
-                            'ORDER BY id DESC', (mod_name,))
+                    cursor.execute('SELECT model, db_id FROM ir_model_data '
+                        'WHERE module = %s '
+                        'ORDER BY id DESC', (mod_name,))
                     for rmod, rid in cursor.fetchall():
                         Model = pool.get(rmod)
                         Model.delete([Model(rid)])
                     cursor.commit()
-                cursor.execute("UPDATE ir_module_module SET state = %s " \
-                        "WHERE state IN ('to remove')", ('uninstalled',))
+                cursor.execute("UPDATE ir_module_module SET state = %s "
+                    "WHERE state IN ('to remove')", ('uninstalled',))
                 cursor.commit()
                 res = False
 

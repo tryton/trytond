@@ -10,10 +10,10 @@ def digits_validate(value):
         assert isinstance(value, tuple), 'digits must be a tuple'
         for i in value:
             assert isinstance(i, (int, long, PYSON)), \
-                    'digits must be tuple of integers or PYSON'
+                'digits must be tuple of integers or PYSON'
             if isinstance(i, PYSON):
                 assert i.types().issubset(set([int, long])), \
-                        'PYSON digits must return an integer'
+                    'PYSON digits must return an integer'
 
 
 class Float(Field):
@@ -22,7 +22,7 @@ class Float(Field):
     '''
     _type = 'float'
 
-    def __init__(self, string='', digits=None,  help='', required=False,
+    def __init__(self, string='', digits=None, help='', required=False,
             readonly=False, domain=None, states=None, select=False,
             on_change=None, on_change_with=None, depends=None,
             order_field=None, context=None, loading='eager'):

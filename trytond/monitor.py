@@ -76,7 +76,7 @@ def monitor():
         _MODULES = modules
     for module in modules.difference(_MODULES):
         if subprocess.call((sys.executable, '-c',
-            'import trytond.modules.%s' % module)):
+                    'import trytond.modules.%s' % module)):
             modified = False
             break
         modified = True

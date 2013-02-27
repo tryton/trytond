@@ -232,13 +232,13 @@ class TableHandler(TableHandlerInterface):
             if (base_type == 'varchar'
                     and self._columns[column_name]['typname'] == 'varchar'):
                 # Migrate size
-                if field_size == None:
+                if field_size is None:
                     if self._columns[column_name]['size'] > 0:
                         self.alter_size(column_name, base_type)
                 elif self._columns[column_name]['size'] == field_size:
                     pass
-                elif self._columns[column_name]['size'] > 0 and \
-                        self._columns[column_name]['size'] < field_size:
+                elif (self._columns[column_name]['size'] > 0
+                        and self._columns[column_name]['size'] < field_size):
                     self.alter_size(column_name, column_type[1])
                 else:
                     logging.getLogger('init').warning(
@@ -307,8 +307,8 @@ class TableHandler(TableHandlerInterface):
     def index_action(self, column_name, action='add', table=None):
         if isinstance(column_name, basestring):
             column_name = [column_name]
-        index_name = (table or self.table_name) + "_" + '_'.join(column_name) \
-                + "_index"
+        index_name = ((table or self.table_name) + "_" + '_'.join(column_name)
+            + "_index")
         if self._indexes:
             test_index_name = index_name[:max(map(len, self._indexes))]
         else:

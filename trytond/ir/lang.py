@@ -24,13 +24,13 @@ class Lang(ModelSQL, ModelView):
     __name__ = "ir.lang"
     name = fields.Char('Name', required=True, translate=True)
     code = fields.Char('Code', required=True,
-            help="RFC 4646 tag: http://tools.ietf.org/html/rfc4646")
+        help="RFC 4646 tag: http://tools.ietf.org/html/rfc4646")
     translatable = fields.Boolean('Translatable')
     active = fields.Boolean('Active')
     direction = fields.Selection([
-       ('ltr', 'Left-to-right'),
-       ('rtl', 'Right-to-left'),
-       ], 'Direction', required=True)
+            ('ltr', 'Left-to-right'),
+            ('rtl', 'Right-to-left'),
+            ], 'Direction', required=True)
 
     #date
     date = fields.Char('Date', required=True)
@@ -89,8 +89,8 @@ class Lang(ModelSQL, ModelView):
                         break
                 res_trans = Translation.get_ids(cls.__name__ + ',name',
                         'model', record2['code'], [record2['id']])
-                record['name'] = res_trans.get(record2['id'], False) \
-                        or record2['name']
+                record['name'] = (res_trans.get(record2['id'], False)
+                    or record2['name'])
         return res
 
     @staticmethod

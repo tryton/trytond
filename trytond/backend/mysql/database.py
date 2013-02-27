@@ -65,8 +65,8 @@ class Database(DatabaseInterface):
         return
 
     def create(self, cursor, database_name):
-        cursor.execute('CREATE DATABASE `' + database_name + '` ' \
-                'DEFAULT CHARACTER SET = \'utf8\'')
+        cursor.execute('CREATE DATABASE `' + database_name + '` '
+            'DEFAULT CHARACTER SET = \'utf8\'')
         Database._list_cache = None
 
     def drop(self, cursor, database_name):
