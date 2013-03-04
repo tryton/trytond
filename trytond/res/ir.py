@@ -108,9 +108,9 @@ class ActionGroup(ModelSQL):
 class ModelFieldGroup(ModelSQL):
     "Model Field Group Rel"
     __name__ = 'ir.model.field-res.group'
-    field_id = fields.Many2One('ir.model.field', 'Model Field',
+    field = fields.Many2One('ir.model.field', 'Model Field',
             ondelete='CASCADE', select=True, required=True)
-    group_id = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
+    group = fields.Many2One('res.group', 'Group', ondelete='CASCADE',
             select=True, required=True)
 
     @classmethod
@@ -121,6 +121,10 @@ class ModelFieldGroup(ModelSQL):
             cls._table)
         TableHandler.sequence_rename(cursor, 'ir_model_field_group_rel_id_seq',
             cls._table + '_id_seq')
+        table = TableHandler(cursor, cls, module_name)
+        # Migration from 2.6: field_id and group_id renamed to field and group
+        table.column_rename('field_id', 'field')
+        table.column_rename('group_id', 'group')
         super(ModelFieldGroup, cls).__register__(module_name)
 
 
