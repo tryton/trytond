@@ -1055,7 +1055,7 @@ class ModelSQL(ModelStorage):
                 models = Model.browse([x[0] for x in cursor.fetchall()])
                 if models:
                     Model.write(models, {
-                            field_name: False,
+                            field_name: None,
                             })
 
             for Model, field_name in foreign_keys_todelete:
