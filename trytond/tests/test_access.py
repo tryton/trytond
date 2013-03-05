@@ -38,7 +38,7 @@ class ModelAccessTestCase(unittest.TestCase):
             # One access allowed for any group
             model_access_wo_group, = self.model_access.create([{
                         'model': model.id,
-                        'group': False,
+                        'group': None,
                         'perm_read': True,
                         }])
             self.test_access.read([test.id])
@@ -121,7 +121,7 @@ class ModelAccessTestCase(unittest.TestCase):
             # One access allowed for any group
             model_access_wo_group, = self.model_access.create([{
                         'model': model.id,
-                        'group': False,
+                        'group': None,
                         'perm_write': True,
                         }])
             self.test_access.write([test], {})
@@ -201,7 +201,7 @@ class ModelAccessTestCase(unittest.TestCase):
             # One access allowed for any group
             model_access_wo_group, = self.model_access.create([{
                         'model': model.id,
-                        'group': False,
+                        'group': None,
                         'perm_create': True,
                         }])
             self.test_access.create([{}])
@@ -284,7 +284,7 @@ class ModelAccessTestCase(unittest.TestCase):
             # One access allowed for any group
             model_access_wo_group, = self.model_access.create([{
                         'model': model.id,
-                        'group': False,
+                        'group': None,
                         'perm_delete': True,
                         }])
             self.test_access.delete([tests.pop()])
@@ -399,7 +399,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
             # One access allowed for any group
             field_access_wo_group, = self.field_access.create([{
                         'field': field1.id,
-                        'group': False,
+                        'group': None,
                         'perm_read': True,
                         }])
             self.test_access.read([test.id], ['field1'])
@@ -530,12 +530,12 @@ class ModelFieldAccessTestCase(unittest.TestCase):
 
             field_access1, = self.field_access.create([{
                         'field': field1.id,
-                        'group': False,
+                        'group': None,
                         'perm_read': True,
                         }])
             field_access2, = self.field_access.create([{
                         'field': field2.id,
-                        'group': False,
+                        'group': None,
                         'perm_read': True,
                         }])
 
@@ -607,7 +607,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
             # One access allowed for any group
             field_access_wo_group, = self.field_access.create([{
                         'field': field1.id,
-                        'group': False,
+                        'group': None,
                         'perm_write': True,
                         }])
             self.test_access.write([test], {})
@@ -738,12 +738,12 @@ class ModelFieldAccessTestCase(unittest.TestCase):
 
             field_access1, = self.field_access.create([{
                         'field': field1.id,
-                        'group': False,
+                        'group': None,
                         'perm_write': True,
                         }])
             field_access2, = self.field_access.create([{
                         'field': field2.id,
-                        'group': False,
+                        'group': None,
                         'perm_write': True,
                         }])
 

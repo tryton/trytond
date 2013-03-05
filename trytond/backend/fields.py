@@ -21,10 +21,7 @@ class Field(object):
 
 
 class Boolean(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return value
+    pass
 
 
 class Integer(Field):
@@ -147,10 +144,7 @@ class Time(Field):
 
 
 class Binary(Field):
-
-    @staticmethod
-    def sql_format(value):
-        return value or None
+    pass
 
 
 class Selection(Char):
@@ -173,7 +167,10 @@ class Many2One(Field):
 
     @staticmethod
     def sql_format(value):
-        return value and int(value) or None
+        if value is None:
+            return None
+        assert value is not False
+        return int(value)
 
 
 class One2Many(Field):
