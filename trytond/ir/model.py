@@ -134,7 +134,9 @@ class Model(ModelSQL, ModelView):
                 ])
         access = ModelAccess.get_access([m.model for m in models])
         s = StringMatcher()
-        s.set_seq2(text.decode('utf-8'))
+        if isinstance(text, str):
+            text = text.decode('utf-8')
+        s.set_seq2(text)
 
         def generate():
             for model in models:
@@ -144,6 +146,8 @@ class Model(ModelSQL, ModelView):
                 if not hasattr(Model, 'search_global'):
                     continue
                 for id_, rec_name, icon in Model.search_global(text):
+                    if isinstance(rec_name, str):
+                        rec_name = rec_name.decode('utf-8')
                     s.set_seq1(rec_name)
                     yield (s.ratio(), model.model, model.rec_name,
                         id_, rec_name, icon)
