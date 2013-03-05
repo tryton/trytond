@@ -528,9 +528,13 @@ class Translation(ModelSQL, ModelView):
         id2translation = {}
         key2ids = {}
         module_translations = cls.search([
-            ('lang', '=', lang),
-            ('module', '=', module),
-            ])
+                ('lang', '=', lang),
+                ('module', '=', module),
+                ],
+            order=[
+                ('type', 'DESC'),
+                ('name', 'DESC'),
+                ])
         for translation in module_translations:
             if translation.type in ('odt', 'view', 'wizard_button',
                     'selection', 'error'):
