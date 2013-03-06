@@ -52,13 +52,16 @@ class TriggerTestCase(unittest.TestCase):
             model, = self.model.search([
                     ('model', '=', 'test.triggered'),
                     ])
+            action_model, = self.model.search([
+                    ('model', '=', 'test.trigger_action'),
+                    ])
 
             values = {
                 'name': 'Test',
                 'model': model.id,
                 'on_time': True,
                 'condition': 'True',
-                'action_model': model.id,
+                'action_model': action_model.id,
                 'action_function': 'test',
                 }
             self.assert_(self.trigger.create([values]))
@@ -92,13 +95,16 @@ class TriggerTestCase(unittest.TestCase):
             model, = self.model.search([
                     ('model', '=', 'test.triggered'),
                     ])
+            action_model, = self.model.search([
+                    ('model', '=', 'test.trigger_action'),
+                    ])
 
             trigger, = self.trigger.create([{
                         'name': 'Test',
                         'model': model.id,
                         'on_create': True,
                         'condition': 'True',
-                        'action_model': model.id,
+                        'action_model': action_model.id,
                         'action_function': 'trigger',
                         }])
 
@@ -162,13 +168,16 @@ class TriggerTestCase(unittest.TestCase):
             model, = self.model.search([
                     ('model', '=', 'test.triggered'),
                     ])
+            action_model, = self.model.search([
+                    ('model', '=', 'test.trigger_action'),
+                    ])
 
             trigger, = self.trigger.create([{
                         'name': 'Test',
                         'model': model.id,
                         'on_write': True,
                         'condition': 'True',
-                        'action_model': model.id,
+                        'action_model': action_model.id,
                         'action_function': 'trigger',
                         }])
 
@@ -272,6 +281,9 @@ class TriggerTestCase(unittest.TestCase):
             model, = self.model.search([
                     ('model', '=', 'test.triggered'),
                     ])
+            action_model, = self.model.search([
+                    ('model', '=', 'test.trigger_action'),
+                    ])
 
             triggered, = self.triggered.create([{
                         'name': 'Test',
@@ -282,7 +294,7 @@ class TriggerTestCase(unittest.TestCase):
                         'model': model.id,
                         'on_delete': True,
                         'condition': 'True',
-                        'action_model': model.id,
+                        'action_model': action_model.id,
                         'action_function': 'trigger',
                         }])
 
@@ -360,13 +372,16 @@ class TriggerTestCase(unittest.TestCase):
             model, = self.model.search([
                     ('model', '=', 'test.triggered'),
                     ])
+            action_model, = self.model.search([
+                    ('model', '=', 'test.trigger_action'),
+                    ])
 
             trigger, = self.trigger.create([{
                         'name': 'Test',
                         'model': model.id,
                         'on_time': True,
                         'condition': 'True',
-                        'action_model': model.id,
+                        'action_model': action_model.id,
                         'action_function': 'trigger',
                         }])
 

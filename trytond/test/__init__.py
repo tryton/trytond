@@ -121,6 +121,7 @@ def register():
         ExportDataTarget2,
         ExportDataRelation,
         Triggered,
+        TriggerAction,
         TestAccess,
         TestWizardStart,
         WorkflowedModel,
