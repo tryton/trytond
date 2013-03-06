@@ -501,7 +501,6 @@ class ModelFieldAccess(ModelSQL, ModelView):
         pool = Pool()
         Model = pool.get('ir.model')
         ModelField = pool.get('ir.model.field')
-        UserGroup = pool.get('res.user-res.group')
         cursor = Transaction().cursor
         user = Transaction().user
 
@@ -528,14 +527,13 @@ class ModelFieldAccess(ModelSQL, ModelView):
                     'ON (a.field = f.id) '
                 'JOIN "%s" AS m '
                     'ON (f.model = m.id) '
-                'LEFT JOIN "%s" AS gu '
+                'LEFT JOIN "res_user-res_group" AS gu '
                     'ON (gu."group" = a."group") '
                 'WHERE m.model IN (' + ','.join(('%%s',) * len(models)) + ') '
                     'AND (gu."user" = %%s OR a."group" IS NULL) '
                 'GROUP BY m.model, f.name')
-            % (cls._table, ModelField._table,
-                Model._table, UserGroup._table),
-                list(models) + [Transaction().user])
+            % (cls._table, ModelField._table, Model._table),
+            list(models) + [Transaction().user])
         for m, f, r, w, c, d in cursor.fetchall():
             accesses[m][f] = {'read': r, 'write': w, 'create': c, 'delete': d}
         for model, maccesses in accesses.iteritems():
