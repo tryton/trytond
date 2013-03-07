@@ -99,8 +99,6 @@ class UIMenu(ModelSQL, ModelView):
         cls._error_messages.update({
                 'wrong_name': ('"%%s" is not a valid menu name because it is '
                     'not allowed to contain "%s".' % SEPARATOR),
-                'recursion_error': ('Recursion error: Menu entry "%s" was '
-                    'configured as ancestor of itself.'),
                 })
 
     @staticmethod
