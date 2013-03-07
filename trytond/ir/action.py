@@ -116,12 +116,10 @@ class ActionKeyword(ModelSQL, ModelView):
     def __setup__(cls):
         super(ActionKeyword, cls).__setup__()
         cls.__rpc__.update({'get_keyword': RPC()})
-        cls._constraints += [
-            ('check_wizard_model', 'wrong_wizard_model'),
-        ]
         cls._error_messages.update({
-            'wrong_wizard_model': 'Wrong wizard model!',
-        })
+                'wrong_wizard_model': ('Wrong wizard model in keyword action '
+                    '"%s".'),
+                })
 
     @classmethod
     def __register__(cls, module_name):
@@ -137,6 +135,12 @@ class ActionKeyword(ModelSQL, ModelView):
     def search_groups(cls, name, clause):
         return [('action.groups',) + tuple(clause[1:])]
 
+    @classmethod
+    def validate(cls, actions):
+        super(ActionKeyword, cls).validate(actions)
+        for action in actions:
+            action.check_wizard_model()
+
     def check_wizard_model(self):
         ActionWizard = Pool().get('ir.action.wizard')
         if self.action.type == 'ir.action.wizard':
@@ -145,8 +149,8 @@ class ActionKeyword(ModelSQL, ModelView):
                 ], limit=1)
             if action_wizard.model:
                 if self.model.__name__ != action_wizard.model:
-                    return False
-        return True
+                    self.raise_user_error('wrong_wizard_model', (
+                            action_wizard.rec_name,))
 
     @staticmethod
     def _convert_vals(vals):
@@ -327,11 +331,8 @@ class ActionReport(ModelSQL, ModelView):
             ('report_name_module_uniq', 'UNIQUE(report_name, module)',
                 'The internal name must be unique by module!'),
         ]
-        cls._constraints += [
-            ('check_email', 'invalid_email'),
-            ]
         cls._error_messages.update({
-                'invalid_email': 'Invalid email!',
+                'invalid_email': 'Invalid email definition on report "%s".',
                 })
 
     @classmethod
@@ -415,6 +416,11 @@ class ActionReport(ModelSQL, ModelView):
         return Transaction().context.get('module') or ''
 
     @classmethod
+    def validate(cls, reports):
+        super(ActionReport, cls).validate(reports)
+        cls.check_email(reports)
+
+    @classmethod
     def check_email(cls, reports):
         "Check email"
         for report in reports:
@@ -422,14 +428,14 @@ class ActionReport(ModelSQL, ModelView):
                 try:
                     value = safe_eval(report.email, CONTEXT)
                 except Exception:
-                    return False
+                    value = None
                 if isinstance(value, dict):
                     inkeys = set(value)
                     if not inkeys <= EMAIL_REFKEYS:
-                        return False
+                        cls.raise_user_error('invalid_email', (
+                                report.rec_name,))
                 else:
-                    return False
-        return True
+                    cls.raise_user_error('invalid_email', (report.rec_name,))
 
     @classmethod
     def get_report_content(cls, reports, name):
@@ -589,16 +595,14 @@ class ActionActWindow(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(ActionActWindow, cls).__setup__()
-        cls._constraints += [
-            ('check_views', 'invalid_views'),
-            ('check_domain', 'invalid_domain'),
-            ('check_context', 'invalid_context'),
-        ]
         cls._error_messages.update({
-            'invalid_views': 'Invalid views!',
-            'invalid_domain': 'Invalid domain or search criteria!',
-            'invalid_context': 'Invalid context!',
-        })
+                'invalid_views': ('Invalid view "%(view)s" for action '
+                    '"%(action)s".'),
+                'invalid_domain': ('Invalid domain or search criteria '
+                    '"%(domain)s" on action "%(action)s".'),
+                'invalid_context': ('Invalid context "%(context)s" on action '
+                    '"%(action)s".'),
+                })
         cls.__rpc__.update({
                 'get': RPC(),
                 })
@@ -639,6 +643,13 @@ class ActionActWindow(ModelSQL, ModelView):
         return '[]'
 
     @classmethod
+    def validate(cls, actions):
+        super(ActionActWindow, cls).validate(actions)
+        cls.check_views(actions)
+        cls.check_domain(actions)
+        cls.check_context(actions)
+
+    @classmethod
     def check_views(cls, actions):
         "Check views"
         for action in actions:
@@ -646,17 +657,28 @@ class ActionActWindow(ModelSQL, ModelView):
                 for act_window_view in action.act_window_views:
                     view = act_window_view.view
                     if view.model != action.res_model:
-                        return False
+                        cls.raise_user_error('invalid_views', {
+                                'view': view.rec_name,
+                                'action': action.rec_name,
+                                })
                     if view.type == 'board':
-                        return False
+                        cls.raise_user_error('invalid_views', {
+                                'view': view.rec_name,
+                                'action': action.rec_name,
+                                })
             else:
                 for act_window_view in action.act_window_views:
                     view = act_window_view.view
                     if view.model:
-                        return False
+                        cls.raise_user_error('invalid_views', {
+                                'view': view.rec_name,
+                                'action': action.rec_name,
+                                })
                     if view.type != 'board':
-                        return False
-        return True
+                        cls.raise_user_error('invalid_views', {
+                                'view': view.rec_name,
+                                'action': action.rec_name,
+                                })
 
     @classmethod
     def check_domain(cls, actions):
@@ -668,18 +690,29 @@ class ActionActWindow(ModelSQL, ModelView):
                 try:
                     value = safe_eval(domain, CONTEXT)
                 except Exception:
-                    return False
+                    cls.raise_user_error('invalid_domain', {
+                            'domain': domain,
+                            'action': action.rec_name,
+                            })
                 if isinstance(value, PYSON):
                     if not value.types() == set([list]):
-                        return False
+                        cls.raise_user_error('invalid_domain', {
+                                'domain': domain,
+                                'action': action.rec_name,
+                                })
                 elif not isinstance(value, list):
-                    return False
+                    cls.raise_user_error('invalid_domain', {
+                            'domain': domain,
+                            'action': action.rec_name,
+                            })
                 else:
                     try:
                         fields.domain_validate(value)
                     except Exception:
-                        return False
-        return True
+                        cls.raise_user_error('invalid_domain', {
+                                'domain': domain,
+                                'action': action.rec_name,
+                                })
 
     @classmethod
     def check_context(cls, actions):
@@ -689,18 +722,29 @@ class ActionActWindow(ModelSQL, ModelView):
                 try:
                     value = safe_eval(action.context, CONTEXT)
                 except Exception:
-                    return False
+                    cls.raise_user_error('invalid_context', {
+                            'context': action.context,
+                            'action': action.rec_name,
+                            })
                 if isinstance(value, PYSON):
                     if not value.types() == set([dict]):
-                        return False
+                        cls.raise_user_error('invalid_context', {
+                                'context': action.context,
+                                'action': action.rec_name,
+                                })
                 elif not isinstance(value, dict):
-                    return False
+                    cls.raise_user_error('invalid_context', {
+                            'context': action.context,
+                            'action': action.rec_name,
+                            })
                 else:
                     try:
                         fields.context_validate(value)
                     except Exception:
-                        return False
-        return True
+                        cls.raise_user_error('invalid_context', {
+                                'context': action.context,
+                                'action': action.rec_name,
+                                })
 
     def get_views(self, name):
         return [(view.view.id, view.view.type)

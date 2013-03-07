@@ -2213,8 +2213,8 @@ class ModelSQL(ModelStorage):
                 'WHERE ' + red_child_sql, red_child_ids)
 
     @classmethod
-    def _validate(cls, records):
-        super(ModelSQL, cls)._validate(records)
+    def validate(cls, records):
+        super(ModelSQL, cls).validate(records)
         cursor = Transaction().cursor
         if cursor.has_constraint():
             return

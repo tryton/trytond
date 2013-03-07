@@ -8,6 +8,7 @@ import contextlib
 import traceback
 import sys
 import csv
+import warnings
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -828,7 +829,7 @@ class ModelStorage(Model):
         return True
 
     @classmethod
-    def check_recursion(cls, records, parent='parent'):
+    def check_recursion(cls, records, parent='parent', rec_name='rec_name'):
         '''
         Function that checks if there is no recursion in the tree
         composed with parent as parent field name.
@@ -856,18 +857,24 @@ class ModelStorage(Model):
                     for walk in walker:
                         walked.add(walk.id)
                         if walk.id == record.id:
-                            return False
+                            cls.raise_user_error('recursion_error', {
+                                    'rec_name': getattr(record, rec_name),
+                                    'parent_rec_name': getattr(getattr(record,
+                                            parent), rec_name)
+                                    })
                     walker = list(chain(*(getattr(walk, parent)
                                 for walk in walker if walk.id not in visited)))
                 else:
                     walked.add(walker.id)
                     if walker.id == record.id:
-                        return False
+                        cls.raise_user_error('recursion_error', {
+                                'rec_name': getattr(record, rec_name),
+                                'parent_rec_name': getattr(getattr(record,
+                                        parent), rec_name)
+                                })
                     walker = (getattr(walker, parent) not in visited
                         and getattr(walker, parent))
             visited.update(walked)
-
-        return True
 
     @classmethod
     def _get_error_args(cls, field_name):
@@ -886,6 +893,10 @@ class ModelStorage(Model):
         return error_args
 
     @classmethod
+    def validate(cls, records):
+        pass
+
+    @classmethod
     def _validate(cls, records):
         pool = Pool()
         if (Transaction().user == 0
@@ -897,9 +908,6 @@ class ModelStorage(Model):
         with Transaction().set_user(0, set_context=True):
             records = cls.browse(records)
 
-        for record in records:
-            record.pre_validate()
-
         def call(name):
             method = getattr(cls, name)
             if not hasattr(method, 'im_self') or method.im_self:
@@ -907,6 +915,8 @@ class ModelStorage(Model):
             else:
                 return all(method(r) for r in records)
         for field in cls._constraints:
+            warnings.warn('_constraints is deprecated, override validate instead',
+                DeprecationWarning, stacklevel=2)
             if not call(field[0]):
                 cls.raise_user_error(field[1])
 
@@ -1140,6 +1150,12 @@ class ModelStorage(Model):
                         for record in records:
                             format_test(getattr(record, field_name),
                                 field.format, field_name)
+
+        for record in records:
+            record.pre_validate()
+
+        cls.validate(records)
+
 
     @classmethod
     def _clean_defaults(cls, defaults):

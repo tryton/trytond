@@ -211,6 +211,9 @@ Class attributes are:
 
 .. attribute:: ModelStorage._constraints
 
+    .. warning::
+        Deprecated, use :class:`trytond.model.ModelStorage.validate` instead.
+
     The list of constraints that each record must respect. The definition is:
 
         [ ('function name', 'error keyword'), ... ]
@@ -326,6 +329,12 @@ CLass methods:
 
     Helper method that checks if there is no recursion in the tree composed
     with ``parent`` as parent field name.
+
+.. classmethod:: ModelStorage.validate(records)
+
+    Validate the integrity of records after creation and modification. This
+    method must be overridden to add validation and must raise an exception if
+    validation fails.
 
 Instance methods:
 

@@ -60,14 +60,17 @@ class Trigger(ModelSQL, ModelView):
             ('on_exclusive',
                 'CHECK(NOT(on_time AND (on_create OR on_write OR on_delete)))',
                 '"On Time" and others are mutually exclusive!'),
-        ]
-        cls._constraints += [
-            ('check_condition', 'invalid_condition'),
-        ]
+            ]
         cls._error_messages.update({
-            'invalid_condition': 'Condition must be a python expression!',
-        })
+                'invalid_condition': ('Condition "%(condition)s" is not a '
+                    'valid python expression on trigger "%(trigger)s".'),
+                })
         cls._order.insert(0, ('name', 'ASC'))
+
+    @classmethod
+    def validate(cls, triggers):
+        super(Trigger, cls).validate(triggers)
+        cls.check_condition(triggers)
 
     @classmethod
     def check_condition(cls, triggers):
@@ -78,8 +81,10 @@ class Trigger(ModelSQL, ModelView):
             try:
                 compile(trigger.condition, '', 'eval')
             except (SyntaxError, TypeError):
-                return False
-        return True
+                cls.raise_user_error('invalid_condition', {
+                        'condition': trigger.condition,
+                        'trigger': trigger.rec_name,
+                        })
 
     @staticmethod
     def default_active():

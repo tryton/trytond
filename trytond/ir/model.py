@@ -56,18 +56,21 @@ class Model(ModelSQL, ModelView):
         cls._sql_constraints += [
             ('model_uniq', 'UNIQUE(model)',
                 'The model must be unique!'),
-        ]
-        cls._constraints += [
-            ('check_module', 'invalid_module'),
-        ]
+            ]
         cls._error_messages.update({
-            'invalid_module': 'Module Name must be a python identifier!',
-        })
+                'invalid_module': ('Module name "%s" is not a valid python '
+                    'identifier.'),
+                })
         cls._order.insert(0, ('model', 'ASC'))
         cls.__rpc__.update({
                 'list_models': RPC(),
                 'global_search': RPC(),
                 })
+
+    @classmethod
+    def validate(cls, models):
+        super(Model, cls).validate(models)
+        cls.check_module(models)
 
     @classmethod
     def check_module(cls, models):
@@ -76,8 +79,7 @@ class Model(ModelSQL, ModelView):
         '''
         for model in models:
             if model.module and not IDENTIFIER.match(model.module):
-                return False
-        return True
+                cls.raise_user_error('invalid_module', (module.rec_name,))
 
     @classmethod
     def list_models(cls):
@@ -200,13 +202,11 @@ class ModelField(ModelSQL, ModelView):
         cls._sql_constraints += [
             ('name_model_uniq', 'UNIQUE(name, model)',
                 'The field name in model must be unique!'),
-        ]
-        cls._constraints += [
-            ('check_name', 'invalid_name'),
-        ]
+            ]
         cls._error_messages.update({
-            'invalid_name': 'Model Field Name must be a python identifier!',
-        })
+                'invalid_name': ('Model Field name "%s" is not a valid python '
+                    'identifier.'),
+                })
         cls._order.insert(0, ('name', 'ASC'))
 
     @staticmethod
@@ -218,14 +218,18 @@ class ModelField(ModelSQL, ModelView):
         return 'No description available'
 
     @classmethod
+    def validate(cls, fields):
+        super(ModelField, cls).validate(fields)
+        cls.check_name(fields)
+
+    @classmethod
     def check_name(cls, fields):
         '''
         Check name
         '''
         for field in fields:
             if not IDENTIFIER.match(field.name):
-                return False
-        return True
+                cls.raise_user_error('invalid_name', (field.name,))
 
     @classmethod
     def read(cls, ids, fields_names=None):

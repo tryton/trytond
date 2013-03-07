@@ -83,19 +83,19 @@ class Sequence(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(Sequence, cls).__setup__()
-        cls._constraints += [
-            ('check_prefix_suffix', 'invalid_prefix_suffix'),
-            ('check_last_timestamp', 'future_last_timestamp'),
-        ]
         cls._sql_constraints += [
             ('check_timestamp_rounding', 'CHECK(timestamp_rounding > 0)',
                 'Timestamp rounding should be greater than 0'),
             ]
         cls._error_messages.update({
-            'missing': 'Missing sequence!',
-            'invalid_prefix_suffix': 'Invalid prefix/suffix!',
-            'future_last_timestamp': 'Last Timestamp could not be in future!',
-            })
+                'missing': 'Missing sequence.',
+                'invalid_prefix': ('Invalid prefix "%(prefix)s" on sequence '
+                    '"%(sequence)s".'),
+                'invalid_suffix': ('Invalid suffix "%(suffix)s" on sequence '
+                    '"%(sequence)s".'),
+                'future_last_timestamp': ('Last Timestamp cannot be in the '
+                    'future on sequence "%s".'),
+                })
 
     @classmethod
     def __register__(cls, module_name):
@@ -203,16 +203,26 @@ class Sequence(ModelSQL, ModelView):
         return [(x.code, x.name) for x in sequence_types]
 
     @classmethod
+    def validate(cls, sequences):
+        super(Sequence, cls).validate(sequences)
+        cls.check_prefix_suffix(sequences)
+        cls.check_last_timestamp(sequences)
+
+    @classmethod
     def check_prefix_suffix(cls, sequences):
         "Check prefix and suffix"
 
         for sequence in sequences:
-            try:
-                cls._process(sequence.prefix)
-                cls._process(sequence.suffix)
-            except Exception:
-                return False
-        return True
+            for fix, error_message in ((sequence.prefix, 'invalid_prefix'),
+                    (sequence.suffix, 'invalid_suffix')):
+                try:
+                    cls._process(sequence.prefix)
+                    cls._process(sequence.suffix)
+                except Exception:
+                    cls.raise_user_error(error_message, {
+                            'prefix': fix,
+                            'sequence': sequence.rec_name,
+                            })
 
     @classmethod
     def check_last_timestamp(cls, sequences):
@@ -221,8 +231,8 @@ class Sequence(ModelSQL, ModelView):
         for sequence in sequences:
             next_timestamp = cls._timestamp(sequence)
             if sequence.last_timestamp > next_timestamp:
-                return False
-        return True
+                cls.raise_user_error('future_last_timestamp', (
+                        sequence.rec_name,))
 
     @property
     def _sql_sequence_name(self):

@@ -96,14 +96,12 @@ class UIMenu(ModelSQL, ModelView):
     def __setup__(cls):
         super(UIMenu, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
-        cls._constraints += [
-            ('check_recursion', 'recursive_menu'),
-            ('check_name', 'wrong_name'),
-        ]
         cls._error_messages.update({
-            'recursive_menu': 'You can not create recursive menu!',
-            'wrong_name': 'You can not use "%s" in name field!' % SEPARATOR,
-        })
+                'wrong_name': ('"%%s" is not a valid menu name because it is '
+                    'not allowed to contain "%s".' % SEPARATOR),
+                'recursion_error': ('Recursion error: Menu entry "%s" was '
+                    'configured as ancestor of itself.'),
+                })
 
     @staticmethod
     def default_icon():
@@ -124,10 +122,16 @@ class UIMenu(ModelSQL, ModelView):
         return sorted(CLIENT_ICONS
             + [(name, name) for _, name in Icon.list_icons()])
 
+    @classmethod
+    def validate(cls, menus):
+        super(UIMenu, cls).validate(menus)
+        cls.check_recursion(menus)
+        for menu in menus:
+            menu.check_name()
+
     def check_name(self):
         if SEPARATOR in self.name:
-            return False
-        return True
+            self.raise_user_error('wrong_name', (self.name,))
 
     def get_rec_name(self, name):
         if self.parent:
