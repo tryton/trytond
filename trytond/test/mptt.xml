@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<tryton>
+    <data>
+        <record model="ir.translation" id="model_recursion_error">
+            <field name="name">test.mptt</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">recursion_error</field>
+            <field name="value">Recursion error: MPTT "%(rec_name)s" with parent "%(parent_rec_name)s" was configured as ancestor of itself.</field>
+            <field name="module">test</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
+    </data>
+</tryton>

@@ -57,12 +57,9 @@ class View(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(View, cls).__setup__()
-        cls._constraints += [
-            ('check_xml', 'invalid_xml'),
-        ]
         cls._error_messages.update({
-            'invalid_xml': 'Invalid XML for View!',
-        })
+                'invalid_xml': 'Invalid XML for view "%s".',
+                })
         cls._order.insert(0, ('priority', 'ASC'))
         cls._buttons.update({
                 'show': {},
@@ -109,6 +106,11 @@ class View(ModelSQL, ModelView):
         return rng
 
     @classmethod
+    def validate(cls, views):
+        super(View, cls).validate(views)
+        cls.check_xml(views)
+
+    @classmethod
     def check_xml(cls, views):
         "Check XML"
         for view in views:
@@ -128,7 +130,7 @@ class View(ModelSQL, ModelView):
                             validator.error_log.filter_from_errors())
                     logger.error('Invalid xml view:\n%s'
                         % (str(error_log) + '\n' + xml))
-                    return False
+                    cls.raise_user_error('invalid_xml', (view.rec_name,))
             root_element = tree.getroottree().getroot()
 
             # validate pyson attributes
@@ -159,7 +161,7 @@ class View(ModelSQL, ModelView):
                         return False
                 return True
             if not encode(root_element):
-                return False
+                cls.raise_user_error('invalid_xml', (view.rec_name,))
 
         return True
 

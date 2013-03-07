@@ -45,23 +45,20 @@ class Lang(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(Lang, cls).__setup__()
-        cls._constraints += [
-            ('check_grouping', 'invalid_grouping'),
-            ('check_date', 'invalid_date'),
-            ('check_translatable', 'default_translatable'),
-        ]
         cls._sql_constraints += [
             ('check_decimal_point_thousands_sep',
                 'CHECK(decimal_point != thousands_sep)',
                 'decimal_point and thousands_sep must be different!'),
-        ]
+            ]
         cls._error_messages.update({
-            'invalid_grouping': 'Invalid Grouping!',
-            'invalid_date': 'The date format is not valid!',
-            'default_translatable':
-                'The default language must be translatable',
-            'delete_default': 'Default language can not be deleted',
-        })
+                'invalid_grouping': ('Invalid grouping "%(grouping)s" on '
+                    '"%(language)s" language.'),
+                'invalid_date': ('Invalid date format "%(format)s" on '
+                    '"%(language)s" language.'),
+                'default_translatable': ('The default language must be '
+                    'translatable.'),
+                'delete_default': ('Default language can not be deleted.'),
+                })
 
     @classmethod
     def search_rec_name(cls, name, clause):
@@ -122,6 +119,13 @@ class Lang(ModelSQL, ModelView):
         return ','
 
     @classmethod
+    def validate(cls, languages):
+        super(Lang, cls).validate(languages)
+        cls.check_grouping(languages)
+        cls.check_date(languages)
+        cls.check_translatable(languages)
+
+    @classmethod
     def check_grouping(cls, langs):
         '''
         Check if grouping is list of numbers
@@ -131,10 +135,12 @@ class Lang(ModelSQL, ModelView):
                 grouping = safe_eval(lang.grouping)
                 for i in grouping:
                     if not isinstance(i, int):
-                        return False
+                        raise
             except Exception:
-                return False
-        return True
+                cls.raise_user_error('invalid_grouping', {
+                        'grouping': lang.grouping,
+                        'language': lang.rec_name,
+                        })
 
     @classmethod
     def check_date(cls, langs):
@@ -146,25 +152,27 @@ class Lang(ModelSQL, ModelView):
                 datetime_strftime(datetime.datetime.now(),
                         lang.date.encode('utf-8'))
             except Exception:
-                return False
-            if '%Y' not in lang.date:
-                return False
-            if '%b' not in lang.date \
-                    and '%B' not in lang.date \
-                    and '%m' not in lang.date \
-                    and '%-m' not in lang.date:
-                return False
-            if '%d' not in lang.date \
-                    and '%-d' not in lang.date \
-                    and '%j' not in lang.date \
-                    and '%-j' not in lang.date:
-                return False
-            if '%x' in lang.date \
-                    or '%X' in lang.date \
-                    or '%c' in lang.date \
-                    or '%Z' in lang.date:
-                return False
-        return True
+                cls.raise_user_error('invalid_date', {
+                        'format': lang.date,
+                        'language': lang.rec_name,
+                        })
+            if (('%Y' not in lang.date)
+                    or ('%b' not in lang.date
+                        and '%B' not in lang.date
+                        and '%m' not in lang.date
+                        and '%-m' not in lang.date)
+                    or ('%d' not in lang.date
+                        and '%-d' not in lang.date
+                        and '%j' not in lang.date
+                        and '%-j' not in lang.date)
+                    or ('%x' in lang.date
+                        or '%X' in lang.date
+                        or '%c' in lang.date
+                        or '%Z' in lang.date)):
+                cls.raise_user_error('invalid_date', {
+                        'format': lang.date,
+                        'language': lang.rec_name,
+                        })
 
     @classmethod
     def check_translatable(cls, langs):
@@ -177,8 +185,7 @@ class Lang(ModelSQL, ModelView):
         for lang in langs:
             if (lang.code == Config.get_language()
                     and not lang.translatable):
-                return False
-        return True
+                cls.raise_user_error('default_translatable')
 
     @staticmethod
     def check_xml_record(langs, values):

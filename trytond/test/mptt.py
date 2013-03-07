@@ -26,12 +26,11 @@ class MPTT(ModelSQL, ModelView):
     def __setup__(cls):
         super(MPTT, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
-        cls._constraints += [
-            ('check_recursion', 'recursive_mptt'),
-        ]
-        cls._error_messages.update({
-            'recursive_mptt': 'You can not create recursive Tree!',
-        })
+
+    @classmethod
+    def validate(cls, record):
+        super(MPTT, cls).validate(record)
+        cls.check_recursion(record)
 
     @staticmethod
     def default_active():

@@ -105,11 +105,8 @@ class Rule(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(Rule, cls).__setup__()
-        cls._constraints += [
-            ('check_domain', 'invalid_domain'),
-            ]
         cls._error_messages.update({
-                'invalid_domain': 'Invalid domain',
+                'invalid_domain': 'Invalid domain in rule "%s".',
                 })
 
     @classmethod
@@ -123,6 +120,11 @@ class Rule(ModelSQL, ModelView):
         table.not_null_action('operand', action='remove')
 
     @classmethod
+    def validate(cls, rules):
+        super(Rule, cls).validate(rules)
+        cls.check_domain(rules)
+
+    @classmethod
     def check_domain(cls, rules):
         ctx = cls._get_context()
         for rule in rules:
@@ -131,13 +133,12 @@ class Rule(ModelSQL, ModelView):
             except Exception:
                 return False
             if not isinstance(value, list):
-                return False
+                cls.raise_user_error('invalid_domain', (rule.rec_name,))
             else:
                 try:
                     fields.domain_validate(value)
                 except Exception:
-                    return False
-        return True
+                    cls.raise_user_error('invalid_domain', (rule.rec_name,))
 
     @staticmethod
     def _get_context():

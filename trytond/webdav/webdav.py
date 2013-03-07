@@ -55,16 +55,10 @@ class Collection(ModelSQL, ModelView):
             ('name_parent_uniq', 'UNIQUE (name, parent)',
                 'The collection name must be unique inside a collection!'),
         ]
-        cls._constraints += [
-            ('check_recursion', 'recursive_collections'),
-            ('check_attachment', 'collection_file_name'),
-        ]
         cls._error_messages.update({
-                'recursive_collections': ('You can not create recursive '
-                    'collections!'),
-                'collection_file_name': ('You can not create a collection\n'
-                    'in a collection with the name of an '
-                    'existing file!'),
+                'collection_file_name': ('You can not create a collection '
+                    'named "%(parent)s" in collection "%(child)s" because '
+                    'there is already a file with that name.'),
                 })
         cls.ext2mime = {
             '.png': 'image/png',
@@ -83,6 +77,12 @@ class Collection(ModelSQL, ModelView):
             return self.name
 
     @classmethod
+    def validate(cls, collections):
+        super(Collection, cls).validate(collections)
+        cls.check_recursion(collections, rec_name='name')
+        cls.check_attachment(collections)
+
+    @classmethod
     def check_attachment(cls, collections):
         pool = Pool()
         Attachment = pool.get('ir.attachment')
@@ -94,8 +94,10 @@ class Collection(ModelSQL, ModelView):
                     ])
                 for attachment in attachments:
                     if attachment.name == collection.name:
-                        return False
-        return True
+                        cls.raise_user_error('collection_file_name', {
+                                'parent': collection.parent.rec_name,
+                                'child': collection.rec_name,
+                                })
 
     @classmethod
     def _uri2object(cls, uri, object_name=__name__, object_id=None,
@@ -697,14 +699,17 @@ class Attachment(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(Attachment, cls).__setup__()
-        cls._constraints += [
-            ('check_collection', 'collection_attachment_name'),
-        ]
         cls._error_messages.update({
-            'collection_attachment_name': ('You can not create an attachment\n'
-                    'in a collection with the name\n'
-                    'of an existing child collection!'),
-        })
+                'collection_attachment_name': ('You can not create an '
+                    'attachment named "%(attachment)s in collection '
+                    '"%(collection)s" because there is already a collection '
+                    'with that name.')
+                })
+
+    @classmethod
+    def validate(cls, attachments):
+        super(Attachment, cls).validate(attachments)
+        cls.check_collection(attachments)
 
     @classmethod
     def check_collection(cls, attachments):
@@ -718,8 +723,11 @@ class Attachment(ModelSQL, ModelView):
                     collection = Collection(int(record_id))
                     for child in collection.childs:
                         if child.name == attachment.name:
-                            return False
-        return True
+                            cls.raise_user_error(
+                                'collection_attachment_name', {
+                                    'attachment': attachment.rec_name,
+                                    'collection': collection.rec_name,
+                                    })
 
     @classmethod
     def get_path(cls, attachments, name):

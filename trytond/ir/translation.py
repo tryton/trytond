@@ -1069,6 +1069,7 @@ class TranslationClean(Wizard):
                 'search_function_missing',
                 'time_format_validation_record',
                 'selection_value_notfound',
+                'model_recusion_error',
                 ):
             return False
         if model_name in pool.object_name_list():

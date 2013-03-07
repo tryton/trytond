@@ -164,9 +164,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">access_error</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">You try to bypass an access rule!
+            <field name="src">You try to bypass an access rule.
 (Document type: %s)</field>
-            <field name="value">You try to bypass an access rule!
+            <field name="value">You try to bypass an access rule.
 (Document type: %s)</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
@@ -175,9 +175,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">read_error</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">You try to read records that don't exist anymore!
+            <field name="src">You try to read records that don't exist anymore.
 (Document type: %s)</field>
-            <field name="value">You try to read records that don't exist anymore!
+            <field name="value">You try to read records that don't exist anymore.
 (Document type: %s)</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
@@ -186,9 +186,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">write_error</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">You try to write on records that don't exist anymore!
+            <field name="src">You try to write on records that don't exist anymore.
 (Document type: %s)</field>
-            <field name="value">You try to write on records that don't exist anymore!
+            <field name="value">You try to write on records that don't exist anymore.
 (Document type: %s)</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
@@ -236,6 +236,15 @@ this repository contains the full copyright notices and license terms. -->
             <field name="type">error</field>
             <field name="src">Value not in the selection for field "%s".</field>
             <field name="value">Value not in the selection for field "%s".</field>
+            <field name="module">ir</field>
+            <field name="fuzzy" eval="False"/>
+        </record>
+        <record model="ir.translation" id="model_recursion_error">
+            <field name="name">recursion_error</field>
+            <field name="lang">en_US</field>
+            <field name="type">error</field>
+            <field name="src">Recursion error: Record "%(rec_name)s" with parent "%(parent_rec_name)s" was configured as ancestor of itself.</field>
+            <field name="value">Recursion error: Record "%(rec_name)s" with parent "%(parent_rec_name)s" was configured as ancestor of itself.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
