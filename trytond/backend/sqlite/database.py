@@ -28,23 +28,20 @@ EXTRACT_PATTERN = re.compile(r'EXTRACT\s*\(\s*(\S*)\s+FROM', re.I)
 def extract(lookup_type, date):
     if date is None:
         return None
-    try:
-        if len(date) == 10:
-            year, month, day = map(int, date.split('-'))
-            date = datetime.date(year, month, day)
+    if len(date) == 10:
+        year, month, day = map(int, date.split('-'))
+        date = datetime.date(year, month, day)
+    else:
+        datepart, timepart = date.split(" ")
+        year, month, day = map(int, datepart.split("-"))
+        timepart_full = timepart.split(".")
+        hours, minutes, seconds = map(int, timepart_full[0].split(":"))
+        if len(timepart_full) == 2:
+            microseconds = int(timepart_full[1])
         else:
-            datepart, timepart = date.split(" ")
-            year, month, day = map(int, datepart.split("-"))
-            timepart_full = timepart.split(".")
-            hours, minutes, seconds = map(int, timepart_full[0].split(":"))
-            if len(timepart_full) == 2:
-                microseconds = int(timepart_full[1])
-            else:
-                microseconds = 0
-            date = datetime.datetime(year, month, day, hours, minutes, seconds,
-                    microseconds)
-    except Exception:
-        return None
+            microseconds = 0
+        date = datetime.datetime(year, month, day, hours, minutes, seconds,
+            microseconds)
     if lookup_type.lower() == 'century':
         return date.year / 100 + (date.year % 100 and 1 or 0)
     elif lookup_type.lower() == 'decade':
