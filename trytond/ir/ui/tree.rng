@@ -54,7 +54,12 @@
   <define name="field">
     <element name="field">
       <ref name="attlist.field"/>
-      <empty/>
+      <zeroOrMore>
+        <choice>
+          <ref name="prefix"/>
+          <ref name="suffix"/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
   <define name="attlist.field" combine="interleave">
@@ -165,6 +170,33 @@
           <value>1</value>
         </choice>
       </attribute>
+    </optional>
+  </define>
+  <define name="prefix">
+    <element name="prefix">
+      <ref name="attlist.affix"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="suffix">
+    <element name="suffix">
+      <ref name="attlist.affix"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.affix" combine="interleave">
+    <optional>
+      <attribute name="string"/>
+    </optional>
+  </define>
+  <define name="attlist.affix" combine="interleave">
+    <optional>
+      <attribute name="name"/>
+    </optional>
+  </define>
+  <define name="attlist.affix" combine="interleave">
+    <optional>
+      <attribute name="icon"/>
     </optional>
   </define>
   <define name="button">
