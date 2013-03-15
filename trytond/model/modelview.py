@@ -418,7 +418,8 @@ class ModelView(Model):
             fields_attrs = copy.deepcopy(fields_attrs)
         childs = True
 
-        if element.tag in ('field', 'label', 'separator', 'group'):
+        if element.tag in ('field', 'label', 'separator', 'group', 'suffix',
+                'prefix'):
             for attr in ('name', 'icon'):
                 if element.get(attr):
                     fields_attrs.setdefault(element.get(attr), {})

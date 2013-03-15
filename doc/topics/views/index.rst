@@ -159,7 +159,8 @@ Display static string.
     * ``string``: The string that will be displayed in the label.
 
     * ``name``: The name of the field whose description will be used for
-      string.
+      string. Except if ``string`` is set, it will use this value and the value
+      of the field if ``string`` is empty.
 
     * ``id``: see common-attributes-id_.
 
@@ -491,6 +492,19 @@ field
 
     * ``completion``: see in common-attributes-completion_.
 
+prefix or suffix
+^^^^^^^^^^^^^^^^
+
+A ``field`` could contain one or many ``prefix`` or ``suffix`` that will be
+diplayed in the same column.
+
+    * ``string``: The text that will be displayed.
+
+    * ``name``: The name of the field whose value will be displayed.
+
+    * ``icon``: The name of the field that contains the name of the icon to
+      display or the name of the icon.
+
 Example
 -------
 
@@ -500,6 +514,9 @@ Example
 
   <tree string="Taxes" sequence="sequence">
       <field name="name"/>
+      <field name="percentage">
+          <suffix string="%"/>
+      </field>
       <field name="group"/>
       <field name="type"/>
       <field name="active"/>
