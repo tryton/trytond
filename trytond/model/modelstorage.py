@@ -295,8 +295,7 @@ class ModelStorage(Model):
             data, data_o2m = convert_data(field_defs, data)
             to_create.append(data)
             o2m_to_create.append(data_o2m)
-        if to_create:
-            new_records = cls.create(to_create)
+        new_records = cls.create(to_create)
         for data_id, new_record, data_o2m in izip(data_ids, new_records,
                 o2m_to_create):
             new_ids[data_id] = new_record.id
