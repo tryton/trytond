@@ -2762,12 +2762,12 @@ class FieldsTestCase(unittest.TestCase):
             self.assertEqual(references, [reference1])
 
             references = self.reference.search([
-                    ('reference', '=', str(target1)),
+                    ('reference', '=', (target1.__name__, target1.id)),
                     ])
             self.assertEqual(references, [reference1])
 
             references = self.reference.search([
-                    ('reference', '=', str(target1)),
+                    ('reference', '=', [target1.__name__, target1.id]),
                     ])
             self.assertEqual(references, [reference1])
 
