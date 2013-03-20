@@ -4,8 +4,9 @@ import base64
 import os
 from operator import itemgetter
 from collections import defaultdict
+from functools import partial
 
-from ..model import ModelView, ModelSQL, fields
+from ..model import ModelView, ModelStorage, ModelSQL, fields
 from ..tools import file_open, safe_eval
 from ..backend import TableHandler
 from ..pyson import PYSONEncoder, CONTEXT, PYSON
@@ -82,7 +83,7 @@ class Action(ModelSQL, ModelView):
     @classmethod
     def get_action_values(cls, type_, action_ids):
         Action = Pool().get(type_)
-        columns = set(Action._fields.keys() + Action._inherit_fields.keys())
+        columns = set(Action._fields.keys())
         columns.add('icon.rec_name')
         to_remove = ()
         if type_ == 'ir.action.report':
@@ -230,10 +231,125 @@ class ActionKeyword(ModelSQL, ModelView):
         return keywords
 
 
-class ActionReport(ModelSQL, ModelView):
+class ActionMixin(ModelSQL):
+
+    @classmethod
+    def __setup__(cls):
+        super(ActionMixin, cls).__setup__()
+        for name in dir(Action):
+            field = getattr(Action, name)
+            if (isinstance(field, fields.Field)
+                    and not getattr(cls, name, None)):
+                setattr(cls, name, fields.Function(field, 'get_action',
+                        setter='set_action', searcher='search_action'))
+                default_func = 'default_' + name
+                if getattr(Action, default_func, None):
+                    setattr(cls, default_func,
+                        partial(ActionMixin.default_action, name))
+
+    @staticmethod
+    def default_action(name):
+        pool = Pool()
+        Action = pool.get('ir.action')
+        return getattr(Action, 'default_' + name, None)()
+
+    @classmethod
+    def get_action(cls, ids, names):
+        records = cls.browse(ids)
+        result = {}
+        for name in names:
+            result[name] = values = {}
+            for record in records:
+                value = getattr(record, 'action')
+                convert = lambda v: v
+                if value is not None:
+                    value = getattr(value, name)
+                    if isinstance(value, ModelStorage):
+                        if cls._fields[name]._type == 'reference':
+                            convert = str
+                        else:
+                            convert = int
+                    elif isinstance(value, (list, tuple)):
+                        convert = lambda v: [r.id for r in v]
+                values[record.id] = convert(value)
+        return result
+
+    @classmethod
+    def set_action(cls, records, name, value):
+        pool = Pool()
+        Action = pool.get('ir.action')
+        Action.write([r.action for r in records], {
+                name: value,
+                })
+
+    @classmethod
+    def search_action(cls, name, clause):
+        return [('action.' + name,) + tuple(clause[1:])]
+
+    @classmethod
+    def create(cls, vlist):
+        pool = Pool()
+        Action = pool.get('ir.action')
+        new_records = []
+        for values in vlist:
+            later = {}
+            action_values = {}
+            values = values.copy()
+            for field in values:
+                if field in Action._fields:
+                    action_values[field] = values[field]
+                if hasattr(getattr(cls, field), 'set'):
+                    later[field] = values[field]
+            for field in later:
+                del values[field]
+            action_values['type'] = cls.default_type()
+            cursor = Transaction().cursor
+            if cursor.nextid(cls._table):
+                cursor.setnextid(cls._table, cursor.currid(Action._table))
+            action, = Action.create([action_values])
+            values['action'] = action.id
+            record, = super(ActionMixin, cls).create([values])
+            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
+                'WHERE id = %s', (action.id, record.id))
+            cursor.update_auto_increment(cls._table, action.id)
+            record = cls(action.id)
+            new_records.append(record)
+            cls.write([record], later)
+        return new_records
+
+    @classmethod
+    def write(cls, records, values):
+        pool = Pool()
+        ActionKeyword = pool.get('ir.action.keyword')
+        super(ActionMixin, cls).write(records, values)
+        ActionKeyword._get_keyword_cache.clear()
+
+    @classmethod
+    def delete(cls, records):
+        pool = Pool()
+        Action = pool.get('ir.action')
+        actions = [x.action for x in records]
+        super(ActionMixin, cls).delete(records)
+        Action.delete(actions)
+
+    @classmethod
+    def copy(cls, records, default=None):
+        pool = Pool()
+        Action = pool.get('ir.action')
+        if default is None:
+            default = {}
+        default = default.copy()
+        new_records = []
+        for record in records:
+            default['action'] = Action.copy([record.action])[0].id
+            new_records.extend(super(ActionMixin, cls).copy([record],
+                    default=default))
+        return new_records
+
+
+class ActionReport(ActionMixin, ModelSQL, ModelView):
     "Action report"
     __name__ = 'ir.action.report'
-    _inherits = {'ir.action': 'action'}
     model = fields.Char('Model')
     report_name = fields.Char('Internal Name', required=True)
     report = fields.Char('Path')
@@ -499,8 +615,6 @@ class ActionReport(ModelSQL, ModelView):
 
     @classmethod
     def copy(cls, reports, default=None):
-        Action = Pool().get('ir.action')
-
         if default is None:
             default = {}
         default = default.copy()
@@ -511,62 +625,23 @@ class ActionReport(ModelSQL, ModelView):
             if report.report:
                 default['report_content'] = None
             default['report_name'] = report.report_name
-            default['action'] = Action.copy([report.action])[0].id
             new_reports.extend(super(ActionReport, cls).copy([report],
                     default=default))
         return new_reports
 
     @classmethod
-    def create(cls, vlist):
-        new_vlist = []
-        for vals in vlist:
-            later = {}
-            vals = vals.copy()
-            for field in vals:
-                if (field in cls._fields
-                        and hasattr(cls._fields[field], 'set')):
-                    later[field] = vals[field]
-            for field in later:
-                del vals[field]
-            cursor = Transaction().cursor
-            if cursor.nextid(cls._table):
-                cursor.setnextid(cls._table, cursor.currid('ir_action'))
-            report, = super(ActionReport, cls).create([vals])
-            cursor.execute('SELECT action FROM "' + cls._table + '" '
-                'WHERE id = %s', (report.id,))
-            new_id, = cursor.fetchone()
-            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-                'WHERE id = %s', (new_id, report.id))
-            cursor.update_auto_increment(cls._table, new_id)
-            report = cls(new_id)
-            new_vlist.append(report)
-            cls.write([report], later)
-        return new_vlist
-
-    @classmethod
     def write(cls, reports, vals):
-        pool = Pool()
         context = Transaction().context
         if 'module' in context:
             vals = vals.copy()
             vals['module'] = context['module']
 
         super(ActionReport, cls).write(reports, vals)
-        pool.get('ir.action.keyword')._get_keyword_cache.clear()
-
-    @classmethod
-    def delete(cls, reports):
-        Action = Pool().get('ir.action')
-
-        actions = [x.action for x in reports]
-        super(ActionReport, cls).delete(reports)
-        Action.delete(actions)
 
 
-class ActionActWindow(ModelSQL, ModelView):
+class ActionActWindow(ActionMixin, ModelSQL, ModelView):
     "Action act window"
     __name__ = 'ir.action.act_window'
-    _inherits = {'ir.action': 'action'}
     domain = fields.Char('Domain Value')
     context = fields.Char('Context Value')
     res_model = fields.Char('Model')
@@ -772,47 +847,6 @@ class ActionActWindow(ModelSQL, ModelView):
         return pysons
 
     @classmethod
-    def create(cls, vlist):
-        new_vlist = []
-        for vals in vlist:
-            later = {}
-            vals = vals.copy()
-            for field in vals:
-                if (field in cls._fields
-                        and hasattr(cls._fields[field], 'set')):
-                    later[field] = vals[field]
-            for field in later:
-                del vals[field]
-            cursor = Transaction().cursor
-            if cursor.nextid(cls._table):
-                cursor.setnextid(cls._table, cursor.currid('ir_action'))
-            act_window, = super(ActionActWindow, cls).create([vals])
-            cursor.execute('SELECT action FROM "' + cls._table + '" '
-                'WHERE id = %s', (act_window.id,))
-            new_id, = cursor.fetchone()
-            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-                'WHERE id = %s', (new_id, act_window.id))
-            cursor.update_auto_increment(cls._table, new_id)
-            act_window = cls(new_id)
-            new_vlist.append(act_window)
-            cls.write([act_window], later)
-        return new_vlist
-
-    @classmethod
-    def write(cls, act_windows, values):
-        pool = Pool()
-        super(ActionActWindow, cls).write(act_windows, values)
-        pool.get('ir.action.keyword')._get_keyword_cache.clear()
-
-    @classmethod
-    def delete(cls, act_windows):
-        Action = Pool().get('ir.action')
-
-        actions = [x.action for x in act_windows]
-        super(ActionActWindow, cls).delete(act_windows)
-        Action.delete(actions)
-
-    @classmethod
     def get(cls, xml_id):
         'Get values from XML id or id'
         pool = Pool()
@@ -823,19 +857,6 @@ class ActionActWindow(ModelSQL, ModelView):
         else:
             action_id = int(xml_id)
         return Action.get_action_values(cls.__name__, [action_id])[0]
-
-    @classmethod
-    def copy(cls, actions, default=None):
-        Action = Pool().get('ir.action')
-        if default is None:
-            default = {}
-        default = default.copy()
-        new_actions = []
-        for act_window in actions:
-            default['action'] = Action.copy([act_window.action])[0].id
-            new_actions.extend(super(ActionActWindow, cls).copy([act_window],
-                    default=default))
-        return new_actions
 
 
 class ActionActWindowView(ModelSQL, ModelView):
@@ -901,10 +922,9 @@ class ActionActWindowDomain(ModelSQL, ModelView):
         return True
 
 
-class ActionWizard(ModelSQL, ModelView):
+class ActionWizard(ActionMixin, ModelSQL, ModelView):
     "Action wizard"
     __name__ = 'ir.action.wizard'
-    _inherits = {'ir.action': 'action'}
     wiz_name = fields.Char('Wizard name', required=True)
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
@@ -916,68 +936,10 @@ class ActionWizard(ModelSQL, ModelView):
     def default_type():
         return 'ir.action.wizard'
 
-    @classmethod
-    def create(cls, vlist):
-        new_vlist = []
-        for vals in vlist:
-            later = {}
-            vals = vals.copy()
-            for field in vals:
-                if (field in cls._fields
-                        and hasattr(cls._fields[field], 'set')):
-                    later[field] = vals[field]
-            for field in later:
-                del vals[field]
-            cursor = Transaction().cursor
-            if cursor.nextid(cls._table):
-                cursor.setnextid(cls._table, cursor.currid('ir_action'))
-            wizard, = super(ActionWizard, cls).create([vals])
-            cursor.execute('SELECT action FROM "' + cls._table + '" '
-                'WHERE id = %s', (wizard.id,))
-            new_id, = cursor.fetchone()
-            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-                'WHERE id = %s', (new_id, wizard.id))
-            cursor.update_auto_increment(cls._table, new_id)
-            wizard = cls(new_id)
-            new_vlist.append(wizard)
-            cls.write([wizard], later)
-        return new_vlist
 
-    @classmethod
-    def write(cls, wizards, values):
-        pool = Pool()
-        super(ActionWizard, cls).write(wizards, values)
-        pool.get('ir.action.keyword')._get_keyword_cache.clear()
-
-    @classmethod
-    def delete(cls, wizards):
-        pool = Pool()
-        Action = pool.get('ir.action')
-
-        actions = [x.action for x in wizards]
-
-        super(ActionWizard, cls).delete(wizards)
-        Action.delete(actions)
-
-    @classmethod
-    def copy(cls, wizards, default=None):
-        Action = Pool().get('ir.action')
-
-        if default is None:
-            default = {}
-        default = default.copy()
-        new_wizards = []
-        for wizard in wizards:
-            default['action'] = Action.copy([wizard.action])[0].id
-            new_wizards.extend(super(ActionWizard, cls).copy([wizard],
-                    default=default))
-        return new_wizards
-
-
-class ActionURL(ModelSQL, ModelView):
+class ActionURL(ActionMixin, ModelSQL, ModelView):
     "Action URL"
     __name__ = 'ir.action.url'
-    _inherits = {'ir.action': 'action'}
     url = fields.Char('Action Url', required=True)
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
@@ -989,61 +951,3 @@ class ActionURL(ModelSQL, ModelView):
     @staticmethod
     def default_target():
         return 'new'
-
-    @classmethod
-    def create(cls, vlist):
-        new_vlist = []
-        for vals in vlist:
-            later = {}
-            vals = vals.copy()
-            for field in vals:
-                if (field in cls._fields
-                        and hasattr(cls._fields[field], 'set')):
-                    later[field] = vals[field]
-            for field in later:
-                del vals[field]
-            cursor = Transaction().cursor
-            if cursor.nextid(cls._table):
-                cursor.setnextid(cls._table, cursor.currid('ir_action'))
-            url, = super(ActionURL, cls).create([vals])
-            cursor.execute('SELECT action FROM "' + cls._table + '" '
-                'WHERE id = %s', (url.id,))
-            new_id, = cursor.fetchone()
-            cls.write([url], {})  # simulate write to clear the cache
-            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-                'WHERE id = %s', (new_id, url.id))
-            cursor.update_auto_increment(cls._table, new_id)
-            url = cls(new_id)
-            new_vlist.append(url)
-            cls.write([url], later)
-        return new_vlist
-
-    @classmethod
-    def write(cls, urls, values):
-        pool = Pool()
-        super(ActionURL, cls).write(urls, values)
-        pool.get('ir.action.keyword')._get_keyword_cache.clear()
-
-    @classmethod
-    def delete(cls, urls):
-        pool = Pool()
-        Action = pool.get('ir.action')
-
-        actions = [x.action for x in urls]
-
-        super(ActionURL, cls).delete(urls)
-        Action.delete(actions)
-
-    @classmethod
-    def copy(cls, urls, default=None):
-        Action = Pool().get('ir.action')
-
-        if default is None:
-            default = {}
-        default = default.copy()
-        new_urls = []
-        for url in urls:
-            default['action'] = Action.copy([url.action])[0].id
-            new_urls.extend(super(ActionURL, cls).copy([url],
-                    default=default))
-        return new_urls

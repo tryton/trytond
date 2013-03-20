@@ -32,8 +32,7 @@ class ModelSingleton(ModelStorage):
         if not singleton:
             res = cls.default_get(fields_names, with_rec_name=False)
             if not fields_names:
-                fields_names = (set(cls._fields.keys()
-                    + cls._inherit_fields.keys()))
+                fields_names = cls._fields.keys()
             for field_name in fields_names:
                 if field_name not in res:
                     res[field_name] = None

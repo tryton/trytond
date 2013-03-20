@@ -240,19 +240,10 @@ class ModelSQL(ModelStorage):
 
             # Get default values
             default = []
-            avoid_table = []
-            for (i, j) in cls._inherits.items():
-                if j in values:
-                    avoid_table.append(i)
             for i in cls._fields.keys():
                 if not i in values \
                         and i not in ('create_uid', 'create_date',
                                 'write_uid', 'write_date'):
-                    default.append(i)
-            for i in cls._inherit_fields.keys():
-                if ((not i in values)
-                        and (not cls._inherit_fields[i][0] in avoid_table)
-                        and i in cls._defaults):
                     default.append(i)
 
             if len(default):
@@ -268,26 +259,6 @@ class ModelSQL(ModelStorage):
                 values.update(cls._clean_defaults(defaults))
 
             (upd0, upd1, upd2) = ('', '', [])
-
-            # Create inherits
-            tocreate = {}
-            for i in cls._inherits:
-                if cls._inherits[i] not in values:
-                    tocreate[i] = {}
-
-            for i in values.keys():
-                if i in cls._inherit_fields:
-                    (inherits, _, _) = cls._inherit_fields[i]
-                    if i in cls._fields:
-                        continue
-                    if inherits in tocreate:
-                        tocreate[inherits][i] = values[i]
-                    del values[i]
-
-            for inherits in tocreate:
-                Inherits = pool.get(inherits)
-                inherits_record, = Inherits.create([tocreate[inherits]])
-                values[cls._inherits[inherits]] = inherits_record.id
 
             # Insert record
             for fname, value in values.iteritems():
@@ -433,8 +404,7 @@ class ModelSQL(ModelStorage):
         cursor = Transaction().cursor
 
         if not fields_names:
-            fields_names = list(set(cls._fields.keys()
-                    + cls._inherit_fields.keys()))
+            fields_names = cls._fields.keys()
 
         if not ids:
             return []
@@ -451,19 +421,15 @@ class ModelSQL(ModelStorage):
                 field, field_related = field_name.split('.', 1)
                 fields_related.setdefault(field, [])
                 fields_related[field].append(field_related)
-            elif field_name in cls._fields:
-                field = cls._fields[field_name]
             else:
-                field = cls._inherit_fields[field_name][2]
+                field = cls._fields[field_name]
             if hasattr(field, 'datetime_field') and field.datetime_field:
                 datetime_fields.append(field.datetime_field)
 
-        # all inherited fields + all non inherited fields
-        fields_pre = [x for x in
-            fields_names + fields_related.keys() + datetime_fields
-            if ((x in cls._fields
-                    and not hasattr(cls._fields[x], 'set'))
-                or (x == '_timestamp'))] + cls._inherits.values()
+        fields_pre = [x
+            for x in fields_names + fields_related.keys() + datetime_fields
+            if (x in cls._fields and not hasattr(cls._fields[x], 'set'))
+            or (x == '_timestamp')]
 
         res = []
         table_query = ''
@@ -546,41 +512,9 @@ class ModelSQL(ModelStorage):
                 for i in res:
                     i[field] = res_trans.get(i['id'], False) or i[field]
 
-        for table in cls._inherits:
-            field = cls._inherits[table]
-            inherits_fields = list(
-                set(cls._inherit_fields.keys()).intersection(
-                    set(fields_names + fields_related.keys() + datetime_fields)
-                    ).difference(set(cls._fields.keys())))
-            if not inherits_fields:
-                for record in res:
-                    if field not in fields_names + fields_related.keys() + \
-                            datetime_fields:
-                        del record[field]
-                continue
-            inherit_related_fields = []
-            for inherit_field in inherits_fields:
-                if inherit_field in fields_related:
-                    for field_related in fields_related[inherit_field]:
-                        inherit_related_fields.append(
-                                inherit_field + '.' + field_related)
-            res2 = pool.get(table).read([x[field] for x in res],
-                    fields_names=inherits_fields + inherit_related_fields)
-
-            res3 = {}
-            for i in res2:
-                res3[i['id']] = i
-                del i['id']
-
-            for record in res:
-                record.update(res3[record[field]])
-                if field not in \
-                        fields_names + fields_related.keys() + datetime_fields:
-                    del record[field]
-
         ids = [x['id'] for x in res]
 
-        # all non inherited fields for which there is a get attribute
+        # all fields for which there is a get attribute
         fields_post = [x for x in
             fields_names + fields_related.keys() + datetime_fields
             if x in cls._fields and hasattr(cls._fields[x], 'get')]
@@ -777,22 +711,17 @@ class ModelSQL(ModelStorage):
         upd0 = []
         upd1 = []
         upd_todo = []
-        updend = []
         direct = []
         for field in values:
-            if field in cls._fields:
-                if not hasattr(cls._fields[field], 'set'):
-                    if ((not getattr(cls._fields[field], 'translate', False))
-                            or (Transaction().language
-                                == Config.get_language())):
-                        upd0.append(('"' + field + '"', '%s'))
-                        upd1.append(FIELDS[cls._fields[field]._type]
-                            .sql_format(values[field]))
-                    direct.append(field)
-                else:
-                    upd_todo.append(field)
+            if not hasattr(cls._fields[field], 'set'):
+                if ((not getattr(cls._fields[field], 'translate', False))
+                        or (Transaction().language == Config.get_language())):
+                    upd0.append(('"' + field + '"', '%s'))
+                    upd1.append(FIELDS[cls._fields[field]._type]
+                        .sql_format(values[field]))
+                direct.append(field)
             else:
-                updend.append(field)
+                upd_todo.append(field)
 
         upd0.append(('write_uid', '%s'))
         upd0.append(('write_date', '%s'))
@@ -893,24 +822,6 @@ class ModelSQL(ModelStorage):
                     'SELECT ' + ','.join(columns) + ' ' +
                     'FROM "' + cls._table + '" '
                     'WHERE id = %s', (obj_id,))
-
-        for iname in cls._inherits:
-            col = cls._inherits[iname]
-            iids = []
-            for i in range(0, len(ids), cursor.IN_MAX):
-                sub_ids = ids[i:i + cursor.IN_MAX]
-                red_sql, red_ids = reduce_ids('id', sub_ids)
-                cursor.execute('SELECT DISTINCT "' + col + '" '
-                    'FROM "' + cls._table + '" WHERE ' + red_sql,
-                    red_ids)
-                iids.extend([x[0] for x in cursor.fetchall()])
-
-            values2 = {}
-            for val in updend:
-                if cls._inherit_fields[val][0] == iname:
-                    values2[val] = values[val]
-            IModel = pool.get(iname)
-            IModel.write(IModel.browse(iids), values2)
 
         cls._validate(records)
 
@@ -1330,41 +1241,6 @@ class ModelSQL(ModelStorage):
         domain = domain[:]
         cursor = Transaction().cursor
 
-        def column_get(model, field_name):
-            field = model._fields.get(field_name)
-            if not field:
-                if not field_name in model._inherit_fields:
-                    raise Exception('ValidateError', 'Field "%s" doesn\'t '
-                        'exist on "%s"' % (field_name, model.__name__))
-                parent_model = pool.get(model._inherit_fields[field_name][0])
-                field = column_get(parent_model, field_name)
-            return field
-
-        def get_model_for_field(model, field):
-            if field in model._fields:
-                return model
-            else:
-                parent_model = pool.get(model._inherit_fields[field][0])
-                return get_model_for_field(parent_model, field)
-
-        def get_inherits_join(model, field):
-            if field in model._fields:
-                return []
-            itable = pool.get(model._inherit_fields[field][0])
-            table_query = ''
-            table_arg = []
-            if itable.table_query():
-                table_query, table_args = model.table_query()
-                table_query = '(' + table_query + ') AS '
-            table_join = ('LEFT JOIN ' + table_query +
-                '"' + itable._table + '" ON '
-                '"%s".id = "%s"."%s"'
-                % (itable._table, model._table,
-                    model._inherits[itable.__name__]))
-            inherits = [(table_join, table_arg)]
-            inherits.extend(get_inherits_join(itable, field))
-            return inherits
-
         for arg in domain:
             if arg[1] not in OPERATORS:
                 raise Exception('ValidateError', 'Argument "%s" not supported'
@@ -1373,21 +1249,13 @@ class ModelSQL(ModelStorage):
         joins = []
         while i < len(domain):
             fargs = domain[i][0].split('.', 1)
-            if fargs[0] in cls._inherit_fields:
-                inherit_joins = get_inherits_join(cls, fargs[0])
-                for (table_join, table_arg) in inherit_joins:
-                    if table_join not in tables:
-                        tables.append(table_join)
-                        tables_args.extend(table_arg)
-
-            field = column_get(cls, fargs[0])
-            table = get_model_for_field(cls, fargs[0])
+            field = getattr(cls, fargs[0])
+            table = cls
             if len(fargs) > 1:
                 if field._type == 'many2one':
                     Target = pool.get(field.model_name)
                     m2o_search = [(fargs[1], domain[i][1], domain[i][2])]
-                    if ('active' in Target._fields
-                            or 'active' in Target._inherit_fields):
+                    if 'active' in Target._fields:
                         m2o_search += [('active', 'in', (True, False))]
                     if hasattr(field, 'search'):
                         domain.extend([(fargs[0], 'in',
@@ -1411,10 +1279,7 @@ class ModelSQL(ModelStorage):
                     else:
                         Relation = Target
                         origin, target = field.field, 'id'
-                    if origin in Relation._fields:
-                        rev_field = Relation._fields[origin]
-                    else:
-                        rev_field = Relation._inherit_fields[origin][2]
+                    rev_field = Relation._fields[origin]
                     if rev_field._type == 'reference':
                         sql_type = FIELDS[
                             cls.id._type].sql_type(cls.id)[0]
@@ -1452,10 +1317,7 @@ class ModelSQL(ModelStorage):
                 if Field.table_query():
                     table_query, table_args = Field.table_query()
                     table_query = '(' + table_query + ') AS '
-                if field.field in Field._fields:
-                    rev_field = Field._fields[field.field]
-                else:
-                    rev_field = Field._inherit_fields[field.field][2]
+                rev_field = Field._fields[field.field]
                 if rev_field._type == 'reference':
                     sql_type = FIELDS[cls.id._type].sql_type(cls.id)[0]
                     select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
@@ -1546,11 +1408,7 @@ class ModelSQL(ModelStorage):
                     if Relation.table_query():
                         table_query, table_args = Relation.table_query()
                         table_query = '(' + table_query + ') AS '
-                    if field.origin in Relation._fields:
-                        origin_field = Relation._fields[field.origin]
-                    else:
-                        origin_field = \
-                            Relation._inherit_fields[field.origin][2]
+                    origin_field = Relation._fields[field.origin]
                     if origin_field._type == 'reference':
                         sql_type = FIELDS[cls.id._type].sql_type(cls.id)[0]
                         select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
@@ -1650,8 +1508,7 @@ class ModelSQL(ModelStorage):
                     if isinstance(domain[i][2], basestring):
                         Field = pool.get(field.model_name)
                         m2o_search = [('rec_name', domain[i][1], domain[i][2])]
-                        if ('active' in Field._fields
-                                or 'active' in Field._inherit_fields):
+                        if 'active' in Field._fields:
                             m2o_search += [('active', 'in', (True, False))]
                         res_ids = map(int, Field.search(m2o_search, order=[]))
                         domain[i] = (domain[i][0], 'in', res_ids, table)
@@ -1722,10 +1579,10 @@ class ModelSQL(ModelStorage):
 
         qu1, qu2 = [], []
         for arg in domain:
-            table = get_model_for_field(cls, arg[0])
-            if table == cls and len(arg) > 3:
+            table = cls
+            if len(arg) > 3:
                 table = arg[3]
-            column = column_get(table, arg[0])
+            column = getattr(table, arg[0])
             if arg[1] in ('inselect', 'notinselect'):
                 clause = 'IN'
                 if arg[1] == 'notinselect':
@@ -1914,61 +1771,6 @@ class ModelSQL(ModelStorage):
                         tables.insert(0, table_join)
                     return order_by, tables, tables_args
 
-                obj2 = None
-                if obj._rec_name in obj._inherit_fields.keys():
-                    obj2 = pool.get(
-                            obj._inherit_fields[obj._rec_name][0])
-                    field_name = obj._rec_name
-
-                if obj._order_name in obj._inherit_fields.keys():
-                    obj2 = pool.get(
-                            obj._inherit_fields[obj._order_name][0])
-                    field_name = obj._order_name
-
-                if obj2 and field_name:
-                    table_name2 = obj2._table
-                    link_field2 = obj._inherits[obj2.__name__]
-                    order_by, tables, tables_args = \
-                        obj2._order_calc(field_name, otype)
-
-                    table_join = ('LEFT JOIN "' + table_name + '" AS '
-                        '"' + table_name + '.' + link_field + '" ON '
-                        '"%s.%s".id = "%s"."%s"'
-                        % (table_name, link_field, cls._table, link_field))
-                    for i in range(len(order_by)):
-                        if table_name in order_by[i]:
-                            order_by[i] = order_by[i].replace(table_name,
-                                    table_name + '.' + link_field)
-                    for i in range(len(tables)):
-                        if table_name in tables[i]:
-                            args = tables_args.pop(tables[i], [])
-                            tables[i] = tables[i].replace(table_name,
-                                    table_name + '.' + link_field)
-                            tables_args[tables[i]] = args
-                    if table_join not in tables:
-                        tables.insert(0, table_join)
-                        tables_args[table_join] = []
-
-                    table_join2 = ('LEFT JOIN "' + table_name2 + '" AS '
-                        '"' + table_name2 + '.' + link_field2 + '" ON '
-                        '"%s.%s".id = "%s.%s"."%s"'
-                        % (table_name2, link_field2, table_name, link_field,
-                            link_field2))
-                    for i in range(len(order_by)):
-                        if table_name2 in order_by[i]:
-                            order_by[i] = order_by[i].replace(table_name2,
-                                    table_name2 + '.' + link_field2)
-                    for i in range(1, len(tables)):
-                        if table_name2 in tables[i]:
-                            args = tables_args.pop(tables[i], [])
-                            tables[i] = tables[i].replace(table_name2,
-                                    table_name2 + '.' + link_field2)
-                            tables_args[tables[i]] = args
-                    if table_join2 not in tables:
-                        tables.insert(1, table_join2)
-                        tables_args[table_join2] = []
-                    return order_by, tables, tables_args
-
             if (field_name in cls._fields
                     and getattr(cls._fields[field_name], 'translate', False)):
                 translation_table = ('ir_translation_%s_%s'
@@ -2048,18 +1850,6 @@ class ModelSQL(ModelStorage):
                     order_by.append('"%s"."%s" %s'
                         % (table_name, field_name, otype))
                 return order_by, tables, tables_args
-
-        if field in cls._inherit_fields.keys():
-            obj = pool.get(cls._inherit_fields[field][0])
-            table_name = obj._table
-            link_field = cls._inherits[obj.__name__]
-            order_by, tables, tables_args = obj._order_calc(field, otype)
-            table_join = ('LEFT JOIN "' + table_name + '" ON '
-                '"%s".id = "%s"."%s"'
-                % (table_name, cls._table, link_field))
-            if table_join not in tables:
-                tables.insert(0, table_join)
-            return order_by, tables, tables_args
 
         raise Exception('Error', 'Wrong field name (%s) for %s in order!' %
             (field, cls.__name__))

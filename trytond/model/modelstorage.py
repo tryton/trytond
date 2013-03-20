@@ -15,7 +15,7 @@ except ImportError:
     import StringIO
 
 from decimal import Decimal
-from itertools import islice, ifilter, ifilterfalse, chain, izip
+from itertools import islice, ifilter, chain, izip
 from functools import reduce
 
 from trytond.model import Model
@@ -304,10 +304,7 @@ class ModelStorage(Model):
                         field_defs[field_name]['relation'])
                 relation_field = field_defs[field_name]['relation_field']
                 if relation_field:
-                    if relation_field in Relation._fields:
-                        field = Relation._fields[relation_field]
-                    else:
-                        field = Relation._inherit_fields[relation_field][2]
+                    field = Relation._fields[relation_field]
                     if field._type == 'reference':
                         value = str(new_record)
                     else:
@@ -368,8 +365,7 @@ class ModelStorage(Model):
         records = cls.search(domain, offset=offset, limit=limit, order=order)
 
         if not fields_names:
-            fields_names = list(set(cls._fields.keys()
-                    + cls._inherit_fields.keys()))
+            fields_names = cls._fields.keys()
         if 'id' not in fields_names:
             fields_names.append('id')
         return cls.read(map(int, records), fields_names)
@@ -380,10 +376,9 @@ class ModelStorage(Model):
         domain = reduce_domain(domain)
         # if the object has a field named 'active', filter out all inactive
         # records unless they were explicitely asked for
-        if not (('active' in cls._fields
-            or 'active' in cls._inherit_fields.keys())
-            and (active_test
-                and Transaction().context.get('active_test', True))):
+        if not ('active' in cls._fields
+                and active_test
+                and Transaction().context.get('active_test', True)):
             return domain
 
         def process(domain):
@@ -417,8 +412,7 @@ class ModelStorage(Model):
         It is used by the Function field rec_name.
         '''
         rec_name = self._rec_name
-        if (rec_name not in self._fields
-                and rec_name not in self._inherit_fields):
+        if rec_name not in self._fields:
             rec_name = 'id'
         return unicode(getattr(self, rec_name))
 
@@ -428,8 +422,7 @@ class ModelStorage(Model):
         Return a list of arguments for search on rec_name.
         '''
         rec_name = cls._rec_name
-        if (rec_name not in cls._fields
-                and rec_name not in cls._inherit_fields):
+        if rec_name not in cls._fields:
             return []
         return [(rec_name,) + clause[1:]]
 
@@ -470,13 +463,7 @@ class ModelStorage(Model):
                     break
                 field_name = fields_tree[i]
                 eModel = pool.get(value.__name__)
-                if field_name in eModel._fields:
-                    field = eModel._fields[field_name]
-                elif field_name in eModel._inherit_fields:
-                    field = eModel._inherit_fields[field_name][2]
-                else:
-                    raise Exception('Field %s not available on object "%s"'
-                        % (field_name, eModel.__name__))
+                field = eModel._fields[field_name]
                 if field.states and 'invisible' in field.states:
                     pyson_invisible = PYSONEncoder().encode(
                             field.states['invisible'])
@@ -833,13 +820,7 @@ class ModelStorage(Model):
         Function that checks if there is no recursion in the tree
         composed with parent as parent field name.
         '''
-        if parent in cls._fields:
-            parent_type = cls._fields[parent]._type
-        elif parent in cls._inherit_fields:
-            parent_type = cls._inherit_fields[parent][2]._type
-        else:
-            raise Exception('Field %s not available on object "%s"'
-                % (parent, cls.__name__))
+        parent_type = cls._fields[parent]._type
 
         if parent_type not in ('many2one', 'many2many'):
             raise Exception(
@@ -1161,8 +1142,7 @@ class ModelStorage(Model):
         pool = Pool()
         vals = {}
         for field in defaults.keys():
-            fld_def = (field in cls._fields) and cls._fields[field] \
-                or cls._inherit_fields[field][2]
+            fld_def = cls._fields[field]
             if fld_def._type in ('many2one', 'one2one'):
                 if isinstance(defaults[field], (list, tuple)):
                     vals[field] = defaults[field][0]
@@ -1223,13 +1203,10 @@ class ModelStorage(Model):
             self._local_cache.counter = counter
 
         # fetch the definition of the field
-        if name in self._fields:
+        try:
             field = self._fields[name]
-        elif name in self._inherit_fields:
-            field = self._inherit_fields[name][2]
-        else:
-            raise AttributeError("'%s' Model has no attribute '%s'"
-                % (self.__name__, name))
+        except KeyError:
+            raise AttributeError('"%s" has no attribute "%s"' % (self, name))
 
         try:
             return self._local_cache[self.id][name]
@@ -1248,17 +1225,12 @@ class ModelStorage(Model):
         if field.loading == 'eager':
             FieldAccess = Pool().get('ir.model.field.access')
             fread_accesses = {}
-            for inherit_name in self._inherits:
-                Inherit = Pool().get(inherit_name)
-                fread_accesses.update(FieldAccess.check(inherit_name,
-                    Inherit._fields.keys(), 'read', access=True))
             fread_accesses.update(FieldAccess.check(self.__name__,
                 self._fields.keys(), 'read', access=True))
             to_remove = set(x for x, y in fread_accesses.iteritems()
                     if not y and x != name)
 
             threshold = BROWSE_FIELD_TRESHOLD
-            inherit_threshold = threshold - len(self._fields)
 
             def not_cached(item):
                 fname, field = item
@@ -1274,17 +1246,6 @@ class ModelStorage(Model):
                 fname, field = item
                 return fname in self._fields
 
-            if inherit_threshold > 0:
-                ifields = ((fname, field)
-                    for fname, (_, _, field) in
-                    self._inherit_fields.iteritems())
-                ifields = ifilterfalse(overrided,
-                    ifilter(to_load,
-                        ifilter(not_cached, ifields)))
-                ifields = islice(ifields, 0, inherit_threshold)
-                ffields.update(ifields)
-                threshold -= inherit_threshold
-
             ifields = ifilter(to_load,
                 ifilter(not_cached,
                     self._fields.iteritems()))
@@ -1294,11 +1255,7 @@ class ModelStorage(Model):
         # add datetime_field
         for field in ffields.values():
             if hasattr(field, 'datetime_field') and field.datetime_field:
-                if field.datetime_field in self._fields:
-                    datetime_field = self._fields[field.datetime_field]
-                else:
-                    datetime_field = self._inherit_fields[
-                            field.datetime_field][2]
+                datetime_field = self._fields[field.datetime_field]
                 ffields[field.datetime_field] = datetime_field
 
         def filter_(id_):
@@ -1393,10 +1350,7 @@ class ModelStorage(Model):
         if not self._values:
             return values
         for fname, value in self._values.iteritems():
-            if fname in self._fields:
-                field = self._fields[fname]
-            else:
-                field = self._inherit_fields[fname][2]
+            field = self._fields[fname]
             if field._type in ('many2one', 'one2one', 'reference'):
                 if value:
                     if value.id < 0 and field._type != 'reference':
@@ -1453,14 +1407,10 @@ class EvalEnvironment(dict):
     def __getitem__(self, item):
         if item.startswith('_parent_'):
             field = item[8:]
-            if field in self._model._fields:
-                model_name = self._model._fields[field].model_name
-            else:
-                model_name = self._model._inherit_fields[field][2].model_name
+            model_name = self._model._fields[field].model_name
             ParentModel = Pool().get(model_name)
             return EvalEnvironment(getattr(self._record, field), ParentModel)
-        if (item in self._model._fields
-                or item in self._model._inherit_fields):
+        if item in self._model._fields:
             value = getattr(self._record, item)
             if isinstance(value, Model):
                 return value.id

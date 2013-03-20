@@ -1,3 +1,4 @@
+* Remove _inherits
 * Add dynamic label
 * Add prefix, suffix on tree view
 * Replace _constraints with validate in ModelStorage

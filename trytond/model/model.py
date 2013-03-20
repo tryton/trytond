@@ -16,33 +16,11 @@ from trytond.rpc import RPC
 __all__ = ['Model']
 
 
-class ModelMeta(PoolMeta):
-
-    def __getattr__(self, name):
-        pool = Pool()
-        for model_name, _ in self._inherits.iteritems():
-            Model = pool.get(model_name)
-            if isinstance(getattr(Model, name, None),
-                    collections.Callable):
-                meth = getattr(Model, name)
-                if not hasattr(meth, 'im_self') or meth.im_self:
-                    # Return classmethod bounded to inherited class
-                    return meth
-                else:
-                    for cls in Model.__mro__:
-                        if name in cls.__dict__:
-                            # Return a method bounded to current class
-                            return cls.__dict__[name].__get__(None, self)
-        raise AttributeError("'%s' Model has no attribute '%s'"
-            % (self.__name__, name))
-
-
 class Model(WarningErrorMixin, URLMixin):
     """
     Define a model in Tryton.
     """
-    __metaclass__ = ModelMeta
-    _inherits = {}
+    __metaclass__ = PoolMeta
     _rec_name = 'name'
 
     id = fields.Integer('ID', readonly=True)
@@ -76,48 +54,21 @@ class Model(WarningErrorMixin, URLMixin):
             if isinstance(getattr(cls, attr), fields.Field):
                 cls._fields[attr] = getattr(cls, attr)
 
-        # Set _inherit_fields
-        cls._inherit_fields = {}
-        for model_name in cls._inherits:
-            Model = pool.get(model_name)
-            cls._inherit_fields.update(Model._inherit_fields)
-            for field_name in Model._fields.keys():
-                cls._inherit_fields[field_name] = (model_name,
-                    cls._inherits[model_name],
-                    Model._fields[field_name])
-            for field_name in Model._inherit_fields.keys():
-                cls._inherit_fields[field_name] = (model_name,
-                    cls._inherits[model_name],
-                    Model._inherit_fields[field_name][2])
-        # Update models that uses this one in _inherits
-        for _, Model in pool.iterobject():
-            if cls.__name__ in Model._inherits:
-                Model.__post_setup__()
-
         # Set _defaults
         cls._defaults = {}
         fields_names = cls._fields.keys()
-        fields_names += cls._inherit_fields.keys()
         for field_name in fields_names:
             default_method = getattr(cls, 'default_%s' % field_name, False)
-            if not default_method and field_name in cls._inherit_fields:
-                icls = pool.get(cls._inherit_fields[field_name][0])
-                default_method = getattr(icls, 'default_%s' % field_name,
-                    False)
             if isinstance(default_method, collections.Callable):
                 cls._defaults[field_name] = default_method
 
         for k in cls._defaults:
-            assert (k in cls._fields) or (k in cls._inherit_fields), \
+            assert k in cls._fields, \
                 'Default function defined in %s but field %s does not exist!' \
                 % (cls.__name__, k,)
 
         # Update __rpc__
-        for field_name in cls._fields.keys() + cls._inherit_fields.keys():
-            if field_name in cls._fields:
-                field = cls._fields[field_name]
-            else:
-                field = cls._inherit_fields[field_name][2]
+        for field_name, field in cls._fields.iteritems():
             if isinstance(field, (fields.Selection, fields.Reference)) \
                     and not isinstance(field.selection, (list, tuple)) \
                     and field.selection not in cls.__rpc__:
@@ -364,10 +315,7 @@ class Model(WarningErrorMixin, URLMixin):
         for field_name in fields_names:
             if field_name in cls._defaults:
                 value[field_name] = cls._defaults[field_name]()
-            if field_name in cls._fields:
-                field = cls._fields[field_name]
-            else:
-                field = cls._inherit_fields[field_name][2]
+            field = cls._fields[field_name]
             if (field._type == 'boolean'
                     and not field_name in value):
                 value[field_name] = False
@@ -397,8 +345,6 @@ class Model(WarningErrorMixin, URLMixin):
         pool = Pool()
         res = value.copy()
         val = {}
-        for i in cls._inherits.keys():
-            val.update(pool.get(i)._default_on_change(value))
         for field in value.keys():
             if field in cls._fields:
                 if cls._fields[field].on_change:
@@ -422,9 +368,6 @@ class Model(WarningErrorMixin, URLMixin):
         pool = Pool()
         Translation = pool.get('ir.translation')
         FieldAccess = pool.get('ir.model.field.access')
-
-        for parent in cls._inherits:
-            res.update(pool.get(parent).fields_get(fields_names))
 
         #Add translation to cache
         language = Transaction().language
@@ -619,19 +562,6 @@ class Model(WarningErrorMixin, URLMixin):
     def __getattr__(self, name):
         if name == 'id':
             return self.__dict__['id']
-        if (name not in self._fields
-                and name not in self._inherit_fields):
-            # Search for method on inherits parents
-            pool = Pool()
-            for model_name, _ in self._inherits.iteritems():
-                iModel = pool.get(model_name)
-                if isinstance(getattr(iModel, name, None),
-                        collections.Callable):
-                    for cls in iModel.__mro__:
-                        if name in cls.__dict__:
-                            # Return a method bounded to current class
-                            return cls.__dict__[name].__get__(self,
-                                self.__class__)
         elif self._values and name in self._values:
             return self._values.get(name)
         raise AttributeError("'%s' Model has no attribute '%s': %s"
@@ -641,11 +571,6 @@ class Model(WarningErrorMixin, URLMixin):
         if name == 'id':
             self.__dict__['id'] = value
             return
-        if (name not in self._fields
-                and name in self._inherit_fields):
-            field = self._inherit_fields[name][2]
-            field.__set__(self, value)
-            return
         super(Model, self).__setattr__(name, value)
 
     def __getitem__(self, name):
@@ -654,8 +579,7 @@ class Model(WarningErrorMixin, URLMixin):
         return getattr(self, name)
 
     def __contains__(self, name):
-        return (name in self._fields
-            or name in self._inherit_fields)
+        return name in self._fields
 
     def __int__(self):
         return int(self.id)
@@ -700,10 +624,7 @@ class Model(WarningErrorMixin, URLMixin):
         values = {}
         if self._values:
             for fname, value in self._values.iteritems():
-                if fname in self._fields:
-                    field = self._fields[fname]
-                else:
-                    field = self._inherit_fields[fname][2]
+                field = self._fields[fname]
                 if isinstance(field, fields.Reference):
                     if value is not None:
                         value = str(value)

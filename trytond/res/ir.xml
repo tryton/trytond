@@ -459,6 +459,59 @@ this repository contains the full copyright notices and license terms. -->
             <field name="domain">[('groups', '=', None)]</field>
             <field name="rule_group" ref="rule_group_action_keyword"/>
         </record>
+
+        <record model="ir.rule.group" id="rule_group_action_report">
+            <field name="model" search="[('model', '=', 'ir.action.report')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_action_report1">
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
+            <field name="rule_group" ref="rule_group_action_report"/>
+        </record>
+        <record model="ir.rule" id="rule_action_report2">
+            <field name="domain">[('groups', '=', None)]</field>
+            <field name="rule_group" ref="rule_group_action_report"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_action_act_window">
+            <field name="model" search="[('model', '=', 'ir.action.act_window')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_action_act_window1">
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
+            <field name="rule_group" ref="rule_group_action_act_window"/>
+        </record>
+        <record model="ir.rule" id="rule_action_act_window2">
+            <field name="domain">[('groups', '=', None)]</field>
+            <field name="rule_group" ref="rule_group_action_act_window"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_action_wizard">
+            <field name="model" search="[('model', '=', 'ir.action.wizard')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_action_wizard1">
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
+            <field name="rule_group" ref="rule_group_action_wizard"/>
+        </record>
+        <record model="ir.rule" id="rule_action_wizard2">
+            <field name="domain">[('groups', '=', None)]</field>
+            <field name="rule_group" ref="rule_group_action_wizard"/>
+        </record>
+
+        <record model="ir.rule.group" id="rule_group_action_url">
+            <field name="model" search="[('model', '=', 'ir.action.url')]"/>
+            <field name="global_p" eval="True"/>
+        </record>
+        <record model="ir.rule" id="rule_action_url1">
+            <field name="domain">[('groups', 'in', [g.id for g in user.groups])]</field>
+            <field name="rule_group" ref="rule_group_action_url"/>
+        </record>
+        <record model="ir.rule" id="rule_action_url2">
+            <field name="domain">[('groups', '=', None)]</field>
+            <field name="rule_group" ref="rule_group_action_url"/>
+        </record>
+
         <record model="ir.action-res.group" id="act_module_install_upgrade_group_admin">
             <field name="action" ref="ir.act_module_install_upgrade"/>
             <field name="group" ref="group_admin"/>

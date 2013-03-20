@@ -340,7 +340,6 @@ class Fs2bdAccessor:
         self.fs2db[module] = {}
         module_data_ids = self.ModelData.search([
                 ('module', '=', module),
-                ('inherit', '=', None),
                 ], order=[('db_id', 'ASC')])
 
         record_ids = {}
@@ -485,10 +484,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         """
         Model = record.__class__
         # search the field type in the object or in a parent
-        if key in Model._fields:
-            field_type = Model._fields[key]._type
-        else:
-            field_type = Model._inherit_fields[key][2]._type
+        field_type = Model._fields[key]._type
 
         # handle the value regarding to the type
         if field_type == 'many2one':
@@ -520,7 +516,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         # problem when the corresponding recordds will be deleted:
         module_data = self.ModelData.search([
                 ('module', '=', self.module),
-                ('inherit', '=', None),
                 ], order=[('id', 'DESC')])
         return set(rec.fs_id for rec in module_data)
 
@@ -558,8 +553,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             db_id, db_model, mdata_id, old_values = [
                 self.fs2db.get(module, fs_id)[x]
                 for x in ["db_id", "model", "id", "values"]]
-            inherit_db_ids = {}
-            inherit_mdata_ids = []
 
             if not old_values:
                 old_values = {}
@@ -592,31 +585,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
                 record = self.fs2db.get_browserecord(
                     module, Model.__name__, record.id)
-                for table, field_name, field in \
-                        Model._inherit_fields.values():
-                    inherit_db_ids[table] = getattr(record, field_name).id
-
-                for table in inherit_db_ids.keys():
-                    data = self.ModelData.search([
-                        ('fs_id', '=', fs_id),
-                        ('module', '=', module),
-                        ('model', '=', table),
-                        ], limit=1)
-                    if data:
-                        self.ModelData.write(data, {
-                            'db_id': inherit_db_ids[table],
-                            'inherit': True,
-                            })
-                        data, = data
-                    else:
-                        data, = self.ModelData.create([{
-                                    'fs_id': fs_id,
-                                    'module': module,
-                                    'model': table,
-                                    'db_id': inherit_db_ids[table],
-                                    'inherit': True,
-                                    }])
-                    inherit_mdata_ids.append((table, data.id))
 
                 data = self.ModelData.search([
                     ('fs_id', '=', fs_id),
@@ -643,22 +611,13 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
                 # we cannot update a field if it was changed by a user...
                 if key not in old_values:
-                    if key in Model._fields:
-                        expected_value = Model._defaults.get(
-                            key, lambda *a: None)()
-                    else:
-                        Inherit = self.pool.get(
-                            Model._inherit_fields[key][0])
-                        expected_value = Inherit._defaults.get(
-                            key, lambda *a: None)()
+                    expected_value = Model._defaults.get(key,
+                        lambda *a: None)()
                 else:
                     expected_value = old_values[key]
 
                 # Migration from 2.0: Reference field change value
-                if key in Model._fields:
-                    field_type = Model._fields[key]._type
-                else:
-                    field_type = Model._inherit_fields[key][2]._type
+                field_type = Model._fields[key]._type
                 if field_type == 'reference':
                     if (expected_value and expected_value.endswith(',0')
                             and not db_field):
@@ -688,19 +647,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 self.fs2db.reset_browsercord(
                     module, Model.__name__, [record.id])
 
-            if not inherit_db_ids:
-                for table, field_name, field in \
-                        Model._inherit_fields.values():
-                    inherit_db_ids[table] = getattr(record, field_name).id
-            if not inherit_mdata_ids:
-                for table in inherit_db_ids.keys():
-                    data, = self.ModelData.search([
-                        ('fs_id', '=', fs_id),
-                        ('module', '=', module),
-                        ('model', '=', table),
-                        ], limit=1)
-                    inherit_mdata_ids.append((table, data.id))
-
             if to_update:
                 # re-read it: this ensure that we store the real value
                 # in the model_data table:
@@ -725,16 +671,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     'values': str(values),
                     'date_update': datetime.datetime.now(),
                     })
-                for table, inherit_mdata_id in inherit_mdata_ids:
-                    self.ModelData.write(
-                        [self.ModelData(inherit_mdata_id)], {
-                            'fs_id': fs_id,
-                            'model': table,
-                            'module': module,
-                            'db_id': inherit_db_ids[table],
-                            'values': str(values),
-                            'date_update': datetime.datetime.now(),
-                            })
             # reset_browsercord to keep cache memory low
             self.fs2db.reset_browsercord(module, Model.__name__, [record.id])
 
@@ -742,11 +678,6 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             # this record is new, create it in the db:
             with Transaction().set_context(module=module, language='en_US'):
                 record, = Model.create([values])
-            inherit_db_ids = {}
-
-            for table, field_name, field in (
-                    Model._inherit_fields.values()):
-                inherit_db_ids[table] = getattr(record, field_name).id
 
             # re-read it: this ensure that we store the real value
             # in the model_data table:
@@ -754,25 +685,14 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             for key in values:
                 values[key] = self._clean_value(key, record)
 
-            to_create = [{
-                    'fs_id': fs_id,
-                    'model': model,
-                    'module': module,
-                    'db_id': record.id,
-                    'values': str(values),
-                    'noupdate': self.noupdate,
-                    }]
-            for table in inherit_db_ids.keys():
-                to_create.append({
-                            'fs_id': fs_id,
-                            'model': table,
-                            'module': module,
-                            'db_id': inherit_db_ids[table],
-                            'values': str(values),
-                            'inherit': True,
-                            'noupdate': self.noupdate,
-                            })
-            mdata = self.ModelData.create(to_create)[0]
+            mdata, = self.ModelData.create([{
+                        'fs_id': fs_id,
+                        'model': model,
+                        'module': module,
+                        'db_id': record.id,
+                        'values': str(values),
+                        'noupdate': self.noupdate,
+                        }])
 
             # update fs2db:
             self.fs2db.set(module, fs_id, {

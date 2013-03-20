@@ -79,10 +79,7 @@ class One2Many(Field):
         '''
         pool = Pool()
         Relation = pool.get(self.model_name)
-        if self.field in Relation._fields:
-            field = Relation._fields[self.field]
-        else:
-            field = Relation._inherit_fields[self.field][2]
+        field = Relation._fields[self.field]
         res = {}
         for i in ids:
             res[i] = []
@@ -119,10 +116,7 @@ class One2Many(Field):
         if not values:
             return
         Target = self.get_target()
-        if self.field in Target._fields:
-            field = Target._fields[self.field]
-        else:
-            field = Target._inherit_fields[self.field][2]
+        field = Target._fields[self.field]
 
         def search_clause(ids):
             if field._type == 'reference':
