@@ -17,17 +17,6 @@ Class attributes are:
     It contains the a unique name to reference the model throughout the
     platform.
 
-.. attribute:: Model._inherits
-
-    It contains a dictionary with one or more :attr:`Model._name` as keys. For each
-    key a :class:`~trytond.model.fields.Many2One` field is defined as value. The
-    :class:`trytond.model.fields.Many2One` fields must be defined in the the current
-    model fields. A referenced model with ``_inherits`` is a generalization_ of the
-    current model which is *specialized*. In the specialized model it is possible to
-    interact with all attributes and methods of the general model.
-
-    .. _generalization: http://en.wikipedia.org/wiki/Class_diagram#Generalization
-
 .. attribute:: Model.__rpc__
 
     It contains a dictionary with method name as key and an instance of

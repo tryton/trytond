@@ -666,7 +666,6 @@ class ModelData(ModelSQL, ModelView):
     date_update = fields.DateTime('Update Date')
     date_init = fields.DateTime('Init Date')
     values = fields.Text('Values')
-    inherit = fields.Boolean('Inherit')
     noupdate = fields.Boolean('No Update')
     _get_id_cache = Cache('ir_model_data.get_id', context=False)
 
@@ -678,13 +677,23 @@ class ModelData(ModelSQL, ModelView):
                 'The triple (fs_id, module, model) must be unique!'),
         ]
 
+    @classmethod
+    def __register__(cls, module_name):
+        cursor = Transaction().cursor
+
+        super(ModelData, cls).__register__(module_name)
+
+        table = TableHandler(cursor, cls, module_name)
+
+        # Migration from 2.6: remove inherit
+        if table.column_exist('inherit'):
+            cursor.execute('DELETE FROM "' + cls._table + '" '
+                'WHERE inherit = %s', (True,))
+            table.drop_column('inherit', True)
+
     @staticmethod
     def default_date_init():
         return datetime.datetime.now()
-
-    @staticmethod
-    def default_inherit():
-        return False
 
     @staticmethod
     def default_noupdate():
@@ -708,7 +717,6 @@ class ModelData(ModelSQL, ModelView):
         data = cls.search([
             ('module', '=', module),
             ('fs_id', '=', fs_id),
-            ('inherit', '=', False),
             ], limit=1)
         if not data:
             raise Exception("Reference to %s not found"

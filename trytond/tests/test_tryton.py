@@ -255,8 +255,6 @@ def all_suite():
     suite_.addTests(test_mixins.suite())
     import trytond.tests.test_wizard as test_wizard
     suite_.addTests(test_wizard.suite())
-    import trytond.tests.test_model_inherits as test_inherits
-    suite_.addTests(test_inherits.suite())
     import trytond.tests.test_modelsql as test_modelsql
     suite_.addTests(test_modelsql.suite())
     import trytond.tests.test_cache as test_cache

@@ -75,10 +75,7 @@ class Many2Many(Field):
             order = self.order
 
         Relation = Pool().get(self.relation_name)
-        if self.origin in Relation._fields:
-            origin_field = Relation._fields[self.origin]
-        else:
-            origin_field = Relation._inherit_fields[self.origin][2]
+        origin_field = Relation._fields[self.origin]
 
         relations = []
         for i in range(0, len(ids), Transaction().cursor.IN_MAX):
@@ -116,10 +113,7 @@ class Many2Many(Field):
             return
         Relation = pool.get(self.relation_name)
         Target = self.get_target()
-        if self.origin in Relation._fields:
-            origin_field = Relation._fields[self.origin]
-        else:
-            origin_field = Relation._inherit_fields[self.origin][2]
+        origin_field = Relation._fields[self.origin]
 
         def search_clause(ids):
             if origin_field._type == 'reference':
@@ -228,10 +222,7 @@ class Many2Many(Field):
         Relation = Pool().get(self.relation_name)
         if not self.target:
             return Relation
-        if self.target in Relation._fields:
-            return Relation._fields[self.target].get_target()
-        else:
-            return Relation._inherit_fields[self.target][2].get_target()
+        return Relation._fields[self.target].get_target()
 
     def __set__(self, inst, value):
         Target = self.get_target()

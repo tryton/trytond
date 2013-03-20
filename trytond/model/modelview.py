@@ -327,24 +327,6 @@ class ModelView(Model):
                 if field_to_remove in field.depends:
                     fields_to_remove.append(name)
 
-        # Find field inherited without read access
-        for inherit_name in cls._inherits:
-            Inherit = pool.get(inherit_name)
-            fread_accesses = FieldAccess.check(Inherit.__name__,
-                    Inherit._fields.keys(), 'read', access=True)
-            fields_to_remove += list(x for x, y in fread_accesses.iteritems()
-                    if not y and x not in cls._fields.keys())
-
-            # Find relation field without read access
-            for name, field in Inherit._fields.iteritems():
-                if not check_relation(Inherit, field):
-                    fields_to_remove.append(name)
-
-            for name, field in Inherit._fields.iteritems():
-                for field_to_remove in fields_to_remove:
-                    if field_to_remove in field.depends:
-                        fields_to_remove.append(name)
-
         # Remove field without read access
         for field in fields_to_remove:
             for element in tree.xpath(
@@ -372,26 +354,19 @@ class ModelView(Model):
 
         if field_children:
             fields_def.setdefault(field_children, {'name': field_children})
-            model, field = None, None
             if field_children in cls._fields:
-                model = cls
                 field = cls._fields[field_children]
-            elif field_children in cls._inherit_fields:
-                model_name, model, field = cls._inherit_fields[field_children]
-            if model and field and field.model_name == model.__name__:
                 fields_def.setdefault(field.field, {'name': field.field})
 
         for field_name in fields_def.keys():
             if field_name in cls._fields:
                 field = cls._fields[field_name]
-            elif field_name in cls._inherit_fields:
-                field = cls._inherit_fields[field_name][2]
             else:
                 continue
             for depend in field.depends:
                 fields_def.setdefault(depend, {'name': depend})
 
-        if ('active' in cls._fields) or ('active' in cls._inherit_fields):
+        if 'active' in cls._fields:
             fields_def.setdefault('active', {'name': 'active'})
 
         arch = etree.tostring(tree, encoding='utf-8', pretty_print=False)
@@ -424,11 +399,7 @@ class ModelView(Model):
                 if element.get(attr):
                     fields_attrs.setdefault(element.get(attr), {})
                     try:
-                        if element.get(attr) in cls._fields:
-                            field = cls._fields[element.get(attr)]
-                        else:
-                            field = cls._inherit_fields[element.get(
-                                attr)][2]
+                        field = cls._fields[element.get(attr)]
                         if hasattr(field, 'model_name'):
                             relation = field.model_name
                         else:
