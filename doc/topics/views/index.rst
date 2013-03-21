@@ -191,6 +191,8 @@ Display a field of the object with the value of the current record.
 
     * ``name``: The name of the field.
 
+    * ``string``: The string that will be displayed for the widget.
+
     * ``widget``: The widget that must be used instead of the default one.
 
     * ``help``: The string that will be displayed when the cursor stays over the
