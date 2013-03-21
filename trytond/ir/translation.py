@@ -842,7 +842,7 @@ class TranslationSet(Wizard):
             for trans in cursor.dictfetchall():
                 trans_views[trans['src']] = trans
 
-            xml = view.arch.strip()
+            xml = (view.arch or '').strip()
             if not xml:
                 continue
             tree = etree.fromstring(xml)
