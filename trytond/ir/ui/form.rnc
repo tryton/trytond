@@ -104,6 +104,7 @@ attlist.field &=
 attlist.field &= [a:defaultValue = "0"] attribute pre_validate { "0" | "1" }?
 attlist.field &= attribute icon { text }?
 attlist.field &= [a:defaultValue = "1"] attribute completion { "0" | "1" }?
+attlist.field &= attribute string { text }?
 image = element image { attlist.image, empty }
 attlist.image &= attribute name { text }
 attlist.image &= [ a:defaultValue = "1" ] attribute colspan { text }?
