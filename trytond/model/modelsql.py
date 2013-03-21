@@ -381,11 +381,6 @@ class ModelSQL(ModelStorage):
             if (isinstance(field, fields.Many2One)
                     and field.model_name == cls.__name__
                     and field.left and field.right):
-                if (field.left in modified_fields
-                        or field.right in modified_fields):
-                    raise Exception('ValidateError',
-                            'You can not update fields: "%s", "%s"' %
-                            (field.left, field.right))
                 if len(new_ids) == 1:
                     cls._update_tree(new_ids[0], k, field.left, field.right)
                 else:
