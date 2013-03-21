@@ -1,3 +1,4 @@
+* Allow to search on target of Reference field
 * Remove _inherits
 * Add dynamic label
 * Add prefix, suffix on tree view

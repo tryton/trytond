@@ -2772,6 +2772,12 @@ class FieldsTestCase(unittest.TestCase):
             self.assertEqual(references, [reference1])
 
             references = self.reference.search([
+                    ('reference.name', '=', 'target1',
+                        'test.reference.target'),
+                    ])
+            self.assertEqual(references, [reference1])
+
+            references = self.reference.search([
                     ('reference', '!=', str(target1)),
                     ])
             self.assertEqual(references, [])

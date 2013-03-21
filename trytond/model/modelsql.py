@@ -1252,8 +1252,11 @@ class ModelSQL(ModelStorage):
             field = getattr(cls, fargs[0])
             table = cls
             if len(fargs) > 1:
-                if field._type == 'many2one':
-                    Target = pool.get(field.model_name)
+                if field._type in ('many2one', 'reference'):
+                    if field._type == 'many2one':
+                        Target = pool.get(field.model_name)
+                    else:
+                        Target = pool.get(domain[i][3])
                     m2o_search = [(fargs[1], domain[i][1], domain[i][2])]
                     if 'active' in Target._fields:
                         m2o_search += [('active', 'in', (True, False))]
@@ -1263,9 +1266,21 @@ class ModelSQL(ModelStorage):
                                             order=[])))])
                         domain.pop(i)
                     else:
-                        domain[i] = (fargs[0], 'inselect',
-                            Target.search(m2o_search, order=[],
-                                query_string=True), table)
+                        in_query = Target.search(m2o_search, order=[],
+                            query_string=True)
+                        if field._type == 'many2one':
+                            domain[i] = (fargs[0], 'inselect', in_query, table)
+                        else:
+                            sql_type = FIELDS[
+                                cls.id._type].sql_type(cls.id)[0]
+                            query = ('SELECT id FROM "' + cls._table + '" '
+                                'WHERE CAST(SPLIT_PART('
+                                        '"' + fargs[0] + '", \',\', 2) '
+                                    'AS ' + sql_type + ') '
+                                'IN (' + in_query[0] + ') '
+                                'AND "' + fargs[0] + '" ilike %s')
+                            domain[i] = ('id', 'inselect',
+                                (query, in_query[1] + [domain[i][3] + ',%']))
                         i += 1
                     continue
                 elif field._type in ('one2one', 'many2many', 'one2many'):
