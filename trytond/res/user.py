@@ -29,7 +29,7 @@ except ImportError:
 TIMEZONES += [(None, '')]
 
 __all__ = [
-    'User', 'UserAction', 'UserGroup', 'Warning_',
+    'User', 'LoginAttempt', 'UserAction', 'UserGroup', 'Warning_',
     'UserConfigStart', 'UserConfig',
     ]
 
@@ -39,7 +39,6 @@ class User(ModelSQL, ModelView):
     __name__ = "res.user"
     name = fields.Char('Name', required=True, select=True, translate=True)
     login = fields.Char('Login', required=True)
-    login_try = fields.Integer('Login Try', required=True)
     password = fields.Sha('Password')
     salt = fields.Char('Salt', size=8)
     signature = fields.Text('Signature')
@@ -130,9 +129,8 @@ class User(ModelSQL, ModelView):
         # Migration from 2.2
         table.not_null_action('menu', action='remove')
 
-    @staticmethod
-    def default_login_try():
-        return 0
+        # Migration from 2.6
+        table.drop_column('login_try', exception=True)
 
     @staticmethod
     def default_password():
@@ -454,6 +452,7 @@ class User(ModelSQL, ModelView):
         '''
         Return user id if password matches
         '''
+        LoginAttempt = Pool().get('res.user.login.attempt')
         user_id, user_password, salt = cls._get_login(login)
         if not user_id:
             return 0
@@ -461,20 +460,40 @@ class User(ModelSQL, ModelView):
         if isinstance(password, unicode):
             password = password.encode('utf-8')
         password_sha = hashlib.sha1(password).hexdigest()
-        cursor = Transaction().cursor
         if password_sha == user_password:
-            cursor.execute('UPDATE "' + cls._table + '" '
-                'SET login_try = 0 '
-                'WHERE login = %s', (login,))
+            LoginAttempt.delete(user_id)
             return user_id
-        cursor.execute('UPDATE "' + cls._table + '" '
-            'SET login_try = login_try + 1 '
-            'WHERE login = %s', (login,))
-        cursor.execute('SELECT login_try FROM "' + cls._table + '" '
-            'WHERE login = %s', (login,))
-        login_try, = cursor.fetchone()
-        time.sleep(2 ** login_try)
+        LoginAttempt.add(user_id)
+        time.sleep(2 ** LoginAttempt.count(user_id))
         return 0
+
+
+class LoginAttempt(ModelSQL):
+    """Login Attempt
+
+    This class is separated from the res.user one in order to prevent locking
+    the res.user table when in a long running process.
+    """
+    __name__ = 'res.user.login.attempt'
+    user = fields.Many2One('res.user', 'User', required=True, select=True,
+        ondelete='CASCADE')
+
+    @classmethod
+    def add(cls, user_id):
+        cls.create([{'user': user_id}])
+
+    @classmethod
+    def delete(cls, user_id):
+        cursor = Transaction().cursor
+        cursor.execute('DELETE FROM "' + cls._table + '" WHERE "user" = %s',
+            (user_id,))
+
+    @classmethod
+    def count(cls, user_id):
+        cursor = Transaction().cursor
+        cursor.execute('SELECT count(1) FROM "'
+            + cls._table + '" WHERE "user" = %s', (user_id,))
+        return cursor.fetchone()
 
 
 class UserAction(ModelSQL):
