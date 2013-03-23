@@ -11,6 +11,7 @@ def register():
     Pool.register(
         Group,
         User,
+        LoginAttempt,
         Group2,
         UserAction,
         UserGroup,
