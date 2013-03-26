@@ -493,7 +493,7 @@ class LoginAttempt(ModelSQL):
         cursor = Transaction().cursor
         cursor.execute('SELECT count(1) FROM "'
             + cls._table + '" WHERE "user" = %s', (user_id,))
-        return cursor.fetchone()
+        return cursor.fetchone()[0]
 
 
 class UserAction(ModelSQL):
