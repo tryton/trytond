@@ -79,7 +79,7 @@ class Model(ModelSQL, ModelView):
         '''
         for model in models:
             if model.module and not IDENTIFIER.match(model.module):
-                cls.raise_user_error('invalid_module', (module.rec_name,))
+                cls.raise_user_error('invalid_module', (model.rec_name,))
 
     @classmethod
     def list_models(cls):
