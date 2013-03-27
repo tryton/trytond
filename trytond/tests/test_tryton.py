@@ -211,6 +211,9 @@ def test_depends():
                 assert encoder.fields <= depends, (
                     'Missing depends %s in "%s"."%s"' % (
                         list(encoder.fields - depends), mname, fname))
+                assert depends <= set(model._fields), (
+                    'Unknown depends %s in "%s"."%s"' % (
+                        list(depends - set(model._fields)), mname, fname))
 
 
 def suite():
