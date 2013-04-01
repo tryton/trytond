@@ -1760,26 +1760,28 @@ class ModelSQL(ModelStorage):
                 if obj._order_name in obj._fields:
                     field_name = obj._order_name
 
-                if field_name:
-                    order_by, tables, tables_args = obj._order_calc(field_name,
-                            otype)
-                    table_join = ('LEFT JOIN "' + table_name + '" AS '
-                        '"' + table_name + '.' + link_field + '" ON '
-                        '"%s.%s".id = "%s"."%s"'
-                        % (table_name, link_field, cls._table, link_field))
-                    for i in range(len(order_by)):
-                        if table_name in order_by[i]:
-                            order_by[i] = order_by[i].replace(table_name,
-                                    table_name + '.' + link_field)
-                    for i in range(len(tables)):
-                        if table_name in tables[i]:
-                            args = tables_args.pop(tables[i], [])
-                            tables[i] = tables[i].replace(table_name,
-                                    table_name + '.' + link_field)
-                            tables_args[tables[i]] = args
-                    if table_join not in tables:
-                        tables.insert(0, table_join)
-                    return order_by, tables, tables_args
+                if not field_name:
+                    field_name = 'id'
+
+                order_by, tables, tables_args = obj._order_calc(field_name,
+                        otype)
+                table_join = ('LEFT JOIN "' + table_name + '" AS '
+                    '"' + table_name + '.' + link_field + '" ON '
+                    '"%s.%s".id = "%s"."%s"'
+                    % (table_name, link_field, cls._table, link_field))
+                for i in range(len(order_by)):
+                    if table_name in order_by[i]:
+                        order_by[i] = order_by[i].replace(table_name,
+                                table_name + '.' + link_field)
+                for i in range(len(tables)):
+                    if table_name in tables[i]:
+                        args = tables_args.pop(tables[i], [])
+                        tables[i] = tables[i].replace(table_name,
+                                table_name + '.' + link_field)
+                        tables_args[tables[i]] = args
+                if table_join not in tables:
+                    tables.insert(0, table_join)
+                return order_by, tables, tables_args
 
             if (field_name in cls._fields
                     and getattr(cls._fields[field_name], 'translate', False)):
