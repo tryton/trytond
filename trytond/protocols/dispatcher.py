@@ -127,6 +127,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             if count:
                 continue
             raise
+        break
 
     Cache.clean(database_name)
     database_list = Pool.database_list()
