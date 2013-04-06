@@ -140,17 +140,17 @@ class UIMenu(ModelSQL, ModelView):
     @classmethod
     def search_rec_name(cls, name, clause):
         if isinstance(clause[2], basestring):
-            values = clause[2].split(SEPARATOR)
+            values = clause[2].split(SEPARATOR.strip())
             values.reverse()
             domain = []
             field = 'name'
             for name in values:
-                domain.append((field, clause[1], name))
+                domain.append((field, clause[1], name.strip()))
                 field = 'parent.' + field
-            ids = [m.id for m in cls.search(domain, order=[])]
-            return [('id', 'in', ids)]
-        #TODO Handle list
-        return [('name',) + tuple(clause[1:])]
+        else:
+            domain = [('name',) + tuple(clause[1:])]
+        ids = [m.id for m in cls.search(domain, order=[])]
+        return [('parent', 'child_of', ids)]
 
     @classmethod
     def search_global(cls, text):
