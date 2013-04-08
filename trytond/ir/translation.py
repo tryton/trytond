@@ -374,7 +374,7 @@ class Translation(ModelSQL, ModelView):
                         'AND value IS NOT NULL '
                         'AND fuzzy = %s '
                         'AND res_id IS NULL',
-                    (lang, ttype, str(name), source, False))
+                    (lang, ttype, name, source, False))
         else:
             cursor.execute('SELECT value '
                     'FROM ir_translation '
@@ -385,7 +385,7 @@ class Translation(ModelSQL, ModelView):
                         'AND value IS NOT NULL '
                         'AND fuzzy = %s '
                         'AND res_id IS NULL',
-                    (lang, ttype, str(name), False))
+                    (lang, ttype, name, False))
         res = cursor.fetchone()
         if res:
             cls._translation_cache.set((lang, ttype, name, source), res[0])
@@ -430,7 +430,7 @@ class Translation(ModelSQL, ModelView):
                             'AND value IS NOT NULL '
                             'AND fuzzy = %s '
                             'AND res_id IS NULL)',
-                            (lang, ttype, str(name), source, False))]
+                            (lang, ttype, name, source, False))]
                 else:
                     clause += [('(lang = %s '
                             'AND type = %s '
@@ -439,7 +439,7 @@ class Translation(ModelSQL, ModelView):
                             'AND value IS NOT NULL '
                             'AND fuzzy = %s '
                             'AND res_id IS NULL)',
-                            (lang, ttype, str(name), False))]
+                            (lang, ttype, name, False))]
         if clause:
             for i in range(0, len(clause), cursor.IN_MAX):
                 sub_clause = clause[i:i + cursor.IN_MAX]
