@@ -1293,10 +1293,14 @@ class ModelSQL(ModelStorage):
                     if rev_field._type == 'reference':
                         sql_type = FIELDS[
                             cls.id._type].sql_type(cls.id)[0]
+                        where = ' AND "' + origin + '" LIKE %s'
+                        where_args = [cls.__name__ + ',%']
                         origin = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
                             % (origin, sql_type))
                     else:
                         origin = '"%s"' % origin
+                        where = ''
+                        where_args = []
                     if hasattr(field, 'search'):
                         domain.extend([(fargs[0], 'in',
                                     map(int, Target.search([
@@ -1310,6 +1314,8 @@ class ModelSQL(ModelStorage):
                             ], order=[], query_string=True)
                         query1 = ('SELECT %s FROM "%s" WHERE "%s" IN (%s)' %
                                 (origin, Relation._table, target, query1))
+                        query1 += where
+                        query2 += where_args
                         domain[i] = ('id', 'inselect', (query1, query2))
                         i += 1
                     continue
@@ -1332,14 +1338,18 @@ class ModelSQL(ModelStorage):
                     sql_type = FIELDS[cls.id._type].sql_type(cls.id)[0]
                     select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
                         % (field.field, sql_type))
+                    where = ' AND "' + field.field + '" LIKE %s'
+                    where_args = [cls.__name__ + ',%']
                 else:
                     select = '"' + field.field + '"'
+                    where = ''
+                    where_args = []
 
                 if isinstance(domain[i][2], bool) or domain[i][2] is None:
                     query1 = ('SELECT ' + select + ' '
                         'FROM ' + table_query + '"' + Field._table + '" '
-                        'WHERE "' + field.field + '" IS NOT NULL')
-                    query2 = table_args
+                        'WHERE "' + field.field + '" IS NOT NULL' + where)
+                    query2 = table_args + where_args
                     clause = 'inselect'
                     if not domain[i][2]:
                         clause = 'notinselect'
@@ -1355,8 +1365,8 @@ class ModelSQL(ModelStorage):
                     query1 = ('SELECT ' + select + ' '
                         'FROM ' + table_query +
                             '"' + Field._table + '" '
-                        'WHERE id IN (' + query1 + ')')
-                    query2 = table_args + query2
+                        'WHERE id IN (' + query1 + ')' + where)
+                    query2 = table_args + query2 + where_args
                     domain[i] = ('id', 'inselect', (query1, query2))
                 i += 1
             elif field._type in ('many2many', 'one2one'):
@@ -1423,14 +1433,18 @@ class ModelSQL(ModelStorage):
                         sql_type = FIELDS[cls.id._type].sql_type(cls.id)[0]
                         select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
                             % (field.origin, sql_type))
+                        where = ' AND "' + field.origin + '" LIKE %s'
+                        where_args = [cls.__name__ + ',%']
                     else:
                         select = '"' + field.origin + '"'
+                        where = ''
+                        where_args = []
                     if isinstance(domain[i][2], bool) or domain[i][2] is None:
                         query1 = ('SELECT ' + select + ' '
                             'FROM ' + table_query + ' '
                                 '"' + Relation._table + '" '
-                            'WHERE "' + field.origin + '" IS NOT NULL')
-                        query2 = table_args
+                            'WHERE "' + field.origin + '" IS NOT NULL' + where)
+                        query2 = table_args + where_args
                         clause = 'inselect'
                         if not domain[i][2]:
                             clause = 'notinselect'
@@ -1447,8 +1461,9 @@ class ModelSQL(ModelStorage):
                         query1 = ('SELECT ' + select + ' '
                             'FROM ' + table_query +
                                 '"' + Relation._table + '" '
-                            'WHERE "' + field.target + '" IN (' + query1 + ')')
-                        query2 = table_args + query2
+                            'WHERE "' + field.target + '" IN (' + query1 + ')'
+                            + where)
+                        query2 = table_args + query2 + where_args
                         domain[i] = ('id', 'inselect', (query1, query2))
                 i += 1
 
