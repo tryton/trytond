@@ -510,6 +510,17 @@ class Translation(ModelSQL, ModelView):
         return super(Translation, cls).write(translations, vals)
 
     @classmethod
+    def extra_model_data(cls, model_data):
+        "Yield extra model linked to the model data"
+        if model_data.model in (
+                'ir.action.report',
+                'ir.action.act_window',
+                'ir.action.wizard',
+                'ir.action.url',
+                ):
+            yield 'ir.action'
+
+    @classmethod
     def translation_import(cls, lang, module, po_path):
         pool = Pool()
         ModelData = pool.get('ir.model.data')
@@ -520,6 +531,9 @@ class Translation(ModelSQL, ModelView):
         for model_data in models_data:
             fs_id2model_data.setdefault(model_data.model, {})
             fs_id2model_data[model_data.model][model_data.fs_id] = model_data
+            for extra_model in cls.extra_model_data(model_data):
+                fs_id2model_data.setdefault(extra_model, {})
+                fs_id2model_data[extra_model][model_data.fs_id] = model_data
 
         translations = set()
         to_create = []
@@ -629,6 +643,9 @@ class Translation(ModelSQL, ModelView):
         for model_data in models_data:
             db_id2fs_id.setdefault(model_data.model, {})
             db_id2fs_id[model_data.model][model_data.db_id] = model_data.fs_id
+            for extra_model in cls.extra_model_data(model_data):
+                db_id2fs_id.setdefault(extra_model, {})
+                db_id2fs_id[extra_model][model_data.db_id] = model_data.fs_id
 
         pofile = TrytonPOFile(wrapwidth=78)
         pofile.metadata = {
