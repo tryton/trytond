@@ -541,7 +541,7 @@ class Collection(ModelSQL, ModelView):
         object_name, object_id = cls._uri2object(get_uriparentpath(uri),
                 cache=cache)
         if not object_name \
-                or object_name in ('ir.attachment') \
+                or object_name == 'ir.attachment' \
                 or not object_id:
             raise DAV_Forbidden
         pool = Pool()
