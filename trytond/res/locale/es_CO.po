@@ -100,9 +100,17 @@ msgctxt "field:ir.model.field-res.group,create_uid:"
 msgid "Create User"
 msgstr "Creado por Usuario"
 
+msgctxt "field:ir.model.field-res.group,field:"
+msgid "Model Field"
+msgstr "Modelo de Campo"
+
 msgctxt "field:ir.model.field-res.group,field_id:"
 msgid "Model Field"
-msgstr "Modelo de campo"
+msgstr "Modelo de Campo"
+
+msgctxt "field:ir.model.field-res.group,group:"
+msgid "Group"
+msgstr "Grupo"
 
 msgctxt "field:ir.model.field-res.group,group_id:"
 msgid "Group"
@@ -374,7 +382,7 @@ msgstr "Estado"
 
 msgctxt "field:res.request,trigger_date:"
 msgid "Trigger Date"
-msgstr "Fecha del disparo"
+msgstr "Fecha del Disparador"
 
 msgctxt "field:res.request,write_date:"
 msgid "Write Date"
@@ -684,6 +692,34 @@ msgctxt "field:res.user.config.start,id:"
 msgid "ID"
 msgstr "ID"
 
+msgctxt "field:res.user.login.attempt,create_date:"
+msgid "Create Date"
+msgstr "Fecha de Creación"
+
+msgctxt "field:res.user.login.attempt,create_uid:"
+msgid "Create User"
+msgstr "Usuario creación"
+
+msgctxt "field:res.user.login.attempt,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:res.user.login.attempt,rec_name:"
+msgid "Name"
+msgstr "Nombre del campo"
+
+msgctxt "field:res.user.login.attempt,user:"
+msgid "User"
+msgstr "Usuario"
+
+msgctxt "field:res.user.login.attempt,write_date:"
+msgid "Write Date"
+msgstr "Fecha de Modificación"
+
+msgctxt "field:res.user.login.attempt,write_uid:"
+msgid "Write User"
+msgstr "Modificado por Usuario"
+
 msgctxt "field:res.user.warning,always:"
 msgid "Always"
 msgstr "Siempre"
@@ -738,7 +774,7 @@ msgstr "Solicitudes"
 
 msgctxt "model:ir.action,name:act_request_link_form"
 msgid "Request Links"
-msgstr "Enlaces a solicitudes"
+msgstr "Enlaces de Solicitudes"
 
 msgctxt "model:ir.action,name:act_user_config"
 msgid "Configure Users"
@@ -786,7 +822,7 @@ msgstr "Solicitudes"
 
 msgctxt "model:ir.ui.menu,name:menu_request_link_form"
 msgid "Request Links"
-msgstr "Enlaces a solicitudes"
+msgstr "Enlaces de Solicitudes"
 
 msgctxt "model:ir.ui.menu,name:menu_res"
 msgid "Users"
@@ -818,7 +854,7 @@ msgstr "Histórico de solicitudes"
 
 msgctxt "model:res.request.link,name:"
 msgid "Request link"
-msgstr "Enlace a solicitud"
+msgstr "Enlaces de Solicitud"
 
 msgctxt "model:res.request.link,name:request_link_cron"
 msgid "Scheduler"
@@ -851,6 +887,10 @@ msgstr "Usuario - Grupo"
 msgctxt "model:res.user.config.start,name:"
 msgid "User Config Init"
 msgstr "Inicio de Configuración de Usuario"
+
+msgctxt "model:res.user.login.attempt,name:"
+msgid "Login Attempt"
+msgstr "Intento de Login"
 
 msgctxt "model:res.user.warning,name:"
 msgid "User Warning"
@@ -962,7 +1002,7 @@ msgstr "Histórico de solicitudes"
 
 msgctxt "view:res.request.link:"
 msgid "Request Link"
-msgstr "Enlace a solicitud"
+msgstr "Enlaces de Solicitud"
 
 msgctxt "view:res.request.reference:"
 msgid "Request Reference"
