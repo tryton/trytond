@@ -10,6 +10,12 @@ msgstr ""
 "Está intentando evitar una regla de acceso\n"
 "(Tipo de documento: %s)"
 
+msgctxt "error:access_error:"
+msgid ""
+"You try to bypass an access rule.\n"
+"(Document type: %s)"
+msgstr "Esta intentando evitar una regla de acceso."
+
 msgctxt "error:delete_xml_record:"
 msgid "You are not allowed to delete this record."
 msgstr "No está autorizado a borrar este registro."
@@ -33,20 +39,42 @@ msgid "The value of field \"%s\" on \"%s\" doesn't exist."
 msgstr "El valor del campo «%s» en «%s» no existe."
 
 msgctxt "error:ir.action.act_window:"
+msgid "Invalid context \"%(context)s\" on action \"%(action)s\"."
+msgstr "Contexto inválido \"%(context)s\" en action \"%(action)s\"."
+
+msgctxt "error:ir.action.act_window:"
 msgid "Invalid context!"
 msgstr "¡Contexto inválido!"
+
+msgctxt "error:ir.action.act_window:"
+msgid "Invalid domain or search criteria \"%(domain)s\" on action \"%(action)s\"."
+msgstr ""
+"Dominio inválido o criterio de busqueda \"%(domain)s\" en acción "
+"\"%(action)s\"."
 
 msgctxt "error:ir.action.act_window:"
 msgid "Invalid domain or search criteria!"
 msgstr "¡Dominio o criterios de búsqueda inválido!"
 
 msgctxt "error:ir.action.act_window:"
+msgid "Invalid view \"%(view)s\" for action \"%(action)s\"."
+msgstr "Vista inválida \"%(view)s\" para la acción \"%(action)s\""
+
+msgctxt "error:ir.action.act_window:"
 msgid "Invalid views!"
 msgstr "¡Vistas inválidas!"
 
 msgctxt "error:ir.action.keyword:"
+msgid "Wrong wizard model in keyword action \"%s\"."
+msgstr "Errado modelo de asistente en la acción clave \"%s\"."
+
+msgctxt "error:ir.action.keyword:"
 msgid "Wrong wizard model!"
-msgstr "El modelo del asistente no es válido"
+msgstr "El modelo del asistente no es válido!"
+
+msgctxt "error:ir.action.report:"
+msgid "Invalid email definition on report \"%s\"."
+msgstr "Definición de correo electronico inválida en informe \"%s\""
 
 msgctxt "error:ir.action.report:"
 msgid "Invalid email!"
@@ -77,12 +105,28 @@ msgstr ""
 "%s\n"
 
 msgctxt "error:ir.lang:"
+msgid "Default language can not be deleted."
+msgstr "Los lenguajes por defecto no pueden ser borrados."
+
+msgctxt "error:ir.lang:"
 msgid "Invalid Grouping!"
 msgstr "El agrupamiento no es válido"
 
 msgctxt "error:ir.lang:"
+msgid "Invalid date format \"%(format)s\" on \"%(language)s\" language."
+msgstr "Formato de fecha inválido \"%(format)s\" en lenguaje \"%(languages)s\"."
+
+msgctxt "error:ir.lang:"
+msgid "Invalid grouping \"%(grouping)s\" on \"%(language)s\" language."
+msgstr "Agrupamiento inválido \"%(grouping)s\" en lenguaje \"%(languages)s\"."
+
+msgctxt "error:ir.lang:"
 msgid "The date format is not valid!"
 msgstr "El formato de la fecha no es válido"
+
+msgctxt "error:ir.lang:"
+msgid "The default language must be translatable."
+msgstr "El lenguaje por defecto debe ser traducible."
 
 msgctxt "error:ir.lang:"
 msgid "decimal_point and thousands_sep must be different!"
@@ -133,12 +177,21 @@ msgid "Model Field Name must be a python identifier!"
 msgstr "¡El campo del Nombre del Modelo debe ser un identificador de Python!"
 
 msgctxt "error:ir.model.field:"
+msgid "Model Field name \"%s\" is not a valid python identifier."
+msgstr ""
+"El campo del Nombre del Modelo \"%s\" no es un identificador python válido."
+
+msgctxt "error:ir.model.field:"
 msgid "The field name in model must be unique!"
 msgstr "¡El nombre del campo en el modelo debe ser único!"
 
 msgctxt "error:ir.model:"
 msgid "Module Name must be a python identifier!"
-msgstr "¡El Nombre del Módulo debe ser un identificador de Python!"
+msgstr "¡El nombre del módulo debe ser un identificador de Python!"
+
+msgctxt "error:ir.model:"
+msgid "Module name \"%s\" is not a valid python identifier."
+msgstr "El nombre del modulo \"%s\" no es un identificador python válido."
 
 msgctxt "error:ir.model:"
 msgid "The model must be unique!"
@@ -170,9 +223,26 @@ msgctxt "error:ir.rule.group:"
 msgid "Global and Default are mutually exclusive!"
 msgstr "«Global» y «Predeterminado» son mutuamente excluyentes"
 
+msgctxt "error:ir.rule:"
+msgid "Invalid domain in rule \"%s\"."
+msgstr "Dominio inválido en regla \"%s\"."
+
+msgctxt "error:ir.sequence.strict:"
+msgid "Invalid prefix \"%(prefix)s\" on sequence \"%(sequence)s\"."
+msgstr "Prefijo inválido \"%(prefix)s\" en secuencia \"%(sequence)s\"."
+
 msgctxt "error:ir.sequence.strict:"
 msgid "Invalid prefix/suffix!"
 msgstr "prefijo/sufijo no válido"
+
+msgctxt "error:ir.sequence.strict:"
+msgid "Invalid suffix \"%(suffix)s\" on sequence \"%(sequence)s\"."
+msgstr "Sufijo inválido \"%(suffix)s\" en secuencia \"%(sequence)s\"."
+
+msgctxt "error:ir.sequence.strict:"
+msgid "Last Timestamp cannot be in the future on sequence \"%s\"."
+msgstr ""
+"La ultima marca de tiempo no puede situarse en una secuencia futura \"%s\"."
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Last Timestamp could not be in future!"
@@ -180,15 +250,32 @@ msgstr "¡La Última Marca de Tiempo no puede situarse en el futuro!"
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Missing sequence!"
-msgstr "Falta la secuencia"
+msgstr "Falta la secuencia!"
+
+msgctxt "error:ir.sequence.strict:"
+msgid "Missing sequence."
+msgstr "Falta la secuencia!"
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Timestamp rounding should be greater than 0"
 msgstr "El redondeo de la marca de tiempo debe ser mayor que 0"
 
 msgctxt "error:ir.sequence:"
+msgid "Invalid prefix \"%(prefix)s\" on sequence \"%(sequence)s\"."
+msgstr "Prefijo inválido \"%(prefix)s\" en secuencia \"%(sequence)s\"."
+
+msgctxt "error:ir.sequence:"
 msgid "Invalid prefix/suffix!"
 msgstr "prefijo/sufijo no válido"
+
+msgctxt "error:ir.sequence:"
+msgid "Invalid suffix \"%(suffix)s\" on sequence \"%(sequence)s\"."
+msgstr "Sufijo inválido \"%(suffix)s\" en secuencia \"%(sequence)s\"."
+
+msgctxt "error:ir.sequence:"
+msgid "Last Timestamp cannot be in the future on sequence \"%s\"."
+msgstr ""
+"La ultima marca de tiempo no puede situarse en una secuencia futura \"%s\"."
 
 msgctxt "error:ir.sequence:"
 msgid "Last Timestamp could not be in future!"
@@ -196,7 +283,11 @@ msgstr "¡La Última Marca de Tiempo no puede situarse en el futuro!"
 
 msgctxt "error:ir.sequence:"
 msgid "Missing sequence!"
-msgstr "Falta la secuencia"
+msgstr "Falta la secuencia!"
+
+msgctxt "error:ir.sequence:"
+msgid "Missing sequence."
+msgstr "Falta la secuencia!"
 
 msgctxt "error:ir.sequence:"
 msgid "Timestamp rounding should be greater than 0"
@@ -211,8 +302,20 @@ msgid "\"On Time\" and others are mutually exclusive!"
 msgstr "¡\"Al Tiempo\" y otros son mutuamente excluyentes!"
 
 msgctxt "error:ir.trigger:"
+msgid ""
+"Condition \"%(condition)s\" is not a valid python expression on trigger "
+"\"%(trigger)s\"."
+msgstr ""
+"Condición \"%(condition)s\" no es una expressión python válida en el "
+"disparador \"%s(trigger)s\"."
+
+msgctxt "error:ir.trigger:"
 msgid "Condition must be a python expression!"
 msgstr "¡Condición debe ser una expresión Python!"
+
+msgctxt "error:ir.ui.menu:"
+msgid "\"%s\" is not a valid menu name because it is not allowed to contain \" / \"."
+msgstr "\"%s\" no es un nombre válido de menú porque no esta permitido contener \"/\""
 
 msgctxt "error:ir.ui.menu:"
 msgid "You can not create recursive menu!"
@@ -224,7 +327,11 @@ msgstr "¡No puede utilizar \" /\" en el nombre del campo!"
 
 msgctxt "error:ir.ui.view:"
 msgid "Invalid XML for View!"
-msgstr "El XML de la vista no es válido"
+msgstr "El XML de la vista no es válido!"
+
+msgctxt "error:ir.ui.view:"
+msgid "Invalid XML for view \"%s\"."
+msgstr "XML inválido para la vista \"%s\"."
 
 msgctxt "error:not_found_in_selection:"
 msgid "Key %r not found in selection field %r"
@@ -237,6 +344,20 @@ msgid ""
 msgstr ""
 "Está intentando leer registros que ya no existen\n"
 "(Tipo de documento: %s)"
+
+msgctxt "error:read_error:"
+msgid ""
+"You try to read records that don't exist anymore.\n"
+"(Document type: %s)"
+msgstr "Esta intentando leer registros que ya no existen."
+
+msgctxt "error:recursion_error:"
+msgid ""
+"Recursion error: Record \"%(rec_name)s\" with parent \"%(parent_rec_name)s\""
+" was configured as ancestor of itself."
+msgstr ""
+"Error de recursión: El registro \"%(rec_name)s\" con padre \"%(rec_name)s\" "
+"fue configurado como antecesor del mismo."
 
 msgctxt "error:reference_syntax_error:"
 msgid "Syntax error for reference %r in %s"
@@ -258,13 +379,21 @@ msgctxt "error:search_function_missing:"
 msgid "Missing search function on field \"%s\"."
 msgstr "¡Falta función de búsqueda en el campo \"%s\"."
 
+msgctxt "error:selection_validation_record:"
+msgid "The field \"%s\" on \"%s\" is not in the selection."
+msgstr "El campo \"%s\" en \"%s\" no esta en la selección."
+
+msgctxt "error:selection_value_notfound:"
+msgid "Value not in the selection for field \"%s\"."
+msgstr "El valor no esta en la selección para el  campo \"%s\"."
+
 msgctxt "error:size_validation_record:"
 msgid "The field \"%s\" on \"%s\" is too long."
 msgstr "El campo «%s» en «%s» es muy largo."
 
 msgctxt "error:time_format_validation_record:"
 msgid "The time value of field \"%s\" on \"%s\" is not valid."
-msgstr ""
+msgstr "El valor del tiempo en el campo \"%s\" en \"%s\" no es válido."
 
 msgctxt "error:too_many_relations_found:"
 msgid "Too many relations found: %r in %s"
@@ -277,6 +406,12 @@ msgid ""
 msgstr ""
 "Está tratando de escribir en registros que ya no existen\n"
 "(Tipo de documento: %s)"
+
+msgctxt "error:write_error:"
+msgid ""
+"You try to write on records that don't exist anymore.\n"
+"(Document type: %s)"
+msgstr "Esta intentando modificar registros que ya no existen."
 
 msgctxt "error:write_xml_record:"
 msgid "You are not allowed to modify this record."
@@ -342,6 +477,10 @@ msgctxt "field:ir.action,write_uid:"
 msgid "Write User"
 msgstr "Modificado por Usuario"
 
+msgctxt "field:ir.action.act_window,act_window_domains:"
+msgid "Domains"
+msgstr "Dominios"
+
 msgctxt "field:ir.action.act_window,act_window_views:"
 msgid "Views"
 msgstr "Vistas"
@@ -349,6 +488,10 @@ msgstr "Vistas"
 msgctxt "field:ir.action.act_window,action:"
 msgid "Action"
 msgstr "Acción"
+
+msgctxt "field:ir.action.act_window,active:"
+msgid "Active"
+msgstr "Activo"
 
 msgctxt "field:ir.action.act_window,auto_refresh:"
 msgid "Auto-Refresh"
@@ -370,13 +513,33 @@ msgctxt "field:ir.action.act_window,domain:"
 msgid "Domain Value"
 msgstr "Valor del dominio"
 
+msgctxt "field:ir.action.act_window,domains:"
+msgid "Domains"
+msgstr "Dominios"
+
+msgctxt "field:ir.action.act_window,groups:"
+msgid "Groups"
+msgstr "Grupos"
+
+msgctxt "field:ir.action.act_window,icon:"
+msgid "Icon"
+msgstr "Icono"
+
 msgctxt "field:ir.action.act_window,id:"
 msgid "ID"
 msgstr "ID"
 
+msgctxt "field:ir.action.act_window,keywords:"
+msgid "Keywords"
+msgstr "Palabras clave"
+
 msgctxt "field:ir.action.act_window,limit:"
 msgid "Limit"
 msgstr "Límite"
+
+msgctxt "field:ir.action.act_window,name:"
+msgid "Name"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.action.act_window,pyson_context:"
 msgid "PySON Context"
@@ -402,19 +565,71 @@ msgctxt "field:ir.action.act_window,search_value:"
 msgid "Search Criteria"
 msgstr "Criterio de búsqueda"
 
+msgctxt "field:ir.action.act_window,type:"
+msgid "Type"
+msgstr "Tipo"
+
+msgctxt "field:ir.action.act_window,usage:"
+msgid "Usage"
+msgstr "Uso"
+
 msgctxt "field:ir.action.act_window,views:"
 msgid "Views"
 msgstr "Vistas"
 
 msgctxt "field:ir.action.act_window,window_name:"
 msgid "Window Name"
-msgstr "Nombre de la ventana"
+msgstr "Nombre de Ventana"
 
 msgctxt "field:ir.action.act_window,write_date:"
 msgid "Write Date"
 msgstr "Fecha de Modificación"
 
 msgctxt "field:ir.action.act_window,write_uid:"
+msgid "Write User"
+msgstr "Modificado por Usuario"
+
+msgctxt "field:ir.action.act_window.domain,act_window:"
+msgid "Action"
+msgstr "Acción"
+
+msgctxt "field:ir.action.act_window.domain,active:"
+msgid "Active"
+msgstr "Activo"
+
+msgctxt "field:ir.action.act_window.domain,create_date:"
+msgid "Create Date"
+msgstr "Fecha de Creación"
+
+msgctxt "field:ir.action.act_window.domain,create_uid:"
+msgid "Create User"
+msgstr "Creado por Usuario"
+
+msgctxt "field:ir.action.act_window.domain,domain:"
+msgid "Domain"
+msgstr "Dominio"
+
+msgctxt "field:ir.action.act_window.domain,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.action.act_window.domain,name:"
+msgid "Name"
+msgstr "Nombre de Campo"
+
+msgctxt "field:ir.action.act_window.domain,rec_name:"
+msgid "Name"
+msgstr "Nombre de Campo"
+
+msgctxt "field:ir.action.act_window.domain,sequence:"
+msgid "Sequence"
+msgstr "Secuencia"
+
+msgctxt "field:ir.action.act_window.domain,write_date:"
+msgid "Write Date"
+msgstr "Fecha de Modificación"
+
+msgctxt "field:ir.action.act_window.domain,write_uid:"
 msgid "Write User"
 msgstr "Modificado por Usuario"
 
@@ -498,6 +713,10 @@ msgctxt "field:ir.action.report,action:"
 msgid "Action"
 msgstr "Acción"
 
+msgctxt "field:ir.action.report,active:"
+msgid "Active"
+msgstr "Activo"
+
 msgctxt "field:ir.action.report,create_date:"
 msgid "Create Date"
 msgstr "Fecha de Creación"
@@ -518,9 +737,21 @@ msgctxt "field:ir.action.report,extension:"
 msgid "Extension"
 msgstr "Extensión"
 
+msgctxt "field:ir.action.report,groups:"
+msgid "Groups"
+msgstr "Grupos"
+
+msgctxt "field:ir.action.report,icon:"
+msgid "Icon"
+msgstr "Icono"
+
 msgctxt "field:ir.action.report,id:"
 msgid "ID"
 msgstr "ID"
+
+msgctxt "field:ir.action.report,keywords:"
+msgid "Keywords"
+msgstr "Palabras clave"
 
 msgctxt "field:ir.action.report,model:"
 msgid "Model"
@@ -529,6 +760,10 @@ msgstr "Modelo"
 msgctxt "field:ir.action.report,module:"
 msgid "Module"
 msgstr "Módulo"
+
+msgctxt "field:ir.action.report,name:"
+msgid "Name"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.action.report,pyson_email:"
 msgid "PySON Email"
@@ -552,7 +787,7 @@ msgstr "Contenido"
 
 msgctxt "field:ir.action.report,report_name:"
 msgid "Internal Name"
-msgstr "Nombre interno"
+msgstr "Nombre Interno"
 
 msgctxt "field:ir.action.report,style:"
 msgid "Style"
@@ -566,6 +801,14 @@ msgctxt "field:ir.action.report,template_extension:"
 msgid "Template Extension"
 msgstr "Plantilla de Extensión"
 
+msgctxt "field:ir.action.report,type:"
+msgid "Type"
+msgstr "Tipo"
+
+msgctxt "field:ir.action.report,usage:"
+msgid "Usage"
+msgstr "Uso"
+
 msgctxt "field:ir.action.report,write_date:"
 msgid "Write Date"
 msgstr "Fecha de Modificación"
@@ -578,6 +821,10 @@ msgctxt "field:ir.action.url,action:"
 msgid "Action"
 msgstr "Acción"
 
+msgctxt "field:ir.action.url,active:"
+msgid "Active"
+msgstr "Activo"
+
 msgctxt "field:ir.action.url,create_date:"
 msgid "Create Date"
 msgstr "Fecha de Creación"
@@ -586,17 +833,41 @@ msgctxt "field:ir.action.url,create_uid:"
 msgid "Create User"
 msgstr "Creado por Usuario"
 
+msgctxt "field:ir.action.url,groups:"
+msgid "Groups"
+msgstr "Grupos"
+
+msgctxt "field:ir.action.url,icon:"
+msgid "Icon"
+msgstr "Icono"
+
 msgctxt "field:ir.action.url,id:"
 msgid "ID"
 msgstr "ID"
+
+msgctxt "field:ir.action.url,keywords:"
+msgid "Keywords"
+msgstr "Palabras clave"
+
+msgctxt "field:ir.action.url,name:"
+msgid "Name"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.action.url,rec_name:"
 msgid "Name"
 msgstr "Nombre"
 
+msgctxt "field:ir.action.url,type:"
+msgid "Type"
+msgstr "Tipo"
+
 msgctxt "field:ir.action.url,url:"
 msgid "Action Url"
 msgstr "URL de la acción"
+
+msgctxt "field:ir.action.url,usage:"
+msgid "Usage"
+msgstr "Uso"
 
 msgctxt "field:ir.action.url,write_date:"
 msgid "Write Date"
@@ -610,6 +881,10 @@ msgctxt "field:ir.action.wizard,action:"
 msgid "Action"
 msgstr "Acción"
 
+msgctxt "field:ir.action.wizard,active:"
+msgid "Active"
+msgstr "Activo"
+
 msgctxt "field:ir.action.wizard,create_date:"
 msgid "Create Date"
 msgstr "Fecha de Creación"
@@ -622,17 +897,41 @@ msgctxt "field:ir.action.wizard,email:"
 msgid "Email"
 msgstr "Correo electrónico"
 
+msgctxt "field:ir.action.wizard,groups:"
+msgid "Groups"
+msgstr "Grupos"
+
+msgctxt "field:ir.action.wizard,icon:"
+msgid "Icon"
+msgstr "Icono"
+
 msgctxt "field:ir.action.wizard,id:"
 msgid "ID"
 msgstr "ID"
+
+msgctxt "field:ir.action.wizard,keywords:"
+msgid "Keywords"
+msgstr "Palabras clave"
 
 msgctxt "field:ir.action.wizard,model:"
 msgid "Model"
 msgstr "Modelo"
 
+msgctxt "field:ir.action.wizard,name:"
+msgid "Name"
+msgstr "Nombre de Campo"
+
 msgctxt "field:ir.action.wizard,rec_name:"
 msgid "Name"
 msgstr "Nombre"
+
+msgctxt "field:ir.action.wizard,type:"
+msgid "Type"
+msgstr "Tipo"
+
+msgctxt "field:ir.action.wizard,usage:"
+msgid "Usage"
+msgstr "Uso"
 
 msgctxt "field:ir.action.wizard,window:"
 msgid "Window"
@@ -754,6 +1053,34 @@ msgctxt "field:ir.cache,write_uid:"
 msgid "Write User"
 msgstr "Modificado por Usuario"
 
+msgctxt "field:ir.configuration,create_date:"
+msgid "Create Date"
+msgstr "Fecha de Creación"
+
+msgctxt "field:ir.configuration,create_uid:"
+msgid "Create User"
+msgstr "Creado por Usuario"
+
+msgctxt "field:ir.configuration,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.configuration,language:"
+msgid "language"
+msgstr "Lenguaje"
+
+msgctxt "field:ir.configuration,rec_name:"
+msgid "Name"
+msgstr "Nombre de Campo"
+
+msgctxt "field:ir.configuration,write_date:"
+msgid "Write Date"
+msgstr "Fecha de Modificación"
+
+msgctxt "field:ir.configuration,write_uid:"
+msgid "Write User"
+msgstr "Modificado por Usuario"
+
 msgctxt "field:ir.cron,active:"
 msgid "Active"
 msgstr "Activo"
@@ -812,7 +1139,7 @@ msgstr "Repetir Fallidos"
 
 msgctxt "field:ir.cron,request_user:"
 msgid "Request User"
-msgstr "Ordenante"
+msgstr "Petición de Usuario"
 
 msgctxt "field:ir.cron,user:"
 msgid "Execution User"
@@ -920,7 +1247,7 @@ msgstr "Fecha"
 
 msgctxt "field:ir.lang,decimal_point:"
 msgid "Decimal Separator"
-msgstr "Separador decimal"
+msgstr "Separador Decimal"
 
 msgctxt "field:ir.lang,direction:"
 msgid "Direction"
@@ -944,7 +1271,7 @@ msgstr "Nombre"
 
 msgctxt "field:ir.lang,thousands_sep:"
 msgid "Thousands Separator"
-msgstr "Separador de miles"
+msgstr "Separador de Miles"
 
 msgctxt "field:ir.lang,translatable:"
 msgid "Translatable"
@@ -970,6 +1297,10 @@ msgctxt "field:ir.model,fields:"
 msgid "Fields"
 msgstr "Campos"
 
+msgctxt "field:ir.model,global_search_p:"
+msgid "Global Search"
+msgstr "Busqueda Global"
+
 msgctxt "field:ir.model,id:"
 msgid "ID"
 msgstr "ID"
@@ -980,7 +1311,7 @@ msgstr "Información"
 
 msgctxt "field:ir.model,model:"
 msgid "Model Name"
-msgstr "Nombre del modelo"
+msgstr "Nombre del Modelo"
 
 msgctxt "field:ir.model,module:"
 msgid "Module"
@@ -1076,11 +1407,11 @@ msgstr "Modelo"
 
 msgctxt "field:ir.model.button,name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.model.button,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.model.button,write_date:"
 msgid "Write Date"
@@ -1196,7 +1527,7 @@ msgstr "Relación del modelo"
 
 msgctxt "field:ir.model.field,ttype:"
 msgid "Field Type"
-msgstr "Tipo de campo"
+msgstr "Tipo de Campo"
 
 msgctxt "field:ir.model.field,write_date:"
 msgid "Write Date"
@@ -1232,23 +1563,23 @@ msgstr "ID"
 
 msgctxt "field:ir.model.field.access,perm_create:"
 msgid "Create Access"
-msgstr "Acceso para crear"
+msgstr "Acceso para Crear"
 
 msgctxt "field:ir.model.field.access,perm_delete:"
 msgid "Delete Access"
-msgstr "Acceso para borrar"
+msgstr "Acceso para Borrar"
 
 msgctxt "field:ir.model.field.access,perm_read:"
 msgid "Read Access"
-msgstr "Acceso para leer"
+msgstr "Acceso para Leer"
 
 msgctxt "field:ir.model.field.access,perm_write:"
 msgid "Write Access"
-msgstr "Acceso para escribir"
+msgstr "Acceso para Modificar"
 
 msgctxt "field:ir.model.field.access,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.model.field.access,write_date:"
 msgid "Write Date"
@@ -1458,6 +1789,10 @@ msgctxt "field:ir.rule,create_uid:"
 msgid "Create User"
 msgstr "Creado por Usuario"
 
+msgctxt "field:ir.rule,domain:"
+msgid "Domain"
+msgstr "Dominio"
+
 msgctxt "field:ir.rule,field:"
 msgid "Field"
 msgstr "Campo"
@@ -1564,7 +1899,7 @@ msgstr "Activo"
 
 msgctxt "field:ir.sequence,code:"
 msgid "Sequence Code"
-msgstr "Tipo de la secuencia"
+msgstr "Código de Secuencia"
 
 msgctxt "field:ir.sequence,create_date:"
 msgid "Create Date"
@@ -1584,7 +1919,7 @@ msgstr "Última Marca de Tiempo"
 
 msgctxt "field:ir.sequence,name:"
 msgid "Sequence Name"
-msgstr "Nombre de la secuencia"
+msgstr "Nombre de Secuencia"
 
 msgctxt "field:ir.sequence,number_increment:"
 msgid "Increment Number"
@@ -1640,7 +1975,7 @@ msgstr "Activo"
 
 msgctxt "field:ir.sequence.strict,code:"
 msgid "Sequence Code"
-msgstr "Tipo de la secuencia"
+msgstr "Código de Secuencia"
 
 msgctxt "field:ir.sequence.strict,create_date:"
 msgid "Create Date"
@@ -1660,7 +1995,7 @@ msgstr "Última Marca de Tiempo"
 
 msgctxt "field:ir.sequence.strict,name:"
 msgid "Sequence Name"
-msgstr "Nombre de la secuencia"
+msgstr "Nombre de Secuencia"
 
 msgctxt "field:ir.sequence.strict,number_increment:"
 msgid "Increment Number"
@@ -1728,7 +2063,7 @@ msgstr "ID"
 
 msgctxt "field:ir.sequence.type,name:"
 msgid "Sequence Name"
-msgstr "Nombre de la secuencia"
+msgstr "Nombre de Secuencia"
 
 msgctxt "field:ir.sequence.type,rec_name:"
 msgid "Name"
@@ -1760,7 +2095,7 @@ msgstr "Clave"
 
 msgctxt "field:ir.session,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.session,write_date:"
 msgid "Write Date"
@@ -1788,7 +2123,7 @@ msgstr "ID"
 
 msgctxt "field:ir.session.wizard,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.session.wizard,write_date:"
 msgid "Write Date"
@@ -1828,7 +2163,7 @@ msgstr "Módulo"
 
 msgctxt "field:ir.translation,name:"
 msgid "Field Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.translation,rec_name:"
 msgid "Name"
@@ -1890,6 +2225,14 @@ msgctxt "field:ir.translation.export.start,module:"
 msgid "Module"
 msgstr "Módulo"
 
+msgctxt "field:ir.translation.set.start,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.translation.set.succeed,id:"
+msgid "ID"
+msgstr "ID"
+
 msgctxt "field:ir.translation.set_report.start,id:"
 msgid "ID"
 msgstr "ID"
@@ -1948,7 +2291,7 @@ msgstr "Modelo"
 
 msgctxt "field:ir.trigger,name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.trigger,on_create:"
 msgid "On Create"
@@ -1968,7 +2311,7 @@ msgstr "Al Escribir"
 
 msgctxt "field:ir.trigger,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.trigger,write_date:"
 msgid "Write Date"
@@ -1992,7 +2335,7 @@ msgstr "ID"
 
 msgctxt "field:ir.trigger.log,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.trigger.log,record_id:"
 msgid "Record ID"
@@ -2032,7 +2375,7 @@ msgstr "Módulo"
 
 msgctxt "field:ir.ui.icon,name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.ui.icon,path:"
 msgid "SVG Path"
@@ -2040,7 +2383,7 @@ msgstr "Ruta al SVG"
 
 msgctxt "field:ir.ui.icon,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.ui.icon,sequence:"
 msgid "Sequence"
@@ -2068,7 +2411,7 @@ msgstr "Hijos"
 
 msgctxt "field:ir.ui.menu,complete_name:"
 msgid "Complete Name"
-msgstr "Nombre completo"
+msgstr "Nombre Completo"
 
 msgctxt "field:ir.ui.menu,create_date:"
 msgid "Create Date"
@@ -2077,6 +2420,10 @@ msgstr "Fecha de Creación"
 msgctxt "field:ir.ui.menu,create_uid:"
 msgid "Create User"
 msgstr "Creado por Usuario"
+
+msgctxt "field:ir.ui.menu,favorite:"
+msgid "Favorite"
+msgstr "Favorito"
 
 msgctxt "field:ir.ui.menu,groups:"
 msgid "Groups"
@@ -2111,6 +2458,42 @@ msgid "Write Date"
 msgstr "Fecha de Modificación"
 
 msgctxt "field:ir.ui.menu,write_uid:"
+msgid "Write User"
+msgstr "Modificado por Usuario"
+
+msgctxt "field:ir.ui.menu.favorite,create_date:"
+msgid "Create Date"
+msgstr "Fecha de Creación"
+
+msgctxt "field:ir.ui.menu.favorite,create_uid:"
+msgid "Create User"
+msgstr "Creado por Usuario"
+
+msgctxt "field:ir.ui.menu.favorite,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.ui.menu.favorite,menu:"
+msgid "Menu"
+msgstr "Menú"
+
+msgctxt "field:ir.ui.menu.favorite,rec_name:"
+msgid "Name"
+msgstr "Nombre de Campo"
+
+msgctxt "field:ir.ui.menu.favorite,sequence:"
+msgid "Sequence"
+msgstr "Secuencia"
+
+msgctxt "field:ir.ui.menu.favorite,user:"
+msgid "User"
+msgstr "Usuario"
+
+msgctxt "field:ir.ui.menu.favorite,write_date:"
+msgid "Write Date"
+msgstr "Fecha de Modificación"
+
+msgctxt "field:ir.ui.menu.favorite,write_uid:"
 msgid "Write User"
 msgstr "Modificado por Usuario"
 
@@ -2156,7 +2539,7 @@ msgstr "Módulo"
 
 msgctxt "field:ir.ui.view,name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.ui.view,priority:"
 msgid "Priority"
@@ -2208,7 +2591,7 @@ msgstr "Ref. del recurso"
 
 msgctxt "field:ir.ui.view_sc,resource:"
 msgid "Resource Name"
-msgstr "Nombre del recurso"
+msgstr "Nombre del Recurso"
 
 msgctxt "field:ir.ui.view_sc,sequence:"
 msgid "Sequence"
@@ -2226,9 +2609,49 @@ msgctxt "field:ir.ui.view_sc,write_uid:"
 msgid "Write User"
 msgstr "Modificado por Usuario"
 
+msgctxt "field:ir.ui.view_search,create_date:"
+msgid "Create Date"
+msgstr "Fecha de Creación"
+
+msgctxt "field:ir.ui.view_search,create_uid:"
+msgid "Create User"
+msgstr "Creado por Usuario"
+
+msgctxt "field:ir.ui.view_search,domain:"
+msgid "Domain"
+msgstr "Dominio"
+
+msgctxt "field:ir.ui.view_search,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:ir.ui.view_search,model:"
+msgid "Model"
+msgstr "Modelo"
+
+msgctxt "field:ir.ui.view_search,name:"
+msgid "Name"
+msgstr "Nombre de Campo"
+
+msgctxt "field:ir.ui.view_search,rec_name:"
+msgid "Name"
+msgstr "Nombre de Campo"
+
+msgctxt "field:ir.ui.view_search,user:"
+msgid "User"
+msgstr "Usuario"
+
+msgctxt "field:ir.ui.view_search,write_date:"
+msgid "Write Date"
+msgstr "Fecha de Modificación"
+
+msgctxt "field:ir.ui.view_search,write_uid:"
+msgid "Write User"
+msgstr "Modificado por Usuario"
+
 msgctxt "field:ir.ui.view_tree_expanded_state,child_name:"
 msgid "Child Name"
-msgstr "Nombre del hijo"
+msgstr "Nombre del Hijo"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,create_date:"
 msgid "Create Date"
@@ -2256,7 +2679,7 @@ msgstr "Nodos Expandidos"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre de Campo"
 
 msgctxt "field:ir.ui.view_tree_expanded_state,user:"
 msgid "User"
@@ -2394,6 +2817,10 @@ msgstr ""
 "Introducir una Expresión Regular de Python excluirá modelos equivalentes de "
 "la gráfica."
 
+msgctxt "help:ir.rule,domain:"
+msgid "Domain is evaluated with \"user\" as the current user"
+msgstr "El dominio es evaluado con el \"usuario\" como el usuario actual"
+
 msgctxt "help:ir.rule.group,default_p:"
 msgid "Add this rule to all users by default"
 msgstr "Añadir esta regla para todos los usuarios de forma predeterminada"
@@ -2434,6 +2861,10 @@ msgstr ""
 "Establecer un retraso mínimo en minutos entre llamadas a la \"Función de Acción\" para el mismo registro.\n"
 "0 para ningún retraso."
 
+msgctxt "help:ir.ui.view_search,domain:"
+msgid "The PYSON domain"
+msgstr "El dominio PYSON"
+
 msgctxt "model:ir.action,name:"
 msgid "Action"
 msgstr "Acción"
@@ -2464,11 +2895,11 @@ msgstr "Adjuntos"
 
 msgctxt "model:ir.action,name:act_config_wizard_item_form"
 msgid "Config Wizard Items"
-msgstr "Configurar los elementos del asistente"
+msgstr "Configurar Elementos del Asistente"
 
 msgctxt "model:ir.action,name:act_cron_form"
 msgid "Scheduled Actions"
-msgstr "Acciones programadas"
+msgstr "Acciones Programadas"
 
 msgctxt "model:ir.action,name:act_export_form"
 msgid "Exports"
@@ -2512,11 +2943,11 @@ msgstr "Modelos"
 
 msgctxt "model:ir.action,name:act_module_config"
 msgid "Configure Modules"
-msgstr "Configurar Módulos"
+msgstr "Configure Modulos"
 
 msgctxt "model:ir.action,name:act_module_config_wizard"
 msgid "Module Configuration"
-msgstr "Configuración del módulo"
+msgstr "Configuración de Módulo"
 
 msgctxt "model:ir.action,name:act_module_form"
 msgid "Modules"
@@ -2524,7 +2955,7 @@ msgstr "Módulos"
 
 msgctxt "model:ir.action,name:act_module_install_upgrade"
 msgid "Perform Pending Installation/Upgrade"
-msgstr "Realizar Instalaciones/Actualizaciones pendientes"
+msgstr "Realizar Instalaciones/Actualizaciones Pendientes"
 
 msgctxt "model:ir.action,name:act_property_form"
 msgid "Properties"
@@ -2544,31 +2975,31 @@ msgstr "Secuencias"
 
 msgctxt "model:ir.action,name:act_sequence_strict_form"
 msgid "Sequences Strict"
-msgstr "Secuencias estrictas"
+msgstr "Secuencias Estrictas"
 
 msgctxt "model:ir.action,name:act_sequence_type_form"
 msgid "Sequence Types"
-msgstr "Tipos de secuencia"
+msgstr "Tipos de Secuencia"
 
 msgctxt "model:ir.action,name:act_translation_clean"
 msgid "Clean Translations"
-msgstr "Limpiar traducciones"
+msgstr "Limpiar Traducciones"
 
 msgctxt "model:ir.action,name:act_translation_export"
 msgid "Export Translations"
-msgstr "Exportar traducciones"
+msgstr "Exportar Traducciones"
 
 msgctxt "model:ir.action,name:act_translation_form"
 msgid "Translations"
 msgstr "Traducciones"
 
-msgctxt "model:ir.action,name:act_translation_set_report"
+msgctxt "model:ir.action,name:act_translation_set"
 msgid "Set Report Translations"
-msgstr "Extraer traducciones de los informes"
+msgstr "Establecer traducciones de los informes"
 
 msgctxt "model:ir.action,name:act_translation_update"
 msgid "Synchronize Translations"
-msgstr "Sincronizar traducciones"
+msgstr "Sincronizar Traducciones"
 
 msgctxt "model:ir.action,name:act_trigger_form"
 msgid "Triggers"
@@ -2578,21 +3009,13 @@ msgctxt "model:ir.action,name:act_view_form"
 msgid "Views"
 msgstr "Vistas"
 
-msgctxt "model:ir.action,name:act_view_sc_add"
-msgid "Add Shortcut"
-msgstr "Agregar Marcador"
-
-msgctxt "model:ir.action,name:act_view_sc_form"
-msgid "View Shortcuts"
-msgstr "Ver marcadores"
-
-msgctxt "model:ir.action,name:act_view_sc_open"
-msgid "Open Shortcut"
-msgstr "Abrir Marcador"
+msgctxt "model:ir.action,name:act_view_search"
+msgid "View Search"
+msgstr "Buscar Vista"
 
 msgctxt "model:ir.action,name:act_view_show"
 msgid "Show View"
-msgstr "Mostrar Vista"
+msgstr "Mostar Vista"
 
 msgctxt "model:ir.action,name:act_view_tree_expanded_state"
 msgid "Tree Expanded State"
@@ -2613,6 +3036,10 @@ msgstr "Gráfico"
 msgctxt "model:ir.action.act_window,name:"
 msgid "Action act window"
 msgstr "Ventana de acciones"
+
+msgctxt "model:ir.action.act_window.domain,name:"
+msgid "Action act window domain"
+msgstr "Accion dominio de ventana de acción"
 
 msgctxt "model:ir.action.act_window.view,name:"
 msgid "Action act window view"
@@ -2641,6 +3068,10 @@ msgstr "Adjunto"
 msgctxt "model:ir.cache,name:"
 msgid "Cache"
 msgstr "Caché"
+
+msgctxt "model:ir.configuration,name:"
+msgid "Configuration"
+msgstr "Configuración"
 
 msgctxt "model:ir.cron,name:"
 msgid "Cron"
@@ -2740,16 +3171,16 @@ msgstr "Módulo"
 
 msgctxt "model:ir.module.module.config_wizard.first,name:"
 msgid "Module Config Wizard First"
-msgstr "Módulo del primer asistente de configuración"
+msgstr "Primer Asistente de Configuración de Módulo"
 
 msgctxt "model:ir.module.module.config_wizard.item,name:"
 msgid "Config wizard to run after installing module"
 msgstr ""
-"El asistente de configuración a ejecutar después de instalar un módulo"
+"Asistente de configuración a ejecutar después de la instalaciń del módulo"
 
 msgctxt "model:ir.module.module.config_wizard.other,name:"
 msgid "Module Config Wizard Other"
-msgstr "Módulo de Configuración de otro Asistente"
+msgstr "Otro Asistente de Configuración de Módulo"
 
 msgctxt "model:ir.module.module.dependency,name:"
 msgid "Module dependency"
@@ -2781,7 +3212,7 @@ msgstr "Secuencia"
 
 msgctxt "model:ir.sequence.strict,name:"
 msgid "Sequence Strict"
-msgstr "Secuencia estricta"
+msgstr "Secuencia Estricta"
 
 msgctxt "model:ir.sequence.type,name:"
 msgid "Sequence type"
@@ -2814,6 +3245,14 @@ msgstr "Exportar traducción - archivo"
 msgctxt "model:ir.translation.export.start,name:"
 msgid "Export translation"
 msgstr "Exportar traducción - archivo"
+
+msgctxt "model:ir.translation.set.start,name:"
+msgid "Set Translation"
+msgstr "Establecer Traducción"
+
+msgctxt "model:ir.translation.set.succeed,name:"
+msgid "Set Translation"
+msgstr "Establecer Traducción"
 
 msgctxt "model:ir.translation.set_report.start,name:"
 msgid "Update Report Translation"
@@ -2853,7 +3292,7 @@ msgstr "Acciones"
 
 msgctxt "model:ir.ui.menu,name:menu_action_act_window"
 msgid "Window Actions"
-msgstr "Acciones de la ventana"
+msgstr "Acciones de Ventana"
 
 msgctxt "model:ir.ui.menu,name:menu_action_report_form"
 msgid "Reports"
@@ -2877,7 +3316,7 @@ msgstr "Adjuntos"
 
 msgctxt "model:ir.ui.menu,name:menu_config_wizard_item_form"
 msgid "Config Wizard Items"
-msgstr "Configurar los elementos del asistente"
+msgstr "Configurar Elementos del Asistente"
 
 msgctxt "model:ir.ui.menu,name:menu_cron_form"
 msgid "Scheduled Actions"
@@ -2893,7 +3332,7 @@ msgstr "Iconos"
 
 msgctxt "model:ir.ui.menu,name:menu_ir_sequence_type"
 msgid "Sequence Types"
-msgstr "Tipos de secuencia"
+msgstr "Tipos de Secuencia"
 
 msgctxt "model:ir.ui.menu,name:menu_lang_form"
 msgid "Languages"
@@ -2933,7 +3372,7 @@ msgstr "Módulos"
 
 msgctxt "model:ir.ui.menu,name:menu_module_install_upgrade"
 msgid "Perform Pending Installation/Upgrade"
-msgstr "Realizar Instalaciones/Actualizaciones pendientes"
+msgstr "Realizar Instalaciones/Actualizaciones Pendientes"
 
 msgctxt "model:ir.ui.menu,name:menu_modules"
 msgid "Modules"
@@ -2945,7 +3384,7 @@ msgstr "Propiedades"
 
 msgctxt "model:ir.ui.menu,name:menu_property_form_default"
 msgid "Default Properties"
-msgstr "Propiedades predeterminadas"
+msgstr "Propiedades por Defecto"
 
 msgctxt "model:ir.ui.menu,name:menu_rule_group_form"
 msgid "Record Rules"
@@ -2953,7 +3392,7 @@ msgstr "Grabar reglas"
 
 msgctxt "model:ir.ui.menu,name:menu_scheduler"
 msgid "Scheduler"
-msgstr "Programador de tareas"
+msgstr "Programador de Tareas"
 
 msgctxt "model:ir.ui.menu,name:menu_sequence_form"
 msgid "Sequences"
@@ -2961,7 +3400,7 @@ msgstr "Secuencias"
 
 msgctxt "model:ir.ui.menu,name:menu_sequence_strict_form"
 msgid "Sequences Strict"
-msgstr "Secuencias estrictas"
+msgstr "Secuencias Estrictas"
 
 msgctxt "model:ir.ui.menu,name:menu_sequences"
 msgid "Sequences"
@@ -2969,23 +3408,23 @@ msgstr "Secuencias"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_clean"
 msgid "Clean Translations"
-msgstr "Limpiar traducciones"
+msgstr "Limpiar Traducciones"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_export"
 msgid "Export Translations"
-msgstr "Exportar traducciones"
+msgstr "Exportar Traducciones"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_form"
 msgid "Translations"
 msgstr "Traducciones"
 
-msgctxt "model:ir.ui.menu,name:menu_translation_set_report"
-msgid "Set Report Translations"
-msgstr "Extraer traducciones de los informes"
+msgctxt "model:ir.ui.menu,name:menu_translation_set"
+msgid "Set Translations"
+msgstr "Establecer Traducción"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_update"
 msgid "Synchronize Translations"
-msgstr "Sincronizar traducciones"
+msgstr "Sincronizar Traducciones"
 
 msgctxt "model:ir.ui.menu,name:menu_trigger_form"
 msgid "Triggers"
@@ -2993,15 +3432,15 @@ msgstr "Disparadores"
 
 msgctxt "model:ir.ui.menu,name:menu_ui"
 msgid "User Interface"
-msgstr "Interfaz de usuario"
+msgstr "Interfaz de Usuario"
 
 msgctxt "model:ir.ui.menu,name:menu_view"
 msgid "Views"
 msgstr "Vistas"
 
-msgctxt "model:ir.ui.menu,name:menu_view_sc"
-msgid "View Shortcuts"
-msgstr "Ver marcadores"
+msgctxt "model:ir.ui.menu,name:menu_view_search"
+msgid "View Search"
+msgstr "Buscar Vista"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
 msgid "Tree Expanded State"
@@ -3009,11 +3448,15 @@ msgstr "Estado del Árbol Expandido"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_width"
 msgid "View Tree Width"
-msgstr "Ancho de la vista en árbol"
+msgstr "Ancho de Vista Árbol"
 
 msgctxt "model:ir.ui.menu,name:model_model_fields_form"
 msgid "Fields"
 msgstr "Campos"
+
+msgctxt "model:ir.ui.menu.favorite,name:"
+msgid "Menu Favorite"
+msgstr "Menú Favorito"
 
 msgctxt "model:ir.ui.view,name:"
 msgid "View"
@@ -3021,11 +3464,15 @@ msgstr "Vista"
 
 msgctxt "model:ir.ui.view.show.start,name:"
 msgid "Show view"
-msgstr "ir.ui.view.show.start"
+msgstr "Mostrar vista"
 
 msgctxt "model:ir.ui.view_sc,name:"
 msgid "View shortcut"
 msgstr "Vista del marcador"
+
+msgctxt "model:ir.ui.view_search,name:"
+msgid "View Search"
+msgstr "Buscar Vista"
 
 msgctxt "model:ir.ui.view_tree_expanded_state,name:"
 msgid "View Tree Expanded State"
@@ -3049,7 +3496,7 @@ msgstr "Formulario relacionado"
 
 msgctxt "selection:ir.action.keyword,keyword:"
 msgid "Open Graph"
-msgstr "Abrir gráfico"
+msgstr "Abrir Gráfico"
 
 msgctxt "selection:ir.action.keyword,keyword:"
 msgid "Open tree"
@@ -3201,12 +3648,7 @@ msgstr "Vista"
 
 msgctxt "selection:ir.translation,type:"
 msgid "Wizard Button"
-msgstr "Botón de asistente"
-
-#, fuzzy
-msgctxt "selection:ir.ui.menu,action:"
-msgid ""
-msgstr "Punto de Orden"
+msgstr "Botón de Asistente"
 
 msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
@@ -3224,14 +3666,9 @@ msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.wizard"
 msgstr "ir.action.wizard"
 
-#, fuzzy
-msgctxt "selection:ir.ui.view,type:"
-msgid ""
-msgstr "Punto de Orden"
-
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
-msgstr "Tablón"
+msgstr "Tablero"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Form"
@@ -3375,7 +3812,7 @@ msgstr "Exportaciones"
 
 msgctxt "view:ir.lang:"
 msgid "Date Formatting"
-msgstr "Formato de fecha"
+msgstr "Formato de Fecha"
 
 msgctxt "view:ir.lang:"
 msgid "Language"
@@ -3387,7 +3824,7 @@ msgstr "Idiomas"
 
 msgctxt "view:ir.lang:"
 msgid "Numbers Formatting"
-msgstr "Formato de números"
+msgstr "Formato de Números"
 
 msgctxt "view:ir.model.access:"
 msgid "Access controls"
@@ -3427,7 +3864,7 @@ msgstr "Descripción del modelo"
 
 msgctxt "view:ir.module.module.config_wizard.first:"
 msgid "Welcome to the module configuration wizard!"
-msgstr "Bienvenido al asistente de configuración del módulo"
+msgstr "Bienvenido al asistente de configuración del módulo!"
 
 msgctxt "view:ir.module.module.config_wizard.first:"
 msgid "You will be able to configure your installation"
@@ -3447,11 +3884,11 @@ msgstr "dependiendo de los módulos que haya instalado."
 
 msgctxt "view:ir.module.module.config_wizard.item:"
 msgid "Config Wizard Items"
-msgstr "Configurar los elementos del asistente"
+msgstr "Configurar Elementos del Asistente"
 
 msgctxt "view:ir.module.module.config_wizard.other:"
 msgid "Configuration Wizard Next Step!"
-msgstr "¡Asistente de Configuración de los Pasos siguientes!"
+msgstr "¡Siguiente Paso del Asistente de Configuración!"
 
 msgctxt "view:ir.module.module.dependency:"
 msgid "Dependencies"
@@ -3495,19 +3932,19 @@ msgstr "Es posible que necesite reinstalar un paquete de idioma."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "Your system will be upgraded."
-msgstr "Su sistema se actualizará."
+msgstr "Su sistema sera actualizado."
 
 msgctxt "view:ir.module.module:"
 msgid "Cancel Installation"
-msgstr "Cancelar instalación"
+msgstr "Cancelar Instalación"
 
 msgctxt "view:ir.module.module:"
 msgid "Cancel Uninstallation"
-msgstr "Cancelar desinstalación"
+msgstr "Cancelar Desinstalación"
 
 msgctxt "view:ir.module.module:"
 msgid "Cancel Upgrade"
-msgstr "Cancelar actualización"
+msgstr "Cancelar Actualización"
 
 msgctxt "view:ir.module.module:"
 msgid "Dependencies"
@@ -3515,15 +3952,15 @@ msgstr "Dependencias"
 
 msgctxt "view:ir.module.module:"
 msgid "Mark for Installation"
-msgstr "Marcar para instalar"
+msgstr "Marcar para Instalar"
 
 msgctxt "view:ir.module.module:"
 msgid "Mark for Uninstallation (beta)"
-msgstr "Marcar para desinstalar (beta)"
+msgstr "Marcar para Desinstalar (beta)"
 
 msgctxt "view:ir.module.module:"
 msgid "Mark for Upgrade"
-msgstr "Marcar para actualizar"
+msgstr "Marcar para Actualizar"
 
 msgctxt "view:ir.module.module:"
 msgid "Module"
@@ -3662,15 +4099,15 @@ msgstr "¡Las traducciones se limpiaron correctamente!"
 
 msgctxt "view:ir.translation.export.result:"
 msgid "Export Translation"
-msgstr "Exportar traducción"
+msgstr "Exportar Traducción"
 
 msgctxt "view:ir.translation.export.start:"
 msgid "Export Translation"
-msgstr "Exportar traducción"
+msgstr "Exportar Traducción"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Set Report Translations"
-msgstr "Extraer traducciones de los informes"
+msgstr "Establecer traducciones de los informes"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Set Translations Succeed!"
@@ -3678,11 +4115,11 @@ msgstr "La extracción de las traducciones terminó correctamente"
 
 msgctxt "view:ir.translation.set_report.start:"
 msgid "Synchronize Report Translations?"
-msgstr "¿Sincronizar las traducciones de reportes?"
+msgstr "Sincronizar Traducciones de Informes?"
 
 msgctxt "view:ir.translation.set_report.succeed:"
 msgid "Set Report Translations"
-msgstr "Extraer traducciones de los informes"
+msgstr "Establecer traducciones de los informes"
 
 msgctxt "view:ir.translation.set_report.succeed:"
 msgid "Set Translations Succeed!"
@@ -3690,7 +4127,7 @@ msgstr "La extracción de las traducciones terminó correctamente"
 
 msgctxt "view:ir.translation.update.start:"
 msgid "Synchronize Translations"
-msgstr "Sincronizar traducciones"
+msgstr "Sincronizar Traducciones"
 
 msgctxt "view:ir.translation:"
 msgid "Translations"
@@ -3807,6 +4244,18 @@ msgstr "Cancelar"
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
 msgstr "Exportar"
+
+msgctxt "wizard_button:ir.translation.set,start,end:"
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgctxt "wizard_button:ir.translation.set,start,set_:"
+msgid "Set"
+msgstr "Establecer"
+
+msgctxt "wizard_button:ir.translation.set,succeed,end:"
+msgid "Ok"
+msgstr "Aceptar"
 
 msgctxt "wizard_button:ir.translation.set_report,start,end:"
 msgid "Cancel"
