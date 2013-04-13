@@ -4,8 +4,10 @@
 from trytond.model import ModelSQL, fields
 
 __all__ = [
-    'ImportDataBoolean', 'ImportDataInteger', 'ImportDataFloat',
-    'ImportDataNumeric', 'ImportDataChar', 'ImportDataText', 'ImportDataSha',
+    'ImportDataBoolean', 'ImportDataInteger', 'ImportDataIntegerRequired',
+    'ImportDataFloat', 'ImportDataFloatRequired',
+    'ImportDataNumeric', 'ImportDataNumericRequired',
+    'ImportDataChar', 'ImportDataText', 'ImportDataSha',
     'ImportDataDate', 'ImportDataDateTime', 'ImportDataSelection',
     'ImportDataMany2OneTarget', 'ImportDataMany2One',
     'ImportDataMany2ManyTarget', 'ImportDataMany2Many',
@@ -27,16 +29,34 @@ class ImportDataInteger(ModelSQL):
     integer = fields.Integer('Integer')
 
 
+class ImportDataIntegerRequired(ModelSQL):
+    "Import Data Integer Required"
+    __name__ = 'test.import_data.integer_required'
+    integer = fields.Integer('Integer', required=True)
+
+
 class ImportDataFloat(ModelSQL):
     "Import Data Float"
     __name__ = 'test.import_data.float'
     float = fields.Float('Float')
 
 
+class ImportDataFloatRequired(ModelSQL):
+    "Import Data Float Required"
+    __name__ = 'test.import_data.float_required'
+    float = fields.Float('Float', required=True)
+
+
 class ImportDataNumeric(ModelSQL):
     "Import Data Numeric"
     __name__ = 'test.import_data.numeric'
     numeric = fields.Numeric('Numeric')
+
+
+class ImportDataNumericRequired(ModelSQL):
+    "Import Data Numeric Required"
+    __name__ = 'test.import_data.numeric_required'
+    numeric = fields.Numeric('Numeric', required=True)
 
 
 class ImportDataChar(ModelSQL):
