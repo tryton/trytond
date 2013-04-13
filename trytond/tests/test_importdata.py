@@ -17,8 +17,11 @@ class ImportDataTestCase(unittest.TestCase):
         install_module('test')
         self.boolean = POOL.get('test.import_data.boolean')
         self.integer = POOL.get('test.import_data.integer')
+        self.integer_required = POOL.get('test.import_data.integer_required')
         self.float = POOL.get('test.import_data.float')
+        self.float_required = POOL.get('test.import_data.float_required')
         self.numeric = POOL.get('test.import_data.numeric')
+        self.numeric_required = POOL.get('test.import_data.numeric_required')
         self.char = POOL.get('test.import_data.char')
         self.text = POOL.get('test.import_data.text')
         self.sha = POOL.get('test.import_data.sha')
@@ -86,6 +89,41 @@ class ImportDataTestCase(unittest.TestCase):
             self.assertEqual(self.integer.import_data(['integer'],
                 [['foo']])[0], -1)
 
+            self.assertEqual(self.integer.import_data(['integer'],
+                [['0']]), (1, 0, 0, 0))
+
+            transaction.cursor.rollback()
+
+    def test0021integer_required(self):
+        '''
+        Test required integer.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['-1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['']])[0], -1)
+
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['1'], ['2']]), (2, 0, 0, 0))
+
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['1.1']])[0], -1)
+
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['-1.1']])[0], -1)
+
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['foo']])[0], -1)
+
+            self.assertEqual(self.integer_required.import_data(['integer'],
+                [['0']]), (1, 0, 0, 0))
+
             transaction.cursor.rollback()
 
     def test0030float(self):
@@ -112,6 +150,44 @@ class ImportDataTestCase(unittest.TestCase):
             self.assertEqual(self.float.import_data(['float'],
                 [['foo']])[0], -1)
 
+            self.assertEqual(self.float.import_data(['float'],
+                [['0']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.float.import_data(['float'],
+                [['0.0']]), (1, 0, 0, 0))
+
+            transaction.cursor.rollback()
+
+    def test0031float_required(self):
+        '''
+        Test required float.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['1.1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['-1.1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['']])[0], -1)
+
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['1.1'], ['2.2']]), (2, 0, 0, 0))
+
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['foo']])[0], -1)
+
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['0']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.float_required.import_data(['float'],
+                [['0.0']]), (1, 0, 0, 0))
+
             transaction.cursor.rollback()
 
     def test0040numeric(self):
@@ -137,6 +213,44 @@ class ImportDataTestCase(unittest.TestCase):
 
             self.assertEqual(self.numeric.import_data(['numeric'],
                 [['foo']])[0], -1)
+
+            self.assertEqual(self.numeric.import_data(['numeric'],
+                [['0']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.numeric.import_data(['numeric'],
+                [['0.0']]), (1, 0, 0, 0))
+
+            transaction.cursor.rollback()
+
+    def test0041numeric_required(self):
+        '''
+        Test required numeric.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['1.1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['-1.1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['1']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['']])[0], -1)
+
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['1.1'], ['2.2']]), (2, 0, 0, 0))
+
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['foo']])[0], -1)
+
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['0']]), (1, 0, 0, 0))
+
+            self.assertEqual(self.numeric_required.import_data(['numeric'],
+                [['0.0']]), (1, 0, 0, 0))
 
             transaction.cursor.rollback()
 
