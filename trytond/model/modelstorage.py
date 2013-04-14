@@ -272,7 +272,7 @@ class ModelStorage(Model):
                 elif ftype in ('one2many',):
                     if data[field_name]:
                         data_o2m[field_name] = data[field_name]
-                    data[field_name] = False
+                    data[field_name] = None
                 elif ftype == 'many2many':
                     if data[field_name]:
                         data[field_name] = [('set', data[field_name])]
