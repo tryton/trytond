@@ -23,6 +23,7 @@ except ImportError:
     from sqlite3 import OperationalError as DatabaseOperationalError
 QUOTE_SEPARATION = re.compile(r"(.*?)('.*?')", re.DOTALL)
 EXTRACT_PATTERN = re.compile(r'EXTRACT\s*\(\s*(\S*)\s+FROM', re.I)
+POSITION_PATTERN = re.compile(r'POSITION\s*\(([^\)]*)\s+IN', re.I)
 
 
 def extract(lookup_type, date):
@@ -87,6 +88,15 @@ def split_part(text, delimiter, count):
     return (text.split(delimiter) + [''] * (count - 1))[count - 1]
 
 
+def position(substring, string):
+    if string is None:
+        return
+    try:
+        return string.index(substring) + 1
+    except ValueError:
+        return 0
+
+
 def replace(text, pattern, replacement):
     return str(text).replace(pattern, replacement)
 
@@ -122,6 +132,7 @@ class Database(DatabaseInterface):
         self._conn.create_function('extract', 2, extract)
         self._conn.create_function('date_trunc', 2, date_trunc)
         self._conn.create_function('split_part', 3, split_part)
+        self._conn.create_function('position', 2, position)
         if sqlite.sqlite_version_info < (3, 3, 14):
             self._conn.create_function('replace', 3, replace)
         return self
@@ -278,6 +289,7 @@ class Cursor(CursorInterface):
 
     def execute(self, sql, params=None):
         buf = ""
+        sql = re.sub(POSITION_PATTERN, r'POSITION(\1,', sql)
         for nquote, quote in QUOTE_SEPARATION.findall(sql + "''"):
             nquote = nquote.replace('?', '??')
             nquote = nquote.replace('%s', '?')

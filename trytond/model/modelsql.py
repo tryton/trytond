@@ -1269,8 +1269,9 @@ class ModelSQL(ModelStorage):
                             sql_type = FIELDS[
                                 cls.id._type].sql_type(cls.id)[0]
                             query = ('SELECT id FROM "' + cls._table + '" '
-                                'WHERE CAST(SPLIT_PART('
-                                        '"' + fargs[0] + '", \',\', 2) '
+                                'WHERE CAST(SUBSTR("' + fargs[0] + '", '
+                                        'POSITION(\',\' IN "' + fargs[0] + '")'
+                                        + '+ 1) '
                                     'AS ' + sql_type + ') '
                                 'IN (' + in_query[0] + ') '
                                 'AND "' + fargs[0] + '" ilike %s')
@@ -1295,8 +1296,9 @@ class ModelSQL(ModelStorage):
                             cls.id._type].sql_type(cls.id)[0]
                         where = ' AND "' + origin + '" LIKE %s'
                         where_args = [cls.__name__ + ',%']
-                        origin = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
-                            % (origin, sql_type))
+                        origin = ('CAST(SUBSTR("%s", '
+                            'POSITION(\',\' IN "%s") + 1) AS %s)'
+                            % (origin, origin, sql_type))
                     else:
                         origin = '"%s"' % origin
                         where = ''
@@ -1336,8 +1338,9 @@ class ModelSQL(ModelStorage):
                 rev_field = Field._fields[field.field]
                 if rev_field._type == 'reference':
                     sql_type = FIELDS[cls.id._type].sql_type(cls.id)[0]
-                    select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
-                        % (field.field, sql_type))
+                    select = ('CAST(SUBSTR("%s", '
+                        'POSITION(\',\' IN "%s") + 1) AS %s)'
+                        % (field.field, field.field, sql_type))
                     where = ' AND "' + field.field + '" LIKE %s'
                     where_args = [cls.__name__ + ',%']
                 else:
@@ -1431,8 +1434,9 @@ class ModelSQL(ModelStorage):
                     origin_field = Relation._fields[field.origin]
                     if origin_field._type == 'reference':
                         sql_type = FIELDS[cls.id._type].sql_type(cls.id)[0]
-                        select = ('CAST(SPLIT_PART("%s", \',\', 2) AS %s)'
-                            % (field.origin, sql_type))
+                        select = ('CAST(SUBSTR("%s", '
+                            'POSITION(\',\' IN "%s") + 1) AS %s)'
+                            % (field.origin, field.origin, sql_type))
                         where = ' AND "' + field.origin + '" LIKE %s'
                         where_args = [cls.__name__ + ',%']
                     else:
