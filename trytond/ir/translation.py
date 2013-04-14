@@ -144,7 +144,7 @@ class Translation(ModelSQL, ModelView):
     def search_model(cls, name, clause):
         cursor = Transaction().cursor
         cursor.execute('SELECT id FROM "%s" '
-            'WHERE split_part(name, \',\', 1) %s %%s' %
+            'WHERE SUBSTR(name, 1, POSITION(\',\' IN name) - 1) %s %%s' %
             (cls._table, clause[1]), (clause[2],))
         return [('id', 'in', [x[0] for x in cursor.fetchall()])]
 

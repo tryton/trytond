@@ -90,7 +90,8 @@ class Property(Function):
         #Fetch res ids that comply with the domain
         cursor.execute(
             'SELECT CAST('
-                'SPLIT_PART("' + Property._table + '".res,\',\',2) '
+                'SUBSTR("' + Property._table + '".res, '
+                    'POSITION(\',\' IN "' + Property._table + '".res) + 1) '
                     'AS INTEGER), '
                 '"' + Property._table + '".id '
             'FROM "' + Property._table + '" '
@@ -135,7 +136,7 @@ class Property(Function):
 
         #Fetch the res ids that doesn't use the default value
         cursor.execute(
-            "SELECT cast(split_part(res,',',2) as integer) "
+            "SELECT CAST(SUBSTR(res, POSITION(',' IN res) + 1) AS integer) "
             'FROM "' + Property._table + '"'
             'WHERE ' + property_query + ' AND res is not null',
             property_val)
@@ -160,23 +161,22 @@ class Property(Function):
         if sql_type == 'NUMERIC':
             operator = 'CAST(%s AS NUMERIC)'
 
+        value = "SUBSTR(value, POSITION(',' IN value) + 1)"
         # All negative clauses will be negated later
         if clause[1] in ('in', 'not in'):
             operator = operator % '%%s'
-            return ("(CAST(SPLIT_PART(value,',',2) AS %s) IN ("
+            return ("(CAST(" + value + " AS %s) IN ("
                 + ",".join((operator,) * len(clause[2])) + ")) ") % sql_type
         elif ((clause[2] is False or clause[2] is None)
                 and clause[1] in ['=', '!=']):
-            return "((cast(split_part(value,',',2) as %s) IS NULL " \
-                ") = %%s) " % sql_type
+            return "((CAST(" + value + " AS %s) IS NULL) = %%s) " % sql_type
         elif clause[1] in ['not like', 'not ilike']:
-            return "(cast(split_part(value,',',2) as %s) %s %s) " % \
+            return "(CAST(" + value + " AS %s) %s %s) " % \
                 (sql_type, clause[1].split()[1], operator)
         elif clause[1] == '!=':
-            return "(cast(split_part(value,',',2) as %s) = %s) " % \
-                (sql_type, operator)
+            return "(CAST(" + value + " AS %s) = %s) " % (sql_type, operator)
         else:
-            return "(cast(split_part(value,',',2) as %s) %s %s) " % \
+            return "(CAST(" + value + " AS %s) %s %s) " % \
                 (sql_type, clause[1], operator)
 
     @staticmethod
