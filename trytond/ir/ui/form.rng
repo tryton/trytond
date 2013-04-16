@@ -304,11 +304,6 @@
   </define>
   <define name="attlist.field" combine="interleave">
     <optional>
-      <attribute name="domain"/>
-    </optional>
-  </define>
-  <define name="attlist.field" combine="interleave">
-    <optional>
       <attribute name="color"/>
     </optional>
   </define>
