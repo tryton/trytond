@@ -443,10 +443,6 @@ class Model(WarningErrorMixin, URLMixin):
             else:
                 res[field]['searchable'] = True
 
-            if isinstance(cls._fields[field], fields.Dict):
-                res[field]['schema_model'] = cls._fields[field].schema_model
-                res[field]['domain'] = copy.copy(cls._fields[field].domain)
-
             if Transaction().context.get('language'):
                 # translate the field label
                 res_trans = Translation.get_source(
@@ -509,6 +505,8 @@ class Model(WarningErrorMixin, URLMixin):
             if res[field]['type'] == 'selection':
                 res[field]['context'] = copy.copy(cls._fields[field].context)
             if res[field]['type'] == 'dict':
+                res[field]['schema_model'] = cls._fields[field].schema_model
+                res[field]['domain'] = copy.copy(cls._fields[field].domain)
                 res[field]['context'] = copy.copy(cls._fields[field].context)
                 res[field]['create'] = accesses.get(field, {}).get('create',
                     True)
