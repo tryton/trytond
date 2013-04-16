@@ -219,9 +219,6 @@ Display a field of the object with the value of the current record.
     * ``invisible``: The field will not be displayed, but it will fill cells in
       the table.
 
-    * ``domain``: Only for One2Many, Many2One, Many2Many fields, it defines the
-      domain that must be used when searching for related records.
-
     * ``yexpand``: see in common-attributes-yexpand_.
 
     * ``yfill``: see in common-attributes-yfill_.
