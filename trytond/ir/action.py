@@ -232,6 +232,7 @@ class ActionKeyword(ModelSQL, ModelView):
 
 
 class ActionMixin(ModelSQL):
+    _order_name = 'action'
 
     @classmethod
     def __setup__(cls):
