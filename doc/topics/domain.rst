@@ -26,13 +26,23 @@ by this pattern::
     :ref:`pyson <topics-pyson>` statement, that evaluates to a
     string.
 
-    A field of type :class:`trytond.model.fields.Many2One` can be
-    dereferenced to related models. This is illustrated by the
-    following example::
+    A field of type :class:`trytond.model.fields.Many2One` or
+    :class:`trytond.model.fields.Many2Many` or
+    :class:`trytond.model.fields.One2Many` or
+    :class:`trytond.model.fields.One2One` or
+    :class:`trytond.model.fields.Reference` can be dereferenced to related
+    models. This is illustrated by the following example::
 
         domain = [('country.name', '=', 'Japan')]
 
     The number of *dots* in a clause is not limited.
+
+.. warning::
+    For :class:`trytond.model.fields.Reference`, an extra ending clause is
+    needed to define the target model to join, for example::
+
+        domain = [('origin.party.name', '=', 'John Doe', 'sale.sale')]
+..
 
 ``operator``
     Is an operator out of `Domain Operators`_ or a
