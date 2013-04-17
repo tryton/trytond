@@ -61,10 +61,7 @@ def setupConfig():
             return bool(self.get(name))
 
         def get(self, name, default=None):
-            try:
-                return self[name]
-            except Exception:
-                return default
+            return getattr(self, name, default)
 
     class Config:
         DAV = ConfigDAV()
