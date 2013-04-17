@@ -117,7 +117,7 @@ Static methods:
 
 .. staticmethod:: ModelView.button_action(action)
 
-    Same as :stat:`ModelView.button` but return the action id of the XML `id`
+    Same as :meth:`ModelView.button` but return the action id of the XML `id`
     action.
 
 Class methods:
