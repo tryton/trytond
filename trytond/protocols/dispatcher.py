@@ -60,6 +60,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 ('es_ES', 'Español (España)'),
                 ('es_CO', 'Español (Colombia)'),
                 ('fr_FR', 'Français'),
+                ('lt_LT', 'Lietuvių'),
                 ('nl_NL', 'Nederlands'),
                 ('ru_RU', 'Russian'),
             ]
