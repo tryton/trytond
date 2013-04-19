@@ -4,7 +4,7 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:res.group:"
 msgid "The name of the group must be unique!"
-msgstr "Der Name der Gruppe kann nicht mehrfach vergeben werden!"
+msgstr "Der Name einer Gruppe kann nur einmal vergeben werden."
 
 msgctxt "error:res.user:"
 msgid "Wrong password!"
@@ -12,7 +12,7 @@ msgstr "Ungültiges Passwort!"
 
 msgctxt "error:res.user:"
 msgid "You can not have two users with the same login!"
-msgstr "Der Anmeldename für einen Benutzer kann nur einmal vergeben werden!"
+msgstr "Der Anmeldename für einen Benutzer kann nur einmal vergeben werden."
 
 msgctxt "error:res.user:"
 msgid ""
@@ -21,7 +21,7 @@ msgid ""
 "created by the system (updates, module installation, ...)"
 msgstr ""
 "Der Benutzer root kann nicht gelöscht werden, da er für interne Systemverwaltungsaufgaben\n"
-"(Updates, Modulinstallation, ...) benötigt wird!"
+"(Updates, Modulinstallation, ...) benötigt wird."
 
 msgctxt "field:ir.action-res.group,action:"
 msgid "Action"
@@ -99,11 +99,11 @@ msgctxt "field:ir.model.field-res.group,create_uid:"
 msgid "Create User"
 msgstr "Erstellt durch"
 
-msgctxt "field:ir.model.field-res.group,field_id:"
+msgctxt "field:ir.model.field-res.group,field:"
 msgid "Model Field"
 msgstr "Modell Feld"
 
-msgctxt "field:ir.model.field-res.group,group_id:"
+msgctxt "field:ir.model.field-res.group,group:"
 msgid "Group"
 msgstr "Gruppe"
 
@@ -537,7 +537,7 @@ msgstr "E-Mail"
 
 msgctxt "field:res.user,groups:"
 msgid "Groups"
-msgstr "Gruppenzugehörigkeit"
+msgstr "Gruppen"
 
 msgctxt "field:res.user,id:"
 msgid "ID"
@@ -554,10 +554,6 @@ msgstr "Sprache Richtung"
 msgctxt "field:res.user,login:"
 msgid "Login"
 msgstr "Anmeldename"
-
-msgctxt "field:res.user,login_try:"
-msgid "Login Try"
-msgstr "Login Versuch"
 
 msgctxt "field:res.user,menu:"
 msgid "Menu Action"
@@ -682,6 +678,34 @@ msgstr "Letzte Änderung durch"
 msgctxt "field:res.user.config.start,id:"
 msgid "ID"
 msgstr "ID"
+
+msgctxt "field:res.user.login.attempt,create_date:"
+msgid "Create Date"
+msgstr "Erstellungsdatum"
+
+msgctxt "field:res.user.login.attempt,create_uid:"
+msgid "Create User"
+msgstr "Erstellt durch"
+
+msgctxt "field:res.user.login.attempt,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:res.user.login.attempt,rec_name:"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "field:res.user.login.attempt,user:"
+msgid "User"
+msgstr "Benutzer"
+
+msgctxt "field:res.user.login.attempt,write_date:"
+msgid "Write Date"
+msgstr "Zuletzt geändert"
+
+msgctxt "field:res.user.login.attempt,write_uid:"
+msgid "Write User"
+msgstr "Letzte Änderung durch"
 
 msgctxt "field:res.user.warning,always:"
 msgid "Always"
@@ -852,6 +876,10 @@ msgctxt "model:res.user.config.start,name:"
 msgid "User Config Init"
 msgstr "Benutzer Konfiguration Init"
 
+msgctxt "model:res.user.login.attempt,name:"
+msgid "Login Attempt"
+msgstr "Login Versuch"
+
 msgctxt "model:res.user.warning,name:"
 msgid "User Warning"
 msgstr "Benutzer Warnung"
@@ -952,18 +980,6 @@ msgctxt "view:res.group:"
 msgid "Members"
 msgstr "Mitglieder"
 
-msgctxt "view:res.group:"
-msgid "Security"
-msgstr "Sicherheit"
-
-msgctxt "view:res.group:"
-msgid "_Group"
-msgstr "_Gruppe"
-
-msgctxt "view:res.group:"
-msgid "_Security"
-msgstr "_Sicherheit"
-
 msgctxt "view:res.request.history:"
 msgid "Request History"
 msgstr "bisherige Anfragen"
@@ -985,14 +1001,6 @@ msgid "Close"
 msgstr "Schließen"
 
 msgctxt "view:res.request:"
-msgid "Description"
-msgstr "Beschreibung"
-
-msgctxt "view:res.request:"
-msgid "History"
-msgstr "Geschichte"
-
-msgctxt "view:res.request:"
 msgid "References"
 msgstr "Verweise"
 
@@ -1011,14 +1019,6 @@ msgstr "Anfragen"
 msgctxt "view:res.request:"
 msgid "Send"
 msgstr "Senden"
-
-msgctxt "view:res.request:"
-msgid "_References"
-msgstr "_Verweise"
-
-msgctxt "view:res.request:"
-msgid "_Request"
-msgstr "_Anfrage"
 
 msgctxt "view:res.user.config.start:"
 msgid "Add Users"
@@ -1058,28 +1058,12 @@ msgid "Preferences"
 msgstr "Einstellungen"
 
 msgctxt "view:res.user:"
-msgid "Security"
-msgstr "Sicherheit"
-
-msgctxt "view:res.user:"
 msgid "User"
 msgstr "Benutzer"
 
 msgctxt "view:res.user:"
 msgid "Users"
 msgstr "Benutzer"
-
-msgctxt "view:res.user:"
-msgid "_Preferences"
-msgstr "_Einstellungen"
-
-msgctxt "view:res.user:"
-msgid "_Security"
-msgstr "_Sicherheit"
-
-msgctxt "view:res.user:"
-msgid "_User"
-msgstr "_Benutzer"
 
 msgctxt "wizard_button:res.user.config,start,end:"
 msgid "Cancel"
