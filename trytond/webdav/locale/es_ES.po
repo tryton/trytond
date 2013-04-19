@@ -20,7 +20,7 @@ msgstr "Ruta"
 
 msgctxt "field:ir.attachment,shares:"
 msgid "Shares"
-msgstr "Compartir"
+msgstr "Directorios compartidos"
 
 msgctxt "field:ir.attachment,url:"
 msgid "URL"
@@ -132,7 +132,7 @@ msgstr "Directorios"
 
 msgctxt "model:ir.action,name:act_share_list"
 msgid "Shares"
-msgstr "Compartir"
+msgstr "Directorios compartidos"
 
 msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
@@ -144,7 +144,7 @@ msgstr "Directorios"
 
 msgctxt "model:ir.ui.menu,name:menu_share_list"
 msgid "Shares"
-msgstr "Compartir"
+msgstr "Directorios compartidos"
 
 msgctxt "model:ir.ui.menu,name:menu_webdav"
 msgid "WebDAV"
@@ -156,7 +156,7 @@ msgstr "Directorio"
 
 msgctxt "model:webdav.share,name:"
 msgid "Share"
-msgstr "Compartir"
+msgstr "Directorio compartido"
 
 msgctxt "view:ir.attachment:"
 msgid "WebDAV"
@@ -172,8 +172,8 @@ msgstr "Directorios"
 
 msgctxt "view:webdav.share:"
 msgid "Share"
-msgstr "Compartir"
+msgstr "Directorio compartido"
 
 msgctxt "view:webdav.share:"
 msgid "Shares"
-msgstr "Compartir"
+msgstr "Directorios compartidos"
