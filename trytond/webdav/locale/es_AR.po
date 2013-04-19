@@ -4,13 +4,11 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:ir.attachment:"
 msgid ""
-"You can not create an attachment\n"
-"in a collection with the name\n"
-"of an existing child collection!"
+"You can not create an attachment named \"%(attachment)s in collection "
+"\"%(collection)s\" because there is already a collection with that name."
 msgstr ""
-"No puede crear un adjunto\n"
-"en una colección con el nombre\n"
-"de una colección hija existente"
+"No puede crear un archivo adjunto llamado «%(attachment)s» en la colección "
+"«%(collection)s» porque ya existe una colección con este nombre."
 
 msgctxt "error:webdav.collection:"
 msgid "The collection name must be unique inside a collection!"
@@ -18,15 +16,11 @@ msgstr "¡El nombre de la colección debe ser único dentro de dicha colección!
 
 msgctxt "error:webdav.collection:"
 msgid ""
-"You can not create a collection\n"
-"in a collection with the name of an existing file!"
+"You can not create a collection named \"%(parent)s\" in collection "
+"\"%(child)s\" because there is already a file with that name."
 msgstr ""
-"No puede crear una colección\n"
-"en una colección con el nombre de un archivo existente"
-
-msgctxt "error:webdav.collection:"
-msgid "You can not create recursive collections!"
-msgstr "No puede crear colecciones recursivas"
+"No puede crear una colección denominada «%(parent)s» en la colección "
+"«%(child)s» porque ya existe un archivo con ese nombre."
 
 msgctxt "field:ir.attachment,path:"
 msgid "Path"
@@ -34,7 +28,7 @@ msgstr "Ruta"
 
 msgctxt "field:ir.attachment,shares:"
 msgid "Shares"
-msgstr "Recuros Compartidos"
+msgstr "Recursos compartidos"
 
 msgctxt "field:ir.attachment,url:"
 msgid "URL"
@@ -50,7 +44,7 @@ msgstr "Nombre completo"
 
 msgctxt "field:webdav.collection,create_date:"
 msgid "Create Date"
-msgstr "Fecha de Creación"
+msgstr "Fecha creación"
 
 msgctxt "field:webdav.collection,create_uid:"
 msgid "Create User"
@@ -82,7 +76,7 @@ msgstr "Nombre"
 
 msgctxt "field:webdav.collection,write_date:"
 msgid "Write Date"
-msgstr "Fecha de Modificación"
+msgstr "Fecha modificación"
 
 msgctxt "field:webdav.collection,write_uid:"
 msgid "Write User"
@@ -90,7 +84,7 @@ msgstr "Modificado por Usuario"
 
 msgctxt "field:webdav.share,create_date:"
 msgid "Create Date"
-msgstr "Fecha de Creación"
+msgstr "Fecha creación"
 
 msgctxt "field:webdav.share,create_uid:"
 msgid "Create User"
@@ -98,7 +92,7 @@ msgstr "Creado por Usuario"
 
 msgctxt "field:webdav.share,expiration_date:"
 msgid "Expiration Date"
-msgstr "Fecha de Expiración"
+msgstr "Fecha expiración"
 
 msgctxt "field:webdav.share,id:"
 msgid "ID"
@@ -118,7 +112,7 @@ msgstr "Ruta"
 
 msgctxt "field:webdav.share,rec_name:"
 msgid "Name"
-msgstr "Nombre del campo"
+msgstr "Nombre campo"
 
 msgctxt "field:webdav.share,url:"
 msgid "URL"
@@ -130,7 +124,7 @@ msgstr "Usuario"
 
 msgctxt "field:webdav.share,write_date:"
 msgid "Write Date"
-msgstr "Fecha de Modificación"
+msgstr "Fecha modificación"
 
 msgctxt "field:webdav.share,write_uid:"
 msgid "Write User"
@@ -146,7 +140,7 @@ msgstr "Colecciones"
 
 msgctxt "model:ir.action,name:act_share_list"
 msgid "Shares"
-msgstr "Recuros Compartidos"
+msgstr "Recurso compartido"
 
 msgctxt "model:ir.ui.menu,name:menu_collection_list"
 msgid "Collections"
@@ -158,7 +152,7 @@ msgstr "Colecciones"
 
 msgctxt "model:ir.ui.menu,name:menu_share_list"
 msgid "Shares"
-msgstr "Recuros Compartidos"
+msgstr "Recursos compartidos"
 
 msgctxt "model:ir.ui.menu,name:menu_webdav"
 msgid "WebDAV"
@@ -190,4 +184,4 @@ msgstr "Recurso compartido"
 
 msgctxt "view:webdav.share:"
 msgid "Shares"
-msgstr "Recuros Compartidos"
+msgstr "Recursos compartidos"
