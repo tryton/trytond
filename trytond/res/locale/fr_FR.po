@@ -122,11 +122,11 @@ msgctxt "field:ir.model.field-res.group,create_uid:"
 msgid "Create User"
 msgstr "Créé par"
 
-msgctxt "field:ir.model.field-res.group,field_id:"
+msgctxt "field:ir.model.field-res.group,field:"
 msgid "Model Field"
-msgstr "Champ de modèle"
+msgstr "Champ du modèle"
 
-msgctxt "field:ir.model.field-res.group,group_id:"
+msgctxt "field:ir.model.field-res.group,group:"
 msgid "Group"
 msgstr "Groupe"
 
@@ -578,10 +578,6 @@ msgctxt "field:res.user,login:"
 msgid "Login"
 msgstr "Nom d'utilisateur"
 
-msgctxt "field:res.user,login_try:"
-msgid "Login Try"
-msgstr "Essais login"
-
 msgctxt "field:res.user,menu:"
 msgid "Menu Action"
 msgstr "Action menu"
@@ -705,6 +701,34 @@ msgstr "Mis à jour par"
 msgctxt "field:res.user.config.start,id:"
 msgid "ID"
 msgstr "ID"
+
+msgctxt "field:res.user.login.attempt,create_date:"
+msgid "Create Date"
+msgstr "Date de création"
+
+msgctxt "field:res.user.login.attempt,create_uid:"
+msgid "Create User"
+msgstr "Créé par"
+
+msgctxt "field:res.user.login.attempt,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:res.user.login.attempt,rec_name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:res.user.login.attempt,user:"
+msgid "User"
+msgstr "Utilisateur"
+
+msgctxt "field:res.user.login.attempt,write_date:"
+msgid "Write Date"
+msgstr "Date de mise à jour"
+
+msgctxt "field:res.user.login.attempt,write_uid:"
+msgid "Write User"
+msgstr "Mis à jour par"
 
 msgctxt "field:res.user.warning,always:"
 msgid "Always"
@@ -864,7 +888,7 @@ msgstr "Déclencheur du planificateur"
 
 msgctxt "model:res.user-ir.action,name:"
 msgid "User - Action"
-msgstr ""
+msgstr "Utilisateur - Action"
 
 msgctxt "model:res.user-res.group,name:"
 msgid "User - Group"
@@ -873,6 +897,10 @@ msgstr "Utilisateur - Groupe"
 msgctxt "model:res.user.config.start,name:"
 msgid "User Config Init"
 msgstr "Configuration utilisateur initiale"
+
+msgctxt "model:res.user.login.attempt,name:"
+msgid "Login Attempt"
+msgstr "Tentative de login"
 
 msgctxt "model:res.user.warning,name:"
 msgid "User Warning"
@@ -1046,10 +1074,6 @@ msgctxt "view:res.group:"
 msgid "Members"
 msgstr "Membres"
 
-msgctxt "view:res.group:"
-msgid "Security"
-msgstr "Sécurité"
-
 msgctxt "view:res.request.history:"
 msgid "Request History"
 msgstr "Historique des demandes"
@@ -1089,14 +1113,6 @@ msgstr "Fermer"
 msgctxt "view:res.request:"
 msgid "Close"
 msgstr "Fermer"
-
-msgctxt "view:res.request:"
-msgid "Description"
-msgstr "Description"
-
-msgctxt "view:res.request:"
-msgid "History"
-msgstr "Historique"
 
 msgctxt "view:res.request:"
 msgid "References"
@@ -1193,10 +1209,6 @@ msgstr "Préférences"
 msgctxt "view:res.user:"
 msgid "Preferences"
 msgstr "Préférences"
-
-msgctxt "view:res.user:"
-msgid "Security"
-msgstr "Sécurité"
 
 msgctxt "view:res.user:"
 msgid "User"
