@@ -3002,7 +3002,7 @@ msgstr "Französisch"
 
 msgctxt "model:ir.lang,name:lang_lt"
 msgid "Lithuanian"
-msgstr ""
+msgstr "Litauisch"
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
