@@ -104,15 +104,7 @@ msgctxt "field:ir.model.field-res.group,field:"
 msgid "Model Field"
 msgstr "Modelo de Campo"
 
-msgctxt "field:ir.model.field-res.group,field_id:"
-msgid "Model Field"
-msgstr "Modelo de Campo"
-
 msgctxt "field:ir.model.field-res.group,group:"
-msgid "Group"
-msgstr "Grupo"
-
-msgctxt "field:ir.model.field-res.group,group_id:"
 msgid "Group"
 msgstr "Grupo"
 
@@ -564,10 +556,6 @@ msgctxt "field:res.user,login:"
 msgid "Login"
 msgstr "Nombre de usuario"
 
-msgctxt "field:res.user,login_try:"
-msgid "Login Try"
-msgstr "Reintento de inicio de sesión"
-
 msgctxt "field:res.user,menu:"
 msgid "Menu Action"
 msgstr "Menú de acciones"
@@ -992,10 +980,6 @@ msgctxt "view:res.group:"
 msgid "Members"
 msgstr "Miembros"
 
-msgctxt "view:res.group:"
-msgid "Security"
-msgstr "Seguridad"
-
 msgctxt "view:res.request.history:"
 msgid "Request History"
 msgstr "Histórico de solicitudes"
@@ -1071,10 +1055,6 @@ msgstr "Membresía del grupo"
 msgctxt "view:res.user:"
 msgid "Preferences"
 msgstr "Preferencias"
-
-msgctxt "view:res.user:"
-msgid "Security"
-msgstr "Seguridad"
 
 msgctxt "view:res.user:"
 msgid "User"

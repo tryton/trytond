@@ -56,6 +56,12 @@ msgctxt "error:ir.action.keyword:"
 msgid "Wrong wizard model in keyword action \"%s\"."
 msgstr "Asistente incorrecto en la acción de teclado \"%s\"."
 
+#, fuzzy
+msgctxt "error:ir.action.report:"
+msgid "Invalid email definition on report \"%s\"."
+msgstr ""
+"La definición de correo electrónico sobre el informe \"%s\", no es correcta."
+
 msgctxt "error:ir.action.report:"
 msgid "The internal name must be unique by module!"
 msgstr "El nombre interno debe ser único por módulo."
@@ -178,9 +184,49 @@ msgctxt "error:ir.rule:"
 msgid "Invalid domain in rule \"%s\"."
 msgstr "El dominio de la regla \"%s\" no es correcto."
 
+#, fuzzy
+msgctxt "error:ir.sequence.strict:"
+msgid "Invalid prefix \"%(prefix)s\" on sequence \"%(sequence)s\"."
+msgstr "Prefijo \"%(prefix)s\" de la secuencia \"%(sequence)s\" no es correcto."
+
+#, fuzzy
+msgctxt "error:ir.sequence.strict:"
+msgid "Invalid suffix \"%(suffix)s\" on sequence \"%(sequence)s\"."
+msgstr "Sufijo \"%(sufix)s\" de la secuencia \"%(sequence)s\" no es correcto."
+
+#, fuzzy
+msgctxt "error:ir.sequence.strict:"
+msgid "Last Timestamp cannot be in the future on sequence \"%s\"."
+msgstr "La última fecha-hora no puede ser del futuro en la secuencia \"%s\"."
+
+#, fuzzy
+msgctxt "error:ir.sequence.strict:"
+msgid "Missing sequence."
+msgstr "Falta la secuencia."
+
 msgctxt "error:ir.sequence.strict:"
 msgid "Timestamp rounding should be greater than 0"
 msgstr "El redondeo de la fecha-hora debe ser más grande que 0."
+
+#, fuzzy
+msgctxt "error:ir.sequence:"
+msgid "Invalid prefix \"%(prefix)s\" on sequence \"%(sequence)s\"."
+msgstr "Prefijo \"%(prefix)s\" de la secuencia \"%(sequence)s\" no es correcto."
+
+#, fuzzy
+msgctxt "error:ir.sequence:"
+msgid "Invalid suffix \"%(suffix)s\" on sequence \"%(sequence)s\"."
+msgstr "Sufijo \"%(sufix)s\" de la secuencia \"%(sequence)s\" no es correcto."
+
+#, fuzzy
+msgctxt "error:ir.sequence:"
+msgid "Last Timestamp cannot be in the future on sequence \"%s\"."
+msgstr "La última fecha-hora no puede ser del futuro en la secuencia \"%s\"."
+
+#, fuzzy
+msgctxt "error:ir.sequence:"
+msgid "Missing sequence."
+msgstr "Falta la secuencia."
 
 msgctxt "error:ir.sequence:"
 msgid "Timestamp rounding should be greater than 0"
@@ -2941,6 +2987,10 @@ msgstr "Español (Colombia)"
 msgctxt "model:ir.lang,name:lang_fr"
 msgid "French"
 msgstr "Francés"
+
+msgctxt "model:ir.lang,name:lang_lt"
+msgid "Lithuanian"
+msgstr ""
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"

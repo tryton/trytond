@@ -3179,6 +3179,10 @@ msgctxt "model:ir.lang,name:lang_fr"
 msgid "French"
 msgstr "Français"
 
+msgctxt "model:ir.lang,name:lang_lt"
+msgid "Lithuanian"
+msgstr ""
+
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
 msgstr "Néerlandais"

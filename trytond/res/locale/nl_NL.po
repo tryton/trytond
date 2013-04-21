@@ -103,12 +103,12 @@ msgctxt "field:ir.model.field-res.group,create_uid:"
 msgid "Create User"
 msgstr ""
 
-msgctxt "field:ir.model.field-res.group,field_id:"
+msgctxt "field:ir.model.field-res.group,field:"
 msgid "Model Field"
 msgstr ""
 
 #, fuzzy
-msgctxt "field:ir.model.field-res.group,group_id:"
+msgctxt "field:ir.model.field-res.group,group:"
 msgid "Group"
 msgstr "Groep"
 
@@ -592,10 +592,6 @@ msgctxt "field:res.user,login:"
 msgid "Login"
 msgstr ""
 
-msgctxt "field:res.user,login_try:"
-msgid "Login Try"
-msgstr ""
-
 msgctxt "field:res.user,menu:"
 msgid "Menu Action"
 msgstr ""
@@ -726,6 +722,36 @@ msgstr ""
 
 msgctxt "field:res.user.config.start,id:"
 msgid "ID"
+msgstr ""
+
+msgctxt "field:res.user.login.attempt,create_date:"
+msgid "Create Date"
+msgstr ""
+
+msgctxt "field:res.user.login.attempt,create_uid:"
+msgid "Create User"
+msgstr ""
+
+msgctxt "field:res.user.login.attempt,id:"
+msgid "ID"
+msgstr ""
+
+#, fuzzy
+msgctxt "field:res.user.login.attempt,rec_name:"
+msgid "Name"
+msgstr "Naam bijlage"
+
+#, fuzzy
+msgctxt "field:res.user.login.attempt,user:"
+msgid "User"
+msgstr "Gebruiker"
+
+msgctxt "field:res.user.login.attempt,write_date:"
+msgid "Write Date"
+msgstr ""
+
+msgctxt "field:res.user.login.attempt,write_uid:"
+msgid "Write User"
 msgstr ""
 
 msgctxt "field:res.user.warning,always:"
@@ -906,6 +932,10 @@ msgstr ""
 
 msgctxt "model:res.user.config.start,name:"
 msgid "User Config Init"
+msgstr ""
+
+msgctxt "model:res.user.login.attempt,name:"
+msgid "Login Attempt"
 msgstr ""
 
 msgctxt "model:res.user.warning,name:"
