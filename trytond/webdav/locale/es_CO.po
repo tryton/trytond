@@ -4,13 +4,9 @@ msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:ir.attachment:"
 msgid ""
-"You can not create an attachment\n"
-"in a collection with the name\n"
-"of an existing child collection!"
+"You can not create an attachment named \"%(attachment)s in collection "
+"\"%(collection)s\" because there is already a collection with that name."
 msgstr ""
-"No puede crear un adjunto\n"
-"en una colección con el nombre\n"
-"de una colección hija existente"
 
 msgctxt "error:webdav.collection:"
 msgid "The collection name must be unique inside a collection!"
@@ -18,15 +14,9 @@ msgstr "¡El nombre de la colección debe ser único dentro de dicha colección!
 
 msgctxt "error:webdav.collection:"
 msgid ""
-"You can not create a collection\n"
-"in a collection with the name of an existing file!"
+"You can not create a collection named \"%(parent)s\" in collection "
+"\"%(child)s\" because there is already a file with that name."
 msgstr ""
-"No puede crear una colección\n"
-"en una colección con el nombre de un archivo existente"
-
-msgctxt "error:webdav.collection:"
-msgid "You can not create recursive collections!"
-msgstr "No puede crear colecciones recursivas"
 
 msgctxt "field:ir.attachment,path:"
 msgid "Path"

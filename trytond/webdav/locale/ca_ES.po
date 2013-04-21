@@ -14,6 +14,15 @@ msgctxt "error:webdav.collection:"
 msgid "The collection name must be unique inside a collection!"
 msgstr "El nom del directori ha de ser únic dins del directori."
 
+#, fuzzy
+msgctxt "error:webdav.collection:"
+msgid ""
+"You can not create a collection named \"%(parent)s\" in collection "
+"\"%(child)s\" because there is already a file with that name."
+msgstr ""
+"No podeu crear un directori amb el nom \"%(parent)s\" dins del directori "
+"\"%(child)s\" perquè ja existeix un altre amb aquest nom."
+
 msgctxt "field:ir.attachment,path:"
 msgid "Path"
 msgstr "Ruta"
