@@ -453,18 +453,17 @@ class User(ModelSQL, ModelView):
         Return user id if password matches
         '''
         LoginAttempt = Pool().get('res.user.login.attempt')
+        time.sleep(2 ** LoginAttempt.count(login) - 1)
         user_id, user_password, salt = cls._get_login(login)
-        if not user_id:
-            return 0
-        password += salt or ''
-        if isinstance(password, unicode):
-            password = password.encode('utf-8')
-        password_sha = hashlib.sha1(password).hexdigest()
-        if password_sha == user_password:
-            LoginAttempt.delete(user_id)
-            return user_id
-        LoginAttempt.add(user_id)
-        time.sleep(2 ** LoginAttempt.count(user_id))
+        if user_id:
+            password += salt or ''
+            if isinstance(password, unicode):
+                password = password.encode('utf-8')
+            password_sha = hashlib.sha1(password).hexdigest()
+            if password_sha == user_password:
+                LoginAttempt.delete(login)
+                return user_id
+        LoginAttempt.add(login)
         return 0
 
 
@@ -475,24 +474,40 @@ class LoginAttempt(ModelSQL):
     the res.user table when in a long running process.
     """
     __name__ = 'res.user.login.attempt'
-    user = fields.Many2One('res.user', 'User', required=True, select=True,
-        ondelete='CASCADE')
+    login = fields.Char('Login')
 
     @classmethod
-    def add(cls, user_id):
-        cls.create([{'user': user_id}])
+    def __register__(cls, module_name):
+        super(LoginAttempt, cls).__register__(module_name)
+        table = TableHandler(Transaction().cursor, cls, module_name)
+
+        # Migration from 2.8: remove user
+        table.drop_column('user')
+
+    @staticmethod
+    def delay():
+        return (datetime.datetime.now()
+            - datetime.timedelta(seconds=int(CONFIG['session_timeout'])))
 
     @classmethod
-    def delete(cls, user_id):
+    def add(cls, login):
+        cls.delete(cls.search([
+                    ('create_date', '<', cls.delay()),
+                    ]))
+        cls.create([{'login': login}])
+
+    @classmethod
+    def delete(cls, login):
         cursor = Transaction().cursor
-        cursor.execute('DELETE FROM "' + cls._table + '" WHERE "user" = %s',
-            (user_id,))
+        cursor.execute('DELETE FROM "' + cls._table + '" WHERE "login" = %s',
+            (login,))
 
     @classmethod
-    def count(cls, user_id):
+    def count(cls, login):
         cursor = Transaction().cursor
-        cursor.execute('SELECT count(1) FROM "'
-            + cls._table + '" WHERE "user" = %s', (user_id,))
+        cursor.execute('SELECT count(1) FROM "' + cls._table + '" '
+            'WHERE "login" = %s AND create_date >= %s',
+            (login, cls.delay()))
         return cursor.fetchone()[0]
 
 
