@@ -18,7 +18,7 @@ __all__ = [
     'DateTime', 'DateTimeDefault', 'DateTimeRequired', 'DateTimeFormat',
     'Time', 'TimeDefault', 'TimeRequired', 'TimeFormat',
     'One2One', 'One2OneTarget', 'One2OneRelation', 'One2OneRequired',
-    'One2OneRequiredRelation',
+    'One2OneRequiredRelation', 'One2OneDomain', 'One2OneDomainRelation',
     'One2Many', 'One2ManyTarget',
     'One2ManyRequired', 'One2ManyRequiredTarget',
     'One2ManyReference', 'One2ManyReferenceTarget',
@@ -381,6 +381,32 @@ class One2OneRequiredRelation(ModelSQL):
     @classmethod
     def __setup__(cls):
         super(One2OneRequiredRelation, cls).__setup__()
+        cls._sql_constraints += [
+            ('origin_unique', 'UNIQUE(origin)',
+                'Origin must be unique'),
+            ('target_unique', 'UNIQUE(target)',
+                'Target must be unique'),
+            ]
+
+
+class One2OneDomain(ModelSQL):
+    'One2One'
+    __name__ = 'test.one2one_domain'
+    name = fields.Char('Name', required=True)
+    one2one = fields.One2One('test.one2one_domain.relation', 'origin',
+        'target', string='One2One', help='Test one2one',
+        domain=[('name', '=', 'domain')])
+
+
+class One2OneDomainRelation(ModelSQL):
+    'One2One Relation'
+    __name__ = 'test.one2one_domain.relation'
+    origin = fields.Many2One('test.one2one_domain', 'Origin')
+    target = fields.Many2One('test.one2one.target', 'Target')
+
+    @classmethod
+    def __setup__(cls):
+        super(One2OneDomainRelation, cls).__setup__()
         cls._sql_constraints += [
             ('origin_unique', 'UNIQUE(origin)',
                 'Origin must be unique'),
