@@ -57,6 +57,8 @@ def register():
         One2OneRelation,
         One2OneRequired,
         One2OneRequiredRelation,
+        One2OneDomain,
+        One2OneDomainRelation,
         One2Many,
         One2ManyTarget,
         One2ManyRequired,

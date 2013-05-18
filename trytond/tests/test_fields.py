@@ -75,6 +75,7 @@ class FieldsTestCase(unittest.TestCase):
         self.one2one = POOL.get('test.one2one')
         self.one2one_target = POOL.get('test.one2one.target')
         self.one2one_required = POOL.get('test.one2one_required')
+        self.one2one_domain = POOL.get('test.one2one_domain')
 
         self.one2many = POOL.get('test.one2many')
         self.one2many_target = POOL.get('test.one2many.target')
@@ -2371,6 +2372,23 @@ class FieldsTestCase(unittest.TestCase):
                         'one2one': target3.id,
                         }])
             self.assert_(one2one3)
+
+            target4, = self.one2one_target.create([{
+                        'name': 'target4',
+                        }])
+            self.assertRaises(Exception, self.one2one_domain.create, [{
+                        'name': 'one2one4',
+                        'one2one': target4.id,
+                        }])
+            transaction.cursor.rollback()
+
+            target5, = self.one2one_target.create([{
+                        'name': 'domain',
+                        }])
+            one2one5, = self.one2one_domain.create([{
+                        'name': 'one2one5',
+                        'one2one': target5.id,
+                        }])
 
             transaction.cursor.rollback()
 
