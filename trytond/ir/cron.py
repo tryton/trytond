@@ -6,12 +6,14 @@ from dateutil.relativedelta import relativedelta
 import traceback
 import sys
 import logging
+from email.mime.text import MIMEText
 
 from ..model import ModelView, ModelSQL, fields
-from ..tools import safe_eval
+from ..tools import safe_eval, get_smtp_server
 from ..transaction import Transaction
 from ..pool import Pool
 from ..backend import TableHandler
+from ..config import CONFIG
 
 __all__ = [
     'Cron',
@@ -60,10 +62,10 @@ class Cron(ModelSQL, ModelView):
     def __setup__(cls):
         super(Cron, cls).__setup__()
         cls._error_messages.update({
-            'request_title': 'Scheduled action failed',
-            'request_body': "The following action failed to execute "
-                            "properly: \"%s\"\n Traceback: \n\n%s\n"
-            })
+                'request_title': 'Scheduled action failed',
+                'request_body': ("The following action failed to execute "
+                    "properly: \"%s\"\n%s\n Traceback: \n\n%s\n")
+                })
 
     @classmethod
     def __register__(cls, module_name):
@@ -120,29 +122,33 @@ class Cron(ModelSQL, ModelView):
         return _INTERVALTYPES[cron.interval_type](cron.interval_number)
 
     @classmethod
-    def _get_request_values(cls, cron):
+    def send_error_message(cls, cron):
         tb_s = ''.join(traceback.format_exception(*sys.exc_info()))
         tb_s = tb_s.decode('utf-8', 'ignore')
-        name = cls.raise_user_error('request_title',
+        subject = cls.raise_user_error('request_title',
             raise_exception=False)
-        body = cls.raise_user_error('request_body', (cron.name, tb_s),
+        body = cls.raise_user_error('request_body',
+            (cron.name, cron.__url__, tb_s),
             raise_exception=False)
-        values = {
-            'name': name,
-            'priority': '2',
-            'act_from': cron.user.id,
-            'act_to': cron.request_user.id,
-            'body': body,
-            'date_sent': datetime.datetime.now(),
-            'references': [
-                ('create', [{
-                            'reference': '%s,%s' % (cls.__name__, cron.id),
-                            }]),
-            ],
-            'state': 'waiting',
-            'trigger_date': datetime.datetime.now(),
-        }
-        return values
+
+        from_addr = CONFIG['smtp_default_from_email']
+        to_addr = cron.request_user.email
+
+        msg = MIMEText(body)
+        msg['To'] = to_addr
+        msg['From'] = from_addr
+        msg['Subject'] = subject
+        logger = logging.getLogger(__name__)
+        if not to_addr:
+            logger.error(msg.as_string())
+        else:
+            try:
+                server = get_smtp_server()
+                server.sendmail(from_addr, to_addr, msg.as_string())
+                server.quit()
+            except Exception, exception:
+                logger.error('Unable to deliver email (%s):\n %s'
+                    % (exception, msg.as_string()))
 
     @classmethod
     def _callback(cls, cron):
@@ -156,15 +162,12 @@ class Cron(ModelSQL, ModelView):
         except Exception:
             Transaction().cursor.rollback()
 
-            Request = pool.get('res.request')
             req_user = cron.request_user
             language = (req_user.language.code if req_user.language
                     else Config.get_language())
             with contextlib.nested(Transaction().set_user(cron.user.id),
                     Transaction().set_context(language=language)):
-                values = cls._get_request_values(cron)
-                Request.create([values])
-            Transaction().cursor.commit()
+                cls.send_error_message(cron)
 
     @classmethod
     def run(cls, db_name):
