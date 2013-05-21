@@ -183,17 +183,16 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                             database_name) + tb_s)
                 transaction.cursor.rollback()
                 raise
-        if not (object_name == 'res.request' and method == 'request_get'):
-            with Transaction().start(database_name, 0) as transaction:
-                pool = Pool(database_name)
-                Session = pool.get('ir.session')
-                try:
-                    Session.reset(session)
-                except DatabaseOperationalError:
-                    # Silently fail when reseting session
-                    transaction.cursor.rollback()
-                else:
-                    transaction.cursor.commit()
+        with Transaction().start(database_name, 0) as transaction:
+            pool = Pool(database_name)
+            Session = pool.get('ir.session')
+            try:
+                Session.reset(session)
+            except DatabaseOperationalError:
+                # Silently fail when reseting session
+                transaction.cursor.rollback()
+            else:
+                transaction.cursor.commit()
         Cache.resets(database_name)
         return result
 

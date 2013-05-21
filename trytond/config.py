@@ -12,6 +12,8 @@ except ImportError:
 import os
 import ConfigParser
 import time
+import getpass
+import socket
 
 
 def get_hostname(netloc):
@@ -69,6 +71,8 @@ class ConfigManager(object):
             'smtp_tls': False,
             'smtp_user': False,
             'smtp_password': False,
+            'smtp_default_from_email': '%s@%s' % (
+                getpass.getuser(), socket.getfqdn()),
             'data_path': '/var/lib/trytond',
             'multi_server': False,
             'session_timeout': 600,

@@ -1,3 +1,5 @@
+* Remove request
+
 Version 2.8.0 - 2013-04-22
 * Bug fixes (see mercurial logs for details)
 * Allow to search on target of Reference field
