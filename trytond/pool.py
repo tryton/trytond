@@ -203,12 +203,11 @@ class Pool(object):
                     cls = type(cls.__name__, (cls, previous_cls), {})
                 except KeyError:
                     pass
-                try:
+                if (not hasattr(cls, '__setup__')
+                        and issubclass(cls.__class__, PoolMeta)):
+                    continue
+                else:
                     cls.__setup__()
-                except AttributeError:
-                    if issubclass(cls.__class__, PoolMeta):
-                        continue
-                    raise
                 self.add(cls, type=type_)
                 classes[type_].append(cls)
             for cls in classes[type_]:
