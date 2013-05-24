@@ -74,6 +74,11 @@ value of the statement named by ``value``, if defined in the
 evaluation context, otherwise the ``default`` value (empty
 string by default).  Returns an instance of itself.
 
+.. note::
+
+    The default value determines the type of the statement.
+..
+
 .. class:: Not(value)
 
 A :class:`Not` object represents the PYSON ``Not()``

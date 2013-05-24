@@ -13,9 +13,9 @@ A PYSON parser can easily be implemented in other programming languages.
 So third party softwares do not need to depend on Python to be able to
 fully communicate with the Tryton server.
 
-PYSON is a `deterministic algorithm`_ which will always
-succeed to evaluate statements. There is a default behavior for
-unknown values.
+PYSON is a `deterministic algorithm`_ which will always succeed to evaluate
+statements. There is a default behavior for unknown values. It is statically
+typed and checked on instantiation.
 
 There is also a :ref:`reference documentation of the API <ref-pyson>`.
 
