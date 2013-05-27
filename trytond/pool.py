@@ -6,7 +6,7 @@ from trytond.modules import load_modules, register_classes
 from trytond.transaction import Transaction
 import __builtin__
 
-__all__ = ['Pool', 'PoolMeta']
+__all__ = ['Pool', 'PoolMeta', 'PoolBase']
 
 
 class PoolMeta(type):
@@ -16,6 +16,22 @@ class PoolMeta(type):
         if '__name__' in dct:
             new.__name__ = dct['__name__']
         return new
+
+
+class PoolBase(object):
+    __metaclass__ = PoolMeta
+
+    @classmethod
+    def __setup__(cls):
+        pass
+
+    @classmethod
+    def __post_setup__(cls):
+        pass
+
+    @classmethod
+    def __register__(cls, module_name):
+        pass
 
 
 class Pool(object):
@@ -62,6 +78,7 @@ class Pool(object):
         for cls in classes:
             mpool = Pool.classes[type_].setdefault(module, [])
             assert cls not in mpool, cls
+            assert issubclass(cls.__class__, PoolMeta), cls
             mpool.append(cls)
 
     @classmethod
@@ -203,14 +220,11 @@ class Pool(object):
                     cls = type(cls.__name__, (cls, previous_cls), {})
                 except KeyError:
                     pass
-                if (not hasattr(cls, '__setup__')
-                        and issubclass(cls.__class__, PoolMeta)):
+                if not issubclass(cls, PoolBase):
                     continue
-                else:
-                    cls.__setup__()
+                cls.__setup__()
                 self.add(cls, type=type_)
                 classes[type_].append(cls)
             for cls in classes[type_]:
-                if hasattr(cls, '__post_setup__'):
-                    cls.__post_setup__()
+                cls.__post_setup__()
         return classes

@@ -22,7 +22,7 @@ except ImportError:
 from genshi.filters import Translator
 import lxml.etree
 from trytond.config import CONFIG
-from trytond.pool import Pool, PoolMeta
+from trytond.pool import Pool, PoolBase
 from trytond.transaction import Transaction
 from trytond.url import URLMixin
 from trytond.rpc import RPC
@@ -92,18 +92,14 @@ class TranslateFactory:
         self.language = language
 
 
-class Report(URLMixin):
-    __metaclass__ = PoolMeta
+class Report(URLMixin, PoolBase):
 
     @classmethod
     def __setup__(cls):
+        super(Report, cls).__setup__()
         cls.__rpc__ = {
             'execute': RPC(),
             }
-
-    @classmethod
-    def __register__(cls, module_name):
-        pass
 
     @classmethod
     def execute(cls, ids, data):

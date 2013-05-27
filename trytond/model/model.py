@@ -7,7 +7,7 @@ import warnings
 
 from trytond.model import fields
 from trytond.error import WarningErrorMixin
-from trytond.pool import Pool, PoolMeta
+from trytond.pool import Pool, PoolBase
 from trytond.pyson import PYSONEncoder
 from trytond.transaction import Transaction
 from trytond.url import URLMixin
@@ -16,17 +16,17 @@ from trytond.rpc import RPC
 __all__ = ['Model']
 
 
-class Model(WarningErrorMixin, URLMixin):
+class Model(WarningErrorMixin, URLMixin, PoolBase):
     """
     Define a model in Tryton.
     """
-    __metaclass__ = PoolMeta
     _rec_name = 'name'
 
     id = fields.Integer('ID', readonly=True)
 
     @classmethod
     def __setup__(cls):
+        super(Model, cls).__setup__()
         cls.__rpc__ = {
             'default_get': RPC(),
             'fields_get': RPC(),
@@ -44,7 +44,7 @@ class Model(WarningErrorMixin, URLMixin):
 
     @classmethod
     def __post_setup__(cls):
-        pool = Pool()
+        super(Model, cls).__post_setup__()
 
         # Set _fields
         cls._fields = {}
@@ -104,6 +104,7 @@ class Model(WarningErrorMixin, URLMixin):
         """
         Add model in ir.model and ir.model.field.
         """
+        super(Model, cls).__register__(module_name)
         pool = Pool()
         Translation = pool.get('ir.translation')
         Property = pool.get('ir.property')
