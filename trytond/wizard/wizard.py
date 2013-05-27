@@ -9,7 +9,7 @@ except ImportError:
     import json
 import copy
 
-from trytond.pool import Pool, PoolMeta
+from trytond.pool import Pool, PoolBase
 from trytond.transaction import Transaction
 from trytond.error import WarningErrorMixin
 from trytond.url import URLMixin
@@ -142,13 +142,13 @@ class StateAction(StateTransition):
         return Action.get_action_values(action.type, [action.id])[0]
 
 
-class Wizard(WarningErrorMixin, URLMixin):
-    __metaclass__ = PoolMeta
+class Wizard(WarningErrorMixin, URLMixin, PoolBase):
     start_state = 'start'
     end_state = 'end'
 
     @classmethod
     def __setup__(cls):
+        super(Wizard, cls).__setup__()
         cls.__rpc__ = {
             'create': RPC(readonly=False),
             'delete': RPC(readonly=False),
@@ -163,6 +163,7 @@ class Wizard(WarningErrorMixin, URLMixin):
 
     @classmethod
     def __post_setup__(cls):
+        super(Wizard, cls).__post_setup__()
         # Set states
         cls.states = {}
         for attr in dir(cls):
@@ -173,6 +174,7 @@ class Wizard(WarningErrorMixin, URLMixin):
 
     @classmethod
     def __register__(cls, module_name):
+        super(Wizard, cls).__register__(module_name)
         pool = Pool()
         Translation = pool.get('ir.translation')
         cursor = Transaction().cursor

@@ -56,3 +56,11 @@ PoolMeta
 
 The PoolMeta is a metaclass helper to setup __name__ on class to be registered
 in the Pool.
+
+========
+PoolBase
+========
+
+.. class:: PoolBase
+
+The base class of registered class that will be setup.
