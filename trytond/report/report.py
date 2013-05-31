@@ -319,22 +319,7 @@ class Report(URLMixin, PoolBase):
             else:
                 locale_format = Lang.default_date()
                 code = Config.get_language()
-            if not isinstance(value, time.struct_time):
-                # assume string, parse it
-                if len(str(value)) == 10:
-                    # length of date like 2001-01-01 is ten
-                    # assume format '%Y-%m-%d'
-                    string_pattern = '%Y-%m-%d'
-                else:
-                    # assume format '%Y-%m-%d %H:%M:%S'
-                    value = str(value)[:19]
-                    locale_format = locale_format + ' %H:%M:%S'
-                    string_pattern = '%Y-%m-%d %H:%M:%S'
-                date = datetime.datetime(*time.strptime(str(value),
-                    string_pattern)[:6])
-            else:
-                date = datetime.datetime(*(value.timetuple()[:6]))
-            return Lang.strftime(date, code, locale_format)
+            return Lang.strftime(value, code, locale_format)
         if currency:
             return Lang.currency(lang, value, currency, grouping=grouping,
                 symbol=symbol)
