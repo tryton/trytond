@@ -72,7 +72,9 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
             if isinstance(field, (fields.Selection, fields.Reference)) \
                     and not isinstance(field.selection, (list, tuple)) \
                     and field.selection not in cls.__rpc__:
-                cls.__rpc__[field.selection] = RPC()
+                instantiate = 0 if field.selection_change_with else None
+                cls.__rpc__.setdefault(field.selection,
+                    RPC(instantiate=instantiate))
 
             for attribute in ('on_change', 'on_change_with', 'autocomplete'):
                 function_name = '%s_%s' % (attribute, field_name)
