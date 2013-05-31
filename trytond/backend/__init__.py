@@ -2,9 +2,14 @@
 #this repository contains the full copyright notices and license terms.
 
 from trytond.config import CONFIG
-if CONFIG['db_type'] == 'sqlite':
+
+db_type = CONFIG['db_type']
+if db_type == 'sqlite':
     from .sqlite import *
-elif CONFIG['db_type'] == 'mysql':
+elif db_type == 'mysql':
     from .mysql import *
-else:
+elif db_type == 'postgresql':
     from .postgresql import *
+else:
+    raise ValueError('db_type: "%s" is not supported' % db_type)
+
