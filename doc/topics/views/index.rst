@@ -690,3 +690,45 @@ action
     * ``name``: The id of the action window.
 
     * ``colspan``: see in common-attributes-colspan_.
+
+Calendar view
+=============
+
+The RNG that describes the xml for a calendar view is stored in
+trytond/ir/ui/calendar.rng. There is also a RNC in trytond/ir/ui/calendar.rnc.
+
+Calendar view is use to display records as events on a calendar based on a
+`dtstart` and optionally a `dtend`.
+
+XML description
+---------------
+
+calendar
+^^^^^^^^
+
+Each calendar view must start with this tag.
+
+    * ``dtstart``: The name of the field that contains the start date.
+
+    * ``dtend``: The name of the field that contains the end date.
+
+    * ``string``: The text that will be used as default title for the tab or
+      the window.
+
+field
+^^^^^
+
+    * ``name``: The name of the field.
+
+Example
+-------
+
+.. highlight:: xml
+
+::
+
+  <calendar string="Productions" dtstart="planned_date">
+      <field name="code"/>
+      <field name="product"/>
+      <field name="reference"/>
+  </calendar>
