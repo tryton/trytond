@@ -483,6 +483,11 @@ class ModelView(Model):
         if element.tag == 'tree' and element.get('sequence'):
             fields_attrs.setdefault(element.get('sequence'), {})
 
+        if element.tag == 'calendar':
+            for attr in ('dtstart', 'dtend'):
+                if element.get(attr):
+                    fields_attrs.setdefault(element.get(attr), {})
+
         if childs:
             for field in element:
                 fields_attrs = cls.__view_look_dom(field, type,

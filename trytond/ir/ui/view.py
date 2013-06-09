@@ -33,6 +33,7 @@ class View(ModelSQL, ModelView):
             ('tree', 'Tree'),
             ('form', 'Form'),
             ('graph', 'Graph'),
+            ('calendar', 'Calendar'),
             ('board', 'Board'),
             ], 'View Type', select=True)
     data = fields.Text('Data')
