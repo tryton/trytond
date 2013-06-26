@@ -172,6 +172,11 @@
       </attribute>
     </optional>
   </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="factor" a:defaultValue="1"/>
+    </optional>
+  </define>
   <define name="prefix">
     <element name="prefix">
       <ref name="attlist.affix"/>
