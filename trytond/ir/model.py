@@ -29,6 +29,7 @@ IDENTIFIER = re.compile(r'^[a-zA-z_][a-zA-Z0-9_]*$')
 class Model(ModelSQL, ModelView):
     "Model"
     __name__ = 'ir.model'
+    _order_name = 'model'
     name = fields.Char('Model Description', translate=True, loading='lazy',
         states={
             'readonly': Bool(Eval('module')),
