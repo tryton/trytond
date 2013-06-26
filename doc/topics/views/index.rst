@@ -133,6 +133,14 @@ List of attributes shared by many form elements:
       :class:`trytond.model.fields.One2Many` to specifiy if the client must
       auto-complete the field. The default value is True.
 
+    .. _common-attributes-factor:
+
+    * ``factor``: A factor to apply on fields
+      :class:`trytond.model.fields.Integer`,
+      :class:`trytond.model.fields.Float` and
+      :class:`trytond.model.fields.Numeric` to display on the widget. The
+      default value is 1.
+
 
 form
 ^^^^
@@ -234,6 +242,8 @@ Display a field of the object with the value of the current record.
     * ``pre_validate``: see in common-attributes-pre_validate_.
 
     * ``completion``: see in common-attributes-completion_.
+
+    * ``factor``: see in common-attributes-factor_.
 
 image
 ^^^^^
@@ -490,6 +500,8 @@ field
     * ``pre_validate``: see in common-attributes-pre_validate_.
 
     * ``completion``: see in common-attributes-completion_.
+
+    * ``factor``: see in common-attributes-factor_.
 
 prefix or suffix
 ^^^^^^^^^^^^^^^^
