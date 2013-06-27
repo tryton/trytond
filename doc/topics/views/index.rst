@@ -349,6 +349,8 @@ Create a sub-table in a cell.
 
     * ``col``: The number of columns for the group contains.
 
+    * ``homogeneous``: If True all the tables cells are the same size.
+
     * ``id``: see in common-attributes-id_.
 
     * ``yexpand``: see in common-attributes-yexpand_.
