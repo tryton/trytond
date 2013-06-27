@@ -178,11 +178,14 @@ def create_graph(module_list):
             packages.append((package, deps, xdep, info))
         packages.pop(0)
 
-    for package, deps, xdep, info in packages:
+    missings = set()
+    for package, deps, _, _ in packages:
         if package not in later:
             continue
-        missings = [x for x in deps if x not in graph]
-        raise Exception('%s unmet dependencies: %s' % (package, missings))
+        missings |= set((x for x in deps if x not in graph))
+    if missings:
+        raise Exception('Missing dependencies: %s' % list(missings
+                - set((p[0] for p in packages))))
     return graph, packages, later
 
 
