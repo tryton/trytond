@@ -96,10 +96,13 @@ class Attachment(ModelSQL, ModelView):
     def models_get():
         pool = Pool()
         Model = pool.get('ir.model')
+        ModelAccess = pool.get('ir.model.access')
         models = Model.search([])
+        access = ModelAccess.get_access([m.model for m in models])
         res = []
         for model in models:
-            res.append([model.model, model.name])
+            if access[model.model]['read']:
+                res.append([model.model, model.name])
         return res
 
     def get_data(self, name):
