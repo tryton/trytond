@@ -312,7 +312,11 @@ class Report(URLMixin, PoolBase):
         Lang = pool.get('ir.lang')
         Config = pool.get('ir.configuration')
 
-        if date:
+        if date or isinstance(value, datetime.date):
+            if date:
+                warnings.warn('date parameter of format_lang is deprecated, '
+                    'use a datetime.date as value instead', DeprecationWarning,
+                    stacklevel=2)
             if lang:
                 locale_format = lang.date
                 code = lang.code
