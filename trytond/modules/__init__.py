@@ -217,7 +217,6 @@ def load_module_graph(graph, pool, lang=None):
         if module not in MODULES:
             continue
         logger.info(module)
-        sys.stdout.flush()
         classes = pool.setup(module)
         package_state = module2state.get(module, 'uninstalled')
         if (is_module_to_install(module)
