@@ -648,6 +648,7 @@ class ActionActWindow(ActionMixin, ModelSQL, ModelView):
     __name__ = 'ir.action.act_window'
     domain = fields.Char('Domain Value')
     context = fields.Char('Context Value')
+    order = fields.Char('Order Value')
     res_model = fields.Char('Model')
     act_window_views = fields.One2Many('ir.action.act_window.view',
             'act_window', 'Views')
@@ -668,6 +669,7 @@ class ActionActWindow(ActionMixin, ModelSQL, ModelView):
     pyson_domain = fields.Function(fields.Char('PySON Domain'), 'get_pyson')
     pyson_context = fields.Function(fields.Char('PySON Context'),
             'get_pyson')
+    pyson_order = fields.Function(fields.Char('PySON Order'), 'get_pyson')
     pyson_search_value = fields.Function(fields.Char(
         'PySON Search Criteria'), 'get_pyson')
 

@@ -22,6 +22,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="domain" colspan="5"/>
             <label name="context"/>
             <field name="context" colspan="5"/>
+            <label name="order"/>
+            <field name="order" colspan="5"/>
             <label name="search_value"/>
             <field name="search_value" colspan="5"/>
             <label name="limit"/>
