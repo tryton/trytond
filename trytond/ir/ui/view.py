@@ -16,7 +16,7 @@ from trytond.rpc import RPC
 
 __all__ = [
     'View', 'ShowViewStart', 'ShowView',
-    'ViewTreeWidth', 'ViewTreeExpandedState', 'ViewSearch',
+    'ViewTreeWidth', 'ViewTreeState', 'ViewSearch',
     ]
 
 
@@ -290,9 +290,9 @@ class ViewTreeWidth(ModelSQL, ModelView):
             cls.create(to_create)
 
 
-class ViewTreeExpandedState(ModelSQL, ModelView):
-    'View Tree Expanded State'
-    __name__ = 'ir.ui.view_tree_expanded_state'
+class ViewTreeState(ModelSQL, ModelView):
+    'View Tree State'
+    __name__ = 'ir.ui.view_tree_state'
     _rec_name = 'model'
     model = fields.Char('Model', required=True)
     domain = fields.Char('Domain', required=True)
@@ -300,20 +300,27 @@ class ViewTreeExpandedState(ModelSQL, ModelView):
             ondelete='CASCADE')
     child_name = fields.Char('Child Name')
     nodes = fields.Text('Expanded Nodes')
+    selected_nodes = fields.Text('Selected Nodes')
 
     @classmethod
     def __setup__(cls):
-        super(ViewTreeExpandedState, cls).__setup__()
+        super(ViewTreeState, cls).__setup__()
         cls.__rpc__.update({
-                'set_expanded': RPC(readonly=False),
-                'get_expanded': RPC(),
+                'set': RPC(readonly=False),
+                'get': RPC(),
                 })
 
     @classmethod
     def __register__(cls, module_name):
-        super(ViewTreeExpandedState, cls).__register__(module_name)
-
         cursor = Transaction().cursor
+        table = TableHandler(cursor, cls, module_name)
+
+        # Migration from 2.8: table name changed
+        table.table_rename(cursor, 'ir_ui_view_tree_expanded_state',
+            cls._table)
+
+        super(ViewTreeState, cls).__register__(module_name)
+
         table = TableHandler(cursor, cls, module_name)
         table.index_action(['model', 'domain', 'user', 'child_name'], 'add')
 
@@ -321,8 +328,12 @@ class ViewTreeExpandedState(ModelSQL, ModelView):
     def default_nodes():
         return '[]'
 
+    @staticmethod
+    def default_selected_nodes():
+        return '[]'
+
     @classmethod
-    def set_expanded(cls, model, domain, child_name, nodes):
+    def set(cls, model, domain, child_name, nodes, selected_nodes):
         current_user = Transaction().user
         with Transaction().set_user(0):
             records = cls.search([
@@ -338,10 +349,11 @@ class ViewTreeExpandedState(ModelSQL, ModelView):
                         'domain': domain,
                         'child_name': child_name,
                         'nodes': nodes,
+                        'selected_nodes': selected_nodes,
                         }])
 
     @classmethod
-    def get_expanded(cls, model, domain, child_name):
+    def get(cls, model, domain, child_name):
         current_user = Transaction().user
         with Transaction().set_user(0):
             try:
@@ -353,8 +365,10 @@ class ViewTreeExpandedState(ModelSQL, ModelView):
                         ],
                     limit=1)
             except ValueError:
-                return '[]'
-            return cls(expanded_info).nodes
+                return (cls.default_nodes(), cls.default_selected_nodes())
+            state = cls(expanded_info)
+            return (state.nodes or cls.default_nodes(),
+                state.selected_nodes or cls.default_selected_nodes())
 
 
 class ViewSearch(ModelSQL, ModelView):
