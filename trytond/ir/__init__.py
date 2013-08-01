@@ -41,7 +41,7 @@ def register():
         View,
         ShowViewStart,
         ViewTreeWidth,
-        ViewTreeExpandedState,
+        ViewTreeState,
         ViewSearch,
         Icon,
         Property,
