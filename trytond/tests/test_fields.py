@@ -3160,7 +3160,7 @@ class FieldsTestCase(unittest.TestCase):
 
             transaction.cursor.rollback()
 
-    def test_0160selection(self):
+    def test0160selection(self):
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             selection1, = self.selection.create([{'select': 'arabic'}])
