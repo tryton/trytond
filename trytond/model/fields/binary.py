@@ -42,7 +42,7 @@ class Binary(Field):
             values = {}
         res = {}
         converter = buffer
-        default = False
+        default = None
         format_ = Transaction().context.pop('%s.%s' % (model.__name__, name),
             '')
         if format_ == 'size':

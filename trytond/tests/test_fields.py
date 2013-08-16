@@ -110,6 +110,10 @@ class FieldsTestCase(unittest.TestCase):
         self.dict_default = POOL.get('test.dict_default')
         self.dict_required = POOL.get('test.dict_required')
 
+        self.binary = POOL.get('test.binary')
+        self.binary_default = POOL.get('test.binary_default')
+        self.binary_required = POOL.get('test.binary_required')
+
     def test0010boolean(self):
         '''
         Test Boolean.
@@ -3233,6 +3237,39 @@ class FieldsTestCase(unittest.TestCase):
 
             self.assertRaises(Exception, self.dict_required.create,
                 [{'dico': {}}])
+            transaction.cursor.rollback()
+
+    def test0180binary(self):
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            bin1, = self.binary.create([{
+                        'binary': buffer('foo'),
+                        }])
+            self.assert_(bin1.binary == buffer('foo'))
+
+            self.binary.write([bin1], {'binary': buffer('bar')})
+            self.assert_(bin1.binary == buffer('bar'))
+
+            with transaction.set_context({'test.binary.binary': 'size'}):
+                bin1_size = self.binary(bin1.id)
+                self.assert_(bin1_size.binary == len('bar'))
+                self.assert_(bin1_size.binary != buffer('bar'))
+
+            bin2, = self.binary.create([{}])
+            self.assert_(bin2.binary is None)
+
+            bin3, = self.binary_default.create([{}])
+            self.assert_(bin3.binary == buffer('default'))
+
+            self.assertRaises(Exception, self.binary_required.create, [{}])
+            transaction.cursor.rollback()
+
+            bin4, = self.binary_required.create([{'binary': buffer('baz')}])
+            self.assert_(bin4.binary == buffer('baz'))
+
+            self.assertRaises(Exception, self.binary_required.create,
+                [{'binary': buffer('')}])
+
             transaction.cursor.rollback()
 
 
