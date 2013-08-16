@@ -34,6 +34,7 @@ __all__ = [
     'Property',
     'Selection', 'SelectionRequired',
     'Dict', 'DictDefault', 'DictRequired',
+    'Binary', 'BinaryDefault', 'BinaryRequired',
     ]
 
 
@@ -665,3 +666,25 @@ class DictRequired(ModelSQL):
     'Dict Required'
     __name__ = 'test.dict_required'
     dico = fields.Dict(None, 'Test Dict', required=True)
+
+
+class Binary(ModelSQL):
+    'Binary'
+    __name__ = 'test.binary'
+    binary = fields.Binary('Binary')
+
+
+class BinaryDefault(ModelSQL):
+    'Binary Default'
+    __name__ = 'test.binary_default'
+    binary = fields.Binary('Binary Default')
+
+    @staticmethod
+    def default_binary():
+        return buffer('default')
+
+
+class BinaryRequired(ModelSQL):
+    'Binary Required'
+    __name__ = 'test.binary_required'
+    binary = fields.Binary('Binary Required', required=True)
