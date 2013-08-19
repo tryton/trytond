@@ -227,6 +227,9 @@ Display a field of the object with the value of the current record.
     * ``invisible``: The field will not be displayed, but it will fill cells in
       the table.
 
+    * ``filename_visible``: Only for Binary fields, boolean that enables the
+      display of the filename.
+
     * ``yexpand``: see in common-attributes-yexpand_.
 
     * ``yfill``: see in common-attributes-yfill_.
