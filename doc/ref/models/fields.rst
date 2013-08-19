@@ -307,6 +307,16 @@ Binary
 
 A binary field. It will be represented in Python by a ``str`` instance.
 
+:class:`Binary` has one extra optional argument:
+
+.. attribute:: Binary.filename
+
+    Name of the field that holds the data's filename. Default value
+    is an empty string, which means the data has no filename (in this case, the
+    filename is hidden, and the "Open" button is hidden when the widget is set
+    to "image").
+
+
 Selection
 ---------
 
