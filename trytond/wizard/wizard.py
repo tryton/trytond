@@ -238,11 +238,11 @@ class Wizard(WarningErrorMixin, URLMixin, PoolBase):
         Session.delete([Session(session_id)])
 
     @classmethod
-    def execute(cls, session, data, state_name):
+    def execute(cls, session_id, data, state_name):
         '''
         Execute the wizard state.
 
-        session is a Session or a Session id
+        session_id is a Session id
         data is a dictionary with the session data to update
         state_name is the name of state to execute
 
