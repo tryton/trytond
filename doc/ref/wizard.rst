@@ -65,10 +65,10 @@ Class methods are:
 
     Delete the session.
 
-.. classmethod:: Wizard.execute(session, data, state_name)
+.. classmethod:: Wizard.execute(session_id, data, state_name)
 
     Execute the wizard for the state.
-    `session` can be an instance of :class:`Session` or a session id.
+    `session_id` is a session id.
     `data` is a dictionary with the session data to update.
     `active_id`, `active_ids` and `active_model` must be set in the context
     according to the records on which the wizard is run.
@@ -118,12 +118,11 @@ Instance methods are:
     Returns the view definition like
     :meth:`~trytond.model.ModelView.fields_view_get`.
 
-.. method:: StateView.get_defaults(wizard, session, state_name, fields)
+.. method:: StateView.get_defaults(wizard, state_name, fields)
 
     Return default values for the fields.
 
     * wizard is a :class:`Wizard` instance
-    * session is a :class:`Session` instance
     * state_name is the name of the :class:`State`
     * fields is the list of field names
 
