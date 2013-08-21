@@ -605,6 +605,16 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
             return False
         return (self.__name__, self.id) == (other.__name__, other.id)
 
+    def __lt__(self, other):
+        if not isinstance(other, Model) or self.__name__ != other.__name__:
+            return NotImplemented
+        return self.id < other.id
+
+    # TODO: replace by total_ordering when 2.6 will be dropped
+    __gt__ = lambda self, other: not (self < other or self == other)
+    __le__ = lambda self, other: self < other or self == other
+    __ge__ = lambda self, other: not self < other
+
     def __ne__(self, other):
         if not isinstance(other, Model):
             return NotImplemented
