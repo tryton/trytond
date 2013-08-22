@@ -253,7 +253,7 @@ class Wizard(WarningErrorMixin, URLMixin, PoolBase):
                 - ``defaults``: a dictionary with default values
                 - ``buttons``: a list of buttons
         '''
-        wizard = cls(session)
+        wizard = cls(session_id)
         for key, values in data.iteritems():
             record = getattr(wizard, key)
             for field, value in values.iteritems():
