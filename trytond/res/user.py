@@ -461,7 +461,7 @@ class User(ModelSQL, ModelView):
                 password = password.encode('utf-8')
             password_sha = hashlib.sha1(password).hexdigest()
             if password_sha == user_password:
-                LoginAttempt.delete(login)
+                LoginAttempt.remove(login)
                 return user_id
         LoginAttempt.add(login)
         return 0
@@ -497,7 +497,7 @@ class LoginAttempt(ModelSQL):
         cls.create([{'login': login}])
 
     @classmethod
-    def delete(cls, login):
+    def remove(cls, login):
         cursor = Transaction().cursor
         cursor.execute('DELETE FROM "' + cls._table + '" WHERE "login" = %s',
             (login,))
