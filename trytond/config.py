@@ -108,15 +108,17 @@ class ConfigManager(object):
 
     def update_etc(self, configfile=None):
         if configfile is None:
-            prefixdir = os.path.abspath(os.path.normpath(os.path.join(
-                os.path.dirname(sys.prefix), '..')))
-            configfile = os.path.join(prefixdir, 'etc', 'trytond.conf')
-            if not os.path.isfile(configfile):
-                configdir = os.path.abspath(os.path.normpath(os.path.join(
-                    os.path.dirname(__file__), '..')))
-                configfile = os.path.join(configdir, 'etc', 'trytond.conf')
-            if not os.path.isfile(configfile):
-                configfile = None
+            configfile = os.environ.get('TRYTOND_CONFIG')
+            if not configfile:
+                prefixdir = os.path.abspath(os.path.normpath(os.path.join(
+                    os.path.dirname(sys.prefix), '..')))
+                configfile = os.path.join(prefixdir, 'etc', 'trytond.conf')
+                if not os.path.isfile(configfile):
+                    configdir = os.path.abspath(os.path.normpath(os.path.join(
+                        os.path.dirname(__file__), '..')))
+                    configfile = os.path.join(configdir, 'etc', 'trytond.conf')
+                if not os.path.isfile(configfile):
+                    configfile = None
 
         self.configfile = configfile
         if not self.configfile:
