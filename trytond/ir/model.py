@@ -3,6 +3,7 @@
 import datetime
 import re
 import heapq
+from collections import defaultdict
 
 from ..model import ModelView, ModelSQL, fields
 from ..report import Report
@@ -368,6 +369,10 @@ class ModelAccess(ModelSQL, ModelView):
     @classmethod
     def get_access(cls, models):
         'Return access for models'
+        # root user above constraint
+        if Transaction().user == 0:
+            return defaultdict(lambda: defaultdict(lambda: True))
+
         pool = Pool()
         Model = pool.get('ir.model')
         UserGroup = pool.get('res.user-res.group')
@@ -503,6 +508,11 @@ class ModelFieldAccess(ModelSQL, ModelView):
     @classmethod
     def get_access(cls, models):
         'Return fields access for models'
+        # root user above constraint
+        if Transaction().user == 0:
+            return defaultdict(lambda: defaultdict(
+                    lambda: defaultdict(lambda: True)))
+
         pool = Pool()
         Model = pool.get('ir.model')
         ModelField = pool.get('ir.model.field')
