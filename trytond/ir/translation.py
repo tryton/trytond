@@ -71,6 +71,7 @@ class Translation(ModelSQL, ModelView):
             searcher='search_model')
     _translation_cache = Cache('ir.translation', size_limit=10240,
         context=False)
+    _get_language_cache = Cache('ir.translation')
 
     @classmethod
     def __setup__(cls):
@@ -153,11 +154,15 @@ class Translation(ModelSQL, ModelView):
 
     @classmethod
     def get_language(cls):
+        result = cls._get_language_cache.get(None)
+        if result is not None:
+            return result
         pool = Pool()
         Lang = pool.get('ir.lang')
         langs = Lang.search([])
-        res = [(lang.code, lang.name) for lang in langs]
-        return res
+        result = [(lang.code, lang.name) for lang in langs]
+        cls._get_language_cache.set(None, result)
+        return result
 
     @classmethod
     def get_src_md5(cls, src):
