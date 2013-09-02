@@ -16,6 +16,7 @@ except ImportError:
     from md5 import md5
 from functools import reduce
 from lxml import etree
+from itertools import izip
 
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, StateTransition, StateAction, \
@@ -254,12 +255,21 @@ class Translation(ModelSQL, ModelView):
         return translations
 
     @classmethod
-    def set_ids(cls, name, ttype, lang, ids, value):
+    def set_ids(cls, name, ttype, lang, ids, values):
         "Set translation for each id"
         pool = Pool()
         ModelFields = pool.get('ir.model.field')
         Model = pool.get('ir.model')
         Config = pool.get('ir.configuration')
+        cursor = Transaction().cursor
+        in_max = cursor.IN_MAX
+
+        if len(ids) > in_max:
+            for i in range(0, len(ids), in_max):
+                sub_ids = ids[i:i + in_max]
+                sub_values = values[i:i + in_max]
+                cls.set_ids(name, ttype, lang, sub_ids, sub_values)
+            return
 
         model_name, field_name = name.split(',')
         if model_name in ('ir.model.field', 'ir.model'):
@@ -274,74 +284,99 @@ class Translation(ModelSQL, ModelView):
                 ttype = 'model'
                 with Transaction().set_context(language='en_US'):
                     records = Model.browse(ids)
-            for record in records:
+
+            def get_name(record):
                 if ttype in ('field', 'help'):
-                    name = record.model.model + ',' + record.name
+                    return record.model.model + ',' + record.name
                 else:
-                    name = record.model + ',' + field_name
-                translation2 = cls.search([
-                    ('lang', '=', lang),
-                    ('type', '=', ttype),
-                    ('name', '=', name),
-                    ])
-                with Transaction().set_user(0):
-                    if not translation2:
-                        cls.create([{
-                                    'name': name,
-                                    'lang': lang,
-                                    'type': ttype,
-                                    'src': getattr(record, field_name),
-                                    'value': value,
-                                    'fuzzy': False,
-                                    }])
-                    else:
-                        cls.write(translation2, {
+                    return record.model + ',' + field_name
+
+            translations = {}
+            for translation in cls.search([
+                        ('lang', '=', lang),
+                        ('type', '=', ttype),
+                        ('name', 'in', [get_name(r) for r in records]),
+                        ]):
+                translations[translation.name] = translation
+
+            to_create = []
+            for record, value in izip(records, values):
+                translation = translations.get(get_name(record))
+                if not translation:
+                    to_create.append({
+                            'name': name,
+                            'lang': lang,
+                            'type': ttype,
                             'src': getattr(record, field_name),
                             'value': value,
                             'fuzzy': False,
                             })
-            return len(ids)
+                else:
+                    with Transaction().set_user(0):
+                        cls.write([translation], {
+                            'src': getattr(record, field_name),
+                            'value': value,
+                            'fuzzy': False,
+                            })
+            if to_create:
+                with Transaction().set_user(0):
+                    cls.create(to_create)
+            return
+
         Model = pool.get(model_name)
         with Transaction().set_context(language=Config.get_language()):
             records = Model.browse(ids)
-        for record in records:
-            translation2 = cls.search([
-                ('lang', '=', lang),
-                ('type', '=', ttype),
-                ('name', '=', name),
-                ('res_id', '=', record.id),
-                ])
-            with Transaction().set_user(0):
-                if not translation2:
-                    cls.create([{
-                                'name': name,
-                                'lang': lang,
-                                'type': ttype,
-                                'res_id': record.id,
-                                'value': value,
-                                'src': getattr(record, field_name),
-                                'fuzzy': False,
-                                }])
-                else:
-                    cls.write(translation2, {
+
+        translations = {}
+        for translation in cls.search([
+                    ('lang', '=', lang),
+                    ('type', '=', ttype),
+                    ('name', '=', name),
+                    ('res_id', 'in', ids),
+                    ]):
+            translations[translation.res_id] = translation
+
+        other_translations = {}
+        if (lang == Config.get_language()
+                and Transaction().context.get('fuzzy_translation', True)):
+            for translation in cls.search([
+                        ('lang', '!=', lang),
+                        ('type', '=', ttype),
+                        ('name', '=', name),
+                        ('res_id', 'in', ids),
+                        ]):
+                other_translations.setdefault(translation.res_id, []
+                    ).append(translation)
+
+        to_create = []
+        for record, value in izip(records, values):
+            translation = translations.get(record.id)
+            if not translation:
+                to_create.append({
+                        'name': name,
+                        'lang': lang,
+                        'type': ttype,
+                        'res_id': record.id,
                         'value': value,
                         'src': getattr(record, field_name),
                         'fuzzy': False,
                         })
-                    if (lang == Config.get_language()
-                            and Transaction().context.get('fuzzy_translation',
-                                True)):
-                        other_langs = cls.search([
-                                ('lang', '!=', lang),
-                                ('type', '=', ttype),
-                                ('name', '=', name),
-                                ('res_id', '=', record.id),
-                                ])
+            else:
+                with Transaction().set_user(0):
+                    cls.write([translation], {
+                        'value': value,
+                        'src': getattr(record, field_name),
+                        'fuzzy': False,
+                        })
+                    other_langs = other_translations.get(record.id)
+                    if other_langs:
                         cls.write(other_langs, {
                                 'src': getattr(record, field_name),
                                 'fuzzy': True,
                                 })
-        return len(ids)
+        if to_create:
+            with Transaction().set_user(0):
+                cls.create(to_create)
 
     @classmethod
     def delete_ids(cls, model, ttype, ids):

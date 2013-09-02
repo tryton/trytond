@@ -223,6 +223,7 @@ class ModelSQL(ModelStorage):
         super(ModelSQL, cls).create(vlist)
         cursor = Transaction().cursor
         pool = Pool()
+        Translation = pool.get('ir.translation')
 
         if cls.table_query():
             return False
@@ -349,15 +350,20 @@ class ModelSQL(ModelStorage):
         create_records = Transaction().create_records.setdefault(cls.__name__,
             set()).update(new_ids)
 
+        translation_values = {}
         for values, new_id in izip(vlist, new_ids):
             for fname, value in values.iteritems():
                 field = cls._fields[fname]
                 if getattr(field, 'translate', False):
-                        pool.get('ir.translation').set_ids(
-                                cls.__name__ + ',' + fname, 'model',
-                                Transaction().language, [new_id], value)
+                    translation_values.setdefault(cls.__name__ + ',' + fname,
+                        {})[new_id] = value
                 if hasattr(field, 'set'):
                     field.set([new_id], cls, fname, value)
+
+        if translation_values:
+            for name, translations in translation_values.iteritems():
+                Translation.set_ids(name, 'model', Transaction().language,
+                    translations.keys(), translations.values())
 
         if cls._history:
             columns = ['"' + str(x) + '"' for x in cls._fields
@@ -801,8 +807,8 @@ class ModelSQL(ModelStorage):
         for field in direct:
             if getattr(cls._fields[field], 'translate', False):
                 Translation.set_ids(
-                        cls.__name__ + ',' + field, 'model',
-                        Transaction().language, ids, values[field])
+                    cls.__name__ + ',' + field, 'model',
+                    Transaction().language, ids, [values[field]] * len(ids))
 
         # call the 'set' method of fields
         for field in upd_todo:
