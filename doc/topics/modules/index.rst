@@ -110,8 +110,9 @@ Here is the list of the tags:
     * ``tryton``: The main tag of the xml
 
     * ``data``: Define a set of data inside the file. It can have the
-      attributes ``noupdate`` to prevent the framework to update the records
-      and ``skiptest`` to prevent import of data when running tests.
+      attributes ``noupdate`` to prevent the framework to update the records,
+      ``skiptest`` to prevent import of data when running tests and ``grouped``
+      to create records at the end with a grouped call.
 
     * ``record``: Create a record of the model defined by the attribute
       ``model`` in the database. The ``id`` attribute can be used to refer to
