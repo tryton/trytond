@@ -8,6 +8,9 @@ import logging
 import traceback
 import sys
 import re
+from itertools import izip
+from collections import defaultdict
+
 from trytond.version import VERSION
 from trytond.tools import safe_eval
 from trytond.transaction import Transaction
@@ -384,6 +387,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.fs2db = Fs2bdAccessor(self.ModelData, pool)
         self.to_delete = self.populate_to_delete()
         self.noupdate = None
+        self.grouped = None
+        self.grouped_creations = defaultdict(dict)
         self.skip_data = False
 
         # Tag handlders are used to delegate the processing
@@ -430,6 +435,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
 
             elif name == "data":
                 self.noupdate = bool(int(attributes.get("noupdate", '0')))
+                self.grouped = bool(int(attributes.get('grouped', 0)))
                 if self.pool.test and \
                         bool(int(attributes.get("skiptest", '0'))):
                     self.skip_data = True
@@ -451,6 +457,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             self.taghandler.characters(data)
 
     def endElement(self, name):
+
+        if name == 'data' and self.grouped:
+            for model, values in self.grouped_creations.iteritems():
+                self.create_records(model, values.values(), values.keys())
+            self.grouped_creations.clear()
 
         # Closing tag found, if we are in a delegation the handler
         # know what to do:
@@ -675,30 +686,43 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             self.fs2db.reset_browsercord(module, Model.__name__, [record.id])
 
         else:
-            # this record is new, create it in the db:
-            with Transaction().set_context(module=module, language='en_US'):
-                record, = Model.create([values])
+            if self.grouped:
+                self.grouped_creations[model][fs_id] = values
+            else:
+                self.create_records(model, [values], [fs_id])
 
-            # re-read it: this ensure that we store the real value
-            # in the model_data table:
-            record = Model(record.id)
+    def create_records(self, model, vlist, fs_ids):
+        Model = self.pool.get(model)
+
+        with Transaction().set_context(module=self.module, language='en_US'):
+            records = Model.create(vlist)
+
+        mdata_values = []
+        for record, values, fs_id in izip(records, vlist, fs_ids):
             for key in values:
                 values[key] = self._clean_value(key, record)
 
-            mdata, = self.ModelData.create([{
-                        'fs_id': fs_id,
-                        'model': model,
-                        'module': module,
-                        'db_id': record.id,
-                        'values': str(values),
-                        'noupdate': self.noupdate,
-                        }])
+            mdata_values.append({
+                    'fs_id': fs_id,
+                    'model': model,
+                    'module': self.module,
+                    'db_id': record.id,
+                    'values': str(values),
+                    'noupdate': self.noupdate,
+                    })
 
-            # update fs2db:
-            self.fs2db.set(module, fs_id, {
-                    "db_id": record.id, "model": model,
-                    "id": mdata.id, "values": str(values)})
-            self.fs2db.reset_browsercord(module, model, [record.id])
+        models_data = self.ModelData.create(mdata_values)
+
+        for record, values, fs_id, mdata in izip(
+                records, vlist, fs_ids, models_data):
+            self.fs2db.set(self.module, fs_id, {
+                    'db_id': record.id,
+                    'model': model,
+                    'id': mdata.id,
+                    'values': str(values),
+                    })
+        self.fs2db.reset_browsercord(self.module, model,
+            [r.id for r in records])
 
 
 def post_import(pool, module, to_delete):

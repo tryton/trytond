@@ -204,26 +204,35 @@ class Lang(ModelSQL, ModelView):
 
     @classmethod
     def create(cls, vlist):
+        pool = Pool()
+        Translation = pool.get('ir.translation')
         # Clear cache
         cls._lang_cache.clear()
-        return super(Lang, cls).create(vlist)
+        languages = super(Lang, cls).create(vlist)
+        Translation._get_language_cache.clear()
+        return languages
 
     @classmethod
     def write(cls, langs, vals):
+        pool = Pool()
+        Translation = pool.get('ir.translation')
         # Clear cache
         cls._lang_cache.clear()
         super(Lang, cls).write(langs, vals)
+        Translation._get_language_cache.clear()
 
     @classmethod
     def delete(cls, langs):
         pool = Pool()
         Config = pool.get('ir.configuration')
+        Translation = pool.get('ir.translation')
         for lang in langs:
             if lang.code == Config.get_language():
                 cls.raise_user_error('delete_default')
         # Clear cache
         cls._lang_cache.clear()
         super(Lang, cls).delete(langs)
+        Translation._get_language_cache.clear()
 
     @staticmethod
     def _group(lang, s, monetary=None):
