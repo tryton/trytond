@@ -381,17 +381,8 @@ class ModelSQL(ModelStorage):
         records = cls.browse(new_ids)
         cls._validate(records)
 
-        # Check for Modified Preorder Tree Traversal
-        for k in cls._fields:
-            field = cls._fields[k]
-            if (isinstance(field, fields.Many2One)
-                    and field.model_name == cls.__name__
-                    and field.left and field.right):
-                if len(new_ids) == 1:
-                    cls._update_tree(new_ids[0], k, field.left, field.right)
-                else:
-                    with Transaction().set_user(0):
-                        cls._rebuild_tree(k, False, 0)
+        field_names = cls._fields.keys()
+        cls._update_mptt(field_names, [new_ids] * len(field_names))
 
         cls.trigger_create(records)
         return records
@@ -826,21 +817,8 @@ class ModelSQL(ModelStorage):
 
         cls._validate(records)
 
-        # Check for Modified Preorder Tree Traversal
-        for k in cls._fields:
-            field = cls._fields[k]
-            if isinstance(field, fields.Many2One) \
-                    and field.model_name == cls.__name__ \
-                    and field.left and field.right:
-                if field.left in values or field.right in values:
-                    raise Exception('ValidateError',
-                            'You can not update fields: "%s", "%s"' %
-                            (field.left, field.right))
-                if len(ids) == 1:
-                    cls._update_tree(ids[0], k, field.left, field.right)
-                else:
-                    with Transaction().set_user(0):
-                        cls._rebuild_tree(k, False, 0)
+        field_names = cls._fields.keys()
+        cls._update_mptt(field_names, [ids] * len(field_names), values)
 
         cls.trigger_write(trigger_eligibles)
 
@@ -1017,13 +995,7 @@ class ModelSQL(ModelStorage):
                     '(id, write_uid, write_date) VALUES (%s, %s, %s)',
                     (obj_id, Transaction().user, datetime.datetime.now()))
 
-        for k in tree_ids.keys():
-            field = cls._fields[k]
-            if len(tree_ids[k]) == 1:
-                cls._update_tree(tree_ids[k][0], k, field.left, field.right)
-            else:
-                with Transaction().set_user(0):
-                    cls._rebuild_tree(k, False, 0)
+        cls._update_mptt(tree_ids.keys(), tree_ids.values())
 
     @classmethod
     def search(cls, domain, offset=0, limit=None, order=None, count=False,
@@ -1895,6 +1867,31 @@ class ModelSQL(ModelStorage):
             (field, cls.__name__))
 
     @classmethod
+    def _update_mptt(cls, field_names, list_ids, values=None):
+        cursor = Transaction().cursor
+        count = None
+        for field_name, ids in zip(field_names, list_ids):
+            field = cls._fields[field_name]
+            if (isinstance(field, fields.Many2One)
+                    and field.model_name == cls.__name__
+                    and field.left and field.right):
+                if (values is not None
+                        and (field.left in values or field.right in values)):
+                    raise Exception('ValidateError',
+                        'You can not update fields: "%s", "%s"' %
+                        (field.left, field.right))
+                if count is None:
+                    cursor.execute('SELECT COUNT(1) FROM "' + cls._table + '"')
+                    count, = cursor.fetchone()
+                if len(ids) < count / 4:
+                    for id_ in ids:
+                        cls._update_tree(id_, field_name,
+                            field.left, field.right)
+                else:
+                    with Transaction().set_user(0):
+                        cls._rebuild_tree(field_name, None, 0)
+
+    @classmethod
     def _rebuild_tree(cls, parent, parent_id, left):
         '''
         Rebuild left, right value for the tree.
@@ -1902,10 +1899,9 @@ class ModelSQL(ModelStorage):
         cursor = Transaction().cursor
         right = left + 1
 
-        with Transaction().set_user(0):
-            childs = cls.search([
-                    (parent, '=', parent_id),
-                    ])
+        childs = cls.search([
+                (parent, '=', parent_id),
+                ], order=[])
 
         for child in childs:
             right = cls._rebuild_tree(parent, child.id, right)
@@ -1920,34 +1916,35 @@ class ModelSQL(ModelStorage):
         return right + 1
 
     @classmethod
-    def _update_tree(cls, object_id, field_name, left, right):
+    def _update_tree(cls, record_id, field_name, left, right):
         '''
         Update left, right values for the tree.
         Remarks:
             - the value (right - left - 1) / 2 will not give
                 the number of children node
-            - the order of the tree respects the default _order
         '''
         cursor = Transaction().cursor
-        cursor.execute('SELECT "' + left + '", "' + right + '" '
+        cursor.execute('SELECT "' + left + '", "' + right + '", '
+                '"' + field_name + '" '
             'FROM "' + cls._table + '" '
-            'WHERE id = %s', (object_id,))
+            'WHERE id = %s', (record_id,))
         fetchone = cursor.fetchone()
         if not fetchone:
             return
-        old_left, old_right = fetchone
-        if old_left == old_right:
+        old_left, old_right, parent_id = fetchone
+        if old_left == old_right == 0:
+            cursor.execute('SELECT MAX("' + right + '") '
+                'FROM "' + cls._table + '" '
+                'WHERE "' + field_name + '" IS NULL')
+            old_left, = cursor.fetchone()
+            old_left += 1
+            old_right = old_left + 1
             cursor.execute('UPDATE "' + cls._table + '" '
-                'SET "' + right + '" = "' + right + '" + 1 '
-                'WHERE id = %s', (object_id,))
-            old_right += 1
+                'SET "' + left + '" = %s, "' + right + '" = %s '
+                'WHERE id = %s', (old_left, old_right, record_id))
+        size = old_right - old_left + 1
 
         parent_right = 1
-
-        cursor.execute('SELECT "' + field_name + '" '
-            'FROM "' + cls._table + '" '
-            'WHERE id = %s', (object_id,))
-        parent_id = cursor.fetchone()[0] or False
 
         if parent_id:
             cursor.execute('SELECT "' + right + '" '
@@ -1962,85 +1959,25 @@ class ModelSQL(ModelStorage):
             if fetchone:
                 parent_right = fetchone[0] + 1
 
-        cursor.execute('SELECT id FROM "' + cls._table + '" '
-            'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
-            (old_left, old_right))
-        child_ids = [x[0] for x in cursor.fetchall()]
-
-        if len(child_ids) > cursor.IN_MAX:
-            with Transaction().set_user(0):
-                return cls._rebuild_tree(field_name, False, 0)
-
-        red_child_sql, red_child_ids = reduce_ids('id', child_ids)
-        # ids for left update
-        cursor.execute('SELECT id FROM "' + cls._table + '" '
-            'WHERE "' + left + '" >= %s '
-                'AND NOT ' + red_child_sql,
-            [parent_right] + red_child_ids)
-        left_ids = [x[0] for x in cursor.fetchall()]
-
-        # ids for right update
-        cursor.execute('SELECT id FROM "' + cls._table + '" '
-            'WHERE "' + right + '" >= %s '
-                'AND NOT ' + red_child_sql,
-            [parent_right] + red_child_ids)
-        right_ids = [x[0] for x in cursor.fetchall()]
-
-        if left_ids:
-            for i in range(0, len(left_ids), cursor.IN_MAX):
-                sub_ids = left_ids[i:i + cursor.IN_MAX]
-                red_sub_sql, red_sub_ids = reduce_ids('id', sub_ids)
-                cursor.execute('UPDATE "' + cls._table + '" '
-                    'SET "' + left + '" = "' + left + '" + '
-                        + str(old_right - old_left + 1) + ' '
-                    'WHERE ' + red_sub_sql, red_sub_ids)
-        if right_ids:
-            for i in range(0, len(right_ids), cursor.IN_MAX):
-                sub_ids = right_ids[i:i + cursor.IN_MAX]
-                red_sub_sql, red_sub_ids = reduce_ids('id', sub_ids)
-                cursor.execute('UPDATE "' + cls._table + '" '
-                    'SET "' + right + '" = "' + right + '" + '
-                        + str(old_right - old_left + 1) + ' '
-                    'WHERE ' + red_sub_sql, red_sub_ids)
-
         cursor.execute('UPDATE "' + cls._table + '" '
-            'SET "' + left + '" = "' + left + '" + '
-                    + str(parent_right - old_left) + ', '
-                '"' + right + '" = "' + right + '" + '
-                    + str(parent_right - old_left) + ' '
-            'WHERE ' + red_child_sql, red_child_ids)
-
-        # Use root user to by-pass rules
-        with contextlib.nested(Transaction().set_user(0),
-                Transaction().set_context(active_test=False)):
-            brother_ids = map(int, cls.search([
-                        (field_name, '=', parent_id),
-                        ]))
-        if brother_ids[-1] != object_id:
-            next_id = brother_ids[brother_ids.index(object_id) + 1]
-            cursor.execute('SELECT "' + left + '" '
-                'FROM "' + cls._table + '" '
-                'WHERE id = %s', (next_id,))
-            next_left = cursor.fetchone()[0]
-            cursor.execute('SELECT "' + left + '" '
-                'FROM "' + cls._table + '" '
-                'WHERE id = %s', (object_id,))
-            current_left = cursor.fetchone()[0]
-
-            cursor.execute('UPDATE "' + cls._table + '" '
-                'SET "' + left + '" = "' + left + '" + '
-                        + str(old_right - old_left + 1) + ', '
-                    '"' + right + '" = "' + right + '" + '
-                        + str(old_right - old_left + 1) + ' '
-                'WHERE "' + left + '" >= %s AND "' + right + '" <= %s',
-                (next_left, current_left))
-
-            cursor.execute('UPDATE "' + cls._table + '" '
-                'SET "' + left + '" = "' + left + '" - '
-                        + str(current_left - next_left) + ', '
-                    '"' + right + '" = "' + right + '" - '
-                        + str(current_left - next_left) + ' '
-                'WHERE ' + red_child_sql, red_child_ids)
+            'SET "' + left + '" = "' + left + '" + %s '
+            'WHERE "' + left + '" >= %s', (size, parent_right))
+        cursor.execute('UPDATE "' + cls._table + '" '
+            'SET "' + right + '" = "' + right + '" + %s '
+            'WHERE "' + right + '" >= %s', (size, parent_right))
+        if old_left < parent_right:
+            params = (parent_right - old_left,
+                parent_right - old_left,
+                old_left, old_right)
+        else:
+            params = (parent_right - old_left - size,
+                parent_right - old_left - size,
+                old_left + size, old_right + size)
+        cursor.execute('UPDATE "' + cls._table + '" '
+            'SET "' + left + '" = "' + left + '" + %s, '
+                '"' + right + '" = "' + right + '" + %s '
+            'WHERE "' + left + '" >= %s '
+                'AND "' + right + '" <= %s', params)
 
     @classmethod
     def validate(cls, records):
