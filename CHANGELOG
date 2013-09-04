@@ -1,3 +1,4 @@
+* Allow field One2One in check_recursion
 * Remove the default order on MPTT
 * Add grouped attribute to data tag
 * Store selection tree state

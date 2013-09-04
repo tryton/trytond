@@ -822,7 +822,7 @@ class ModelStorage(Model):
         '''
         parent_type = cls._fields[parent]._type
 
-        if parent_type not in ('many2one', 'many2many'):
+        if parent_type not in ('many2one', 'many2many', 'one2one'):
             raise Exception(
                 'Unsupported field type "%s" for field "%s" on "%s"'
                 % (parent_type, parent, cls.__name__))
