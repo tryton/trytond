@@ -467,6 +467,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         # know what to do:
         if self.taghandler and not self.skip_data:
             self.taghandler = self.taghandler.endElement(name)
+        if self.taghandler == self.taghandlerlist.get(name):
+            self.taghandler = None
 
     def current_state(self):
         if self.taghandler:
