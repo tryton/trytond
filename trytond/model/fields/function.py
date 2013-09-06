@@ -59,14 +59,11 @@ class Function(Field):
                 return
         setattr(self._field, name, value)
 
-    def search(self, model, name, clause):
-        '''
-        Call the searcher.
-        Return a list of clauses.
-        '''
+    def convert_domain(self, domain, tables, Model):
+        name, operator, value = domain[:3]
         if not self.searcher:
-            model.raise_user_error('search_function_missing', name)
-        return getattr(model, self.searcher)(name, tuple(clause))
+            Model.raise_user_error('search_function_missing', name)
+        return getattr(Model, self.searcher)(name, domain)
 
     def get(self, ids, Model, name, values=None):
         '''

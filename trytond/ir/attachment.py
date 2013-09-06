@@ -6,9 +6,11 @@ try:
 except ImportError:
     hashlib = None
     import md5
+from sql.operators import Concat
+
 from ..model import ModelView, ModelSQL, fields
 from ..config import CONFIG
-from ..backend import TableHandler
+from .. import backend
 from ..transaction import Transaction
 from ..pyson import Eval
 from ..pool import Pool
@@ -64,19 +66,23 @@ class Attachment(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
 
         super(Attachment, cls).__register__(module_name)
 
         table = TableHandler(cursor, cls, module_name)
+        attachment = cls.__table__()
 
         # Migration from 1.4 res_model and res_id merged into resource
         # Reference
         if table.column_exist('res_model') and \
                 table.column_exist('res_id'):
             table.drop_constraint('res_model_res_id_name')
-            cursor.execute('UPDATE "%s" '
-            'SET "resource" = "res_model"||\',\'||"res_id"' % cls._table)
+            cursor.execute(*attachment.update(
+                    [attachment.resource],
+                    [Concat(Concat(attachment.resource, ','),
+                            attachment.res_id)]))
             table.drop_column('res_model')
             table.drop_column('res_id')
 
@@ -137,6 +143,7 @@ class Attachment(ModelSQL, ModelView):
         if value is None:
             return
         cursor = Transaction().cursor
+        table = cls.__table__()
         db_name = cursor.dbname
         directory = os.path.join(CONFIG['data_path'], db_name)
         if not os.path.isdir(directory):
@@ -154,11 +161,11 @@ class Attachment(ModelSQL, ModelView):
             with open(filename, 'rb') as file_p:
                 data = file_p.read()
             if value != data:
-                cursor.execute('SELECT DISTINCT(collision) '
-                    'FROM ir_attachment '
-                    'WHERE digest = %s '
-                        'AND collision != 0 '
-                    'ORDER BY collision', (digest,))
+                cursor.execute(*table.select(table.collision,
+                        where=(table.digest == digest)
+                        & (table.collision != 0),
+                        group_by=table.collision,
+                        order_by=table.collision))
                 collision2 = 0
                 for row in cursor.fetchall():
                     collision2 = row[0]

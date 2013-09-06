@@ -3,13 +3,15 @@
 from string import Template
 import time
 from itertools import izip
+from sql import Flavor
+
 from ..model import ModelView, ModelSQL, fields
 from ..tools import datetime_strftime
 from ..pyson import Eval, And
 from ..transaction import Transaction
 from ..pool import Pool
 from ..config import CONFIG
-from ..backend import TableHandler
+from .. import backend
 
 __all__ = [
     'SequenceType', 'Sequence', 'SequenceStrict',
@@ -99,6 +101,7 @@ class Sequence(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         table = TableHandler(cursor, cls, module_name)
 
@@ -242,17 +245,20 @@ class Sequence(ModelSQL, ModelView):
     def create_sql_sequence(self, number_next=None):
         'Create the SQL sequence'
         cursor = Transaction().cursor
+        param = Flavor.get().param
         if self.type != 'incremental':
             return
         if number_next is None:
             number_next = self.number_next
         cursor.execute('CREATE SEQUENCE "' + self._sql_sequence_name
-            + '" INCREMENT BY %s START WITH %s',
+            + '" INCREMENT BY ' + param + ' START WITH ' + param,
             (self.number_increment, number_next))
 
     def update_sql_sequence(self, number_next=None):
         'Update the SQL sequence'
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
+        param = Flavor.get().param
         exist = TableHandler.sequence_exist(cursor, self._sql_sequence_name)
         if self.type != 'incremental':
             if exist:
@@ -264,7 +270,7 @@ class Sequence(ModelSQL, ModelView):
         if number_next is None:
             number_next = self.number_next
         cursor.execute('ALTER SEQUENCE "' + self._sql_sequence_name
-            + '" INCREMENT BY %s RESTART WITH %s',
+            + '" INCREMENT BY ' + param + ' RESTART WITH ' + param,
             (self.number_increment, number_next))
 
     def delete_sql_sequence(self):

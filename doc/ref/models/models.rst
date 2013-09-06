@@ -391,10 +391,19 @@ Class attributes are:
 
 Class methods:
 
+.. classmethod:: ModelSQL.__table__()
+
+    Return a SQL Table instance for the Model.
+
 .. classmethod:: ModelSQL.table_query()
 
     Could be overrided to use a custom SQL query instead of a table of the
-    database. It should return a tuple containing SQL query and arguments.
+    database. It should return a SQL FromItem.
+
+.. classmethod:: ModelStorage.search(domain[, offset[, limit[, order[, count[, query]]]]])
+
+    Return a list of records that match the :ref:`domain <topics-domain>` or
+    the sql query if query is True.
 
 .. classmethod:: ModelSQL.search_domain(domain[, active_test])
 

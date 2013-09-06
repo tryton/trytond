@@ -7,34 +7,72 @@ import MySQLdb.cursors
 import MySQLdb.converters
 from MySQLdb import IntegrityError as DatabaseIntegrityError
 from MySQLdb import OperationalError as DatabaseOperationalError
-import logging
 import os
-import re
 import time
 import tempfile
-
-QUOTE_SEPARATION = re.compile(r"(.*?)('.*?')", re.DOTALL)
-EXTRACT_EPOCH_PATTERN = re.compile(r'EXTRACT\s*\(\s*EPOCH\s+FROM',
-        re.I)
-CAST_VARCHAR_PATTERN = re.compile(r' AS VARCHAR\)', re.I)
-CAST_INTEGER_PATTERN = re.compile(r' AS (INTEGER|BIGINT)\)', re.I)
-SPLIT_PART_LEFT_PATTERN = re.compile(r'SPLIT_PART\((.*?),', re.I)
-SPLIT_PART_RIGHT_PATTERN = re.compile(r'^,(\d)', re.I)
+from sql import Flavor, Expression
+from sql.functions import Extract, Overlay, CharLength
 
 
-def _replace_split_part_right(mobj):
-    pos = int(mobj.group(1))
-    if pos not in (1, 2):
-        raise Exception('SPLIT_PART is only partially implemented for MySQL')
-    if pos == 2:
-        return ', -1'
-    return ', 1'
+class MySQLExtract(Extract):
+
+    def is_epoch(self):
+        return self.args[0].upper() == 'EPOCH'
+
+    def __str__(self):
+        if self.is_epoch():
+            return 'UNIX_TIMESTAMP(%s)' % self._format(self.args[1])
+        return super(MySQLExtract, self).__str__()
+
+    @property
+    def params(self):
+        if self.is_epoch():
+            arg = self.args[1]
+            if isinstance(arg, Expression):
+                return arg.params
+            else:
+                return (arg,)
+        return super(MySQLExtract, self).params
+
+
+class MySQLOverlay(Overlay):
+
+    @property
+    def mysql_args(self):
+        if len(self.args) == 3:
+            string, placing, from_ = self.args
+            for_ = CharLength(placing)
+        else:
+            string, placing, from_, for_ = self.args
+        return (string, from_, placing, string, from_, for_)
+
+    def __str__(self):
+        return ('CONCAT(SUBSTRING(%s FROM 1 FOR %s), %s, '
+            'SUBSTRING(%s FROM %s + 1 + %s))'
+            % tuple(map(self._format, self.mysql_args)))
+
+    @property
+    def params(self):
+        p = ()
+        for arg in self.mysql_args:
+            if isinstance(arg, Expression):
+                p += arg.params
+            else:
+                p += (arg,)
+        return p
+
+
+MAPPING = {
+    Extract: MySQLExtract,
+    Overlay: MySQLOverlay,
+    }
 
 
 class Database(DatabaseInterface):
 
     _list_cache = None
     _list_cache_timestamp = None
+    flavor = Flavor(max_limit=18446744073709551610, function_mapping=MAPPING)
 
     def connect(self):
         return self
@@ -234,38 +272,10 @@ class Cursor(CursorInterface):
         return getattr(self.cursor, name)
 
     def execute(self, sql, params=None):
-        buf = ""
-        split_part_found = False
-        for nquote, quote in QUOTE_SEPARATION.findall(sql + "''"):
-            nquote = nquote.replace('ilike', 'like')
-            nquote = re.sub(EXTRACT_EPOCH_PATTERN, r'UNIX_TIMESTAMP(',
-                    nquote)
-            nquote = re.sub(CAST_VARCHAR_PATTERN, r' AS CHAR)',
-                    nquote)
-            nquote = re.sub(CAST_INTEGER_PATTERN, r' AS SIGNED INTEGER)',
-                    nquote)
-            if split_part_found:
-                nquote = re.sub(SPLIT_PART_RIGHT_PATTERN,
-                    _replace_split_part_right, nquote)
-                split_part_found = False
-            nquote, split_part_found = re.subn(SPLIT_PART_LEFT_PATTERN,
-                    r'SUBSTRING_INDEX(\1, ', nquote)
-
-            buf += nquote + quote
-        sql = buf[:-2]
-        try:
-            if params:
-                res = self.cursor.execute(sql, params)
-            else:
-                res = self.cursor.execute(sql)
-        except Exception, exception:
-            logger = logging.getLogger('sql')
-            logger.error('Wrong SQL: ' + sql + ' ' + str(params))
-            if isinstance(exception, MySQLdb.Error):
-                exception.args = exception.args[1:]
-                raise exception
-            raise
-        return res
+        if params:
+            return self.cursor.execute(sql, params)
+        else:
+            return self.cursor.execute(sql)
 
     def close(self, close=False):
         self.cursor.close()

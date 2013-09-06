@@ -10,13 +10,18 @@ import imp
 import operator
 import ConfigParser
 from glob import iglob
-import datetime
+
+from sql import Table
+from sql.functions import Now
 
 import trytond.tools as tools
 from trytond.config import CONFIG
 from trytond.transaction import Transaction
 from trytond.cache import Cache
 import trytond.convert as convert
+
+ir_module = Table('ir_module_module')
+ir_model_data = Table('ir_model_data')
 
 OPJ = os.path.join
 MODULES_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -207,9 +212,8 @@ def load_module_graph(graph, pool, lang=None):
     cursor = Transaction().cursor
 
     modules = [x.name for x in graph]
-    cursor.execute('SELECT name, state FROM ir_module_module '
-        'WHERE name in (' + ','.join(('%s',) * len(modules)) + ')',
-        modules)
+    cursor.execute(*ir_module.select(ir_module.name, ir_module.state,
+            where=ir_module.name.in_(modules)))
     module2state = dict(cursor.fetchall())
 
     for package in graph:
@@ -256,17 +260,17 @@ def load_module_graph(graph, pool, lang=None):
                 Translation = pool.get('ir.translation')
                 Translation.translation_import(lang2, module, filename)
 
-            cursor.execute('SELECT id FROM ir_module_module '
-                'WHERE name = %s', (package.name,))
+            cursor.execute(*ir_module.select(ir_module.id,
+                    where=(ir_module.name == package.name)))
             try:
                 module_id, = cursor.fetchone()
-                cursor.execute('UPDATE ir_module_module SET state = %s '
-                    'WHERE id = %s', ('installed', module_id))
+                cursor.execute(*ir_module.update([ir_module.state],
+                        ['installed'], where=(ir_module.id == module_id)))
             except TypeError:
-                cursor.execute('INSERT INTO ir_module_module '
-                    '(create_uid, create_date, name, state) '
-                    'VALUES (%s, %s, %s, %s)', (0, datetime.datetime.now(),
-                        package.name, 'installed'))
+                cursor.execute(*ir_module.insert(
+                        [ir_module.create_uid, ir_module.create_date,
+                            ir_module.name, ir_module.state],
+                        [[0, Now(), package.name, 'installed']]))
             module2state[package.name] = 'installed'
 
         cursor.commit()
@@ -367,18 +371,19 @@ def load_modules(database_name, pool, update=False, lang=None):
         cursor = Transaction().cursor
         if update:
             # Migration from 2.2: workflow module removed
-            cursor.execute('DELETE FROM ir_module_module '
-                'WHERE name = %s', ('workflow',))
+            cursor.execute(*ir_module.delete(
+                    where=(ir_module.name == 'workflow')))
             if 'all' in CONFIG['init']:
-                cursor.execute("SELECT name FROM ir_module_module "
-                    "WHERE name != \'test\'")
+                cursor.execute(*ir_module.select(ir_module.name,
+                        where=(ir_module.name != 'test')))
             else:
-                cursor.execute("SELECT name FROM ir_module_module "
-                    "WHERE state IN ('installed', 'to install', "
-                    "'to upgrade', 'to remove')")
+                cursor.execute(*ir_module.select(ir_module.name,
+                        where=ir_module.state.in_(('installed', 'to install',
+                                'to upgrade', 'to remove'))))
         else:
-            cursor.execute("SELECT name FROM ir_module_module "
-                "WHERE state IN ('installed', 'to upgrade', 'to remove')")
+            cursor.execute(*ir_module.select(ir_module.name,
+                    where=ir_module.state.in_(('installed', 'to upgrade',
+                            'to remove'))))
         module_list = [name for (name,) in cursor.fetchall()]
         if update:
             for module in CONFIG['init'].keys():
@@ -396,21 +401,23 @@ def load_modules(database_name, pool, update=False, lang=None):
             raise
 
         if update:
-            cursor.execute("SELECT name FROM ir_module_module "
-                "WHERE state IN ('to remove')")
+            cursor.execute(*ir_module.select(ir_module.name,
+                    where=(ir_module.state == 'to remove')))
             fetchall = cursor.fetchall()
             if fetchall:
                 for (mod_name,) in fetchall:
                     #TODO check if ressource not updated by the user
-                    cursor.execute('SELECT model, db_id FROM ir_model_data '
-                        'WHERE module = %s '
-                        'ORDER BY id DESC', (mod_name,))
+                    cursor.execute(*ir_model_data.select(ir_model_data.model,
+                            ir_model_data.db_id,
+                            where=(ir_model_data.module == mod_name),
+                            order_by=ir_model_data.id.desc))
                     for rmod, rid in cursor.fetchall():
                         Model = pool.get(rmod)
                         Model.delete([Model(rid)])
                     cursor.commit()
-                cursor.execute("UPDATE ir_module_module SET state = %s "
-                    "WHERE state IN ('to remove')", ('uninstalled',))
+                cursor.execute(*ir_module.update([ir_module.state],
+                        ['uninstalled'],
+                        where=(ir_module.state == 'to remove')))
                 cursor.commit()
                 res = False
 

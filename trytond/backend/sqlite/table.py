@@ -5,6 +5,8 @@ from trytond.backend.table import TableHandlerInterface
 import logging
 import re
 
+__all__ = ['TableHandler']
+
 
 class TableHandler(TableHandlerInterface):
     def __init__(self, cursor, model, module_name=None, history=False):
@@ -33,7 +35,7 @@ class TableHandler(TableHandlerInterface):
     @staticmethod
     def table_exist(cursor, table_name):
         cursor.execute("SELECT sql FROM sqlite_master "
-            "WHERE type = 'table' AND name = %s",
+            "WHERE type = 'table' AND name = ?",
             (table_name,))
         res = cursor.fetchone()
         if not res:
@@ -151,7 +153,7 @@ class TableHandler(TableHandlerInterface):
             self.cursor.execute('SELECT f.name, f.module '
                 'FROM ir_model_field f '
                 'JOIN ir_model m on (f.model=m.id) '
-                'WHERE m.model = %s',
+                'WHERE m.model = ?',
                 (self.object_name,))
             for line in self.cursor.fetchall():
                 self._field2module[line[0]] = line[1]
@@ -230,7 +232,7 @@ class TableHandler(TableHandlerInterface):
                 if default_fun is not None:
                     default = default_fun()
                 self.cursor.execute('UPDATE "' + self.table_name + '" '
-                    'SET "' + column_name + '" = %s',
+                    'SET "' + column_name + '" = ?',
                     (column_format(default),))
 
         self._update_definitions()

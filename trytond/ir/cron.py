@@ -12,7 +12,7 @@ from ..model import ModelView, ModelSQL, fields
 from ..tools import safe_eval, get_smtp_server
 from ..transaction import Transaction
 from ..pool import Pool
-from ..backend import TableHandler
+from .. import backend
 from ..config import CONFIG
 
 __all__ = [
@@ -69,7 +69,9 @@ class Cron(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
+        cron = cls.__table__()
 
         # Migration from 2.0: rename numbercall, doall and nextcall
         table = TableHandler(cursor, cls, module_name)
@@ -81,10 +83,9 @@ class Cron(ModelSQL, ModelView):
         super(Cron, cls).__register__(module_name)
 
         # Migration from 2.0: work_days removed
-        cursor.execute('UPDATE "%s" '
-            'SET interval_type = %%s '
-            'WHERE interval_type = %%s' % cls._table,
-            ('days', 'work_days'))
+        cursor.execute(*cron.update(
+                [cron.interval_type], ['days'],
+                where=cron.interval_type == 'work_days'))
 
     @staticmethod
     def default_next_call():

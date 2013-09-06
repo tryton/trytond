@@ -5,6 +5,8 @@
 
 import unittest
 import datetime
+import sql
+import sql.operators
 
 from trytond.tools import reduce_ids, safe_eval, datetime_strftime, \
     reduce_domain
@@ -14,62 +16,64 @@ class ToolsTestCase(unittest.TestCase):
     '''
     Test tools.
     '''
+    table = sql.Table('test')
 
     def test0000reduce_ids_empty(self):
         '''
         Test reduce_ids empty list.
         '''
-        self.assert_(('(%s)', [False]) == reduce_ids('id', []))
+        self.assertEqual(reduce_ids(self.table.id, []), sql.Literal(False))
 
     def test0010reduce_ids_continue(self):
         '''
         Test reduce_ids continue list.
         '''
-        self.assert_(('(((id >= %s) AND (id <= %s)))', [0, 9])
-            == reduce_ids('id', range(10)))
+        self.assertEqual(reduce_ids(self.table.id, range(10)),
+            sql.operators.Or(((self.table.id >= 0) & (self.table.id <= 9),)))
 
     def test0020reduce_ids_one_hole(self):
         '''
         Test reduce_ids continue list with one hole.
         '''
-        self.assert_(('(((id >= %s) AND (id <= %s)) OR '
-                '((id >= %s) AND (id <= %s)))', [0, 9, 20, 29])
-            == reduce_ids('id', range(10) + map(lambda x: x + 20, range(10))))
+        self.assertEqual(reduce_ids(self.table.id, range(10) + range(20, 30)),
+            ((self.table.id >= 0) & (self.table.id <= 9))
+            | ((self.table.id >= 20) & (self.table.id <= 29)))
 
     def test0030reduce_ids_short_continue(self):
         '''
         Test reduce_ids short continue list.
         '''
-        self.assert_(('((id IN (%s,%s,%s,%s)))', [0, 1, 2, 3])
-            == reduce_ids('id', range(4)))
+        self.assertEqual(reduce_ids(self.table.id, range(4)),
+            sql.operators.Or((self.table.id.in_(range(4)),)))
 
     def test0040reduce_ids_complex(self):
         '''
         Test reduce_ids complex list.
         '''
-        self.assertEqual(('(((id >= %s) AND (id <= %s)) OR '
-                '(id IN (%s,%s,%s,%s,%s)))', [0, 14, 25, 26, 27, 28, 29]),
-            reduce_ids('id', range(10) + map(lambda x: x + 25, range(5))
-                + map(lambda x: x + 5, range(10))))
+        self.assertEqual(reduce_ids(self.table.id,
+                range(10) + range(25, 30) + range(15, 20)),
+            (((self.table.id >= 0) & (self.table.id <= 14))
+                | (self.table.id.in_(range(25, 30)))))
 
     def test0050reduce_ids_complex_small_continue(self):
         '''
         Test reduce_ids complex list with small continue.
         '''
-        self.assertEqual(('(((id >= %s) AND (id <= %s)) '
-                'OR (id IN (%s,%s,%s,%s)))', [1, 12, 15, 18, 19, 21]),
-            reduce_ids('id', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 18,
-                    19, 21]))
+        self.assertEqual(reduce_ids(self.table.id,
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 18, 19, 21]),
+            (((self.table.id >= 1) & (self.table.id <= 12))
+                | (self.table.id.in_([15, 18, 19, 21]))))
 
     def test0055reduce_ids_float(self):
         '''
         Test reduce_ids with integer as float.
         '''
-        self.assert_(('(((id >= %s) AND (id <= %s)) OR (id IN (%s,%s,%s,%s)))',
-                [1.0, 12.0, 15.0, 18.0, 19.0, 21.0])
-            == reduce_ids('id', [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0,
-                    10.0, 11.0, 12.0, 15.0, 18.0, 19.0, 21.0]))
-        self.assertRaises(AssertionError, reduce_ids, 'id', [1.1])
+        self.assertEqual(reduce_ids(self.table.id,
+                [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+                    15.0, 18.0, 19.0, 21.0]),
+            (((self.table.id >= 1.0) & (self.table.id <= 12.0))
+                | (self.table.id.in_([15.0, 18.0, 19.0, 21.0]))))
+        self.assertRaises(AssertionError, reduce_ids, self.table.id, [1.1])
 
     def test0060safe_eval_builtin(self):
         '''

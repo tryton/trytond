@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 
-from trytond.model.fields.field import Field
+from .field import Field, SQLType
 
 
 class Boolean(Field):
@@ -12,11 +12,28 @@ class Boolean(Field):
 
     def __init__(self, string='', help='', readonly=False, domain=None,
             states=None, select=False, on_change=None, on_change_with=None,
-            depends=None, order_field=None, context=None, loading='eager'):
+            depends=None, context=None, loading='eager'):
         super(Boolean, self).__init__(string=string, help=help, required=False,
             readonly=readonly, domain=domain, states=states, select=select,
             on_change=on_change, on_change_with=on_change_with,
-            depends=depends, order_field=order_field, context=context,
-            loading=loading)
+            depends=depends, context=context, loading=loading)
 
     __init__.__doc__ = Field.__init__.__doc__
+
+    def sql_type(self):
+        return SQLType('BOOL', 'BOOL')
+
+    def _domain_add_null(self, column, operator, value, expression):
+        expression = super(Boolean, self)._domain_add_null(
+            column, operator, value, expression)
+        if operator in ('=', '!='):
+            conv = {
+                False: None,
+                None: False,
+                }
+            if value is False or value is None:
+                if operator == '=':
+                    expression |= (column == conv[value])
+                else:
+                    expression &= (column != conv[value])
+        return expression

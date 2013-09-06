@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from ..model import ModelSQL, fields
-from ..backend import TableHandler
+from .. import backend
 from ..transaction import Transaction
 from ..pool import Pool, PoolMeta
 
@@ -24,11 +24,12 @@ class UIMenuGroup(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'ir_ui_menu_group_rel', cls._table)
         TableHandler.sequence_rename(cursor, 'ir_ui_menu_group_rel_id_seq',
-                cls._table + '_id_seq')
+            cls._table + '_id_seq')
         # Migration from 2.0 menu_id and gid renamed into menu group
         table = TableHandler(cursor, cls, module_name)
         table.column_rename('menu_id', 'menu')
@@ -65,11 +66,12 @@ class ActionGroup(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'ir_action_group_rel', cls._table)
         TableHandler.sequence_rename(cursor, 'ir_action_group_rel_id_seq',
-                cls._table + '_id_seq')
+            cls._table + '_id_seq')
         # Migration from 2.0 action_id and gid renamed into action and group
         table = TableHandler(cursor, cls, module_name)
         table.column_rename('action_id', 'action')
@@ -115,6 +117,7 @@ class ModelFieldGroup(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'ir_model_field_group_rel',
@@ -174,11 +177,12 @@ class RuleGroupGroup(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'group_rule_group_rel', cls._table)
         TableHandler.sequence_rename(cursor, 'group_rule_group_rel_id_seq',
-                cls._table + '_id_seq')
+            cls._table + '_id_seq')
         # Migration from 2.0 rule_group_id and group_id renamed into rule_group
         # and group
         table = TableHandler(cursor, cls, module_name)
@@ -197,11 +201,12 @@ class RuleGroupUser(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'user_rule_group_rel', cls._table)
         TableHandler.sequence_rename(cursor, 'user_rule_group_rel_id_seq',
-                cls._table + '_id_seq')
+            cls._table + '_id_seq')
         # Migration from 2.0 rule_group_id and user_id renamed into rule_group
         # and user
         table = TableHandler(cursor, cls, module_name)

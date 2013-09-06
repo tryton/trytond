@@ -36,13 +36,13 @@ class SequenceTestCase(unittest.TestCase):
             self.sequence.write([sequence], {
                     'number_increment': 10,
                     })
-            self.assertEqual(self.sequence.get_id([sequence]), '2')
-            self.assertEqual(self.sequence.get_id([sequence]), '12')
+            self.assertEqual(self.sequence.get_id(sequence), '2')
+            self.assertEqual(self.sequence.get_id(sequence), '12')
 
             self.sequence.write([sequence], {
                     'padding': 3,
                     })
-            self.assertEqual(self.sequence.get_id([sequence]), '022')
+            self.assertEqual(self.sequence.get_id(sequence), '022')
 
             transaction.cursor.rollback()
 

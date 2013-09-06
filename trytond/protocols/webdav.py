@@ -25,7 +25,7 @@ from trytond.config import CONFIG
 from trytond.security import login
 from trytond.version import PACKAGE, VERSION, WEBSITE
 from trytond.tools.misc import LocalDict
-from trytond.backend import Database
+from trytond import backend
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.cache import Cache
@@ -157,7 +157,7 @@ class TrytonDAVInterface(iface.dav_interface):
         res = []
         dbname, dburi = self._get_dburi(uri)
         if not dbname:
-            database = Database().connect()
+            database = backend.get('Database')().connect()
             cursor = database.cursor()
             try:
                 lists = database.list(cursor)
@@ -554,7 +554,7 @@ class WebDAVAuthRequestHandler(WebDAVServer.DAVRequestHandler):
     def get_userinfo(self, user, password, command=''):
         path = urlparse.urlparse(self.path).path
         dbname = urllib.unquote_plus(path.split('/', 2)[1])
-        database = Database().connect()
+        database = backend.get('Database')().connect()
         cursor = database.cursor()
         databases = database.list(cursor)
         cursor.close()

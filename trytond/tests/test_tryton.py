@@ -42,7 +42,7 @@ if not CONFIG['admin_passwd']:
     CONFIG['admin_passwd'] = 'admin'
 
 from trytond.pool import Pool
-from trytond.backend import Database
+from trytond import backend
 from trytond.protocols.dispatcher import create
 from trytond.transaction import Transaction
 from trytond.pyson import PYSONEncoder, Eval
@@ -56,7 +56,7 @@ else:
 USER = 1
 USER_PASSWORD = 'admin'
 CONTEXT = {}
-DB = Database(DB_NAME)
+DB = backend.get('Database')(DB_NAME)
 Pool.test = True
 POOL = Pool(DB_NAME)
 
@@ -112,6 +112,7 @@ def install_module(name):
     '''
     Install module for the tested database
     '''
+    Database = backend.get('Database')
     database = Database().connect()
     cursor = database.cursor()
     databases = database.list(cursor)

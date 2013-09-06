@@ -1,7 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from sql import Query, Expression
 
-from trytond.model.fields.field import Field, size_validate
+from ...config import CONFIG
+from .field import Field, FieldTranslate, size_validate, SQLType
 
 
 def autocomplete_validate(value):
@@ -9,7 +11,7 @@ def autocomplete_validate(value):
         assert isinstance(value, list), 'autocomplete must be a list'
 
 
-class Char(Field):
+class Char(FieldTranslate):
     '''
     Define a char field (``unicode``).
     '''
@@ -18,8 +20,7 @@ class Char(Field):
     def __init__(self, string='', size=None, help='', required=False,
             readonly=False, domain=None, states=None, translate=False,
             select=False, on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None, loading=None,
-            autocomplete=None):
+            context=None, loading=None, autocomplete=None):
         '''
         :param translate: A boolean. If ``True`` the field is translatable.
         :param size: A integer. If set defines the maximum size of the values.
@@ -29,8 +30,7 @@ class Char(Field):
         super(Char, self).__init__(string=string, help=help, required=required,
             readonly=readonly, domain=domain, states=states, select=select,
             on_change=on_change, on_change_with=on_change_with,
-            depends=depends, order_field=order_field, context=context,
-            loading=loading)
+            depends=depends, context=context, loading=loading)
         self.__autocomplete = None
         self.autocomplete = autocomplete if autocomplete else None
         self.translate = translate
@@ -55,3 +55,22 @@ class Char(Field):
         self.__size = value
 
     size = property(_get_size, _set_size)
+
+    @staticmethod
+    def sql_format(value):
+        if isinstance(value, (Query, Expression)):
+            return value
+        if value is None:
+            return None
+        elif isinstance(value, str):
+            return unicode(value, 'utf-8')
+        assert isinstance(value, unicode)
+        return value
+
+    def sql_type(self):
+        db_type = CONFIG['db_type']
+        if self.size and db_type != 'sqlite':
+            return SQLType('VARCHAR', 'VARCHAR(%s)' % self.size)
+        elif db_type == 'mysql':
+            return SQLType('CHAR', 'VARCHAR(255)')
+        return SQLType('VARCHAR', 'VARCHAR')

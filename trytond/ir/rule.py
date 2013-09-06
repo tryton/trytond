@@ -9,7 +9,7 @@ from ..tools import safe_eval
 from ..transaction import Transaction
 from ..cache import Cache
 from ..pool import Pool
-from ..backend import TableHandler
+from .. import backend
 
 __all__ = [
     'RuleGroup', 'Rule',
@@ -111,6 +111,7 @@ class Rule(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(Rule, cls).__register__(module_name)
         table = TableHandler(Transaction().cursor, cls, module_name)
 
@@ -161,13 +162,13 @@ class Rule(ModelSQL, ModelView):
         # root user above constraint
         if Transaction().user == 0:
             if not Transaction().context.get('user'):
-                return '', []
+                return
             with Transaction().set_user(Transaction().context['user']):
                 return cls.domain_get(model_name, mode=mode)
 
         key = (model_name, mode)
-        domain = cls._domain_get_cache.get(key)
-        if domain:
+        domain = cls._domain_get_cache.get(key, False)
+        if domain is not False:
             return domain
 
         pool = Pool()
@@ -178,32 +179,40 @@ class Rule(ModelSQL, ModelView):
         User_Group = pool.get('res.user-res.group')
 
         cursor = Transaction().cursor
-        cursor.execute('SELECT r.id FROM "' + cls._table + '" r '
-            'JOIN "' + RuleGroup._table + '" g '
-                "ON (g.id = r.rule_group) "
-            'JOIN "' + Model._table + '" m ON (g.model = m.id) '
-            "WHERE m.model = %s "
-                "AND g.perm_" + mode + " "
-                "AND (g.id IN ("
-                        'SELECT rule_group '
-                        'FROM "' + RuleGroup_User._table + '" '
-                        'WHERE "user" = %s '
-                        "UNION SELECT rule_group "
-                        'FROM "' + RuleGroup_Group._table + '" g_rel '
-                        'JOIN "' + User_Group._table + '" u_rel '
-                            'ON (g_rel."group" = u_rel."group") '
-                        'WHERE u_rel."user" = %s) '
-                    "OR default_p "
-                    "OR g.global_p)",
-                (model_name, Transaction().user, Transaction().user))
+        rule_table = cls.__table__()
+        rule_group = RuleGroup.__table__()
+        rule_group_user = RuleGroup_User.__table__()
+        rule_group_group = RuleGroup_Group.__table__()
+        user_group = User_Group.__table__()
+        model = Model.__table__()
+        user_id = Transaction().user
+        cursor.execute(*rule_table.join(rule_group,
+                condition=rule_group.id == rule_table.rule_group
+                ).join(model,
+                condition=rule_group.model == model.id
+                ).select(rule_table.id,
+                where=(model.model == model_name)
+                & getattr(rule_group, 'perm_%s' % mode)
+                & (rule_group.id.in_(
+                        rule_group_user.select(rule_group_user.rule_group,
+                            where=rule_group_user.user == user_id)
+                        | rule_group_group.join(
+                            user_group,
+                            condition=(rule_group_group.group
+                                == user_group.group)
+                            ).select(rule_group_group.rule_group,
+                            where=user_group.user == user_id)
+                        )
+                    | rule_group.default_p
+                    | rule_group.global_p
+                    )))
         ids = [x[0] for x in cursor.fetchall()]
         if not ids:
-            cls._domain_get_cache.set(key, ('', []))
-            return '', []
+            cls._domain_get_cache.set(key, None)
+            return
         obj = pool.get(model_name)
         clause = {}
         clause_global = {}
-        user_id = Transaction().user
         ctx = cls._get_context()
         # Use root user without context to prevent recursion
         with contextlib.nested(Transaction().set_user(0),
@@ -220,20 +229,18 @@ class Rule(ModelSQL, ModelView):
                     clause[rule.rule_group.id].append(dom)
 
         # Test if there is no rule_group that have no rule
-        cursor.execute('SELECT g.id FROM "' + RuleGroup._table + '" g '
-                'JOIN "' + Model._table + '" m ON (g.model = m.id) '
-            'WHERE m.model = %s '
-                'AND (g.id NOT IN (SELECT rule_group '
-                        'FROM "' + cls._table + '")) '
-                'AND (g.id IN (SELECT rule_group '
-                        'FROM "' + RuleGroup_User._table + '" '
-                        'WHERE "user" = %s '
-                        'UNION SELECT rule_group '
-                        'FROM "' + RuleGroup_Group._table + '" g_rel '
-                            'JOIN "' + User_Group._table + '" u_rel '
-                                'ON g_rel."group" = u_rel."group" '
-                        'WHERE u_rel."user" = %s))',
-            (model_name, user_id, user_id))
+        cursor.execute(*rule_group.join(model,
+                condition=rule_group.model == model.id
+                ).select(rule_group.id,
+                where=(model.model == model_name)
+                & ~rule_group.id.in_(rule_table.select(rule_table.rule_group))
+                & rule_group.id.in_(rule_group_user.select(
+                        rule_group_user.rule_group,
+                        where=rule_group_user.user == user_id)
+                    | rule_group_group.join(user_group,
+                        condition=rule_group_group.group == user_group.group
+                        ).select(rule_group_group.rule_group,
+                        where=user_group.user == user_id))))
         fetchone = cursor.fetchone()
         if fetchone:
             group_id = fetchone[0]
@@ -250,11 +257,10 @@ class Rule(ModelSQL, ModelView):
         # Use root to prevent infinite recursion
         with contextlib.nested(Transaction().set_user(0),
                 Transaction().set_context(active_test=False, user=0)):
-            query, val = obj.search(clause, order=[], query_string=True)
-        query = '("%s".id IN (%s))' % (obj._table, query)
+            query = obj.search(clause, order=[], query=True)
 
-        cls._domain_get_cache.set(key, (query, val))
-        return query, val
+        cls._domain_get_cache.set(key, query)
+        return query
 
     @classmethod
     def delete(cls, rules):

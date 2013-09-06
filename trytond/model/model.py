@@ -109,200 +109,15 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
         super(Model, cls).__register__(module_name)
         pool = Pool()
         Translation = pool.get('ir.translation')
-        Property = pool.get('ir.property')
+        Model_ = pool.get('ir.model')
+        ModelField = pool.get('ir.model.field')
 
-        cursor = Transaction().cursor
-        # Add model in ir_model
-        cursor.execute("SELECT id FROM ir_model WHERE model = %s",
-                (cls.__name__,))
-        model_id = None
-        if cursor.rowcount == -1 or cursor.rowcount is None:
-            data = cursor.fetchone()
-            if data:
-                model_id, = data
-        elif cursor.rowcount != 0:
-            model_id, = cursor.fetchone()
-        if not model_id:
-            cursor.execute("INSERT INTO ir_model "
-                "(model, name, info, module) VALUES (%s, %s, %s, %s)",
-                (cls.__name__, cls._get_name(), cls.__doc__,
-                    module_name))
-            Property._models_get_cache.clear()
-            cursor.execute("SELECT id FROM ir_model WHERE model = %s",
-                    (cls.__name__,))
-            (model_id,) = cursor.fetchone()
-        elif cls.__doc__:
-            cursor.execute('UPDATE ir_model '
-                'SET name = %s, '
-                    'info = %s '
-                'WHERE id = %s',
-                (cls._get_name(), cls.__doc__, model_id))
+        model_id = Model_.register(cls, module_name)
+        ModelField.register(cls, module_name, model_id)
 
-        # Update translation of model
-        if cls.__doc__:
-            name = cls.__name__ + ',name'
-            src = cls._get_name()
-            cursor.execute('SELECT id FROM ir_translation '
-                'WHERE lang = %s '
-                    'AND type = %s '
-                    'AND name = %s '
-                    'AND (res_id IS NULL OR res_id = %s)',
-                ('en_US', 'model', name, 0))
-            trans_id = None
-            if cursor.rowcount == -1 or cursor.rowcount is None:
-                data = cursor.fetchone()
-                if data:
-                    trans_id, = data
-            elif cursor.rowcount != 0:
-                trans_id, = cursor.fetchone()
-            src_md5 = Translation.get_src_md5(src)
-            if trans_id is None:
-                cursor.execute('INSERT INTO ir_translation '
-                    '(name, lang, type, src, src_md5, value, module, fuzzy) '
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (name, 'en_US', 'model', src, src_md5, '', module_name,
-                        False))
-            else:
-                cursor.execute('UPDATE ir_translation '
-                    'SET src = %s, src_md5 = %s '
-                    'WHERE id = %s',
-                        (src, src_md5, trans_id))
-
-        # Add field in ir_model_field and update translation
-        cursor.execute('SELECT f.id AS id, f.name AS name, '
-                'f.field_description AS field_description, '
-                'f.ttype AS ttype, f.relation AS relation, '
-                'f.module as module, f.help AS help '
-            'FROM ir_model_field AS f, ir_model AS m '
-            'WHERE f.model = m.id '
-                'AND m.model = %s ',
-            (cls.__name__,))
-        model_fields = {}
-        for field in cursor.dictfetchall():
-            model_fields[field['name']] = field
-
-        # Prefetch field translations
-        if cls._fields:
-            cursor.execute('SELECT id, name, src, type FROM ir_translation '
-                'WHERE lang = %s '
-                    'AND type IN (%s, %s, %s) '
-                    'AND name IN '
-                        '(' + ','.join(('%s',) * len(cls._fields)) + ')',
-                ('en_US', 'field', 'help', 'selection')
-                + tuple([cls.__name__ + ',' + x for x in cls._fields]))
-        trans_fields = {}
-        trans_help = {}
-        trans_selection = {}
-        for trans in cursor.dictfetchall():
-            if trans['type'] == 'field':
-                trans_fields[trans['name']] = trans
-            elif trans['type'] == 'help':
-                trans_help[trans['name']] = trans
-            elif trans['type'] == 'selection':
-                trans_selection.setdefault(trans['name'], {})
-                trans_selection[trans['name']][trans['src']] = trans
-
-        for field_name in cls._fields:
-            field = cls._fields[field_name]
-            relation = ''
-            if hasattr(field, 'model_name'):
-                relation = field.model_name
-            elif hasattr(field, 'relation_name'):
-                relation = field.relation_name
-            if field_name not in model_fields:
-                cursor.execute("INSERT INTO ir_model_field "
-                    "(model, name, field_description, ttype, "
-                        "relation, help, module) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (model_id, field_name, field.string, field._type,
-                        relation, field.help, module_name))
-            elif (model_fields[field_name]['field_description'] != field.string
-                    or model_fields[field_name]['ttype'] != field._type
-                    or model_fields[field_name]['relation'] != relation
-                    or model_fields[field_name]['help'] != field.help):
-                cursor.execute('UPDATE ir_model_field '
-                    'SET field_description = %s, '
-                        'ttype = %s, '
-                        'relation = %s, '
-                        'help = %s '
-                    'WHERE id = %s ',
-                    (field.string, field._type, relation,
-                        field.help, model_fields[field_name]['id']))
-            trans_name = cls.__name__ + ',' + field_name
-            string_md5 = Translation.get_src_md5(field.string)
-            if trans_name not in trans_fields:
-                cursor.execute('INSERT INTO ir_translation '
-                    '(name, lang, type, src, src_md5, value, module, fuzzy) '
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (trans_name, 'en_US', 'field', field.string,
-                        string_md5, '', module_name, False))
-            elif trans_fields[trans_name]['src'] != field.string:
-                cursor.execute('UPDATE ir_translation '
-                    'SET src = %s, src_md5 = %s '
-                    'WHERE id = %s ',
-                    (field.string, string_md5, trans_fields[trans_name]['id']))
-            help_md5 = Translation.get_src_md5(field.help)
-            if trans_name not in trans_help:
-                if field.help:
-                    cursor.execute('INSERT INTO ir_translation '
-                        '(name, lang, type, src, src_md5, value, module, '
-                            'fuzzy) '
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                        (trans_name, 'en_US', 'help', field.help, help_md5, '',
-                            module_name, False))
-            elif trans_help[trans_name]['src'] != field.help:
-                cursor.execute('UPDATE ir_translation '
-                    'SET src = %s, src_md5 = %s '
-                    'WHERE id = %s ',
-                    (field.help, help_md5, trans_help[trans_name]['id']))
-            if (hasattr(field, 'selection')
-                    and isinstance(field.selection, (tuple, list))
-                    and ((hasattr(field, 'translate_selection')
-                            and field.translate_selection)
-                        or not hasattr(field, 'translate_selection'))):
-                for (_, val) in field.selection:
-                    if (trans_name not in trans_selection
-                            or val not in trans_selection[trans_name]):
-                        val_md5 = Translation.get_src_md5(val)
-                        cursor.execute('INSERT INTO ir_translation '
-                            '(name, lang, type, src, src_md5, value, module, '
-                                'fuzzy) '
-                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                            (trans_name, 'en_US', 'selection', val, val_md5,
-                                '', module_name, False))
-        # Clean ir_model_field from field that are no more existing.
-        for field_name in model_fields:
-            if model_fields[field_name]['module'] == module_name \
-                    and field_name not in cls._fields:
-                #XXX This delete field even when it is defined later
-                # in the module
-                cursor.execute('DELETE FROM ir_model_field '
-                    'WHERE id = %s',
-                    (model_fields[field_name]['id'],))
-
-        # Add error messages in ir_translation
-        cursor.execute('SELECT id, src FROM ir_translation '
-            'WHERE lang = %s '
-                'AND type = %s '
-                'AND name = %s',
-            ('en_US', 'error', cls.__name__))
-        trans_error = {}
-        for trans in cursor.dictfetchall():
-            trans_error[trans['src']] = trans
-
-        errors = cls._get_error_messages()
-        for error in set(errors):
-            if error not in trans_error:
-                error_md5 = Translation.get_src_md5(error)
-                cursor.execute('INSERT INTO ir_translation '
-                    '(name, lang, type, src, src_md5, value, module, fuzzy) '
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (cls.__name__, 'en_US', 'error', error, error_md5, '',
-                        module_name, False))
-
-    @classmethod
-    def _get_error_messages(cls):
-        return cls._error_messages.values()
+        Translation.register_model(cls, module_name)
+        Translation.register_fields(cls, module_name)
+        Translation.register_error_messages(cls, module_name)
 
     @classmethod
     def default_get(cls, fields_names, with_rec_name=True):
@@ -435,9 +250,9 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
                         and getattr(cls._fields[field], arg):
                     res[field][arg] = copy.copy(getattr(cls._fields[field],
                         arg))
-            if isinstance(cls._fields[field],
-                    (fields.Function, fields.One2Many)) \
-                    and not cls._fields[field].order_field:
+            if (isinstance(cls._fields[field],
+                        (fields.Function, fields.One2Many))
+                    and not getattr(cls, 'order_%s' % field, None)):
                 res[field]['sortable'] = False
             if ((isinstance(cls._fields[field], fields.Function)
                     and not cls._fields[field].searcher)

@@ -11,6 +11,8 @@ from threading import local
 import smtplib
 import dis
 from decimal import Decimal
+from sql import Literal
+from sql.operators import Or
 from trytond.config import CONFIG
 from trytond.const import OPERATORS
 
@@ -323,14 +325,10 @@ class LocalDict(local):
 
 def reduce_ids(field, ids):
     '''
-    Return a small SQL clause for ids
-
-    :param field: the field of the clause
-    :param ids: the list of ids
-    :return: sql string and sql param
+    Return a small SQL expression for the list of ids and the sql column
     '''
     if not ids:
-        return '(%s)', [False]
+        return Literal(False)
     assert all(x.is_integer() for x in ids if isinstance(x, float)), \
         'ids must be integer'
     ids = map(int, ids)
@@ -338,8 +336,7 @@ def reduce_ids(field, ids):
     prev = ids.pop(0)
     continue_list = [prev, prev]
     discontinue_list = []
-    sql = []
-    args = []
+    sql = Or()
     for i in ids:
         if i == prev:
             continue
@@ -348,9 +345,8 @@ def reduce_ids(field, ids):
                 discontinue_list.extend([continue_list[0] + x for x in
                     range(continue_list[-1] - continue_list[0] + 1)])
             else:
-                sql.append('((' + field + ' >= %s) AND (' + field + ' <= %s))')
-                args.append(continue_list[0])
-                args.append(continue_list[-1])
+                sql.append((field >= continue_list[0])
+                    & (field <= continue_list[-1]))
             continue_list = []
         continue_list.append(i)
         prev = i
@@ -358,14 +354,10 @@ def reduce_ids(field, ids):
         discontinue_list.extend([continue_list[0] + x for x in
             range(continue_list[-1] - continue_list[0] + 1)])
     else:
-        sql.append('((' + field + ' >= %s) AND (' + field + ' <= %s))')
-        args.append(continue_list[0])
-        args.append(continue_list[-1])
+        sql.append((field >= continue_list[0]) & (field <= continue_list[-1]))
     if discontinue_list:
-        sql.append('(' + field + ' IN (' +
-            ','.join(('%s',) * len(discontinue_list)) + '))')
-        args.extend(discontinue_list)
-    return '(' + ' OR '.join(sql) + ')', args
+        sql.append(field.in_(discontinue_list))
+    return sql
 
 _ALLOWED_CODES = set(dis.opmap[x] for x in [
         'POP_TOP', 'ROT_TWO', 'ROT_THREE', 'ROT_FOUR', 'DUP_TOP', 'BUILD_LIST',

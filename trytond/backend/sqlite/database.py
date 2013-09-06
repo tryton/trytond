@@ -3,7 +3,6 @@
 from trytond.backend.database import DatabaseInterface, CursorInterface
 from trytond.config import CONFIG
 import os
-import re
 from decimal import Decimal
 import datetime
 import time
@@ -21,49 +20,56 @@ except ImportError:
     import sqlite3 as sqlite
     from sqlite3 import IntegrityError as DatabaseIntegrityError
     from sqlite3 import OperationalError as DatabaseOperationalError
-QUOTE_SEPARATION = re.compile(r"(.*?)('.*?')", re.DOTALL)
-EXTRACT_PATTERN = re.compile(r'EXTRACT\s*\(\s*(\S*)\s+FROM', re.I)
-POSITION_PATTERN = re.compile(r'POSITION\s*\(([^\)]*)\s+IN', re.I)
+from sql import Flavor, Table
+from sql.functions import Function, Extract, Position, Now, Substring, Overlay
+
+__all__ = ['Database', 'DatabaseIntegrityError', 'DatabaseOperationalError',
+    'Cursor']
 
 
-def extract(lookup_type, date):
-    if date is None:
-        return None
-    if len(date) == 10:
-        year, month, day = map(int, date.split('-'))
-        date = datetime.date(year, month, day)
-    else:
-        datepart, timepart = date.split(" ")
-        year, month, day = map(int, datepart.split("-"))
-        timepart_full = timepart.split(".")
-        hours, minutes, seconds = map(int, timepart_full[0].split(":"))
-        if len(timepart_full) == 2:
-            microseconds = int(timepart_full[1])
+class SQLiteExtract(Function):
+    __slots__ = ()
+    _function = 'EXTRACT'
+
+    @staticmethod
+    def extract(lookup_type, date):
+        if date is None:
+            return None
+        if len(date) == 10:
+            year, month, day = map(int, date.split('-'))
+            date = datetime.date(year, month, day)
         else:
-            microseconds = 0
-        date = datetime.datetime(year, month, day, hours, minutes, seconds,
-            microseconds)
-    if lookup_type.lower() == 'century':
-        return date.year / 100 + (date.year % 100 and 1 or 0)
-    elif lookup_type.lower() == 'decade':
-        return date.year / 10
-    elif lookup_type.lower() == 'dow':
-        return (date.weekday() + 1) % 7
-    elif lookup_type.lower() == 'doy':
-        return date.timetuple().tm_yday
-    elif lookup_type.lower() == 'epoch':
-        return int(time.mktime(date.timetuple()))
-    elif lookup_type.lower() == 'microseconds':
-        return date.microsecond
-    elif lookup_type.lower() == 'millennium':
-        return date.year / 1000 + (date.year % 1000 and 1 or 0)
-    elif lookup_type.lower() == 'milliseconds':
-        return date.microsecond / 1000
-    elif lookup_type.lower() == 'quarter':
-        return date.month / 4 + 1
-    elif lookup_type.lower() == 'week':
-        return date.isocalendar()[1]
-    return getattr(date, lookup_type.lower())
+            datepart, timepart = date.split(" ")
+            year, month, day = map(int, datepart.split("-"))
+            timepart_full = timepart.split(".")
+            hours, minutes, seconds = map(int, timepart_full[0].split(":"))
+            if len(timepart_full) == 2:
+                microseconds = int(timepart_full[1])
+            else:
+                microseconds = 0
+            date = datetime.datetime(year, month, day, hours, minutes, seconds,
+                microseconds)
+        if lookup_type.lower() == 'century':
+            return date.year / 100 + (date.year % 100 and 1 or 0)
+        elif lookup_type.lower() == 'decade':
+            return date.year / 10
+        elif lookup_type.lower() == 'dow':
+            return (date.weekday() + 1) % 7
+        elif lookup_type.lower() == 'doy':
+            return date.timetuple().tm_yday
+        elif lookup_type.lower() == 'epoch':
+            return int(time.mktime(date.timetuple()))
+        elif lookup_type.lower() == 'microseconds':
+            return date.microsecond
+        elif lookup_type.lower() == 'millennium':
+            return date.year / 1000 + (date.year % 1000 and 1 or 0)
+        elif lookup_type.lower() == 'milliseconds':
+            return date.microsecond / 1000
+        elif lookup_type.lower() == 'quarter':
+            return date.month / 4 + 1
+        elif lookup_type.lower() == 'week':
+            return date.isocalendar()[1]
+        return getattr(date, lookup_type.lower())
 
 
 def date_trunc(_type, date):
@@ -88,23 +94,57 @@ def split_part(text, delimiter, count):
     return (text.split(delimiter) + [''] * (count - 1))[count - 1]
 
 
-def position(substring, string):
-    if string is None:
-        return
-    try:
-        return string.index(substring) + 1
-    except ValueError:
-        return 0
+class SQLitePosition(Function):
+    __slots__ = ()
+    _function = 'POSITION'
+
+    @staticmethod
+    def position(substring, string):
+        if string is None:
+            return
+        try:
+            return string.index(substring) + 1
+        except ValueError:
+            return 0
 
 
 def replace(text, pattern, replacement):
     return str(text).replace(pattern, replacement)
 
 
+def now():
+    return datetime.datetime.now().isoformat(' ')
+
+
+class SQLiteSubstring(Function):
+    __slots__ = ()
+    _function = 'SUBSTR'
+
+
+class SQLiteOverlay(Function):
+    __slots__ = ()
+    _function = 'OVERLAY'
+
+    @staticmethod
+    def overlay(string, placing_string, from_, for_=None):
+        if for_ is None:
+            for_ = len(placing_string)
+        return string[:from_ - 1] + placing_string + string[from_ - 1 + for_:]
+
+
+MAPPING = {
+    Extract: SQLiteExtract,
+    Position: SQLitePosition,
+    Substring: SQLiteSubstring,
+    Overlay: SQLiteOverlay,
+    }
+
+
 class Database(DatabaseInterface):
 
     _local = threading.local()
     _conn = None
+    flavor = Flavor(paramstyle='qmark', function_mapping=MAPPING)
 
     def __new__(cls, database_name=':memory:'):
         if (database_name == ':memory:'
@@ -129,12 +169,15 @@ class Database(DatabaseInterface):
         if self._conn is not None:
             return self
         self._conn = sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES)
-        self._conn.create_function('extract', 2, extract)
+        self._conn.create_function('extract', 2, SQLiteExtract.extract)
         self._conn.create_function('date_trunc', 2, date_trunc)
         self._conn.create_function('split_part', 3, split_part)
-        self._conn.create_function('position', 2, position)
+        self._conn.create_function('position', 2, SQLitePosition.position)
+        self._conn.create_function('overlay', 3, SQLiteOverlay.overlay)
+        self._conn.create_function('overlay', 4, SQLiteOverlay.overlay)
         if sqlite.sqlite_version_info < (3, 3, 14):
             self._conn.create_function('replace', 3, replace)
+        self._conn.create_function('now', 0, now)
         return self
 
     def cursor(self, autocommit=False, readonly=False):
@@ -232,22 +275,28 @@ class Database(DatabaseInterface):
                 if (len(line) > 0) and (not line.isspace()):
                     cursor.execute(line)
 
+        ir_module = Table('ir_module_module')
+        ir_module_dependency = Table('ir_module_module_dependency')
         for module in ('ir', 'res', 'webdav'):
             state = 'uninstalled'
             if module in ('ir', 'res'):
                 state = 'to install'
             info = get_module_info(module)
-            cursor.execute('INSERT INTO ir_module_module '
-                '(create_uid, create_date, name, state) '
-                'VALUES (%s, %s, %s, %s)',
-                (0, datetime.datetime.now(), module, state))
+            insert = ir_module.insert(
+                [ir_module.create_uid, ir_module.create_date, ir_module.name,
+                    ir_module.state],
+                [[0, Now(), module, state]])
+            cursor.execute(*insert)
             cursor.execute('SELECT last_insert_rowid()')
             module_id, = cursor.fetchone()
             for dependency in info.get('depends', []):
-                cursor.execute('INSERT INTO ir_module_module_dependency '
-                    '(create_uid, create_date, module, name) '
-                    'VALUES (%s, %s, %s, %s) ',
-                    (0, datetime.datetime.now(), module_id, dependency))
+                insert = ir_module_dependency.insert(
+                    [ir_module_dependency.create_uid,
+                        ir_module_dependency.create_date,
+                        ir_module_dependency.module, ir_module_dependency.name
+                        ],
+                    [[0, Now(), module_id, dependency]])
+                cursor.execute(*insert)
 
 
 class _Cursor(sqlite.Cursor):
@@ -288,23 +337,10 @@ class Cursor(CursorInterface):
         return getattr(self.cursor, name)
 
     def execute(self, sql, params=None):
-        buf = ""
-        sql = re.sub(POSITION_PATTERN, r'POSITION(\1,', sql)
-        for nquote, quote in QUOTE_SEPARATION.findall(sql + "''"):
-            nquote = nquote.replace('?', '??')
-            nquote = nquote.replace('%s', '?')
-            nquote = nquote.replace('ilike', 'like')
-            nquote = re.sub(EXTRACT_PATTERN, r'EXTRACT("\1",', nquote)
-            buf += nquote + quote
-        sql = buf[:-2]
-        try:
-            if params:
-                res = self.cursor.execute(sql, params)
-            else:
-                res = self.cursor.execute(sql)
-        except Exception:
-            raise
-        return res
+        if params:
+            return self.cursor.execute(sql, params)
+        else:
+            return self.cursor.execute(sql)
 
     def close(self, close=False):
         self.cursor.close()
@@ -319,21 +355,23 @@ class Cursor(CursorInterface):
         self._conn.rollback()
 
     def test(self):
+        sqlite_master = Table('sqlite_master')
+        select = sqlite_master.select(sqlite_master.name)
+        select.where = sqlite_master.type == 'table'
+        select.where &= sqlite_master.name.in_([
+                'ir_model',
+                'ir_model_field',
+                'ir_ui_view',
+                'ir_ui_menu',
+                'res_user',
+                'res_group',
+                'ir_module_module',
+                'ir_module_module_dependency',
+                'ir_translation',
+                'ir_lang',
+                ])
         try:
-            self.cursor.execute("SELECT name "
-                "FROM sqlite_master "
-                "WHERE type = 'table' AND name in ("
-                    "'ir_model', "
-                    "'ir_model_field', "
-                    "'ir_ui_view', "
-                    "'ir_ui_menu', "
-                    "'res_user', "
-                    "'res_group', "
-                    "'ir_module_module', "
-                    "'ir_module_module_dependency', "
-                    "'ir_translation', "
-                    "'ir_lang'"
-                    ")")
+            self.cursor.execute(*select)
         except Exception:
             return False
         return len(self.cursor.fetchall()) != 0
@@ -347,15 +385,6 @@ class Cursor(CursorInterface):
 
     def has_constraint(self):
         return False
-
-    def limit_clause(self, select, limit=None, offset=None):
-        if limit is not None:
-            select += ' LIMIT %d' % limit
-        if offset is not None:
-            if limit is None:
-                select += ' LIMIT -1'
-            select += ' OFFSET %d' % offset
-        return select
 
 sqlite.register_converter('NUMERIC', lambda val: Decimal(val))
 if sys.version_info[0] == 2:

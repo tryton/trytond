@@ -5,7 +5,7 @@ import sys
 import logging
 from lxml import etree
 from trytond.model import ModelView, ModelSQL, fields
-from trytond.backend import TableHandler
+from trytond import backend
 from trytond.pyson import CONTEXT, Eval, Bool, PYSONDecoder
 from trytond.tools import safe_eval, file_open
 from trytond.transaction import Transaction
@@ -69,6 +69,7 @@ class View(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         table = TableHandler(cursor, cls, module_name)
 
@@ -312,6 +313,7 @@ class ViewTreeState(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         table = TableHandler(cursor, cls, module_name)
 

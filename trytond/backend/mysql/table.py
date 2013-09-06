@@ -166,6 +166,11 @@ class TableHandler(TableHandlerInterface):
             if not migrate:
                 return
             base_type = column_type[0].lower()
+            convert = {
+                'char': 'varchar',
+                'signed integer': 'bigint',
+                }
+            base_type = convert.get(base_type, base_type)
             if base_type != self._columns[column_name]['typname']:
                 if (self._columns[column_name]['typname'], base_type) in (
                         ('varchar', 'text'),

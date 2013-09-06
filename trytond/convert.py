@@ -8,12 +8,13 @@ import logging
 import traceback
 import sys
 import re
+from sql import Table
 from itertools import izip
 from collections import defaultdict
 
-from trytond.version import VERSION
-from trytond.tools import safe_eval
-from trytond.transaction import Transaction
+from .version import VERSION
+from .tools import safe_eval
+from .transaction import Transaction
 
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
@@ -64,26 +65,37 @@ class MenuitemTagHandler:
             action_id = self.mh.get_id(values['action'])
 
             # TODO maybe use a prefetch for this:
-            cursor.execute(cursor.limit_clause(
-                    "SELECT a.name, a.type, v.type, v.field_childs, icon.name "
-                    "FROM ir_action a "
-                        "LEFT JOIN ir_action_report report "
-                            "ON (a.id = report.action) "
-                        "LEFT JOIN ir_action_act_window act "
-                            "ON (a.id = act.action) "
-                        "LEFT JOIN ir_action_wizard wizard "
-                            "ON (a.id = wizard.action) "
-                        "LEFT JOIN ir_action_url url ON (a.id = url.action) "
-                        "LEFT JOIN ir_action_act_window_view wv ON "
-                            "(act.id = wv.act_window) "
-                        "LEFT JOIN ir_ui_view v ON (v.id = wv.view) "
-                        "LEFT JOIN ir_ui_icon icon ON (a.icon = icon.id) "
-                    "WHERE report.id = %s "
-                        "OR act.id = %s "
-                        "OR wizard.id = %s "
-                        "OR url.id = %s "
-                    "ORDER by wv.sequence", 1),
-                (action_id, action_id, action_id, action_id))
+            action = Table('ir_action')
+            report = Table('ir_action_report')
+            act_window = Table('ir_action_act_window')
+            wizard = Table('ir_action_wizard')
+            url = Table('ir_action_url')
+            act_window_view = Table('ir_action_act_window_view')
+            view = Table('ir_ui_view')
+            icon = Table('ir_ui_icon')
+            cursor.execute(*action.join(
+                    report, 'LEFT',
+                    condition=action.id == report.action
+                    ).join(act_window, 'LEFT',
+                    condition=action.id == act_window.action
+                    ).join(wizard, 'LEFT',
+                    condition=action.id == wizard.action
+                    ).join(url, 'LEFT',
+                    condition=action.id == url.action
+                    ).join(act_window_view, 'LEFT',
+                    condition=act_window.id == act_window_view.act_window
+                    ).join(view, 'LEFT',
+                    condition=view.id == act_window_view.view
+                    ).join(icon, 'LEFT',
+                    condition=action.icon == icon.id).select(
+                    action.name, action.type,
+                    view.type, view.field_childs,
+                    icon.name,
+                    where=(report.id == action_id)
+                    | (act_window.id == action_id)
+                    | (wizard.id == action_id)
+                    | (url.id == action_id),
+                    order_by=act_window_view.sequence, limit=1))
             action_name, action_type, view_type, field_childs, icon_name = \
                 cursor.fetchone()
 

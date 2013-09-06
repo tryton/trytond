@@ -9,11 +9,13 @@ import time
 import datetime
 from itertools import groupby, ifilter
 from operator import attrgetter
+from sql import Literal
+from sql.aggregate import Count
 
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, Button, StateTransition
 from ..tools import safe_eval
-from ..backend import TableHandler
+from .. import backend
 from ..transaction import Transaction
 from ..cache import Cache
 from ..pool import Pool
@@ -108,6 +110,7 @@ class User(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(User, cls).__register__(module_name)
         table = TableHandler(Transaction().cursor, cls, module_name)
 
@@ -440,9 +443,9 @@ class User(ModelSQL, ModelView):
         if result:
             return result
         cursor = Transaction().cursor
-        cursor.execute('SELECT id, password, salt '
-            'FROM "' + cls._table + '" '
-            'WHERE login = %s AND active', (login,))
+        table = cls.__table__()
+        cursor.execute(*table.select(table.id, table.password, table.salt,
+                where=(table.login == login) & table.active))
         result = cursor.fetchone() or (None, None, None)
         cls._get_login_cache.set(login, result)
         return result
@@ -478,6 +481,7 @@ class LoginAttempt(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(LoginAttempt, cls).__register__(module_name)
         table = TableHandler(Transaction().cursor, cls, module_name)
 
@@ -499,15 +503,16 @@ class LoginAttempt(ModelSQL):
     @classmethod
     def remove(cls, login):
         cursor = Transaction().cursor
-        cursor.execute('DELETE FROM "' + cls._table + '" WHERE "login" = %s',
-            (login,))
+        table = cls.__table__()
+        cursor.execute(*table.delete(where=table.login == login))
 
     @classmethod
     def count(cls, login):
         cursor = Transaction().cursor
-        cursor.execute('SELECT count(1) FROM "' + cls._table + '" '
-            'WHERE "login" = %s AND create_date >= %s',
-            (login, cls.delay()))
+        table = cls.__table__()
+        cursor.execute(*table.select(Count(Literal(1)),
+                where=(table.login == login)
+                & (table.create_date >= cls.delay())))
         return cursor.fetchone()[0]
 
 
@@ -549,11 +554,12 @@ class UserGroup(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
         # Migration from 1.0 table name change
         TableHandler.table_rename(cursor, 'res_group_user_rel', cls._table)
         TableHandler.sequence_rename(cursor, 'res_group_user_rel_id_seq',
-                cls._table + '_id_seq')
+            cls._table + '_id_seq')
         # Migration from 2.0 uid and gid rename into user and group
         table = TableHandler(cursor, cls, module_name)
         table.column_rename('uid', 'user')

@@ -78,8 +78,8 @@ class UIMenu(ModelSQL, ModelView):
             ondelete='CASCADE')
     groups = fields.Many2Many('ir.ui.menu-res.group',
        'menu', 'group', 'Groups')
-    complete_name = fields.Function(fields.Char('Complete Name',
-        order_field='name'), 'get_rec_name', searcher='search_rec_name')
+    complete_name = fields.Function(fields.Char('Complete Name'),
+        'get_rec_name', searcher='search_rec_name')
     icon = fields.Selection('list_icons', 'Icon', translate=False)
     action = fields.Function(fields.Reference('Action',
             selection=[
@@ -100,6 +100,10 @@ class UIMenu(ModelSQL, ModelView):
                 'wrong_name': ('"%%s" is not a valid menu name because it is '
                     'not allowed to contain "%s".' % SEPARATOR),
                 })
+
+    @classmethod
+    def order_complet_name(cls, tables):
+        return cls.name.convert_order('name', tables, cls)
 
     @staticmethod
     def default_icon():
@@ -163,10 +167,10 @@ class UIMenu(ModelSQL, ModelView):
 
     @classmethod
     def search(cls, domain, offset=0, limit=None, order=None, count=False,
-            query_string=False):
+            query=False):
         menus = super(UIMenu, cls).search(domain, offset=offset, limit=limit,
-                order=order, count=False, query_string=query_string)
-        if query_string:
+                order=order, count=False, query=query)
+        if query:
             return menus
 
         if menus:
@@ -262,9 +266,7 @@ class UIMenuFavorite(ModelSQL, ModelView):
 
     menu = fields.Many2One('ir.ui.menu', 'Menu', required=True,
         ondelete='CASCADE')
-    sequence = fields.Integer('Sequence',
-        order_field='(%(table)s.sequence IS NOT NULL) %(order)s, '
-        '%(table)s.sequence %(order)s')
+    sequence = fields.Integer('Sequence')
     user = fields.Many2One('res.user', 'User', required=True,
         ondelete='CASCADE')
 
@@ -280,6 +282,11 @@ class UIMenuFavorite(ModelSQL, ModelView):
             ('sequence', 'ASC'),
             ('id', 'DESC'),
             ]
+
+    @staticmethod
+    def order_sequence(tables):
+        table, _ = tables[None]
+        return [table.sequence == None, table.sequence]
 
     @staticmethod
     def default_user():

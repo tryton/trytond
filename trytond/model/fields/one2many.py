@@ -1,9 +1,12 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from itertools import chain
-from trytond.model.fields.field import Field, size_validate
-from trytond.transaction import Transaction
-from trytond.pool import Pool
+from sql import Cast, Literal, Column
+from sql.functions import Substring, Position
+
+from .field import Field, size_validate
+from ...transaction import Transaction
+from ...pool import Pool
 
 
 def add_remove_validate(value):
@@ -21,7 +24,7 @@ class One2Many(Field):
             order=None, datetime_field=None, size=None, help='',
             required=False, readonly=False, domain=None, states=None,
             on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None, loading='lazy'):
+            context=None, loading='lazy'):
         '''
         :param model_name: The name of the target model.
         :param field: The name of the field that handle the reverse many2one or
@@ -42,8 +45,7 @@ class One2Many(Field):
         super(One2Many, self).__init__(string=string, help=help,
             required=required, readonly=readonly, domain=domain, states=states,
             on_change=on_change, on_change_with=on_change_with,
-            depends=depends, order_field=order_field, context=context,
-            loading=loading)
+            depends=depends, context=context, loading=loading)
         self.model_name = model_name
         self.field = field
         self.__add_remove = None
@@ -213,3 +215,43 @@ class One2Many(Field):
                 return Target(data)
         value = [instance(x) for x in (value or [])]
         super(One2Many, self).__set__(inst, value)
+
+    def convert_domain(self, domain, tables, Model):
+        Target = self.get_target()
+        target = Target.__table__()
+        table, _ = tables[None]
+        name, operator, value = domain[:3]
+
+        origin_field = Target._fields[self.field]
+        origin = Column(target, self.field)
+        origin_where = None
+        if origin_field._type == 'reference':
+            origin_where = origin.like(Model.__name__ + ',%')
+            origin = Cast(Substring(origin,
+                    Position(',', origin) + Literal(1)),
+                Target.id.sql_type().base)
+
+        if '.' not in name:
+            if value is None:
+                where = origin != value
+                if origin_where:
+                    where &= origin_where
+                query = target.select(origin, where=where)
+                expression = ~table.id.in_(query)
+                if operator == '!=':
+                    return ~expression
+                return expression
+            else:
+                if isinstance(value, basestring):
+                    target_name = 'rec_name'
+                else:
+                    target_name = 'id'
+        else:
+            _, target_name = name.split('.', 1)
+        target_domain = [(target_name,) + tuple(domain[1:])]
+        query = Target.search(target_domain, order=[], query=True)
+        where = target.id.in_(query)
+        if origin_where:
+            where &= origin_where
+        query = target.select(origin, where=where)
+        return table.id.in_(query)

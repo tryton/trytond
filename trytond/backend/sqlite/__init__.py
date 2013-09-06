@@ -2,5 +2,4 @@
 #this repository contains the full copyright notices and license terms.
 
 from .database import *
-from .fields import *
 from .table import *

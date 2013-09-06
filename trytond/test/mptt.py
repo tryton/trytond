@@ -25,6 +25,11 @@ class MPTT(ModelSQL, ModelView):
         cls.check_recursion(record)
 
     @staticmethod
+    def order_sequence(tables):
+        table, _ = tables[None]
+        return [table.sequence == None, table.sequence]
+
+    @staticmethod
     def default_active():
         return True
 

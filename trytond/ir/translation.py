@@ -17,12 +17,17 @@ except ImportError:
 from functools import reduce
 from lxml import etree
 from itertools import izip
+from sql import Column
+from sql.functions import Substring, Position
+from sql.conditionals import Case
+from sql.operators import Or, And
+from sql.aggregate import Max
 
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, StateTransition, StateAction, \
     Button
 from ..tools import file_open, reduce_ids
-from ..backend import TableHandler, FIELDS
+from .. import backend
 from ..pyson import PYSONEncoder
 from ..transaction import Transaction
 from ..pool import Pool
@@ -85,14 +90,16 @@ class Translation(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
+        ir_translation = cls.__table__()
         table = TableHandler(cursor, cls, module_name)
         # Migration from 1.8: new field src_md5
         src_md5_exist = table.column_exist('src_md5')
         if not src_md5_exist:
             table.add_raw_column('src_md5',
-                FIELDS[cls.src_md5._type].sql_type(cls.src_md5),
-                FIELDS[cls.src_md5._type].sql_format, None,
+                cls.src_md5.sql_type(),
+                cls.src_md5.sql_format, None,
                 cls.src_md5.size, string=cls.src_md5.string)
         table.drop_constraint('translation_uniq')
         table.index_action(['lang', 'type', 'name', 'src'], 'remove')
@@ -116,13 +123,194 @@ class Translation(ModelSQL, ModelView):
             table.not_null_action('src_md5', action='add')
 
         # Migration from 2.2
-        cursor.execute("UPDATE " + cls._table + " "
-            "SET res_id = %s "
-            "WHERE res_id = %s",
-            (None, 0))
+        cursor.execute(*ir_translation.update([ir_translation.res_id],
+                [None], where=ir_translation.res_id == 0))
 
         table = TableHandler(Transaction().cursor, cls, module_name)
         table.index_action(['lang', 'type', 'name'], 'add')
+
+    @classmethod
+    def register_model(cls, model, module_name):
+        cursor = Transaction().cursor
+        ir_translation = cls.__table__()
+
+        if not model.__doc__:
+            return
+
+        name = model.__name__ + ',name'
+        src = model._get_name()
+        cursor.execute(*ir_translation.select(ir_translation.id,
+                where=(ir_translation.lang == 'en_US')
+                & (ir_translation.type == 'model')
+                & (ir_translation.name == name)
+                & ((ir_translation.res_id == None)
+                    | (ir_translation.res_id == 0))))
+        trans_id = None
+        if cursor.rowcount == -1 or cursor.rowcount is None:
+            data = cursor.fetchone()
+            if data:
+                trans_id, = data
+        elif cursor.rowcount != 0:
+            trans_id, = cursor.fetchone()
+        src_md5 = Translation.get_src_md5(src)
+        if trans_id is None:
+            cursor.execute(*ir_translation.insert(
+                    [Column(ir_translation, c)
+                        for c in ('name', 'lang', 'type', 'src', 'src_md5',
+                            'value', 'module', 'fuzzy')],
+                    [[name, 'en_US', 'model', src, src_md5, '',
+                            module_name, False]]))
+        else:
+            cursor.execute(*ir_translation.update(
+                    [ir_translation.src, ir_translation.src_md5],
+                    [src, src_md5],
+                    where=ir_translation.id == trans_id))
+
+    @classmethod
+    def register_fields(cls, model, module_name):
+        cursor = Transaction().cursor
+        ir_translation = cls.__table__()
+
+        # Prefetch field translations
+        trans_fields = {}
+        trans_help = {}
+        trans_selection = {}
+        if model._fields:
+            names = ['%s,%s' % (model.__name__, f) for f in model._fields]
+            cursor.execute(*ir_translation.select(ir_translation.id,
+                    ir_translation.name, ir_translation.src,
+                    ir_translation.type,
+                    where=((ir_translation.lang == 'en_US')
+                        & ir_translation.type.in_(
+                            ('field', 'help', 'selection'))
+                        & ir_translation.name.in_(names))))
+            for trans in cursor.dictfetchall():
+                if trans['type'] == 'field':
+                    trans_fields[trans['name']] = trans
+                elif trans['type'] == 'help':
+                    trans_help[trans['name']] = trans
+                elif trans['type'] == 'selection':
+                    trans_selection.setdefault(trans['name'], {})
+                    trans_selection[trans['name']][trans['src']] = trans
+
+        def update_insert_field(field, trans_name):
+            string_md5 = cls.get_src_md5(field.string)
+            if trans_name not in trans_fields:
+                cursor.execute(*ir_translation.insert(
+                        [ir_translation.name, ir_translation.lang,
+                            ir_translation.type, ir_translation.src,
+                            ir_translation.src_md5, ir_translation.value,
+                            ir_translation.module, ir_translation.fuzzy],
+                        [[trans_name, 'en_US', 'field', field.string,
+                                string_md5, '', module_name, False]]))
+            elif trans_fields[trans_name]['src'] != field.string:
+                cursor.execute(*ir_translation.update(
+                        [ir_translation.src, ir_translation.src_md5],
+                        [field.string, string_md5],
+                        where=ir_translation.id ==
+                        trans_fields[trans_name]['id']))
+
+        def update_insert_help(field, trans_name):
+            help_md5 = cls.get_src_md5(field.help)
+            if trans_name not in trans_help:
+                if field.help:
+                    cursor.execute(*ir_translation.insert(
+                            [ir_translation.name, ir_translation.lang,
+                                ir_translation.type, ir_translation.src,
+                                ir_translation.src_md5, ir_translation.value,
+                                ir_translation.module, ir_translation.fuzzy],
+                            [[trans_name, 'en_US', 'help', field.help,
+                                    help_md5, '', module_name, False]]))
+            elif trans_help[trans_name]['src'] != field.help:
+                cursor.execute(*ir_translation.update(
+                        [ir_translation.src, ir_translation.src_md5],
+                        [field.help, help_md5],
+                        where=ir_translation.id ==
+                        trans_help[trans_name]['id']))
+
+        def insert_selection(field, trans_name):
+            for (_, val) in field.selection:
+                if (trans_name not in trans_selection
+                        or val not in trans_selection[trans_name]):
+                    val_md5 = cls.get_src_md5(val)
+                    cursor.execute(*ir_translation.insert(
+                            [ir_translation.name, ir_translation.lang,
+                                ir_translation.type, ir_translation.src,
+                                ir_translation.src_md5, ir_translation.value,
+                                ir_translation.module, ir_translation.fuzzy],
+                            [[trans_name, 'en_US', 'selection', val, val_md5,
+                                    '', module_name, False]]))
+
+        for field_name, field in model._fields.iteritems():
+            trans_name = model.__name__ + ',' + field_name
+            update_insert_field(field, trans_name)
+            update_insert_help(field, trans_name)
+            if (hasattr(field, 'selection')
+                    and isinstance(field.selection, (tuple, list))
+                    and getattr(field, 'translate_selection', True)):
+                insert_selection(field, trans_name)
+
+    @classmethod
+    def register_error_messages(cls, model, module_name):
+        cursor = Transaction().cursor
+        ir_translation = cls.__table__()
+
+        cursor.execute(*ir_translation.select(
+                ir_translation.id, ir_translation.src,
+                where=((ir_translation.lang == 'en_US')
+                    & (ir_translation.type == 'error')
+                    & (ir_translation.name == model.__name__))))
+        trans_error = dict((t['src'], t) for t in cursor.dictfetchall())
+
+        errors = model._get_error_messages()
+        for error in set(errors):
+            if error not in trans_error:
+                error_md5 = Translation.get_src_md5(error)
+                cursor.execute(*ir_translation.insert(
+                        [ir_translation.name, ir_translation.lang,
+                            ir_translation.type, ir_translation.src,
+                            ir_translation.src_md5, ir_translation.value,
+                            ir_translation.module, ir_translation.fuzzy],
+                        [[model.__name__, 'en_US', 'error', error, error_md5,
+                                '', module_name, False]]))
+
+    @classmethod
+    def register_wizard(cls, wizard, module_name):
+        cursor = Transaction().cursor
+        ir_translation = cls.__table__()
+
+        # Prefetch button translations
+        cursor.execute(*ir_translation.select(
+                ir_translation.id, ir_translation.name, ir_translation.src,
+                where=((ir_translation.lang == 'en_US')
+                    & (ir_translation.type == 'wizard_button')
+                    & (ir_translation.name.like(wizard.__name__ + ',%')))))
+        trans_buttons = dict((t['name'], t) for t in cursor.dictfetchall())
+
+        def update_insert_button(state_name, button):
+            trans_name = '%s,%s,%s' % (
+                wizard.__name__, state_name, button.state)
+            src_md5 = cls.get_src_md5(button.string)
+            if trans_name not in trans_buttons:
+                cursor.execute(*ir_translation.insert(
+                        [ir_translation.name, ir_translation.lang,
+                            ir_translation.type, ir_translation.src,
+                            ir_translation.src_md5, ir_translation.value,
+                            ir_translation.module, ir_translation.fuzzy],
+                        [[trans_name, 'en_US', 'wizard_button', button.string,
+                                src_md5, '', module_name, False]]))
+            elif trans_buttons[trans_name] != button.string:
+                cursor.execute(*ir_translation.update(
+                        [ir_translation.src, ir_translation.src_md5],
+                        [button.string, src_md5],
+                        where=ir_translation.id ==
+                        trans_buttons[trans_name]['id']))
+
+        for state_name, state in wizard.states.iteritems():
+            if not isinstance(state, StateView):
+                continue
+            for button in state.buttons:
+                update_insert_button(state_name, button)
 
     @staticmethod
     def default_fuzzy():
@@ -144,14 +332,13 @@ class Translation(ModelSQL, ModelView):
 
     @classmethod
     def search_model(cls, name, clause):
-        cursor = Transaction().cursor
-        cursor.execute('SELECT id FROM "%s" '
-            'WHERE SUBSTR(name, 1, '
-            'CASE WHEN POSITION(\',\' IN name) > 0 '
-                'THEN POSITION(\',\' IN name) - 1 '
-                'ELSE 0 END) %s %%s' %
-            (cls._table, clause[1]), (clause[2],))
-        return [('id', 'in', [x[0] for x in cursor.fetchall()])]
+        table = cls.__table__()
+        _, operator, value = clause
+        Operator = fields.SQL_OPERATORS[operator]
+        return Operator(Substring(table.name, 1,
+                Case((Position(',', table.name) > 0,
+                        Position(',', table.name) - 1),
+                    else_=0)), value)
 
     @classmethod
     def get_language(cls):
@@ -223,24 +410,25 @@ class Translation(ModelSQL, ModelView):
             to_fetch = ids
         if to_fetch:
             cursor = Transaction().cursor
-            fuzzy_sql = 'AND fuzzy = %s '
-            fuzzy = [False]
+            table = cls.__table__()
+            fuzzy_sql = table.fuzzy == False
             if Transaction().context.get('fuzzy_translation', False):
-                fuzzy_sql = ''
-                fuzzy = []
-            for i in range(0, len(to_fetch), cursor.IN_MAX):
-                sub_to_fetch = to_fetch[i:i + cursor.IN_MAX]
-                red_sql, red_ids = reduce_ids('res_id', sub_to_fetch)
-                cursor.execute('SELECT res_id, value '
-                    'FROM ir_translation '
-                    'WHERE lang = %s '
-                        'AND type = %s '
-                        'AND name = %s '
-                        'AND value != \'\' '
-                        'AND value IS NOT NULL '
-                        + fuzzy_sql +
-                        'AND ' + red_sql,
-                    [lang, ttype, name] + fuzzy + red_ids)
+                fuzzy_sql = None
+            in_max = cursor.IN_MAX / 7
+            for i in range(0, len(to_fetch), in_max):
+                sub_to_fetch = to_fetch[i:i + in_max]
+                red_sql = reduce_ids(table.res_id, sub_to_fetch)
+                where = And(((table.lang == lang),
+                        (table.type == ttype),
+                        (table.name == name),
+                        (table.value != ''),
+                        (table.value != None),
+                        red_sql,
+                        ))
+                if fuzzy_sql:
+                    where &= fuzzy_sql
+                cursor.execute(*table.select(table.res_id, table.value,
+                        where=where))
                 for res_id, value in cursor.fetchall():
                     # Don't store fuzzy translation in cache
                     if not Transaction().context.get(
@@ -406,29 +594,17 @@ class Translation(ModelSQL, ModelView):
             return trans
 
         cursor = Transaction().cursor
+        table = cls.__table__()
+        where = ((table.lang == lang)
+            & (table.type == ttype)
+            & (table.name == name)
+            & (table.value != '')
+            & (table.value != None)
+            & (table.fuzzy == False)
+            & (table.res_id == None))
         if source is not None:
-            cursor.execute('SELECT value '
-                    'FROM ir_translation '
-                    'WHERE lang = %s '
-                        'AND type = %s '
-                        'AND name = %s '
-                        'AND src = %s '
-                        'AND value != \'\' '
-                        'AND value IS NOT NULL '
-                        'AND fuzzy = %s '
-                        'AND res_id IS NULL',
-                    (lang, ttype, name, source, False))
-        else:
-            cursor.execute('SELECT value '
-                    'FROM ir_translation '
-                    'WHERE lang = %s '
-                        'AND type = %s '
-                        'AND name = %s '
-                        'AND value != \'\' '
-                        'AND value IS NOT NULL '
-                        'AND fuzzy = %s '
-                        'AND res_id IS NULL',
-                    (lang, ttype, name, False))
+            where &= table.src == source
+        cursor.execute(*table.select(table.value, where=where))
         res = cursor.fetchone()
         if res:
             cls._translation_cache.set((lang, ttype, name, source), res[0])
@@ -447,6 +623,7 @@ class Translation(ModelSQL, ModelView):
         res = {}
         clause = []
         cursor = Transaction().cursor
+        table = cls.__table__()
         if len(args) > cursor.IN_MAX:
             for i in range(0, len(args), cursor.IN_MAX):
                 sub_args = args[i:i + cursor.IN_MAX]
@@ -464,32 +641,24 @@ class Translation(ModelSQL, ModelView):
             else:
                 res[(name, ttype, lang, source)] = None
                 cls._translation_cache.set((lang, ttype, name, source), None)
+                where = And(((table.lang == lang),
+                        (table.type == ttype),
+                        (table.name == name),
+                        (table.value != ''),
+                        (table.value != None),
+                        (table.fuzzy == False),
+                        (table.res_id == None),
+                        ))
                 if source is not None:
-                    clause += [('(lang = %s '
-                            'AND type = %s '
-                            'AND name = %s '
-                            'AND src = %s '
-                            'AND value != \'\' '
-                            'AND value IS NOT NULL '
-                            'AND fuzzy = %s '
-                            'AND res_id IS NULL)',
-                            (lang, ttype, name, source, False))]
-                else:
-                    clause += [('(lang = %s '
-                            'AND type = %s '
-                            'AND name = %s '
-                            'AND value != \'\' '
-                            'AND value IS NOT NULL '
-                            'AND fuzzy = %s '
-                            'AND res_id IS NULL)',
-                            (lang, ttype, name, False))]
+                    where &= table.src == source
+                clause.append(where)
         if clause:
-            for i in range(0, len(clause), cursor.IN_MAX):
-                sub_clause = clause[i:i + cursor.IN_MAX]
-                cursor.execute('SELECT lang, type, name, src, value '
-                    'FROM ir_translation '
-                    'WHERE ' + ' OR '.join(x[0] for x in sub_clause),
-                    reduce(lambda x, y: x + y, [x[1] for x in sub_clause]))
+            in_max = cursor.IN_MAX / 7
+            for i in range(0, len(clause), in_max):
+                cursor.execute(*table.select(
+                        table.lang, table.type, table.name, table.src,
+                        table.value,
+                        where=Or(clause[i:i + in_max])))
                 for lang, ttype, name, source, value in cursor.fetchall():
                     if (name, ttype, lang, source) not in args:
                         source = None
@@ -511,32 +680,28 @@ class Translation(ModelSQL, ModelView):
         vlist = [x.copy() for x in vlist]
 
         cursor = Transaction().cursor
+        table = cls.__table__()
         for vals in vlist:
             if not vals.get('module'):
                 if Transaction().context.get('module'):
                     vals['module'] = Transaction().context['module']
                 elif vals.get('type', '') in ('odt', 'view', 'wizard_button',
                         'selection', 'error'):
-                    cursor.execute('SELECT module FROM ir_translation '
-                        'WHERE name = %s '
-                            'AND res_id = %s '
-                            'AND lang = %s '
-                            'AND type = %s '
-                            'AND src = %s ',
-                        (vals.get('name') or '', vals.get('res_id') or 0,
-                            'en_US', vals.get('type') or '', vals.get('src')
-                            or ''))
+                    cursor.execute(*table.select(table.module,
+                            where=(table.name == vals.get('name') or '')
+                            & (table.res_id == vals.get('res_id') or 0)
+                            & (table.lang == 'en_US')
+                            & (table.type == vals.get('type') or '')
+                            & (table.src == vals.get('src') or '')))
                     fetchone = cursor.fetchone()
                     if fetchone:
                         vals['module'] = fetchone[0]
                 else:
-                    cursor.execute('SELECT module, src FROM ir_translation '
-                        'WHERE name = %s '
-                            'AND res_id = %s '
-                            'AND lang = %s '
-                            'AND type = %s',
-                        (vals.get('name') or '', vals.get('res_id') or 0,
-                            'en_US', vals.get('type') or ''))
+                    cursor.execute(*table.select(table.module, table.src,
+                            where=(table.name == vals.get('name') or '')
+                            & (table.res_id == vals.get('res_id') or 0)
+                            & (table.lang == 'en_US')
+                            & (table.type == vals.get('type') or '')))
                     fetchone = cursor.fetchone()
                     if fetchone:
                         vals['module'], vals['src'] = fetchone
@@ -778,13 +943,14 @@ class TranslationSet(Wizard):
             return
 
         cursor = Transaction().cursor
+        translation = Transaction.__table__()
         for report in reports:
-            cursor.execute('SELECT id, name, src FROM ir_translation '
-                'WHERE lang = %s '
-                    'AND type = %s '
-                    'AND name = %s '
-                    'AND module = %s',
-                ('en_US', 'odt', report.report_name, report.module or ''))
+            cursor.extend(*translation.select(
+                    translation.id, translation.name, translation.src,
+                    where=(translation.lang == 'en_US')
+                    & (translation.type == 'odt')
+                    & (translation.name == report.report_name)
+                    & (translation.module == report.module or '')))
             trans_reports = {}
             for trans in cursor.dictfetchall():
                 trans_reports[trans['src']] = trans
@@ -839,35 +1005,31 @@ class TranslationSet(Wizard):
                         done = True
                         break
                     if seqmatch.ratio() > 0.6:
-                        cursor.execute('UPDATE ir_translation '
-                            'SET src = %s, '
-                                'fuzzy = %s, '
-                                'src_md5 = %s '
-                            'WHERE name = %s '
-                                'AND type = %s '
-                                'AND src = %s '
-                                'AND module = %s',
-                            (string, True, src_md5, report.report_name,
-                                'odt', string_trans, report.module))
+                        cursor.execute(*translation.update(
+                                [translation.src, translation.fuzzy,
+                                    translation.src_md5],
+                                [string, True, src_md5],
+                                where=(translation.name == report.report_name)
+                                & (translation.type == 'odt')
+                                & (translation.src == string_trans)
+                                & (translation.module == report.module)))
                         del trans_reports[string_trans]
                         done = True
                         break
                 if not done:
-                    cursor.execute('INSERT INTO ir_translation '
-                        '(name, lang, type, src, value, module, fuzzy, '
-                            'src_md5)'
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                        (report.report_name, 'en_US', 'odt', string, '',
-                            report.module, False, src_md5))
+                    cursor.execute(*translation.insert(
+                            [translation.name, translation.lang,
+                                translation.type, translation.src,
+                                translation.value, translation.module,
+                                translation.fuzzy, translation.src_md5],
+                            [[report.report_name, 'en_US', 'odt', string, '',
+                                    report.module, False, src_md5]]))
             if strings:
-                cursor.execute('DELETE FROM ir_translation '
-                    'WHERE name = %s '
-                        'AND type = %s '
-                        'AND module = %s '
-                        'AND src NOT IN '
-                            '(' + ','.join(('%s',) * len(strings)) + ')',
-                    (report.report_name, 'odt', report.module) +
-                    tuple(strings))
+                cursor.execute(*translation.delete(
+                        where=(translation.name == report.report_name)
+                        & (translation.type == 'odt')
+                        & (translation.module == report.module)
+                        & ~translation.src.in_(strings)))
 
     def _translate_view(self, element):
         strings = []
@@ -883,6 +1045,7 @@ class TranslationSet(Wizard):
     def set_view(self):
         pool = Pool()
         View = pool.get('ir.ui.view')
+        Translation = pool.get('ir.translation')
 
         with Transaction().set_context(active_test=False):
             views = View.search([])
@@ -890,14 +1053,14 @@ class TranslationSet(Wizard):
         if not views:
             return
         cursor = Transaction().cursor
-
+        translation = Translation.__table__
         for view in views:
-            cursor.execute('SELECT id, name, src FROM ir_translation '
-                'WHERE lang = %s '
-                    'AND type = %s '
-                    'AND name = %s '
-                    'AND module = %s',
-                ('en_US', 'view', view.model, view.module))
+            cursor.execute(*translation.select(
+                    translation.id, translation.name, translation.src,
+                    where=(translation.lang == 'en_US')
+                    & (translation.type == 'view')
+                    & (translation.name == view.model)
+                    & (translation.module == view.module)))
             trans_views = {}
             for trans in cursor.dictfetchall():
                 trans_views[trans['src']] = trans
@@ -939,31 +1102,29 @@ class TranslationSet(Wizard):
                         done = True
                         break
                     if seqmatch.ratio() > 0.6:
-                        cursor.execute('UPDATE ir_translation '
-                            'SET src = %s, '
-                                'src_md5 = %s, '
-                                'fuzzy = %s '
-                            'WHERE id = %s ',
-                            (string, string_md5, True,
-                                trans_views[string_trans]['id']))
+                        cursor.execute(*translation.update(
+                                [translation.src, translation.src_md5,
+                                    translation.fuzzy],
+                                [string, string_md5, True],
+                                where=(translation.id ==
+                                    trans_views[string_trans]['id'])))
                         del trans_views[string_trans]
                         done = True
                         break
                 if not done:
-                    cursor.execute('INSERT INTO ir_translation '
-                        '(name, lang, type, src, src_md5, value, module, '
-                            'fuzzy) '
-                        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                        (view.model, 'en_US', 'view', string, string_md5, '',
-                            view.module, False))
+                    cursor.execute(*translation.insert(
+                            [translation.name, translation.lang,
+                                translation.type, translation.src,
+                                translation.src_md5, translation.value,
+                                translation.module, translation.fuzzy],
+                            [[view.model, 'en_US', 'view', string, string_md5,
+                                    '', view.module, False]]))
             if strings:
-                cursor.execute('DELETE FROM ir_translation '
-                    'WHERE name = %s '
-                        'AND type = %s '
-                        'AND module = %s '
-                        'AND src NOT IN '
-                        '(' + ','.join(('%s',) * len(strings)) + ')',
-                    (view.model, 'view', view.module) + tuple(strings))
+                cursor.execute(*translation.delete(
+                        where=(translation.name == view.model)
+                        & (translation.type == 'view')
+                        & (translation.module == view.module)
+                        & ~translation.src.in_(strings)))
 
     def transition_set_(self):
         self.set_report()
@@ -1220,18 +1381,17 @@ class TranslationUpdate(Wizard):
         pool = Pool()
         Translation = pool.get('ir.translation')
         cursor = Transaction().cursor
+        translation = Translation.__table__()
         lang = self.start.language.code
-        cursor.execute('SELECT name, res_id, type, src, module '
-            'FROM ir_translation '
-            'WHERE lang=\'en_US\' '
-                'AND type in (\'odt\', \'view\', \'wizard_button\', '
-                ' \'selection\', \'error\') '
-            'EXCEPT SELECT name, res_id, type, src, module '
-            'FROM ir_translation '
-            'WHERE lang=%s '
-                'AND type in (\'odt\', \'view\', \'wizard_button\', '
-                ' \'selection\', \'error\')',
-            (lang,))
+        types = ['odt', 'view', 'wizard_button', 'selection', 'error']
+        columns = [translation.name, translation.res_id, translation.type,
+            translation.src, translation.module]
+        cursor.execute(*(translation.select(*columns,
+                    where=(translation.lang == 'en_US')
+                    & translation.type.in_(types))
+                - translation.select(*columns,
+                    where=(translation.lang == lang)
+                    & translation.type.in_(types))))
         to_create = []
         for row in cursor.dictfetchall():
             to_create.append({
@@ -1245,15 +1405,15 @@ class TranslationUpdate(Wizard):
         if to_create:
             with Transaction().set_user(0):
                 Translation.create(to_create)
-        cursor.execute('SELECT name, res_id, type, module '
-            'FROM ir_translation '
-            'WHERE lang=\'en_US\' '
-                'AND type in (\'field\', \'model\', \'help\') '
-            'EXCEPT SELECT name, res_id, type, module '
-            'FROM ir_translation '
-            'WHERE lang=%s '
-                'AND type in (\'field\', \'model\', \'help\')',
-            (lang,))
+        types = ['field', 'model', 'help']
+        columns = [translation.name, translation.res_id, translation.type,
+            translation.module]
+        cursor.execute(*(translation.select(*columns,
+                    where=(translation.lang == 'en_US')
+                    & translation.type.in_(types))
+                - translation.select(*columns,
+                    where=(translation.lang == lang)
+                    & translation.type.in_(types))))
         to_create = []
         for row in cursor.dictfetchall():
             to_create.append({
@@ -1266,51 +1426,49 @@ class TranslationUpdate(Wizard):
         if to_create:
             with Transaction().set_user(0):
                 Translation.create(to_create)
-        cursor.execute('SELECT name, res_id, type, src '
-            'FROM ir_translation '
-            'WHERE lang=\'en_US\' '
-                'AND type in (\'field\', \'model\', \'selection\', '
-                    '\'help\') '
-            'EXCEPT SELECT name, res_id, type, src '
-            'FROM ir_translation '
-            'WHERE lang=%s '
-                'AND type in (\'field\', \'model\', \'selection\', '
-                    '\'help\')',
-            (lang,))
+        types = ['field', 'model', 'selection', 'help']
+        columns = [translation.name, translation.res_id, translation.type,
+            translation.src]
+        cursor.execute(*(translation.select(*columns,
+                    where=(translation.lang == 'en_US')
+                    & translation.type.in_(types))
+                - translation.select(*columns,
+                    where=(translation.lang == lang)
+                    & translation.type.in_(types))))
         for row in cursor.dictfetchall():
-            cursor.execute('UPDATE ir_translation '
-                'SET fuzzy = %s, '
-                    'src = %s '
-                'WHERE name = %s '
-                    'AND type = %s '
-                    'AND lang = %s '
-                    + ('AND res_id = %s' if row['res_id']
-                    else 'AND res_id is NULL'),
-                (True, row['src'], row['name'], row['type'], lang)
-                + ((row['res_id'],) if row['res_id'] else ()))
+            cursor.execute(*translation.update(
+                    [translation.fuzzy, translation.src],
+                    [True, row['src']],
+                    where=(translation.name == row['name'])
+                    & (translation.type == row['type'])
+                    & (translation.lang == lang)
+                    & (translation.res_id == (row['res_id'] or None))))
 
-        cursor.execute('SELECT src, MAX(value) AS value FROM ir_translation '
-            'WHERE lang = %s '
-                'AND src IN ('
-                    'SELECT src FROM ir_translation '
-                    'WHERE (value = \'\' OR value IS NULL) '
-                        'AND lang = %s) '
-                'AND value != \'\' AND value IS NOT NULL '
-            'GROUP BY src', (lang, lang))
+        cursor.execute(*translation.select(
+                translation.src, Max(translation.value).as_('value'),
+                where=(translation.lang == lang)
+                & translation.src.in_(
+                    translation.select(translation.src,
+                        where=((translation.value == '')
+                            | (translation.value == None))
+                        & (translation.lang == lang)))
+                & (translation.value != '')
+                & (translation.value != None),
+                group_by=translation.src))
 
         for row in cursor.dictfetchall():
-            cursor.execute('UPDATE ir_translation '
-                'SET fuzzy = %s, '
-                    'value = %s '
-                'WHERE src = %s '
-                    'AND (value = \'\' OR value IS NULL) '
-                    'AND lang = %s',
-                (True, row['value'], row['src'], lang))
+            cursor.execute(*translation.update(
+                    [translation.fuzzy, translation.value],
+                    [True, row['value']],
+                    where=(translation.src == row['src'])
+                    & ((translation.value == '') | (translation.value == None))
+                    & (translation.lang == lang)))
 
-        cursor.execute('UPDATE ir_translation '
-            'SET fuzzy = %s '
-            'WHERE (value = \'\' OR value IS NULL) '
-                'AND lang = %s', (False, lang,))
+        cursor.execute(*translation.update(
+                [translation.fuzzy],
+                [False],
+                where=((translation.value == '') | (translation.value == None))
+                & (translation.lang == lang)))
 
         action['pyson_domain'] = PYSONEncoder().encode([
             ('module', '!=', False),

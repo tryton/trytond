@@ -1,9 +1,12 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from itertools import chain
-from trytond.model.fields.field import Field, size_validate
-from trytond.transaction import Transaction
-from trytond.pool import Pool
+from sql import Cast, Literal, Column
+from sql.functions import Substring, Position
+
+from .field import Field, size_validate
+from ...transaction import Transaction
+from ...pool import Pool
 
 
 class Many2Many(Field):
@@ -15,8 +18,7 @@ class Many2Many(Field):
     def __init__(self, relation_name, origin, target, string='', order=None,
             datetime_field=None, size=None, help='', required=False,
             readonly=False, domain=None, states=None, on_change=None,
-            on_change_with=None, depends=None, order_field=None, context=None,
-            loading='lazy'):
+            on_change_with=None, depends=None, context=None, loading='lazy'):
         '''
         :param relation_name: The name of the relation model
             or the name of the target model for ModelView only.
@@ -36,8 +38,7 @@ class Many2Many(Field):
         super(Many2Many, self).__init__(string=string, help=help,
             required=required, readonly=readonly, domain=domain, states=states,
             on_change=on_change, on_change_with=on_change_with,
-            depends=depends, order_field=order_field, context=context,
-            loading=loading)
+            depends=depends, context=context, loading=loading)
         self.relation_name = relation_name
         self.origin = origin
         self.target = target
@@ -236,3 +237,94 @@ class Many2Many(Field):
                 return Target(data)
         value = [instance(x) for x in (value or [])]
         super(Many2Many, self).__set__(inst, value)
+
+    def convert_domain_child(self, domain, tables):
+        Target = self.get_target()
+        table, _ = tables[None]
+        name, operator, ids = domain
+
+        def get_child(ids):
+            if not ids:
+                return []
+            children = Target.search([
+                    (name, 'in', ids),
+                    (name, '!=', None),
+                    ], order=[])
+            child_ids = get_child([c.id for c in children])
+            return ids + child_ids
+        expression = table.id.in_(ids + get_child(ids))
+        if operator == 'not child_of':
+            return ~expression
+        return expression
+
+    def convert_domain(self, domain, tables, Model):
+        pool = Pool()
+        Target = self.get_target()
+        Relation = pool.get(self.relation_name)
+        relation = Relation.__table__()
+        table, _ = tables[None]
+        name, operator, value = domain[:3]
+
+        origin_field = Relation._fields[self.origin]
+        origin = Column(relation, self.origin)
+        origin_where = None
+        if origin_field._type == 'reference':
+            origin_where = origin.like(Model.__name__ + ',%')
+            origin = Cast(Substring(origin,
+                    Position(',', origin) + Literal(1)),
+                Relation.id.sql_type().base)
+
+        if '.' not in name:
+            if operator in ('child_of', 'not child_of'):
+                if Target != Model:
+                    query = Target.search([(domain[3], 'child_of', value)],
+                        order=[], query=True)
+                    where = (Column(relation, self.target).in_(query)
+                        & (Column(relation, self.origin) != None))
+                    if origin_where:
+                        where &= origin_where
+                    query = relation.select(origin, where=where)
+                    expression = table.id.in_(query)
+                    if operator == 'not child_of':
+                        return ~expression
+                    return expression
+                if isinstance(value, basestring):
+                    targets = Target.search([('rec_name', 'ilike', value)],
+                        order=[])
+                    ids = [t.id for t in targets]
+                elif not isinstance(value, (list, tuple)):
+                    ids = [value]
+                else:
+                    ids = value
+                if not ids:
+                    expression = table.id.in_([None])
+                    if operator == 'not child_of':
+                        return ~expression
+                    return expression
+                else:
+                    return self.convert_domain_child(
+                        (name, operator, ids), tables)
+
+            if value is None:
+                where = origin != value
+                if origin_where:
+                    where &= origin_where
+                query = relation.select(origin, where=where)
+                expression = ~table.id.in_(query)
+                if operator == '!=':
+                    return ~expression
+                return expression
+            else:
+                if isinstance(value, basestring):
+                    target_name = 'rec_name'
+                else:
+                    target_name = 'id'
+        else:
+            _, target_name = name.split('.', 1)
+        target_domain = [(target_name,) + tuple(domain[1:])]
+        query = Target.search(target_domain, order=[], query=True)
+        where = Column(relation, self.target).in_(query)
+        if origin_where:
+            where &= origin_where
+        query = relation.select(origin, where=where)
+        return table.id.in_(query)
