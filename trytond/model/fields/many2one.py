@@ -1,9 +1,14 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from types import NoneType
+from sql import Column, Query, Expression
+from sql.operators import Or
 
-from trytond.model.fields.field import Field
-from trytond.pool import Pool
+from .field import Field, SQLType
+from ...pool import Pool
+from ...config import CONFIG
+from ...tools import reduce_ids
+from ...transaction import Transaction
 
 
 class Many2One(Field):
@@ -16,7 +21,7 @@ class Many2One(Field):
             ondelete='SET NULL', datetime_field=None, help='', required=False,
             readonly=False, domain=None, states=None, select=False,
             on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None, loading='eager'):
+            context=None, loading='eager'):
         '''
         :param model_name: The name of the target model.
         :param left: The name of the field to store the left value for
@@ -41,8 +46,7 @@ class Many2One(Field):
         super(Many2One, self).__init__(string=string, help=help,
             required=required, readonly=readonly, domain=domain, states=states,
             select=select, on_change=on_change, on_change_with=on_change_with,
-            depends=depends, order_field=order_field, context=context,
-            loading=loading)
+            depends=depends, context=context, loading=loading)
         self.model_name = model_name
         self.left = left
         self.right = right
@@ -71,3 +75,124 @@ class Many2One(Field):
             value = Target(value)
         assert isinstance(value, (Target, NoneType))
         super(Many2One, self).__set__(inst, value)
+
+    @staticmethod
+    def sql_format(value):
+        if isinstance(value, (Query, Expression)):
+            return value
+        if value is None:
+            return None
+        assert value is not False
+        return int(value)
+
+    def sql_type(self):
+        db_type = CONFIG['db_type']
+        if db_type == 'postgresql':
+            return SQLType('INT4', 'INT4')
+        elif db_type == 'mysql':
+            return SQLType('SIGNED INTEGER', 'BIGINT')
+        else:
+            return SQLType('INTEGER', 'INTEGER')
+
+    def convert_domain_child_mptt(self, domain, tables):
+        cursor = Transaction().cursor
+        table, _ = tables[None]
+        name, operator, ids = domain
+        red_sql = reduce_ids(table.id, ids)
+        left = Column(table, self.left)
+        right = Column(table, self.right)
+        cursor.execute(*table.select(left, right, where=red_sql))
+        where = Or()
+        for l, r in cursor.fetchall():
+            where.append((left >= l) & (right <= r))
+        expression = table.id.in_(table.select(table.id, where=where))
+        if operator == 'not child_of':
+            return ~expression
+        return expression
+
+    def convert_domain_child(self, domain, tables):
+        Target = self.get_target()
+        table, _ = tables[None]
+        name, operator, ids = domain
+
+        def get_child(ids):
+            if not ids:
+                return []
+            children = Target.search([
+                    (name, 'in', ids),
+                    (name, '!=', None),
+                    ], order=[])
+            child_ids = get_child([c.id for c in children])
+            return ids + child_ids
+        expression = table.id.in_(ids + get_child(ids))
+        if operator == 'not child_of':
+            return ~expression
+        return expression
+
+    def convert_domain(self, domain, tables, Model):
+        Target = self.get_target()
+        table, _ = tables[None]
+        name, operator, value = domain[:3]
+        column = Column(table, name.split('.', 1)[0])
+        if '.' not in name:
+            if operator in ('child_of', 'not child_of'):
+                if Target != Model:
+                    query = Target.search([(domain[3], 'child_of', value)],
+                        order=[], query=True)
+                    expression = column.in_(query)
+                    if operator == 'not child_of':
+                        return ~expression
+                    return expression
+
+                if isinstance(value, basestring):
+                    targets = Target.search([('rec_name', 'ilike', value)],
+                        order=[])
+                    ids = [t.id for t in targets]
+                elif not isinstance(value, (list, tuple)):
+                    ids = [value]
+                else:
+                    ids = value
+                if not ids:
+                    expression = column.in_([None])
+                    if operator == 'not child_of':
+                        return ~expression
+                    return expression
+                elif self.left and self.right:
+                    return self.convert_domain_child_mptt(
+                        (name, operator, ids), tables)
+                else:
+                    return self.convert_domain_child(
+                        (name, operator, ids), tables)
+
+            if not isinstance(value, basestring):
+                return super(Many2One, self).convert_domain(domain, tables,
+                    Model)
+            else:
+                target_name = 'rec_name'
+        else:
+            _, target_name = name.split('.', 1)
+        target_domain = [(target_name,) + tuple(domain[1:])]
+        if 'active' in Target._fields:
+            target_domain.append(('active', 'in', [True, False]))
+        query = Target.search(target_domain, order=[], query=True)
+        return column.in_(query)
+
+    def convert_order(self, name, tables, Model):
+        Target = self.get_target()
+
+        oname = 'id'
+        if Target._rec_name in Target._fields:
+            oname = Target._rec_name
+        if Target._order_name in Target._fields:
+            oname = Target._order_name
+
+        ofield = Target._fields[oname]
+        table, _ = tables[None]
+        target_tables = tables.get(name)
+        if target_tables is None:
+            target = Target.__table__()
+            target_tables = {
+                None: (target, target.id == Column(table, name)),
+                }
+            tables[name] = target_tables
+        return ofield.convert_order(oname, target_tables, Target)

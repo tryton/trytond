@@ -23,11 +23,15 @@ class Property(ModelSQL, ModelView):
 
     @classmethod
     def models_get(cls):
+        pool = Pool()
+        Model = pool.get('ir.model')
         models = cls._models_get_cache.get(None)
         if models:
             return models
         cursor = Transaction().cursor
-        cursor.execute('SELECT model, name FROM ir_model ORDER BY name ASC')
+        model = Model.__table__()
+        cursor.execute(*model.select(model.model, model.name,
+                order_by=model.name.asc))
         models = cursor.fetchall() + [('', '')]
         cls._models_get_cache.set(None, models)
         return models

@@ -9,7 +9,7 @@ import datetime
 
 from trytond.model import ModelSQL, fields
 from trytond.config import CONFIG
-from ..backend import TableHandler
+from .. import backend
 from ..transaction import Transaction
 
 __all__ = [
@@ -31,6 +31,7 @@ class Session(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(Session, cls).__register__(module_name)
 
         table = TableHandler(Transaction().cursor, cls, module_name)

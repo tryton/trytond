@@ -21,6 +21,10 @@ import os
 if os.name == 'posix':
     import pwd
 from decimal import Decimal
+from sql import Flavor
+
+__all__ = ['Database', 'DatabaseIntegrityError', 'DatabaseOperationalError',
+    'Cursor']
 
 RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
@@ -34,6 +38,7 @@ class Database(DatabaseInterface):
     _list_cache = None
     _list_cache_timestamp = None
     _version_cache = {}
+    flavor = Flavor(ilike=True)
 
     def __new__(cls, database_name='template1'):
         if database_name in cls._databases:
@@ -298,51 +303,16 @@ class Cursor(CursorInterface):
         return getattr(self.cursor, name)
 
     def execute(self, sql, params=None):
-        if self.sql_log:
-            now = time.time()
-
         try:
             if params:
-                res = self.cursor.execute(sql, params)
+                return self.cursor.execute(sql, params)
             else:
-                res = self.cursor.execute(sql)
+                return self.cursor.execute(sql)
         except Exception:
-            logger = logging.getLogger('sql')
-            logger.error('Wrong SQL: ' + (self.cursor.query or ''))
+            print sql, params
             raise
-        if self.sql_log:
-            res_from = RE_FROM.match(sql.lower())
-            if res_from:
-                self.sql_from_log.setdefault(res_from.group(1), [0, 0])
-                self.sql_from_log[res_from.group(1)][0] += 1
-                self.sql_from_log[res_from.group(1)][1] += time.time() - now
-                self.count['from'] += 1
-            res_into = RE_INTO.match(sql.lower())
-            if res_into:
-                self.sql_into_log.setdefault(res_into.group(1), [0, 0])
-                self.sql_into_log[res_into.group(1)][0] += 1
-                self.sql_into_log[res_into.group(1)][1] += time.time() - now
-                self.count['into'] += 1
-        return res
-
-    def _print_log(self, sql_type='from'):
-        logger = logging.getLogger('sql')
-        logger.info("SQL LOG %s:" % (sql_type,))
-        if sql_type == 'from':
-            logs = self.sql_from_log.items()
-        else:
-            logs = self.sql_into_log.items()
-        logs.sort(lambda x, y: cmp(x[1][1], y[1][1]))
-        amount = 0
-        for log in logs:
-            logger.info("table:%s:%f/%d" % (log[0], log[1][1], log[1][0]))
-            amount += log[1][1]
-        logger.info("SUM:%s/%d" % (amount, self.count[sql_type]))
 
     def close(self, close=False):
-        if self.sql_log:
-            self._print_log('from')
-            self._print_log('into')
         self.cursor.close()
         self.rollback()
         self._connpool.putconn(self._conn, close=close)

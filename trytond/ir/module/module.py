@@ -4,7 +4,7 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.modules import create_graph, get_module_list, get_module_info
 from trytond.wizard import Wizard, StateView, Button, StateTransition, \
     StateAction
-from trytond.backend import TableHandler
+from trytond import backend
 from trytond.pool import Pool
 from trytond.transaction import Transaction
 from trytond.pyson import Eval
@@ -339,6 +339,7 @@ class ModuleConfigWizardItem(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         table = TableHandler(Transaction().cursor, cls, module_name)
 
         # Migrate from 2.2 remove name

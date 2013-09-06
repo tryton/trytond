@@ -32,7 +32,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">Collections</field>
             <field name="type">ir.action.act_window</field>
             <field name="res_model">webdav.collection</field>
-            <field name="domain">[('parent', '=', False)]</field>
+            <field name="domain">[('parent', '=', None)]</field>
         </record>
         <record model="ir.action.act_window.view"
             id="act_collection_tree_view1">

@@ -1,8 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+from sql import Query, Expression
 
-from trytond.model.fields.field import Field
-from trytond.pyson import PYSON
+from ...config import CONFIG
+from .field import Field, SQLType
+from ...pyson import PYSON
 
 
 def digits_validate(value):
@@ -25,7 +27,7 @@ class Float(Field):
     def __init__(self, string='', digits=None, help='', required=False,
             readonly=False, domain=None, states=None, select=False,
             on_change=None, on_change_with=None, depends=None,
-            order_field=None, context=None, loading='eager'):
+            context=None, loading='eager'):
         '''
         :param digits: a list of two integers defining the total
             of digits and the number of decimals of the float.
@@ -33,8 +35,7 @@ class Float(Field):
         super(Float, self).__init__(string=string, help=help,
             required=required, readonly=readonly, domain=domain, states=states,
             select=select, on_change=on_change, on_change_with=on_change_with,
-            depends=depends, order_field=order_field, context=context,
-            loading=loading)
+            depends=depends, context=context, loading=loading)
         self.__digits = None
         self.digits = digits
 
@@ -48,3 +49,20 @@ class Float(Field):
         self.__digits = value
 
     digits = property(_get_digits, _set_digits)
+
+    @staticmethod
+    def sql_format(value):
+        if isinstance(value, (Query, Expression)):
+            return value
+        if value is None:
+            return None
+        return float(value)
+
+    def sql_type(self):
+        db_type = CONFIG['db_type']
+        if db_type == 'postgresql':
+            return SQLType('FLOAT8', 'FLOAT8')
+        elif db_type == 'mysql':
+            return SQLType('DOUBLE', 'DOUBLE(255, 15)')
+        else:
+            return SQLType('FLOAT', 'FLOAT')

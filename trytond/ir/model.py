@@ -3,6 +3,8 @@
 import datetime
 import re
 import heapq
+from sql.aggregate import Max
+from sql.conditionals import Case
 from collections import defaultdict
 
 from ..model import ModelView, ModelSQL, fields
@@ -13,7 +15,7 @@ from ..cache import Cache
 from ..pool import Pool
 from ..pyson import Bool, Eval
 from ..rpc import RPC
-from ..backend import TableHandler
+from .. import backend
 try:
     from ..tools.StringMatcher import StringMatcher
 except ImportError:
@@ -68,6 +70,39 @@ class Model(ModelSQL, ModelView):
                 'list_models': RPC(),
                 'global_search': RPC(),
                 })
+
+    @classmethod
+    def register(cls, model, module_name):
+        pool = Pool()
+        Property = pool.get('ir.property')
+        cursor = Transaction().cursor
+
+        ir_model = cls.__table__()
+        cursor.execute(*ir_model.select(ir_model.id,
+                where=ir_model.model == model.__name__))
+        model_id = None
+        if cursor.rowcount == -1 or cursor.rowcount is None:
+            data = cursor.fetchone()
+            if data:
+                model_id, = data
+        elif cursor.rowcount != 0:
+            model_id, = cursor.fetchone()
+        if not model_id:
+            cursor.execute(*ir_model.insert(
+                    [ir_model.model, ir_model.name, ir_model.info,
+                        ir_model.module],
+                    [[model.__name__, model._get_name(), model.__doc__,
+                            module_name]]))
+            Property._models_get_cache.clear()
+            cursor.execute(*ir_model.select(ir_model.id,
+                    where=ir_model.model == model.__name__))
+            (model_id,) = cursor.fetchone()
+        elif model.__doc__:
+            cursor.execute(*ir_model.update(
+                    [ir_model.name, ir_model.info],
+                    [model._get_name(), model.__doc__],
+                    where=ir_model.id == model_id))
+        return model_id
 
     @classmethod
     def validate(cls, models):
@@ -211,6 +246,65 @@ class ModelField(ModelSQL, ModelView):
                 })
         cls._order.insert(0, ('name', 'ASC'))
 
+    @classmethod
+    def register(cls, model, module_name, model_id):
+        pool = Pool()
+        Model = pool.get('ir.model')
+        cursor = Transaction().cursor
+
+        ir_model_field = cls.__table__()
+        ir_model = Model.__table__()
+
+        cursor.execute(*ir_model_field.join(ir_model,
+                condition=ir_model_field.model == ir_model.id
+                ).select(ir_model_field.id.as_('id'),
+                ir_model_field.name.as_('name'),
+                ir_model_field.field_description.as_('field_description'),
+                ir_model_field.ttype.as_('ttype'),
+                ir_model_field.relation.as_('relation'),
+                ir_model_field.module.as_('module'),
+                ir_model_field.help.as_('help'),
+                where=ir_model.model == model.__name__))
+        model_fields = dict((f['name'], f) for f in cursor.dictfetchall())
+
+        for field_name, field in model._fields.iteritems():
+            if hasattr(field, 'model_name'):
+                relation = field.model_name
+            elif hasattr(field, 'relation_name'):
+                relation = field.relation_name
+            else:
+                relation = None
+
+            if field_name not in model_fields:
+                cursor.execute(*ir_model_field.insert(
+                        [ir_model_field.model, ir_model_field.name,
+                            ir_model_field.field_description,
+                            ir_model_field.ttype, ir_model_field.relation,
+                            ir_model_field.help, ir_model_field.module],
+                        [[model_id, field_name, field.string, field._type,
+                                relation, field.help, module_name]]))
+            elif (model_fields[field_name]['field_description'] != field.string
+                    or model_fields[field_name]['ttype'] != field._type
+                    or model_fields[field_name]['relation'] != relation
+                    or model_fields[field_name]['help'] != field.help):
+                cursor.execute(*ir_model_field.update(
+                        [ir_model_field.field_description,
+                            ir_model_field.ttype, ir_model_field.relation,
+                            ir_model_field.help],
+                        [[field.string, field._type, relation, field.help]],
+                        where=ir_model_field.id ==
+                        model_fields[field_name]['id']))
+
+        # Clean ir_model_field from field that are no more existing.
+        for field_name in model_fields:
+            if model_fields[field_name]['module'] == module_name \
+                    and field_name not in model._fields:
+                #XXX This delete field even when it is defined later
+                # in the module
+                cursor.execute(*ir_model_field.delete(
+                        where=ir_model_field.id ==
+                        model_fields[field_name]['id']))
+
     @staticmethod
     def default_name():
         return 'No Name'
@@ -237,6 +331,7 @@ class ModelField(ModelSQL, ModelView):
     def read(cls, ids, fields_names=None):
         pool = Pool()
         Translation = pool.get('ir.translation')
+        Model = pool.get('ir.model')
 
         to_delete = []
         if Transaction().context.get('language'):
@@ -265,8 +360,9 @@ class ModelField(ModelSQL, ModelView):
                     model_ids.add(rec['model'])
             model_ids = list(model_ids)
             cursor = Transaction().cursor
-            cursor.execute('SELECT id, model FROM ir_model WHERE id IN '
-                '(' + ','.join(('%s',) * len(model_ids)) + ')', model_ids)
+            model = Model.__table__()
+            cursor.execute(*model.select(model.id, model.model,
+                    where=model.id.in_(model_ids)))
             id2model = dict(cursor.fetchall())
 
             trans_args = []
@@ -337,6 +433,7 @@ class ModelAccess(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
 
         super(ModelAccess, cls).__register__(module_name)
@@ -378,6 +475,9 @@ class ModelAccess(ModelSQL, ModelView):
         UserGroup = pool.get('res.user-res.group')
         cursor = Transaction().cursor
         user = Transaction().user
+        model_access = cls.__table__()
+        ir_model = Model.__table__()
+        user_group = UserGroup.__table__()
 
         access = {}
         for model in models:
@@ -390,22 +490,19 @@ class ModelAccess(ModelSQL, ModelView):
 
         default = {'read': True, 'write': True, 'create': True, 'delete': True}
         access = dict((m, default) for m in models)
-        cursor.execute(('SELECT '
-                    'm.model, '
-                    'MAX(CASE WHEN a.perm_read THEN 1 ELSE 0 END), '
-                    'MAX(CASE WHEN a.perm_write THEN 1 ELSE 0 END), '
-                    'MAX(CASE WHEN a.perm_create THEN 1 ELSE 0 END), '
-                    'MAX(CASE WHEN a.perm_delete THEN 1 ELSE 0 END) '
-                'FROM "%s" AS a '
-                'JOIN "%s" AS m '
-                    'ON (a.model = m.id) '
-                'LEFT JOIN "%s" AS gu '
-                    'ON (gu."group" = a."group") '
-                'WHERE m.model IN (' + ','.join(('%%s',) * len(models)) + ') '
-                    'AND (gu."user" = %%s OR a."group" IS NULL) '
-                'GROUP BY m.model')
-            % (cls._table, Model._table, UserGroup._table),
-            list(models) + [Transaction().user])
+        cursor.execute(*model_access.join(ir_model, 'LEFT',
+                condition=model_access.model == ir_model.id
+                ).join(user_group, 'LEFT',
+                condition=user_group.group == model_access.group
+                ).select(
+                ir_model.model,
+                Max(Case((model_access.perm_read, 1), else_=0)),
+                Max(Case((model_access.perm_write, 1), else_=0)),
+                Max(Case((model_access.perm_create, 1), else_=0)),
+                Max(Case((model_access.perm_delete, 1), else_=0)),
+                where=ir_model.model.in_(models)
+                & ((user_group.user == user) | (model_access.group == None)),
+                group_by=ir_model.model))
         access.update(dict(
                 (m, {'read': r, 'write': w, 'create': c, 'delete': d})
                 for m, r, w, c, d in cursor.fetchall()))
@@ -476,6 +573,7 @@ class ModelFieldAccess(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
 
         super(ModelFieldAccess, cls).__register__(module_name)
@@ -516,8 +614,13 @@ class ModelFieldAccess(ModelSQL, ModelView):
         pool = Pool()
         Model = pool.get('ir.model')
         ModelField = pool.get('ir.model.field')
+        UserGroup = pool.get('res.user-res.group')
         cursor = Transaction().cursor
         user = Transaction().user
+        field_access = cls.__table__()
+        ir_model = Model.__table__()
+        model_field = ModelField.__table__()
+        user_group = UserGroup.__table__()
 
         accesses = {}
         for model in models:
@@ -530,25 +633,22 @@ class ModelFieldAccess(ModelSQL, ModelView):
 
         default = {}
         accesses = dict((m, default) for m in models)
-        cursor.execute(('SELECT '
-                    'm.model, '
-                    'f.name, '
-                    'MAX(CASE WHEN a.perm_read THEN 1 ELSE 0 END), '
-                    'MAX(CASE WHEN a.perm_write THEN 1 ELSE 0 END), '
-                    'MAX(CASE WHEN a.perm_create THEN 1 ELSE 0 END), '
-                    'MAX(CASE WHEN a.perm_delete THEN 1 ELSE 0 END) '
-                'FROM "%s" AS a '
-                'JOIN "%s" AS f '
-                    'ON (a.field = f.id) '
-                'JOIN "%s" AS m '
-                    'ON (f.model = m.id) '
-                'LEFT JOIN "res_user-res_group" AS gu '
-                    'ON (gu."group" = a."group") '
-                'WHERE m.model IN (' + ','.join(('%%s',) * len(models)) + ') '
-                    'AND (gu."user" = %%s OR a."group" IS NULL) '
-                'GROUP BY m.model, f.name')
-            % (cls._table, ModelField._table, Model._table),
-            list(models) + [Transaction().user])
+        cursor.execute(*field_access.join(model_field,
+                condition=field_access.field == model_field.id
+                ).join(ir_model,
+                condition=model_field.model == ir_model.id
+                ).join(user_group, 'LEFT',
+                condition=user_group.group == field_access.group
+                ).select(
+                ir_model.model,
+                model_field.name,
+                Max(Case((field_access.perm_read, 1), else_=0)),
+                Max(Case((field_access.perm_write, 1), else_=0)),
+                Max(Case((field_access.perm_create, 1), else_=0)),
+                Max(Case((field_access.perm_delete, 1), else_=0)),
+                where=ir_model.model.in_(models)
+                & ((user_group.user == user) | (field_access.group == None)),
+                group_by=[ir_model.model, model_field.name]))
         for m, f, r, w, c, d in cursor.fetchall():
             accesses[m][f] = {'read': r, 'write': w, 'create': c, 'delete': d}
         for model, maccesses in accesses.iteritems():
@@ -690,7 +790,9 @@ class ModelData(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         cursor = Transaction().cursor
+        model_data = cls.__table__()
 
         super(ModelData, cls).__register__(module_name)
 
@@ -698,8 +800,8 @@ class ModelData(ModelSQL, ModelView):
 
         # Migration from 2.6: remove inherit
         if table.column_exist('inherit'):
-            cursor.execute('DELETE FROM "' + cls._table + '" '
-                'WHERE inherit = %s', (True,))
+            cursor.execute(*model_data.delete(
+                    where=model_data.inherit == True))
             table.drop_column('inherit', True)
 
     @staticmethod

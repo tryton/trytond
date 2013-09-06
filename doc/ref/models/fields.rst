@@ -122,15 +122,6 @@ client will also read these fields even if they are not defined on the view.
 :attr:`Field.depends` is used per example to ensure that
 :class:`~trytond.pyson.PYSON` statement could be evaluated.
 
-``order_field``
----------------
-
-.. attribute:: Field.order_field
-
-The name of a substitute field on which the ordering of records must be done
-instead of this one.
-This is often used to allow ordering on :class:`Function` fields.
-
 ``context``
 -----------
 
@@ -153,10 +144,50 @@ Define how the field must be loaded: ``lazy`` or ``eager``.
 
 The name of the field.
 
+Instance methods:
+
+.. method:: Field.convert_domain(domain, tables, Model)
+
+    Convert the simple :ref:`domain <topics-domain>` clause into a SQL
+    expression or a new domain.
+
+Where ``tables`` is a nested dictionary containing the existing joins (and it
+could be updated to add new joins)::
+
+    {
+        None: (<Table invoice>, None),
+        'party': {
+            None: (<Table party>, <join_on sql expression>),
+            'addresses': {
+                None: (<Table address>, <join_on sql expression>),
+                },
+            },
+        }
+
+.. method:: Field.sql_format(value)
+
+    Convert the value to use as parameter of SQL queries.
+
+.. method:: Field.sql_type()
+
+    Return the namedtuple('SQLType', 'base type') which defines the SQL type to
+    use for creation and casting.
+
 Default value
 =============
 
 See :ref:`default value <topics-fields_default_value>`
+
+Ordering
+========
+
+A class method could be defined for each field which must return a list of SQL
+expression on which to order instead of the field.
+The method signature is::
+
+    order_<field name>(tables)
+
+Where ``tables`` is a nested dictionary, see :meth:`~Field.convert_domain`.
 
 Field types
 ===========
@@ -288,6 +319,13 @@ A date and time, represented in Python by a ``datetime.datetime`` instance.
     A string format as used by strftime. This format will be used to display
     the time part of the field. The default value is `%H:%M:%S`.
     The value can be replaced by a :class:`~trytond.pyson.PYSON` statement.
+
+Timestamp
+---------
+
+.. class:: Timestamp(string[, \**options])
+
+A timestamp, represented in Python by a ``datetime.datetime`` instance.
 
 Time
 ----
@@ -635,7 +673,8 @@ A function field can emulate any other given `field`.
 
     where `name` is the name of the field and `clause` is a
     :ref:`domain clause <topics-domain>`.
-    It must return a list of :ref:`domain <topics-domain>` clauses.
+    It must return a list of :ref:`domain <topics-domain>` clauses but the
+    ``operand`` can be a SQL query.
 
 Instance methods:
 

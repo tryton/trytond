@@ -7,9 +7,12 @@ import time
 import sys
 import hashlib
 import pydoc
+
+from sql import Table
+
 from trytond.pool import Pool
 from trytond import security
-from trytond.backend import Database, DatabaseOperationalError
+from trytond import backend
 from trytond.config import CONFIG
 from trytond.version import VERSION
 from trytond.transaction import Transaction
@@ -19,9 +22,16 @@ from trytond.exceptions import UserError, UserWarning, NotLogged, \
 from trytond.rpc import RPC
 
 
+ir_configuration = Table('ir_configuration')
+ir_lang = Table('ir_lang')
+ir_module = Table('ir_module')
+res_user = Table('res_user')
+
+
 def dispatch(host, port, protocol, database_name, user, session, object_type,
         object_name, method, *args, **kwargs):
-
+    Database = backend.get('Database')
+    DatabaseOperationalError = backend.get('DatabaseOperationalError')
     if object_type == 'common':
         if method == 'login':
             try:
@@ -207,6 +217,7 @@ def create(database_name, password, lang, admin_password):
     :param admin_password: the admin password
     :return: True if succeed
     '''
+    Database = backend.get('Database')
     security.check_super(password)
     res = False
     logger = logging.getLogger('database')
@@ -224,28 +235,25 @@ def create(database_name, password, lang, admin_password):
 
         with Transaction().start(database_name, 0) as transaction:
             database.init(transaction.cursor)
-            transaction.cursor.execute('INSERT INTO ir_configuration '
-                '(language) VALUES (%s)', (lang,))
+            transaction.cursor.execute(*ir_configuration.insert(
+                    [ir_configuration.language], [[lang]]))
             transaction.cursor.commit()
 
         pool = Pool(database_name)
         pool.init(update=True, lang=[lang])
         with Transaction().start(database_name, 0) as transaction:
             cursor = transaction.cursor
-            #XXX replace with model write
-            cursor.execute('UPDATE ir_lang '
-                'SET translatable = %s '
-                'WHERE code = %s', (True, lang))
-            cursor.execute('UPDATE res_user '
-                'SET language = (' +
-                cursor.limit_clause('SELECT id FROM ir_lang '
-                    'WHERE code = %s', 1) + ')'
-                'WHERE login <> \'root\'', (lang,))
+            cursor.execute(*ir_lang.update([ir_lang.translatable], [True],
+                    where=(ir_lang.code == lang)))
+            cursor.execute(*res_user.update([res_user.language],
+                        [ir_lang.select(ir_lang.id,
+                                where=(ir_lang.code == lang),
+                                limit=1)],
+                        where=(res_user.login != 'root')))
             admin_password = hashlib.sha1(admin_password.encode('utf-8'))\
                 .hexdigest()
-            cursor.execute('UPDATE res_user '
-                'SET password = %s '
-                'WHERE login = \'admin\'', (admin_password,))
+            cursor.execute(*res_user.update([res_user.password],
+                    [admin_password], where=(res_user.login == 'admin')))
             Module = pool.get('ir.module.module')
             if Module:
                 Module.update_list()
@@ -262,6 +270,7 @@ def create(database_name, password, lang, admin_password):
 
 
 def drop(database_name, password):
+    Database = backend.get('Database')
     security.check_super(password)
     Database(database_name).close()
     # Sleep to let connections close
@@ -288,6 +297,7 @@ def drop(database_name, password):
 
 
 def dump(database_name, password):
+    Database = backend.get('Database')
     security.check_super(password)
     Database(database_name).close()
     # Sleep to let connections close
@@ -300,6 +310,7 @@ def dump(database_name, password):
 
 
 def restore(database_name, password, data, update=False):
+    Database = backend.get('Database')
     logger = logging.getLogger('database')
     security.check_super(password)
     try:
@@ -313,12 +324,11 @@ def restore(database_name, password, data, update=False):
     logger.info('RESTORE DB: %s' % (database_name))
     if update:
         cursor = Database(database_name).connect().cursor()
-        cursor.execute('SELECT code FROM ir_lang '
-            'WHERE translatable')
+        cursor.execute(*ir_lang.select(ir_lang.code,
+                where=ir_lang.translatable))
         lang = [x[0] for x in cursor.fetchall()]
-        cursor.execute('UPDATE ir_module_module SET '
-            "state = 'to upgrade' "
-            "WHERE state = 'installed'")
+        cursor.execute(*ir_module.update([ir_module.state], ['to upgrade'],
+                where=(ir_module.state == 'installed')))
         cursor.commit()
         cursor.close()
         Pool(database_name).init(update=update, lang=lang)

@@ -177,53 +177,8 @@ class Wizard(WarningErrorMixin, URLMixin, PoolBase):
         super(Wizard, cls).__register__(module_name)
         pool = Pool()
         Translation = pool.get('ir.translation')
-        cursor = Transaction().cursor
-        for state_name, state in cls.states.iteritems():
-            if isinstance(state, StateView):
-                for button in state.buttons:
-                    cursor.execute('SELECT id, name, src '
-                        'FROM ir_translation '
-                        'WHERE module = %s '
-                            'AND lang = %s '
-                            'AND type = %s '
-                            'AND name = %s',
-                        (module_name, 'en_US', 'wizard_button',
-                            cls.__name__ + ',' + state_name + ',' +
-                            button.state))
-                    res = cursor.dictfetchall()
-                    src_md5 = Translation.get_src_md5(button.string)
-                    if not res:
-                        cursor.execute('INSERT INTO ir_translation '
-                            '(name, lang, type, src, src_md5, value, module, '
-                                'fuzzy) '
-                            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                            (cls.__name__ + ',' + state_name + ',' +
-                                button.state,
-                                'en_US', 'wizard_button', button.string,
-                                src_md5, '', module_name, False))
-                    elif res[0]['src'] != button.string:
-                        cursor.execute('UPDATE ir_translation '
-                            'SET src = %s, src_md5 = %s '
-                            'WHERE id = %s',
-                            (button.string, src_md5, res[0]['id']))
-
-        cursor.execute('SELECT id, src FROM ir_translation '
-            'WHERE lang = %s '
-                'AND type = %s '
-                'AND name = %s',
-            ('en_US', 'error', cls.__name__))
-        trans_error = {}
-        for trans in cursor.dictfetchall():
-            trans_error[trans['src']] = trans
-
-        for error in cls._error_messages.values():
-            if error not in trans_error:
-                error_md5 = Translation.get_src_md5(error)
-                cursor.execute('INSERT INTO ir_translation '
-                    '(name, lang, type, src, src_md5,  value, module, fuzzy) '
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (cls.__name__, 'en_US', 'error', error, error_md5, '',
-                        module_name, False))
+        Translation.register_wizard(cls, module_name)
+        Translation.register_error_messages(cls, module_name)
 
     @classmethod
     def create(cls):

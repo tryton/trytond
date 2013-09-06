@@ -2,10 +2,13 @@
 #this repository contains the full copyright notices and license terms.
 import datetime
 import time
+from sql import Literal
+from sql.aggregate import Count, Max
+
 from ..model import ModelView, ModelSQL, fields
 from ..pyson import Eval
 from ..tools import safe_eval
-from ..backend import TableHandler
+from .. import backend
 from ..tools import reduce_ids
 from ..transaction import Transaction
 from ..cache import Cache
@@ -169,19 +172,20 @@ class Trigger(ModelSQL, ModelView):
         Model = pool.get(trigger.model.model)
         ActionModel = pool.get(trigger.action_model.model)
         cursor = Transaction().cursor
+        in_max = cursor.IN_MAX
+        trigger_log = TriggerLog.__table__()
         ids = map(int, records)
 
         # Filter on limit_number
         if trigger.limit_number:
             new_ids = []
-            for i in range(0, len(ids), cursor.IN_MAX):
-                sub_ids = ids[i:i + cursor.IN_MAX]
-                red_sql, red_ids = reduce_ids('"record_id"', sub_ids)
-                cursor.execute('SELECT "record_id", COUNT(1) FROM "%s" '
-                        'WHERE %s AND "trigger" = %%s '
-                        'GROUP BY "record_id"'
-                        % (TriggerLog._table, red_sql),
-                        red_ids + [trigger.id])
+            for i in range(0, len(ids), in_max):
+                sub_ids = ids[i:i + in_max]
+                red_sql = reduce_ids(trigger_log.record_id, sub_ids)
+                cursor.execute(*trigger_log.select(
+                        trigger_log.record_id, Count(Literal(1)),
+                        where=red_sql & (trigger_log.trigger == trigger.id),
+                        group_by=trigger_log.record_id))
                 number = dict(cursor.fetchall())
                 for record_id in sub_ids:
                     if record_id not in number:
@@ -194,15 +198,13 @@ class Trigger(ModelSQL, ModelView):
         # Filter on minimum_delay
         if trigger.minimum_delay:
             new_ids = []
-            for i in range(0, len(ids), cursor.IN_MAX):
-                sub_ids = ids[i:i + cursor.IN_MAX]
-                red_sql, red_ids = reduce_ids('"record_id"', sub_ids)
-                cursor.execute('SELECT "record_id", MAX("create_date") '
-                        'FROM "%s" '
-                        'WHERE %s AND "trigger" = %%s '
-                        'GROUP BY "record_id"'
-                        % (TriggerLog._table, red_sql),
-                        red_ids + [trigger.id])
+            for i in range(0, len(ids), in_max):
+                sub_ids = ids[i:i + in_max]
+                red_sql = reduce_ids(trigger_log.record_id, sub_ids)
+                cursor.execute(*trigger_log.select(
+                        trigger_log.record_id, Max(trigger_log.create_date),
+                        where=red_sql & (trigger_log.trigger == trigger.id),
+                        group_by=trigger_log.record_id))
                 delay = dict(cursor.fetchall())
                 for record_id in sub_ids:
                     if record_id not in delay:
@@ -289,6 +291,7 @@ class TriggerLog(ModelSQL):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(TriggerLog, cls).__register__(module_name)
 
         table = TableHandler(Transaction().cursor, cls, module_name)

@@ -61,6 +61,7 @@ setup(name=PACKAGE,
         'Genshi',
         'python-dateutil',
         'polib',
+        'python-sql',
         ],
     extras_require={
         'PostgreSQL': ['psycopg2 >= 2.0'],

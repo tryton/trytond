@@ -6,9 +6,12 @@ from operator import itemgetter
 from collections import defaultdict
 from functools import partial
 
+from sql import Table
+from sql.aggregate import Count
+
 from ..model import ModelView, ModelStorage, ModelSQL, fields
 from ..tools import file_open, safe_eval
-from ..backend import TableHandler
+from .. import backend
 from ..pyson import PYSONEncoder, CONTEXT, PYSON
 from ..transaction import Transaction
 from ..pool import Pool
@@ -124,6 +127,7 @@ class ActionKeyword(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(ActionKeyword, cls).__register__(module_name)
 
         table = TableHandler(Transaction().cursor, cls, module_name)
@@ -291,6 +295,7 @@ class ActionMixin(ModelSQL):
     def create(cls, vlist):
         pool = Pool()
         Action = pool.get('ir.action')
+        ir_action = cls.__table__()
         new_records = []
         for values in vlist:
             later = {}
@@ -313,8 +318,9 @@ class ActionMixin(ModelSQL):
             else:
                 action = Action(values['action'])
             record, = super(ActionMixin, cls).create([values])
-            cursor.execute('UPDATE "' + cls._table + '" SET id = %s '
-                'WHERE id = %s', (action.id, record.id))
+            cursor.execute(*ir_action.update(
+                    [ir_action.id], [action.id],
+                    where=ir_action.id == record.id))
             cursor.update_auto_increment(cls._table, action.id)
             record = cls(action.id)
             new_records.append(record)
@@ -457,21 +463,24 @@ class ActionReport(ActionMixin, ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(ActionReport, cls).__register__(module_name)
 
         cursor = Transaction().cursor
         table = TableHandler(cursor, cls, module_name)
+        action_report = cls.__table__()
 
         # Migration from 1.0 report_name_uniq has been removed
         table.drop_constraint('report_name_uniq')
 
         # Migration from 1.0 output_format (m2o) is now extension (selection)
         if table.column_exist('output_format'):
-            cursor.execute(
-                'SELECT report.id FROM "' + cls._table + '" report '
-                'JOIN ir_action_report_outputformat of '
-                    'ON (report.output_format = of.id) '
-                'WHERE of.format = \'pdf\'')
+            outputformat = Table('ir_action_report_outputformat')
+            cursor.execute(*action_report.join(
+                    outputformat,
+                    condition=action_report.output_format == outputformat.id)
+                .select(action_report.id,
+                    where=outputformat.format == 'pdf'))
 
             ids = [x[0] for x in cursor.fetchall()]
             with Transaction().set_user(0):
@@ -481,34 +490,35 @@ class ActionReport(ActionMixin, ModelSQL, ModelView):
 
             table.drop_column("output_format")
             TableHandler.dropTable(cursor, 'ir.action.report.outputformat',
-                      'ir_action_report_outputformat')
+                'ir_action_report_outputformat')
 
         # Migrate from 2.0 remove required on extension
         table.not_null_action('extension', action='remove')
-        cursor.execute('UPDATE "' + cls._table + '" '
-            'SET extension = %s '
-            'WHERE extension = %s', ('', 'odt'))
+        cursor.execute(*action_report.update(
+                [action_report.extension],
+                [''],
+                where=action_report.extension == 'odt'))
 
         # Migration from 2.0 report_content_data renamed into
         # report_content_custom to remove base64 encoding
         if (table.column_exist('report_content_data')
                 and table.column_exist('report_content_custom')):
             limit = cursor.IN_MAX
-            cursor.execute('SELECT COUNT(id) '
-                'FROM "' + cls._table + '"')
+            cursor.execute(*action_report.select(
+                    Count(action_report.id)))
             report_count, = cursor.fetchone()
             for offset in range(0, report_count, limit):
-                cursor.execute(cursor.limit_clause(
-                    'SELECT id, report_content_data '
-                    'FROM "' + cls._table + '"'
-                    'ORDER BY id',
-                    limit, offset))
+                cursor.execute(*action_report.select(
+                        action_report.id, action_report.report_content_data,
+                        order_by=action_report.id,
+                        limit=limit, offset=offset))
                 for report_id, report in cursor.fetchall():
                     if report:
                         report = buffer(base64.decodestring(str(report)))
-                        cursor.execute('UPDATE "' + cls._table + '" '
-                            'SET report_content_custom = %s '
-                            'WHERE id = %s', (report, report_id))
+                        cursor.execute(*action_report.update(
+                                [action_report.report_content_custom],
+                                [report],
+                                where=action_report.id == report_id))
             table.drop_column('report_content_data')
 
     @staticmethod
@@ -691,13 +701,13 @@ class ActionActWindow(ActionMixin, ModelSQL, ModelView):
     @classmethod
     def __register__(cls, module_name):
         cursor = Transaction().cursor
+        act_window = cls.__table__()
         super(ActionActWindow, cls).__register__(module_name)
 
         # Migration from 2.0: new search_value format
-        cursor.execute('UPDATE "%s" '
-            'SET search_value = %%s '
-            'WHERE search_value = %%s' % cls._table,
-            ('[]', '{}'))
+        cursor.execute(*act_window.update(
+                [act_window.search_value], ['[]'],
+                where=act_window.search_value == '{}'))
 
     @staticmethod
     def default_type():
@@ -882,6 +892,7 @@ class ActionActWindowView(ModelSQL, ModelView):
 
     @classmethod
     def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
         super(ActionActWindowView, cls).__register__(module_name)
         table = TableHandler(Transaction().cursor, cls, module_name)
 

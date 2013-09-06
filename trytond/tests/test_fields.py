@@ -2247,11 +2247,6 @@ class FieldsTestCase(unittest.TestCase):
                         }])
             self.assert_(time7)
 
-            time8, = self.time.create([{
-                        'time': False,
-                        }])
-            self.assert_(time8)
-
             time9, = self.time.create([{
                         'time': evening.replace(microsecond=1),
                         }])

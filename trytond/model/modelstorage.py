@@ -39,9 +39,9 @@ class ModelStorage(Model):
     """
 
     create_uid = fields.Many2One('res.user', 'Create User', readonly=True)
-    create_date = fields.DateTime('Create Date', readonly=True)
+    create_date = fields.Timestamp('Create Date', readonly=True)
     write_uid = fields.Many2One('res.user', 'Write User', readonly=True)
-    write_date = fields.DateTime('Write Date', readonly=True)
+    write_date = fields.Timestamp('Write Date', readonly=True)
     rec_name = fields.Function(fields.Char('Name'), 'get_rec_name',
             searcher='search_rec_name')
 
@@ -684,11 +684,13 @@ class ModelStorage(Model):
                     elif field_type == 'numeric':
                         res = Decimal(value) if value else None
                     elif field_type == 'date':
-                        res = value and datetime.date(*time.strptime(value,
-                            '%Y-%m-%d')[:3])
+                        res = (datetime.date(
+                                *time.strptime(value, '%Y-%m-%d')[:3])
+                            if value else None)
                     elif field_type == 'datetime':
-                        res = value and datetime.datetime(*time.strptime(value,
-                            '%Y-%m-%d %H:%M:%S')[:6])
+                        res = (datetime.datetime(
+                                *time.strptime(value, '%Y-%m-%d %H:%M:%S')[:6])
+                            if value else None)
                     elif field_type == 'selection':
                         res = get_selection(this_field_def['selection'], value)
                     elif field_type == 'many2one':

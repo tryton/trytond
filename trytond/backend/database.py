@@ -10,6 +10,7 @@ class DatabaseInterface(object):
     '''
     Define generic interface for database connection
     '''
+    flavor = None
 
     def __new__(cls, database_name=''):
         return object.__new__(cls)
@@ -101,7 +102,6 @@ class CursorInterface(object):
     '''
     Define generic interface for database cursor
     '''
-    sql_log = False
     IN_MAX = 1000
 
     def __init__(self):
@@ -207,17 +207,6 @@ class CursorInterface(object):
         Return True if database handle constraint.
 
         :return: a boolean
-        '''
-        raise NotImplementedError
-
-    def limit_clause(self, select, limit=None, offset=None):
-        '''
-        Return SELECT queries with limit and offset
-
-        :param select: the SELECT query string
-        :param limit: the limit
-        :param offset: the offset
-        :return: a string
         '''
         raise NotImplementedError
 

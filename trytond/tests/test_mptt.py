@@ -18,7 +18,7 @@ class MPTTTestCase(unittest.TestCase):
         install_module('test')
         self.mptt = POOL.get('test.mptt')
 
-    def CheckTree(self, parent_id=False, left=-1, right=sys.maxint):
+    def CheckTree(self, parent_id=None, left=-1, right=sys.maxint):
         childs = self.mptt.search([
                 ('parent', '=', parent_id),
                 ], order=[('left', 'ASC')])

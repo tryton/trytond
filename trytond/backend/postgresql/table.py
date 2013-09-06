@@ -4,6 +4,8 @@
 from trytond.backend.table import TableHandlerInterface
 import logging
 
+__all__ = ['TableHandler']
+
 
 class TableHandler(TableHandlerInterface):
 

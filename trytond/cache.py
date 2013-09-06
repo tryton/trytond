@@ -4,7 +4,7 @@ import datetime
 from threading import Lock
 from trytond.transaction import Transaction
 from trytond.config import CONFIG
-from trytond.backend import Database
+from trytond import backend
 from trytond.tools import OrderedDict
 
 __all__ = ['Cache', 'LRUDict']
@@ -74,7 +74,7 @@ class Cache(object):
     def clean(dbname):
         if not CONFIG['multi_server']:
             return
-        database = Database(dbname).connect()
+        database = backend.get('Database')(dbname).connect()
         cursor = database.cursor()
         try:
             cursor.execute('SELECT "timestamp", "name" FROM ir_cache')
@@ -104,7 +104,7 @@ class Cache(object):
     def resets(dbname):
         if not CONFIG['multi_server']:
             return
-        database = Database(dbname).connect()
+        database = backend.get('Database')(dbname).connect()
         cursor = database.cursor()
         try:
             with Cache._resets_lock:

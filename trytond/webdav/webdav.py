@@ -9,6 +9,9 @@ import encodings
 import uuid
 import datetime
 from dateutil.relativedelta import relativedelta
+from sql.functions import Extract
+from sql.conditionals import Coalesce
+
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.tools import reduce_ids, safe_eval
 from trytond.transaction import Transaction
@@ -45,8 +48,8 @@ class Collection(ModelSQL, ModelView):
     childs = fields.One2Many('webdav.collection', 'parent', 'Children')
     model = fields.Many2One('ir.model', 'Model')
     domain = fields.Char('Domain')
-    complete_name = fields.Function(fields.Char('Complete Name',
-            order_field='name'), 'get_rec_name')
+    complete_name = fields.Function(fields.Char('Complete Name'),
+        'get_rec_name')
 
     @classmethod
     def __setup__(cls):
@@ -65,6 +68,10 @@ class Collection(ModelSQL, ModelView):
             '.odt': 'application/vnd.oasis.opendocument.text',
             '.pdf': 'application/pdf',
         }
+
+    @classmethod
+    def order_complet_name(cls, tables):
+        return cls.name.convert_order('name', tables, cls)
 
     @staticmethod
     def default_domain():
@@ -424,13 +431,13 @@ class Collection(ModelSQL, ModelView):
                     ids = [object_id]
                 res = None
                 cursor = Transaction().cursor
+                table = Model.__table__()
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
-                    red_sql, red_ids = reduce_ids('id', sub_ids)
-                    cursor.execute('SELECT id, '
-                        'EXTRACT(epoch FROM create_date) '
-                        'FROM "' + Model._table + '" '
-                        'WHERE ' + red_sql, red_ids)
+                    red_sql = reduce_ids(table.id, sub_ids)
+                    cursor.execute(*table.select(table.id,
+                            Extract('EPOCH', table.create_date),
+                            where=red_sql))
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date
@@ -461,14 +468,14 @@ class Collection(ModelSQL, ModelView):
                     ids = [object_id]
                 res = None
                 cursor = Transaction().cursor
+                table = Model.__table__()
                 for i in range(0, len(ids), cursor.IN_MAX):
                     sub_ids = ids[i:i + cursor.IN_MAX]
-                    red_sql, red_ids = reduce_ids('id', sub_ids)
-                    cursor.execute('SELECT id, '
-                        'EXTRACT(epoch FROM '
-                            'COALESCE(write_date, create_date)) '
-                        'FROM "' + Model._table + '" '
-                        'WHERE ' + red_sql, red_ids)
+                    red_sql = reduce_ids(table.id, sub_ids)
+                    cursor.execute(*table.select(table.id,
+                            Extract('EPOCH',
+                                Coalesce(table.write_date, table.create_date)),
+                            where=red_sql))
                     for object_id2, date in cursor.fetchall():
                         if object_id2 == object_id:
                             res = date

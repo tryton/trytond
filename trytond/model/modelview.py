@@ -301,11 +301,13 @@ class ModelView(Model):
                         raise_exception=False):
                     return False
             if field._type in ('many2many', 'one2one'):
-                if not ModelAccess.check(field.target, mode='read',
-                        raise_exception=False):
+                if (field.target
+                        and not ModelAccess.check(field.target, mode='read',
+                            raise_exception=False)):
                     return False
-                elif not ModelAccess.check(field.relation_name,
-                        mode='read', raise_exception=False):
+                elif (field.relation_name
+                        and not ModelAccess.check(field.relation_name,
+                            mode='read', raise_exception=False)):
                     return False
             if field._type == 'reference':
                 selection = field.selection

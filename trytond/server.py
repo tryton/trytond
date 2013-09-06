@@ -9,12 +9,16 @@ import sys
 import os
 import signal
 import time
-from trytond.config import CONFIG
 from getpass import getpass
 import hashlib
 import threading
 import string
 import random
+
+from trytond.config import CONFIG
+from trytond import backend
+from trytond.pool import Pool
+from trytond.monitor import monitor
 
 
 class TrytonServer(object):
@@ -73,9 +77,7 @@ class TrytonServer(object):
 
     def run(self):
         "Run the server and never return"
-        from trytond.backend import Database
-        from trytond.pool import Pool
-        from trytond.monitor import monitor
+        Database = backend.get('Database')
         update = bool(CONFIG['init'] or CONFIG['update'])
         init = {}
 

@@ -1,8 +1,10 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from threading import local
+from sql import Flavor
+
 from trytond.tools.singleton import Singleton
-from trytond.backend import Database
+from trytond import backend
 
 
 class _TransactionManager(object):
@@ -67,10 +69,12 @@ class Transaction(local):
         '''
         Start transaction
         '''
+        Database = backend.get('Database')
         assert self.user is None
         assert self.cursor is None
         assert self.context is None
         database = Database(database_name).connect()
+        Flavor.set(Database.flavor)
         self.cursor = database.cursor(readonly=readonly)
         self.user = user
         self.context = context or {}
@@ -124,6 +128,7 @@ class Transaction(local):
         return manager
 
     def new_cursor(self):
+        Database = backend.get('Database')
         manager = _CursorManager(self.cursor)
         database = Database(self.cursor.database_name).connect()
         self.cursor = database.cursor()
