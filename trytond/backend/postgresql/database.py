@@ -303,14 +303,10 @@ class Cursor(CursorInterface):
         return getattr(self.cursor, name)
 
     def execute(self, sql, params=None):
-        try:
-            if params:
-                return self.cursor.execute(sql, params)
-            else:
-                return self.cursor.execute(sql)
-        except Exception:
-            print sql, params
-            raise
+        if params:
+            return self.cursor.execute(sql, params)
+        else:
+            return self.cursor.execute(sql)
 
     def close(self, close=False):
         self.cursor.close()
