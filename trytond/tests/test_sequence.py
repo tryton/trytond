@@ -15,7 +15,7 @@ class SequenceTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.sequence = POOL.get('ir.sequence')
 
     def test0010incremental(self):

@@ -27,7 +27,7 @@ except ImportError:
             yield tuple(pool[i] for i in indices)
 from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
         install_module
-from trytond.test.trigger import TRIGGER_LOGS
+from trytond.tests.trigger import TRIGGER_LOGS
 from trytond.transaction import Transaction
 
 
@@ -37,7 +37,7 @@ class TriggerTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.triggered = POOL.get('test.triggered')
         self.trigger = POOL.get('ir.trigger')
         self.trigger_log = POOL.get('ir.trigger.log')

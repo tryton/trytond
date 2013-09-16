@@ -15,7 +15,7 @@ class ModelSingletonTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.singleton = POOL.get('test.singleton')
 
     def test0010read(self):

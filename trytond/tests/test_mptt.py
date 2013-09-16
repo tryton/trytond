@@ -15,7 +15,7 @@ class MPTTTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.mptt = POOL.get('test.mptt')
 
     def CheckTree(self, parent_id=None, left=-1, right=sys.maxint):

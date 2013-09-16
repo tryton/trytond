@@ -16,7 +16,7 @@ class UrlTestCase(unittest.TestCase):
     "Test URL generation"
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.urlmodel = POOL.get('test.urlobject')
         self.urlwizard = POOL.get('test.test_wizard', type='wizard')
         self.hostname = HOSTNAME

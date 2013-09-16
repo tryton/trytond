@@ -9,7 +9,7 @@ from trytond.transaction import Transaction
 class WizardTestCase(unittest.TestCase):
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.wizard = POOL.get('test.test_wizard', type='wizard')
         self.session = POOL.get('ir.session.wizard')
         self.group = POOL.get('res.group')

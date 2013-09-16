@@ -14,7 +14,7 @@ class ImportDataTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.boolean = POOL.get('test.import_data.boolean')
         self.integer = POOL.get('test.import_data.integer')
         self.integer_required = POOL.get('test.import_data.integer_required')
@@ -376,7 +376,7 @@ class ImportDataTestCase(unittest.TestCase):
                 [['Test']]), (1, 0, 0, 0))
 
             self.assertEqual(self.many2one.import_data(['many2one:id'],
-                [['test.import_data_many2one_target_test']]), (1, 0, 0, 0))
+                [['tests.import_data_many2one_target_test']]), (1, 0, 0, 0))
 
             self.assertEqual(self.many2one.import_data(['many2one'],
                 [['']]), (1, 0, 0, 0))
@@ -394,7 +394,7 @@ class ImportDataTestCase(unittest.TestCase):
                 [['foo']])[0], -1)
 
             self.assertEqual(self.many2one.import_data(['many2one:id'],
-                [['test.foo']])[0], -1)
+                [['tests.foo']])[0], -1)
 
             transaction.cursor.rollback()
 
@@ -408,14 +408,14 @@ class ImportDataTestCase(unittest.TestCase):
                 [['Test 1']]), (1, 0, 0, 0))
 
             self.assertEqual(self.many2many.import_data(['many2many:id'],
-                [['test.import_data_many2many_target_test1']]), (1, 0, 0, 0))
+                [['tests.import_data_many2many_target_test1']]), (1, 0, 0, 0))
 
             self.assertEqual(self.many2many.import_data(['many2many'],
                 [['Test 1,Test 2']]), (1, 0, 0, 0))
 
             self.assertEqual(self.many2many.import_data(['many2many:id'],
-                [['test.import_data_many2many_target_test1,'
-                    'test.import_data_many2many_target_test2']]),
+                [['tests.import_data_many2many_target_test1,'
+                    'tests.import_data_many2many_target_test2']]),
                 (1, 0, 0, 0))
 
             self.assertEqual(self.many2many.import_data(['many2many'],
@@ -485,7 +485,7 @@ class ImportDataTestCase(unittest.TestCase):
 
             self.assertEqual(self.reference.import_data(['reference:id'],
                 [['test.import_data.reference.selection,'
-                    'test.import_data_reference_selection_test']]),
+                    'tests.import_data_reference_selection_test']]),
                 (1, 0, 0, 0))
             reference, = self.reference.search([])
             self.assertEqual(reference.reference.__name__,

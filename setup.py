@@ -31,7 +31,7 @@ setup(name=PACKAGE,
         'trytond.ir.ui': ['*.xml', '*.rng', '*.rnc'],
         'trytond.res': ['tryton.cfg', '*.xml', 'view/*.xml', 'locale/*.po'],
         'trytond.webdav': ['tryton.cfg', '*.xml', 'view/*.xml', 'locale/*.po'],
-        'trytond.test': ['tryton.cfg', '*.xml'],
+        'trytond.tests': ['tryton.cfg', '*.xml'],
         },
     scripts=['bin/trytond'],
     classifiers=[
