@@ -63,6 +63,7 @@ class Cache(object):
                 cache[key] = value
             except TypeError:
                 pass
+        return value
 
     def clear(self):
         cursor = Transaction().cursor
