@@ -34,7 +34,7 @@ class TransactionTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
 
     def test0010nonexistdb(self):
         '''

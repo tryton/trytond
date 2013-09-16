@@ -18,7 +18,7 @@ class ModelSQLTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.modelsql = POOL.get('test.modelsql')
 
     def test0010required_field_missing(self):

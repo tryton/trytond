@@ -14,7 +14,7 @@ class CopyTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.one2many = POOL.get('test.copy.one2many')
         self.one2many_target = POOL.get('test.copy.one2many.target')
         self.one2many_reference = POOL.get('test.copy.one2many_reference')

@@ -24,7 +24,7 @@ class FieldsTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.boolean = POOL.get('test.boolean')
         self.boolean_default = POOL.get('test.boolean_default')
 

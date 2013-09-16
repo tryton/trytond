@@ -196,7 +196,7 @@ def create_graph(module_list):
 
 def is_module_to_install(module):
     for kind in ('init', 'update'):
-        if 'all' in CONFIG[kind] and module != 'test':
+        if 'all' in CONFIG[kind] and module != 'tests':
             return True
         elif module in CONFIG[kind]:
             return True
@@ -302,7 +302,7 @@ def get_module_list():
     module_list.add('ir')
     module_list.add('res')
     module_list.add('webdav')
-    module_list.add('test')
+    module_list.add('tests')
     return list(module_list)
 
 
@@ -316,15 +316,15 @@ def register_classes():
     trytond.res.register()
     import trytond.webdav
     trytond.webdav.register()
-    import trytond.test
-    trytond.test.register()
+    import trytond.tests
+    trytond.tests.register()
     logger = logging.getLogger('modules')
 
     for package in create_graph(get_module_list())[0]:
         module = package.name
         logger.info('%s:registering classes' % module)
 
-        if module in ('ir', 'res', 'webdav', 'test'):
+        if module in ('ir', 'res', 'webdav', 'tests'):
             MODULES.append(module)
             continue
 
@@ -375,7 +375,7 @@ def load_modules(database_name, pool, update=False, lang=None):
                     where=(ir_module.name == 'workflow')))
             if 'all' in CONFIG['init']:
                 cursor.execute(*ir_module.select(ir_module.name,
-                        where=(ir_module.name != 'test')))
+                        where=(ir_module.name != 'tests')))
             else:
                 cursor.execute(*ir_module.select(ir_module.name,
                         where=ir_module.state.in_(('installed', 'to install',

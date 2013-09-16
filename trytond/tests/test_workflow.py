@@ -11,7 +11,7 @@ from trytond.tests.test_tryton import (POOL, DB_NAME, USER, CONTEXT,
 class WorkflowTestCase(unittest.TestCase):
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.workflow = POOL.get('test.workflowed')
 
     # TODO add test for Workflow.transition

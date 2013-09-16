@@ -14,7 +14,7 @@ class ModelAccessTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.model_access = POOL.get('ir.model.access')
         self.test_access = POOL.get('test.access')
         self.model = POOL.get('ir.model')
@@ -359,7 +359,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.field_access = POOL.get('ir.model.field.access')
         self.test_access = POOL.get('test.access')
         self.field = POOL.get('ir.model.field')

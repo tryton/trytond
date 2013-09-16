@@ -24,7 +24,7 @@ class ExportDataTestCase(unittest.TestCase):
     '''
 
     def setUp(self):
-        install_module('test')
+        install_module('tests')
         self.export_data = POOL.get('test.export_data')
         self.export_data_target = POOL.get('test.export_data.target')
         self.export_data_relation = POOL.get('test.export_data.relation')

@@ -26,7 +26,7 @@ class TestWizard(Wizard):
     'Test Wizard'
     __name__ = 'test.test_wizard'
     start = StateView('test.test_wizard.start',
-        'test.test_wizard_start_view_form', [
+        'tests.test_wizard_start_view_form', [
             Button('Cancel', 'end', 'tryton-cancel'),
             Button('Next', 'next_', 'tryton-next', default=True),
             ])
