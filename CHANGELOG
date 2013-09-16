@@ -1,3 +1,4 @@
+* Allow customization of translation in po files
 * Use python-sql
 * Add convert_domain method on Fields
 * Add sql_format and sql_type methods on Fields

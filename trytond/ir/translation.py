@@ -75,6 +75,7 @@ class Translation(ModelSQL, ModelView):
     fuzzy = fields.Boolean('Fuzzy')
     model = fields.Function(fields.Char('Model'), 'get_model',
             searcher='search_model')
+    overriding_module = fields.Char('Overriding Module', readonly=True)
     _translation_cache = Cache('ir.translation', size_limit=10240,
         context=False)
     _get_language_cache = Cache('ir.translation')
@@ -87,6 +88,11 @@ class Translation(ModelSQL, ModelView):
                 'UNIQUE (name, res_id, lang, type, src_md5, module)',
                 'Translation must be unique'),
         ]
+        cls._error_messages.update({
+                'translation_overridden': \
+                    "You can not export translation %(name)s because it is an "
+                    "overridden translation by module %(overriding_module)s",
+                })
 
     @classmethod
     def __register__(cls, module_name):
@@ -770,12 +776,41 @@ class Translation(ModelSQL, ModelView):
             key2ids.setdefault(key, []).append(translation.id)
             id2translation[translation.id] = translation
 
+        def override_translation(ressource_id, new_translation, fuzzy):
+            res_id_module, res_id = ressource_id.split('.')
+            if res_id:
+                model_data, = ModelData.search([
+                        ('module', '=', res_id_module),
+                        ('fs_id', '=', res_id),
+                        ])
+                res_id = model_data.db_id
+            else:
+                res_id = None
+            with contextlib.nested(Transaction().set_user(0),
+                    Transaction().set_context(module=res_id_module)):
+                translation, = cls.search([
+                        ('name', '=', name),
+                        ('res_id', '=', res_id),
+                        ('lang', '=', lang),
+                        ('type', '=', ttype),
+                        ('module', '=', res_id_module),
+                        ])
+                if translation.value != new_translation:
+                    translation.value = new_translation
+                    translation.overriding_module = module
+                    translation.fuzzy = fuzzy
+                    translation.save()
+
         for entry in pofile:
             ttype, name, res_id = entry.msgctxt.split(':')
             src = entry.msgid
             value = entry.msgstr
             fuzzy = 'fuzzy' in entry.flags
             noupdate = False
+
+            if '.' in res_id:
+                override_translation(res_id, value, fuzzy)
+                continue
 
             model = name.split(',')[0]
             if model in fs_id2model_data and res_id in fs_id2model_data[model]:
@@ -823,6 +858,7 @@ class Translation(ModelSQL, ModelView):
                         cls.write(translations2, {
                             'value': value,
                             'fuzzy': fuzzy,
+                            'overriding_module': None,
                             })
                     translations |= set(cls.browse(ids))
 
@@ -866,6 +902,12 @@ class Translation(ModelSQL, ModelView):
                 ('module', '=', module),
                 ], order=[])
         for translation in translations:
+            if (translation.overriding_module
+                    and translation.overriding_module != module):
+                cls.raise_user_error('translation_overridden', {
+                        'name': translation.name,
+                        'name': translation.overriding_module,
+                        })
             flags = [] if not translation.fuzzy else ['fuzzy']
             trans_ctxt = '%(type)s:%(name)s:' % {
                 'type': translation.type,
