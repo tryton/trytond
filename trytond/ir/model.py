@@ -291,7 +291,7 @@ class ModelField(ModelSQL, ModelView):
                         [ir_model_field.field_description,
                             ir_model_field.ttype, ir_model_field.relation,
                             ir_model_field.help],
-                        [[field.string, field._type, relation, field.help]],
+                        [field.string, field._type, relation, field.help],
                         where=ir_model_field.id ==
                         model_fields[field_name]['id']))
 
