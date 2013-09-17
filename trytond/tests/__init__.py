@@ -133,6 +133,8 @@ def register():
         CopyOne2ManyTarget,
         CopyOne2ManyReference,
         CopyOne2ManyReferenceTarget,
+        Many2OneTarget,
+        Many2OneDomainValidation,
         module='tests', type_='model')
     Pool.register(
         TestWizard,

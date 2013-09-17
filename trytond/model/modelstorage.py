@@ -925,6 +925,7 @@ class ModelStorage(Model):
                             return True
             return False
 
+        ctx_pref['active_test'] = False
         with Transaction().set_context(ctx_pref):
             for field_name, field in cls._fields.iteritems():
                 if isinstance(field, fields.Function) and \
