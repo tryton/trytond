@@ -985,9 +985,9 @@ class TranslationSet(Wizard):
             return
 
         cursor = Transaction().cursor
-        translation = Transaction.__table__()
+        translation = Translation.__table__()
         for report in reports:
-            cursor.extend(*translation.select(
+            cursor.execute(*translation.select(
                     translation.id, translation.name, translation.src,
                     where=(translation.lang == 'en_US')
                     & (translation.type == 'odt')
@@ -1095,7 +1095,7 @@ class TranslationSet(Wizard):
         if not views:
             return
         cursor = Transaction().cursor
-        translation = Translation.__table__
+        translation = Translation.__table__()
         for view in views:
             cursor.execute(*translation.select(
                     translation.id, translation.name, translation.src,
