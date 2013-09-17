@@ -1513,7 +1513,7 @@ class TranslationUpdate(Wizard):
                 & (translation.lang == lang)))
 
         action['pyson_domain'] = PYSONEncoder().encode([
-            ('module', '!=', False),
+            ('module', '!=', None),
             ('lang', '=', lang),
         ])
         return action, {}
