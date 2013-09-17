@@ -251,6 +251,10 @@ class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
         self.copyfile(content, self.wfile)
         content.close()
 
+SimpleJSONRPCRequestHandler.extensions_map.update({
+        '.svg': 'image/svg+xml',
+        })
+
 
 class SecureJSONRPCRequestHandler(SimpleJSONRPCRequestHandler):
 
