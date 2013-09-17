@@ -16,6 +16,7 @@ from decimal import Decimal
 from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
         install_module
 from trytond.transaction import Transaction
+from trytond.exceptions import UserError
 
 
 class FieldsTestCase(unittest.TestCase):
@@ -113,6 +114,9 @@ class FieldsTestCase(unittest.TestCase):
         self.binary = POOL.get('test.binary')
         self.binary_default = POOL.get('test.binary_default')
         self.binary_required = POOL.get('test.binary_required')
+
+        self.m2o_domain_validation = POOL.get('test.many2one_domainvalidation')
+        self.m2o_target = POOL.get('test.many2one_target')
 
     def test0010boolean(self):
         '''
@@ -3264,6 +3268,29 @@ class FieldsTestCase(unittest.TestCase):
 
             self.assertRaises(Exception, self.binary_required.create,
                 [{'binary': buffer('')}])
+
+            transaction.cursor.rollback()
+
+    def test0190many2one(self):
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+
+            # Not respecting the domain raise an Error
+            m2o_1, = self.m2o_target.create([{'value': 1}])
+            self.assertRaises(UserError, self.m2o_domain_validation.create,
+                [{'many2one': m2o_1}])
+
+            # Respecting the domain works
+            m2o_6, = self.m2o_target.create([{'value': 6}])
+            domain, = self.m2o_domain_validation.create([{'many2one': m2o_6}])
+            self.assert_(domain)
+            self.assertEqual(domain.many2one.value, 6)
+
+            # Inactive records are taken into account
+            m2o_6.active = False
+            m2o_6.save()
+            domain.dummy = 'Dummy'
+            domain.save()
 
             transaction.cursor.rollback()
 

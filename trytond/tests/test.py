@@ -35,6 +35,7 @@ __all__ = [
     'Selection', 'SelectionRequired',
     'Dict', 'DictDefault', 'DictRequired',
     'Binary', 'BinaryDefault', 'BinaryRequired',
+    'Many2OneDomainValidation', 'Many2OneTarget',
     ]
 
 
@@ -688,3 +689,26 @@ class BinaryRequired(ModelSQL):
     'Binary Required'
     __name__ = 'test.binary_required'
     binary = fields.Binary('Binary Required', required=True)
+
+
+class Many2OneTarget(ModelSQL):
+    "Many2One Domain Validation Target"
+    __name__ = 'test.many2one_target'
+
+    active = fields.Boolean('Active')
+    value = fields.Integer('Value')
+
+    @staticmethod
+    def default_active():
+        return True
+
+
+class Many2OneDomainValidation(ModelSQL):
+    "Many2One Domain Validation"
+    __name__ = 'test.many2one_domainvalidation'
+    many2one = fields.Many2One('test.many2one_target',
+        'many2one',
+        domain=[
+            ('value', '>', 5),
+            ])
+    dummy = fields.Char('Dummy')
