@@ -178,6 +178,7 @@ class Database(DatabaseInterface):
         if sqlite.sqlite_version_info < (3, 3, 14):
             self._conn.create_function('replace', 3, replace)
         self._conn.create_function('now', 0, now)
+        self._conn.execute('PRAGMA foreign_keys = ON')
         return self
 
     def cursor(self, autocommit=False, readonly=False):
