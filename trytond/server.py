@@ -14,11 +14,13 @@ import hashlib
 import threading
 import string
 import random
+from sql import Table
 
 from trytond.config import CONFIG
 from trytond import backend
 from trytond.pool import Pool
 from trytond.monitor import monitor
+from .transaction import Transaction
 
 
 class TrytonServer(object):
@@ -77,7 +79,6 @@ class TrytonServer(object):
 
     def run(self):
         "Run the server and never return"
-        Database = backend.get('Database')
         update = bool(CONFIG['init'] or CONFIG['update'])
         init = {}
 
@@ -101,33 +102,27 @@ class TrytonServer(object):
 
         for db_name in CONFIG["db_name"]:
             init[db_name] = False
-            database = Database(db_name).connect()
-            cursor = database.cursor()
-
-            try:
+            with Transaction().start(db_name, 0) as transaction:
+                cursor = transaction.cursor
                 if CONFIG['init']:
                     if not cursor.test():
                         self.logger.info("init db")
-                        Database.init(cursor)
+                        backend.get('Database').init(cursor)
                         init[db_name] = True
                     cursor.commit()
                 elif not cursor.test():
                     raise Exception("'%s' is not a Tryton database!" % db_name)
-            finally:
-                cursor.close()
 
         for db_name in CONFIG["db_name"]:
             if update:
-                cursor = Database(db_name).connect().cursor()
-                try:
+                with Transaction().start(db_name, 0) as transaction:
+                    cursor = transaction.cursor
                     if not cursor.test():
                         raise Exception("'%s' is not a Tryton database!"
                             % db_name)
                     cursor.execute('SELECT code FROM ir_lang '
                         'WHERE translatable')
                     lang = [x[0] for x in cursor.fetchall()]
-                finally:
-                    cursor.close()
             else:
                 lang = None
             Pool(db_name).init(update=update, lang=lang)
@@ -162,19 +157,17 @@ class TrytonServer(object):
                             continue
                         break
 
-                database = Database(db_name).connect()
-                cursor = database.cursor()
-                try:
+                with Transaction().start(db_name, 0) as transaction:
+                    cursor = transaction.cursor
                     salt = ''.join(random.sample(
                         string.letters + string.digits, 8))
                     password += salt
                     password = hashlib.sha1(password).hexdigest()
-                    cursor.execute('UPDATE res_user '
-                        'SET password = %s, salt = %s '
-                        'WHERE login = \'admin\'', (password, salt))
+                    user = Table('res_user')
+                    cursor.execute(*user.update([user.password, user.salt],
+                            [[password, salt]],
+                            where=user.login == 'admin'))
                     cursor.commit()
-                finally:
-                    cursor.close()
 
         if update:
             self.logger.info('Update/Init succeed!')
