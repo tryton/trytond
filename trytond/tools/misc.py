@@ -11,6 +11,7 @@ from threading import local
 import smtplib
 import dis
 from decimal import Decimal
+from array import array
 from sql import Literal
 from sql.operators import Or
 from trytond.config import CONFIG
@@ -335,7 +336,7 @@ def reduce_ids(field, ids):
     ids.sort()
     prev = ids.pop(0)
     continue_list = [prev, prev]
-    discontinue_list = []
+    discontinue_list = array('l')
     sql = Or()
     for i in ids:
         if i == prev:
