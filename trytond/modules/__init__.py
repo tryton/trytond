@@ -238,7 +238,8 @@ def load_module_graph(graph, pool, lang=None):
                     models_to_update_history.add(model.__name__)
 
             #Instanciate a new parser for the package:
-            tryton_parser = convert.TrytondXmlHandler(pool=pool, module=module)
+            tryton_parser = convert.TrytondXmlHandler(pool=pool, module=module,
+                module_state=package_state)
 
             for filename in package.info.get('xml', []):
                 filename = filename.replace('/', os.sep)
