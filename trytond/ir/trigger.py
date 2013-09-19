@@ -135,8 +135,8 @@ class Trigger(ModelSQL, ModelView):
         assert mode in ['create', 'write', 'delete', 'time'], \
             'Invalid trigger mode'
 
-        if Transaction().user == 0:
-            return []  # XXX is it want we want?
+        if Transaction().user == 0 and not Transaction().context.get('user'):
+            return []
 
         key = (model_name, mode)
         trigger_ids = cls._get_triggers_cache.get(key)
