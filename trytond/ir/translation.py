@@ -1441,8 +1441,9 @@ class TranslationUpdate(Wizard):
         translation = Translation.__table__()
         lang = self.start.language.code
         types = ['odt', 'view', 'wizard_button', 'selection', 'error']
-        columns = [translation.name, translation.res_id, translation.type,
-            translation.src, translation.module]
+        columns = [translation.name.as_('name'),
+            translation.res_id.as_('res_id'), translation.type.as_('type'),
+            translation.src.as_('src'), translation.module.as_('module')]
         cursor.execute(*(translation.select(*columns,
                     where=(translation.lang == 'en_US')
                     & translation.type.in_(types))
@@ -1463,8 +1464,9 @@ class TranslationUpdate(Wizard):
             with Transaction().set_user(0):
                 Translation.create(to_create)
         types = ['field', 'model', 'help']
-        columns = [translation.name, translation.res_id, translation.type,
-            translation.module]
+        columns = [translation.name.as_('name'),
+            translation.res_id.as_('red_id'), translation.type.as_('type'),
+            translation.module.as_('module')]
         cursor.execute(*(translation.select(*columns,
                     where=(translation.lang == 'en_US')
                     & translation.type.in_(types))
@@ -1484,8 +1486,9 @@ class TranslationUpdate(Wizard):
             with Transaction().set_user(0):
                 Translation.create(to_create)
         types = ['field', 'model', 'selection', 'help']
-        columns = [translation.name, translation.res_id, translation.type,
-            translation.src]
+        columns = [translation.name.as_('name'),
+            translation.res_id.as_('res_id'), translation.type.as_('type'),
+            translation.src.as_('src')]
         cursor.execute(*(translation.select(*columns,
                     where=(translation.lang == 'en_US')
                     & translation.type.in_(types))
@@ -1502,7 +1505,8 @@ class TranslationUpdate(Wizard):
                     & (translation.res_id == (row['res_id'] or None))))
 
         cursor.execute(*translation.select(
-                translation.src, Max(translation.value).as_('value'),
+                translation.src.as_('src'),
+                Max(translation.value).as_('value'),
                 where=(translation.lang == lang)
                 & translation.src.in_(
                     translation.select(translation.src,
