@@ -389,7 +389,7 @@ class Fs2bdAccessor:
 
 class TrytondXmlHandler(sax.handler.ContentHandler):
 
-    def __init__(self, pool, module,):
+    def __init__(self, pool, module, module_state):
         "Register known taghandlers, and managed tags."
         sax.handler.ContentHandler.__init__(self)
 
@@ -399,6 +399,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.fs2db = Fs2bdAccessor(self.ModelData, pool)
         self.to_delete = self.populate_to_delete()
         self.noupdate = None
+        self.module_state = module_state
         self.grouped = None
         self.grouped_creations = defaultdict(dict)
         self.skip_data = False
@@ -570,7 +571,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             if module == self.module and fs_id in self.to_delete:
                 self.to_delete.remove(fs_id)
 
-            if self.noupdate:
+            if self.noupdate and self.module_state != 'to install':
                 return
 
             # this record is already in the db:
