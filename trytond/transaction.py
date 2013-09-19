@@ -73,7 +73,10 @@ class Transaction(local):
         assert self.user is None
         assert self.cursor is None
         assert self.context is None
-        database = Database(database_name).connect()
+        if not database_name:
+            database = Database().connect()
+        else:
+            database = Database(database_name).connect()
         Flavor.set(Database.flavor)
         self.cursor = database.cursor(readonly=readonly)
         self.user = user
