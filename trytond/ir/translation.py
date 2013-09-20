@@ -1552,15 +1552,13 @@ class TranslationExportStart(ModelView):
             ('state', 'in', ['installed', 'to upgrade', 'to remove']),
             ])
 
-    @staticmethod
-    def default_language():
+    @classmethod
+    def default_language(cls):
         Lang = Pool().get('ir.lang')
         code = Transaction().context.get('language', False)
+        domain = [('code', '=', code)] + cls.language.domain
         try:
-            lang, = Lang.search([
-                    ('code', '=', code),
-                    ('translatable', '=', True),
-                    ], limit=1)
+            lang, = Lang.search(domain, limit=1)
             return lang.id
         except ValueError:
             return None
