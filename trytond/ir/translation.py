@@ -1465,7 +1465,7 @@ class TranslationUpdate(Wizard):
                 Translation.create(to_create)
         types = ['field', 'model', 'help']
         columns = [translation.name.as_('name'),
-            translation.res_id.as_('red_id'), translation.type.as_('type'),
+            translation.res_id.as_('res_id'), translation.type.as_('type'),
             translation.module.as_('module')]
         cursor.execute(*(translation.select(*columns,
                     where=(translation.lang == 'en_US')
