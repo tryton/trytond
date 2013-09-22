@@ -52,9 +52,13 @@ class ModelSQLTestCase(unittest.TestCase):
         '''
         Test check timestamp.
         '''
+        # cursor must be committed between each changes otherwise NOW() returns
+        # always the same timestamp.
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
+            cursor = transaction.cursor
             record, = self.modelsql_timestamp.create([{}])
+            cursor.commit()
 
             timestamp = self.modelsql_timestamp.read([record.id],
                 ['_timestamp'])[0]['_timestamp']
@@ -64,6 +68,7 @@ class ModelSQLTestCase(unittest.TestCase):
                 time.sleep(1)
 
             self.modelsql_timestamp.write([record], {})
+            cursor.commit()
 
             transaction.timestamp[str(record)] = timestamp
             self.assertRaises(ConcurrencyException,
@@ -75,7 +80,9 @@ class ModelSQLTestCase(unittest.TestCase):
 
             transaction.timestamp.pop(str(record), None)
             self.modelsql_timestamp.write([record], {})
+            cursor.commit()
             self.modelsql_timestamp.delete([record])
+            cursor.commit()
 
 
 def suite():
