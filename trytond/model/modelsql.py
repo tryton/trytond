@@ -651,18 +651,6 @@ class ModelSQL(ModelStorage):
 
         values = values.copy()
 
-        # _update_tree works if only one record has changed
-        update_tree = False
-        for field in cls._fields.itervalues():
-            if (isinstance(field, fields.Many2One)
-                    and field.model_name == cls.__name__
-                    and field.left and field.right):
-                update_tree = True
-        if update_tree and len(records) > 1:
-            for record in records:
-                cls.write([record], values)
-            return
-
         cls.__check_timestamp(ids)
 
         # Clean values
