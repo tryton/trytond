@@ -263,7 +263,7 @@ class FieldTranslate(Field):
         if Model.__name__ == 'ir.model':
             return table.join(translation, 'LEFT',
                 condition=(translation.name == Concat(table.model, name))
-                & (translation.res_id == None)
+                & (translation.res_id == -1)
                 & (translation.lang == language)
                 & (translation.type == 'model')
                 & (translation.fuzzy == False))
@@ -277,7 +277,7 @@ class FieldTranslate(Field):
                     translation, 'LEFT',
                     condition=(translation.name == Concat(Concat(
                                 model.model, ','), table.name))
-                    & (translation.res_id == None)
+                    & (translation.res_id == -1)
                     & (translation.lang == language)
                     & (translation.type == type_)
                     & (translation.fuzzy == False))
