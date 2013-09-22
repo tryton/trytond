@@ -276,14 +276,14 @@ class ModelSQL(ModelStorage):
             for id_ in sub_ids:
                 try:
                     timestamp = transaction.timestamp.pop(
-                        '%s,%s' % (cls.__name__, i))
+                        '%s,%s' % (cls.__name__, id_))
                 except KeyError:
                     continue
                 sql_type = fields.Numeric('timestamp').sql_type().base
                 where.append((table.id == id_)
-                    & Extract('EPOCH',
-                        Coalesce(table.write_date, table.create_date)
-                        ).cast(sql_type) > timestamp)
+                    & (Extract('EPOCH',
+                            Coalesce(table.write_date, table.create_date)
+                            ).cast(sql_type) > timestamp))
             if where:
                 cursor.execute(*table.select(table.id, where=where))
                 if cursor.fetchone():
