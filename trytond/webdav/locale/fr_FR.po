@@ -15,10 +15,6 @@ msgid "The collection name must be unique inside a collection!"
 msgstr "Le nom de collection doit être unique au sein d'une collection !"
 
 msgctxt "error:webdav.collection:"
-msgid "The collection name must be unique inside a collection!"
-msgstr "Le nom de collection doit être unique au sein d'une collection !"
-
-msgctxt "error:webdav.collection:"
 msgid ""
 "You can not create a collection named \"%(parent)s\" in collection "
 "\"%(child)s\" because there is already a file with that name."
@@ -177,14 +173,6 @@ msgstr "WebDAV"
 msgctxt "view:webdav.collection:"
 msgid "Collection"
 msgstr "Collection"
-
-msgctxt "view:webdav.collection:"
-msgid "Collection"
-msgstr "Collection"
-
-msgctxt "view:webdav.collection:"
-msgid "Collections"
-msgstr "Collections"
 
 msgctxt "view:webdav.collection:"
 msgid "Collections"

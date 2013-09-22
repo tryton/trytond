@@ -6,14 +6,6 @@ msgctxt "error:res.group:"
 msgid "The name of the group must be unique!"
 msgstr "Le nom du groupe doit être unique !"
 
-msgctxt "error:res.group:"
-msgid "The name of the group must be unique!"
-msgstr "Le nom du groupe doit être unique !"
-
-msgctxt "error:res.user:"
-msgid "Wrong password!"
-msgstr "Mauvais mot de passe !"
-
 msgctxt "error:res.user:"
 msgid "Wrong password!"
 msgstr "Mauvais mot de passe !"
@@ -21,20 +13,6 @@ msgstr "Mauvais mot de passe !"
 msgctxt "error:res.user:"
 msgid "You can not have two users with the same login!"
 msgstr "Vous ne pouvez pas créer deux utilisateur avec le même nom !"
-
-msgctxt "error:res.user:"
-msgid "You can not have two users with the same login!"
-msgstr "Vous ne pouvez pas créer deux utilisateur avec le même nom !"
-
-msgctxt "error:res.user:"
-msgid ""
-"You can not remove the root user\n"
-"as it is used internally for resources\n"
-"created by the system (updates, module installation, ...)"
-msgstr ""
-"Vous ne pouvez pas supprimer l'utilisateur racine\n"
-"puisqu'il est utilisé en interne pour créer\n"
-"des ressources par le système (mise-à-jour, installation de module, ...)"
 
 msgctxt "error:res.user:"
 msgid ""
@@ -778,14 +756,6 @@ msgctxt "model:ir.action,name:act_group_form"
 msgid "Groups"
 msgstr "Groupes"
 
-msgctxt "model:ir.action,name:act_request_form"
-msgid "Requests"
-msgstr "Demandes"
-
-msgctxt "model:ir.action,name:act_request_link_form"
-msgid "Request Links"
-msgstr "Liens des demandes"
-
 msgctxt "model:ir.action,name:act_user_config"
 msgid "Configure Users"
 msgstr "Configuration utilisateurs"
@@ -826,14 +796,6 @@ msgctxt "model:ir.ui.menu,name:menu_group_form"
 msgid "Groups"
 msgstr "Groupes"
 
-msgctxt "model:ir.ui.menu,name:menu_request_form"
-msgid "Requests"
-msgstr "Demandes"
-
-msgctxt "model:ir.ui.menu,name:menu_request_link_form"
-msgid "Request Links"
-msgstr "Liens des demandes"
-
 msgctxt "model:ir.ui.menu,name:menu_res"
 msgid "Users"
 msgstr "Res"
@@ -865,10 +827,6 @@ msgstr "Historique de demande"
 msgctxt "model:res.request.link,name:"
 msgid "Request link"
 msgstr "Lien de demande"
-
-msgctxt "model:res.request.link,name:request_link_cron"
-msgid "Scheduler"
-msgstr "Planificateur"
 
 msgctxt "model:res.request.reference,name:"
 msgid "Request Reference"
@@ -911,20 +869,8 @@ msgid "High"
 msgstr "Élevée"
 
 msgctxt "selection:res.request,priority:"
-msgid "High"
-msgstr "Élevée"
-
-msgctxt "selection:res.request,priority:"
 msgid "Low"
 msgstr "Faible"
-
-msgctxt "selection:res.request,priority:"
-msgid "Low"
-msgstr "Faible"
-
-msgctxt "selection:res.request,priority:"
-msgid "Normal"
-msgstr "Normale"
 
 msgctxt "selection:res.request,priority:"
 msgid "Normal"
@@ -935,14 +881,6 @@ msgid "Chatting"
 msgstr "En discussion"
 
 msgctxt "selection:res.request,state:"
-msgid "Chatting"
-msgstr "En discussion"
-
-msgctxt "selection:res.request,state:"
-msgid "Closed"
-msgstr "Fermé"
-
-msgctxt "selection:res.request,state:"
 msgid "Closed"
 msgstr "Fermé"
 
@@ -951,20 +889,8 @@ msgid "Draft"
 msgstr "Brouillon"
 
 msgctxt "selection:res.request,state:"
-msgid "Draft"
-msgstr "Brouillon"
-
-msgctxt "selection:res.request,state:"
 msgid "Waiting"
 msgstr "En attente"
-
-msgctxt "selection:res.request,state:"
-msgid "Waiting"
-msgstr "En attente"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "High"
-msgstr "Élevée"
 
 msgctxt "selection:res.request.history,priority:"
 msgid "High"
@@ -975,20 +901,8 @@ msgid "Low"
 msgstr "Basse"
 
 msgctxt "selection:res.request.history,priority:"
-msgid "Low"
-msgstr "Basse"
-
-msgctxt "selection:res.request.history,priority:"
 msgid "Normal"
 msgstr "Normale"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "Normal"
-msgstr "Normale"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Chatting"
-msgstr "En discussion"
 
 msgctxt "selection:res.request.history,state:"
 msgid "Chatting"
@@ -999,20 +913,8 @@ msgid "Closed"
 msgstr "Fermé"
 
 msgctxt "selection:res.request.history,state:"
-msgid "Closed"
-msgstr "Fermé"
-
-msgctxt "selection:res.request.history,state:"
 msgid "Draft"
 msgstr "Brouillon"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Draft"
-msgstr "Brouillon"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Waiting"
-msgstr "En attente"
 
 msgctxt "selection:res.request.history,state:"
 msgid "Waiting"
@@ -1047,20 +949,8 @@ msgid "Access Permissions"
 msgstr "Permissions d'accès"
 
 msgctxt "view:res.group:"
-msgid "Access Permissions"
-msgstr "Permissions d'accès"
-
-msgctxt "view:res.group:"
 msgid "Group"
 msgstr "Groupe"
-
-msgctxt "view:res.group:"
-msgid "Group"
-msgstr "Groupe"
-
-msgctxt "view:res.group:"
-msgid "Groups"
-msgstr "Groupes"
 
 msgctxt "view:res.group:"
 msgid "Groups"
@@ -1070,21 +960,9 @@ msgctxt "view:res.group:"
 msgid "Members"
 msgstr "Membres"
 
-msgctxt "view:res.group:"
-msgid "Members"
-msgstr "Membres"
-
 msgctxt "view:res.request.history:"
 msgid "Request History"
 msgstr "Historique des demandes"
-
-msgctxt "view:res.request.history:"
-msgid "Request History"
-msgstr "Historique des demandes"
-
-msgctxt "view:res.request.link:"
-msgid "Request Link"
-msgstr "Lien des demandes"
 
 msgctxt "view:res.request.link:"
 msgid "Request Link"
@@ -1095,20 +973,8 @@ msgid "Request Reference"
 msgstr "Référence de la demande"
 
 msgctxt "view:res.request.reference:"
-msgid "Request Reference"
-msgstr "Référence de la demande"
-
-msgctxt "view:res.request.reference:"
 msgid "Request References"
 msgstr "Références de la demande"
-
-msgctxt "view:res.request.reference:"
-msgid "Request References"
-msgstr "Références de la demande"
-
-msgctxt "view:res.request:"
-msgid "Close"
-msgstr "Fermer"
 
 msgctxt "view:res.request:"
 msgid "Close"
@@ -1119,14 +985,6 @@ msgid "References"
 msgstr "Références"
 
 msgctxt "view:res.request:"
-msgid "References"
-msgstr "Références"
-
-msgctxt "view:res.request:"
-msgid "Reply"
-msgstr "Repondre"
-
-msgctxt "view:res.request:"
 msgid "Reply"
 msgstr "Repondre"
 
@@ -1135,20 +993,8 @@ msgid "Request"
 msgstr "Demande"
 
 msgctxt "view:res.request:"
-msgid "Request"
-msgstr "Demande"
-
-msgctxt "view:res.request:"
 msgid "Requests"
 msgstr "Demandes"
-
-msgctxt "view:res.request:"
-msgid "Requests"
-msgstr "Demandes"
-
-msgctxt "view:res.request:"
-msgid "Send"
-msgstr "Envoyer"
 
 msgctxt "view:res.request:"
 msgid "Send"
@@ -1171,20 +1017,8 @@ msgid "Warning"
 msgstr "Avertissement"
 
 msgctxt "view:res.user.warning:"
-msgid "Warning"
-msgstr "Avertissement"
-
-msgctxt "view:res.user.warning:"
 msgid "Warnings"
 msgstr "Avertissements"
-
-msgctxt "view:res.user.warning:"
-msgid "Warnings"
-msgstr "Avertissements"
-
-msgctxt "view:res.user:"
-msgid "Access Permissions"
-msgstr "Permission d'accès"
 
 msgctxt "view:res.user:"
 msgid "Access Permissions"
@@ -1199,28 +1033,12 @@ msgid "Group Membership"
 msgstr "Groupes"
 
 msgctxt "view:res.user:"
-msgid "Group Membership"
-msgstr "Groupes"
-
-msgctxt "view:res.user:"
-msgid "Preferences"
-msgstr "Préférences"
-
-msgctxt "view:res.user:"
 msgid "Preferences"
 msgstr "Préférences"
 
 msgctxt "view:res.user:"
 msgid "User"
 msgstr "Utilisateur"
-
-msgctxt "view:res.user:"
-msgid "User"
-msgstr "Utilisateur"
-
-msgctxt "view:res.user:"
-msgid "Users"
-msgstr "Utilisateurs"
 
 msgctxt "view:res.user:"
 msgid "Users"

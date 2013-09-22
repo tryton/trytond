@@ -82,7 +82,7 @@ class TranslateFactory:
                 ('value', '!=', ''),
                 ('value', '!=', None),
                 ('fuzzy', '=', False),
-                ('res_id', '=', None),
+                ('res_id', '=', -1),
                 ])
             for translation in translations:
                 self.cache[self.language][translation.src] = translation.value

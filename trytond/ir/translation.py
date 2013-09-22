@@ -65,7 +65,7 @@ class Translation(ModelSQL, ModelView):
     __name__ = "ir.translation"
 
     name = fields.Char('Field Name', required=True)
-    res_id = fields.Integer('Resource ID', select=True)
+    res_id = fields.Integer('Resource ID', select=True, required=True)
     lang = fields.Selection('get_language', string='Language')
     type = fields.Selection(TRANSLATION_TYPE, string='Type',
        required=True)
@@ -133,6 +133,10 @@ class Translation(ModelSQL, ModelView):
         cursor.execute(*ir_translation.update([ir_translation.res_id],
                 [None], where=ir_translation.res_id == 0))
 
+        # Migration from 2.8
+        cursor.execute(*ir_translation.update([ir_translation.res_id],
+                [-1], where=ir_translation.res_id == None))
+
         table = TableHandler(Transaction().cursor, cls, module_name)
         table.index_action(['lang', 'type', 'name'], 'add')
 
@@ -150,7 +154,9 @@ class Translation(ModelSQL, ModelView):
                 where=(ir_translation.lang == 'en_US')
                 & (ir_translation.type == 'model')
                 & (ir_translation.name == name)
-                & ((ir_translation.res_id == None)
+                # Keep searching on all values for migration
+                & ((ir_translation.res_id == -1)
+                    | (ir_translation.res_id == None)
                     | (ir_translation.res_id == 0))))
         trans_id = None
         if cursor.rowcount == -1 or cursor.rowcount is None:
@@ -164,9 +170,9 @@ class Translation(ModelSQL, ModelView):
             cursor.execute(*ir_translation.insert(
                     [Column(ir_translation, c)
                         for c in ('name', 'lang', 'type', 'src', 'src_md5',
-                            'value', 'module', 'fuzzy')],
+                            'value', 'module', 'fuzzy', 'res_id')],
                     [[name, 'en_US', 'model', src, src_md5, '',
-                            module_name, False]]))
+                            module_name, False, -1]]))
         else:
             cursor.execute(*ir_translation.update(
                     [ir_translation.src, ir_translation.src_md5],
@@ -207,9 +213,10 @@ class Translation(ModelSQL, ModelView):
                         [ir_translation.name, ir_translation.lang,
                             ir_translation.type, ir_translation.src,
                             ir_translation.src_md5, ir_translation.value,
-                            ir_translation.module, ir_translation.fuzzy],
+                            ir_translation.module, ir_translation.fuzzy,
+                            ir_translation.res_id],
                         [[trans_name, 'en_US', 'field', field.string,
-                                string_md5, '', module_name, False]]))
+                                string_md5, '', module_name, False, -1]]))
             elif trans_fields[trans_name]['src'] != field.string:
                 cursor.execute(*ir_translation.update(
                         [ir_translation.src, ir_translation.src_md5],
@@ -225,9 +232,10 @@ class Translation(ModelSQL, ModelView):
                             [ir_translation.name, ir_translation.lang,
                                 ir_translation.type, ir_translation.src,
                                 ir_translation.src_md5, ir_translation.value,
-                                ir_translation.module, ir_translation.fuzzy],
+                                ir_translation.module, ir_translation.fuzzy,
+                                ir_translation.res_id],
                             [[trans_name, 'en_US', 'help', field.help,
-                                    help_md5, '', module_name, False]]))
+                                    help_md5, '', module_name, False, -1]]))
             elif trans_help[trans_name]['src'] != field.help:
                 cursor.execute(*ir_translation.update(
                         [ir_translation.src, ir_translation.src_md5],
@@ -244,9 +252,10 @@ class Translation(ModelSQL, ModelView):
                             [ir_translation.name, ir_translation.lang,
                                 ir_translation.type, ir_translation.src,
                                 ir_translation.src_md5, ir_translation.value,
-                                ir_translation.module, ir_translation.fuzzy],
+                                ir_translation.module, ir_translation.fuzzy,
+                                ir_translation.res_id],
                             [[trans_name, 'en_US', 'selection', val, val_md5,
-                                    '', module_name, False]]))
+                                    '', module_name, False, -1]]))
 
         for field_name, field in model._fields.iteritems():
             trans_name = model.__name__ + ',' + field_name
@@ -277,9 +286,10 @@ class Translation(ModelSQL, ModelView):
                         [ir_translation.name, ir_translation.lang,
                             ir_translation.type, ir_translation.src,
                             ir_translation.src_md5, ir_translation.value,
-                            ir_translation.module, ir_translation.fuzzy],
+                            ir_translation.module, ir_translation.fuzzy,
+                            ir_translation.res_id],
                         [[model.__name__, 'en_US', 'error', error, error_md5,
-                                '', module_name, False]]))
+                                '', module_name, False, -1]]))
 
     @classmethod
     def register_wizard(cls, wizard, module_name):
@@ -303,9 +313,10 @@ class Translation(ModelSQL, ModelView):
                         [ir_translation.name, ir_translation.lang,
                             ir_translation.type, ir_translation.src,
                             ir_translation.src_md5, ir_translation.value,
-                            ir_translation.module, ir_translation.fuzzy],
+                            ir_translation.module, ir_translation.fuzzy,
+                            ir_translation.res_id],
                         [[trans_name, 'en_US', 'wizard_button', button.string,
-                                src_md5, '', module_name, False]]))
+                                src_md5, '', module_name, False, -1]]))
             elif trans_buttons[trans_name] != button.string:
                 cursor.execute(*ir_translation.update(
                         [ir_translation.src, ir_translation.src_md5],
@@ -322,6 +333,10 @@ class Translation(ModelSQL, ModelView):
     @staticmethod
     def default_fuzzy():
         return False
+
+    @staticmethod
+    def default_res_id():
+        return -1
 
     def get_model(self, name):
         return self.name.split(',')[0]
@@ -608,7 +623,7 @@ class Translation(ModelSQL, ModelView):
             & (table.value != '')
             & (table.value != None)
             & (table.fuzzy == False)
-            & (table.res_id == None))
+            & (table.res_id == -1))
         if source is not None:
             where &= table.src == source
         cursor.execute(*table.select(table.value, where=where))
@@ -654,7 +669,7 @@ class Translation(ModelSQL, ModelView):
                         (table.value != ''),
                         (table.value != None),
                         (table.fuzzy == False),
-                        (table.res_id == None),
+                        (table.res_id == -1),
                         ))
                 if source is not None:
                     where &= table.src == source
@@ -696,7 +711,7 @@ class Translation(ModelSQL, ModelView):
                         'selection', 'error'):
                     cursor.execute(*table.select(table.module,
                             where=(table.name == vals.get('name') or '')
-                            & (table.res_id == vals.get('res_id') or 0)
+                            & (table.res_id == vals.get('res_id') or -1)
                             & (table.lang == 'en_US')
                             & (table.type == vals.get('type') or '')
                             & (table.src == vals.get('src') or '')))
@@ -706,7 +721,7 @@ class Translation(ModelSQL, ModelView):
                 else:
                     cursor.execute(*table.select(table.module, table.src,
                             where=(table.name == vals.get('name') or '')
-                            & (table.res_id == vals.get('res_id') or 0)
+                            & (table.res_id == vals.get('res_id') or -1)
                             & (table.lang == 'en_US')
                             & (table.type == vals.get('type') or '')))
                     fetchone = cursor.fetchone()
@@ -785,7 +800,7 @@ class Translation(ModelSQL, ModelView):
                         ])
                 res_id = model_data.db_id
             else:
-                res_id = None
+                res_id = -1
             with contextlib.nested(Transaction().set_user(0),
                     Transaction().set_context(module=res_id_module)):
                 translation, = cls.search([
@@ -834,7 +849,7 @@ class Translation(ModelSQL, ModelView):
                     except ValueError:
                         continue
                 if not res_id:
-                    res_id = None
+                    res_id = -1
 
                 if ttype in ('odt', 'view', 'wizard_button', 'selection',
                         'error'):
@@ -929,7 +944,7 @@ class Translation(ModelSQL, ModelView):
                 'name': translation.name,
                 }
             res_id = translation.res_id
-            if res_id:
+            if res_id >= 0:
                 model, _ = translation.name.split(',')
                 if model in db_id2fs_id:
                     res_id = db_id2fs_id[model].get(res_id)
@@ -1236,7 +1251,7 @@ class TranslationClean(Wizard):
             return True
         if model_name not in pool.object_name_list():
             return True
-        if translation.res_id:
+        if translation.res_id >= 0:
             Model = pool.get(model_name)
             if field_name not in Model._fields:
                 return True
@@ -1502,7 +1517,7 @@ class TranslationUpdate(Wizard):
                     where=(translation.name == row['name'])
                     & (translation.type == row['type'])
                     & (translation.lang == lang)
-                    & (translation.res_id == (row['res_id'] or None))))
+                    & (translation.res_id == (row['res_id'] or -1))))
 
         cursor.execute(*translation.select(
                 translation.src.as_('src'),
