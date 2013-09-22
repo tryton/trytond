@@ -3,7 +3,7 @@
 from trytond.model import ModelSingleton, ModelSQL, fields
 
 __all__ = [
-    'Singleton', 'URLObject', 'ModelSQLRequiredField',
+    'Singleton', 'URLObject', 'ModelSQLRequiredField', 'ModelSQLTimestamp',
     ]
 
 
@@ -29,3 +29,8 @@ class ModelSQLRequiredField(ModelSQL):
 
     integer = fields.Integer(string="integer", required=True)
     desc = fields.Char(string="desc", required=True)
+
+
+class ModelSQLTimestamp(ModelSQL):
+    'Model to test timestamp'
+    __name__ = 'test.modelsql.timestamp'

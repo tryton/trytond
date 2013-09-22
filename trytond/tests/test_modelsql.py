@@ -4,9 +4,10 @@
 # repository contains the full copyright notices and license terms.
 
 import unittest
+import time
 
 from trytond.config import CONFIG
-from trytond.exceptions import UserError
+from trytond.exceptions import UserError, ConcurrencyException
 from trytond.transaction import Transaction
 from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
     install_module
@@ -20,6 +21,7 @@ class ModelSQLTestCase(unittest.TestCase):
     def setUp(self):
         install_module('tests')
         self.modelsql = POOL.get('test.modelsql')
+        self.modelsql_timestamp = POOL.get('test.modelsql.timestamp')
 
     def test0010required_field_missing(self):
         '''
@@ -45,6 +47,35 @@ class ModelSQLTestCase(unittest.TestCase):
                     self.assertTrue(key not in err.message, msg)
                     continue
                 self.fail('UserError should be caught')
+
+    def test0020check_timestamp(self):
+        '''
+        Test check timestamp.
+        '''
+        with Transaction().start(DB_NAME, USER,
+                context=CONTEXT) as transaction:
+            record, = self.modelsql_timestamp.create([{}])
+
+            timestamp = self.modelsql_timestamp.read([record.id],
+                ['_timestamp'])[0]['_timestamp']
+
+            if CONFIG['db_type'] == 'sqlite':
+                # timestamp precision of sqlite is the second
+                time.sleep(1)
+
+            self.modelsql_timestamp.write([record], {})
+
+            transaction.timestamp[str(record)] = timestamp
+            self.assertRaises(ConcurrencyException,
+                self.modelsql_timestamp.write, [record], {})
+
+            transaction.timestamp[str(record)] = timestamp
+            self.assertRaises(ConcurrencyException,
+                self.modelsql_timestamp.delete, [record])
+
+            transaction.timestamp.pop(str(record), None)
+            self.modelsql_timestamp.write([record], {})
+            self.modelsql_timestamp.delete([record])
 
 
 def suite():

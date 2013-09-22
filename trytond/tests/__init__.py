@@ -97,6 +97,7 @@ def register():
         Singleton,
         URLObject,
         ModelSQLRequiredField,
+        ModelSQLTimestamp,
         MPTT,
         ImportDataBoolean,
         ImportDataInteger,
