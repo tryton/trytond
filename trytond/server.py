@@ -10,11 +10,7 @@ import os
 import signal
 import time
 from getpass import getpass
-import hashlib
 import threading
-import string
-import random
-from sql import Table
 
 from trytond.config import CONFIG
 from trytond import backend
@@ -158,16 +154,13 @@ class TrytonServer(object):
                         break
 
                 with Transaction().start(db_name, 0) as transaction:
-                    cursor = transaction.cursor
-                    salt = ''.join(random.sample(
-                        string.letters + string.digits, 8))
-                    password += salt
-                    password = hashlib.sha1(password).hexdigest()
-                    user = Table('res_user')
-                    cursor.execute(*user.update([user.password, user.salt],
-                            [[password, salt]],
-                            where=user.login == 'admin'))
-                    cursor.commit()
+                    pool = Pool()
+                    User = pool.get('res.user')
+                    admin, = User.search([('login', '=', 'admin')])
+                    User.write([admin], {
+                            'password': password,
+                            })
+                    transaction.cursor.commit()
 
         if update:
             self.logger.info('Update/Init succeed!')

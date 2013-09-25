@@ -5,7 +5,6 @@ import traceback
 import logging
 import time
 import sys
-import hashlib
 import pydoc
 
 from sql import Table
@@ -242,22 +241,23 @@ def create(database_name, password, lang, admin_password):
         pool = Pool(database_name)
         pool.init(update=True, lang=[lang])
         with Transaction().start(database_name, 0) as transaction:
-            cursor = transaction.cursor
-            cursor.execute(*ir_lang.update([ir_lang.translatable], [True],
-                    where=(ir_lang.code == lang)))
-            cursor.execute(*res_user.update([res_user.language],
-                        [ir_lang.select(ir_lang.id,
-                                where=(ir_lang.code == lang),
-                                limit=1)],
-                        where=(res_user.login != 'root')))
-            admin_password = hashlib.sha1(admin_password.encode('utf-8'))\
-                .hexdigest()
-            cursor.execute(*res_user.update([res_user.password],
-                    [admin_password], where=(res_user.login == 'admin')))
+            User = pool.get('res.user')
+            Lang = pool.get('ir.lang')
+            language, = Lang.search([('code', '=', lang)])
+            language.translatable = True
+            language.save()
+            users = User.search([('login', '!=', 'root')])
+            User.write(users, {
+                    'language': language.id,
+                    })
+            admin, = User.search([('login', '=', 'admin')])
+            User.write([admin], {
+                    'password': admin_password,
+                    })
             Module = pool.get('ir.module.module')
             if Module:
                 Module.update_list()
-            cursor.commit()
+            transaction.cursor.commit()
             res = True
     except Exception:
         logger.error('CREATE DB: %s failed' % (database_name,))
