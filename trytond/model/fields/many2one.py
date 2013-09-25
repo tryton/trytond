@@ -178,6 +178,9 @@ class Many2One(Field):
         return column.in_(query)
 
     def convert_order(self, name, tables, Model):
+        if getattr(Model, 'order_%s' % name, None):
+            return super(Many2One, self).convert_order(name, tables, Model)
+
         Target = self.get_target()
 
         oname = 'id'
