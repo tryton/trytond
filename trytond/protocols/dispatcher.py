@@ -72,6 +72,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
                 ('lt_LT', 'Lietuvių'),
                 ('nl_NL', 'Nederlands'),
                 ('ru_RU', 'Russian'),
+                ('sl_SI', 'Slovenščina'),
             ]
         elif method == 'db_exist':
             try:
