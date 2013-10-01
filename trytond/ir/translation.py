@@ -1093,9 +1093,10 @@ class TranslationSet(Wizard):
                             [translation.name, translation.lang,
                                 translation.type, translation.src,
                                 translation.value, translation.module,
-                                translation.fuzzy, translation.src_md5],
+                                translation.fuzzy, translation.src_md5,
+                                translation.res_id],
                             [[report.report_name, 'en_US', 'odt', string, '',
-                                    report.module, False, src_md5]]))
+                                    report.module, False, src_md5, -1]]))
             if strings:
                 cursor.execute(*translation.delete(
                         where=(translation.name == report.report_name)
@@ -1188,9 +1189,10 @@ class TranslationSet(Wizard):
                             [translation.name, translation.lang,
                                 translation.type, translation.src,
                                 translation.src_md5, translation.value,
-                                translation.module, translation.fuzzy],
+                                translation.module, translation.fuzzy,
+                                translation.res_id],
                             [[view.model, 'en_US', 'view', string, string_md5,
-                                    '', view.module, False]]))
+                                    '', view.module, False, -1]]))
             if strings:
                 cursor.execute(*translation.delete(
                         where=(translation.name == view.model)
