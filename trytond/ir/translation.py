@@ -357,10 +357,11 @@ class Translation(ModelSQL, ModelView):
         table = cls.__table__()
         _, operator, value = clause
         Operator = fields.SQL_OPERATORS[operator]
-        return Operator(Substring(table.name, 1,
-                Case((Position(',', table.name) > 0,
-                        Position(',', table.name) - 1),
-                    else_=0)), value)
+        return [('id', 'in', table.select(table.id,
+                    where=Operator(Substring(table.name, 1,
+                            Case((Position(',', table.name) > 0,
+                                    Position(',', table.name) - 1),
+                                else_=0)), value)))]
 
     @classmethod
     def get_language(cls):
