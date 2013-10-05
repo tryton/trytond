@@ -1356,6 +1356,8 @@ class TranslationClean(Wizard):
                 'required_validation_record',
                 'size_validation_record',
                 'digits_validation_record',
+                'selection_validation_record',
+                'time_format_validation_record',
                 'access_error',
                 'read_error',
                 'write_error',
@@ -1363,9 +1365,8 @@ class TranslationClean(Wizard):
                 'foreign_model_missing',
                 'foreign_model_exist',
                 'search_function_missing',
-                'time_format_validation_record',
                 'selection_value_notfound',
-                'model_recusion_error',
+                'recursion_error',
                 ):
             return False
         if model_name in pool.object_name_list():
