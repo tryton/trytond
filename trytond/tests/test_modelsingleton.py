@@ -34,11 +34,13 @@ class ModelSingletonTestCase(unittest.TestCase):
 
             singleton, = self.singleton.read([1], [
                 'create_uid',
+                'create_uid.rec_name',
                 'create_date',
                 'write_uid',
                 'write_date',
                 ])
             self.assertEqual(singleton['create_uid'], USER)
+            self.assertEqual(singleton['create_uid.rec_name'], 'Administrator')
             self.assert_(isinstance(singleton['create_date'], datetime))
             self.assertEqual(singleton['write_uid'], None)
             self.assertEqual(singleton['write_date'], None)
