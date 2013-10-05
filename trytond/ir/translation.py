@@ -14,7 +14,6 @@ try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
-from functools import reduce
 from lxml import etree
 from itertools import izip
 from sql import Column
@@ -90,9 +89,9 @@ class Translation(ModelSQL, ModelView):
                 'Translation must be unique'),
         ]
         cls._error_messages.update({
-                'translation_overridden': \
+                'translation_overridden': (
                     "You can not export translation %(name)s because it is an "
-                    "overridden translation by module %(overriding_module)s",
+                    "overridden translation by module %(overriding_module)s"),
                 })
 
     @classmethod
