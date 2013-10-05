@@ -743,9 +743,9 @@ class ModelStorage(Model):
         ModelData = pool.get('ir.model.data')
 
         # logger for collecting warnings for the client
-        warnings = logging.Logger("import")
+        logger = logging.Logger("import")
         warning_stream = StringIO.StringIO()
-        warnings.addHandler(logging.StreamHandler(warning_stream))
+        logger.addHandler(logging.StreamHandler(warning_stream))
 
         len_fields_names = len(fields_names)
         assert all(len(x) == len_fields_names for x in data)
@@ -893,7 +893,8 @@ class ModelStorage(Model):
             else:
                 return all(method(r) for r in records)
         for field in cls._constraints:
-            warnings.warn('_constraints is deprecated, override validate instead',
+            warnings.warn(
+                '_constraints is deprecated, override validate instead',
                 DeprecationWarning, stacklevel=2)
             if not call(field[0]):
                 cls.raise_user_error(field[1])
@@ -1134,7 +1135,6 @@ class ModelStorage(Model):
             record.pre_validate()
 
         cls.validate(records)
-
 
     @classmethod
     def _clean_defaults(cls, defaults):

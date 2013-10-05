@@ -13,6 +13,9 @@ import tempfile
 from sql import Flavor, Expression
 from sql.functions import Extract, Overlay, CharLength
 
+__all__ = ['Database', 'DatabaseIntegrityError', 'DatabaseOperationalError',
+    'Cursor']
+
 
 class MySQLExtract(Extract):
 
