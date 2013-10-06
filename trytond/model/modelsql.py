@@ -380,7 +380,8 @@ class ModelSQL(ModelStorage):
         for values, new_id in izip(vlist, new_ids):
             for fname, value in values.iteritems():
                 field = cls._fields[fname]
-                if getattr(field, 'translate', False):
+                if (getattr(field, 'translate', False)
+                        and not hasattr(field, 'set')):
                     translation_values.setdefault(
                         '%s,%s' % (cls.__name__, fname), {})[new_id] = value
                 if hasattr(field, 'set'):
@@ -498,7 +499,8 @@ class ModelSQL(ModelStorage):
             field = column.output_name
             if field == '_timestamp':
                 continue
-            if getattr(cls._fields[field], 'translate', False):
+            if (getattr(cls._fields[field], 'translate', False)
+                    and not hasattr(field, 'set')):
                 translations = Translation.get_ids(cls.__name__ + ',' + field,
                     'model', Transaction().language, ids)
                 for row in result:
@@ -701,7 +703,8 @@ class ModelSQL(ModelStorage):
 
         for fname, value in values.iteritems():
             field = cls._fields[fname]
-            if getattr(field, 'translate', False):
+            if (getattr(field, 'translate', False)
+                    and not hasattr(field, 'set')):
                 Translation.set_ids(
                     '%s,%s' % (cls.__name__, fname), 'model',
                     transaction.language, ids, [value] * len(ids))
