@@ -538,7 +538,7 @@ class ModelStorage(Model):
             def warn(msgname, *args):
                 msg = cls.raise_user_error(msgname, args,
                         raise_exception=False)
-                warnings.warn(msg)
+                logger.warn(msg)
 
             def get_selection(selection, value):
                 res = None
