@@ -826,7 +826,7 @@ class Translation(ModelSQL, ModelView):
         for processing in processes:
             if processing and len(module_translations) > RECORD_CACHE_SIZE:
                 id2translation = dict((t.id, t)
-                    for t in Translation.browse(translation_ids))
+                    for t in cls.browse(translation_ids))
             for entry in pofile:
                 ttype, name, res_id = entry.msgctxt.split(':')
                 src = entry.msgid
