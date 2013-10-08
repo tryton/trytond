@@ -229,7 +229,7 @@ class ModelView(Model):
                 xml = ''
             result['type'] = view_type
             result['arch'] = xml
-            result['field_childs'] = False
+            result['field_childs'] = None
             result['view_id'] = 0
 
         # Update arch and compute fields from arch
