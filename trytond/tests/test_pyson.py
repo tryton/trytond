@@ -532,7 +532,7 @@ class PYSONTestCase(unittest.TestCase):
 
         eval = pyson.PYSONEncoder().encode(['id', pyson.If(pyson.Not(
             pyson.In('company', pyson.Eval('context', {}))), '=', '!='),
-            pyson.Get(pyson.Eval('context', {}), 'company', 0)])
+            pyson.Get(pyson.Eval('context', {}), 'company', -1)])
         self.assert_(pyson.PYSONDecoder({'context': {'company': 1}}
             ).decode(eval) == ['id', '!=', 1])
         self.assert_(pyson.PYSONDecoder({'context': {}}
