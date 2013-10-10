@@ -536,7 +536,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assert_(pyson.PYSONDecoder({'context': {'company': 1}}
             ).decode(eval) == ['id', '!=', 1])
         self.assert_(pyson.PYSONDecoder({'context': {}}
-            ).decode(eval) == ['id', '=', 0])
+            ).decode(eval) == ['id', '=', -1])
 
 
 def suite():
