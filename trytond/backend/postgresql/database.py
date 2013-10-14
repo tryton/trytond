@@ -30,6 +30,8 @@ RE_FROM = re.compile('.* from "?([a-zA-Z_0-9]+)"?.*$')
 RE_INTO = re.compile('.* into "?([a-zA-Z_0-9]+)"?.*$')
 RE_VERSION = re.compile(r'\S+ (\d+)\.(\d+)')
 
+os.environ['PGTZ'] = os.environ.get('TZ', '')
+
 
 class Database(DatabaseInterface):
 
