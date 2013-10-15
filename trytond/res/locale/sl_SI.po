@@ -45,7 +45,7 @@ msgstr "ID"
 
 msgctxt "field:ir.action-res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action-res.group,write_date:"
 msgid "Write Date"
@@ -81,7 +81,7 @@ msgstr "ID"
 
 msgctxt "field:ir.model.button-res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model.button-res.group,write_date:"
 msgid "Write Date"
@@ -113,7 +113,7 @@ msgstr "ID"
 
 msgctxt "field:ir.model.field-res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model.field-res.group,write_date:"
 msgid "Write Date"
@@ -141,7 +141,7 @@ msgstr "ID"
 
 msgctxt "field:ir.rule.group-res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.rule.group-res.group,rule_group:"
 msgid "Rule Group"
@@ -169,7 +169,7 @@ msgstr "ID"
 
 msgctxt "field:ir.rule.group-res.user,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.rule.group-res.user,rule_group:"
 msgid "Rule Group"
@@ -217,7 +217,7 @@ msgstr "ID"
 
 msgctxt "field:ir.sequence.type-res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.sequence.type-res.group,sequence_type:"
 msgid "Sequence Type"
@@ -253,7 +253,7 @@ msgstr "Meni"
 
 msgctxt "field:ir.ui.menu-res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.menu-res.group,write_date:"
 msgid "Write Date"
@@ -293,7 +293,7 @@ msgstr "Naziv"
 
 msgctxt "field:res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:res.group,rule_groups:"
 msgid "Rules"
@@ -357,7 +357,7 @@ msgstr "Izhodiščni meni"
 
 msgctxt "field:res.user,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:res.user,password:"
 msgid "Password"
@@ -369,7 +369,7 @@ msgstr "PySON meni"
 
 msgctxt "field:res.user,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:res.user,rule_groups:"
 msgid "Rules"
@@ -425,7 +425,7 @@ msgstr "ID"
 
 msgctxt "field:res.user-ir.action,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:res.user-ir.action,user:"
 msgid "User"
@@ -457,7 +457,7 @@ msgstr "ID"
 
 msgctxt "field:res.user-res.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:res.user-res.group,user:"
 msgid "User"
@@ -493,7 +493,7 @@ msgstr "Prijava"
 
 msgctxt "field:res.user.login.attempt,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:res.user.login.attempt,write_date:"
 msgid "Write Date"
@@ -521,11 +521,11 @@ msgstr "ID"
 
 msgctxt "field:res.user.warning,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:res.user.warning,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:res.user.warning,user:"
 msgid "User"
@@ -562,18 +562,6 @@ msgstr "Uporabniki"
 msgctxt "model:ir.action-res.group,name:"
 msgid "Action - Group"
 msgstr "Ukrep - Skupina"
-
-msgctxt "model:ir.action.act_window,name:act_group_form"
-msgid "Groups"
-msgstr "Skupine"
-
-msgctxt "model:ir.action.act_window,name:act_user_form"
-msgid "Users"
-msgstr "Uporabniki"
-
-msgctxt "model:ir.action.wizard,name:act_user_config"
-msgid "Configure Users"
-msgstr "Konfiguracija uporabnikov"
 
 msgctxt "model:ir.cron,name:cron_trigger_time"
 msgid "Run On Time Triggers"
@@ -633,7 +621,7 @@ msgstr "Skrbnik"
 
 msgctxt "model:res.user,name:user_trigger"
 msgid "Cron Trigger"
-msgstr "Prožilnik za zagon"
+msgstr "Razporejevalnik za proženje"
 
 msgctxt "model:res.user-ir.action,name:"
 msgid "User - Action"

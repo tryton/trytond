@@ -197,7 +197,7 @@ msgstr "Zadnji časovni žig pri štetju \"%s\" ne more biti v prihodnosti."
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Missing sequence."
-msgstr "Manjka štetje."
+msgstr "Manjka zaporedna številka."
 
 msgctxt "error:ir.sequence.strict:"
 msgid "Timestamp rounding should be greater than 0"
@@ -217,7 +217,7 @@ msgstr "Zadnji časovni žig pri štetju \"%s\" ne more biti v prihodnosti."
 
 msgctxt "error:ir.sequence:"
 msgid "Missing sequence."
-msgstr "Manjka štetje."
+msgstr "Manjka zaporedna številka."
 
 msgctxt "error:ir.sequence:"
 msgid "Timestamp rounding should be greater than 0"
@@ -381,11 +381,11 @@ msgstr "Ključne besede"
 
 msgctxt "field:ir.action,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.action,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action,type:"
 msgid "Type"
@@ -489,7 +489,7 @@ msgstr "PySON kriterij iskanja"
 
 msgctxt "field:ir.action.act_window,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action.act_window,res_model:"
 msgid "Model"
@@ -553,11 +553,11 @@ msgstr "Naziv"
 
 msgctxt "field:ir.action.act_window.domain,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action.act_window.domain,sequence:"
 msgid "Sequence"
-msgstr "Štetje"
+msgstr "Zap.št."
 
 msgctxt "field:ir.action.act_window.domain,write_date:"
 msgid "Write Date"
@@ -585,11 +585,11 @@ msgstr "ID"
 
 msgctxt "field:ir.action.act_window.view,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action.act_window.view,sequence:"
 msgid "Sequence"
-msgstr "Štetje"
+msgstr "Zap.št."
 
 msgctxt "field:ir.action.act_window.view,view:"
 msgid "View"
@@ -633,7 +633,7 @@ msgstr "Model"
 
 msgctxt "field:ir.action.keyword,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action.keyword,write_date:"
 msgid "Write Date"
@@ -705,7 +705,7 @@ msgstr "PySON e-pošta"
 
 msgctxt "field:ir.action.report,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action.report,report:"
 msgid "Path"
@@ -789,7 +789,7 @@ msgstr "Naziv"
 
 msgctxt "field:ir.action.url,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action.url,type:"
 msgid "Type"
@@ -857,7 +857,7 @@ msgstr "Naziv"
 
 msgctxt "field:ir.action.wizard,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.action.wizard,type:"
 msgid "Type"
@@ -929,11 +929,11 @@ msgstr "Povezava"
 
 msgctxt "field:ir.attachment,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.attachment,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.attachment,resource:"
 msgid "Resource"
@@ -969,11 +969,11 @@ msgstr "ID"
 
 msgctxt "field:ir.cache,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.cache,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.cache,timestamp:"
 msgid "Timestamp"
@@ -1005,7 +1005,7 @@ msgstr "Jezik"
 
 msgctxt "field:ir.configuration,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.configuration,write_date:"
 msgid "Write Date"
@@ -1053,7 +1053,7 @@ msgstr "Model"
 
 msgctxt "field:ir.cron,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.cron,next_call:"
 msgid "Next Call"
@@ -1065,7 +1065,7 @@ msgstr "Število zagonov"
 
 msgctxt "field:ir.cron,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.cron,repeat_missed:"
 msgid "Repeat Missed"
@@ -1109,11 +1109,11 @@ msgstr "ID"
 
 msgctxt "field:ir.export,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.export,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.export,resource:"
 msgid "Resource"
@@ -1145,11 +1145,11 @@ msgstr "ID"
 
 msgctxt "field:ir.export.line,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.export.line,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.export.line,write_date:"
 msgid "Write Date"
@@ -1197,11 +1197,11 @@ msgstr "ID"
 
 msgctxt "field:ir.lang,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.lang,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.lang,thousands_sep:"
 msgid "Thousands Separator"
@@ -1257,7 +1257,7 @@ msgstr "Opis modela"
 
 msgctxt "field:ir.model,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model,write_date:"
 msgid "Write Date"
@@ -1309,7 +1309,7 @@ msgstr "Pisanje"
 
 msgctxt "field:ir.model.access,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model.access,write_date:"
 msgid "Write Date"
@@ -1345,7 +1345,7 @@ msgstr "Naziv"
 
 msgctxt "field:ir.model.button,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model.button,write_date:"
 msgid "Write Date"
@@ -1397,7 +1397,7 @@ msgstr "Brez posodabljanja"
 
 msgctxt "field:ir.model.data,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model.data,values:"
 msgid "Values"
@@ -1445,11 +1445,11 @@ msgstr "Modul"
 
 msgctxt "field:ir.model.field,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.model.field,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model.field,relation:"
 msgid "Model Relation"
@@ -1509,7 +1509,7 @@ msgstr "Pisanje"
 
 msgctxt "field:ir.model.field.access,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.model.field.access,write_date:"
 msgid "Write Date"
@@ -1553,7 +1553,7 @@ msgstr "ID"
 
 msgctxt "field:ir.module.module,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.module.module,parents:"
 msgid "Parents"
@@ -1561,7 +1561,7 @@ msgstr "Matični moduli"
 
 msgctxt "field:ir.module.module,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.module.module,state:"
 msgid "State"
@@ -1601,11 +1601,11 @@ msgstr "ID"
 
 msgctxt "field:ir.module.module.config_wizard.item,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.module.module.config_wizard.item,sequence:"
 msgid "Sequence"
-msgstr "Štetje"
+msgstr "Zap.št."
 
 msgctxt "field:ir.module.module.config_wizard.item,state:"
 msgid "State"
@@ -1645,11 +1645,11 @@ msgstr "Modul"
 
 msgctxt "field:ir.module.module.dependency,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.module.module.dependency,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.module.module.dependency,state:"
 msgid "State"
@@ -1693,7 +1693,7 @@ msgstr "ID"
 
 msgctxt "field:ir.property,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.property,res:"
 msgid "Resource"
@@ -1729,7 +1729,7 @@ msgstr "ID"
 
 msgctxt "field:ir.rule,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.rule,rule_group:"
 msgid "Group"
@@ -1773,7 +1773,7 @@ msgstr "Model"
 
 msgctxt "field:ir.rule.group,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.rule.group,perm_create:"
 msgid "Create Access"
@@ -1793,7 +1793,7 @@ msgstr "Pisanje"
 
 msgctxt "field:ir.rule.group,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.rule.group,rules:"
 msgid "Tests"
@@ -1861,7 +1861,7 @@ msgstr "Predpona"
 
 msgctxt "field:ir.sequence,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.sequence,suffix:"
 msgid "Suffix"
@@ -1937,7 +1937,7 @@ msgstr "Predpona"
 
 msgctxt "field:ir.sequence.strict,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.sequence.strict,suffix:"
 msgid "Suffix"
@@ -1985,7 +1985,7 @@ msgstr "Naziv"
 
 msgctxt "field:ir.sequence.type,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.sequence.type,write_date:"
 msgid "Write Date"
@@ -2013,7 +2013,7 @@ msgstr "Ključ"
 
 msgctxt "field:ir.session,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.session,write_date:"
 msgid "Write Date"
@@ -2041,7 +2041,7 @@ msgstr "ID"
 
 msgctxt "field:ir.session.wizard,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.session.wizard,write_date:"
 msgid "Write Date"
@@ -2089,7 +2089,7 @@ msgstr "Razširjevalni modul"
 
 msgctxt "field:ir.translation,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.translation,res_id:"
 msgid "Resource ID"
@@ -2225,7 +2225,7 @@ msgstr "Ob pisanju"
 
 msgctxt "field:ir.trigger,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.trigger,write_date:"
 msgid "Write Date"
@@ -2249,7 +2249,7 @@ msgstr "ID"
 
 msgctxt "field:ir.trigger.log,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.trigger.log,record_id:"
 msgid "Record ID"
@@ -2289,7 +2289,7 @@ msgstr "Modul"
 
 msgctxt "field:ir.ui.icon,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:ir.ui.icon,path:"
 msgid "SVG Path"
@@ -2297,11 +2297,11 @@ msgstr "SVG pot"
 
 msgctxt "field:ir.ui.icon,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.icon,sequence:"
 msgid "Sequence"
-msgstr "Štetje"
+msgstr "Zap.št."
 
 msgctxt "field:ir.ui.icon,write_date:"
 msgid "Write Date"
@@ -2361,11 +2361,11 @@ msgstr "Matični meni"
 
 msgctxt "field:ir.ui.menu,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.menu,sequence:"
 msgid "Sequence"
-msgstr "Štetje"
+msgstr "Zap.št."
 
 msgctxt "field:ir.ui.menu,write_date:"
 msgid "Write Date"
@@ -2393,11 +2393,11 @@ msgstr "Meni"
 
 msgctxt "field:ir.ui.menu.favorite,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.menu.favorite,sequence:"
 msgid "Sequence"
-msgstr "Štetje"
+msgstr "Zap.št."
 
 msgctxt "field:ir.ui.menu.favorite,user:"
 msgid "User"
@@ -2461,7 +2461,7 @@ msgstr "Prioriteta"
 
 msgctxt "field:ir.ui.view,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.view,type:"
 msgid "View Type"
@@ -2505,7 +2505,7 @@ msgstr "Naziv"
 
 msgctxt "field:ir.ui.view_search,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.view_search,user:"
 msgid "User"
@@ -2549,7 +2549,7 @@ msgstr "Razširjeni vozli"
 
 msgctxt "field:ir.ui.view_tree_state,rec_name:"
 msgid "Name"
-msgstr "Naziv"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.view_tree_state,selected_nodes:"
 msgid "Selected Nodes"
@@ -2589,7 +2589,7 @@ msgstr "Model"
 
 msgctxt "field:ir.ui.view_tree_width,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:ir.ui.view_tree_width,user:"
 msgid "User"
@@ -2767,7 +2767,7 @@ msgstr "Priloge"
 
 msgctxt "model:ir.action,name:act_config_wizard_item_form"
 msgid "Config Wizard Items"
-msgstr "Postavke čarovnika za nastavitve"
+msgstr "Nastavitveni čarovniki"
 
 msgctxt "model:ir.action,name:act_cron_form"
 msgid "Scheduled Actions"
@@ -2819,7 +2819,7 @@ msgstr "Konfiguracija modulov"
 
 msgctxt "model:ir.action,name:act_module_config_wizard"
 msgid "Module Configuration"
-msgstr "Nastavitve modula"
+msgstr "Konfiguracija modula"
 
 msgctxt "model:ir.action,name:act_module_form"
 msgid "Modules"
@@ -2883,7 +2883,7 @@ msgstr "Pogledi"
 
 msgctxt "model:ir.action,name:act_view_search"
 msgid "View Search"
-msgstr "Iskanje v pogledu"
+msgstr "Iskalni zaznamki"
 
 msgctxt "model:ir.action,name:act_view_show"
 msgid "Show View"
@@ -2909,130 +2909,6 @@ msgctxt "model:ir.action.act_window,name:"
 msgid "Action act window"
 msgstr "Ukrep za okna"
 
-msgctxt "model:ir.action.act_window,name:act_action_act_window_form"
-msgid "Window Actions"
-msgstr "Ukrepi za okna"
-
-msgctxt "model:ir.action.act_window,name:act_action_form"
-msgid "Actions"
-msgstr "Ukrepi"
-
-msgctxt "model:ir.action.act_window,name:act_action_report_form"
-msgid "Reports"
-msgstr "Poročila"
-
-msgctxt "model:ir.action.act_window,name:act_action_url_form"
-msgid "URLs"
-msgstr "URLji"
-
-msgctxt "model:ir.action.act_window,name:act_action_wizard_form"
-msgid "Wizards"
-msgstr "Čarovniki"
-
-msgctxt "model:ir.action.act_window,name:act_attachment_form"
-msgid "Attachments"
-msgstr "Priloge"
-
-msgctxt "model:ir.action.act_window,name:act_config_wizard_item_form"
-msgid "Config Wizard Items"
-msgstr "Postavke čarovnika za nastavitve"
-
-msgctxt "model:ir.action.act_window,name:act_cron_form"
-msgid "Scheduled Actions"
-msgstr "Načrtovani ukrepi"
-
-msgctxt "model:ir.action.act_window,name:act_export_form"
-msgid "Exports"
-msgstr "Izvozi"
-
-msgctxt "model:ir.action.act_window,name:act_icon_form"
-msgid "Icons"
-msgstr "Ikone"
-
-msgctxt "model:ir.action.act_window,name:act_lang_form"
-msgid "Languages"
-msgstr "Jeziki"
-
-msgctxt "model:ir.action.act_window,name:act_menu_list"
-msgid "Menu"
-msgstr "Meni"
-
-msgctxt "model:ir.action.act_window,name:act_menu_tree"
-msgid "Menu"
-msgstr "Meni"
-
-msgctxt "model:ir.action.act_window,name:act_model_access_form"
-msgid "Models Access"
-msgstr "Dostop do modelov"
-
-msgctxt "model:ir.action.act_window,name:act_model_button_form"
-msgid "Buttons"
-msgstr "Gumbi"
-
-msgctxt "model:ir.action.act_window,name:act_model_field_access_form"
-msgid "Fields Access"
-msgstr "Dostop do polj"
-
-msgctxt "model:ir.action.act_window,name:act_model_fields_form"
-msgid "Fields"
-msgstr "Polja"
-
-msgctxt "model:ir.action.act_window,name:act_model_form"
-msgid "Models"
-msgstr "Modeli"
-
-msgctxt "model:ir.action.act_window,name:act_module_form"
-msgid "Modules"
-msgstr "Moduli"
-
-msgctxt "model:ir.action.act_window,name:act_property_form"
-msgid "Properties"
-msgstr "Lastnosti"
-
-msgctxt "model:ir.action.act_window,name:act_property_form_default"
-msgid "Default Properties"
-msgstr "Privzete lastnosti"
-
-msgctxt "model:ir.action.act_window,name:act_rule_group_form"
-msgid "Record Rules"
-msgstr "Pravila za zapise"
-
-msgctxt "model:ir.action.act_window,name:act_sequence_form"
-msgid "Sequences"
-msgstr "Štetja"
-
-msgctxt "model:ir.action.act_window,name:act_sequence_strict_form"
-msgid "Sequences Strict"
-msgstr "Stroga štetja"
-
-msgctxt "model:ir.action.act_window,name:act_sequence_type_form"
-msgid "Sequence Types"
-msgstr "Tipi štetij"
-
-msgctxt "model:ir.action.act_window,name:act_translation_form"
-msgid "Translations"
-msgstr "Prevodi"
-
-msgctxt "model:ir.action.act_window,name:act_trigger_form"
-msgid "Triggers"
-msgstr "Prožilniki"
-
-msgctxt "model:ir.action.act_window,name:act_view_form"
-msgid "Views"
-msgstr "Pogledi"
-
-msgctxt "model:ir.action.act_window,name:act_view_search"
-msgid "View Search"
-msgstr "Iskanje v pogledu"
-
-msgctxt "model:ir.action.act_window,name:act_view_tree_state"
-msgid "Tree State"
-msgstr "Stanje drevesa"
-
-msgctxt "model:ir.action.act_window,name:act_view_tree_width_form"
-msgid "View Tree Width"
-msgstr "Velikost dreves"
-
 msgctxt "model:ir.action.act_window.domain,name:"
 msgid "Action act window domain"
 msgstr "Domena okna za ukrepe"
@@ -3049,10 +2925,6 @@ msgctxt "model:ir.action.report,name:"
 msgid "Action report"
 msgstr "Ukrep za poročilo"
 
-msgctxt "model:ir.action.report,name:report_model_graph"
-msgid "Graph"
-msgstr "Diagram"
-
 msgctxt "model:ir.action.url,name:"
 msgid "Action URL"
 msgstr "Ukrep za URL"
@@ -3060,42 +2932,6 @@ msgstr "Ukrep za URL"
 msgctxt "model:ir.action.wizard,name:"
 msgid "Action wizard"
 msgstr "Ukrep za čarovnika"
-
-msgctxt "model:ir.action.wizard,name:act_module_config"
-msgid "Configure Modules"
-msgstr "Konfiguracija modulov"
-
-msgctxt "model:ir.action.wizard,name:act_module_config_wizard"
-msgid "Module Configuration"
-msgstr "Nastavitve modula"
-
-msgctxt "model:ir.action.wizard,name:act_module_install_upgrade"
-msgid "Perform Pending Installation/Upgrade"
-msgstr "Namesti/nadgradi"
-
-msgctxt "model:ir.action.wizard,name:act_translation_clean"
-msgid "Clean Translations"
-msgstr "Počisti prevode"
-
-msgctxt "model:ir.action.wizard,name:act_translation_export"
-msgid "Export Translations"
-msgstr "Izvozi prevode"
-
-msgctxt "model:ir.action.wizard,name:act_translation_set"
-msgid "Set Report Translations"
-msgstr "Nastavitev prevodov v izpisih"
-
-msgctxt "model:ir.action.wizard,name:act_translation_update"
-msgid "Synchronize Translations"
-msgstr "Uskladi prevode"
-
-msgctxt "model:ir.action.wizard,name:act_view_show"
-msgid "Show View"
-msgstr "Prikaži pogled"
-
-msgctxt "model:ir.action.wizard,name:print_model_graph"
-msgid "Graph"
-msgstr "Diagram"
 
 msgctxt "model:ir.attachment,name:"
 msgid "Attachment"
@@ -3107,7 +2943,7 @@ msgstr "Predpomnilnik"
 
 msgctxt "model:ir.configuration,name:"
 msgid "Configuration"
-msgstr "Nastavitve"
+msgstr "Konfiguracija"
 
 msgctxt "model:ir.cron,name:"
 msgid "Cron"
@@ -3299,7 +3135,7 @@ msgstr "Nastavi prevod"
 
 msgctxt "model:ir.translation.update.start,name:"
 msgid "Update translation"
-msgstr "Posodobi prevod"
+msgstr "Posodobitev prevodov"
 
 msgctxt "model:ir.trigger,name:"
 msgid "Trigger"
@@ -3351,7 +3187,7 @@ msgstr "Priloge"
 
 msgctxt "model:ir.ui.menu,name:menu_config_wizard_item_form"
 msgid "Config Wizard Items"
-msgstr "Postavke čarovnika za nastavitve"
+msgstr "Nastavitveni čarovniki"
 
 msgctxt "model:ir.ui.menu,name:menu_cron_form"
 msgid "Scheduled Actions"
@@ -3475,7 +3311,7 @@ msgstr "Pogledi"
 
 msgctxt "model:ir.ui.menu,name:menu_view_search"
 msgid "View Search"
-msgstr "Iskanje pogledov"
+msgstr "Iskalni zaznamki"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_state"
 msgid "Tree State"
@@ -3503,7 +3339,7 @@ msgstr "Prikaz pogleda"
 
 msgctxt "model:ir.ui.view_search,name:"
 msgid "View Search"
-msgstr "Iskanje pogledov"
+msgstr "Iskalni zaznamki"
 
 msgctxt "model:ir.ui.view_tree_state,name:"
 msgid "View Tree State"
@@ -3595,7 +3431,7 @@ msgstr "Za nadgraditi"
 
 msgctxt "selection:ir.module.module.config_wizard.item,state:"
 msgid "Done"
-msgstr "Opravljeno"
+msgstr "Zaključeno"
 
 msgctxt "selection:ir.module.module.config_wizard.item,state:"
 msgid "Open"
@@ -3877,7 +3713,7 @@ msgstr "Vašo namestitev je možno skonfigurirati glede na nameščene module."
 
 msgctxt "view:ir.module.module.config_wizard.item:"
 msgid "Config Wizard Items"
-msgstr "Postavke čarovnika za nastavitve"
+msgstr "Nastavitveni čarovniki"
 
 msgctxt "view:ir.module.module.config_wizard.other:"
 msgid "Configuration Wizard Next Step!"
@@ -3966,7 +3802,7 @@ msgstr "Pravilo je veljavno, če je vsaj en pogoj pravilen"
 
 msgctxt "view:ir.rule:"
 msgid "Test"
-msgstr "Pogoj"
+msgstr "Preizkus"
 
 msgctxt "view:ir.sequence.type:"
 msgid "Sequence Type"
@@ -4102,7 +3938,7 @@ msgstr "Iskanje"
 
 msgctxt "view:ir.ui.view_search:"
 msgid "View Searches"
-msgstr "Iskanje pogledov"
+msgstr "Iskalni zaznamki"
 
 msgctxt "view:ir.ui.view_tree_state:"
 msgid "View Tree State"
@@ -4178,7 +4014,7 @@ msgstr "Prekliči"
 
 msgctxt "wizard_button:ir.translation.export,start,export:"
 msgid "Export"
-msgstr "Izvozi"
+msgstr "Izvoz"
 
 msgctxt "wizard_button:ir.translation.set,start,end:"
 msgid "Cancel"
@@ -4198,7 +4034,7 @@ msgstr "Prekliči"
 
 msgctxt "wizard_button:ir.translation.update,start,update:"
 msgid "Update"
-msgstr "Posodobi"
+msgstr "Posodobitev"
 
 msgctxt "wizard_button:ir.ui.view.show,start,end:"
 msgid "Close"
