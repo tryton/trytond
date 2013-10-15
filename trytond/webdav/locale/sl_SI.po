@@ -36,7 +36,7 @@ msgstr "URL"
 
 msgctxt "field:webdav.collection,childs:"
 msgid "Children"
-msgstr "Potomci"
+msgstr "Podzbirke"
 
 msgctxt "field:webdav.collection,complete_name:"
 msgid "Complete Name"
@@ -64,7 +64,7 @@ msgstr "Model"
 
 msgctxt "field:webdav.collection,name:"
 msgid "Name"
-msgstr "Ime"
+msgstr "Naziv"
 
 msgctxt "field:webdav.collection,parent:"
 msgid "Parent"
@@ -72,7 +72,7 @@ msgstr "Prednik"
 
 msgctxt "field:webdav.collection,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:webdav.collection,write_date:"
 msgid "Write Date"
@@ -112,7 +112,7 @@ msgstr "Pot"
 
 msgctxt "field:webdav.share,rec_name:"
 msgid "Name"
-msgstr "Ident"
+msgstr "Ime"
 
 msgctxt "field:webdav.share,url:"
 msgid "URL"
@@ -139,18 +139,6 @@ msgid "Collections"
 msgstr "Zbirke"
 
 msgctxt "model:ir.action,name:act_share_list"
-msgid "Shares"
-msgstr "Skupne rabe"
-
-msgctxt "model:ir.action.act_window,name:act_collection_list"
-msgid "Collections"
-msgstr "Zbirke"
-
-msgctxt "model:ir.action.act_window,name:act_collection_tree"
-msgid "Collections"
-msgstr "Zbirke"
-
-msgctxt "model:ir.action.act_window,name:act_share_list"
 msgid "Shares"
 msgstr "Skupne rabe"
 
