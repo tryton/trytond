@@ -163,8 +163,6 @@ class View(ModelSQL, ModelView):
             if not encode(root_element):
                 cls.raise_user_error('invalid_xml', (view.rec_name,))
 
-        return True
-
     def get_arch(self, name):
         value = None
         if self.name and self.module:
