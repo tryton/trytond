@@ -311,210 +311,6 @@ msgctxt "field:res.group,write_uid:"
 msgid "Write User"
 msgstr "Letzte Änderung durch"
 
-msgctxt "field:res.request,act_from:"
-msgid "From"
-msgstr "Von"
-
-msgctxt "field:res.request,act_to:"
-msgid "To"
-msgstr "An"
-
-msgctxt "field:res.request,active:"
-msgid "Active"
-msgstr "Aktiv"
-
-msgctxt "field:res.request,body:"
-msgid "Body"
-msgstr "Anfrage"
-
-msgctxt "field:res.request,create_date:"
-msgid "Create Date"
-msgstr "Erstellungsdatum"
-
-msgctxt "field:res.request,create_uid:"
-msgid "Create User"
-msgstr "Erstellt durch"
-
-msgctxt "field:res.request,date_sent:"
-msgid "Date"
-msgstr "Datum"
-
-msgctxt "field:res.request,history:"
-msgid "History"
-msgstr "Bisherige Anfragen"
-
-msgctxt "field:res.request,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request,name:"
-msgid "Subject"
-msgstr "Betreff"
-
-msgctxt "field:res.request,number_references:"
-msgid "Number of References"
-msgstr "Anzahl Verweise"
-
-msgctxt "field:res.request,priority:"
-msgid "Priority"
-msgstr "Dringlichkeit"
-
-msgctxt "field:res.request,rec_name:"
-msgid "Name"
-msgstr "Name"
-
-msgctxt "field:res.request,references:"
-msgid "References"
-msgstr "Verweise"
-
-msgctxt "field:res.request,state:"
-msgid "State"
-msgstr "Status"
-
-msgctxt "field:res.request,trigger_date:"
-msgid "Trigger Date"
-msgstr "Gültig ab"
-
-msgctxt "field:res.request,write_date:"
-msgid "Write Date"
-msgstr "Zuletzt geändert"
-
-msgctxt "field:res.request,write_uid:"
-msgid "Write User"
-msgstr "Letzte Änderung durch"
-
-msgctxt "field:res.request.history,act_from:"
-msgid "From"
-msgstr "Von"
-
-msgctxt "field:res.request.history,act_to:"
-msgid "To"
-msgstr "An"
-
-msgctxt "field:res.request.history,body:"
-msgid "Body"
-msgstr "Nachricht"
-
-msgctxt "field:res.request.history,create_date:"
-msgid "Create Date"
-msgstr "Erstellungsdatum"
-
-msgctxt "field:res.request.history,create_uid:"
-msgid "Create User"
-msgstr "Erstellt durch"
-
-msgctxt "field:res.request.history,date_sent:"
-msgid "Date sent"
-msgstr "Gesendet am"
-
-msgctxt "field:res.request.history,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request.history,name:"
-msgid "Summary"
-msgstr "Zusammenfassung"
-
-msgctxt "field:res.request.history,number_references:"
-msgid "References"
-msgstr "Verweise"
-
-msgctxt "field:res.request.history,priority:"
-msgid "Priority"
-msgstr "Priorität"
-
-msgctxt "field:res.request.history,rec_name:"
-msgid "Name"
-msgstr "Name"
-
-msgctxt "field:res.request.history,request:"
-msgid "Request"
-msgstr "Anfrage"
-
-msgctxt "field:res.request.history,state:"
-msgid "State"
-msgstr "Status"
-
-msgctxt "field:res.request.history,subject:"
-msgid "Subject"
-msgstr "Betreff"
-
-msgctxt "field:res.request.history,write_date:"
-msgid "Write Date"
-msgstr "Zuletzt geändert"
-
-msgctxt "field:res.request.history,write_uid:"
-msgid "Write User"
-msgstr "Letzte Änderung durch"
-
-msgctxt "field:res.request.link,create_date:"
-msgid "Create Date"
-msgstr "Erstellungsdatum"
-
-msgctxt "field:res.request.link,create_uid:"
-msgid "Create User"
-msgstr "Erstellt durch"
-
-msgctxt "field:res.request.link,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request.link,model:"
-msgid "Model"
-msgstr "Modell"
-
-msgctxt "field:res.request.link,name:"
-msgid "Name"
-msgstr "Name"
-
-msgctxt "field:res.request.link,priority:"
-msgid "Priority"
-msgstr "Dringlichkeit"
-
-msgctxt "field:res.request.link,rec_name:"
-msgid "Name"
-msgstr "Name"
-
-msgctxt "field:res.request.link,write_date:"
-msgid "Write Date"
-msgstr "Zuletzt geändert"
-
-msgctxt "field:res.request.link,write_uid:"
-msgid "Write User"
-msgstr "Letzte Änderung durch"
-
-msgctxt "field:res.request.reference,create_date:"
-msgid "Create Date"
-msgstr "Erstellungsdatum"
-
-msgctxt "field:res.request.reference,create_uid:"
-msgid "Create User"
-msgstr "Erstellt durch"
-
-msgctxt "field:res.request.reference,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request.reference,rec_name:"
-msgid "Name"
-msgstr "Name"
-
-msgctxt "field:res.request.reference,reference:"
-msgid "Reference"
-msgstr "Verweis"
-
-msgctxt "field:res.request.reference,request:"
-msgid "Request"
-msgstr "Anfrage"
-
-msgctxt "field:res.request.reference,write_date:"
-msgid "Write Date"
-msgstr "Zuletzt geändert"
-
-msgctxt "field:res.request.reference,write_uid:"
-msgid "Write User"
-msgstr "Letzte Änderung durch"
-
 msgctxt "field:res.user,actions:"
 msgid "Actions"
 msgstr "Aktionen"
@@ -691,13 +487,13 @@ msgctxt "field:res.user.login.attempt,id:"
 msgid "ID"
 msgstr "ID"
 
+msgctxt "field:res.user.login.attempt,login:"
+msgid "Login"
+msgstr "Anmeldename"
+
 msgctxt "field:res.user.login.attempt,rec_name:"
 msgid "Name"
 msgstr "Name"
-
-msgctxt "field:res.user.login.attempt,user:"
-msgid "User"
-msgstr "Benutzer"
 
 msgctxt "field:res.user.login.attempt,write_date:"
 msgid "Write Date"
@@ -756,14 +552,6 @@ msgctxt "model:ir.action,name:act_group_form"
 msgid "Groups"
 msgstr "Gruppen"
 
-msgctxt "model:ir.action,name:act_request_form"
-msgid "Requests"
-msgstr "Anfragen"
-
-msgctxt "model:ir.action,name:act_request_link_form"
-msgid "Request Links"
-msgstr "Anfrageverknüpfungen"
-
 msgctxt "model:ir.action,name:act_user_config"
 msgid "Configure Users"
 msgstr "Benutzer konfigurieren"
@@ -804,14 +592,6 @@ msgctxt "model:ir.ui.menu,name:menu_group_form"
 msgid "Groups"
 msgstr "Gruppen"
 
-msgctxt "model:ir.ui.menu,name:menu_request_form"
-msgid "Requests"
-msgstr "Anfragen"
-
-msgctxt "model:ir.ui.menu,name:menu_request_link_form"
-msgid "Request Links"
-msgstr "Anfrageverknüpfungen"
-
 msgctxt "model:ir.ui.menu,name:menu_res"
 msgid "Users"
 msgstr "Benutzer"
@@ -831,26 +611,6 @@ msgstr "Gruppe"
 msgctxt "model:res.group,name:group_admin"
 msgid "Administration"
 msgstr "Interne Administration"
-
-msgctxt "model:res.request,name:"
-msgid "Request"
-msgstr "Anfrage"
-
-msgctxt "model:res.request.history,name:"
-msgid "Request history"
-msgstr "Bisherige Anfragen"
-
-msgctxt "model:res.request.link,name:"
-msgid "Request link"
-msgstr "Anfrage Verknüpfung"
-
-msgctxt "model:res.request.link,name:request_link_cron"
-msgid "Scheduler"
-msgstr "Zeitplaner"
-
-msgctxt "model:res.request.reference,name:"
-msgid "Request Reference"
-msgstr "Anfrage Verweis"
 
 msgctxt "model:res.user,name:"
 msgid "User"
@@ -883,62 +643,6 @@ msgstr "Login Versuch"
 msgctxt "model:res.user.warning,name:"
 msgid "User Warning"
 msgstr "Benutzer Warnung"
-
-msgctxt "selection:res.request,priority:"
-msgid "High"
-msgstr "Hoch"
-
-msgctxt "selection:res.request,priority:"
-msgid "Low"
-msgstr "Niedrig"
-
-msgctxt "selection:res.request,priority:"
-msgid "Normal"
-msgstr "Normal"
-
-msgctxt "selection:res.request,state:"
-msgid "Chatting"
-msgstr "Schreibt gerade..."
-
-msgctxt "selection:res.request,state:"
-msgid "Closed"
-msgstr "Geschlossen"
-
-msgctxt "selection:res.request,state:"
-msgid "Draft"
-msgstr "Entwurf"
-
-msgctxt "selection:res.request,state:"
-msgid "Waiting"
-msgstr "Wartend"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "High"
-msgstr "Hoch"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "Low"
-msgstr "Niedrig"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "Normal"
-msgstr "Normal"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Chatting"
-msgstr "Schreibt gerade..."
-
-msgctxt "selection:res.request.history,state:"
-msgid "Closed"
-msgstr "Geschlossen"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Draft"
-msgstr "Entwurf"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Waiting"
-msgstr "Wartend"
 
 msgctxt "view:ir.module.module:"
 msgid "Cancel Installation"
@@ -979,46 +683,6 @@ msgstr "Gruppen"
 msgctxt "view:res.group:"
 msgid "Members"
 msgstr "Mitglieder"
-
-msgctxt "view:res.request.history:"
-msgid "Request History"
-msgstr "bisherige Anfragen"
-
-msgctxt "view:res.request.link:"
-msgid "Request Link"
-msgstr "Anfrage Verknüpfung"
-
-msgctxt "view:res.request.reference:"
-msgid "Request Reference"
-msgstr "Anfrageverweis"
-
-msgctxt "view:res.request.reference:"
-msgid "Request References"
-msgstr "Verweise"
-
-msgctxt "view:res.request:"
-msgid "Close"
-msgstr "Schließen"
-
-msgctxt "view:res.request:"
-msgid "References"
-msgstr "Verweise"
-
-msgctxt "view:res.request:"
-msgid "Reply"
-msgstr "Antworten"
-
-msgctxt "view:res.request:"
-msgid "Request"
-msgstr "Anfrage"
-
-msgctxt "view:res.request:"
-msgid "Requests"
-msgstr "Anfragen"
-
-msgctxt "view:res.request:"
-msgid "Send"
-msgstr "Senden"
 
 msgctxt "view:res.user.config.start:"
 msgid "Add Users"
