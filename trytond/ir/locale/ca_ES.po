@@ -56,7 +56,6 @@ msgctxt "error:ir.action.keyword:"
 msgid "Wrong wizard model in keyword action \"%s\"."
 msgstr "Assistent incorrecte en l'acció de teclat \"%s\"."
 
-#, fuzzy
 msgctxt "error:ir.action.report:"
 msgid "Invalid email definition on report \"%s\"."
 msgstr ""
@@ -77,11 +76,13 @@ msgstr "L'acció planificada ha fallat."
 msgctxt "error:ir.cron:"
 msgid ""
 "The following action failed to execute properly: \"%s\"\n"
+"%s\n"
 " Traceback: \n"
 "\n"
 "%s\n"
 msgstr ""
-"El seguiment de l'acció a fallat executant la propietat: \"%s\"\n"
+"Ha fallat l'acció quan s'executava: \"%s\"\n"
+"%s\n"
 " Traceback: \n"
 "\n"
 "%s\n"
@@ -183,22 +184,18 @@ msgctxt "error:ir.rule:"
 msgid "Invalid domain in rule \"%s\"."
 msgstr "La regla del domini \"%s\" no és correcte."
 
-#, fuzzy
 msgctxt "error:ir.sequence.strict:"
 msgid "Invalid prefix \"%(prefix)s\" on sequence \"%(sequence)s\"."
 msgstr "Prefix \"%(prefix)s\" de la seqüència \"%(sequence)s\" no és correcte."
 
-#, fuzzy
 msgctxt "error:ir.sequence.strict:"
 msgid "Invalid suffix \"%(suffix)s\" on sequence \"%(sequence)s\"."
 msgstr "Sufix \"%(sufix)s\" de la seqüència \"%(sequence)s\" no és correcte."
 
-#, fuzzy
 msgctxt "error:ir.sequence.strict:"
 msgid "Last Timestamp cannot be in the future on sequence \"%s\"."
 msgstr "La darrera data-hora no pot ser del futur a la seqüència \"%s\"."
 
-#, fuzzy
 msgctxt "error:ir.sequence.strict:"
 msgid "Missing sequence."
 msgstr "No es troba la seqüència."
@@ -207,22 +204,18 @@ msgctxt "error:ir.sequence.strict:"
 msgid "Timestamp rounding should be greater than 0"
 msgstr "L'arrodiment Timestamp ha de ser mes gran que 0."
 
-#, fuzzy
 msgctxt "error:ir.sequence:"
 msgid "Invalid prefix \"%(prefix)s\" on sequence \"%(sequence)s\"."
 msgstr "Prefix \"%(prefix)s\" de la seqüència \"%(sequence)s\" no és correcte."
 
-#, fuzzy
 msgctxt "error:ir.sequence:"
 msgid "Invalid suffix \"%(suffix)s\" on sequence \"%(sequence)s\"."
 msgstr "Sufix \"%(sufix)s\" de la seqüència \"%(sequence)s\" no és correcte."
 
-#, fuzzy
 msgctxt "error:ir.sequence:"
 msgid "Last Timestamp cannot be in the future on sequence \"%s\"."
 msgstr "La darrera data-hora no pot ser del futur a la seqüència \"%s\"."
 
-#, fuzzy
 msgctxt "error:ir.sequence:"
 msgid "Missing sequence."
 msgstr "No es troba la seqüència."
@@ -234,6 +227,14 @@ msgstr "L'arrodiment Timestamp ha de ser mes gran que 0."
 msgctxt "error:ir.translation:"
 msgid "Translation must be unique"
 msgstr "La traducció ha de ser únic."
+
+msgctxt "error:ir.translation:"
+msgid ""
+"You can not export translation %(name)s because it is an overridden "
+"translation by module %(overriding_module)s"
+msgstr ""
+"No podeu exportar la traducció %(name)s perquè s'utilitza en el mòdul "
+"%(overriding_module)s"
 
 msgctxt "error:ir.trigger:"
 msgid "\"On Time\" and others are mutually exclusive!"
@@ -249,7 +250,7 @@ msgstr ""
 
 msgctxt "error:ir.ui.menu:"
 msgid "\"%s\" is not a valid menu name because it is not allowed to contain \" / \"."
-msgstr "\"%s\" no es un menú correcte perque no pot contenir \" /\"."
+msgstr "\"%s\" no és un menú correcte perquè no pot contenir \" /\"."
 
 msgctxt "error:ir.ui.view:"
 msgid "Invalid XML for view \"%s\"."
@@ -467,6 +468,10 @@ msgctxt "field:ir.action.act_window,name:"
 msgid "Name"
 msgstr "Nom"
 
+msgctxt "field:ir.action.act_window,order:"
+msgid "Order Value"
+msgstr "Ordre"
+
 msgctxt "field:ir.action.act_window,pyson_context:"
 msgid "PySON Context"
 msgstr "PySON Context"
@@ -474,6 +479,10 @@ msgstr "PySON Context"
 msgctxt "field:ir.action.act_window,pyson_domain:"
 msgid "PySON Domain"
 msgstr "PySON Domain"
+
+msgctxt "field:ir.action.act_window,pyson_order:"
+msgid "PySON Order"
+msgstr "Ordre PySON"
 
 msgctxt "field:ir.action.act_window,pyson_search_value:"
 msgid "PySON Search Criteria"
@@ -2075,6 +2084,10 @@ msgctxt "field:ir.translation,name:"
 msgid "Field Name"
 msgstr "Nom del camp"
 
+msgctxt "field:ir.translation,overriding_module:"
+msgid "Overriding Module"
+msgstr "Mòdul anul·lant"
+
 msgctxt "field:ir.translation,rec_name:"
 msgid "Name"
 msgstr "Nom"
@@ -2507,47 +2520,51 @@ msgctxt "field:ir.ui.view_search,write_uid:"
 msgid "Write User"
 msgstr "Usuari modificació"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,child_name:"
+msgctxt "field:ir.ui.view_tree_state,child_name:"
 msgid "Child Name"
 msgstr "Nom del fill"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,create_date:"
+msgctxt "field:ir.ui.view_tree_state,create_date:"
 msgid "Create Date"
 msgstr "Data creació"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,create_uid:"
+msgctxt "field:ir.ui.view_tree_state,create_uid:"
 msgid "Create User"
 msgstr "Usuari creació"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,domain:"
+msgctxt "field:ir.ui.view_tree_state,domain:"
 msgid "Domain"
 msgstr "Domini"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,id:"
+msgctxt "field:ir.ui.view_tree_state,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,model:"
+msgctxt "field:ir.ui.view_tree_state,model:"
 msgid "Model"
 msgstr "Model"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,nodes:"
+msgctxt "field:ir.ui.view_tree_state,nodes:"
 msgid "Expanded Nodes"
-msgstr "Extendre nodes"
+msgstr "Nodes expandits"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,rec_name:"
+msgctxt "field:ir.ui.view_tree_state,rec_name:"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,user:"
+msgctxt "field:ir.ui.view_tree_state,selected_nodes:"
+msgid "Selected Nodes"
+msgstr "Nodes seleccionats"
+
+msgctxt "field:ir.ui.view_tree_state,user:"
 msgid "User"
 msgstr "Usuari"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,write_date:"
+msgctxt "field:ir.ui.view_tree_state,write_date:"
 msgid "Write Date"
 msgstr "Data modificació"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,write_uid:"
+msgctxt "field:ir.ui.view_tree_state,write_uid:"
 msgid "Write User"
 msgstr "Usuari modificació"
 
@@ -2873,9 +2890,9 @@ msgctxt "model:ir.action,name:act_view_show"
 msgid "Show View"
 msgstr "Mostrar vista"
 
-msgctxt "model:ir.action,name:act_view_tree_expanded_state"
-msgid "Tree Expanded State"
-msgstr "Estat arbre estès"
+msgctxt "model:ir.action,name:act_view_tree_state"
+msgid "Tree State"
+msgstr "Estat de l'arbre"
 
 msgctxt "model:ir.action,name:act_view_tree_width_form"
 msgid "View Tree Width"
@@ -2987,7 +3004,7 @@ msgstr "Francès"
 
 msgctxt "model:ir.lang,name:lang_lt"
 msgid "Lithuanian"
-msgstr ""
+msgstr "Lituà"
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
@@ -2996,6 +3013,10 @@ msgstr "Holandès"
 msgctxt "model:ir.lang,name:lang_ru"
 msgid "Russian"
 msgstr "Rus"
+
+msgctxt "model:ir.lang,name:lang_sl"
+msgid "Slovenian"
+msgstr "Eslovè"
 
 msgctxt "model:ir.model,name:"
 msgid "Model"
@@ -3107,11 +3128,11 @@ msgstr "Exporta traducció"
 
 msgctxt "model:ir.translation.set.start,name:"
 msgid "Set Translation"
-msgstr "Defineix traducció"
+msgstr "Estableix traduccions"
 
 msgctxt "model:ir.translation.set.succeed,name:"
 msgid "Set Translation"
-msgstr "Defineix traducció"
+msgstr "Estableix traduccions"
 
 msgctxt "model:ir.translation.update.start,name:"
 msgid "Update translation"
@@ -3271,7 +3292,7 @@ msgstr "Traduccions"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_set"
 msgid "Set Translations"
-msgstr "Defineix traduccions"
+msgstr "Estableix traduccions"
 
 msgctxt "model:ir.ui.menu,name:menu_translation_update"
 msgid "Synchronize Translations"
@@ -3293,9 +3314,9 @@ msgctxt "model:ir.ui.menu,name:menu_view_search"
 msgid "View Search"
 msgstr "Vista de cerca"
 
-msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
-msgid "Tree Expanded State"
-msgstr "Estat arbre estès"
+msgctxt "model:ir.ui.menu,name:menu_view_tree_state"
+msgid "Tree State"
+msgstr "Estat de l'arbre"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_width"
 msgid "View Tree Width"
@@ -3321,9 +3342,9 @@ msgctxt "model:ir.ui.view_search,name:"
 msgid "View Search"
 msgstr "Vista de cerca"
 
-msgctxt "model:ir.ui.view_tree_expanded_state,name:"
-msgid "View Tree Expanded State"
-msgstr "Estat vistes arbre extesses"
+msgctxt "model:ir.ui.view_tree_state,name:"
+msgid "View Tree State"
+msgstr "Estat de la vista arbre"
 
 msgctxt "model:ir.ui.view_tree_width,name:"
 msgid "View Tree Width"
@@ -3524,6 +3545,10 @@ msgstr " "
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
 msgstr "Taulell"
+
+msgctxt "selection:ir.ui.view,type:"
+msgid "Calendar"
+msgstr "Calendari"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Form"
@@ -3854,7 +3879,7 @@ msgstr "Exporta traducció"
 
 msgctxt "view:ir.translation.set.start:"
 msgid "Set Translations"
-msgstr "Defineix traduccions"
+msgstr "Estableix traduccions"
 
 msgctxt "view:ir.translation.set.start:"
 msgid "Synchronize Translations?"
@@ -3866,7 +3891,7 @@ msgstr "Les traduccions s'han realitzat correctament."
 
 msgctxt "view:ir.translation.set.succeed:"
 msgid "Set Translations"
-msgstr "Defineix traduccions"
+msgstr "Estableix traduccions"
 
 msgctxt "view:ir.translation.update.start:"
 msgid "Synchronize Translations"
@@ -3920,13 +3945,13 @@ msgctxt "view:ir.ui.view_search:"
 msgid "View Searches"
 msgstr "Vista de cerques"
 
-msgctxt "view:ir.ui.view_tree_expanded_state:"
-msgid "View Tree Expanded State"
-msgstr "Estat vistes arbre extesses"
+msgctxt "view:ir.ui.view_tree_state:"
+msgid "View Tree State"
+msgstr "Estat de la vista arbre"
 
-msgctxt "view:ir.ui.view_tree_expanded_state:"
-msgid "Views Tree Expanded State"
-msgstr "Estat vistes arbre extesses"
+msgctxt "view:ir.ui.view_tree_state:"
+msgid "Views Tree State"
+msgstr "Estat de les vistes arbre"
 
 msgctxt "view:ir.ui.view_tree_width:"
 msgid "View Tree Width"
@@ -4002,7 +4027,7 @@ msgstr "Cancel·la"
 
 msgctxt "wizard_button:ir.translation.set,start,set_:"
 msgid "Set"
-msgstr "Grup"
+msgstr "Estableix"
 
 msgctxt "wizard_button:ir.translation.set,succeed,end:"
 msgid "Ok"
