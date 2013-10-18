@@ -75,14 +75,16 @@ msgstr "La acción programada ha fallado"
 msgctxt "error:ir.cron:"
 msgid ""
 "The following action failed to execute properly: \"%s\"\n"
+"%s\n"
 " Traceback: \n"
 "\n"
 "%s\n"
 msgstr ""
-"La siguiente acción no se ejecutó correctamente: «%s»\n"
-" Traza:\n"
-"\n"
+"La siguiente acción falló al ejecutar apropiadamente: \"%s\"\n"
 "%s\n"
+" Traceback:\n"
+"\n"
+"%s"
 
 msgctxt "error:ir.lang:"
 msgid "Default language can not be deleted."
@@ -228,6 +230,14 @@ msgstr "El redondeo de la marca de tiempo debe ser mayor que 0"
 msgctxt "error:ir.translation:"
 msgid "Translation must be unique"
 msgstr "La traducción debe ser única"
+
+msgctxt "error:ir.translation:"
+msgid ""
+"You can not export translation %(name)s because it is an overridden "
+"translation by module %(overriding_module)s"
+msgstr ""
+"No puede exportar la traduccion %(name)s porque esta es una traducción "
+"sobreescrita por el módulo %(overrinding_module)s"
 
 msgctxt "error:ir.trigger:"
 msgid "\"On Time\" and others are mutually exclusive!"
@@ -457,6 +467,10 @@ msgctxt "field:ir.action.act_window,name:"
 msgid "Name"
 msgstr "Nombre de Campo"
 
+msgctxt "field:ir.action.act_window,order:"
+msgid "Order Value"
+msgstr "Valor Ordenado"
+
 msgctxt "field:ir.action.act_window,pyson_context:"
 msgid "PySON Context"
 msgstr "Contexto PySON"
@@ -464,6 +478,10 @@ msgstr "Contexto PySON"
 msgctxt "field:ir.action.act_window,pyson_domain:"
 msgid "PySON Domain"
 msgstr "Dominio de PySON"
+
+msgctxt "field:ir.action.act_window,pyson_order:"
+msgid "PySON Order"
+msgstr "Orden PySON"
 
 msgctxt "field:ir.action.act_window,pyson_search_value:"
 msgid "PySON Search Criteria"
@@ -1947,7 +1965,7 @@ msgstr "Modificado por Usuario"
 
 msgctxt "field:ir.sequence.type,code:"
 msgid "Sequence Code"
-msgstr "Código de la secuencia"
+msgstr "Código de la Secuencia"
 
 msgctxt "field:ir.sequence.type,create_date:"
 msgid "Create Date"
@@ -2065,6 +2083,10 @@ msgctxt "field:ir.translation,name:"
 msgid "Field Name"
 msgstr "Nombre de Campo"
 
+msgctxt "field:ir.translation,overriding_module:"
+msgid "Overriding Module"
+msgstr "Sobreescritura del Módulo"
+
 msgctxt "field:ir.translation,rec_name:"
 msgid "Name"
 msgstr "Nombre"
@@ -2087,7 +2109,7 @@ msgstr "Tipo"
 
 msgctxt "field:ir.translation,value:"
 msgid "Translation Value"
-msgstr "Valor de la traducción"
+msgstr "Valor de la Traducción"
 
 msgctxt "field:ir.translation,write_date:"
 msgid "Write Date"
@@ -2371,7 +2393,7 @@ msgstr "Menú"
 
 msgctxt "field:ir.ui.menu.favorite,rec_name:"
 msgid "Name"
-msgstr "Nombre de Campo"
+msgstr "Nombre"
 
 msgctxt "field:ir.ui.menu.favorite,sequence:"
 msgid "Sequence"
@@ -2497,47 +2519,51 @@ msgctxt "field:ir.ui.view_search,write_uid:"
 msgid "Write User"
 msgstr "Modificado por Usuario"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,child_name:"
+msgctxt "field:ir.ui.view_tree_state,child_name:"
 msgid "Child Name"
 msgstr "Nombre del Hijo"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,create_date:"
+msgctxt "field:ir.ui.view_tree_state,create_date:"
 msgid "Create Date"
 msgstr "Fecha de Creación"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,create_uid:"
+msgctxt "field:ir.ui.view_tree_state,create_uid:"
 msgid "Create User"
 msgstr "Creado por Usuario"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,domain:"
+msgctxt "field:ir.ui.view_tree_state,domain:"
 msgid "Domain"
 msgstr "Dominio"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,id:"
+msgctxt "field:ir.ui.view_tree_state,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,model:"
+msgctxt "field:ir.ui.view_tree_state,model:"
 msgid "Model"
 msgstr "Modelo"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,nodes:"
+msgctxt "field:ir.ui.view_tree_state,nodes:"
 msgid "Expanded Nodes"
 msgstr "Nodos Expandidos"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,rec_name:"
+msgctxt "field:ir.ui.view_tree_state,rec_name:"
 msgid "Name"
-msgstr "Nombre de Campo"
+msgstr "Nombre"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,user:"
+msgctxt "field:ir.ui.view_tree_state,selected_nodes:"
+msgid "Selected Nodes"
+msgstr "Nodos Seleccionados"
+
+msgctxt "field:ir.ui.view_tree_state,user:"
 msgid "User"
 msgstr "Usuario"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,write_date:"
+msgctxt "field:ir.ui.view_tree_state,write_date:"
 msgid "Write Date"
 msgstr "Fecha de Modificación"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,write_uid:"
+msgctxt "field:ir.ui.view_tree_state,write_uid:"
 msgid "Write User"
 msgstr "Modificado por Usuario"
 
@@ -2811,7 +2837,7 @@ msgstr "Propiedades"
 
 msgctxt "model:ir.action,name:act_property_form_default"
 msgid "Default Properties"
-msgstr "Propiedades predeterminadas"
+msgstr "Propiedades Predeterminadas"
 
 msgctxt "model:ir.action,name:act_rule_group_form"
 msgid "Record Rules"
@@ -2865,9 +2891,9 @@ msgctxt "model:ir.action,name:act_view_show"
 msgid "Show View"
 msgstr "Mostar Vista"
 
-msgctxt "model:ir.action,name:act_view_tree_expanded_state"
-msgid "Tree Expanded State"
-msgstr "Estado del Árbol Expandido"
+msgctxt "model:ir.action,name:act_view_tree_state"
+msgid "Tree State"
+msgstr "Estado de Arbol"
 
 msgctxt "model:ir.action,name:act_view_tree_width_form"
 msgid "View Tree Width"
@@ -2979,7 +3005,7 @@ msgstr "Francés"
 
 msgctxt "model:ir.lang,name:lang_lt"
 msgid "Lithuanian"
-msgstr ""
+msgstr "Lituano"
 
 msgctxt "model:ir.lang,name:lang_nl"
 msgid "Dutch"
@@ -2988,6 +3014,10 @@ msgstr "Holandés"
 msgctxt "model:ir.lang,name:lang_ru"
 msgid "Russian"
 msgstr "Ruso"
+
+msgctxt "model:ir.lang,name:lang_sl"
+msgid "Slovenian"
+msgstr "Eslovaco"
 
 msgctxt "model:ir.model,name:"
 msgid "Model"
@@ -3286,9 +3316,9 @@ msgctxt "model:ir.ui.menu,name:menu_view_search"
 msgid "View Search"
 msgstr "Buscar Vista"
 
-msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
-msgid "Tree Expanded State"
-msgstr "Estado del Árbol Expandido"
+msgctxt "model:ir.ui.menu,name:menu_view_tree_state"
+msgid "Tree State"
+msgstr "Estado de Arbol"
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_width"
 msgid "View Tree Width"
@@ -3314,9 +3344,9 @@ msgctxt "model:ir.ui.view_search,name:"
 msgid "View Search"
 msgstr "Buscar Vista"
 
-msgctxt "model:ir.ui.view_tree_expanded_state,name:"
-msgid "View Tree Expanded State"
-msgstr "ir.ui.view_tree_expanded_state"
+msgctxt "model:ir.ui.view_tree_state,name:"
+msgid "View Tree State"
+msgstr "Estado de Vista de Arbol"
 
 msgctxt "model:ir.ui.view_tree_width,name:"
 msgid "View Tree Width"
@@ -3490,10 +3520,9 @@ msgctxt "selection:ir.translation,type:"
 msgid "Wizard Button"
 msgstr "Botón de Asistente"
 
-#, fuzzy
 msgctxt "selection:ir.ui.menu,action:"
 msgid ""
-msgstr "Punto de Orden"
+msgstr ""
 
 msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
@@ -3511,14 +3540,17 @@ msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.wizard"
 msgstr "ir.action.wizard"
 
-#, fuzzy
 msgctxt "selection:ir.ui.view,type:"
 msgid ""
-msgstr "Punto de Orden"
+msgstr ""
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
 msgstr "Tablero"
+
+msgctxt "selection:ir.ui.view,type:"
+msgid "Calendar"
+msgstr "Calendario"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Form"
@@ -3532,12 +3564,10 @@ msgctxt "selection:ir.ui.view,type:"
 msgid "Tree"
 msgstr "Árbol"
 
-#, fuzzy
 msgctxt "view:ir.action.act_window.domain:"
 msgid "Domain"
 msgstr "Dominio"
 
-#, fuzzy
 msgctxt "view:ir.action.act_window.domain:"
 msgid "Domains"
 msgstr "Dominios"
@@ -3712,7 +3742,7 @@ msgstr "Los módulos se han actualizado / instalado"
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "Note that this operation may take a few minutes."
-msgstr ""
+msgstr "Esta operación puede demorar varios minutos."
 
 msgctxt "view:ir.module.module.install_upgrade.start:"
 msgid "System Upgrade"
@@ -3881,20 +3911,18 @@ msgctxt "view:ir.translation.export.start:"
 msgid "Export Translation"
 msgstr "Exportar Traducción"
 
-#, fuzzy
 msgctxt "view:ir.translation.set.start:"
 msgid "Set Translations"
 msgstr "Establecer Traducción"
 
 msgctxt "view:ir.translation.set.start:"
 msgid "Synchronize Translations?"
-msgstr ""
+msgstr "Sincronizar Traducciones?"
 
 msgctxt "view:ir.translation.set.succeed:"
 msgid "Set Succeed!"
-msgstr ""
+msgstr "Realizado Exitosamente!"
 
-#, fuzzy
 msgctxt "view:ir.translation.set.succeed:"
 msgid "Set Translations"
 msgstr "Establecer Traducción"
@@ -3923,14 +3951,13 @@ msgctxt "view:ir.ui.icon:"
 msgid "Icons"
 msgstr "Iconos"
 
-#, fuzzy
 msgctxt "view:ir.ui.menu.favorite:"
 msgid "Menu Favorite"
 msgstr "Menú Favorito"
 
 msgctxt "view:ir.ui.menu.favorite:"
 msgid "Menu Favorites"
-msgstr ""
+msgstr "Menu Favoritos"
 
 msgctxt "view:ir.ui.menu:"
 msgid "Menu"
@@ -3944,22 +3971,13 @@ msgctxt "view:ir.ui.view:"
 msgid "_Show"
 msgstr "_Mostrar"
 
-#, fuzzy
 msgctxt "view:ir.ui.view_search:"
 msgid "View Search"
 msgstr "Buscar Vista"
 
 msgctxt "view:ir.ui.view_search:"
 msgid "View Searches"
-msgstr ""
-
-msgctxt "view:ir.ui.view_tree_expanded_state:"
-msgid "View Tree Expanded State"
-msgstr "Estado de Vista de Árbol Expandido"
-
-msgctxt "view:ir.ui.view_tree_expanded_state:"
-msgid "Views Tree Expanded State"
-msgstr "Estado de Vista de Árbol Expandido"
+msgstr "Vista Busquedas"
 
 msgctxt "view:ir.ui.view_tree_width:"
 msgid "View Tree Width"
