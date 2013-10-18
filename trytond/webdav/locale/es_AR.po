@@ -48,7 +48,7 @@ msgstr "Fecha creación"
 
 msgctxt "field:webdav.collection,create_uid:"
 msgid "Create User"
-msgstr "Creado por Usuario"
+msgstr "Usuario creación"
 
 msgctxt "field:webdav.collection,domain:"
 msgid "Domain"
@@ -80,7 +80,7 @@ msgstr "Fecha modificación"
 
 msgctxt "field:webdav.collection,write_uid:"
 msgid "Write User"
-msgstr "Modificado por Usuario"
+msgstr "Usuario modificación"
 
 msgctxt "field:webdav.share,create_date:"
 msgid "Create Date"
@@ -88,7 +88,7 @@ msgstr "Fecha creación"
 
 msgctxt "field:webdav.share,create_uid:"
 msgid "Create User"
-msgstr "Creado por Usuario"
+msgstr "Usuario creación"
 
 msgctxt "field:webdav.share,expiration_date:"
 msgid "Expiration Date"
@@ -128,7 +128,7 @@ msgstr "Fecha modificación"
 
 msgctxt "field:webdav.share,write_uid:"
 msgid "Write User"
-msgstr "Modificado por Usuario"
+msgstr "Usuario modificación"
 
 msgctxt "model:ir.action,name:act_collection_list"
 msgid "Collections"
