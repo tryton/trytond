@@ -956,8 +956,11 @@ class Translation(ModelSQL, ModelView):
                 flags=flags)
             pofile.append(entry)
 
-        pofile.sort()
-        return unicode(pofile).encode('utf-8')
+        if pofile:
+            pofile.sort()
+            return unicode(pofile).encode('utf-8')
+        else:
+            return
 
 
 class TranslationSetStart(ModelView):
@@ -1609,7 +1612,7 @@ class TranslationExport(Wizard):
         Translation = pool.get('ir.translation')
         file_data = Translation.translation_export(
             self.start.language.code, self.start.module.name)
-        self.result.file = buffer(file_data)
+        self.result.file = buffer(file_data) if file_data else None
         return 'result'
 
     def default_result(self, fields):
