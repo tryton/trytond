@@ -3979,6 +3979,15 @@ msgctxt "view:ir.ui.view_search:"
 msgid "View Searches"
 msgstr "Vista Busquedas"
 
+#, fuzzy
+msgctxt "view:ir.ui.view_tree_state:"
+msgid "View Tree State"
+msgstr "Estado de Vista de Arbol"
+
+msgctxt "view:ir.ui.view_tree_state:"
+msgid "Views Tree State"
+msgstr ""
+
 msgctxt "view:ir.ui.view_tree_width:"
 msgid "View Tree Width"
 msgstr "Ancho de la vista en árbol"

@@ -71,14 +71,11 @@ msgstr "Планираното действие неуспяло"
 msgctxt "error:ir.cron:"
 msgid ""
 "The following action failed to execute properly: \"%s\"\n"
+"%s\n"
 " Traceback: \n"
 "\n"
 "%s\n"
 msgstr ""
-"Следното действие не е изпълнено успешно: \"%s\"\n"
-"Информация:\n"
-"\n"
-"%s"
 
 msgctxt "error:ir.lang:"
 msgid "Default language can not be deleted."
@@ -220,6 +217,12 @@ msgstr "Закръгляване дата и час трябва да бъде �
 msgctxt "error:ir.translation:"
 msgid "Translation must be unique"
 msgstr "Превода трябва да е уникален"
+
+msgctxt "error:ir.translation:"
+msgid ""
+"You can not export translation %(name)s because it is an overridden "
+"translation by module %(overriding_module)s"
+msgstr ""
 
 msgctxt "error:ir.trigger:"
 msgid "\"On Time\" and others are mutually exclusive!"
@@ -450,6 +453,10 @@ msgctxt "field:ir.action.act_window,name:"
 msgid "Name"
 msgstr "Име на прикачен файл"
 
+msgctxt "field:ir.action.act_window,order:"
+msgid "Order Value"
+msgstr ""
+
 msgctxt "field:ir.action.act_window,pyson_context:"
 msgid "PySON Context"
 msgstr "PySON контекст"
@@ -457,6 +464,10 @@ msgstr "PySON контекст"
 msgctxt "field:ir.action.act_window,pyson_domain:"
 msgid "PySON Domain"
 msgstr "PySON контекст"
+
+msgctxt "field:ir.action.act_window,pyson_order:"
+msgid "PySON Order"
+msgstr ""
 
 msgctxt "field:ir.action.act_window,pyson_search_value:"
 msgid "PySON Search Criteria"
@@ -2102,6 +2113,10 @@ msgctxt "field:ir.translation,name:"
 msgid "Field Name"
 msgstr "Име на поле"
 
+msgctxt "field:ir.translation,overriding_module:"
+msgid "Overriding Module"
+msgstr ""
+
 msgctxt "field:ir.translation,rec_name:"
 msgid "Name"
 msgstr "Име"
@@ -2557,47 +2572,60 @@ msgctxt "field:ir.ui.view_search,write_uid:"
 msgid "Write User"
 msgstr "Променено от"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,child_name:"
+msgctxt "field:ir.ui.view_tree_state,child_name:"
 msgid "Child Name"
-msgstr "Име на подчинен"
+msgstr ""
 
-msgctxt "field:ir.ui.view_tree_expanded_state,create_date:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,create_date:"
 msgid "Create Date"
 msgstr "Създадено на"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,create_uid:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,create_uid:"
 msgid "Create User"
 msgstr "Създадено от"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,domain:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,domain:"
 msgid "Domain"
 msgstr "Домейн"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,id:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,id:"
 msgid "ID"
 msgstr "ID"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,model:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,model:"
 msgid "Model"
 msgstr "Модел"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,nodes:"
+msgctxt "field:ir.ui.view_tree_state,nodes:"
 msgid "Expanded Nodes"
-msgstr "Разтворени възли"
+msgstr ""
 
-msgctxt "field:ir.ui.view_tree_expanded_state,rec_name:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,rec_name:"
 msgid "Name"
 msgstr "Име на прикачен файл"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,user:"
+msgctxt "field:ir.ui.view_tree_state,selected_nodes:"
+msgid "Selected Nodes"
+msgstr ""
+
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,user:"
 msgid "User"
 msgstr "Потребител"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,write_date:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,write_date:"
 msgid "Write Date"
 msgstr "Променено на"
 
-msgctxt "field:ir.ui.view_tree_expanded_state,write_uid:"
+#, fuzzy
+msgctxt "field:ir.ui.view_tree_state,write_uid:"
 msgid "Write User"
 msgstr "Променено от"
 
@@ -2925,9 +2953,9 @@ msgctxt "model:ir.action,name:act_view_show"
 msgid "Show View"
 msgstr "Показване на изглед"
 
-msgctxt "model:ir.action,name:act_view_tree_expanded_state"
-msgid "Tree Expanded State"
-msgstr "Дърво с разтворени възли"
+msgctxt "model:ir.action,name:act_view_tree_state"
+msgid "Tree State"
+msgstr ""
 
 msgctxt "model:ir.action,name:act_view_tree_width_form"
 msgid "View Tree Width"
@@ -3049,6 +3077,10 @@ msgstr "Холандски"
 msgctxt "model:ir.lang,name:lang_ru"
 msgid "Russian"
 msgstr "Руски"
+
+msgctxt "model:ir.lang,name:lang_sl"
+msgid "Slovenian"
+msgstr ""
 
 msgctxt "model:ir.model,name:"
 msgid "Model"
@@ -3346,9 +3378,9 @@ msgctxt "model:ir.ui.menu,name:menu_view_search"
 msgid "View Search"
 msgstr ""
 
-msgctxt "model:ir.ui.menu,name:menu_view_tree_expanded_state"
-msgid "Tree Expanded State"
-msgstr "Дърво с разтворени възли"
+msgctxt "model:ir.ui.menu,name:menu_view_tree_state"
+msgid "Tree State"
+msgstr ""
 
 msgctxt "model:ir.ui.menu,name:menu_view_tree_width"
 msgid "View Tree Width"
@@ -3374,10 +3406,9 @@ msgctxt "model:ir.ui.view_search,name:"
 msgid "View Search"
 msgstr ""
 
-#, fuzzy
-msgctxt "model:ir.ui.view_tree_expanded_state,name:"
-msgid "View Tree Expanded State"
-msgstr "Изгледи на дърво с разтворени възли"
+msgctxt "model:ir.ui.view_tree_state,name:"
+msgid "View Tree State"
+msgstr ""
 
 msgctxt "model:ir.ui.view_tree_width,name:"
 msgid "View Tree Width"
@@ -3578,6 +3609,11 @@ msgstr ""
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
 msgstr "Табло"
+
+#, fuzzy
+msgctxt "selection:ir.ui.view,type:"
+msgid "Calendar"
+msgstr "Управление на календари"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Form"
@@ -3974,13 +4010,13 @@ msgctxt "view:ir.ui.view_search:"
 msgid "View Searches"
 msgstr ""
 
-msgctxt "view:ir.ui.view_tree_expanded_state:"
-msgid "View Tree Expanded State"
-msgstr "Изгледи на дърво с разтворени възли"
+msgctxt "view:ir.ui.view_tree_state:"
+msgid "View Tree State"
+msgstr ""
 
-msgctxt "view:ir.ui.view_tree_expanded_state:"
-msgid "Views Tree Expanded State"
-msgstr "Изгледи на дърво с разтворени възли"
+msgctxt "view:ir.ui.view_tree_state:"
+msgid "Views Tree State"
+msgstr ""
 
 msgctxt "view:ir.ui.view_tree_width:"
 msgid "View Tree Width"
