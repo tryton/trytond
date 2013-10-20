@@ -312,210 +312,6 @@ msgctxt "field:res.group,write_uid:"
 msgid "Write User"
 msgstr "Изменено пользователем"
 
-msgctxt "field:res.request,act_from:"
-msgid "From"
-msgstr "От кого"
-
-msgctxt "field:res.request,act_to:"
-msgid "To"
-msgstr "Кому"
-
-msgctxt "field:res.request,active:"
-msgid "Active"
-msgstr "Действующий"
-
-msgctxt "field:res.request,body:"
-msgid "Body"
-msgstr "Сообщение"
-
-msgctxt "field:res.request,create_date:"
-msgid "Create Date"
-msgstr "Дата создания"
-
-msgctxt "field:res.request,create_uid:"
-msgid "Create User"
-msgstr "Создано пользователем"
-
-msgctxt "field:res.request,date_sent:"
-msgid "Date"
-msgstr "Дата"
-
-msgctxt "field:res.request,history:"
-msgid "History"
-msgstr "Архив"
-
-msgctxt "field:res.request,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request,name:"
-msgid "Subject"
-msgstr "Тема"
-
-msgctxt "field:res.request,number_references:"
-msgid "Number of References"
-msgstr "Кол-во ссылок"
-
-msgctxt "field:res.request,priority:"
-msgid "Priority"
-msgstr "Приоритет"
-
-msgctxt "field:res.request,rec_name:"
-msgid "Name"
-msgstr "Наименование"
-
-msgctxt "field:res.request,references:"
-msgid "References"
-msgstr "Ссылки"
-
-msgctxt "field:res.request,state:"
-msgid "State"
-msgstr "Состояние"
-
-msgctxt "field:res.request,trigger_date:"
-msgid "Trigger Date"
-msgstr "Дата сообщения"
-
-msgctxt "field:res.request,write_date:"
-msgid "Write Date"
-msgstr "Дата изменения"
-
-msgctxt "field:res.request,write_uid:"
-msgid "Write User"
-msgstr "Изменено пользователем"
-
-msgctxt "field:res.request.history,act_from:"
-msgid "From"
-msgstr "От кого"
-
-msgctxt "field:res.request.history,act_to:"
-msgid "To"
-msgstr "Кому"
-
-msgctxt "field:res.request.history,body:"
-msgid "Body"
-msgstr "Сообщение"
-
-msgctxt "field:res.request.history,create_date:"
-msgid "Create Date"
-msgstr "Дата создания"
-
-msgctxt "field:res.request.history,create_uid:"
-msgid "Create User"
-msgstr "Создано пользователем"
-
-msgctxt "field:res.request.history,date_sent:"
-msgid "Date sent"
-msgstr "Дата отправки"
-
-msgctxt "field:res.request.history,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request.history,name:"
-msgid "Summary"
-msgstr "Сводка"
-
-msgctxt "field:res.request.history,number_references:"
-msgid "References"
-msgstr "Ссылки"
-
-msgctxt "field:res.request.history,priority:"
-msgid "Priority"
-msgstr "Приоретет"
-
-msgctxt "field:res.request.history,rec_name:"
-msgid "Name"
-msgstr "Наименование"
-
-msgctxt "field:res.request.history,request:"
-msgid "Request"
-msgstr "Сообщение"
-
-msgctxt "field:res.request.history,state:"
-msgid "State"
-msgstr "Состояние"
-
-msgctxt "field:res.request.history,subject:"
-msgid "Subject"
-msgstr "Тема"
-
-msgctxt "field:res.request.history,write_date:"
-msgid "Write Date"
-msgstr "Дата изменения"
-
-msgctxt "field:res.request.history,write_uid:"
-msgid "Write User"
-msgstr "Изменено пользователем"
-
-msgctxt "field:res.request.link,create_date:"
-msgid "Create Date"
-msgstr "Дата создания"
-
-msgctxt "field:res.request.link,create_uid:"
-msgid "Create User"
-msgstr "Создано пользователем"
-
-msgctxt "field:res.request.link,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request.link,model:"
-msgid "Model"
-msgstr "Модель"
-
-msgctxt "field:res.request.link,name:"
-msgid "Name"
-msgstr "Наименование"
-
-msgctxt "field:res.request.link,priority:"
-msgid "Priority"
-msgstr "Приоритет"
-
-msgctxt "field:res.request.link,rec_name:"
-msgid "Name"
-msgstr "Наименование"
-
-msgctxt "field:res.request.link,write_date:"
-msgid "Write Date"
-msgstr "Дата изменения"
-
-msgctxt "field:res.request.link,write_uid:"
-msgid "Write User"
-msgstr "Изменено пользователем"
-
-msgctxt "field:res.request.reference,create_date:"
-msgid "Create Date"
-msgstr "Дата создания"
-
-msgctxt "field:res.request.reference,create_uid:"
-msgid "Create User"
-msgstr "Создано пользователем"
-
-msgctxt "field:res.request.reference,id:"
-msgid "ID"
-msgstr "ID"
-
-msgctxt "field:res.request.reference,rec_name:"
-msgid "Name"
-msgstr "Наименование"
-
-msgctxt "field:res.request.reference,reference:"
-msgid "Reference"
-msgstr "Ссылка"
-
-msgctxt "field:res.request.reference,request:"
-msgid "Request"
-msgstr "Сообщение"
-
-msgctxt "field:res.request.reference,write_date:"
-msgid "Write Date"
-msgstr "Дата изменения"
-
-msgctxt "field:res.request.reference,write_uid:"
-msgid "Write User"
-msgstr "Изменено пользователем"
-
 msgctxt "field:res.user,actions:"
 msgid "Actions"
 msgstr "Действия"
@@ -692,13 +488,14 @@ msgctxt "field:res.user.login.attempt,id:"
 msgid "ID"
 msgstr "ID"
 
+#, fuzzy
+msgctxt "field:res.user.login.attempt,login:"
+msgid "Login"
+msgstr "Логин"
+
 msgctxt "field:res.user.login.attempt,rec_name:"
 msgid "Name"
 msgstr "Наименование"
-
-msgctxt "field:res.user.login.attempt,user:"
-msgid "User"
-msgstr "Пользователь"
 
 msgctxt "field:res.user.login.attempt,write_date:"
 msgid "Write Date"
@@ -756,14 +553,6 @@ msgctxt "model:ir.action,name:act_group_form"
 msgid "Groups"
 msgstr "Группы"
 
-msgctxt "model:ir.action,name:act_request_form"
-msgid "Requests"
-msgstr "Сообщения"
-
-msgctxt "model:ir.action,name:act_request_link_form"
-msgid "Request Links"
-msgstr "Ссылки сообщения"
-
 msgctxt "model:ir.action,name:act_user_config"
 msgid "Configure Users"
 msgstr "Конфигурация пользователей"
@@ -804,14 +593,6 @@ msgctxt "model:ir.ui.menu,name:menu_group_form"
 msgid "Groups"
 msgstr "Группы"
 
-msgctxt "model:ir.ui.menu,name:menu_request_form"
-msgid "Requests"
-msgstr "Сообщения"
-
-msgctxt "model:ir.ui.menu,name:menu_request_link_form"
-msgid "Request Links"
-msgstr "Ссылки сообщения"
-
 msgctxt "model:ir.ui.menu,name:menu_res"
 msgid "Users"
 msgstr "Пользователи"
@@ -831,26 +612,6 @@ msgstr "Группа"
 msgctxt "model:res.group,name:group_admin"
 msgid "Administration"
 msgstr "группа Управление"
-
-msgctxt "model:res.request,name:"
-msgid "Request"
-msgstr "Сообщение"
-
-msgctxt "model:res.request.history,name:"
-msgid "Request history"
-msgstr "Архив сообщений"
-
-msgctxt "model:res.request.link,name:"
-msgid "Request link"
-msgstr "Ссылка сообщения"
-
-msgctxt "model:res.request.link,name:request_link_cron"
-msgid "Scheduler"
-msgstr "Планировщик"
-
-msgctxt "model:res.request.reference,name:"
-msgid "Request Reference"
-msgstr "Ссылка сообщения"
 
 msgctxt "model:res.user,name:"
 msgid "User"
@@ -883,62 +644,6 @@ msgstr "Попытка входа"
 msgctxt "model:res.user.warning,name:"
 msgid "User Warning"
 msgstr "Внимание Пользователь"
-
-msgctxt "selection:res.request,priority:"
-msgid "High"
-msgstr "Высокий"
-
-msgctxt "selection:res.request,priority:"
-msgid "Low"
-msgstr "Низкий"
-
-msgctxt "selection:res.request,priority:"
-msgid "Normal"
-msgstr "Нормально"
-
-msgctxt "selection:res.request,state:"
-msgid "Chatting"
-msgstr "Переписка"
-
-msgctxt "selection:res.request,state:"
-msgid "Closed"
-msgstr "Закрыто"
-
-msgctxt "selection:res.request,state:"
-msgid "Draft"
-msgstr "Черновик"
-
-msgctxt "selection:res.request,state:"
-msgid "Waiting"
-msgstr "Ожидание"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "High"
-msgstr "Высокий"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "Low"
-msgstr "Низкий"
-
-msgctxt "selection:res.request.history,priority:"
-msgid "Normal"
-msgstr "Нормально"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Chatting"
-msgstr "Переписка"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Closed"
-msgstr "Закрыто"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Draft"
-msgstr "Черновик"
-
-msgctxt "selection:res.request.history,state:"
-msgid "Waiting"
-msgstr "Ожидание"
 
 msgctxt "view:ir.module.module:"
 msgid "Cancel Installation"
@@ -979,46 +684,6 @@ msgstr "Группы"
 msgctxt "view:res.group:"
 msgid "Members"
 msgstr "Члены группы"
-
-msgctxt "view:res.request.history:"
-msgid "Request History"
-msgstr "Переписка"
-
-msgctxt "view:res.request.link:"
-msgid "Request Link"
-msgstr "Ссылка сообщения"
-
-msgctxt "view:res.request.reference:"
-msgid "Request Reference"
-msgstr "Ссылка сообщения"
-
-msgctxt "view:res.request.reference:"
-msgid "Request References"
-msgstr "Ссылки сообщения"
-
-msgctxt "view:res.request:"
-msgid "Close"
-msgstr "Закрыть"
-
-msgctxt "view:res.request:"
-msgid "References"
-msgstr "Ссылки"
-
-msgctxt "view:res.request:"
-msgid "Reply"
-msgstr "Ответить"
-
-msgctxt "view:res.request:"
-msgid "Request"
-msgstr "Сообщение"
-
-msgctxt "view:res.request:"
-msgid "Requests"
-msgstr "Сообщения"
-
-msgctxt "view:res.request:"
-msgid "Send"
-msgstr "Послать"
 
 msgctxt "view:res.user.config.start:"
 msgid "Add Users"

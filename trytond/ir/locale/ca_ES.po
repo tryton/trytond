@@ -3520,7 +3520,7 @@ msgstr "Butó del assistent"
 
 msgctxt "selection:ir.ui.menu,action:"
 msgid ""
-msgstr " "
+msgstr ""
 
 msgctxt "selection:ir.ui.menu,action:"
 msgid "ir.action.act_window"
@@ -3540,7 +3540,7 @@ msgstr "ir.action.wizard"
 
 msgctxt "selection:ir.ui.view,type:"
 msgid ""
-msgstr " "
+msgstr ""
 
 msgctxt "selection:ir.ui.view,type:"
 msgid "Board"
