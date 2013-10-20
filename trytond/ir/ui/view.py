@@ -64,7 +64,9 @@ class View(ModelSQL, ModelView):
                 })
         cls._order.insert(0, ('priority', 'ASC'))
         cls._buttons.update({
-                'show': {},
+                'show': {
+                    'readonly': Eval('type') != 'form',
+                    },
                 })
 
     @classmethod
@@ -219,8 +221,6 @@ class ShowView(Wizard):
             View = pool.get('ir.ui.view')
             view = View(Transaction().context.get('active_id'))
             Model = pool.get(view.model)
-            if view.type != 'form':
-                return Model.fields_view_get(view_type='form')
             return Model.fields_view_get(view_id=view.id)
 
         def get_defaults(self, wizard, state_name, fields):
