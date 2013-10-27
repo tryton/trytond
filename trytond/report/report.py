@@ -122,8 +122,9 @@ class Report(URLMixin, PoolBase):
             raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
         action_report = action_reports[0]
         records = None
-        if action_report.model:
-            records = cls._get_records(ids, action_report.model, data)
+        model = action_report.model or data.get('model')
+        if model:
+            records = cls._get_records(ids, model, data)
         type, data = cls.parse(action_report, records, data, {})
         return (type, buffer(data), action_report.direct_print,
             action_report.name)
