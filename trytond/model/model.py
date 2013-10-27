@@ -318,6 +318,14 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
                     and hasattr(cls._fields[field], 'field'):
                 res[field]['relation_field'] = copy.copy(
                         cls._fields[field].field)
+            if res[field]['type'] == 'many2one':
+                target = cls._fields[field].get_target()
+                for target_name, target_field in target._fields.iteritems():
+                    if (target_field._type == 'one2many'
+                            and target_field.model_name == cls.__name__
+                            and target_field.field == field):
+                        res[field]['relation_field'] = target_name
+                        break
             if res[field]['type'] in ('datetime', 'time'):
                 res[field]['format'] = copy.copy(cls._fields[field].format)
             if res[field]['type'] == 'selection':
