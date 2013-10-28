@@ -240,6 +240,8 @@ class User(ModelSQL, ModelView):
         cls._get_preferences_cache.clear()
         # Restart the cache of check
         pool.get('ir.model.access')._get_access_cache.clear()
+        # Restart the cache of check
+        pool.get('ir.model.field.access')._get_access_cache.clear()
         # Restart the cache
         ModelView._fields_view_get_cache.clear()
 

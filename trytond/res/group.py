@@ -82,6 +82,10 @@ class Group(ModelSQL, ModelView):
         pool.get('res.user')._get_groups_cache.clear()
         # Restart the cache for get_preferences
         pool.get('res.user')._get_preferences_cache.clear()
+        # Restart the cache for model access and view
+        pool.get('ir.model.access')._get_access_cache.clear()
+        pool.get('ir.model.field.access')._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
         return res
 
     @classmethod
@@ -94,6 +98,10 @@ class Group(ModelSQL, ModelView):
         pool.get('res.user')._get_groups_cache.clear()
         # Restart the cache for get_preferences
         pool.get('res.user')._get_preferences_cache.clear()
+        # Restart the cache for model access and view
+        pool.get('ir.model.access')._get_access_cache.clear()
+        pool.get('ir.model.field.access')._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
 
     @classmethod
     def delete(cls, groups):
@@ -105,6 +113,10 @@ class Group(ModelSQL, ModelView):
         pool.get('res.user')._get_groups_cache.clear()
         # Restart the cache for get_preferences
         pool.get('res.user')._get_preferences_cache.clear()
+        # Restart the cache for model access and view
+        pool.get('ir.model.access')._get_access_cache.clear()
+        pool.get('ir.model.field.access')._get_access_cache.clear()
+        ModelView._fields_view_get_cache.clear()
 
 
 class Group2:
