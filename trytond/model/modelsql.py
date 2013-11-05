@@ -994,7 +994,9 @@ class ModelSQL(ModelStorage):
                 cursor.execute(*history.select(history.id, history.write_date,
                         where=where
                         & (history.write_date != None)
-                        & (history.create_date == None)))
+                        & (history.create_date == None)
+                        & (history.write_date
+                            <= transaction.context['_datetime'])))
                 for deleted_id, delete_date in cursor.fetchall():
                     if ids_date[deleted_id] < delete_date:
                         to_delete.add(deleted_id)
