@@ -223,6 +223,7 @@ class ActionKeyword(ModelSQL, ModelView):
                     ('model', '=', model + ',' + str(model_id)),
                     ],
                 ]
+        clause = [clause, ('action.active', '=', True)]
         action_keywords = cls.search(clause, order=[])
         types = defaultdict(list)
         for action_keyword in action_keywords:
