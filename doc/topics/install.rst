@@ -17,7 +17,6 @@ Prerequisites
     * Optional: MySQL-python (http://sourceforge.net/projects/mysql-python/)
     * Optional: pywebdav 0.9.8 or later (http://code.google.com/p/pywebdav/)
     * Optional: pydot (http://code.google.com/p/pydot/)
-    * Optional: pytz (http://pytz.sourceforge.net/)
     * Optional: unoconv http://dag.wieers.com/home-made/unoconv/)
     * Optional: sphinx (http://sphinx.pocoo.org/)
     * Optional: simplejson (http://undefined.org/python/#simplejson)

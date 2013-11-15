@@ -38,7 +38,6 @@ if __name__ == '__main__':
 from trytond.config import CONFIG
 CONFIG['db_type'] = 'sqlite'
 CONFIG.update_etc(_CONFIGFILE)
-CONFIG.set_timezone()
 if not CONFIG['admin_passwd']:
     CONFIG['admin_passwd'] = 'admin'
 

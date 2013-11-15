@@ -22,8 +22,8 @@ class Date(Model):
                 })
 
     @staticmethod
-    def today():
+    def today(timezone=None):
         '''
         Return the current date
         '''
-        return datetime.date.today()
+        return datetime.datetime.now(timezone).date()
