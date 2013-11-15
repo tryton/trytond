@@ -23,13 +23,6 @@ from ..config import CONFIG
 from ..pyson import PYSONEncoder
 from ..rpc import RPC
 
-try:
-    import pytz
-    TIMEZONES = [(x, x) for x in pytz.common_timezones]
-except ImportError:
-    TIMEZONES = []
-TIMEZONES += [(None, '')]
-
 __all__ = [
     'User', 'LoginAttempt', 'UserAction', 'UserGroup', 'Warning_',
     'UserConfigStart', 'UserConfig',
@@ -61,7 +54,6 @@ class User(ModelSQL, ModelView):
             ])
     language_direction = fields.Function(fields.Char('Language Direction'),
             'get_language_direction')
-    timezone = fields.Selection(TIMEZONES, 'Timezone', translate=False)
     email = fields.Char('Email')
     status_bar = fields.Function(fields.Char('Status Bar'), 'get_status_bar')
     warnings = fields.One2Many('res.user.warning', 'user', 'Warnings')
@@ -97,7 +89,6 @@ class User(ModelSQL, ModelView):
         cls._context_fields = [
             'language',
             'language_direction',
-            'timezone',
             'groups',
         ]
         cls._error_messages.update({
