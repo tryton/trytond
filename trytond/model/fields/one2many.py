@@ -114,6 +114,7 @@ class One2Many(Field):
             (``add``, ``<ids>``),
             (``unlink_all``),
             (``set``, ``<ids>``)
+            (``copy``, ``<ids>``, ``[{<field name>: value}, ...]``)
         '''
         if not values:
             return
@@ -196,6 +197,16 @@ class One2Many(Field):
                         Target.write(Target.browse(target_ids), {
                                 self.field: field_value(record_id),
                                 })
+            elif act[0] == 'copy':
+                copy_ids = map(int, act[1])
+
+                if len(act) > 2:
+                    default = act[2].copy()
+                else:
+                    default = {}
+                for record_id in ids:
+                    default[self.field] = field_value(record_id)
+                    Target.copy(copy_ids, default=default)
             else:
                 raise Exception('Bad arguments')
 

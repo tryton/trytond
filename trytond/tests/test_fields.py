@@ -2528,7 +2528,32 @@ class FieldsTestCase(unittest.TestCase):
 
                 one2many.write([one2many1], {
                         'targets': [
-                            ('delete', [target2.id]),
+                            ('copy', [target1.id], {'name': 'copy1'}),
+                            ],
+                        })
+                targets = one2many_target.search([
+                        ('id', 'not in', [target1.id, target2.id]),
+                        ])
+                self.assertEqual(len(targets), 1)
+                self.assertEqual(targets[0].name, 'copy1')
+
+                one2many.write([one2many1], {
+                        'targets': [
+                            ('copy', [target2.id]),
+                            ],
+                        })
+                self.assertEqual(len(one2many1.targets), 4)
+                targets = one2many_target.search([
+                        ('id', 'not in', [target1.id, target2.id]),
+                        ])
+                self.assertEqual(len(targets), 2)
+                names = set([target.name for target in targets])
+                self.assertEqual(names, set(('copy1', 'target2')))
+
+                copy_ids = [target.id for target in targets]
+                one2many.write([one2many1], {
+                        'targets': [
+                            ('delete', [target2.id] + copy_ids),
                             ],
                         })
                 self.assertEqual(one2many1.targets, (target1,))
@@ -2710,7 +2735,32 @@ class FieldsTestCase(unittest.TestCase):
 
                 many2many.write([many2many1], {
                         'targets': [
-                            ('delete', [target2.id]),
+                            ('copy', [target1.id], {'name': 'copy1'}),
+                            ],
+                        })
+                targets = many2many_target.search([
+                        ('id', 'not in', [target1.id, target2.id]),
+                        ])
+                self.assertEqual(len(targets), 1)
+                self.assertEqual(targets[0].name, 'copy1')
+
+                many2many.write([many2many1], {
+                        'targets': [
+                            ('copy', [target2.id]),
+                            ],
+                        })
+                self.assertEqual(len(many2many1.targets), 4)
+                targets = many2many_target.search([
+                        ('id', 'not in', [target1.id, target2.id]),
+                        ])
+                self.assertEqual(len(targets), 2)
+                names = set([target.name for target in targets])
+                self.assertEqual(names, set(('copy1', 'target2')))
+
+                copy_ids = [target.id for target in targets]
+                many2many.write([many2many1], {
+                        'targets': [
+                            ('delete', [target2.id] + copy_ids),
                             ],
                         })
                 self.assertEqual(many2many1.targets, (target1,))

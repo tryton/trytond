@@ -245,7 +245,6 @@ class ModelStorage(Model):
 
         def convert_data(field_defs, data):
             data = data.copy()
-            data_o2m = {}
             for field_name in field_defs:
                 ftype = field_defs[field_name]['type']
 
@@ -271,46 +270,26 @@ class ModelStorage(Model):
                         pass
                 elif ftype in ('one2many',):
                     if data[field_name]:
-                        data_o2m[field_name] = data[field_name]
-                    data[field_name] = None
+                        data[field_name] = [('copy', data[field_name])]
                 elif ftype == 'many2many':
                     if data[field_name]:
                         data[field_name] = [('set', data[field_name])]
             if 'id' in data:
                 del data['id']
-            return data, data_o2m
+            return data
 
-        new_ids = {}
         fields_names = [n for n, f in cls._fields.iteritems()
             if (not isinstance(f, fields.Function)
                 or isinstance(f, fields.Property))]
         ids = map(int, records)
         datas = cls.read(ids, fields_names=fields_names)
         field_defs = cls.fields_get(fields_names=fields_names)
-        data_ids = []
         to_create = []
-        o2m_to_create = []
         for data in datas:
-            data_ids.append(data['id'])
-            data, data_o2m = convert_data(field_defs, data)
+            data = convert_data(field_defs, data)
             to_create.append(data)
-            o2m_to_create.append(data_o2m)
         new_records = cls.create(to_create)
-        for data_id, new_record, data_o2m in izip(data_ids, new_records,
-                o2m_to_create):
-            new_ids[data_id] = new_record.id
-            for field_name in data_o2m:
-                Relation = pool.get(
-                        field_defs[field_name]['relation'])
-                relation_field = field_defs[field_name]['relation_field']
-                if relation_field:
-                    field = Relation._fields[relation_field]
-                    if field._type == 'reference':
-                        value = str(new_record)
-                    else:
-                        value = new_record.id
-                    Relation.copy(Relation.browse(data_o2m[field_name]),
-                        default={relation_field: value})
+        new_ids = dict(izip(ids, map(int, new_records)))
 
         fields_translate = {}
         for field_name, field in field_defs.iteritems():
@@ -332,7 +311,7 @@ class ModelStorage(Model):
                                 fields_names=fields_translate.keys() + ['id'])
                         for data in datas:
                             data_id = data['id']
-                            data, _ = convert_data(fields_translate, data)
+                            data = convert_data(fields_translate, data)
                             cls.write([cls(new_ids[data_id])], data)
         return cls.browse(new_ids.values())
 
