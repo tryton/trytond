@@ -108,6 +108,7 @@ class Many2Many(Field):
             (``add``, ``<ids>``),
             (``unlink_all``),
             (``set``, ``<ids>``)
+            (``copy``, ``<ids>``, ``[{<field name>: value}, ...]``)
         '''
         pool = Pool()
         if not values:
@@ -212,6 +213,20 @@ class Many2Many(Field):
                         to_create.append({
                                 self.origin: field_value(record_id),
                                 self.target: new_id,
+                                })
+                if to_create:
+                    Relation.create(to_create)
+            elif act[0] == 'copy':
+                target_ids = list(act[1])
+                to_create = []
+                default = None
+                if len(act) > 2:
+                    default = act[2]
+                for new in Target.copy(target_ids, default=default):
+                    for record_id in ids:
+                        to_create.append({
+                                self.origin: field_value(record_id),
+                                self.target: new.id,
                                 })
                 if to_create:
                     Relation.create(to_create)

@@ -511,6 +511,10 @@ This field accepts as written value a list of tuples like this:
 
     - ``('set'[, ids, ...])``: it will link only the target ids to this record.
 
+    - ``('copy', ids[, {<field name>: value, ...}])``: it will copy the target
+      ids to this record. Optional field names and values may be added to
+      override some of the fields of the copied records.
+
 :class:`One2Many` has some extra required arguments:
 
 .. attribute:: One2Many.model_name
