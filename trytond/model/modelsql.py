@@ -884,11 +884,6 @@ class ModelSQL(ModelStorage):
             forder = field.convert_order(fname, tables, cls)
             order_by.extend((Order(o) for o in forder))
 
-        if type(limit) not in (float, int, long, type(None)):
-            raise Exception('Error', 'Wrong limit type (%s)!' % type(limit))
-        if type(offset) not in (float, int, long, type(None)):
-            raise Exception('Error', 'Wrong offset type (%s)!' % type(offset))
-
         main_table, _ = tables[None]
 
         def convert_from(table, tables):
