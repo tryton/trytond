@@ -7,6 +7,7 @@ import traceback
 import sys
 import logging
 from email.mime.text import MIMEText
+from email.header import Header
 
 from ..model import ModelView, ModelSQL, fields
 from ..tools import safe_eval, get_smtp_server
@@ -135,10 +136,10 @@ class Cron(ModelSQL, ModelView):
         from_addr = CONFIG['smtp_default_from_email']
         to_addr = cron.request_user.email
 
-        msg = MIMEText(body)
+        msg = MIMEText(body, _charset='utf-8')
         msg['To'] = to_addr
         msg['From'] = from_addr
-        msg['Subject'] = subject
+        msg['Subject'] = Header(subject, 'utf-8')
         logger = logging.getLogger(__name__)
         if not to_addr:
             logger.error(msg.as_string())
