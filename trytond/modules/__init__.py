@@ -226,7 +226,10 @@ def load_module_graph(graph, pool, lang=None):
         if (is_module_to_install(module)
                 or package_state in ('to install', 'to upgrade')):
             if package_state not in ('to install', 'to upgrade'):
-                package_state = 'to install'
+                if package_state == 'installed':
+                    package_state = 'to upgrade'
+                else:
+                    package_state = 'to install'
             for child in package.childs:
                 module2state[child.name] = package_state
             for type in classes.keys():
