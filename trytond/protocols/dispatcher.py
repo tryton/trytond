@@ -84,12 +84,15 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             if CONFIG['prevent_dblist']:
                 raise Exception('AccessDenied')
             database = Database().connect()
-            with Transaction().start(None, 0) as transaction:
-                cursor = transaction.cursor
+            try:
+                cursor = database.cursor()
                 try:
-                    return database.list(cursor)
+                    res = database.list(cursor)
                 finally:
                     cursor.close(close=True)
+            except Exception:
+                res = []
+            return res
         elif method == 'create':
             return create(*args, **kwargs)
         elif method == 'restore':
