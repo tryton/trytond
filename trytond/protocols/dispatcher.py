@@ -7,7 +7,7 @@ import time
 import sys
 import pydoc
 
-from sql import Table
+from sql import Table, Flavor
 
 from trytond.pool import Pool
 from trytond import security
@@ -86,6 +86,7 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
             if CONFIG['prevent_dblist']:
                 raise Exception('AccessDenied')
             database = Database().connect()
+            Flavor.set(Database.flavor)
             try:
                 cursor = database.cursor()
                 try:
