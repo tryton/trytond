@@ -337,7 +337,7 @@ class User(ModelSQL, ModelView):
         if preferences is not None:
             return preferences.copy()
         user = Transaction().user
-        with Transaction().set_user(0):
+        with Transaction().set_user(0, set_context=True):
             user = cls(user)
         preferences = cls._get_preferences(user, context_only=context_only)
         cls._get_preferences_cache.set(key, preferences)
