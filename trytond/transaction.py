@@ -118,10 +118,16 @@ class Transaction(local):
         return manager
 
     def set_user(self, user, set_context=False):
+        if user != 0 and set_context:
+            raise ValueError('set_context only allowed for root')
         manager = _AttributeManager(user=self.user,
-                context=self.context.copy())
+                context=self.context)
+        self.context = self.context.copy()
         if set_context:
-            self.context.update({'user': self.user})
+            if user != self.user:
+                self.context['user'] = self.user
+        else:
+            self.context.pop('user', None)
         self.user = user
         return manager
 
