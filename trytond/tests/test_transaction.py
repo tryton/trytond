@@ -56,6 +56,41 @@ class TransactionTestCase(unittest.TestCase):
             Exception, manipulate_cursor, DB_NAME, USER, context=CONTEXT)
         self.assertTrue(empty_transaction(DB_NAME, USER, context=CONTEXT))
 
+    def test0030set_user(self):
+        '''
+        Test set_user
+        '''
+        with Transaction().start(DB_NAME, USER, context=CONTEXT) \
+                as transaction:
+            self.assertEqual(transaction.user, USER)
+            self.assertEqual(transaction.context.get('user'), None)
+
+            with Transaction().set_user(0):
+                self.assertEqual(transaction.user, 0)
+                self.assertEqual(transaction.context.get('user'), None)
+
+            with Transaction().set_user(0, set_context=True):
+                self.assertEqual(transaction.user, 0)
+                self.assertEqual(transaction.context.get('user'), USER)
+
+                # Nested same set_user should keep original context user
+                with Transaction().set_user(0, set_context=True):
+                    self.assertEqual(transaction.user, 0)
+                    self.assertEqual(transaction.context.get('user'), USER)
+
+                # Unset user context
+                with Transaction().set_user(0, set_context=False):
+                    self.assertEqual(transaction.user, 0)
+                    self.assertEqual(transaction.context.get('user'), None)
+
+            # set context for non root
+            self.assertRaises(ValueError,
+                Transaction().set_user, 2, set_context=True)
+
+            # not set context for non root
+            with Transaction().set_user(2):
+                self.assertEqual(transaction.user, 2)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TransactionTestCase)
