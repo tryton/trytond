@@ -83,17 +83,8 @@ def dispatch(host, port, protocol, database_name, user, session, object_type,
         elif method == 'list':
             if CONFIG['prevent_dblist']:
                 raise Exception('AccessDenied')
-            database = Database().connect()
-            Flavor.set(Database.flavor)
-            try:
-                cursor = database.cursor()
-                try:
-                    res = database.list(cursor)
-                finally:
-                    cursor.close(close=True)
-            except Exception:
-                res = []
-            return res
+            with Transaction().start(None, 0, close=True) as transaction:
+                return transaction.database.list(transaction.cursor)
         elif method == 'create':
             return create(*args, **kwargs)
         elif method == 'restore':
@@ -222,18 +213,13 @@ def create(database_name, password, lang, admin_password):
     logger = logging.getLogger('database')
 
     try:
-        database = Database().connect()
-        cursor = database.cursor(autocommit=True)
-        try:
-            database.create(cursor, database_name)
-            cursor.commit()
-            cursor.close(close=True)
-        except Exception:
-            cursor.close()
-            raise
+        with Transaction().start(None, 0, close=True, autocommit=True) \
+            as transaction:
+            transaction.database.create(transaction.cursor, database_name)
+            transaction.cursor.commit()
 
         with Transaction().start(database_name, 0) as transaction:
-            database.init(transaction.cursor)
+            Database.init(transaction.cursor)
             transaction.cursor.execute(*ir_configuration.insert(
                     [ir_configuration.language], [[lang]]))
             transaction.cursor.commit()
@@ -277,11 +263,11 @@ def drop(database_name, password):
     time.sleep(1)
     logger = logging.getLogger('database')
 
-    database = Database().connect()
-    cursor = database.cursor(autocommit=True)
-    try:
+    with Transaction().start(None, 0, close=True, autocommit=True) \
+        as transaction:
+        cursor = transaction.cursor
         try:
-            database.drop(cursor, database_name)
+            Database.drop(cursor, database_name)
             cursor.commit()
         except Exception:
             logger.error('DROP DB: %s failed' % (database_name,))
@@ -291,8 +277,6 @@ def drop(database_name, password):
         else:
             logger.info('DROP DB: %s' % (database_name))
             Pool.stop(database_name)
-    finally:
-        cursor.close(close=True)
     return True
 
 

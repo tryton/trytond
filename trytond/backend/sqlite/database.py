@@ -148,8 +148,7 @@ class Database(DatabaseInterface):
 
     def __new__(cls, database_name=':memory:'):
         if (database_name == ':memory:'
-                and hasattr(cls._local, 'memory_database')
-                and cls._local.memory_database):
+                and getattr(cls._local, 'memory_database', None)):
             return cls._local.memory_database
         return DatabaseInterface.__new__(cls, database_name=database_name)
 
@@ -197,7 +196,8 @@ class Database(DatabaseInterface):
             return
         self._conn = None
 
-    def create(self, cursor, database_name):
+    @staticmethod
+    def create(cursor, database_name):
         if database_name == ':memory:':
             path = ':memory:'
         else:
@@ -209,9 +209,10 @@ class Database(DatabaseInterface):
             cursor = conn.cursor()
             cursor.close()
 
-    def drop(self, cursor, database_name):
+    @classmethod
+    def drop(cls, cursor, database_name):
         if database_name == ':memory:':
-            self._conn = None
+            cls._local.memory_database._conn = None
             return
         if os.sep in database_name:
             return

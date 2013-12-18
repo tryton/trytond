@@ -217,6 +217,18 @@ def test_depends():
                         list(depends - set(model._fields)), mname, fname))
 
 
+def doctest_dropdb(test):
+    '''Remove SQLite memory database'''
+    from trytond.backend.sqlite.database import Database as SQLiteDatabase
+    database = SQLiteDatabase().connect()
+    cursor = database.cursor(autocommit=True)
+    try:
+        SQLiteDatabase.drop(cursor, ':memory:')
+        cursor.commit()
+    finally:
+        cursor.close()
+
+
 def suite():
     '''
     Return test suite for other modules

@@ -85,14 +85,16 @@ class Database(DatabaseInterface):
         self._connpool.closeall()
         self._connpool = None
 
-    def create(self, cursor, database_name):
+    @classmethod
+    def create(cls, cursor, database_name):
         cursor.execute('CREATE DATABASE "' + database_name + '" '
             'TEMPLATE template0 ENCODING \'unicode\'')
-        Database._list_cache = None
+        cls._list_cache = None
 
-    def drop(self, cursor, database_name):
+    @classmethod
+    def drop(cls, cursor, database_name):
         cursor.execute('DROP DATABASE "' + database_name + '"')
-        Database._list_cache = None
+        cls._list_cache = None
 
     def get_version(self, cursor):
         if self.database_name not in self._version_cache:

@@ -58,6 +58,8 @@ class Transaction(local):
     __metaclass__ = Singleton
 
     cursor = None
+    database = None
+    close = None
     user = None
     context = None
     create_records = None
@@ -65,20 +67,24 @@ class Transaction(local):
     delete = None  # TODO check to merge with delete_records
     timestamp = None
 
-    def start(self, database_name, user, readonly=False, context=None):
+    def start(self, database_name, user, readonly=False, context=None,
+            close=False, autocommit=False):
         '''
         Start transaction
         '''
         Database = backend.get('Database')
         assert self.user is None
+        assert self.database is None
         assert self.cursor is None
+        assert self.close is None
         assert self.context is None
         if not database_name:
-            database = Database().connect()
+            self.database = Database().connect()
         else:
-            database = Database(database_name).connect()
+            self.database = Database(database_name).connect()
         Flavor.set(Database.flavor)
-        self.cursor = database.cursor(readonly=readonly)
+        self.cursor = self.database.cursor(readonly=readonly,
+            autocommit=autocommit)
         self.user = user
         self.context = context or {}
         self.create_records = {}
@@ -93,9 +99,11 @@ class Transaction(local):
         Stop transaction
         '''
         try:
-            self.cursor.close()
+            self.cursor.close(close=self.close)
         finally:
             self.cursor = None
+            self.database = None
+            self.close = None
             self.user = None
             self.context = None
             self.create_records = None
@@ -136,11 +144,11 @@ class Transaction(local):
         self.cursor = cursor
         return manager
 
-    def new_cursor(self):
+    def new_cursor(self, autocommit=False, readonly=False):
         Database = backend.get('Database')
         manager = _CursorManager(self.cursor)
         database = Database(self.cursor.database_name).connect()
-        self.cursor = database.cursor()
+        self.cursor = database.cursor(autocommit=autocommit, readonly=readonly)
         return manager
 
     @property
