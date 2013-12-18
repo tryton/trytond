@@ -41,7 +41,8 @@ class DatabaseInterface(object):
         '''
         raise NotImplementedError
 
-    def create(self, cursor, database_name):
+    @staticmethod
+    def create(cursor, database_name):
         '''
         Create a database
 
@@ -49,7 +50,8 @@ class DatabaseInterface(object):
         '''
         raise NotImplementedError
 
-    def drop(self, cursor, database_name):
+    @staticmethod
+    def drop(cursor, database_name):
         '''
         Drop a database
 

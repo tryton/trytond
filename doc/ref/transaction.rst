@@ -17,6 +17,10 @@ database transaction.
 
     The database cursor.
 
+.. attribute:: Transaction.database
+
+    The database.
+
 .. attribute:: Transaction.user
 
     The id of the user.
@@ -39,7 +43,7 @@ database transaction.
 
     Count the number of modification made in this transaction.
 
-.. method:: Transaction.start(database_name, user[, context])
+.. method:: Transaction.start(database_name, user[, readonly[, context[, close[, autocommit]]]])
 
     Start a new transaction and return a `context manager`_.
 
@@ -64,7 +68,7 @@ database transaction.
     Modify the cursor of the transaction and return a `context manager`_. The
     previous cursor will be restored when exiting the `with` statement.
 
-.. method:: Transaction.new_cursor()
+.. method:: Transaction.new_cursor([autocommit[, readonly]])
 
     Change the cursor of the transaction with a new one on the same database
     and return a `context manager`_. The previous cursor will be restored when

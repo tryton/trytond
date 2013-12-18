@@ -105,14 +105,16 @@ class Database(DatabaseInterface):
     def close(self):
         return
 
-    def create(self, cursor, database_name):
+    @classmethod
+    def create(cls, cursor, database_name):
         cursor.execute('CREATE DATABASE `' + database_name + '` '
             'DEFAULT CHARACTER SET = \'utf8\'')
-        Database._list_cache = None
+        cls._list_cache = None
 
-    def drop(self, cursor, database_name):
+    @classmethod
+    def drop(cls, cursor, database_name):
         cursor.execute('DROP DATABASE `' + database_name + '`')
-        Database._list_cache = None
+        cls._list_cache = None
 
     @staticmethod
     def dump(database_name):
