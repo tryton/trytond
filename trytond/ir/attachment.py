@@ -231,10 +231,14 @@ class Attachment(ModelSQL, ModelView):
         super(Attachment, cls).delete(attachments)
 
     @classmethod
-    def write(cls, attachments, vals):
-        cls.check_access([a.id for a in attachments], mode='write')
-        super(Attachment, cls).write(attachments, vals)
-        cls.check_access(attachments, mode='write')
+    def write(cls, attachments, values, *args):
+        all_attachments = []
+        actions = iter((attachments, values) + args)
+        for records, _ in zip(actions, actions):
+            all_attachments += records
+        cls.check_access([a.id for a in all_attachments], mode='write')
+        super(Attachment, cls).write(attachments, values, *args)
+        cls.check_access(all_attachments, mode='write')
 
     @classmethod
     def create(cls, vlist):

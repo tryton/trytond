@@ -196,8 +196,8 @@ class View(ModelSQL, ModelView):
         return views
 
     @classmethod
-    def write(cls, views, vals):
-        super(View, cls).write(views, vals)
+    def write(cls, views, values, *args):
+        super(View, cls).write(views, values, *args)
         # Restart the cache
         ModelView._fields_view_get_cache.clear()
 
@@ -260,8 +260,8 @@ class ViewTreeWidth(ModelSQL, ModelView):
         return res
 
     @classmethod
-    def write(cls, records, vals):
-        super(ViewTreeWidth, cls).write(records, vals)
+    def write(cls, records, values, *args):
+        super(ViewTreeWidth, cls).write(records, values, *args)
         ModelView._fields_view_get_cache.clear()
 
     @classmethod

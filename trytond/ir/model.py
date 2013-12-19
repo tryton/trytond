@@ -139,10 +139,10 @@ class Model(ModelSQL, ModelView):
         return res
 
     @classmethod
-    def write(cls, models, vals):
+    def write(cls, models, values, *args):
         pool = Pool()
         Property = pool.get('ir.property')
-        super(Model, cls).write(models, vals)
+        super(Model, cls).write(models, values, *args)
         # Restart the cache of models_get
         Property._models_get_cache.clear()
 
@@ -527,8 +527,8 @@ class ModelAccess(ModelSQL, ModelView):
         return True
 
     @classmethod
-    def write(cls, accesses, vals):
-        super(ModelAccess, cls).write(accesses, vals)
+    def write(cls, accesses, values, *args):
+        super(ModelAccess, cls).write(accesses, values, *args)
         # Restart the cache
         cls._get_access_cache.clear()
         ModelView._fields_view_get_cache.clear()
@@ -681,8 +681,8 @@ class ModelFieldAccess(ModelSQL, ModelView):
         return True
 
     @classmethod
-    def write(cls, field_accesses, vals):
-        super(ModelFieldAccess, cls).write(field_accesses, vals)
+    def write(cls, field_accesses, values, *args):
+        super(ModelFieldAccess, cls).write(field_accesses, values, *args)
         # Restart the cache
         cls._get_access_cache.clear()
         ModelView._fields_view_get_cache.clear()
@@ -730,8 +730,8 @@ class ModelButton(ModelSQL, ModelView):
         return result
 
     @classmethod
-    def write(cls, buttons, values):
-        super(ModelButton, cls).write(buttons, values)
+    def write(cls, buttons, values, *args):
+        super(ModelButton, cls).write(buttons, values, *args)
         # Restart the cache for get_groups
         cls._groups_cache.clear()
 
@@ -813,8 +813,8 @@ class ModelData(ModelSQL, ModelView):
         return False
 
     @classmethod
-    def write(cls, data, values):
-        super(ModelData, cls).write(data, values)
+    def write(cls, data, values, *args):
+        super(ModelData, cls).write(data, values, *args)
         # Restart the cache for get_id
         cls._get_id_cache.clear()
 

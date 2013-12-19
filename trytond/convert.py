@@ -402,6 +402,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.module_state = module_state
         self.grouped = None
         self.grouped_creations = defaultdict(dict)
+        self.grouped_write = defaultdict(list)
+        self.grouped_model_data = []
         self.skip_data = False
 
         # Tag handlders are used to delegate the processing
@@ -475,6 +477,13 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
             for model, values in self.grouped_creations.iteritems():
                 self.create_records(model, values.values(), values.keys())
             self.grouped_creations.clear()
+            for key, actions in self.grouped_write.iteritems():
+                module, model = key
+                self.write_records(module, model, *actions)
+            self.grouped_write.clear()
+        if self.grouped_model_data:
+            self.ModelData.write(*self.grouped_model_data)
+            del self.grouped_model_data[:]
 
         # Closing tag found, if we are in a delegation the handler
         # know what to do:
@@ -664,42 +673,12 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 # and no user changed the value in the db:
                 to_update[key] = values[key]
 
-            # if there is values to update:
-            if to_update:
-                # write the values in the db:
-                with Transaction().set_context(
-                        module=module, language='en_US'):
-                    Model.write([record], to_update)
-                self.fs2db.reset_browsercord(
-                    module, Model.__name__, [record.id])
-
-            if to_update:
-                # re-read it: this ensure that we store the real value
-                # in the model_data table:
-                record = self.fs2db.get_browserecord(
-                    module, Model.__name__, record.id)
-                if not record:
-                    record = Model(record.id)
-                for key in to_update:
-                    values[key] = self._clean_value(key, record)
-
-            if module != self.module:
-                temp_values = old_values.copy()
-                temp_values.update(values)
-                values = temp_values
-
-            if values != old_values:
-                self.ModelData.write([self.ModelData(mdata_id)], {
-                    'fs_id': fs_id,
-                    'model': model,
-                    'module': module,
-                    'db_id': record.id,
-                    'values': str(values),
-                    'date_update': datetime.datetime.now(),
-                    })
-            # reset_browsercord to keep cache memory low
-            self.fs2db.reset_browsercord(module, Model.__name__, [record.id])
-
+            if self.grouped:
+                self.grouped_write[(module, model)].extend(
+                    (record, to_update, old_values, fs_id, mdata_id))
+            else:
+                self.write_records(module, model, record, to_update,
+                    old_values, fs_id, mdata_id)
         else:
             if self.grouped:
                 self.grouped_creations[model][fs_id] = values
@@ -738,6 +717,58 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     })
         self.fs2db.reset_browsercord(self.module, model,
             [r.id for r in records])
+
+    def write_records(self, module, model,
+            record, values, old_values, fs_id, mdata_id, *args):
+        args = (record, values, old_values, fs_id, mdata_id) + args
+        Model = self.pool.get(model)
+
+        actions = iter(args)
+        to_update = []
+        for record, values, _, _, _ in zip(*((actions,) * 5)):
+            if values:
+                to_update += [[record], values]
+        # if there is values to update:
+        if to_update:
+            # write the values in the db:
+            with Transaction().set_context(
+                    module=module, language='en_US'):
+                Model.write(*to_update)
+            self.fs2db.reset_browsercord(
+                module, Model.__name__, sum(to_update[::2], []))
+
+        actions = iter(to_update)
+        for records, values in zip(actions, actions):
+            record, = records
+            # re-read it: this ensure that we store the real value
+            # in the model_data table:
+            record = self.fs2db.get_browserecord(
+                module, Model.__name__, record.id)
+            if not record:
+                record = Model(record.id)
+            for key in values:
+                values[key] = self._clean_value(key, record)
+
+        actions = iter(args)
+        for record, values, old_values, fs_id, mdata_id in zip(
+                *((actions,) * 5)):
+            if module != self.module:
+                temp_values = old_values.copy()
+                temp_values.update(values)
+                values = temp_values
+
+            if values != old_values:
+                self.grouped_model_data.extend(([self.ModelData(mdata_id)], {
+                            'fs_id': fs_id,
+                            'model': model,
+                            'module': module,
+                            'db_id': record.id,
+                            'values': str(values),
+                            'date_update': datetime.datetime.now(),
+                            }))
+
+        # reset_browsercord to keep cache memory low
+        self.fs2db.reset_browsercord(module, Model.__name__, args[::5])
 
 
 def post_import(pool, module, to_delete):

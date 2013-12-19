@@ -731,13 +731,17 @@ class Translation(ModelSQL, ModelView):
         return super(Translation, cls).create(vlist)
 
     @classmethod
-    def write(cls, translations, vals):
+    def write(cls, translations, values, *args):
         cls._translation_cache.clear()
         ModelView._fields_view_get_cache.clear()
-        if 'src' in vals:
-            vals = vals.copy()
-            vals['src_md5'] = cls.get_src_md5(vals.get('src'))
-        return super(Translation, cls).write(translations, vals)
+        actions = iter((translations, values) + args)
+        args = []
+        for translations, values in zip(actions, actions):
+            if 'src' in values:
+                values = values.copy()
+                values['src_md5'] = cls.get_src_md5(values.get('src'))
+            args.extend((translations, values))
+        return super(Translation, cls).write(*args)
 
     @classmethod
     def extra_model_data(cls, model_data):

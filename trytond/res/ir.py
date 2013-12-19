@@ -44,8 +44,8 @@ class UIMenuGroup(ModelSQL):
         return res
 
     @classmethod
-    def write(cls, records, vals):
-        super(UIMenuGroup, cls).write(records, vals)
+    def write(cls, records, values, *args):
+        super(UIMenuGroup, cls).write(records, values, *args)
         # Restart the cache on the domain_get method
         Pool().get('ir.rule')._domain_get_cache.clear()
 
@@ -91,12 +91,16 @@ class ActionGroup(ModelSQL):
         return res
 
     @classmethod
-    def write(cls, records, vals):
+    def write(cls, records, values, *args):
         Action = Pool().get('ir.action')
-        if vals.get('action'):
-            vals = vals.copy()
-            vals['action'] = Action.get_action_id(vals['action'])
-        super(ActionGroup, cls).write(records, vals)
+        actions = iter((records, values) + args)
+        args = []
+        for records, values in zip(actions, actions):
+            if values.get('action'):
+                values = values.copy()
+                values['action'] = Action.get_action_id(values['action'])
+            args.extend((records, values))
+        super(ActionGroup, cls).write(*args)
         # Restart the cache on the domain_get method
         Pool().get('ir.rule')._domain_get_cache.clear()
 
@@ -153,9 +157,9 @@ class ModelButtonGroup(ModelSQL):
         return result
 
     @classmethod
-    def write(cls, records, values):
+    def write(cls, records, values, *args):
         pool = Pool()
-        super(ModelButtonGroup, cls).write(records, values)
+        super(ModelButtonGroup, cls).write(records, values, *args)
         # Restart the cache for get_groups
         pool.get('ir.model.button')._groups_cache.clear()
 
@@ -219,8 +223,8 @@ class Lang:
     __name__ = 'ir.lang'
 
     @classmethod
-    def write(cls, langs, vals):
-        super(Lang, cls).write(langs, vals)
+    def write(cls, langs, values, *args):
+        super(Lang, cls).write(langs, values, *args)
         # Restart the cache for get_preferences
         Pool().get('res.user')._get_preferences_cache.clear()
 
@@ -256,9 +260,9 @@ class SequenceTypeGroup(ModelSQL):
         return res
 
     @classmethod
-    def write(cls, records, vals):
+    def write(cls, records, values, *args):
         Rule = Pool().get('ir.rule')
-        super(SequenceTypeGroup, cls).write(records, vals)
+        super(SequenceTypeGroup, cls).write(records, values, *args)
         # Restart the cache on the domain_get method
         Rule._domain_get_cache.clear()
 
@@ -314,10 +318,10 @@ class ModuleConfigWizardItem:
         return result
 
     @classmethod
-    def write(cls, items, values):
+    def write(cls, items, values, *args):
         pool = Pool()
         User = pool.get('res.user')
-        super(ModuleConfigWizardItem, cls).write(items, values)
+        super(ModuleConfigWizardItem, cls).write(items, values, *args)
         # Restart the cache for get_preferences
         User._get_preferences_cache.clear()
 

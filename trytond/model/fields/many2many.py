@@ -101,7 +101,7 @@ class Many2Many(Field):
 
         values: A list of tuples:
             (``create``, ``[{<field name>: value}, ...]``),
-            (``write``, ``<ids>``, ``{<field name>: value}``),
+            (``write``, [``<ids>``, ``{<field name>: value}``, ...]),
             (``delete``, ``<ids>``),
             (``delete_all``),
             (``unlink``, ``<ids>``),
@@ -142,7 +142,9 @@ class Many2Many(Field):
                 if to_create:
                     Relation.create(to_create)
             elif act[0] == 'write':
-                Target.write(Target.browse(act[1]), act[2])
+                actions = iter(act[1:])
+                Target.write(*sum(((Target.browse(ids), values)
+                            for ids, values in zip(actions, actions)), ()))
             elif act[0] == 'delete':
                 Target.delete(Target.browse(act[1]))
             elif act[0] == 'delete_all':

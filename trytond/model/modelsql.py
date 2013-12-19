@@ -629,94 +629,97 @@ class ModelSQL(ModelStorage):
         return result
 
     @classmethod
-    def write(cls, records, values):
+    def write(cls, records, values, *args):
         DatabaseIntegrityError = backend.get('DatabaseIntegrityError')
         transaction = Transaction()
         cursor = transaction.cursor
         pool = Pool()
         Translation = pool.get('ir.translation')
         Config = pool.get('ir.configuration')
-        ids = map(int, records)
         in_max = cursor.IN_MAX
+
+        assert not len(args) % 2
+        all_records = sum(((records, values) + args)[0:None:2], [])
+        all_ids = [r.id for r in all_records]
 
         # Call before cursor cache cleaning
         trigger_eligibles = cls.trigger_write_get_eligibles(records)
 
-        super(ModelSQL, cls).write(records, values)
-
-        if not records:
-            return
+        super(ModelSQL, cls).write(records, values, *args)
 
         if cls.table_query():
             return
         table = cls.__table__()
 
-        values = values.copy()
+        cls.__check_timestamp(all_ids)
 
-        cls.__check_timestamp(ids)
+        actions = iter((records, values) + args)
+        for records, values in zip(actions, actions):
+            ids = [r.id for r in records]
+            values = values.copy()
 
-        # Clean values
-        for key in ('create_uid', 'create_date',
-                'write_uid', 'write_date', 'id'):
-            if key in values:
-                del values[key]
+            # Clean values
+            for key in ('create_uid', 'create_date',
+                    'write_uid', 'write_date', 'id'):
+                if key in values:
+                    del values[key]
 
-        columns = [table.write_uid, table.write_date]
-        update_values = [transaction.user, Now()]
-        store_translation = Transaction().language == Config.get_language()
-        for fname, value in values.iteritems():
-            field = cls._fields[fname]
-            if not hasattr(field, 'set'):
-                if not getattr(field, 'translate', False) or store_translation:
-                    columns.append(Column(table, fname))
-                    update_values.append(field.sql_format(value))
+            columns = [table.write_uid, table.write_date]
+            update_values = [transaction.user, Now()]
+            store_translation = Transaction().language == Config.get_language()
+            for fname, value in values.iteritems():
+                field = cls._fields[fname]
+                if not hasattr(field, 'set'):
+                    if (not getattr(field, 'translate', False)
+                            or store_translation):
+                        columns.append(Column(table, fname))
+                        update_values.append(field.sql_format(value))
 
-        domain = pool.get('ir.rule').domain_get(cls.__name__, mode='write')
-        for i in range(0, len(ids), in_max):
-            sub_ids = ids[i:i + in_max]
-            red_sql = reduce_ids(table.id, sub_ids)
-            where = red_sql
-            if domain:
-                where &= table.id.in_(domain)
-            cursor.execute(*table.select(table.id, where=where))
-            rowcount = cursor.rowcount
-            if rowcount == -1 or rowcount is None:
-                rowcount = len(cursor.fetchall())
-            if not rowcount == len({}.fromkeys(sub_ids)):
+            domain = pool.get('ir.rule').domain_get(cls.__name__, mode='write')
+            for i in range(0, len(ids), in_max):
+                sub_ids = ids[i:i + in_max]
+                red_sql = reduce_ids(table.id, sub_ids)
+                where = red_sql
                 if domain:
-                    cursor.execute(*table.select(table.id, where=red_sql))
-                    rowcount = cursor.rowcount
-                    if rowcount == -1 or rowcount is None:
-                        rowcount = len(cursor.fetchall())
-                    if rowcount == len({}.fromkeys(sub_ids)):
-                        cls.raise_user_error('access_error', cls.__name__)
-                cls.raise_user_error('write_error', cls.__name__)
-            try:
-                cursor.execute(*table.update(columns, update_values,
-                        where=red_sql))
-            except DatabaseIntegrityError, exception:
-                with contextlib.nested(Transaction().new_cursor(),
-                        Transaction().set_user(0)):
-                    cls.__raise_integrity_error(exception, values,
-                        values.keys())
-                raise
+                    where &= table.id.in_(domain)
+                cursor.execute(*table.select(table.id, where=where))
+                rowcount = cursor.rowcount
+                if rowcount == -1 or rowcount is None:
+                    rowcount = len(cursor.fetchall())
+                if not rowcount == len({}.fromkeys(sub_ids)):
+                    if domain:
+                        cursor.execute(*table.select(table.id, where=red_sql))
+                        rowcount = cursor.rowcount
+                        if rowcount == -1 or rowcount is None:
+                            rowcount = len(cursor.fetchall())
+                        if rowcount == len({}.fromkeys(sub_ids)):
+                            cls.raise_user_error('access_error', cls.__name__)
+                    cls.raise_user_error('write_error', cls.__name__)
+                try:
+                    cursor.execute(*table.update(columns, update_values,
+                            where=red_sql))
+                except DatabaseIntegrityError, exception:
+                    with contextlib.nested(Transaction().new_cursor(),
+                            Transaction().set_user(0)):
+                        cls.__raise_integrity_error(exception, values,
+                            values.keys())
+                    raise
 
-        for fname, value in values.iteritems():
-            field = cls._fields[fname]
-            if (getattr(field, 'translate', False)
-                    and not hasattr(field, 'set')):
-                Translation.set_ids(
-                    '%s,%s' % (cls.__name__, fname), 'model',
-                    transaction.language, ids, [value] * len(ids))
-            if hasattr(field, 'set'):
-                field.set(ids, cls, fname, value)
+            for fname, value in values.iteritems():
+                field = cls._fields[fname]
+                if (getattr(field, 'translate', False)
+                        and not hasattr(field, 'set')):
+                    Translation.set_ids(
+                        '%s,%s' % (cls.__name__, fname), 'model',
+                        transaction.language, ids, [value] * len(ids))
+                if hasattr(field, 'set'):
+                    field.set(ids, cls, fname, value)
 
-        cls.__insert_history(ids)
-        cls._validate(records)
+            field_names = cls._fields.keys()
+            cls._update_mptt(field_names, [ids] * len(field_names), values)
 
-        field_names = cls._fields.keys()
-        cls._update_mptt(field_names, [ids] * len(field_names), values)
-
+        cls.__insert_history(all_ids)
+        cls._validate(all_records)
         cls.trigger_write(trigger_eligibles)
 
     @classmethod
