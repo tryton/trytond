@@ -353,7 +353,7 @@ class Cursor(CursorInterface):
         return self.cursor.fetchone()[0]
 
     def lock(self, table):
-        self.cursor.execute('LOCK "%s"' % table)
+        self.cursor.execute('LOCK "%s" IN EXCLUSIVE MODE' % table)
 
     def has_constraint(self):
         return True
