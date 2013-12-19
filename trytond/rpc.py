@@ -8,7 +8,7 @@ class RPC(object):
     '''Define RPC behavior
 
     readonly: The transaction mode
-    instantiate: The position of the argument to be instanciated
+    instantiate: The position or the slice of the arguments to be instanciated
     result: The function to transform the result
     '''
 
@@ -41,6 +41,12 @@ class RPC(object):
                     return obj(**data)
                 else:
                     return obj.browse(data)
-            data = args[self.instantiate]
-            args[self.instantiate] = instance(data)
+            if isinstance(self.instantiate, slice):
+                for i, data in enumerate(args[self.instantiate]):
+                    start, _, step = self.instantiate.indices(len(args))
+                    i = i * step + start
+                    args[i] = instance(data)
+            else:
+                data = args[self.instantiate]
+                args[self.instantiate] = instance(data)
         return args, kwargs, context, timestamp

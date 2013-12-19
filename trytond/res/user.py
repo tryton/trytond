@@ -211,13 +211,18 @@ class User(ModelSQL, ModelView):
         return res
 
     @classmethod
-    def write(cls, users, vals):
-        vals = cls._convert_vals(vals)
-        super(User, cls).write(users, vals)
+    def write(cls, users, values, *args):
+        actions = iter((users, values) + args)
+        all_users = []
+        args = []
+        for users, values in zip(actions, actions):
+            all_users += users
+            args.extend((users, cls._convert_vals(values)))
+        super(User, cls).write(*args)
         # Clean cursor cache as it could be filled by domain_get
         for cache in Transaction().cursor.cache.itervalues():
             if cls.__name__ in cache:
-                for user in users:
+                for user in all_users:
                     if user.id in cache[cls.__name__]:
                         cache[cls.__name__][user.id].clear()
         # Restart the cache for domain_get method
@@ -532,9 +537,12 @@ class UserAction(ModelSQL):
         return super(UserAction, cls).create(vlist)
 
     @classmethod
-    def write(cls, records, values):
-        values = cls._convert_values(values)
-        super(UserAction, cls).write(records, values)
+    def write(cls, records, values, *args):
+        actions = iter((records, values) + args)
+        args = []
+        for records, values in zip(actions, actions):
+            args.extend((records, cls._convert_values(values)))
+        super(UserAction, cls).write(*args)
 
 
 class UserGroup(ModelSQL):

@@ -56,9 +56,9 @@ class Action(ModelSQL, ModelView):
         return True
 
     @classmethod
-    def write(cls, actions, values):
+    def write(cls, actions, values, *args):
         pool = Pool()
-        super(Action, cls).write(actions, values)
+        super(Action, cls).write(actions, values, *args)
         pool.get('ir.action.keyword')._get_keyword_cache.clear()
 
     @classmethod
@@ -194,9 +194,12 @@ class ActionKeyword(ModelSQL, ModelView):
         return super(ActionKeyword, cls).create(new_vlist)
 
     @classmethod
-    def write(cls, keywords, vals):
-        vals = cls._convert_vals(vals)
-        super(ActionKeyword, cls).write(keywords, vals)
+    def write(cls, keywords, values, *args):
+        actions = iter((keywords, values) + args)
+        args = []
+        for keywords, values in zip(actions, actions):
+            args.extend((keywords, cls._convert_vals(values)))
+        super(ActionKeyword, cls).write(*args)
         ModelView._fields_view_get_cache.clear()
         ModelView._view_toolbar_get_cache.clear()
         cls._get_keyword_cache.clear()
@@ -329,10 +332,10 @@ class ActionMixin(ModelSQL):
         return new_records
 
     @classmethod
-    def write(cls, records, values):
+    def write(cls, records, values, *args):
         pool = Pool()
         ActionKeyword = pool.get('ir.action.keyword')
-        super(ActionMixin, cls).write(records, values)
+        super(ActionMixin, cls).write(records, values, *args)
         ActionKeyword._get_keyword_cache.clear()
 
     @classmethod
@@ -645,13 +648,18 @@ class ActionReport(ActionMixin, ModelSQL, ModelView):
         return new_reports
 
     @classmethod
-    def write(cls, reports, vals):
+    def write(cls, reports, values, *args):
         context = Transaction().context
         if 'module' in context:
-            vals = vals.copy()
-            vals['module'] = context['module']
-
-        super(ActionReport, cls).write(reports, vals)
+            actions = iter((reports, values) + args)
+            args = []
+            for reports, values in zip(actions, actions):
+                values = values.copy()
+                values['module'] = context['module']
+                args.extend((reports, values))
+            reports, values = args[:2]
+            args = args[2:]
+        super(ActionReport, cls).write(reports, values, *args)
 
 
 class ActionActWindow(ActionMixin, ModelSQL, ModelView):
@@ -908,9 +916,9 @@ class ActionActWindowView(ModelSQL, ModelView):
         return windows
 
     @classmethod
-    def write(cls, windows, values):
+    def write(cls, windows, values, *args):
         pool = Pool()
-        super(ActionActWindowView, cls).write(windows, values)
+        super(ActionActWindowView, cls).write(windows, values, *args)
         pool.get('ir.action.keyword')._get_keyword_cache.clear()
 
     @classmethod

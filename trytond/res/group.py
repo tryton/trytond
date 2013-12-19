@@ -89,8 +89,8 @@ class Group(ModelSQL, ModelView):
         return res
 
     @classmethod
-    def write(cls, groups, vals):
-        super(Group, cls).write(groups, vals)
+    def write(cls, groups, values, *args):
+        super(Group, cls).write(groups, values, *args)
         pool = Pool()
         # Restart the cache on the domain_get method
         pool.get('ir.rule')._domain_get_cache.clear()

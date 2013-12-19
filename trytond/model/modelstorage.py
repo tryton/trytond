@@ -53,7 +53,8 @@ class ModelStorage(Model):
                     'create': RPC(readonly=False,
                         result=lambda r: map(int, r)),
                     'read': RPC(),
-                    'write': RPC(readonly=False, instantiate=0),
+                    'write': RPC(readonly=False,
+                        instantiate=slice(0, None, 2)),
                     'delete': RPC(readonly=False, instantiate=0),
                     'copy': RPC(readonly=False, instantiate=0,
                         result=lambda r: map(int, r)),
@@ -126,7 +127,7 @@ class ModelStorage(Model):
         return []
 
     @classmethod
-    def write(cls, records, values):
+    def write(cls, records, values, *args):
         '''
         Write values on records.
         '''
@@ -137,15 +138,21 @@ class ModelStorage(Model):
         ModelAccess.check(cls.__name__, 'write')
         ModelFieldAccess.check(cls.__name__,
             [x for x in values if x in cls._fields], 'write')
-        if not cls.check_xml_record(records, values):
-            cls.raise_user_error('write_xml_record',
-                    error_description='xml_record_desc')
+
+        assert not len(args) % 2
+        actions = iter((records, values) + args)
+        all_records = []
+        for records, values in zip(actions, actions):
+            if not cls.check_xml_record(records, values):
+                cls.raise_user_error('write_xml_record',
+                        error_description='xml_record_desc')
+            all_records += records
 
         # Increase transaction counter
         Transaction().counter += 1
 
         # Clean local cache
-        for record in records:
+        for record in all_records:
             local_cache = record._local_cache.get(record.id)
             if local_cache:
                 local_cache.clear()
@@ -153,7 +160,7 @@ class ModelStorage(Model):
         # Clean cursor cache
         for cache in Transaction().cursor.cache.itervalues():
             if cls.__name__ in cache:
-                for record in records:
+                for record in all_records:
                     if record.id in cache[cls.__name__]:
                         cache[cls.__name__][record.id].clear()
 

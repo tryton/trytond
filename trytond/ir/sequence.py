@@ -184,12 +184,13 @@ class Sequence(ModelSQL, ModelView):
         return sequences
 
     @classmethod
-    def write(cls, sequences, values):
-        result = super(Sequence, cls).write(sequences, values)
+    def write(cls, sequences, values, *args):
+        super(Sequence, cls).write(sequences, values, *args)
         if sql_sequence and not cls._strict:
-            for sequence in sequences:
-                sequence.update_sql_sequence(values.get('number_next'))
-        return result
+            actions = iter((sequences, values) + args)
+            for sequences, values in zip(actions, actions):
+                for sequence in sequences:
+                    sequence.update_sql_sequence(values.get('number_next'))
 
     @classmethod
     def delete(cls, sequences):

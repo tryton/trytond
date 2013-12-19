@@ -238,7 +238,7 @@ CLass methods:
     Return a list of values for the ids. If ``fields_names`` is set, there will
     be only values for these fields otherwise it will be for all fields.
 
-.. classmethod:: ModelStorage.write(records, values)
+.. classmethod:: ModelStorage.write(records, values, [[records, values], ...])
 
     Write ``values`` on the list of records.  ``values`` is a dictionary with
     fields names as key and writen values as value.

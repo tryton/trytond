@@ -213,12 +213,12 @@ class Lang(ModelSQL, ModelView):
         return languages
 
     @classmethod
-    def write(cls, langs, vals):
+    def write(cls, langs, values, *args):
         pool = Pool()
         Translation = pool.get('ir.translation')
         # Clear cache
         cls._lang_cache.clear()
-        super(Lang, cls).write(langs, vals)
+        super(Lang, cls).write(langs, values, *args)
         Translation._get_language_cache.clear()
 
     @classmethod

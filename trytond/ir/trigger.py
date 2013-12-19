@@ -270,11 +270,10 @@ class Trigger(ModelSQL, ModelView):
         return res
 
     @classmethod
-    def write(cls, ids, values):
-        res = super(Trigger, cls).write(ids, values)
+    def write(cls, triggers, values, *args):
+        super(Trigger, cls).write(triggers, values, *args)
         # Restart the cache on the get_triggers method of ir.trigger
         cls._get_triggers_cache.clear()
-        return res
 
     @classmethod
     def delete(cls, records):

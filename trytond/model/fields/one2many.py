@@ -107,7 +107,7 @@ class One2Many(Field):
         Set the values.
         values: A list of tuples:
             (``create``, ``[{<field name>: value}, ...]``),
-            (``write``, ``<ids>``, ``{<field name>: value}``),
+            (``write``, [``<ids>``, ``{<field name>: value}``, ...]),
             (``delete``, ``<ids>``),
             (``delete_all``),
             (``unlink``, ``<ids>``),
@@ -146,7 +146,9 @@ class One2Many(Field):
                 if to_create:
                     Target.create(to_create)
             elif act[0] == 'write':
-                Target.write(Target.browse(act[1]), act[2])
+                actions = iter(act[1:])
+                Target.write(*sum(((Target.browse(ids), values)
+                            for ids, values in zip(actions, actions)), ()))
             elif act[0] == 'delete':
                 Target.delete(Target.browse(act[1]))
             elif act[0] == 'delete_all':
@@ -169,10 +171,14 @@ class One2Many(Field):
                 target_ids = map(int, act[1])
                 if not target_ids:
                     continue
+                targets = Target.browse(target_ids)
+                actions = []
                 for record_id in ids:
-                    Target.write(Target.browse(target_ids), {
+                    actions.append(targets)
+                    actions.append({
                             self.field: field_value(record_id),
                             })
+                Target.write(*actions)
             elif act[0] == 'unlink_all':
                 targets = Target.search([
                         search_clause(ids),
@@ -185,18 +191,22 @@ class One2Many(Field):
                     target_ids = [-1]
                 else:
                     target_ids = map(int, act[1])
+                actions = []
                 for record_id in ids:
                     targets = Target.search([
                             search_clause([record_id]),
                             ('id', 'not in', target_ids),
                             ])
-                    Target.write(targets, {
+                    actions.append(targets)
+                    actions.append({
                             self.field: None,
                             })
                     if act[1]:
-                        Target.write(Target.browse(target_ids), {
+                        actions.append(Target.browse(target_ids))
+                        actions.append({
                                 self.field: field_value(record_id),
                                 })
+                Target.write(*actions)
             elif act[0] == 'copy':
                 copy_ids = map(int, act[1])
 

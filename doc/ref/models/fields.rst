@@ -495,8 +495,8 @@ This field accepts as written value a list of tuples like this:
     - ``('create', [{<field name>: value, ...}, ...])``: it will create new
       target records and link them to this one.
 
-    - ``('write'[, ids, ...], {<field name>: value, ...})``: it will write
-      values to target ids.
+    - ``('write'[[, ids, ...], {<field name>: value, ...}, ...])``: it will
+      write values to target ids.
 
     - ``('delete'[, ids, ...])``: it will delete the target ids.
 

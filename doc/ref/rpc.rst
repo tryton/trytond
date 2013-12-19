@@ -17,7 +17,7 @@ Instance attributes are:
 
 .. attribute:: RPC.instantiate
 
-    The position of the argument to be instanciated
+    The position or the slice of the argument to be instanciated
 
 .. attribute:: RPC.result
 

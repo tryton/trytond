@@ -49,11 +49,15 @@ class ModelSingleton(ModelStorage):
         return res
 
     @classmethod
-    def write(cls, records, values):
+    def write(cls, records, values, *args):
         singleton = cls.get_singleton()
         if not singleton:
-            return cls.create([values])
-        return super(ModelSingleton, cls).write([singleton], values)
+            singleton, = cls.create([values])
+        actions = (records, values) + args
+        args = []
+        for values in actions[1:None:2]:
+            args.extend(([singleton], values))
+        return super(ModelSingleton, cls).write(*args)
 
     @classmethod
     def delete(cls, records):
