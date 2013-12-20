@@ -79,13 +79,16 @@ class Transaction(local):
         assert self.close is None
         assert self.context is None
         if not database_name:
-            self.database = Database().connect()
+            database = Database().connect()
         else:
-            self.database = Database(database_name).connect()
+            database = Database(database_name).connect()
         Flavor.set(Database.flavor)
-        self.cursor = self.database.cursor(readonly=readonly,
+        cursor = database.cursor(readonly=readonly,
             autocommit=autocommit)
         self.user = user
+        self.database = database
+        self.cursor = cursor
+        self.close = close
         self.context = context or {}
         self.create_records = {}
         self.delete_records = {}
