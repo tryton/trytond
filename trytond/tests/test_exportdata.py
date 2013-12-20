@@ -308,7 +308,7 @@ class ExportDataTestCase(unittest.TestCase):
                         'name': 'Target 1',
                         }])
             export1, = self.export_data.create([{
-                        'many2many': [('set', [target1])],
+                        'many2many': [('add', [target1])],
                         }])
             self.assertEqual(
                 self.export_data.export_data([export1], ['many2many/name']),
@@ -318,7 +318,7 @@ class ExportDataTestCase(unittest.TestCase):
                         'name': 'Target 2',
                         }])
             self.export_data.write([export1], {
-                    'many2many': [('set', [target1.id, target2.id])],
+                    'many2many': [('add', [target1.id, target2.id])],
                     })
             self.assertEqual(
                 self.export_data.export_data([export1], ['id',

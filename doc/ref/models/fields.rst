@@ -500,16 +500,10 @@ This field accepts as written value a list of tuples like this:
 
     - ``('delete'[, ids, ...])``: it will delete the target ids.
 
-    - ``('delete_all')``: it will delete all the target records.
-
     - ``('add'[, ids, ...])``: it will link the target ids to this record.
 
-    - ``('unlink'[, ids, ...])``: it will unlink the target ids from this
+    - ``('remove'[, ids, ...])``: it will unlink the target ids from this
       record.
-
-    - ``('unlink_all')``: it will unlink all the target records.
-
-    - ``('set'[, ids, ...])``: it will link only the target ids to this record.
 
     - ``('copy', ids[, {<field name>: value, ...}])``: it will copy the target
       ids to this record. Optional field names and values may be added to
@@ -553,7 +547,11 @@ Many2Many
 
 .. class:: Many2Many(relation_name, origin, target, string[, order[, datetime_field[, size[, \**options]]]])
 
-A many-to-many relation field.
+A many-to-many relation field. It requires to have the opposite origin
+:class:`Many2One` field or a:class:`Reference` field defined on the relation
+model and a :class:`Many2One` field pointing to the target.
+
+This field accepts as written value a list of tuples like the :class:`One2Many`.
 
 :class:`Many2Many` has some extra required arguments:
 
