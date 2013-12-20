@@ -280,7 +280,7 @@ class ModelStorage(Model):
                         data[field_name] = [('copy', data[field_name])]
                 elif ftype == 'many2many':
                     if data[field_name]:
-                        data[field_name] = [('set', data[field_name])]
+                        data[field_name] = [('add', data[field_name])]
             if 'id' in data:
                 del data['id']
             return data
@@ -572,11 +572,11 @@ class ModelStorage(Model):
                     else:
                         res.extend(res2)
                 if len(res):
-                    res = [('set', [x.id for x in res])]
+                    res = [('add', [x.id for x in res])]
                 return res
 
             def get_one2one(relation, value):
-                return ('set', get_many2one(relation, value))
+                return ('add', get_many2one(relation, value))
 
             def get_reference(value):
                 if not value:
@@ -627,7 +627,7 @@ class ModelStorage(Model):
                     db_id = ModelData.get_id(module, xml_id)
                     res_ids.append(db_id)
                 if ftype == 'many2many' and res_ids:
-                    return [('set', res_ids)]
+                    return [('add', res_ids)]
                 elif ftype == 'reference' and res_ids:
                     return '%s,%s' % (relation, str(res_ids[0]))
                 return res_ids and res_ids[0] or False
@@ -1140,7 +1140,7 @@ class ModelStorage(Model):
                     vals2 = obj._clean_defaults(defaults2)
                     vals[field].append(('create', [vals2]))
             elif fld_def._type in ('many2many',):
-                vals[field] = [('set', defaults[field])]
+                vals[field] = [('add', defaults[field])]
             elif fld_def._type in ('boolean',):
                 vals[field] = bool(defaults[field])
             else:
@@ -1346,17 +1346,38 @@ class ModelStorage(Model):
                         value = value.id
             if field._type in ('one2many', 'many2many'):
                 targets = value
-                value = [
-                    ('set', []),
-                    ]
+                if self.id >= 0:
+                    _values, self._values = self._values, None
+                    try:
+                        to_remove = [t.id for t in getattr(self, fname)]
+                    finally:
+                        self._values = _values
+                else:
+                    to_remove = []
+                to_add = []
+                to_create = []
+                to_write = []
                 for target in targets:
                     if target.id < 0:
-                        value.append(('create', [target._save_values]))
+                        to_create.append(target._save_values)
                     else:
-                        value[0][1].append(target.id)
-                        if target._save_values:
-                            value.append(
-                                ('write', [target.id], target._save_values))
+                        if target.id in to_remove:
+                            to_remove.remove(target.id)
+                        else:
+                            to_add.append(target.id)
+                            target_values = target._save_values
+                            if target_values:
+                                to_write.append(
+                                    ('write', [target.id], target_values))
+                value = []
+                if to_remove:
+                    value.append(('remove', to_remove))
+                if to_add:
+                    value.append(('add', to_add))
+                if to_create:
+                    value.append(('create', to_create))
+                if to_write:
+                    value.extend(to_write)
             values[fname] = value
         return values
 

@@ -2498,7 +2498,7 @@ class FieldsTestCase(unittest.TestCase):
 
                 one2many.write([one2many1], {
                         'targets': [
-                            ('unlink', [target2.id]),
+                            ('remove', [target2.id]),
                             ],
                         })
                 self.assertEqual(one2many1.targets, (target1,))
@@ -2509,7 +2509,7 @@ class FieldsTestCase(unittest.TestCase):
 
                 one2many.write([one2many1], {
                         'targets': [
-                            ('unlink_all',),
+                            ('remove', [target1.id]),
                             ],
                         })
                 self.assertEqual(one2many1.targets, ())
@@ -2520,7 +2520,7 @@ class FieldsTestCase(unittest.TestCase):
 
                 one2many.write([one2many1], {
                         'targets': [
-                            ('set', [target1.id, target2.id]),
+                            ('add', [target1.id, target2.id]),
                             ],
                         })
                 self.assertEqual(one2many1.targets,
@@ -2559,17 +2559,6 @@ class FieldsTestCase(unittest.TestCase):
                 self.assertEqual(one2many1.targets, (target1,))
                 targets = one2many_target.search([
                         ('id', '=', target2.id),
-                        ])
-                self.assertEqual(targets, [])
-
-                one2many.write([one2many1], {
-                        'targets': [
-                            ('delete_all',),
-                            ],
-                        })
-                self.assertEqual(one2many1.targets, ())
-                targets = one2many_target.search([
-                        ('id', '=', target1.id),
                         ])
                 self.assertEqual(targets, [])
 
@@ -2705,7 +2694,7 @@ class FieldsTestCase(unittest.TestCase):
 
                 many2many.write([many2many1], {
                         'targets': [
-                            ('unlink', [target2.id]),
+                            ('remove', [target2.id]),
                             ],
                         })
                 self.assertEqual(many2many1.targets, (target1,))
@@ -2716,7 +2705,7 @@ class FieldsTestCase(unittest.TestCase):
 
                 many2many.write([many2many1], {
                         'targets': [
-                            ('unlink_all',),
+                            ('remove', [target1.id]),
                             ],
                         })
                 self.assertEqual(many2many1.targets, ())
@@ -2727,7 +2716,7 @@ class FieldsTestCase(unittest.TestCase):
 
                 many2many.write([many2many1], {
                         'targets': [
-                            ('set', [target1.id, target2.id]),
+                            ('add', [target1.id, target2.id]),
                             ],
                         })
                 self.assertEqual(many2many1.targets,
@@ -2769,17 +2758,6 @@ class FieldsTestCase(unittest.TestCase):
                         ])
                 self.assertEqual(targets, [])
 
-                many2many.write([many2many1], {
-                        'targets': [
-                            ('delete_all',),
-                            ],
-                        })
-                self.assertEqual(many2many1.targets, ())
-                targets = many2many_target.search([
-                        ('id', '=', target1.id),
-                        ])
-                self.assertEqual(targets, [])
-
                 transaction.cursor.rollback()
 
             self.assertRaises(Exception, self.many2many_required.create, [{
@@ -2800,13 +2778,6 @@ class FieldsTestCase(unittest.TestCase):
             size_targets = self.many2many_size_target.create([{
                         'name': str(i),
                         } for i in range(6)])
-
-            self.many2many_size.create([{
-                        'targets': [('set', size_targets[:5])],
-                        }])
-            self.assertRaises(Exception, self.many2many_size.create, [{
-                        'targets': [('set', size_targets)],
-                        }])
 
             transaction.cursor.rollback()
 

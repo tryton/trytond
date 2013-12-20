@@ -797,39 +797,34 @@ class Attachment(ModelSQL, ModelView):
         return result
 
     @classmethod
-    def set_shares(cls, attachments, name, value):
+    def set_shares(cls, attachments, name, values):
         Share = Pool().get('webdav.share')
 
-        if not value:
+        if not values:
             return
 
-        for action in value:
-            if action[0] == 'create':
-                to_create = []
-                for attachment in attachments:
-                    for values in action[1]:
-                        values = values.copy()
-                        values['path'] = attachment.path
-                        to_create.append(values)
-                if to_create:
-                    Share.create(to_create)
-            elif action[0] == 'write':
-                Share.write(action[1], action[2])
-            elif action[0] == 'delete':
-                Share.delete(Share.browse(action[1]))
-            elif action[0] == 'delete_all':
-                paths = [a.path for a in attachments]
-                shares = Share.search([
-                        ('path', 'in', paths),
-                        ])
-                Share.delete(shares)
-            elif action[0] == 'unlink':
-                pass
-            elif action[0] == 'add':
-                pass
-            elif action[0] == 'unlink_all':
-                pass
-            elif action[0] == 'set':
-                pass
-            else:
-                raise Exception('Bad arguments')
+        def create(vlist):
+            to_create = []
+            for attachment in attachments:
+                for values in vlist:
+                    values = values.copy()
+                    values['path'] = attachment.path
+                    to_create.append(values)
+            if to_create:
+                Share.create(to_create)
+
+        def write(ids, values):
+            Share.write(Share.browse(ids), values)
+
+        def delete(share_ids):
+            Share.delete(Share.browse(share_ids))
+
+        actions = {
+            'create': create,
+            'write': write,
+            'delete': delete,
+            }
+        for value in values:
+            action = value[0]
+            args = value[1:]
+            actions[action](*args)

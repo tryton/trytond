@@ -103,11 +103,8 @@ class Many2Many(Field):
             (``create``, ``[{<field name>: value}, ...]``),
             (``write``, [``<ids>``, ``{<field name>: value}``, ...]),
             (``delete``, ``<ids>``),
-            (``delete_all``),
-            (``unlink``, ``<ids>``),
+            (``remove``, ``<ids>``),
             (``add``, ``<ids>``),
-            (``unlink_all``),
-            (``set``, ``<ids>``)
             (``copy``, ``<ids>``, ``[{<field name>: value}, ...]``)
         '''
         pool = Pool()
@@ -130,110 +127,94 @@ class Many2Many(Field):
             else:
                 return record_id
 
-        for act in values:
-            if act[0] == 'create':
-                to_create = []
-                for record_id in ids:
-                    for new in Target.create(act[1]):
-                        to_create.append({
-                                self.origin: field_value(record_id),
-                                self.target: new.id,
-                                })
-                if to_create:
-                    Relation.create(to_create)
-            elif act[0] == 'write':
-                actions = iter(act[1:])
-                Target.write(*sum(((Target.browse(ids), values)
-                            for ids, values in zip(actions, actions)), ()))
-            elif act[0] == 'delete':
-                Target.delete(Target.browse(act[1]))
-            elif act[0] == 'delete_all':
+        def create(vlist):
+            to_create = []
+            for record_id in ids:
+                for new in Target.create(vlist):
+                    to_create.append({
+                            self.origin: field_value(record_id),
+                            self.target: new.id,
+                            })
+            if to_create:
+                Relation.create(to_create)
+
+        def write(*args):
+            actions = iter(args)
+            Target.write(*sum(((Target.browse(ids), values)
+                        for ids, values in zip(actions, actions)), ()))
+
+        def delete(target_ids):
+            Target.delete(Target.browse(target_ids))
+
+        def add(target_ids):
+            target_ids = map(int, target_ids)
+            if not target_ids:
+                return
+            existing_ids = set()
+            in_max = Transaction().cursor.IN_MAX
+            for i in range(0, len(target_ids), in_max):
+                sub_ids = target_ids[i:i + in_max]
                 relations = Relation.search([
                         search_clause(ids),
+                        (self.target, 'in', sub_ids),
                         ])
-                Target.delete([getattr(r, self.target) for r in relations
-                        if getattr(r, self.target)])
-            elif act[0] == 'unlink':
-                if isinstance(act[1], (int, long)):
-                    target_ids = [act[1]]
-                else:
-                    target_ids = list(act[1])
-                if not target_ids:
+                for relation in relations:
+                    existing_ids.add(getattr(relation, self.target).id)
+            to_create = []
+            for new_id in target_ids:
+                if new_id in existing_ids:
                     continue
-                relations = []
-                for i in range(0, len(target_ids),
-                        Transaction().cursor.IN_MAX):
-                    sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
-                    relations += Relation.search([
-                            search_clause(ids),
-                            (self.target, 'in', sub_ids),
-                            ])
-                Relation.delete(relations)
-            elif act[0] == 'add':
-                target_ids = list(act[1])
-                if not target_ids:
-                    continue
-                existing_ids = []
-                for i in range(0, len(target_ids),
-                        Transaction().cursor.IN_MAX):
-                    sub_ids = target_ids[i:i + Transaction().cursor.IN_MAX]
-                    relations = Relation.search([
-                            search_clause(ids),
-                            (self.target, 'in', sub_ids),
-                            ])
-                    for relation in relations:
-                        existing_ids.append(getattr(relation, self.target).id)
-                to_create = []
-                for new_id in (x for x in target_ids if x not in existing_ids):
-                    for record_id in ids:
-                        to_create.append({
-                                self.origin: field_value(record_id),
-                                self.target: new_id,
-                                })
-                if to_create:
-                    Relation.create(to_create)
-            elif act[0] == 'unlink_all':
-                targets = Relation.search([
-                        search_clause(ids),
-                        (self.target + '.id', '!=', None),
-                        ])
-                Relation.delete(targets)
-            elif act[0] == 'set':
-                if not act[1]:
-                    target_ids = []
-                else:
-                    target_ids = list(act[1])
-                targets2 = Relation.search([
-                        search_clause(ids),
-                        (self.target + '.id', '!=', None),
-                        ])
-                Relation.delete(targets2)
+                for record_id in ids:
+                    to_create.append({
+                            self.origin: field_value(record_id),
+                            self.target: new_id,
+                            })
+            if to_create:
+                Relation.create(to_create)
 
-                to_create = []
-                for new_id in target_ids:
-                    for record_id in ids:
-                        to_create.append({
-                                self.origin: field_value(record_id),
-                                self.target: new_id,
-                                })
-                if to_create:
-                    Relation.create(to_create)
-            elif act[0] == 'copy':
-                target_ids = list(act[1])
-                to_create = []
-                default = None
-                if len(act) > 2:
-                    default = act[2]
-                for new in Target.copy(target_ids, default=default):
-                    for record_id in ids:
-                        to_create.append({
-                                self.origin: field_value(record_id),
-                                self.target: new.id,
-                                })
-                if to_create:
-                    Relation.create(to_create)
-            else:
-                raise Exception('Bad arguments')
+        def remove(target_ids):
+            target_ids = map(int, target_ids)
+            if not target_ids:
+                return
+            relations = []
+            in_max = Transaction().cursor.IN_MAX
+            for i in range(0, len(target_ids), in_max):
+                sub_ids = target_ids[i:i + in_max]
+                relations += Relation.search([
+                        search_clause(ids),
+                        (self.target, 'in', sub_ids),
+                        ])
+            Relation.delete(relations)
+
+        def copy(copy_ids, default=None):
+            copy_ids = map(int, copy_ids)
+
+            if default is None:
+                default = {}
+            default = default.copy()
+            to_create = []
+            copies = Target.browse(copy_ids)
+            for new in Target.copy(copies, default=default):
+                for record_id in ids:
+                    to_create.append({
+                            self.origin: field_value(record_id),
+                            self.target: new.id,
+                            })
+            if to_create:
+                Relation.create(to_create)
+
+        actions = {
+            'create': create,
+            'write': write,
+            'delete': delete,
+            'add': add,
+            'remove': remove,
+            'copy': copy,
+            }
+        for value in values:
+            action = value[0]
+            args = value[1:]
+            actions[action](*args)
 
     def get_target(self):
         'Return the target model'

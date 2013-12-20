@@ -109,11 +109,8 @@ class One2Many(Field):
             (``create``, ``[{<field name>: value}, ...]``),
             (``write``, [``<ids>``, ``{<field name>: value}``, ...]),
             (``delete``, ``<ids>``),
-            (``delete_all``),
-            (``unlink``, ``<ids>``),
             (``add``, ``<ids>``),
-            (``unlink_all``),
-            (``set``, ``<ids>``)
+            (``remove``, ``<ids>``),
             (``copy``, ``<ids>``, ``[{<field name>: value}, ...]``)
         '''
         if not values:
@@ -134,91 +131,70 @@ class One2Many(Field):
             else:
                 return record_id
 
-        for act in values:
-            if act[0] == 'create':
-                to_create = []
-                for record_id in ids:
-                    value = field_value(record_id)
-                    for vals in act[1]:
-                        vals = vals.copy()
-                        vals[self.field] = value
-                        to_create.append(vals)
-                if to_create:
-                    Target.create(to_create)
-            elif act[0] == 'write':
-                actions = iter(act[1:])
-                Target.write(*sum(((Target.browse(ids), values)
-                            for ids, values in zip(actions, actions)), ()))
-            elif act[0] == 'delete':
-                Target.delete(Target.browse(act[1]))
-            elif act[0] == 'delete_all':
-                targets = Target.search([
-                        search_clause(ids),
-                        ])
-                Target.delete(targets)
-            elif act[0] == 'unlink':
-                target_ids = map(int, act[1])
-                if not target_ids:
-                    continue
-                targets = Target.search([
-                        search_clause(ids),
-                        ('id', 'in', target_ids),
-                        ])
-                Target.write(targets, {
-                        self.field: None,
-                        })
-            elif act[0] == 'add':
-                target_ids = map(int, act[1])
-                if not target_ids:
-                    continue
-                targets = Target.browse(target_ids)
-                actions = []
-                for record_id in ids:
-                    actions.append(targets)
-                    actions.append({
-                            self.field: field_value(record_id),
-                            })
-                Target.write(*actions)
-            elif act[0] == 'unlink_all':
-                targets = Target.search([
-                        search_clause(ids),
-                        ])
-                Target.write(targets, {
-                        self.field: None,
-                        })
-            elif act[0] == 'set':
-                if not act[1]:
-                    target_ids = [-1]
-                else:
-                    target_ids = map(int, act[1])
-                actions = []
-                for record_id in ids:
-                    targets = Target.search([
-                            search_clause([record_id]),
-                            ('id', 'not in', target_ids),
-                            ])
-                    actions.append(targets)
-                    actions.append({
-                            self.field: None,
-                            })
-                    if act[1]:
-                        actions.append(Target.browse(target_ids))
-                        actions.append({
-                                self.field: field_value(record_id),
-                                })
-                Target.write(*actions)
-            elif act[0] == 'copy':
-                copy_ids = map(int, act[1])
+        def create(vlist):
+            to_create = []
+            for record_id in ids:
+                value = field_value(record_id)
+                for values in vlist:
+                    values = values.copy()
+                    values[self.field] = value
+                    to_create.append(values)
+            if to_create:
+                Target.create(to_create)
 
-                if len(act) > 2:
-                    default = act[2].copy()
-                else:
-                    default = {}
-                for record_id in ids:
-                    default[self.field] = field_value(record_id)
-                    Target.copy(copy_ids, default=default)
-            else:
-                raise Exception('Bad arguments')
+        def write(*args):
+            actions = iter(args)
+            Target.write(*sum(((Target.browse(ids), values)
+                        for ids, values in zip(actions, actions)), ()))
+
+        def delete(target_ids):
+            Target.delete(Target.browse(target_ids))
+
+        def add(target_ids):
+            target_ids = map(int, target_ids)
+            if not target_ids:
+                return
+            targets = Target.browse(target_ids)
+            for record_id in ids:
+                Target.write(targets, {
+                        self.field: field_value(record_id),
+                        })
+
+        def remove(target_ids):
+            target_ids = map(int, target_ids)
+            if not target_ids:
+                return
+            targets = Target.search([
+                    search_clause(ids),
+                    ('id', 'in', target_ids),
+                    ])
+            Target.write(targets, {
+                    self.field: None,
+                    })
+
+        def copy(copy_ids, default=None):
+            copy_ids = map(int, copy_ids)
+
+            if default is None:
+                default = {}
+            default = default.copy()
+            copies = Target.browse(copy_ids)
+            for record_id in ids:
+                default[self.field] = field_value(record_id)
+                Target.copy(copies, default=default)
+
+        actions = {
+            'create': create,
+            'write': write,
+            'delete': delete,
+            'add': add,
+            'remove': remove,
+            'copy': copy,
+            }
+        for value in values:
+            action = value[0]
+            args = value[1:]
+            actions[action](*args)
 
     def get_target(self):
         'Return the target Model'
