@@ -218,8 +218,10 @@ class ModelSQL(ModelStorage):
                 if not ((target_records
                             or (values[field_name] in create_records))
                         and (values[field_name] not in delete_records)):
+                    error_args = cls._get_error_args(field_name)
+                    error_args['value'] = values[field_name]
                     cls.raise_user_error('foreign_model_missing',
-                        error_args=cls._get_error_args(field_name))
+                        error_args=error_args)
         for name, _, error in cls._sql_constraints:
             if name in exception[0]:
                 cls.raise_user_error(error)
@@ -839,12 +841,10 @@ class ModelSQL(ModelStorage):
                     if Model.search([
                                 (field_name, 'in', sub_ids),
                                 ], order=[]):
-                        error_args = []
-                        error_args.append(cls._get_error_args('id')[1])
-                        error_args.extend(list(
-                                Model._get_error_args(field_name)))
+                        error_args = Model._get_error_args(field_name)
+                        error_args['value'] = cls._get_error_args('id')[1]
                         cls.raise_user_error('foreign_model_exist',
-                            error_args=tuple(error_args))
+                            error_args=error_args)
 
             super(ModelSQL, cls).delete(sub_records)
 
