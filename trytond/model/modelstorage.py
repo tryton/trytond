@@ -849,7 +849,10 @@ class ModelStorage(Model):
     def _get_error_args(cls, field_name):
         pool = Pool()
         ModelField = pool.get('ir.model.field')
-        error_args = (field_name, cls.__name__)
+        error_args = {
+            'field': field_name,
+            'model': cls.__name__
+            }
         if ModelField:
             model_fields = ModelField.search([
                         ('name', '=', field_name),
@@ -857,8 +860,10 @@ class ModelStorage(Model):
                         ], limit=1)
             if model_fields:
                 model_field, = model_fields
-                error_args = (model_field.field_description,
-                        model_field.model.name)
+                error_args.update({
+                        'field': model_field.field_description,
+                        'model': model_field.model.name,
+                        })
         return error_args
 
     @classmethod
@@ -1023,16 +1028,19 @@ class ModelStorage(Model):
                             field_size = PYSONDecoder(env).decode(pyson_size)
                         else:
                             field_size = field.size
-                        if (len(getattr(record, field_name) or '')
-                                > field_size >= 0):
-                            cls.raise_user_error(
-                                'size_validation_record',
-                                error_args=cls._get_error_args(field_name))
+                        size = len(getattr(record, field_name) or '')
+                        if (size > field_size >= 0):
+                            error_args = cls._get_error_args(field_name)
+                            error_args['size'] = size
+                            cls.raise_user_error('size_validation_record',
+                                error_args=error_args)
 
                 def digits_test(value, digits, field_name):
                     def raise_user_error():
+                        error_args = cls._get_error_args(field_name)
+                        error_args['digits'] = digits[1]
                         cls.raise_user_error('digits_validation_record',
-                            error_args=cls._get_error_args(field_name))
+                            error_args=error_args)
                     if value is None:
                         return
                     if isinstance(value, Decimal):
@@ -1084,8 +1092,10 @@ class ModelStorage(Model):
                             test.add('')
                             test.add(None)
                         if value not in test:
+                            error_args = cls._get_error_args(field_name)
+                            error_args['value'] = value
                             cls.raise_user_error('selection_validation_record',
-                                error_args=cls._get_error_args(field_name))
+                                error_args=error_args)
 
                 def format_test(value, format, field_name):
                     if not value:
@@ -1094,8 +1104,10 @@ class ModelStorage(Model):
                         value = value.time()
                     if value != datetime.datetime.strptime(
                             value.strftime(format), format).time():
+                        error_args = cls._get_error_args(field_name)
+                        error_args['value'] = value
                         cls.raise_user_error('time_format_validation_record',
-                            error_args=cls._get_error_args(field_name))
+                            error_args=error_args)
 
                 # validate time format
                 if (field._type in ('datetime', 'time')

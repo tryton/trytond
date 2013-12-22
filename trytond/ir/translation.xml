@@ -109,8 +109,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">domain_validation_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The value of the field "%s" on "%s" is not valid according to its domain.</field>
-            <field name="value">The value of the field "%s" on "%s" is not valid according to its domain.</field>
+            <field name="src">The value of the field "%(field)s" on "%(model)s" is not valid according to its domain.</field>
+            <field name="value">The value of the field "%(field)s" on "%(model)s" is not valid according to its domain.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -118,8 +118,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">required_validation_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The field "%s" on "%s" is required.</field>
-            <field name="value">The field "%s" on "%s" is required.</field>
+            <field name="src">The field "%(field)s" on "%(model)s" is required.</field>
+            <field name="value">The field "%(field)s" on "%(model)s" is required.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -127,8 +127,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">size_validation_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The field "%s" on "%s" is too long.</field>
-            <field name="value">The field "%s" on "%s" is too long.</field>
+            <field name="src">The size "%(size)s" of the field "%(field)s" on "%(model)s" is too long.</field>
+            <field name="value">The size "%(size)s" of the field "%(field)s" on "(model)%s" is too long.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -136,8 +136,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">digits_validation_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The field "%s" on "%s" has too many decimal digits.</field>
-            <field name="value">The field "%s" on "%s" has too many decimal digits.</field>
+            <field name="src">The number of digits "%(digits)s" of field "%(field)s" on "%(value)s" exceeds it's limit.</field>
+            <field name="value">The number of digits "%(digits)s" of field "%(field)s" on "%(value)s" exceeds it's limit.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -146,8 +146,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">selection_validation_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The field "%s" on "%s" is not in the selection.</field>
-            <field name="value">The field "%s" on "%s" is not in the selection.</field>
+            <field name="src">The value "%(value)s" of field "%(field)s" on "%(model)s" is not in the selection.</field>
+            <field name="value">The value "%(value)s" of field "%(field)s" on "%(model)s" is not in the selection.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -155,8 +155,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">time_format_validation_record</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The time value of field "%s" on "%s" is not valid.</field>
-            <field name="value">The time value of field "%s" on "%s" is not valid.</field>
+            <field name="src">The time value "%(value)s" of field "%(field)s" on "%(model)s" is not valid.</field>
+            <field name="value">The time value "%(value)s" of field "%(field)s" on "%(model)s" is not valid.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -197,8 +197,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">required_field</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The field "%s" on "%s" is required.</field>
-            <field name="value">The field "%s" on "%s" is required.</field>
+            <field name="src">The field "%(field)s" on "%(model)s" is required.</field>
+            <field name="value">The field "%(field)s" on "%(model)s" is required.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -206,8 +206,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">foreign_model_missing</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">The value of field "%s" on "%s" doesn't exist.</field>
-            <field name="value">The value of field "%s" on "%s" doesn't exist.</field>
+            <field name="src">The value "%(value)s" of field "%(field)s" on "%(model)s" doesn't exist.</field>
+            <field name="value">The value "%(value)s" of field "%(field)s" on "%(model)s" doesn't exist.</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
@@ -215,8 +215,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">foreign_model_exist</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">Could not delete "%s" records because they are used on field "%s" of "%s".</field>
-            <field name="value">Could not delete "%s" records because they are used on field "%s" of "%s".</field>
+            <field name="src">Could not delete "%(value)s" records because they are used on field "%(field)s" of "%(model)s".</field>
+            <field name="value">Could not delete "%(value)s" records because they are used on field "%(field)s" of "%(model)s".</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>
