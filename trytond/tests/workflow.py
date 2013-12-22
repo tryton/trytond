@@ -25,7 +25,7 @@ class WorkflowedModel(Workflow, ModelSQL):
                 ))
 
     @staticmethod
-    def default_state(cls):
+    def default_state():
         return 'start'
 
     @classmethod
