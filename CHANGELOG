@@ -1,3 +1,4 @@
+* Validate only modified and dependant fields on model write
 * Improve error messages by showing the failing value
 * Remove relation field actions:
     - delete_all

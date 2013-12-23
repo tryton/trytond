@@ -871,7 +871,7 @@ class ModelStorage(Model):
         pass
 
     @classmethod
-    def _validate(cls, records):
+    def _validate(cls, records, field_names=None):
         pool = Pool()
         # Ensure that records are readable
         with Transaction().set_user(0, set_context=True):
@@ -917,9 +917,14 @@ class ModelStorage(Model):
                             return True
             return False
 
+        field_names = set(field_names or [])
         ctx_pref['active_test'] = False
         with Transaction().set_context(ctx_pref):
             for field_name, field in cls._fields.iteritems():
+                if (field_names
+                        and field_name not in field_names
+                        and not (set(field.depends) & field_names)):
+                    continue
                 if isinstance(field, fields.Function) and \
                         not field.setter:
                     continue

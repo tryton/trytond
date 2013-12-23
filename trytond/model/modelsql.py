@@ -643,6 +643,7 @@ class ModelSQL(ModelStorage):
         assert not len(args) % 2
         all_records = sum(((records, values) + args)[0:None:2], [])
         all_ids = [r.id for r in all_records]
+        all_field_names = set()
 
         # Call before cursor cache cleaning
         trigger_eligibles = cls.trigger_write_get_eligibles(records)
@@ -719,9 +720,10 @@ class ModelSQL(ModelStorage):
 
             field_names = cls._fields.keys()
             cls._update_mptt(field_names, [ids] * len(field_names), values)
+            all_field_names |= set(values.keys())
 
         cls.__insert_history(all_ids)
-        cls._validate(all_records)
+        cls._validate(all_records, field_names=all_field_names)
         cls.trigger_write(trigger_eligibles)
 
     @classmethod
