@@ -89,6 +89,12 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">module_config_wizard_other_form</field>
         </record>
 
+        <record model="ir.ui.view" id="module_config_wizard_done_view_form">
+            <field name="model">ir.module.module.config_wizard.done</field>
+            <field name="type">form</field>
+            <field name="name">module_config_wizard_done_form</field>
+        </record>
+
         <record model="ir.action.wizard" id="act_module_install_upgrade">
             <field name="name">Perform Pending Installation/Upgrade</field>
             <field name="wiz_name">ir.module.module.install_upgrade</field>

@@ -72,6 +72,7 @@ def register():
         ModuleConfigWizardItem,
         ModuleConfigWizardFirst,
         ModuleConfigWizardOther,
+        ModuleConfigWizardDone,
         ModuleInstallUpgradeStart,
         ModuleInstallUpgradeDone,
         Cache,

@@ -12,7 +12,8 @@ from trytond.rpc import RPC
 
 __all__ = [
     'Module', 'ModuleDependency', 'ModuleConfigWizardItem',
-    'ModuleConfigWizardFirst', 'ModuleConfigWizardOther', 'ModuleConfigWizard',
+    'ModuleConfigWizardFirst', 'ModuleConfigWizardOther',
+    'ModuleConfigWizardDone', 'ModuleConfigWizard',
     'ModuleInstallUpgradeStart', 'ModuleInstallUpgradeDone',
     'ModuleInstallUpgrade', 'ModuleConfig',
     ]
@@ -378,6 +379,11 @@ class ModuleConfigWizardOther(ModelView):
         return 100.0 * done / all
 
 
+class ModuleConfigWizardDone(ModelView):
+    'Module Config Wizard Done'
+    __name__ = 'ir.module.module.config_wizard.done'
+
+
 class ModuleConfigWizard(Wizard):
     'Run config wizards'
     __name__ = 'ir.module.module.config_wizard'
@@ -414,6 +420,10 @@ class ModuleConfigWizard(Wizard):
             Button('Next', 'action', 'tryton-go-next', default=True),
             ])
     action = ConfigStateAction()
+    done = StateView('ir.module.module.config_wizard.done',
+        'ir.module_config_wizard_done_view_form', [
+            Button('Ok', 'end', 'tryton-close', default=True),
+            ])
 
     def transition_start(self):
         res = self.transition_action()
@@ -429,7 +439,7 @@ class ModuleConfigWizard(Wizard):
                 ])
         if items:
             return 'other'
-        return 'end'
+        return 'done'
 
 
 class ModuleInstallUpgradeStart(ModelView):
