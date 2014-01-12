@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -9,9 +8,7 @@ from trytond.transaction import Transaction
 
 
 class ModelAccessTestCase(unittest.TestCase):
-    '''
-    Test Model Access
-    '''
+    'Test Model Access'
 
     def setUp(self):
         install_module('tests')
@@ -21,9 +18,7 @@ class ModelAccessTestCase(unittest.TestCase):
         self.group = POOL.get('res.group')
 
     def test0010perm_read(self):
-        '''
-        Test Read Access
-        '''
+        'Test Read Access'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([('model', '=', 'test.access')])
@@ -104,9 +99,7 @@ class ModelAccessTestCase(unittest.TestCase):
             self.model_access._get_access_cache.clear()
 
     def test0020perm_write(self):
-        '''
-        Test Write Access
-        '''
+        'Test Write Access'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([('model', '=', 'test.access')])
@@ -186,9 +179,7 @@ class ModelAccessTestCase(unittest.TestCase):
             self.model_access._get_access_cache.clear()
 
     def test0030perm_create(self):
-        '''
-        Test Create Access
-        '''
+        'Test Create Access'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([('model', '=', 'test.access')])
@@ -267,9 +258,7 @@ class ModelAccessTestCase(unittest.TestCase):
             self.model_access._get_access_cache.clear()
 
     def test0040perm_delete(self):
-        '''
-        Test Delete Access
-        '''
+        'Test Delete Access'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([('model', '=', 'test.access')])
@@ -354,9 +343,7 @@ class ModelAccessTestCase(unittest.TestCase):
 
 
 class ModelFieldAccessTestCase(unittest.TestCase):
-    '''
-    Test Model Field Access
-    '''
+    'Test Model Field Access'
 
     def setUp(self):
         install_module('tests')
@@ -366,9 +353,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
         self.group = POOL.get('res.group')
 
     def test0010perm_read(self):
-        '''
-        Test Read Access
-        '''
+        'Test Read Access'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             field1, = self.field.search([
@@ -578,9 +563,7 @@ class ModelFieldAccessTestCase(unittest.TestCase):
             self.field_access._get_access_cache.clear()
 
     def test0010perm_write(self):
-        '''
-        Test Write Access
-        '''
+        'Test Write Access'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             field1, = self.field.search([
@@ -793,7 +776,3 @@ def suite():
     suite_.addTests(unittest.TestLoader(
         ).loadTestsFromTestCase(ModelFieldAccessTestCase))
     return suite_
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

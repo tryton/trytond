@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -10,9 +9,7 @@ from trytond.transaction import Transaction
 
 
 class MPTTTestCase(unittest.TestCase):
-    '''
-    Test Modified Preorder Tree Traversal.
-    '''
+    'Test Modified Preorder Tree Traversal'
 
     def setUp(self):
         install_module('tests')
@@ -66,9 +63,7 @@ class MPTTTestCase(unittest.TestCase):
             self.ReParent(record)
 
     def test0010create(self):
-        '''
-        Create tree.
-        '''
+        'Test create tree'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             new_records = [None, None, None]
@@ -88,15 +83,14 @@ class MPTTTestCase(unittest.TestCase):
             transaction.cursor.commit()
 
     def test0030reparent(self):
-        '''
-        Re-parent.
-        '''
+        'Test re-parent'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.ReParent()
             transaction.cursor.rollback()
 
     def test0040active(self):
+        'Test active'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             records = self.mptt.search([])
@@ -142,9 +136,7 @@ class MPTTTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0050delete(self):
-        '''
-        Delete.
-        '''
+        'Test delete'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             records = self.mptt.search([])
@@ -174,7 +166,3 @@ class MPTTTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(MPTTTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

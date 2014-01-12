@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # This file is part of Tryton.  The COPYRIGHT file at the top level of this
 # repository contains the full copyright notices and license terms.
@@ -14,9 +13,7 @@ from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT, \
 
 
 class ModelSQLTestCase(unittest.TestCase):
-    '''
-    Test ModelSQL
-    '''
+    'Test ModelSQL'
 
     def setUp(self):
         install_module('tests')
@@ -24,9 +21,7 @@ class ModelSQLTestCase(unittest.TestCase):
         self.modelsql_timestamp = POOL.get('test.modelsql.timestamp')
 
     def test0010required_field_missing(self):
-        '''
-        Test error message when a required field is missing.
-        '''
+        'Test error message when a required field is missing'
         if CONFIG['db_type'] not in ('postgresql', 'mysql'):
             # SQLite not concerned because tryton don't set "NOT NULL"
             # constraint: 'ALTER TABLE' don't support NOT NULL constraint
@@ -49,9 +44,7 @@ class ModelSQLTestCase(unittest.TestCase):
                 self.fail('UserError should be caught')
 
     def test0020check_timestamp(self):
-        '''
-        Test check timestamp.
-        '''
+        'Test check timestamp'
         # cursor must be committed between each changes otherwise NOW() returns
         # always the same timestamp.
         with Transaction().start(DB_NAME, USER,
@@ -87,6 +80,3 @@ class ModelSQLTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ModelSQLTestCase)
-
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())

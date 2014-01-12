@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -10,18 +9,14 @@ from trytond.transaction import Transaction
 
 
 class SequenceTestCase(unittest.TestCase):
-    '''
-    Test Sequence
-    '''
+    'Test Sequence'
 
     def setUp(self):
         install_module('tests')
         self.sequence = POOL.get('ir.sequence')
 
     def test0010incremental(self):
-        '''
-        Test incremental
-        '''
+        'Test incremental'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             sequence, = self.sequence.create([{
@@ -47,9 +42,7 @@ class SequenceTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0020decimal_timestamp(self):
-        '''
-        Test Decimal Timestamp
-        '''
+        'Test Decimal Timestamp'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             sequence, = self.sequence.create([{
@@ -72,9 +65,7 @@ class SequenceTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0030hexadecimal_timestamp(self):
-        '''
-        Test Hexadecimal Timestamp
-        '''
+        'Test Hexadecimal Timestamp'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             sequence, = self.sequence.create([{
@@ -98,9 +89,7 @@ class SequenceTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0040prefix_suffix(self):
-        '''
-        Test prefix/suffix
-        '''
+        'Test prefix/suffix'
         with Transaction().start(DB_NAME, USER, context=CONTEXT):
             sequence, = self.sequence.create([{
                         'name': 'Test incremental',
@@ -123,7 +112,3 @@ class SequenceTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(SequenceTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)
