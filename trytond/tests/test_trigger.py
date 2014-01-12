@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -32,9 +31,7 @@ from trytond.transaction import Transaction
 
 
 class TriggerTestCase(unittest.TestCase):
-    '''
-    Test Trigger
-    '''
+    'Test Trigger'
 
     def setUp(self):
         install_module('tests')
@@ -44,9 +41,7 @@ class TriggerTestCase(unittest.TestCase):
         self.model = POOL.get('ir.model')
 
     def test0010constraints(self):
-        '''
-        Test constraints
-        '''
+        'Test constraints'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([
@@ -87,9 +82,7 @@ class TriggerTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0020on_create(self):
-        '''
-        Test on_create
-        '''
+        'Test on_create'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([
@@ -160,9 +153,7 @@ class TriggerTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0030on_write(self):
-        '''
-        Test on_write
-        '''
+        'Test on_write'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([
@@ -273,9 +264,7 @@ class TriggerTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0040on_delete(self):
-        '''
-        Test on_delete
-        '''
+        'Test on_delete'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([
@@ -364,9 +353,7 @@ class TriggerTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0050on_time(self):
-        '''
-        Test on_time
-        '''
+        'Test on_time'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             model, = self.model.search([
@@ -462,7 +449,3 @@ class TriggerTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TriggerTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

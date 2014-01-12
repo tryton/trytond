@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -20,9 +19,7 @@ from trytond.exceptions import UserError
 
 
 class FieldsTestCase(unittest.TestCase):
-    '''
-    Test Fields.
-    '''
+    'Test Fields'
 
     def setUp(self):
         install_module('tests')
@@ -119,9 +116,7 @@ class FieldsTestCase(unittest.TestCase):
         self.m2o_target = POOL.get('test.many2one_target')
 
     def test0010boolean(self):
-        '''
-        Test Boolean.
-        '''
+        'Test Boolean'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             boolean1, = self.boolean.create([{
@@ -219,9 +214,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0020integer(self):
-        '''
-        Test Integer.
-        '''
+        'Test Integer'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             integer1, = self.integer.create([{
@@ -401,9 +394,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0030float(self):
-        '''
-        Test Float.
-        '''
+        'Test Float'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             float1, = self.float.create([{
@@ -606,9 +597,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0040numeric(self):
-        '''
-        Test Numeric.
-        '''
+        'Test Numeric'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             numeric1, = self.numeric.create([{
@@ -817,9 +806,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0050char(self):
-        '''
-        Test Char.
-        '''
+        'Test Char'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             for char in (self.char_translate, self.char):
@@ -1069,9 +1056,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0060text(self):
-        '''
-        Test Text.
-        '''
+        'Test Text'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             for text in (self.text_translate, self.text):
@@ -1320,9 +1305,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0070sha(self):
-        '''
-        Test Sha.
-        '''
+        'Test Sha'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             sha1, = self.sha.create([{
@@ -1512,9 +1495,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0080date(self):
-        '''
-        Test Date.
-        '''
+        'Test Date'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             today = datetime.date(2009, 1, 1)
@@ -1756,9 +1737,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0090datetime(self):
-        '''
-        Test DateTime.
-        '''
+        'Test DateTime'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             today = datetime.datetime(2009, 1, 1, 12, 0, 0)
@@ -2024,9 +2003,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0100time(self):
-        '''
-        Test Time.
-        '''
+        'Test Time'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             pre_evening = datetime.time(16, 30)
@@ -2268,9 +2245,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0110one2one(self):
-        '''
-        Test One2One.
-        '''
+        'Test One2One'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             target1, = self.one2one_target.create([{
@@ -2396,9 +2371,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0120one2many(self):
-        '''
-        Test One2Many.
-        '''
+        'Test One2Many'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             for one2many, one2many_target in (
@@ -2597,9 +2570,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0130many2many(self):
-        '''
-        Test Many2Many.
-        '''
+        'Test Many2Many'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             for many2many, many2many_target in (
@@ -2782,9 +2753,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0140reference(self):
-        '''
-        Test Reference.
-        '''
+        'Test Reference'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             target1, = self.reference_target.create([{
@@ -2916,9 +2885,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0150property(self):
-        '''
-        Test Property with supported field types.
-        '''
+        'Test Property with supported field types'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
 
@@ -3185,6 +3152,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0160selection(self):
+        'Test Selection'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             selection1, = self.selection.create([{'select': 'arabic'}])
@@ -3233,6 +3201,7 @@ class FieldsTestCase(unittest.TestCase):
             self.assertEqual(selection6.select, 'latin')
 
     def test0170dict(self):
+        'Test Dict'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             dict1, = self.dict_.create([{
@@ -3260,6 +3229,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0180binary(self):
+        'Test Binary'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             bin1, = self.binary.create([{
@@ -3293,6 +3263,7 @@ class FieldsTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0190many2one(self):
+        'Test Many2One'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
 
@@ -3318,7 +3289,3 @@ class FieldsTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(FieldsTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

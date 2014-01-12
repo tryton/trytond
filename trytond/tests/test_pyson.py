@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -9,14 +8,10 @@ from trytond import pyson
 
 
 class PYSONTestCase(unittest.TestCase):
-    '''
-    Test PySON.
-    '''
+    'Test PySON'
 
     def test0010Eval(self):
-        '''
-        Test pyson.Eval
-        '''
+        'Test pyson.Eval'
         self.assert_(pyson.Eval('test').pyson() == {
             '__class__': 'Eval',
             'v': 'test',
@@ -36,9 +31,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assert_(pyson.PYSONDecoder().decode(eval) == 0)
 
     def test0020Not(self):
-        '''
-        Test pyson.Not
-        '''
+        'Test pyson.Not'
         self.assert_(pyson.Not(True).pyson() == {
             '__class__': 'Not',
             'v': True,
@@ -55,9 +48,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertTrue(pyson.PYSONDecoder().decode(eval))
 
     def test0030Bool(self):
-        '''
-        Test pyson.Bool
-        '''
+        'Test pyson.Bool'
         self.assert_(pyson.Bool('test').pyson() == {
             '__class__': 'Bool',
             'v': 'test',
@@ -96,9 +87,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertFalse(pyson.PYSONDecoder().decode(eval))
 
     def test0040And(self):
-        '''
-        Test pyson.And
-        '''
+        'Test pyson.And'
         self.assert_(pyson.And(True, False).pyson() == {
             '__class__': 'And',
             's': [True, False],
@@ -140,9 +129,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertFalse(pyson.PYSONDecoder().decode(eval))
 
     def test0050Or(self):
-        '''
-        Test pyson.Or
-        '''
+        'Test pyson.Or'
         self.assert_(pyson.Or(True, False).pyson() == {
             '__class__': 'Or',
             's': [True, False],
@@ -184,9 +171,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertTrue(pyson.PYSONDecoder().decode(eval))
 
     def test0060Equal(self):
-        '''
-        Test pyson.Equal
-        '''
+        'Test pyson.Equal'
         self.assert_(pyson.Equal('test', 'test').pyson() == {
             '__class__': 'Equal',
             's1': 'test',
@@ -204,9 +189,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertFalse(pyson.PYSONDecoder().decode(eval))
 
     def test0070Greater(self):
-        '''
-        Test pyson.Greater
-        '''
+        'Test pyson.Greater'
         self.assert_(pyson.Greater(1, 0).pyson() == {
             '__class__': 'Greater',
             's1': 1,
@@ -239,9 +222,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertTrue(pyson.PYSONDecoder().decode(eval))
 
     def test0080Less(self):
-        '''
-        Test pyson.Less
-        '''
+        'Test pyson.Less'
         self.assert_(pyson.Less(0, 1).pyson() == {
             '__class__': 'Less',
             's1': 0,
@@ -274,9 +255,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertTrue(pyson.PYSONDecoder().decode(eval))
 
     def test0090If(self):
-        '''
-        Test pyson.If
-        '''
+        'Test pyson.If'
         self.assert_(pyson.If(True, 'foo', 'bar').pyson() == {
             '__class__': 'If',
             'c': True,
@@ -298,9 +277,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assert_(pyson.PYSONDecoder().decode(eval) == 'bar')
 
     def test0100Get(self):
-        '''
-        Test pyson.Get
-        '''
+        'Test pyson.Get'
         self.assert_(pyson.Get({'foo': 'bar'}, 'foo', 'default').pyson() == {
             '__class__': 'Get',
             'v': {'foo': 'bar'},
@@ -327,9 +304,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assert_(pyson.PYSONDecoder().decode(eval) == 'default')
 
     def test0110In(self):
-        '''
-        Test pyson.In
-        '''
+        'Test pyson.In'
         self.assert_(pyson.In('foo', {'foo': 'bar'}).pyson() == {
             '__class__': 'In',
             'k': 'foo',
@@ -372,9 +347,7 @@ class PYSONTestCase(unittest.TestCase):
         self.assertFalse(pyson.PYSONDecoder().decode(eval))
 
     def test0120Date(self):
-        '''
-        Test pyson.Date
-        '''
+        'Test pyson.Date'
         self.assert_(pyson.Date(2010, 1, 12, -1, 12, -7).pyson() == {
             '__class__': 'Date',
             'y': 2010,
@@ -426,9 +399,7 @@ class PYSONTestCase(unittest.TestCase):
                 == datetime.date(2010, 2, 22))
 
     def test0130DateTime(self):
-        '''
-        Test pyson.DateTime
-        '''
+        'Test pyson.DateTime'
         self.assert_(pyson.DateTime(2010, 1, 12, 10, 30, 20, 0,
             -1, 12, -7, 2, 15, 30, 1).pyson() == {
                 '__class__': 'DateTime',
@@ -526,10 +497,7 @@ class PYSONTestCase(unittest.TestCase):
                 == datetime.datetime(2010, 2, 22, 10, 30, 20, 200))
 
     def test0900Composite(self):
-        '''
-        Test Composite
-        '''
-
+        'Test Composite'
         eval = pyson.PYSONEncoder().encode(['id', pyson.If(pyson.Not(
             pyson.In('company', pyson.Eval('context', {}))), '=', '!='),
             pyson.Get(pyson.Eval('context', {}), 'company', -1)])
@@ -541,7 +509,3 @@ class PYSONTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(PYSONTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

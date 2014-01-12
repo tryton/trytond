@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -46,7 +45,3 @@ def suite():
     for testcase in (UrlTestCase,):
         suite.addTests(func(testcase))
     return suite
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

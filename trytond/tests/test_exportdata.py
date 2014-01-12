@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -19,9 +18,7 @@ from trytond.transaction import Transaction
 
 
 class ExportDataTestCase(unittest.TestCase):
-    '''
-    Test export_data.
-    '''
+    'Test export_data'
 
     def setUp(self):
         install_module('tests')
@@ -30,9 +27,7 @@ class ExportDataTestCase(unittest.TestCase):
         self.export_data_relation = POOL.get('test.export_data.relation')
 
     def test0010boolean(self):
-        '''
-        Test boolean.
-        '''
+        'Test boolean'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -56,9 +51,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0020integer(self):
-        '''
-        Test integer.
-        '''
+        'Test integer'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -80,9 +73,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0030float(self):
-        '''
-        Test float.
-        '''
+        'Test float'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -104,9 +95,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0040numeric(self):
-        '''
-        Test numeric.
-        '''
+        'Test numeric'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -130,9 +119,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0050char(self):
-        '''
-        Test char.
-        '''
+        'Test char'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -154,9 +141,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0060text(self):
-        '''
-        Test text.
-        '''
+        'Test text'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -178,9 +163,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0070sha(self):
-        '''
-        Test sha.
-        '''
+        'Test sha'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -193,9 +176,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0080date(self):
-        '''
-        Test date.
-        '''
+        'Test date'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -217,9 +198,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0090datetime(self):
-        '''
-        Test datetime.
-        '''
+        'Test datetime'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -243,9 +222,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0100selection(self):
-        '''
-        Test selection.
-        '''
+        'Test selection'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{
@@ -269,9 +246,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0110many2one(self):
-        '''
-        Test many2one.
-        '''
+        'Test many2one'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             target, = self.export_data_target.create([{
@@ -299,9 +274,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0120many2many(self):
-        '''
-        Test many2many.
-        '''
+        'Test many2many'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             target1, = self.export_data_target.create([{
@@ -340,9 +313,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0130one2many(self):
-        '''
-        Test one2many.
-        '''
+        'Test one2many'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             export1, = self.export_data.create([{}])
@@ -376,9 +347,7 @@ class ExportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0140reference(self):
-        '''
-        Test reference.
-        '''
+        'Test reference'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             target1, = self.export_data_target.create([{}])
@@ -405,7 +374,3 @@ class ExportDataTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ExportDataTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

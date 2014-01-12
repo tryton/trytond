@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -9,9 +8,7 @@ from trytond.transaction import Transaction
 
 
 class ImportDataTestCase(unittest.TestCase):
-    '''
-    Test import_data.
-    '''
+    'Test import_data'
 
     def setUp(self):
         install_module('tests')
@@ -34,9 +31,7 @@ class ImportDataTestCase(unittest.TestCase):
         self.reference = POOL.get('test.import_data.reference')
 
     def test0010boolean(self):
-        '''
-        Test boolean.
-        '''
+        'Test boolean'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.boolean.import_data(['boolean'],
@@ -63,9 +58,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0020integer(self):
-        '''
-        Test integer.
-        '''
+        'Test integer'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.integer.import_data(['integer'],
@@ -95,9 +88,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0021integer_required(self):
-        '''
-        Test required integer.
-        '''
+        'Test required integer'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.integer_required.import_data(['integer'],
@@ -127,9 +118,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0030float(self):
-        '''
-        Test float.
-        '''
+        'Test float'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.float.import_data(['float'],
@@ -159,9 +148,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0031float_required(self):
-        '''
-        Test required float.
-        '''
+        'Test required float'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.float_required.import_data(['float'],
@@ -191,9 +178,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0040numeric(self):
-        '''
-        Test numeric.
-        '''
+        'Test numeric'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.numeric.import_data(['numeric'],
@@ -223,9 +208,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0041numeric_required(self):
-        '''
-        Test required numeric.
-        '''
+        'Test required numeric'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.numeric_required.import_data(['numeric'],
@@ -255,9 +238,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0050char(self):
-        '''
-        Test char.
-        '''
+        'Test char'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.char.import_data(['char'],
@@ -272,9 +253,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0060text(self):
-        '''
-        Test text.
-        '''
+        'Test text'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.text.import_data(['text'],
@@ -289,9 +268,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0070sha(self):
-        '''
-        Test sha.
-        '''
+        'Test sha'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.sha.import_data(['sha'],
@@ -306,9 +283,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0080date(self):
-        '''
-        Test date.
-        '''
+        'Test date'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.date.import_data(['date'],
@@ -326,9 +301,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0090datetime(self):
-        '''
-        Test datetime.
-        '''
+        'Test datetime'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.datetime.import_data(['datetime'],
@@ -347,9 +320,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0100selection(self):
-        '''
-        Test selection.
-        '''
+        'Test selection'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.selection.import_data(['selection'],
@@ -367,9 +338,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0110many2one(self):
-        '''
-        Test many2one.
-        '''
+        'Test many2one'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.many2one.import_data(['many2one'],
@@ -399,9 +368,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0120many2many(self):
-        '''
-        Test many2many.
-        '''
+        'Test many2many'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.many2many.import_data(['many2many'],
@@ -445,9 +412,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0130one2many(self):
-        '''
-        Test one2many.
-        '''
+        'Test one2many'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.one2many.import_data(
@@ -470,9 +435,7 @@ class ImportDataTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0140reference(self):
-        '''
-        Test reference.
-        '''
+        'Test reference'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             self.assertEqual(self.reference.import_data(['reference'],
@@ -524,7 +487,3 @@ class ImportDataTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ImportDataTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

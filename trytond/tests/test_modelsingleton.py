@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -10,18 +9,14 @@ from trytond.transaction import Transaction
 
 
 class ModelSingletonTestCase(unittest.TestCase):
-    '''
-    Test ModelSingleton
-    '''
+    'Test ModelSingleton'
 
     def setUp(self):
         install_module('tests')
         self.singleton = POOL.get('test.singleton')
 
     def test0010read(self):
-        '''
-        Test read method.
-        '''
+        'Test read method'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             singleton, = self.singleton.read([1], ['name'])
@@ -48,9 +43,7 @@ class ModelSingletonTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0020create(self):
-        '''
-        Test create method.
-        '''
+        'Test create method'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             singleton, = self.singleton.create([{'name': 'bar'}])
@@ -68,9 +61,7 @@ class ModelSingletonTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0030copy(self):
-        '''
-        Test copy method.
-        '''
+        'Test copy method'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             singleton, = self.singleton.search([])
@@ -90,9 +81,7 @@ class ModelSingletonTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0040default_get(self):
-        '''
-        Test default_get method.
-        '''
+        'Test default_get method'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             default = self.singleton.default_get(['name'])
@@ -120,9 +109,7 @@ class ModelSingletonTestCase(unittest.TestCase):
             transaction.cursor.rollback()
 
     def test0050search(self):
-        '''
-        Test search method.
-        '''
+        'Test search method'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             singletons = self.singleton.search([])
@@ -139,7 +126,3 @@ class ModelSingletonTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ModelSingletonTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)

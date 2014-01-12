@@ -1,70 +1,35 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import logging
-logging.basicConfig(level=logging.ERROR)
-import sys
 import os
-DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
-    '..', '..', '..', 'trytond')))
-if os.path.isdir(DIR):
-    sys.path.insert(0, os.path.dirname(DIR))
-
+import sys
 import unittest
 import doctest
 from lxml import etree
-import time
-import optparse
-
-_MODULES = False
-_CONFIGFILE = None
-if __name__ == '__main__':
-    parser = optparse.OptionParser()
-
-    parser.add_option("-c", "--config", dest="config",
-        help="specify config file")
-    parser.add_option("-m", "--modules", action="store_true", dest="modules",
-        default=False, help="Run also modules tests")
-    opt, args = parser.parse_args()
-
-    if args:
-        parser.error("Invalid argument")
-    if opt.modules:
-        _MODULES = True
-    if opt.config:
-        _CONFIGFILE = opt.config
 
 from trytond.config import CONFIG
-CONFIG['db_type'] = 'sqlite'
-CONFIG.update_etc(_CONFIGFILE)
-if not CONFIG['admin_passwd']:
-    CONFIG['admin_passwd'] = 'admin'
-
 from trytond.pool import Pool
 from trytond import backend
 from trytond.protocols.dispatcher import create
 from trytond.transaction import Transaction
 from trytond.pyson import PYSONEncoder, Eval
 
-Pool.start()
+__all__ = ['POOL', 'DB_NAME', 'USER', 'USER_PASSWORD', 'CONTEXT',
+    'install_module', 'test_view', 'test_depends', 'doctest_dropdb',
+    'suite', 'all_suite', 'modules_suite']
 
-if CONFIG['db_type'] == 'sqlite':
-    DB_NAME = ':memory:'
-else:
-    DB_NAME = 'test_' + str(int(time.time()))
+Pool.start()
 USER = 1
 USER_PASSWORD = 'admin'
 CONTEXT = {}
+DB_NAME = os.environ['DB_NAME']
 DB = backend.get('Database')(DB_NAME)
 Pool.test = True
 POOL = Pool(DB_NAME)
 
 
 class ModelViewTestCase(unittest.TestCase):
-    '''
-    Test ModelView
-    '''
+    'Test ModelView'
 
     def setUp(self):
         install_module('ir')
@@ -72,32 +37,25 @@ class ModelViewTestCase(unittest.TestCase):
         install_module('webdav')
 
     def test0000test(self):
+        'Test test'
         self.assertRaises(Exception, install_module, 'nosuchmodule')
         self.assertRaises(Exception, test_view, 'nosuchmodule')
 
     def test0010ir(self):
-        '''
-        Test ir.
-        '''
+        'Test ir'
         test_view('ir')
 
     def test0020res(self):
-        '''
-        Test res.
-        '''
+        'Test res'
         test_view('res')
 
     def test0040webdav(self):
-        '''
-        Test webdav.
-        '''
+        'Test webdav'
         test_view('webdav')
 
 
 class FieldDependsTestCase(unittest.TestCase):
-    '''
-    Test Field depends
-    '''
+    'Test Field depends'
 
     def setUp(self):
         install_module('ir')
@@ -105,6 +63,7 @@ class FieldDependsTestCase(unittest.TestCase):
         install_module('webdav')
 
     def test0010depends(self):
+        'Test depends'
         test_depends()
 
 
@@ -236,60 +195,37 @@ def suite():
     return unittest.TestSuite()
 
 
-def all_suite():
+def all_suite(modules=None):
     '''
     Return all tests suite of current module
     '''
     suite_ = suite()
-    import trytond.tests.test_tools as test_tools
-    suite_.addTests(test_tools.suite())
-    import trytond.tests.test_pyson as test_pyson
-    suite_.addTests(test_pyson.suite())
-    import trytond.tests.test_transaction as test_transaction
-    suite_.addTests(test_transaction.suite())
-    import trytond.tests.test_fields as test_fields
-    suite_.addTests(test_fields.suite())
-    import trytond.tests.test_modelsingleton as test_modelsingleton
-    suite_.addTests(test_modelsingleton.suite())
-    suite_.addTests(unittest.TestLoader(
-        ).loadTestsFromTestCase(ModelViewTestCase))
-    suite_.addTests(unittest.TestLoader(
-        ).loadTestsFromTestCase(FieldDependsTestCase))
-    import trytond.tests.test_mptt as test_mptt
-    suite_.addTests(test_mptt.suite())
-    import trytond.tests.test_importdata as test_importdata
-    suite_.addTests(test_importdata.suite())
-    import trytond.tests.test_exportdata as test_exportdata
-    suite_.addTests(test_exportdata.suite())
-    import trytond.tests.test_trigger as test_trigger
-    suite_.addTests(test_trigger.suite())
-    import trytond.tests.test_sequence as test_sequence
-    suite_.addTests(test_sequence.suite())
-    import trytond.tests.test_access as test_access
-    suite_.addTests(test_access.suite())
-    import trytond.tests.test_mixins as test_mixins
-    suite_.addTests(test_mixins.suite())
-    import trytond.tests.test_wizard as test_wizard
-    suite_.addTests(test_wizard.suite())
-    import trytond.tests.test_modelsql as test_modelsql
-    suite_.addTests(test_modelsql.suite())
-    import trytond.tests.test_cache as test_cache
-    suite_.addTests(test_cache.suite())
-    import trytond.tests.test_copy as test_copy
-    suite_.addTests(test_copy.suite())
+    for fn in os.listdir(os.path.dirname(__file__)):
+        if fn.startswith('test_') and fn.endswith('.py'):
+            if modules and fn[:-3] not in modules:
+                continue
+            modname = 'trytond.tests.' + fn[:-3]
+            __import__(modname)
+            module = module = sys.modules[modname]
+            suite_.addTest(module.suite())
     return suite_
 
 
-def modules_suite():
+def modules_suite(modules=None):
     '''
     Return all tests suite of all modules
     '''
-    suite_ = all_suite()
+    if modules:
+        suite_ = suite()
+    else:
+        suite_ = all_suite()
     from trytond.modules import create_graph, get_module_list, \
         MODULES_PATH, EGG_MODULES
     graph = create_graph(get_module_list())[0]
     for package in graph:
         module = package.name
+        if modules and module not in modules:
+            continue
         test_module = 'trytond.modules.%s.tests' % module
         if os.path.isdir(os.path.join(MODULES_PATH, module)) or \
                 module in EGG_MODULES:
@@ -321,10 +257,3 @@ def modules_suite():
             tests.append(test)
     tests.extend(doc_tests)
     return unittest.TestSuite(tests)
-
-if __name__ == '__main__':
-    if not _MODULES:
-        _SUITE = all_suite()
-    else:
-        _SUITE = modules_suite()
-    unittest.TextTestRunner(verbosity=2).run(_SUITE)

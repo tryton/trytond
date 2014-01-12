@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
@@ -9,9 +8,7 @@ from trytond.transaction import Transaction
 
 
 class CopyTestCase(unittest.TestCase):
-    '''
-    Test copy.
-    '''
+    'Test copy'
 
     def setUp(self):
         install_module('tests')
@@ -22,9 +19,7 @@ class CopyTestCase(unittest.TestCase):
             POOL.get('test.copy.one2many_reference.target')
 
     def test0130one2many(self):
-        '''
-        Test one2many.
-        '''
+        'Test one2many'
         with Transaction().start(DB_NAME, USER,
                 context=CONTEXT) as transaction:
             for One2many, Target in (
@@ -52,7 +47,3 @@ class CopyTestCase(unittest.TestCase):
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(CopyTestCase)
-
-if __name__ == '__main__':
-    suite = suite()
-    unittest.TextTestRunner(verbosity=2).run(suite)
