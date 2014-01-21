@@ -56,7 +56,7 @@ class ModelSQLTestCase(unittest.TestCase):
             timestamp = self.modelsql_timestamp.read([record.id],
                 ['_timestamp'])[0]['_timestamp']
 
-            if CONFIG['db_type'] == 'sqlite':
+            if CONFIG['db_type'] in ('sqlite', 'mysql'):
                 # timestamp precision of sqlite is the second
                 time.sleep(1)
 

@@ -47,6 +47,8 @@ backends available. Here are some warnings about using other backends:
 
     * MySQL can not create indexes containing text or blob fields.
 
+    * Timestamp has a precision of second which is used for optimistic lock.
+
     * Tryton uses a DECIMAL(65, 30) for Decimal fields and DOUBLE(255, 30) for
       Float fields.
 
@@ -57,6 +59,8 @@ backends available. Here are some warnings about using other backends:
     * SQLite can not alter column definitions nor create foreign keys.
 
     * SQL constraints are validated by Tryton instead of database.
+
+    * Timestamp has a precision of second which is used for optimistic lock.
 
 Support
 -------
