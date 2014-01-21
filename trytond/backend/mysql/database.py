@@ -100,7 +100,9 @@ class Database(DatabaseInterface):
         if CONFIG['db_password']:
             args['passwd'] = CONFIG['db_password']
         conn = MySQLdb.connect(**args)
-        return Cursor(conn, self.database_name)
+        cursor = Cursor(conn, self.database_name)
+        cursor.execute('SET time_zone = `UTC`')
+        return cursor
 
     def close(self):
         return
