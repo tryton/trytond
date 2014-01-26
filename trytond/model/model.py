@@ -157,10 +157,12 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
         Translation.register_error_messages(cls, module_name)
 
     @classmethod
-    def default_get(cls, fields_names, with_rec_name=True):
+    def default_get(cls, fields_names, with_rec_name=True,
+            with_on_change=True):
         '''
         Return a dict with the default values for each field in fields_names.
         If with_rec_name is True, rec_name will be added.
+        If with_on_change is True, on_change will be added.
         '''
         pool = Pool()
         Property = pool.get('ir.property')
@@ -184,7 +186,8 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
                     value[field_name + '.rec_name'] = Target(
                         value[field_name]).rec_name
 
-        value = cls._default_on_change(value)
+        if with_on_change:
+            value = cls._default_on_change(value)
         if not with_rec_name:
             for field in value.keys():
                 if field.endswith('.rec_name'):

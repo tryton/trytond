@@ -83,12 +83,13 @@ class ModelSingleton(ModelStorage):
         return res
 
     @classmethod
-    def default_get(cls, fields_names, with_rec_name=True):
+    def default_get(cls, fields_names, with_rec_name=True,
+            with_on_change=True):
         if '_timestamp' in fields_names:
             fields_names = list(fields_names)
             fields_names.remove('_timestamp')
         default = super(ModelSingleton, cls).default_get(fields_names,
-                with_rec_name=with_rec_name)
+                with_rec_name=with_rec_name, with_on_change=with_on_change)
         singleton = cls.get_singleton()
         if singleton:
             if with_rec_name:
