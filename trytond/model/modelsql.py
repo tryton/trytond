@@ -327,7 +327,8 @@ class ModelSQL(ModelStorage):
                     default.append(f)
 
             if default:
-                defaults = cls.default_get(default, with_rec_name=False)
+                defaults = cls.default_get(default, with_rec_name=False,
+                    with_on_change=False)
                 values.update(cls._clean_defaults(defaults))
 
             insert_columns = [table.create_uid, table.create_date]
