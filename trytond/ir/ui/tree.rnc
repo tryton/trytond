@@ -21,12 +21,14 @@ attlist.field &=
     | "many2one"
     | "date"
     | "one2many"
+    | "many2many"
     | "selection"
     | "float"
     | "numeric"
     | "float_time"
     | "integer"
     | "datetime"
+    | "time"
     | "boolean"
     | "text"
     | "url"
@@ -34,6 +36,9 @@ attlist.field &=
     | "callto"
     | "sip"
     | "progressbar"
+    | "reference"
+    | "one2one"
+    | "binary"
   }?
 attlist.field &=
   [ a:defaultValue = "0" ] attribute tree_invisible { "0" | "1" }?
@@ -53,6 +58,7 @@ attlist.field &= attribute float_time { text }?
 attlist.field &= [a:defaultValue = "0"] attribute pre_validate { "0" | "1" }?
 attlist.field &= [a:defaultValue = "1"] attribute completion { "0" | "1" }?
 attlist.field &= [a:defaultValue = "1"] attribute factor { text }?
+attlist.field &= attribute filename { text }?
 prefix = element prefix { attlist.affix, empty }
 suffix = element suffix { attlist.affix, empty }
 attlist.affix &= attribute string { text }?

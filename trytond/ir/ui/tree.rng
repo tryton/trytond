@@ -83,12 +83,14 @@
           <value>many2one</value>
           <value>date</value>
           <value>one2many</value>
+          <value>many2many</value>
           <value>selection</value>
           <value>float</value>
           <value>numeric</value>
           <value>float_time</value>
           <value>integer</value>
           <value>datetime</value>
+          <value>time</value>
           <value>boolean</value>
           <value>text</value>
           <value>url</value>
@@ -96,6 +98,9 @@
           <value>callto</value>
           <value>sip</value>
           <value>progressbar</value>
+          <value>reference</value>
+          <value>one2one</value>
+          <value>binary</value>
         </choice>
       </attribute>
     </optional>
@@ -175,6 +180,11 @@
   <define name="attlist.field" combine="interleave">
     <optional>
       <attribute name="factor" a:defaultValue="1"/>
+    </optional>
+  </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="filename"/>
     </optional>
   </define>
   <define name="prefix">
