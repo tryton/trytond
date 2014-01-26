@@ -1167,15 +1167,16 @@ class ModelStorage(Model):
     def __init__(self, id=None, **kwargs):
         _ids = kwargs.pop('_ids', None)
         _local_cache = kwargs.pop('_local_cache', None)
-        super(ModelStorage, self).__init__(id, **kwargs)
         self._cursor = Transaction().cursor
         self._user = Transaction().user
         self._context = Transaction().context
+        if id is not None:
+            id = int(id)
         if _ids is not None:
             self._ids = _ids
             assert id in _ids
         else:
-            self._ids = [self.id]
+            self._ids = [id]
 
         self._cursor_cache = self._cursor.get_cache(self._context)
 
@@ -1184,6 +1185,8 @@ class ModelStorage(Model):
         else:
             self._local_cache = LRUDict(RECORD_CACHE_SIZE)
         self._local_cache.counter = Transaction().counter
+
+        super(ModelStorage, self).__init__(id, **kwargs)
 
     @property
     def _cache(self):

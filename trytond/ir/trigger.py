@@ -29,20 +29,16 @@ class Trigger(ModelSQL, ModelView):
             'invisible': (Eval('on_create', False)
                 or Eval('on_write', False)
                 or Eval('on_delete', False)),
-        }, depends=['on_create', 'on_write', 'on_delete'],
-        on_change=['on_time'])
+        }, depends=['on_create', 'on_write', 'on_delete'])
     on_create = fields.Boolean('On Create', select=True, states={
         'invisible': Eval('on_time', False),
-        }, depends=['on_time'],
-        on_change=['on_create'])
+        }, depends=['on_time'])
     on_write = fields.Boolean('On Write', select=True, states={
         'invisible': Eval('on_time', False),
-        }, depends=['on_time'],
-        on_change=['on_write'])
+        }, depends=['on_time'])
     on_delete = fields.Boolean('On Delete', select=True, states={
         'invisible': Eval('on_time', False),
-        }, depends=['on_time'],
-        on_change=['on_delete'])
+        }, depends=['on_time'])
     condition = fields.Char('Condition', required=True,
         help='A Python statement evaluated with record represented by '
         '"self"\nIt triggers the action if true.')
@@ -97,6 +93,7 @@ class Trigger(ModelSQL, ModelView):
     def default_limit_number():
         return 0
 
+    @fields.depends('on_time')
     def on_change_on_time(self):
         if self.on_time:
             return {
@@ -106,6 +103,7 @@ class Trigger(ModelSQL, ModelView):
                     }
         return {}
 
+    @fields.depends('on_create')
     def on_change_on_create(self):
         if self.on_create:
             return {
@@ -113,6 +111,7 @@ class Trigger(ModelSQL, ModelView):
                     }
         return {}
 
+    @fields.depends('on_write')
     def on_change_on_write(self):
         if self.on_write:
             return {
@@ -120,6 +119,7 @@ class Trigger(ModelSQL, ModelView):
                     }
         return {}
 
+    @fields.depends('on_delete')
     def on_change_on_delete(self):
         if self.on_delete:
             return {
