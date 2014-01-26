@@ -77,7 +77,7 @@ If true, the content of the field will be indexed.
 
 .. attribute:: Field.on_change
 
-A list of field names. If this attribute is set, the client will call the
+A set of field names. If this attribute is set, the client will call the
 method ``on_change_<field name>`` of the model when the user changes the
 current field value and will give the values of each fields in this list. The
 method signature is::
@@ -88,15 +88,17 @@ This method must return a dictionary with the values of fields to be updated.
 
 .. note::
 
-    The on_change_<field name> methods are runnin in a rollbacked transaction.
+    The on_change_<field name> methods are running in a rollbacked transaction.
 ..
+
+The set of field names could be filled by using the decorator :meth:`depends`.
 
 ``on_change_with``
 ------------------
 
 .. attribute:: Field.on_change_with
 
-A list of field names. Same like :attr:`on_change`, but defined the other way
+A set of field names. Same like :attr:`on_change`, but defined the other way
 around. If this attribute is set, the client will call the method
 ``on_change_with_<field name>`` of the model when the user changes one of the
 fields defined in the list and will give the values of each fields in this
@@ -111,6 +113,8 @@ This method must return the new value of the field.
     The on_change_with_<field name> methods are running in a rollbacked transaction.
 
 ..
+
+The set of field names could be filled by using the decorator :meth:`depends`.
 
 ``depends``
 -----------
@@ -189,6 +193,15 @@ The method signature is::
 
 Where ``tables`` is a nested dictionary, see :meth:`~Field.convert_domain`.
 
+Depends
+=======
+
+.. method:: depends([\*fields[, methods]])
+
+A decorator to define the field names on which the decorated method depends.
+The `methods` argument can be used to duplicate the field names from other
+fields. This is usefull if the decorated method calls another method.
+
 Field types
 ===========
 
@@ -234,7 +247,7 @@ A single line string field.
 
 .. attribute:: Char.autocomplete
 
-    A list of field names. If this attribute is set, the client will call the
+    A set of field names. If this attribute is set, the client will call the
     method ``autocomplete_<field name>`` of the model when the user changes one
     of those field value. The method signature is::
 
@@ -242,6 +255,7 @@ A single line string field.
 
     This method must return a list of string that will populate the
     ComboboxEntry in the client.
+    The set of field names could be filled by using the decorator :meth:`depends`.
 
 Sha
 ---
@@ -395,10 +409,11 @@ A string field with limited values to choice.
 
 .. attribute:: Selection.selection_change_with
 
-    A list of field names. If this attribute is set, the client will call the
+    A set of field names. If this attribute is set, the client will call the
     ``selection`` method of the model when the user changes on of the fields
     defined in the list and will give the values of each fields in the list.
     The ``selection`` method should be an instance method.
+    The set of field names could be filled by using the decorator :meth:`depends`.
 
 .. attribute:: Selection.translate_selection
 

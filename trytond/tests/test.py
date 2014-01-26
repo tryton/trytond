@@ -625,10 +625,11 @@ class Selection(ModelSQL):
             ('', ''), ('arabic', 'Arabic'), ('hexa', 'Hexadecimal')],
         'Selection')
     dyn_select = fields.Selection('get_selection',
-        'Instance Dynamic Selection', selection_change_with=['select'])
+        'Instance Dynamic Selection')
     dyn_select_static = fields.Selection('static_selection',
         'Static Selection')
 
+    @fields.depends('select')
     def get_selection(self):
         if self.select == 'arabic':
             return [('', '')] + [(str(i), str(i)) for i in range(1, 11)]

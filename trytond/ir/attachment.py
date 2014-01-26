@@ -39,8 +39,7 @@ class Attachment(ModelSQL, ModelView):
                 'invisible': Eval('type') != 'data',
                 }, depends=['type']), 'get_data', setter='set_data')
     description = fields.Text('Description')
-    summary = fields.Function(fields.Char('Summary',
-        on_change_with=['description']), 'on_change_with_summary')
+    summary = fields.Function(fields.Char('Summary'), 'on_change_with_summary')
     resource = fields.Reference('Resource', selection='models_get',
         select=True)
     link = fields.Char('Link', states={
@@ -191,6 +190,7 @@ class Attachment(ModelSQL, ModelView):
             'collision': collision,
             })
 
+    @fields.depends('description')
     def on_change_with_summary(self, name=None):
         return firstline(self.description or '')
 

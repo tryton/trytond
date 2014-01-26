@@ -35,12 +35,39 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
             }
         cls._error_messages = {}
 
-        # Copy fields
+        if hasattr(cls, '__depend_methods'):
+            cls.__depend_methods = cls.__depend_methods.copy()
+        else:
+            cls.__depend_methods = collections.defaultdict(set)
+
+        # Copy fields and update depends
         for attr in dir(cls):
             if attr.startswith('_'):
                 continue
-            if isinstance(getattr(cls, attr), fields.Field):
-                setattr(cls, attr, copy.deepcopy(getattr(cls, attr)))
+            if not isinstance(getattr(cls, attr), fields.Field):
+                continue
+            field_name = attr
+            field = copy.deepcopy(getattr(cls, field_name))
+            setattr(cls, field_name, field)
+
+            for attribute in ('on_change', 'on_change_with', 'autocomplete',
+                    'selection_change_with'):
+                if attribute == 'selection_change_with':
+                    if (isinstance(field, fields.Selection)
+                            and isinstance(field.selection, basestring)):
+                        function_name = field.selection
+                    else:
+                        continue
+                else:
+                    function_name = '%s_%s' % (attribute, field_name)
+                function = getattr(cls, function_name, None)
+                if function:
+                    if getattr(function, 'depends', None):
+                        setattr(field, attribute,
+                            getattr(field, attribute) | function.depends)
+                    if getattr(function, 'depend_methods', None):
+                        cls.__depend_methods[(field_name, attribute)] |= \
+                            function.depend_methods
 
     @classmethod
     def __post_setup__(cls):
@@ -78,8 +105,18 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
 
             for attribute in ('on_change', 'on_change_with', 'autocomplete'):
                 function_name = '%s_%s' % (attribute, field_name)
-                if getattr(field, attribute, False):
+                if getattr(cls, function_name, None):
                     cls.__rpc__.setdefault(function_name, RPC(instantiate=0))
+
+        # Update depend on methods
+        for (field_name, attribute), others in (
+                cls.__depend_methods.iteritems()):
+            field = getattr(cls, field_name)
+            for other in others:
+                other_field = getattr(cls, other)
+                setattr(field, attribute,
+                    getattr(field, attribute)
+                    | getattr(other_field, attribute))
 
         # Set name to fields
         for name, field in cls._fields.iteritems():
@@ -238,8 +275,12 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
                     'selection_change_with',
                     ):
                 if getattr(cls._fields[field], arg, None) is not None:
-                    res[field][arg] = copy.copy(getattr(cls._fields[field],
-                        arg))
+                    value = getattr(cls._fields[field], arg)
+                    if isinstance(value, set):
+                        value = list(value)
+                    else:
+                        value = copy.copy(value)
+                    res[field][arg] = value
             if not accesses.get(field, {}).get('write', True):
                 res[field]['readonly'] = True
                 if res[field].get('states') and \

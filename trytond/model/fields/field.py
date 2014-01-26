@@ -1,6 +1,9 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from collections import namedtuple
+import warnings
+from functools import wraps
+
 from sql import operators, Column, Literal, Select, CombiningQuery
 from sql.conditionals import Coalesce, NullIf
 from sql.operators import Concat
@@ -45,16 +48,6 @@ def states_validate(value):
                 'values of states must return boolean'
 
 
-def on_change_validate(value):
-    if value:
-        assert isinstance(value, list), 'on_change must be a list'
-
-
-def on_change_with_validate(value):
-    if value:
-        assert isinstance(value, list), 'on_change_with must be a list'
-
-
 def depends_validate(value):
     assert isinstance(value, list), 'depends must be a list'
 
@@ -69,6 +62,31 @@ def size_validate(value):
         if hasattr(value, 'types'):
             assert value.types() == set([int]), \
                 'size must return integer'
+
+
+def depends(*fields, **kwargs):
+    methods = kwargs.pop('methods', None)
+    assert not kwargs
+
+    def decorator(func):
+        depends = getattr(func, 'depends', set())
+        depends |= set(fields)
+        setattr(func, 'depends', depends)
+
+        if methods:
+            depend_methods = getattr(func, 'depend_methods', set())
+            depend_methods |= set(methods)
+            setattr(func, 'depend_methods', depend_methods)
+
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            for field in fields:
+                if not hasattr(self, field):
+                    setattr(self, field, None)
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
+
 
 SQL_OPERATORS = {
     '=': operators.Equal,
@@ -128,10 +146,18 @@ class Field(object):
         self.__states = None
         self.states = states or {}
         self.select = bool(select)
-        self.__on_change = None
-        self.on_change = on_change
-        self.__on_change_with = None
-        self.on_change_with = on_change_with
+        self.on_change = set()
+        if on_change:
+            warnings.warn('on_change argument is deprecated, '
+                'use the depends decorator',
+                DeprecationWarning, stacklevel=3)
+            self.on_change |= set(on_change)
+        self.on_change_with = set()
+        if on_change_with:
+            warnings.warn('on_change_with argument is deprecated, '
+                'use the depends decorator',
+                DeprecationWarning, stacklevel=3)
+            self.on_change_with |= set(on_change_with)
         self.__depends = None
         self.depends = depends or []
         self.__context = None
@@ -158,23 +184,6 @@ class Field(object):
         self.__states = value
 
     states = property(_get_states, _set_states)
-
-    def _get_on_change(self):
-        return self.__on_change
-
-    def _set_on_change(self, value):
-        on_change_validate(value)
-        self.__on_change = value
-    on_change = property(_get_on_change, _set_on_change)
-
-    def _get_on_change_with(self):
-        return self.__on_change_with
-
-    def _set_on_change_with(self, value):
-        on_change_with_validate(value)
-        self.__on_change_with = value
-
-    on_change_with = property(_get_on_change_with, _set_on_change_with)
 
     def _get_depends(self):
         return self.__depends

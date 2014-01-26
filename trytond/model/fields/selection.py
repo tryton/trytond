@@ -1,5 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
+import warnings
+
 from sql import Column
 from sql.conditionals import Case
 
@@ -32,7 +34,12 @@ class Selection(Field):
             self.selection = selection.copy()
         else:
             self.selection = selection
-        self.selection_change_with = selection_change_with
+        self.selection_change_with = set()
+        if selection_change_with:
+            warnings.warn('selection_change_with argument is deprecated, '
+                'use the depends decorator',
+                DeprecationWarning, stacklevel=2)
+            self.selection_change_with |= set(selection_change_with)
         self.sort = sort
         self.translate_selection = translate
     __init__.__doc__ += Field.__init__.__doc__
