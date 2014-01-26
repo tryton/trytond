@@ -41,29 +41,31 @@ attlist.field &= [ a:defaultValue = "1" ] attribute colspan { text }?
 attlist.field &=
   attribute widget {
     "date"
-    | "char"
-    | "many2one"
-    | "date"
-    | "one2many"
-    | "selection"
+    | "datetime"
+    | "time"
     | "float"
     | "numeric"
-    | "float_time"
     | "integer"
-    | "datetime"
-    | "boolean"
-    | "text"
-    | "url"
-    | "email"
-    | "callto"
-    | "sip"
+    | "selection"
+    | "char"
     | "sha"
+    | "float_time"
+    | "boolean"
     | "reference"
     | "binary"
+    | "text"
+    | "one2many"
     | "many2many"
+    | "many2one"
+    | "email"
+    | "url"
+    | "callto"
+    | "sip"
     | "image"
     | "progressbar"
+    | "one2one"
     | "richtext"
+    | "dict"
   }?
 attlist.field &= attribute fill { "0" | "1" }?
 attlist.field &= attribute yexpand { "0" | "1" }?
@@ -105,6 +107,7 @@ attlist.field &= attribute icon { text }?
 attlist.field &= [a:defaultValue = "1"] attribute completion { "0" | "1" }?
 attlist.field &= attribute string { text }?
 attlist.field &= [a:defaultValue = "1"] attribute factor { text }?
+attlist.field &= attribute filename { text }?
 image = element image { attlist.image, empty }
 attlist.image &= attribute name { text }
 attlist.image &= [ a:defaultValue = "1" ] attribute colspan { text }?

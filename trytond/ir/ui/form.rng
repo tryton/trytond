@@ -140,29 +140,31 @@
       <attribute name="widget">
         <choice>
           <value>date</value>
-          <value>char</value>
-          <value>many2one</value>
-          <value>date</value>
-          <value>one2many</value>
-          <value>selection</value>
+          <value>datetime</value>
+          <value>time</value>
           <value>float</value>
           <value>numeric</value>
-          <value>float_time</value>
           <value>integer</value>
-          <value>datetime</value>
-          <value>boolean</value>
-          <value>text</value>
-          <value>url</value>
-          <value>email</value>
-          <value>callto</value>
-          <value>sip</value>
+          <value>selection</value>
+          <value>char</value>
           <value>sha</value>
+          <value>float_time</value>
+          <value>boolean</value>
           <value>reference</value>
           <value>binary</value>
+          <value>text</value>
+          <value>one2many</value>
           <value>many2many</value>
+          <value>many2one</value>
+          <value>email</value>
+          <value>url</value>
+          <value>callto</value>
+          <value>sip</value>
           <value>image</value>
           <value>progressbar</value>
+          <value>one2one</value>
           <value>richtext</value>
+          <value>dict</value>
         </choice>
       </attribute>
     </optional>
@@ -382,6 +384,11 @@
   <define name="attlist.field" combine="interleave">
     <optional>
       <attribute name="factor" a:defaultValue="1"/>
+    </optional>
+  </define>
+  <define name="attlist.field" combine="interleave">
+    <optional>
+      <attribute name="filename"/>
     </optional>
   </define>
   <define name="image">
