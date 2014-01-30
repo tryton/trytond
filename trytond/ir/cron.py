@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import contextlib
 import datetime
 from dateutil.relativedelta import relativedelta
 import traceback
@@ -167,8 +166,8 @@ class Cron(ModelSQL, ModelView):
             req_user = cron.request_user
             language = (req_user.language.code if req_user.language
                     else Config.get_language())
-            with contextlib.nested(Transaction().set_user(cron.user.id),
-                    Transaction().set_context(language=language)):
+            with Transaction().set_user(cron.user.id), \
+                    Transaction().set_context(language=language):
                 cls.send_error_message(cron)
 
     @classmethod

@@ -4,7 +4,6 @@
 import datetime
 import time
 import logging
-import contextlib
 import traceback
 import sys
 import csv
@@ -1310,9 +1309,9 @@ class ModelStorage(Model):
         model2ids = {}
         model2cache = {}
         # Read the data
-        with contextlib.nested(Transaction().set_cursor(self._cursor),
-                Transaction().set_user(self._user),
-                Transaction().set_context(self._context)):
+        with Transaction().set_cursor(self._cursor), \
+                Transaction().set_user(self._user), \
+                Transaction().set_context(self._context):
             if self.id in self._cache and name in self._cache[self.id]:
                 # Use values from cache
                 ids = islice(chain(islice(self._ids, index, None),
@@ -1407,9 +1406,9 @@ class ModelStorage(Model):
         self._values = None
         if save_values or self.id < 0:
             try:
-                with contextlib.nested(Transaction().set_cursor(self._cursor),
-                        Transaction().set_user(self._user),
-                        Transaction().set_context(self._context)):
+                with Transaction().set_cursor(self._cursor), \
+                        Transaction().set_user(self._user), \
+                        Transaction().set_context(self._context):
                     if self.id < 0:
                         self._ids.remove(self.id)
                         try:

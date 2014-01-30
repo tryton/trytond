@@ -3,8 +3,7 @@
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
-from trytond.protocols.common import daemon, GZipRequestHandlerMixin, \
-    RegisterHandlerMixin
+from trytond.protocols.common import daemon, RegisterHandlerMixin
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
     ConcurrencyException
 from trytond import security
@@ -145,8 +144,7 @@ class GenericXMLRPCRequestHandler:
             security.logout(database_name, user, session)
 
 
-class SimpleXMLRPCRequestHandler(GZipRequestHandlerMixin,
-        RegisterHandlerMixin,
+class SimpleXMLRPCRequestHandler(RegisterHandlerMixin,
         GenericXMLRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
     protocol_version = "HTTP/1.1"
