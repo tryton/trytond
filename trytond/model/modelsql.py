@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import contextlib
 import re
 from functools import reduce
 from itertools import islice, izip
@@ -359,8 +358,8 @@ class ModelSQL(ModelStorage):
                         id_new = cursor.lastid()
                 new_ids.append(id_new)
             except DatabaseIntegrityError, exception:
-                with contextlib.nested(Transaction().new_cursor(),
-                        Transaction().set_user(0)):
+                with Transaction().new_cursor(), \
+                        Transaction().set_user(0):
                     cls.__raise_integrity_error(exception, values)
                 raise
 
@@ -703,8 +702,8 @@ class ModelSQL(ModelStorage):
                     cursor.execute(*table.update(columns, update_values,
                             where=red_sql))
                 except DatabaseIntegrityError, exception:
-                    with contextlib.nested(Transaction().new_cursor(),
-                            Transaction().set_user(0)):
+                    with Transaction().new_cursor(), \
+                            Transaction().set_user(0):
                         cls.__raise_integrity_error(exception, values,
                             values.keys())
                     raise

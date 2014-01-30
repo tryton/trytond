@@ -7,7 +7,7 @@ How to install Tryton
 Prerequisites
 =============
 
-    * Python 2.6 or later (http://www.python.org/)
+    * Python 2.7 or later (http://www.python.org/)
     * lxml 2.0 or later (http://codespeak.net/lxml/)
     * relatorio 0.2.0 or later (http://relatorio.openhex.org/)
     * python-dateutil (http://labix.org/python-dateutil)

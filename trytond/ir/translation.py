@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import contextlib
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -10,10 +9,7 @@ import polib
 import xml.dom.minidom
 from difflib import SequenceMatcher
 import os
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
+from hashlib import md5
 from lxml import etree
 from itertools import izip
 from sql import Column
@@ -805,8 +801,8 @@ class Translation(ModelSQL, ModelView):
                 res_id = model_data.db_id
             else:
                 res_id = -1
-            with contextlib.nested(Transaction().set_user(0),
-                    Transaction().set_context(module=res_id_module)):
+            with Transaction().set_user(0), \
+                    Transaction().set_context(module=res_id_module):
                 translation, = cls.search([
                         ('name', '=', name),
                         ('res_id', '=', res_id),
@@ -868,8 +864,8 @@ class Translation(ModelSQL, ModelView):
                     translation_ids.extend(ids)
                     continue
 
-                with contextlib.nested(Transaction().set_user(0),
-                        Transaction().set_context(module=module)):
+                with Transaction().set_user(0), \
+                        Transaction().set_context(module=module):
                     if not ids:
                         to_create.append({
                             'name': name,

@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import contextlib
 from types import NoneType
 from sql import Cast, Literal, Column, Query, Expression
 from sql.functions import Substring, Position
@@ -68,8 +67,8 @@ class Reference(Field):
             ref_to_check[ref_model][1].append(i)
 
         # Check if reference ids still exist
-        with contextlib.nested(Transaction().set_context(active_test=False),
-                Transaction().set_user(0)):
+        with Transaction().set_context(active_test=False), \
+                Transaction().set_user(0):
             for ref_model, (ref_ids, ids) in ref_to_check.iteritems():
                 try:
                     pool.get(ref_model)

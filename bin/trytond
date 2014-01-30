@@ -3,7 +3,7 @@
 #this repository contains the full copyright notices and license terms.
 import sys
 import os
-import optparse
+import argparse
 
 DIR = os.path.abspath(os.path.normpath(os.path.join(__file__,
     '..', '..', 'trytond')))
@@ -17,37 +17,39 @@ from trytond.version import VERSION
 def parse_commandline():
     options = {}
 
-    parser = optparse.OptionParser(version=VERSION)
+    parser = argparse.ArgumentParser(prog='trytond')
 
-    parser.add_option("-c", "--config", dest="config",
+    parser.add_argument('--version', action='version',
+        version='%(prog)s ' + VERSION)
+    parser.add_argument("-c", "--config", dest="config",
         help="specify config file")
-    parser.add_option('--debug', dest='debug_mode', action='store_true',
+    parser.add_argument('--debug', dest='debug_mode', action='store_true',
         help='enable debug mode (start post-mortem debugger if exceptions'
         ' occur)')
-    parser.add_option("-v", "--verbose", action="store_true",
+    parser.add_argument("-v", "--verbose", action="store_true",
         dest="verbose", help="enable verbose mode")
 
-    parser.add_option("-d", "--database", dest="db_name",
+    parser.add_argument("-d", "--database", dest="db_name",
         help="specify the database name")
-    parser.add_option("-i", "--init", dest="init",
+    parser.add_argument("-i", "--init", dest="init",
         help="init a module (use \"all\" for all modules)")
-    parser.add_option("-u", "--update", dest="update",
+    parser.add_argument("-u", "--update", dest="update",
         help="update a module (use \"all\" for all modules)")
 
-    parser.add_option("--pidfile", dest="pidfile",
+    parser.add_argument("--pidfile", dest="pidfile",
         help="file where the server pid will be stored")
-    parser.add_option("--logfile", dest="logfile",
+    parser.add_argument("--logfile", dest="logfile",
         help="file where the server log will be stored")
-    parser.add_option("--disable-cron", dest="cron",
+    parser.add_argument("--disable-cron", dest="cron",
         action="store_false", help="disable cron")
 
-    parser.epilog = 'The first time a database is initialized with "-i" admin'\
-            ' password is read from file defined by TRYTONPASSFILE '\
-            'environment variable or interactively ask user. '\
-            'The config file can be specified in the TRYTOND_CONFIG '\
-            'environment variable.'
+    parser.epilog = ('The first time a database is initialized with "-i" admin'
+        ' password is read from file defined by TRYTONPASSFILE '
+        'environment variable or interactively ask user. '
+        'The config file can be specified in the TRYTOND_CONFIG '
+        'environment variable.')
 
-    (opt, _) = parser.parse_args()
+    opt = parser.parse_args()
 
     if opt.config:
         options['configfile'] = opt.config

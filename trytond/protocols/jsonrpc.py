@@ -3,8 +3,7 @@
 from trytond.protocols.sslsocket import SSLSocket
 from trytond.protocols.dispatcher import dispatch
 from trytond.config import CONFIG
-from trytond.protocols.common import daemon, GZipRequestHandlerMixin, \
-    RegisterHandlerMixin
+from trytond.protocols.common import daemon, RegisterHandlerMixin
 from trytond.exceptions import UserError, UserWarning, NotLogged, \
     ConcurrencyException
 import SimpleXMLRPCServer
@@ -157,8 +156,7 @@ class GenericJSONRPCRequestHandler:
         return res
 
 
-class SimpleJSONRPCRequestHandler(GZipRequestHandlerMixin,
-        RegisterHandlerMixin,
+class SimpleJSONRPCRequestHandler(RegisterHandlerMixin,
         GenericJSONRPCRequestHandler,
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler,
         SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -325,14 +323,13 @@ class SimpleThreadedJSONRPCServer(SocketServer.ThreadingMixIn,
         SimpleJSONRPCServer):
     timeout = 1
     daemon_threads = True
+    disable_nagle_algorithm = True
 
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET,
                 socket.SO_REUSEADDR, 1)
         self.socket.setsockopt(socket.SOL_SOCKET,
             socket.SO_KEEPALIVE, 1)
-        self.socket.setsockopt(socket.IPPROTO_TCP,
-            socket.TCP_NODELAY, 1)
         SimpleJSONRPCServer.server_bind(self)
 
 

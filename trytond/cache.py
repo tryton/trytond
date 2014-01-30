@@ -2,10 +2,11 @@
 #this repository contains the full copyright notices and license terms.
 import datetime
 from threading import Lock
+from collections import OrderedDict
+
 from trytond.transaction import Transaction
 from trytond.config import CONFIG
 from trytond import backend
-from trytond.tools import OrderedDict
 
 __all__ = ['Cache', 'LRUDict']
 

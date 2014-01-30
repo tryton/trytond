@@ -1,11 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 import os
-try:
-    import hashlib
-except ImportError:
-    hashlib = None
-    import md5
+import hashlib
 from sql.operators import Concat
 
 from ..model import ModelView, ModelSQL, fields
@@ -147,10 +143,7 @@ class Attachment(ModelSQL, ModelView):
         directory = os.path.join(CONFIG['data_path'], db_name)
         if not os.path.isdir(directory):
             os.makedirs(directory, 0770)
-        if hashlib:
-            digest = hashlib.md5(value).hexdigest()
-        else:
-            digest = md5.new(value).hexdigest()
+        digest = hashlib.md5(value).hexdigest()
         directory = os.path.join(directory, digest[0:2], digest[2:4])
         if not os.path.isdir(directory):
             os.makedirs(directory, 0770)

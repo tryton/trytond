@@ -1,3 +1,4 @@
+* Drop support of Python 2.6
 * Deprecate on_change, on_change_with, selection_change_with and autocomplete
   field arguments
 * Add fields.depends decorator

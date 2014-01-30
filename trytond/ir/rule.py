@@ -1,6 +1,5 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
-import contextlib
 import time
 import datetime
 
@@ -215,8 +214,8 @@ class Rule(ModelSQL, ModelView):
         clause_global = {}
         ctx = cls._get_context()
         # Use root user without context to prevent recursion
-        with contextlib.nested(Transaction().set_user(0),
-                Transaction().set_context(user=0)):
+        with Transaction().set_user(0), \
+                Transaction().set_context(user=0):
             for rule in cls.browse(ids):
                 assert rule.domain, ('Rule domain empty,'
                     'check if migration was done')
@@ -255,8 +254,8 @@ class Rule(ModelSQL, ModelView):
             clause = ['AND', clause_global, clause]
 
         # Use root to prevent infinite recursion
-        with contextlib.nested(Transaction().set_user(0),
-                Transaction().set_context(active_test=False, user=0)):
+        with Transaction().set_user(0), \
+                Transaction().set_context(active_test=False, user=0):
             query = obj.search(clause, order=[], query=True)
 
         cls._domain_get_cache.set(key, query)

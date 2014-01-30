@@ -4,7 +4,6 @@ import os
 import sys
 import itertools
 import logging
-import contextlib
 from functools import reduce
 import imp
 import operator
@@ -365,13 +364,8 @@ def register_classes():
 
 def load_modules(database_name, pool, update=False, lang=None):
     res = True
-    if not Transaction().cursor:
-        contextmanager = Transaction().start(database_name, 0)
-    else:
-        contextmanager = contextlib.nested(Transaction().new_cursor(),
-                Transaction().set_user(0),
-                Transaction().reset_context())
-    with contextmanager:
+
+    def _load_modules():
         cursor = Transaction().cursor
         if update:
             # Migration from 2.2: workflow module removed
@@ -428,5 +422,15 @@ def load_modules(database_name, pool, update=False, lang=None):
             Module = pool.get('ir.module.module')
             Module.update_list()
         cursor.commit()
+
+    if not Transaction().cursor:
+        with Transaction().start(database_name, 0):
+            _load_modules()
+    else:
+        with Transaction().new_cursor(), \
+                Transaction().set_user(0), \
+                Transaction().reset_context():
+            _load_modules()
+
     Cache.resets(database_name)
     return res
