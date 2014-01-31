@@ -368,8 +368,12 @@ class ActionReport(ActionMixin, ModelSQL, ModelView):
     report_name = fields.Char('Internal Name', required=True)
     report = fields.Char('Path')
     report_content_custom = fields.Binary('Content')
-    report_content = fields.Function(fields.Binary('Content'),
-            'get_report_content', setter='set_report_content')
+    report_content = fields.Function(fields.Binary('Content',
+            filename='report_content_name'),
+        'get_report_content', setter='set_report_content')
+    report_content_name = fields.Function(fields.Char('Content Name',
+            on_change_with=['name', 'template_extension']),
+        'on_change_with_report_content_name')
     action = fields.Many2One('ir.action', 'Action', required=True,
             ondelete='CASCADE')
     style = fields.Property(fields.Char('Style',
@@ -597,6 +601,11 @@ class ActionReport(ActionMixin, ModelSQL, ModelView):
     @classmethod
     def set_report_content(cls, records, name, value):
         cls.write(records, {'%s_custom' % name: value})
+
+    def on_change_with_report_content_name(self, name=None):
+        if not self.name:
+            return
+        return ''.join([self.name, os.extsep, self.template_extension])
 
     @classmethod
     def get_style_content(cls, reports, name):
