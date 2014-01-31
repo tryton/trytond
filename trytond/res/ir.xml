@@ -787,9 +787,9 @@ this repository contains the full copyright notices and license terms. -->
             <field name="request_user" ref="user_admin"/>
             <field name="user" ref="user_trigger"/>
             <field name="active" eval="True"/>
-            <field name="interval_number">5</field>
+            <field name="interval_number" eval="5"/>
             <field name="interval_type">minutes</field>
-            <field name="number_calls">-1</field>
+            <field name="number_calls" eval="-1"/>
             <field name="repeat_missed" eval="False"/>
             <field name="model">ir.trigger</field>
             <field name="function">trigger_time</field>

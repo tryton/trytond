@@ -137,6 +137,9 @@ class MenuitemTagHandler:
             else:
                 values['name'] = action_name
 
+        if values.get('sequence'):
+            values['sequence'] = int(values['sequence'])
+
         self.values = values
 
     def characters(self, data):
@@ -752,10 +755,9 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         actions = iter(args)
         for record, values, old_values, fs_id, mdata_id in zip(
                 *((actions,) * 5)):
-            if module != self.module:
-                temp_values = old_values.copy()
-                temp_values.update(values)
-                values = temp_values
+            temp_values = old_values.copy()
+            temp_values.update(values)
+            values = temp_values
 
             if values != old_values:
                 self.grouped_model_data.extend(([self.ModelData(mdata_id)], {
