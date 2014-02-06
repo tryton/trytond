@@ -296,6 +296,9 @@ newline
 
 Force to use a new row.
 
+
+.. _form-button:
+
 button
 ^^^^^^
 
@@ -516,6 +519,11 @@ diplayed in the same column.
 
     * ``icon``: The name of the field that contains the name of the icon to
       display or the name of the icon.
+
+button
+^^^^^^
+
+Same as in form-button_.
 
 Example
 -------
