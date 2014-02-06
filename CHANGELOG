@@ -1,3 +1,4 @@
+* Add depends attribute to data tag
 * Add tree_invisible attribute to button in tree view
 * Drop support of Python 2.6
 * Deprecate on_change, on_change_with, selection_change_with and autocomplete
