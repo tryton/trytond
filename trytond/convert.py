@@ -408,6 +408,10 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.grouped_write = defaultdict(list)
         self.grouped_model_data = []
         self.skip_data = False
+        Module = pool.get('ir.module.module')
+        self.installed_modules = [m.name for m in Module.search([
+                    ('state', 'in', ['installed', 'to upgrade']),
+                    ])]
 
         # Tag handlders are used to delegate the processing
         self.taghandlerlist = {
@@ -459,6 +463,11 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                     self.skip_data = True
                 else:
                     self.skip_data = False
+                depends = attributes.get('depends', '').split(',')
+                depends = [m.strip() for m in depends if m]
+                if depends:
+                    if not all((m in self.installed_modules for m in depends)):
+                        self.skip_data = True
 
             elif name == "tryton":
                 pass
