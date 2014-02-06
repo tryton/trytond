@@ -397,7 +397,8 @@ class ModelSQL(ModelStorage):
         cls.__insert_history(new_ids)
 
         records = cls.browse(new_ids)
-        cls._validate(records)
+        for i in range(0, len(records), RECORD_CACHE_SIZE):
+            cls._validate(records[i:i + RECORD_CACHE_SIZE])
 
         field_names = cls._fields.keys()
         cls._update_mptt(field_names, [new_ids] * len(field_names))
@@ -723,7 +724,9 @@ class ModelSQL(ModelStorage):
             all_field_names |= set(values.keys())
 
         cls.__insert_history(all_ids)
-        cls._validate(all_records, field_names=all_field_names)
+        for i in range(0, len(all_records), RECORD_CACHE_SIZE):
+            cls._validate(all_records[i:i + RECORD_CACHE_SIZE],
+                field_names=all_field_names)
         cls.trigger_write(trigger_eligibles)
 
     @classmethod

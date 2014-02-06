@@ -1373,10 +1373,11 @@ class TranslationClean(Wizard):
             return False
         if model_name in pool.object_name_list():
             Model = pool.get(model_name)
-            errors = (Model._error_messages.values()
-                + Model._sql_error_messages.values())
-            for _, _, error in Model._sql_constraints:
-                errors.append(error)
+            errors = Model._error_messages.values()
+            if issubclass(Model, ModelSQL):
+                errors += Model._sql_error_messages.values()
+                for _, _, error in Model._sql_constraints:
+                    errors.append(error)
             if translation.src not in errors:
                 return True
         elif model_name in pool.object_name_list(type='wizard'):
