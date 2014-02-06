@@ -266,7 +266,7 @@ class Field(object):
 
 class FieldTranslate(Field):
 
-    def __get_translation_join(self, Model, name,
+    def _get_translation_join(self, Model, name,
             translation, model, table):
         language = Transaction().language
         if Model.__name__ == 'ir.model':
@@ -310,7 +310,7 @@ class FieldTranslate(Field):
         translation = Translation.__table__()
         model = IrModel.__table__()
         name, operator, value = domain
-        join = self.__get_translation_join(Model, name,
+        join = self._get_translation_join(Model, name,
             translation, model, table)
         Operator = SQL_OPERATORS[operator]
         column = Coalesce(NullIf(translation.value, ''),
@@ -336,7 +336,7 @@ class FieldTranslate(Field):
         if key not in tables:
             translation = Translation.__table__()
             model = IrModel.__table__()
-            join = self.__get_translation_join(Model, name,
+            join = self._get_translation_join(Model, name,
                 translation, model, table)
             tables[key] = {
                 None: (join.right, join.condition),
