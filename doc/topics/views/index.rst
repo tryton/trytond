@@ -535,6 +535,22 @@ Example
       <field name="sequence" tree_invisible="1"/>
   </tree>
 
+button
+^^^^^^
+
+Display a button.
+
+    * ``string``: The string that will be displayed inside the button.
+
+    * ``name``: The name of the function that will be called. The function must
+      have this syntax:
+
+        ``button(cls, records)``
+
+    * ``confirm``: A text that will be displayed in a confirmation popup when
+      the button is clicked.
+
+    * ``help``: see in common-attributes-help_
 
 Graph view
 ==========
