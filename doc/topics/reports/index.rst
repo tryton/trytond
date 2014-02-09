@@ -254,8 +254,8 @@ the default style.
 
 .. _Genshi XML Templates: http://genshi.edgewall.org/wiki/Documentation/0.5.x/xml-templates.html
 
-.. _Quick Example: http://relatorio.openhex.org/wiki/QuickExample
+.. _Quick Example: http://code.google.com/p/python-relatorio/wiki/QuickExample
 
-.. _In Depth Introduction: http://relatorio.openhex.org/wiki/IndepthIntroduction
+.. _In Depth Introduction: http://code.google.com/p/python-relatorio/wiki/IndepthIntroduction
 
-.. _Example Documents: http://relatorio.openhex.org/browser/examples
+.. _Example Documents: http://code.google.com/p/python-relatorio/source/browse/#hg%2Fexamples
