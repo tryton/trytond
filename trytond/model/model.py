@@ -53,8 +53,8 @@ class Model(WarningErrorMixin, URLMixin, PoolBase):
             for attribute in ('on_change', 'on_change_with', 'autocomplete',
                     'selection_change_with'):
                 if attribute == 'selection_change_with':
-                    if (isinstance(field, fields.Selection)
-                            and isinstance(field.selection, basestring)):
+                    if isinstance(
+                            getattr(field, 'selection', None), basestring):
                         function_name = field.selection
                     else:
                         continue
