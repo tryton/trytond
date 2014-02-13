@@ -215,8 +215,8 @@ this repository contains the full copyright notices and license terms. -->
             <field name="name">foreign_model_exist</field>
             <field name="lang">en_US</field>
             <field name="type">error</field>
-            <field name="src">Could not delete "%(value)s" records because they are used on field "%(field)s" of "%(model)s".</field>
-            <field name="value">Could not delete "%(value)s" records because they are used on field "%(field)s" of "%(model)s".</field>
+            <field name="src">Could not delete the records because they are used on field "%(field)s" of "%(model)s".</field>
+            <field name="value">Could not delete the records because they are used on field "%(field)s" of "%(model)s".</field>
             <field name="module">ir</field>
             <field name="fuzzy" eval="False"/>
         </record>

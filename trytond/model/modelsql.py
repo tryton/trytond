@@ -847,7 +847,6 @@ class ModelSQL(ModelStorage):
                                 (field_name, 'in', sub_ids),
                                 ], order=[]):
                         error_args = Model._get_error_args(field_name)
-                        error_args['value'] = cls._get_error_args('id')[1]
                         cls.raise_user_error('foreign_model_exist',
                             error_args=error_args)
 
