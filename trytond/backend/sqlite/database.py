@@ -8,6 +8,7 @@ import datetime
 import time
 import sys
 import threading
+import math
 
 _FIX_ROWCOUNT = False
 try:
@@ -132,6 +133,10 @@ class SQLiteOverlay(Function):
         return string[:from_ - 1] + placing_string + string[from_ - 1 + for_:]
 
 
+def sign(value):
+    return math.copysign(1, value)
+
+
 MAPPING = {
     Extract: SQLiteExtract,
     Position: SQLitePosition,
@@ -177,6 +182,7 @@ class Database(DatabaseInterface):
         if sqlite.sqlite_version_info < (3, 3, 14):
             self._conn.create_function('replace', 3, replace)
         self._conn.create_function('now', 0, now)
+        self._conn.create_function('sign', 1, sign)
         self._conn.execute('PRAGMA foreign_keys = ON')
         return self
 
