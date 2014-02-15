@@ -311,6 +311,20 @@ Display a button.
 
         ``button(cls, records)``
 
+      The function may return an `ir.action` id or one of those client side
+      action keywords:
+
+.. _topics-views-client-actions:
+
+        * ``new``: to create a new record
+        * ``delete``: to delete the selected records
+        * ``remove``: to remove the record if it has a parent
+        * ``copy``: to copy the selected records
+        * ``next``: to go to the next record
+        * ``previous``: to go to the previous record
+        * ``close``: to close the current tab
+        * ``switch <view type>``: to switch the view to the defined type
+
     * ``icon``
 
     * ``confirm``: A text that will be displayed in a confirmation popup when
