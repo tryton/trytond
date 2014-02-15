@@ -32,6 +32,9 @@ Class attributes are:
 .. attribute:: Wizard.end_state
 
     It contains the name of the ending state.
+    If an instance method with this name exists on the wizard, it will be
+    called on deletion of the wizard and it may return one of the :ref:`client
+    side action keywords <topics-views-client-actions>`.
 
 .. attribute:: Wizard.__rpc__
 

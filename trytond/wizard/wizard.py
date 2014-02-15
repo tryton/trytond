@@ -190,7 +190,14 @@ class Wizard(WarningErrorMixin, URLMixin, PoolBase):
     def delete(cls, session_id):
         "Delete the session"
         Session = Pool().get('ir.session.wizard')
+        end = getattr(cls, cls.end_state, None)
+        if end:
+            wizard = cls(session_id)
+            action = end(wizard)
+        else:
+            action = None
         Session.delete([Session(session_id)])
+        return action
 
     @classmethod
     def execute(cls, session_id, data, state_name):
