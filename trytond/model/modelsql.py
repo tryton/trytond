@@ -379,6 +379,7 @@ class ModelSQL(ModelStorage):
             set()).update(new_ids)
 
         translation_values = {}
+        fields_to_set = {}
         for values, new_id in izip(vlist, new_ids):
             for fname, value in values.iteritems():
                 field = cls._fields[fname]
@@ -387,12 +388,17 @@ class ModelSQL(ModelStorage):
                     translation_values.setdefault(
                         '%s,%s' % (cls.__name__, fname), {})[new_id] = value
                 if hasattr(field, 'set'):
-                    field.set([new_id], cls, fname, value)
+                    fields_to_set.setdefault(fname, []).extend(
+                        ([new_id], value))
 
         if translation_values:
             for name, translations in translation_values.iteritems():
                 Translation.set_ids(name, 'model', Transaction().language,
                     translations.keys(), translations.values())
+
+        for fname, fargs in fields_to_set.iteritems():
+            field = cls._fields[fname]
+            field.set(cls, fname, *fargs)
 
         cls.__insert_history(new_ids)
 
@@ -657,6 +663,7 @@ class ModelSQL(ModelStorage):
 
         cls.__check_timestamp(all_ids)
 
+        fields_to_set = {}
         actions = iter((records, values) + args)
         for records, values in zip(actions, actions):
             ids = [r.id for r in records]
@@ -717,11 +724,15 @@ class ModelSQL(ModelStorage):
                         '%s,%s' % (cls.__name__, fname), 'model',
                         transaction.language, ids, [value] * len(ids))
                 if hasattr(field, 'set'):
-                    field.set(ids, cls, fname, value)
+                    fields_to_set.setdefault(fname, []).extend((ids, value))
 
             field_names = cls._fields.keys()
             cls._update_mptt(field_names, [ids] * len(field_names), values)
             all_field_names |= set(values.keys())
+
+        for fname, fargs in fields_to_set.iteritems():
+            field = cls._fields[fname]
+            field.set(cls, fname, *fargs)
 
         cls.__insert_history(all_ids)
         for i in range(0, len(all_records), RECORD_CACHE_SIZE):

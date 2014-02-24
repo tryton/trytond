@@ -91,12 +91,16 @@ class Function(Field):
                 name = [name]
             return call(name)
 
-    def set(self, ids, Model, name, value):
+    def set(self, Model, name, ids, value, *args):
         '''
         Call the setter.
         '''
         if self.setter:
-            getattr(Model, self.setter)(Model.browse(ids), name, value)
+            # TODO change setter API to use sequence of records, value
+            setter = getattr(Model, self.setter)
+            args = iter((ids, value) + args)
+            for ids, value in zip(args, args):
+                setter(Model.browse(ids), name, value)
 
     def __set__(self, inst, value):
         self._field.__set__(inst, value)

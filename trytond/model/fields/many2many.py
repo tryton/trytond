@@ -95,7 +95,7 @@ class Many2Many(Field):
             res[origin_id].append(getattr(relation, self.target).id)
         return dict((key, tuple(value)) for key, value in res.iteritems())
 
-    def set(self, ids, model, name, values):
+    def set(self, Model, name, ids, values, *args):
         '''
         Set the values.
 
@@ -113,40 +113,41 @@ class Many2Many(Field):
         Relation = pool.get(self.relation_name)
         Target = self.get_target()
         origin_field = Relation._fields[self.origin]
+        relation_to_create = []
+        relation_to_delete = []
+        target_to_write = []
+        target_to_delete = []
 
         def search_clause(ids):
             if origin_field._type == 'reference':
-                references = ['%s,%s' % (model.__name__, x) for x in ids]
+                references = ['%s,%s' % (Model.__name__, x) for x in ids]
                 return (self.origin, 'in', references)
             else:
                 return (self.origin, 'in', ids)
 
         def field_value(record_id):
             if origin_field._type == 'reference':
-                return '%s,%s' % (model.__name__, record_id)
+                return '%s,%s' % (Model.__name__, record_id)
             else:
                 return record_id
 
-        def create(vlist):
-            to_create = []
+        def create(ids, vlist):
             for record_id in ids:
                 for new in Target.create(vlist):
-                    to_create.append({
+                    relation_to_create.append({
                             self.origin: field_value(record_id),
                             self.target: new.id,
                             })
-            if to_create:
-                Relation.create(to_create)
 
-        def write(*args):
+        def write(_, *args):
             actions = iter(args)
-            Target.write(*sum(((Target.browse(ids), values)
+            target_to_write.extend(sum(((Target.browse(ids), values)
                         for ids, values in zip(actions, actions)), ()))
 
-        def delete(target_ids):
-            Target.delete(Target.browse(target_ids))
+        def delete(_, target_ids):
+            target_to_delete.extend(Target.browse(target_ids))
 
-        def add(target_ids):
+        def add(ids, target_ids):
             target_ids = map(int, target_ids)
             if not target_ids:
                 return
@@ -160,48 +161,40 @@ class Many2Many(Field):
                         ])
                 for relation in relations:
                     existing_ids.add(getattr(relation, self.target).id)
-            to_create = []
             for new_id in target_ids:
                 if new_id in existing_ids:
                     continue
                 for record_id in ids:
-                    to_create.append({
+                    relation_to_create.append({
                             self.origin: field_value(record_id),
                             self.target: new_id,
                             })
-            if to_create:
-                Relation.create(to_create)
 
-        def remove(target_ids):
+        def remove(ids, target_ids):
             target_ids = map(int, target_ids)
             if not target_ids:
                 return
-            relations = []
             in_max = Transaction().cursor.IN_MAX
             for i in range(0, len(target_ids), in_max):
                 sub_ids = target_ids[i:i + in_max]
-                relations += Relation.search([
-                        search_clause(ids),
-                        (self.target, 'in', sub_ids),
-                        ])
-            Relation.delete(relations)
+                relation_to_delete.extend(Relation.search([
+                            search_clause(ids),
+                            (self.target, 'in', sub_ids),
+                            ]))
 
-        def copy(copy_ids, default=None):
+        def copy(ids, copy_ids, default=None):
             copy_ids = map(int, copy_ids)
 
             if default is None:
                 default = {}
             default = default.copy()
-            to_create = []
             copies = Target.browse(copy_ids)
             for new in Target.copy(copies, default=default):
                 for record_id in ids:
-                    to_create.append({
+                    relation_to_create.append({
                             self.origin: field_value(record_id),
                             self.target: new.id,
                             })
-            if to_create:
-                Relation.create(to_create)
 
         actions = {
             'create': create,
@@ -211,10 +204,22 @@ class Many2Many(Field):
             'remove': remove,
             'copy': copy,
             }
-        for value in values:
-            action = value[0]
-            args = value[1:]
-            actions[action](*args)
+        args = iter((ids, values) + args)
+        for ids, values in zip(args, args):
+            if not values:
+                continue
+            for value in values:
+                action = value[0]
+                args = value[1:]
+                actions[action](ids, *args)
+        if relation_to_create:
+            Relation.create(relation_to_create)
+        if relation_to_delete:
+            Relation.delete(relation_to_delete)
+        if target_to_write:
+            Target.write(*target_to_write)
+        if target_to_delete:
+            Target.delete(target_to_delete)
 
     def get_target(self):
         'Return the target model'

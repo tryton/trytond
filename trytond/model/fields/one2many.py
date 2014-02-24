@@ -102,7 +102,7 @@ class One2Many(Field):
             res[origin_id].append(target.id)
         return dict((key, tuple(value)) for key, value in res.iteritems())
 
-    def set(self, ids, model, name, values):
+    def set(self, Model, name, ids, values, *args):
         '''
         Set the values.
         values: A list of tuples:
@@ -113,66 +113,67 @@ class One2Many(Field):
             (``remove``, ``<ids>``),
             (``copy``, ``<ids>``, ``[{<field name>: value}, ...]``)
         '''
-        if not values:
-            return
         Target = self.get_target()
         field = Target._fields[self.field]
+        to_create = []
+        to_write = []
+        to_delete = []
 
         def search_clause(ids):
             if field._type == 'reference':
-                references = ['%s,%s' % (model.__name__, x) for x in ids]
+                references = ['%s,%s' % (Model.__name__, x) for x in ids]
                 return (self.field, 'in', references)
             else:
                 return (self.field, 'in', ids)
 
         def field_value(record_id):
             if field._type == 'reference':
-                return '%s,%s' % (model.__name__, record_id)
+                return '%s,%s' % (Model.__name__, record_id)
             else:
                 return record_id
 
-        def create(vlist):
-            to_create = []
+        def create(ids, vlist):
             for record_id in ids:
                 value = field_value(record_id)
                 for values in vlist:
                     values = values.copy()
                     values[self.field] = value
                     to_create.append(values)
-            if to_create:
-                Target.create(to_create)
 
-        def write(*args):
+        def write(_, *args):
             actions = iter(args)
-            Target.write(*sum(((Target.browse(ids), values)
+            to_write.extend(sum(((Target.browse(ids), values)
                         for ids, values in zip(actions, actions)), ()))
 
-        def delete(target_ids):
-            Target.delete(Target.browse(target_ids))
+        def delete(_, target_ids):
+            to_delete.extend(Target.browse(target_ids))
 
-        def add(target_ids):
+        def add(ids, target_ids):
             target_ids = map(int, target_ids)
             if not target_ids:
                 return
             targets = Target.browse(target_ids)
             for record_id in ids:
-                Target.write(targets, {
-                        self.field: field_value(record_id),
-                        })
+                to_write.extend((targets, {
+                            self.field: field_value(record_id),
+                            }))
 
-        def remove(target_ids):
+        def remove(ids, target_ids):
             target_ids = map(int, target_ids)
             if not target_ids:
                 return
-            targets = Target.search([
-                    search_clause(ids),
-                    ('id', 'in', target_ids),
-                    ])
-            Target.write(targets, {
-                    self.field: None,
-                    })
+            in_max = Transaction().cursor.IN_MAX
+            for i in range(0, len(target_ids), in_max):
+                sub_ids = target_ids[i:i + in_max]
+                targets = Target.search([
+                        search_clause(ids),
+                        ('id', 'in', sub_ids),
+                        ])
+                to_write.extend((targets, {
+                            self.field: None,
+                            }))
 
-        def copy(copy_ids, default=None):
+        def copy(ids, copy_ids, default=None):
             copy_ids = map(int, copy_ids)
 
             if default is None:
@@ -191,10 +192,20 @@ class One2Many(Field):
             'remove': remove,
             'copy': copy,
             }
-        for value in values:
-            action = value[0]
-            args = value[1:]
-            actions[action](*args)
+        args = iter((ids, values) + args)
+        for ids, values in zip(args, args):
+            if not values:
+                continue
+            for value in values:
+                action = value[0]
+                args = value[1:]
+                actions[action](ids, *args)
+        if to_create:
+            Target.create(to_create)
+        if to_write:
+            Target.write(*to_write)
+        if to_delete:
+            Target.delete(to_delete)
 
     def get_target(self):
         'Return the target Model'
