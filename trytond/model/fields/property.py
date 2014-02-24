@@ -46,23 +46,21 @@ class Property(Function):
         Property = pool.get('ir.property')
         return Property.get(name, model.__name__, ids)
 
-    def set(self, ids, model, name, value):
+    def set(self, Model, name, ids, value, *args):
         '''
         Set the property.
-
-        :param ids: A list of ids.
-        :param model: The model.
-        :param name: The name of the field.
-        :param value: The value to set.
         '''
         pool = Pool()
         Property = pool.get('ir.property')
-        if value is not None:
-            prop_value = '%s,%s' % (getattr(self, 'model_name', ''),
-                str(value))
-        else:
-            prop_value = None
-        Property.set(name, model.__name__, ids, prop_value)
+        args = iter((ids, value) + args)
+        for ids, value in zip(args, args):
+            if value is not None:
+                prop_value = '%s,%s' % (getattr(self, 'model_name', ''),
+                    str(value))
+            else:
+                prop_value = None
+            # TODO change set API to use sequence of records, value
+            Property.set(name, Model.__name__, ids, prop_value)
 
     def convert_domain(self, domain, tables, Model):
         pool = Pool()
