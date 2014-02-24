@@ -10,7 +10,14 @@ import datetime
 from itertools import groupby, ifilter
 from operator import attrgetter
 from sql import Literal
+from sql.conditionals import Coalesce
 from sql.aggregate import Count
+from sql.operators import Concat
+
+try:
+    import bcrypt
+except ImportError:
+    bcrypt = None
 
 from ..model import ModelView, ModelSQL, fields
 from ..wizard import Wizard, StateView, Button, StateTransition
@@ -34,8 +41,9 @@ class User(ModelSQL, ModelView):
     __name__ = "res.user"
     name = fields.Char('Name', required=True, select=True, translate=True)
     login = fields.Char('Login', required=True)
-    password = fields.Sha('Password')
-    salt = fields.Char('Salt', size=8)
+    password_hash = fields.Char('Password Hash')
+    password = fields.Function(fields.Char('Password'), getter='get_password',
+        setter='set_password')
     signature = fields.Text('Signature')
     active = fields.Boolean('Active')
     menu = fields.Many2One('ir.action', 'Menu Action',
@@ -102,8 +110,9 @@ class User(ModelSQL, ModelView):
     @classmethod
     def __register__(cls, module_name):
         TableHandler = backend.get('TableHandler')
+        cursor = Transaction().cursor
         super(User, cls).__register__(module_name)
-        table = TableHandler(Transaction().cursor, cls, module_name)
+        table = TableHandler(cursor, cls, module_name)
 
         # Migration from 1.6
 
@@ -126,9 +135,16 @@ class User(ModelSQL, ModelView):
         # Migration from 2.6
         table.drop_column('login_try', exception=True)
 
-    @staticmethod
-    def default_password():
-        return None
+        # Migration from 3.0
+        if table.column_exist('password') and table.column_exist('salt'):
+            sqltable = cls.__table__()
+            password_hash_new = Concat('sha1$', Concat(sqltable.password,
+                Concat('$', Coalesce(sqltable.salt, ''))))
+            cursor.execute(*sqltable.update(
+                columns=[sqltable.password_hash],
+                values=[password_hash_new]))
+            table.drop_column('password', exception=True)
+            table.drop_column('salt', exception=True)
 
     @staticmethod
     def default_active():
@@ -163,6 +179,20 @@ class User(ModelSQL, ModelView):
     def get_status_bar(self, name):
         return self.name
 
+    def get_password(self, name):
+        return 'x' * 10
+
+    @classmethod
+    def set_password(cls, users, name, value):
+        if value == 'x' * 10:
+            return
+        to_write = []
+        for user in users:
+            to_write.extend([[user], {
+                        'password_hash': cls.hash_password(value),
+                        }])
+        cls.write(*to_write)
+
     @staticmethod
     def get_sessions(users, name):
         Session = Pool().get('ir.session')
@@ -193,13 +223,6 @@ class User(ModelSQL, ModelView):
         Action = pool.get('ir.action')
         if 'menu' in vals:
             vals['menu'] = Action.get_action_id(vals['menu'])
-        if 'password' in vals:
-            if vals['password'] == 'x' * 10:
-                del vals['password']
-            elif vals['password']:
-                vals['salt'] = ''.join(random.sample(
-                    string.ascii_letters + string.digits, 8))
-                vals['password'] += vals['salt']
         return vals
 
     @classmethod
@@ -248,14 +271,6 @@ class User(ModelSQL, ModelView):
         super(User, cls).delete(users)
         # Restart the cache for _get_login
         cls._get_login_cache.clear()
-
-    @classmethod
-    def read(cls, ids, fields_names=None):
-        res = super(User, cls).read(ids, fields_names=fields_names)
-        for val in res:
-            if 'password' in val:
-                val['password'] = 'x' * 10
-        return res
 
     @classmethod
     def search_rec_name(cls, name, clause):
@@ -442,9 +457,9 @@ class User(ModelSQL, ModelView):
             return result
         cursor = Transaction().cursor
         table = cls.__table__()
-        cursor.execute(*table.select(table.id, table.password, table.salt,
+        cursor.execute(*table.select(table.id, table.password_hash,
                 where=(table.login == login) & table.active))
-        result = cursor.fetchone() or (None, None, None)
+        result = cursor.fetchone() or (None, None)
         cls._get_login_cache.set(login, result)
         return result
 
@@ -455,17 +470,68 @@ class User(ModelSQL, ModelView):
         '''
         LoginAttempt = Pool().get('res.user.login.attempt')
         time.sleep(2 ** LoginAttempt.count(login) - 1)
-        user_id, user_password, salt = cls._get_login(login)
+        user_id, password_hash = cls._get_login(login)
         if user_id:
-            password += salt or ''
-            if isinstance(password, unicode):
-                password = password.encode('utf-8')
-            password_sha = hashlib.sha1(password).hexdigest()
-            if password_sha == user_password:
+            if cls.check_password(password, password_hash):
                 LoginAttempt.remove(login)
                 return user_id
         LoginAttempt.add(login)
         return 0
+
+    @staticmethod
+    def hash_method():
+        return 'bcrypt' if bcrypt else 'sha1'
+
+    @classmethod
+    def hash_password(cls, password):
+        '''Hash given password in the form
+        <hash_method>$<password>$<salt>...'''
+        if not password:
+            return ''
+        return getattr(cls, 'hash_' + cls.hash_method())(password)
+
+    @classmethod
+    def check_password(cls, password, hash_):
+        if not hash_:
+            return False
+        hash_method = hash_.split('$', 1)[0]
+        return getattr(cls, 'check_' + hash_method)(password, hash_)
+
+    @classmethod
+    def hash_sha1(cls, password):
+        if isinstance(password, unicode):
+            password = password.encode('utf-8')
+        salt = ''.join(random.sample(string.ascii_letters + string.digits, 8))
+        hash_ = hashlib.sha1(password + salt).hexdigest()
+        return '$'.join(['sha1', hash_, salt])
+
+    @classmethod
+    def check_sha1(cls, password, hash_):
+        if isinstance(password, unicode):
+            password = password.encode('utf-8')
+        if isinstance(hash_, unicode):
+            hash_ = hash_.encode('utf-8')
+        hash_method, hash_, salt = hash_.split('$', 2)
+        salt = salt or ''
+        assert hash_method == 'sha1'
+        return hash_ == hashlib.sha1(password + salt).hexdigest()
+
+    @classmethod
+    def hash_bcrypt(cls, password):
+        if isinstance(password, unicode):
+            password = password.encode('utf-8')
+        hash_ = bcrypt.hashpw(password, bcrypt.gensalt())
+        return '$'.join(['bcrypt', hash_])
+
+    @classmethod
+    def check_bcrypt(cls, password, hash_):
+        if isinstance(password, unicode):
+            password = password.encode('utf-8')
+        if isinstance(hash_, unicode):
+            hash_ = hash_.encode('utf-8')
+        hash_method, hash_ = hash_.split('$', 1)
+        assert hash_method == 'bcrypt'
+        return hash_ == bcrypt.hashpw(password, hash_)
 
 
 class LoginAttempt(ModelSQL):
