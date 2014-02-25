@@ -139,7 +139,7 @@ class UIMenu(ModelSQL, ModelView):
         parent = self.parent
         name = self.name
         while parent:
-            name += parent.name + SEPARATOR + name
+            name = parent.name + SEPARATOR + name
             parent = parent.parent
         return name
 
