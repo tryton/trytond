@@ -750,6 +750,25 @@ class Translation(ModelSQL, ModelView):
                 ):
             yield 'ir.action'
 
+    @property
+    def unique_key(self):
+        if self.type in ('odt', 'view', 'wizard_button', 'selection', 'error'):
+            return (self.name, self.res_id, self.type, self.src)
+        elif self.type in ('field', 'model', 'help'):
+            return (self.name, self.res_id, self.type)
+
+    @classmethod
+    def from_poentry(cls, entry):
+        'Returns a translation instance for a entry of pofile and its res_id'
+        ttype, name, res_id = entry.msgctxt.split(':')
+        src = entry.msgid
+        value = entry.msgstr
+        fuzzy = 'fuzzy' in entry.flags
+
+        translation = cls(name=name, type=ttype, src=src, fuzzy=fuzzy,
+            value=value)
+        return translation, res_id
+
     @classmethod
     def translation_import(cls, lang, module, po_path):
         pool = Pool()
@@ -778,20 +797,15 @@ class Translation(ModelSQL, ModelView):
                 ('module', '=', module),
                 ], order=[])
         for translation in module_translations:
-            if translation.type in ('odt', 'view', 'wizard_button',
-                    'selection', 'error'):
-                key = (translation.name, translation.res_id, translation.type,
-                    translation.src)
-            elif translation.type in ('field', 'model', 'help'):
-                key = (translation.name, translation.res_id, translation.type)
-            else:
-                raise Exception('Unknow translation type: %s'
-                    % translation.type)
+            key = translation.unique_key
+            if not key:
+                raise ValueError('Unknow translation type: %s' %
+                    translation.type)
             key2ids.setdefault(key, []).append(translation.id)
             if len(module_translations) <= RECORD_CACHE_SIZE:
                 id2translation[translation.id] = translation
 
-        def override_translation(ressource_id, new_translation, src, fuzzy):
+        def override_translation(ressource_id, new_translation):
             res_id_module, res_id = ressource_id.split('.')
             if res_id:
                 model_data, = ModelData.search([
@@ -804,20 +818,20 @@ class Translation(ModelSQL, ModelView):
             with Transaction().set_user(0), \
                     Transaction().set_context(module=res_id_module):
                 domain = [
-                    ('name', '=', name),
+                    ('name', '=', new_translation.name),
                     ('res_id', '=', res_id),
-                    ('lang', '=', lang),
-                    ('type', '=', ttype),
+                    ('lang', '=', new_translation.lang),
+                    ('type', '=', new_translation.type),
                     ('module', '=', res_id_module),
                     ]
-                if ttype in ('odt', 'view', 'wizard_button', 'selection',
-                        'error'):
-                    domain.append(('src', '=', src))
+                if new_translation.type in ('odt', 'view', 'wizard_button',
+                        'selection', 'error'):
+                    domain.append(('src', '=', new_translation.src))
                 translation, = cls.search(domain)
-                if translation.value != new_translation:
-                    translation.value = new_translation
+                if translation.value != new_translation.value:
+                    translation.value = new_translation.value
                     translation.overriding_module = module
-                    translation.fuzzy = fuzzy
+                    translation.fuzzy = new_translation.fuzzy
                     translation.save()
 
         # Make a first loop to retreive translation ids in the right order to
@@ -832,17 +846,14 @@ class Translation(ModelSQL, ModelView):
                 id2translation = dict((t.id, t)
                     for t in cls.browse(translation_ids))
             for entry in pofile:
-                ttype, name, res_id = entry.msgctxt.split(':')
-                src = entry.msgid
-                value = entry.msgstr
-                fuzzy = 'fuzzy' in entry.flags
+                translation, res_id = cls.from_poentry(entry)
                 noupdate = False
 
                 if '.' in res_id:
-                    override_translation(res_id, value, ttype, fuzzy)
+                    override_translation(res_id, translation)
                     continue
 
-                model = name.split(',')[0]
+                model = translation.name.split(',')[0]
                 if (model in fs_id2prop
                         and res_id in fs_id2prop[model]):
                     res_id, noupdate = fs_id2prop[model][res_id]
@@ -851,17 +862,15 @@ class Translation(ModelSQL, ModelView):
                     try:
                         res_id = int(res_id)
                     except ValueError:
-                        continue
+                        res_id = None
                 if not res_id:
                     res_id = -1
 
-                if ttype in ('odt', 'view', 'wizard_button', 'selection',
-                        'error'):
-                    key = (name, res_id, ttype, src)
-                elif ttype in('field', 'model', 'help'):
-                    key = (name, res_id, ttype)
-                else:
-                    raise Exception('Unknow translation type: %s' % ttype)
+                translation.res_id = res_id
+                key = translation.unique_key
+                if not key:
+                    raise ValueError('Unknow translation type: %s' %
+                        translation.type)
                 ids = key2ids.get(key, [])
 
                 if not processing:
@@ -871,29 +880,20 @@ class Translation(ModelSQL, ModelView):
                 with Transaction().set_user(0), \
                         Transaction().set_context(module=module):
                     if not ids:
-                        to_create.append({
-                            'name': name,
-                            'res_id': res_id,
-                            'lang': lang,
-                            'type': ttype,
-                            'src': src,
-                            'value': value,
-                            'fuzzy': fuzzy,
-                            'module': module,
-                            'overriding_module': None,
-                            })
+                        to_create.append(translation._save_values)
                     else:
-                        translations2 = []
+                        to_write = []
                         for translation_id in ids:
-                            translation = id2translation[translation_id]
-                            if translation.value != value \
-                                    or translation.fuzzy != fuzzy:
-                                translations2.append(translation)
-                        if translations2 and not noupdate:
-                            cls.write(translations2, {
-                                'value': value,
-                                'fuzzy': fuzzy,
-                                })
+                            old_translation = id2translation[translation_id]
+                            if (old_translation.value != translation.value
+                                    or old_translation.fuzzy !=
+                                    translation.fuzzy):
+                                to_write.append(old_translation)
+                        if to_write and not noupdate:
+                            cls.write(to_write, {
+                                    'value': translation.value,
+                                    'fuzzy': translation.fuzzy,
+                                    })
                         translations |= set(cls.browse(ids))
 
         if to_create:
@@ -1449,6 +1449,10 @@ class TranslationUpdate(Wizard):
     "Update translation"
     __name__ = "ir.translation.update"
 
+    _source_types = ['odt', 'view', 'wizard_button', 'selection', 'error']
+    _ressource_types = ['field', 'model', 'help']
+    _updatable_types = ['field', 'model', 'selection', 'help']
+
     start = StateView('ir.translation.update.start',
         'ir.translation_update_start_view_form', [
             Button('Cancel', 'end', 'tryton-cancel'),
@@ -1466,16 +1470,15 @@ class TranslationUpdate(Wizard):
         cursor = Transaction().cursor
         translation = Translation.__table__()
         lang = self.start.language.code
-        types = ['odt', 'view', 'wizard_button', 'selection', 'error']
         columns = [translation.name.as_('name'),
             translation.res_id.as_('res_id'), translation.type.as_('type'),
             translation.src.as_('src'), translation.module.as_('module')]
         cursor.execute(*(translation.select(*columns,
                     where=(translation.lang == 'en_US')
-                    & translation.type.in_(types))
+                    & translation.type.in_(self._source_types))
                 - translation.select(*columns,
                     where=(translation.lang == lang)
-                    & translation.type.in_(types))))
+                    & translation.type.in_(self._source_types))))
         to_create = []
         for row in cursor.dictfetchall():
             to_create.append({
@@ -1489,16 +1492,15 @@ class TranslationUpdate(Wizard):
         if to_create:
             with Transaction().set_user(0):
                 Translation.create(to_create)
-        types = ['field', 'model', 'help']
         columns = [translation.name.as_('name'),
             translation.res_id.as_('res_id'), translation.type.as_('type'),
             translation.module.as_('module')]
         cursor.execute(*(translation.select(*columns,
                     where=(translation.lang == 'en_US')
-                    & translation.type.in_(types))
+                    & translation.type.in_(self._ressource_types))
                 - translation.select(*columns,
                     where=(translation.lang == lang)
-                    & translation.type.in_(types))))
+                    & translation.type.in_(self._ressource_types))))
         to_create = []
         for row in cursor.dictfetchall():
             to_create.append({
@@ -1511,16 +1513,15 @@ class TranslationUpdate(Wizard):
         if to_create:
             with Transaction().set_user(0):
                 Translation.create(to_create)
-        types = ['field', 'model', 'selection', 'help']
         columns = [translation.name.as_('name'),
             translation.res_id.as_('res_id'), translation.type.as_('type'),
             translation.src.as_('src')]
         cursor.execute(*(translation.select(*columns,
                     where=(translation.lang == 'en_US')
-                    & translation.type.in_(types))
+                    & translation.type.in_(self._updatable_types))
                 - translation.select(*columns,
                     where=(translation.lang == lang)
-                    & translation.type.in_(types))))
+                    & translation.type.in_(self._updatable_types))))
         for row in cursor.dictfetchall():
             cursor.execute(*translation.update(
                     [translation.fuzzy, translation.src],
