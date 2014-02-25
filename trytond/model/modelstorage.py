@@ -1269,10 +1269,17 @@ class ModelStorage(Model):
         def filter_(id_):
             return (name not in self._cache.get(id_, {})
                 and name not in self._local_cache.get(id_, {}))
+
+        def unique(ids):
+            s = set()
+            for id_ in ids:
+                if id_ not in s:
+                    s.add(id_)
+                    yield id_
         index = self._ids.index(self.id)
         ids = chain(islice(self._ids, index, None),
             islice(self._ids, 0, max(index - 1, 0)))
-        ids = islice(ifilter(filter_, ids), self._cursor.IN_MAX)
+        ids = islice(unique(ifilter(filter_, ids)), self._cursor.IN_MAX)
 
         def instantiate(field, value, data):
             if field._type in ('many2one', 'one2one', 'reference'):
