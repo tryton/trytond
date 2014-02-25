@@ -136,10 +136,12 @@ class UIMenu(ModelSQL, ModelView):
             self.raise_user_error('wrong_name', (self.name,))
 
     def get_rec_name(self, name):
-        if self.parent:
-            return self.parent.get_rec_name(name) + SEPARATOR + self.name
-        else:
-            return self.name
+        parent = self.parent
+        name = self.name
+        while parent:
+            name += parent.name + SEPARATOR + name
+            parent = parent.parent
+        return name
 
     @classmethod
     def search_rec_name(cls, name, clause):
