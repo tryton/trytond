@@ -847,6 +847,8 @@ class Translation(ModelSQL, ModelView):
                     for t in cls.browse(translation_ids))
             for entry in pofile:
                 translation, res_id = cls.from_poentry(entry)
+                translation.lang = lang
+                translation.module = module
                 noupdate = False
 
                 if '.' in res_id:
@@ -877,18 +879,18 @@ class Translation(ModelSQL, ModelView):
                     translation_ids.extend(ids)
                     continue
 
-                with Transaction().set_user(0), \
-                        Transaction().set_context(module=module):
-                    if not ids:
-                        to_create.append(translation._save_values)
-                    else:
-                        to_write = []
-                        for translation_id in ids:
-                            old_translation = id2translation[translation_id]
-                            if (old_translation.value != translation.value
-                                    or old_translation.fuzzy !=
-                                    translation.fuzzy):
-                                to_write.append(old_translation)
+                if not ids:
+                    to_create.append(translation._save_values)
+                else:
+                    to_write = []
+                    for translation_id in ids:
+                        old_translation = id2translation[translation_id]
+                        if (old_translation.value != translation.value
+                                or old_translation.fuzzy !=
+                                translation.fuzzy):
+                            to_write.append(old_translation)
+                    with Transaction().set_user(0), \
+                            Transaction().set_context(module=module):
                         if to_write and not noupdate:
                             cls.write(to_write, {
                                     'value': translation.value,
@@ -897,7 +899,9 @@ class Translation(ModelSQL, ModelView):
                         translations |= set(cls.browse(ids))
 
         if to_create:
-            translations |= set(cls.create(to_create))
+            with Transaction().set_user(0), \
+                    Transaction().set_context(module=module):
+                translations |= set(cls.create(to_create))
 
         if translations:
             all_translations = set(cls.search([
