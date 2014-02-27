@@ -250,6 +250,11 @@ Arguments:
 ``delta_microseconds``
     Contains a PYSON statement of type int or long.
 
+.. class:: Len(value)
+
+A :class:`Len` object represents the PYSON ``Len()`` statement for length of a
+dictionary, list or string. Returns the number of items in ``value``.
+
 .. class:: Id(module, fs_id)
 
 An :class:`Id` object represents the PYSON ``Id()`` statement for filesystem id

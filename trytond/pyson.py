@@ -537,6 +537,32 @@ class DateTime(Date):
             )
 
 
+class Len(PYSON):
+
+    def __init__(self, value):
+        super(Len, self).__init__()
+        if isinstance(value, PYSON):
+            assert value.types().issubset(set([dict, list, str])), \
+                'value must be a dict or a list or a string'
+        else:
+            assert type(value) in [dict, list, str], \
+                'value must be a dict or list or a string'
+        self._value = value
+
+    def pyson(self):
+        return {
+            '__class__': 'Len',
+            'v': self._value,
+            }
+
+    def types(self):
+        return set([int, long])
+
+    @staticmethod
+    def eval(dct, context):
+        return len(dct['v'])
+
+
 class Id(PYSON):
     """The database id for filesystem id"""
 
@@ -567,4 +593,5 @@ CONTEXT = {
     'In': In,
     'Date': Date,
     'DateTime': DateTime,
+    'Len': Len,
 }

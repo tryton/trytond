@@ -496,6 +496,26 @@ class PYSONTestCase(unittest.TestCase):
         self.assert_(pyson.PYSONDecoder().decode(eval)
                 == datetime.datetime(2010, 2, 22, 10, 30, 20, 200))
 
+    def test0140Len(self):
+        'Test pyson.Len'
+        self.assert_(pyson.Len([1, 2, 3]).pyson() == {
+                '__class__': 'Len',
+                'v': [1, 2, 3],
+                })
+
+        self.assertRaises(AssertionError, pyson.Len, object())
+
+        self.assert_(pyson.Len([1, 2, 3]).types() == set([int, long]))
+
+        eval = pyson.PYSONEncoder().encode(pyson.Len([1, 2, 3]))
+        self.assertEqual(pyson.PYSONDecoder().decode(eval), 3)
+
+        eval = pyson.PYSONEncoder().encode(pyson.Len({1: 2, 3: 4}))
+        self.assertEqual(pyson.PYSONDecoder().decode(eval), 2)
+
+        eval = pyson.PYSONEncoder().encode(pyson.Len('foo bar'))
+        self.assertEqual(pyson.PYSONDecoder().decode(eval), 7)
+
     def test0900Composite(self):
         'Test Composite'
         eval = pyson.PYSONEncoder().encode(['id', pyson.If(pyson.Not(
