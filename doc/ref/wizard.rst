@@ -73,8 +73,8 @@ Class methods are:
     Execute the wizard for the state.
     `session_id` is a session id.
     `data` is a dictionary with the session data to update.
-    `active_id`, `active_ids` and `active_model` must be set in the context
-    according to the records on which the wizard is run.
+    `active_id`, `active_ids`, `active_model` and `action_id` must be set in
+    the context according to the records on which the wizard is run.
 
 =====
 State
