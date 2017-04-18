@@ -29,7 +29,7 @@ the name of the XML file in the `view` directory:
   </record>
 
 
-There is three types of views:
+There are five types of views:
 
     * Form
 
