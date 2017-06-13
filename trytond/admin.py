@@ -84,14 +84,14 @@ def run(options):
 
             if not password:
                 while True:
-                    password = getpass('Admin Password for %s: ' % db_name)
-                    password2 = getpass('Admin Password Confirmation: ')
+                    password = getpass('Password for the user \'admin\' in the db %s: ' % db_name)
+                    password2 = getpass('Password Confirmation: ')
                     if password != password2:
-                        sys.stderr.write('Admin Password Confirmation '
-                            'doesn\'t match Admin Password!\n')
+                        sys.stderr.write('Password Confirmation '
+                            'doesn\'t match Password!\n')
                         continue
                     if not password:
-                        sys.stderr.write('Admin Password is required!\n')
+                        sys.stderr.write('Password for the user \'admin\' is required!\n')
                         continue
                     break
 
